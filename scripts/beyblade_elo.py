@@ -30,7 +30,7 @@ TIMESERIES_FILE = "./csv/elo_timeseries.csv"
 
 elos = defaultdict(lambda: START_ELO)
 elo_deltas = defaultdict(list)
-stats = defaultdict(lambda: {"wins":0,"losses":0,"for":0,"against":0,"matches":0, "winrate":0.0, "volatility":0.0})
+stats = defaultdict(lambda: {"wins":0,"losses":0,"for":0,"against":0,"matches":0, "winrate":0.0})
 
 def expected(a,b):
     return 1 / (1 + 10 ** ((b - a) / 400))
@@ -74,30 +74,6 @@ def calculate_winrates():
         else:
             s["winrate"] = "0%"
 
-# Calculate volatility
-def calculate_volatilities():
-    match_results = defaultdict(list)
-    with open(HISTORY_FILE, newline="", encoding="utf-8") as f_hist:
-        reader = csv.DictReader(f_hist)
-        for row in reader:
-            bey_a = row["BeyA"]
-            bey_b = row["BeyB"]
-            score_a = int(row["ScoreA"])
-            score_b = int(row["ScoreB"])
-            total = score_a + score_b
-            if total == 0:
-                continue
-            result_a = score_a / total
-            result_b = score_b / total
-            match_results[bey_a].append(result_a)
-            match_results[bey_b].append(result_b)
-    
-    for bey, deltas in elo_deltas.items():
-        if len(deltas) > 1:
-            stats[bey]["volatility"] = round(statistics.stdev(deltas), 2)
-        else:
-            stats[bey]["volatility"] = 0.0
-
 # --- Main run ---
 with open(INPUT_FILE, newline="", encoding="utf-8") as f_in, \
      open(HISTORY_FILE, "w", newline="", encoding="utf-8") as f_hist:
@@ -108,7 +84,6 @@ with open(INPUT_FILE, newline="", encoding="utf-8") as f_in, \
     for m in matches:
         update_elo(m["BeyA"], m["BeyB"], int(m["ScoreA"]), int(m["ScoreB"]), m["Date"], writer)
     calculate_winrates()
-    calculate_volatilities()
 
 # --- Save leaderboard ---
 with open(LEADERBOARD_FILE, "w", newline="", encoding="utf-8") as f_out:
@@ -128,30 +103,6 @@ with open(LEADERBOARD_FILE, "w", newline="", encoding="utf-8") as f_out:
             s["wins"],
             s["losses"],
             f"{round(s['winrate'] * 100, 1)}%",
-            s["for"],
-            s["against"],
-            diff
-        ])
-
-# --- Save advanced leaderboard ---
-with open(ADVANCED_LEADERBOARD_FILE, "w", newline="", encoding="utf-8") as f_out:
-    writer = csv.writer(f_out)
-    writer.writerow(["Platz","Name","ELO","Spiele","Siege","Niederlagen","Winrate","Volatilität","Gewonnene Punkte","Verlorene Punkte","Differenz"])
-    
-    sorted_beys = sorted(elos.items(), key=lambda x: x[1], reverse=True)
-    
-    for i, (bey, elo) in enumerate(sorted_beys, start=1):
-        s = stats[bey]
-        diff = s["for"] - s["against"]
-        writer.writerow([
-            i,
-            bey,
-            round(elo,2),
-            s["matches"],
-            s["wins"],
-            s["losses"],
-            round(s["winrate"], 3),
-            round(s["volatility"], 4),
             s["for"],
             s["against"],
             diff

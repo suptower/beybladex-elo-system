@@ -6,7 +6,7 @@ from reportlab.lib.styles import ParagraphStyle
 import csv
 
 input_file = "./csv/leaderboard.csv"
-output_file = "leaderboard.pdf"
+output_file = "./leaderboards/leaderboard.pdf"
 
 # === Dokumentlayout ===
 doc = SimpleDocTemplate(
