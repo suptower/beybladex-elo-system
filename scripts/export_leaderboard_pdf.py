@@ -46,10 +46,10 @@ with open(input_file, newline="", encoding="utf-8") as f:
     data = list(reader)
 
 # === Tabellenkopf anpassen ===
-data[0] = ["Platz","Bey","ELO","Sp","S","N","GP","VP","Diff"]
+data[0] = ["Platz","Bey","ELO","Sp","S","N","WR","GP","VP","Diff"]
 
 # === Spaltenbreiten ===
-col_widths = [25, 90, 50, 30, 30, 30, 30, 30, 30]
+col_widths = [25, 90, 50, 30, 30, 30, 30, 30, 30, 30]
 
 # === Tabelle ===
 table = Table(data, colWidths=col_widths, hAlign="CENTER")
@@ -76,6 +76,7 @@ legend_text = (
     "<b>Sp</b> = Spiele, "
     "<b>S</b> = Siege, "
     "<b>N</b> = Niederlagen, "
+    "<b>WR</b> = Siegquote/Win Rate (%), "
     "<b>GP</b> = Gewonnene Punkte, "
     "<b>VP</b> = Verlorene Punkte, "
     "<b>Diff</b> = Differenz (GP − VP)"
