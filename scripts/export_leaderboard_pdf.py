@@ -85,4 +85,4 @@ elements.append(Paragraph(legend_text, legend_style))
 # === PDF generieren ===
 doc.build(elements)
 
-print(f"✅ Kompakte Rangliste mit Legende erstellt: {output_file}")
+print(f"Kompakte Rangliste mit Legende erstellt: {output_file}")

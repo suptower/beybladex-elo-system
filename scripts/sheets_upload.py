@@ -37,3 +37,6 @@ def upload_csv_to_sheet(csv_file, sheet_name):
 # --- beide Tabellen hochladen ---
 upload_csv_to_sheet("./csv/leaderboard.csv","Leaderboard")
 upload_csv_to_sheet("./csv/elo_history.csv","ELO_History")
+upload_csv_to_sheet("./csv/elo_timeseries.csv","ELO_Timeseries")
+upload_csv_to_sheet("./csv/bey_counters.csv","Bey_Counters")
+print(f"{GREEN}Alle Daten erfolgreich zu Google Sheets hochgeladen!{RESET}")
