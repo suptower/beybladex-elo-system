@@ -2,6 +2,7 @@
 import csv, datetime
 from collections import defaultdict
 import os
+import pandas as pd
 
 # Aktiviert ANSI-Farben in Windows-Terminals (macht nix auf anderen Systemen)
 os.system("")
@@ -23,6 +24,7 @@ START_ELO = 1000
 INPUT_FILE = "./csv/matches.csv"
 LEADERBOARD_FILE = "./csv/leaderboard.csv"
 HISTORY_FILE = "./csv/elo_history.csv"
+TIMESERIES_FILE = "./csv/elo_timeseries.csv"
 
 elos = defaultdict(lambda: START_ELO)
 stats = defaultdict(lambda: {"wins":0,"losses":0,"for":0,"against":0,"matches":0})
@@ -91,3 +93,46 @@ with open(LEADERBOARD_FILE, "w", newline="", encoding="utf-8") as f_out:
         ])
 
 print(f"{GREEN}Leaderboard und Historie aktualisiert.{RESET}")
+
+# --- Gestapelte History-Datei erzeugen ---
+print(f"{CYAN}Erstelle gestackte ELO-History pro Bey...{RESET}")
+
+# lese history (achte darauf, dass die Reihenfolge in der CSV der Spielreihenfolge entspricht)
+df = pd.read_csv(HISTORY_FILE, parse_dates=["Date"])
+
+# füge eine match_id hinzu, die der Zeilenreihenfolge entspricht (falls nicht schon vorhanden)
+# falls df bereits in Match-Reihenfolge ist, ist dies die sichere Sequenz
+df = df.reset_index(drop=True)
+df["match_id"] = df.index + 1  # 1-basierter Match-Index in chronologischer Reihenfolge
+
+# Erzeuge gestackte Tabelle: für jeden Match zwei Zeilen (Bey, ELO, match_id, Date)
+df_a = pd.DataFrame({
+    "Date": df["Date"],
+    "Bey": df["BeyA"],
+    "ELO": pd.to_numeric(df["PostA"], errors="coerce"),
+    "match_id": df["match_id"]
+})
+
+df_b = pd.DataFrame({
+    "Date": df["Date"],
+    "Bey": df["BeyB"],
+    "ELO": pd.to_numeric(df["PostB"], errors="coerce"),
+    "match_id": df["match_id"]
+})
+
+stacked = pd.concat([df_a, df_b], ignore_index=True)
+
+# Sortiere pro Bey nach match_id (wichtig: nicht nur nach Date)
+stacked = stacked.sort_values(["Bey", "match_id"]).reset_index(drop=True)
+
+# MatchIndex pro Bey (Anzahl der bisherigen Matches für diesen Bey)
+stacked["MatchIndex"] = stacked.groupby("Bey").cumcount() + 1
+stacked["MatchIndex"] = stacked["MatchIndex"].astype(int)
+
+# Optional: falls du eine exakte time-axis willst, kannst du auch:
+# stacked["ExactTime"] = pd.to_datetime(stacked["Date"]) + pd.to_timedelta(stacked["match_id"], unit='s')
+
+# Schreibe die Datei
+stacked.to_csv(TIMESERIES_FILE, index=False, encoding="utf-8")
+
+print(f"{GREEN}Erzeugt: {TIMESERIES_FILE} ({len(stacked)} Zeilen){RESET}")

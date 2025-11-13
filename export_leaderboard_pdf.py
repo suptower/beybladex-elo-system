@@ -37,7 +37,7 @@ legend_style = ParagraphStyle(
 )
 
 # === Titel ===
-elements.append(Paragraph("Beyblade X Turnier 1 (07.09.2025) – Rangliste", title_style))
+elements.append(Paragraph("Beyblade X Turnier 2 (12.11.2025) – Rangliste", title_style))
 elements.append(Spacer(1, 6))
 
 # === CSV einlesen ===
