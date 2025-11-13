@@ -4,8 +4,8 @@ import os
 
 # === Einstellungen ===
 INPUT_FILE = "./csv/elo_timeseries.csv"
-OUTPUT_FOLDER = "elo_charts"
-COMBINED_FILE = "elo_combined.png"
+OUTPUT_FOLDER = "./diagrams/elo_charts"
+COMBINED_FILE = "./diagrams/elo_combined.png"
 
 # === Ausgabeordner anlegen ===
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
