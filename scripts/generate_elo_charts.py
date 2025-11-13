@@ -34,7 +34,7 @@ plt.legend(fontsize=7, ncol=3, loc="best")
 plt.tight_layout()
 plt.savefig(COMBINED_FILE, dpi=300)
 plt.close()
-print(f"✅ Kombiniertes Diagramm gespeichert als {COMBINED_FILE}")
+print(f"Kombiniertes Diagramm gespeichert als {COMBINED_FILE}")
 
 # === 2️⃣ Einzelne Diagramme pro Bey ===
 for bey, group in df.groupby("Bey"):
@@ -54,4 +54,4 @@ for bey, group in df.groupby("Bey"):
     plt.savefig(out_path, dpi=200)
     plt.close()
 
-print(f"📊 Einzelne Diagramme gespeichert im Ordner: {OUTPUT_FOLDER}")
+print(f"Einzelne Diagramme gespeichert im Ordner: {OUTPUT_FOLDER}")
