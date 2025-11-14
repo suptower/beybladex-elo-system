@@ -1,81 +1,59 @@
-# beyblade_elo.py — Version 2.3.3
-import csv, datetime
+# beyblade_elo.py  — Version 2.4
+# Supports official + private ladders with dynamic K-factors
+
+import csv, datetime, argparse
 from collections import defaultdict
 import os
 import pandas as pd
 
-os.system("")  # enable ANSI colors on Windows
+# Colors for Windows
+os.system("")
 
-# Colors
 RESET = "\033[0m"
 BOLD = "\033[1m"
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
-# K Factors
-K_NEWBIE = 40
-K_INTERMEDIATE = 24
-K_VETERAN = 12
-
-print(f"{BOLD}{CYAN}Starte Beyblade X ELO-Update...{RESET}")
-print(f"{YELLOW}Berechne neue ELOs...{RESET}")
-
-# ---------- CONFIG ----------
 START_ELO = 1000
-INPUT_FILE = "./csv/matches.csv"
-LEADERBOARD_FILE = "./csv/leaderboard.csv"
-ADVANCED_LEADERBOARD_FILE = "./csv/advanced_leaderboard.csv"
-HISTORY_FILE = "./csv/elo_history.csv"
-TIMESERIES_FILE = "./csv/elo_timeseries.csv"
-# ----------------------------
 
-# Elo + Stats
-elos = defaultdict(lambda: START_ELO)
-elo_deltas = defaultdict(list)
-stats = defaultdict(lambda: {
-    "wins":0, "losses":0, "for":0, "against":0,
-    "matches":0, "winrate":0.0
-})
+# ------------ K-factor rules ------------
+def dynamic_k(matches):
+    if matches < 6:
+        return 40
+    elif matches < 15:
+        return 24
+    return 12
 
-# ---------- K-FAKTOR STAFFELUNG ----------
-def get_k_factor(matches: int) -> int:
-    if matches < 10:
-        return K_NEWBIE
-    elif matches < 50:
-        return K_INTERMEDIATE
-    return K_VETERAN
-# -----------------------------------------
 
+# ------------ Elo expected score ------------
 def expected(a, b):
     return 1 / (1 + 10 ** ((b - a) / 400))
 
-def update_elo(a, b, sa, sb, date, writer):
-    # Current values
+
+# ------------- Elo update for ONE MATCH -------------
+def update_elo(a, b, sa, sb, date, writer, elos, stats):
     ra, rb = elos[a], elos[b]
 
-    # Dynamic K-factors
-    k_a = get_k_factor(stats[a]["matches"])
-    k_b = get_k_factor(stats[b]["matches"])
-
     ea, eb = expected(ra, rb), expected(rb, ra)
+
+    # Determine K for each player
+    Ka = dynamic_k(stats[a]["matches"])
+    Kb = dynamic_k(stats[b]["matches"])
 
     total = sa + sb
     if total == 0:
         return
 
-    # actual scores
     s_a, s_b = sa / total, sb / total
 
-    # new ratings
-    new_a = ra + k_a * (s_a - ea)
-    new_b = rb + k_b * (s_b - eb)
+    new_a = ra + Ka * (s_a - ea)
+    new_b = rb + Kb * (s_b - eb)
 
     elos[a], elos[b] = new_a, new_b
 
-    # Write history
-    writer.writerow([date, a, b, sa, sb, round(ra,2), round(rb,2),
-                     round(new_a,2), round(new_b,2), k_a, k_b])
+    # Save history
+    writer.writerow([date, a, b, sa, sb, round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2)])
 
     # Stats update
     stats[a]["for"] += sa
@@ -92,92 +70,162 @@ def update_elo(a, b, sa, sb, date, writer):
         stats[b]["wins"] += 1
         stats[a]["losses"] += 1
 
-def calculate_winrates():
+
+# ------------- Calculate winrates -------------
+def calculate_winrates(stats):
     for bey, s in stats.items():
         if s["matches"] > 0:
             s["winrate"] = s["wins"] / s["matches"]
         else:
-            s["winrate"] = 0
+            s["winrate"] = 0.0
 
-# ---------- MAIN RUN ----------
-with open(INPUT_FILE, newline="", encoding="utf-8") as f_in, \
-     open(HISTORY_FILE, "w", newline="", encoding="utf-8") as f_hist:
 
-    reader = csv.DictReader(f_in)
-    writer = csv.writer(f_hist)
-    writer.writerow([
-        "Date","BeyA","BeyB","ScoreA","ScoreB",
-        "PreA","PreB","PostA","PostB","K_A","K_B"
-    ])
+# ----------------- ELO PIPELINE -------------------
+def run_elo_pipeline(config):
+    mode = config["mode"]
+    input_file = config["input_file"]
+    leaderboard_file = config["leaderboard"]
+    history_file = config["history"]
+    timeseries_file = config["timeseries"]
+    start_elos = config["start_elos"]
 
-    matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
-    for m in matches:
-        update_elo(
-            m["BeyA"], m["BeyB"],
-            int(m["ScoreA"]), int(m["ScoreB"]),
-            m["Date"], writer
-        )
-    calculate_winrates()
+    print(f"{BOLD}{CYAN}Running ELO Pipeline — Mode: {mode}{RESET}")
+    print(f"{YELLOW}Reading matches from {input_file}...{RESET}")
 
-# ---------- Write leaderboard.csv ----------
-with open(LEADERBOARD_FILE, "w", newline="", encoding="utf-8") as f_out:
-    writer = csv.writer(f_out)
-    writer.writerow(["Platz","Name","ELO","Spiele","Siege","Niederlagen",
-                     "Winrate","Gewonnene Punkte","Verlorene Punkte","Differenz"])
+    # Initialize ELO + stats
+    elos = defaultdict(lambda: START_ELO)
+    stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0})
 
-    sorted_beys = sorted(elos.items(), key=lambda x: x[1], reverse=True)
+    # Load start ratings for private ladder
+    if start_elos is not None:
+        print(f"{CYAN}Loading starting ELOs from official leaderboard...{RESET}")
+        for bey, elo in start_elos.items():
+            elos[bey] = elo
 
-    for i, (bey, elo) in enumerate(sorted_beys, start=1):
-        s = stats[bey]
-        diff = s["for"] - s["against"]
-        writer.writerow([
-            i, bey, round(elo),
-            s["matches"], s["wins"], s["losses"],
-            f"{round(s['winrate'] * 100, 1)}%",
-            s["for"], s["against"], diff
-        ])
+    # --- Run matches ---
+    with open(input_file, newline="", encoding="utf-8") as f_in, \
+         open(history_file, "w", newline="", encoding="utf-8") as f_hist:
 
-print(f"{GREEN}Leaderboard und Historie aktualisiert.{RESET}")
+        reader = csv.DictReader(f_in)
+        writer = csv.writer(f_hist)
+        writer.writerow(["Date", "BeyA", "BeyB", "ScoreA", "ScoreB",
+                         "PreA", "PreB", "PostA", "PostB"])
 
-# ---------- Build ELO time series (elo_timeseries.csv) ----------
-print(f"{CYAN}Erstelle gestackte ELO-History pro Bey...{RESET}")
+        matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
 
-df = pd.read_csv(HISTORY_FILE, parse_dates=["Date"])
-df = df.reset_index(drop=True)
-df["match_id"] = df.index + 1
+        for m in matches:
+            update_elo(
+                m["BeyA"],
+                m["BeyB"],
+                int(m["ScoreA"]),
+                int(m["ScoreB"]),
+                m["Date"],
+                writer,
+                elos,
+                stats
+            )
 
-df_a = pd.DataFrame({
-    "Date": df["Date"],
-    "Bey": df["BeyA"],
-    "ELO": pd.to_numeric(df["PostA"]),
-    "match_id": df["match_id"]
-})
+    # Winrates
+    calculate_winrates(stats)
 
-df_b = pd.DataFrame({
-    "Date": df["Date"],
-    "Bey": df["BeyB"],
-    "ELO": pd.to_numeric(df["PostB"]),
-    "match_id": df["match_id"]
-})
+    # --- Save leaderboard ---
+    print(f"{CYAN}Writing leaderboard to {leaderboard_file}...{RESET}")
 
-stacked = pd.concat([df_a, df_b], ignore_index=True)
-stacked = stacked.sort_values(["Bey","match_id"]).reset_index(drop=True)
-stacked["MatchIndex"] = stacked.groupby("Bey").cumcount()
+    with open(leaderboard_file, "w", newline="", encoding="utf-8") as f_out:
+        writer = csv.writer(f_out)
+        writer.writerow(["Platz", "Name", "ELO", "Spiele", "Siege",
+                         "Niederlagen", "Winrate", "Gewonnene Punkte",
+                         "Verlorene Punkte", "Differenz"])
 
-# Add initial ELO entries (MatchIndex 0)
-initial = []
-for bey in stacked["Bey"].unique():
-    earliest = stacked[stacked["Bey"] == bey]["Date"].min()
-    initial.append({
-        "Date": earliest,
-        "Bey": bey,
-        "ELO": START_ELO,
-        "match_id": 0,
-        "MatchIndex": 0
+        sorted_beys = sorted(elos.items(), key=lambda x: x[1], reverse=True)
+
+        for i, (bey, elo) in enumerate(sorted_beys, start=1):
+            s = stats[bey]
+            diff = s["for"] - s["against"]
+            writer.writerow([
+                i, bey, round(elo), s["matches"], s["wins"], s["losses"],
+                f"{round(s['winrate'] * 100, 1)}%",
+                s["for"], s["against"], diff
+            ])
+
+    # --- Time series ---
+    print(f"{CYAN}Generating timeseries file...{RESET}")
+
+    df = pd.read_csv(history_file, parse_dates=["Date"])
+    df = df.reset_index(drop=True)
+    df["match_id"] = df.index + 1
+
+    df_a = pd.DataFrame({
+        "Date": df["Date"],
+        "Bey": df["BeyA"],
+        "ELO": pd.to_numeric(df["PostA"], errors="coerce"),
+        "match_id": df["match_id"]
     })
 
-stacked = pd.concat([pd.DataFrame(initial), stacked], ignore_index=True)
-stacked = stacked.sort_values(["Bey","MatchIndex"]).reset_index(drop=True)
-stacked.to_csv(TIMESERIES_FILE, index=False, encoding="utf-8")
+    df_b = pd.DataFrame({
+        "Date": df["Date"],
+        "Bey": df["BeyB"],
+        "ELO": pd.to_numeric(df["PostB"], errors="coerce"),
+        "match_id": df["match_id"]
+    })
 
-print(f"{GREEN}Erzeugt: {TIMESERIES_FILE}{RESET}")
+    stacked = pd.concat([df_a, df_b], ignore_index=True)
+    stacked = stacked.sort_values(["Bey", "match_id"]).reset_index(drop=True)
+    stacked["MatchIndex"] = stacked.groupby("Bey").cumcount() + 1
+
+    # Add initial line
+    initial_entries = []
+    for bey in stacked["Bey"].unique():
+        earliest_date = stacked[stacked["Bey"] == bey]["Date"].min()
+        initial_entries.append({
+            "Date": earliest_date,
+            "Bey": bey,
+            "ELO": start_elos.get(bey, START_ELO) if start_elos else START_ELO,
+            "match_id": 0,
+            "MatchIndex": 0
+        })
+
+    initial_df = pd.DataFrame(initial_entries)
+    stacked = pd.concat([initial_df, stacked], ignore_index=True)
+    stacked = stacked.sort_values(["Bey", "MatchIndex"])
+
+    stacked.to_csv(timeseries_file, index=False, encoding="utf-8")
+
+    print(f"{GREEN}Finished {mode} ladder — {leaderboard_file}{RESET}")
+
+
+# ------------------ MAIN ------------------
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", choices=["official", "private"], default="official",
+                        help="Select ladder mode: official or private")
+    args = parser.parse_args()
+
+    mode = args.mode
+
+    if mode == "official":
+        # Standard mode
+        config = {
+            "mode": "official",
+            "input_file": "./csv/matches.csv",
+            "leaderboard": "./csv/leaderboard.csv",
+            "history": "./csv/elo_history.csv",
+            "timeseries": "./csv/elo_timeseries.csv",
+            "start_elos": None
+        }
+
+    else:  # private mode
+        # Load official leaderboard as base
+        df = pd.read_csv("./csv/leaderboard.csv")
+        start_elos = dict(zip(df["Name"], df["ELO"]))
+
+        config = {
+            "mode": "private",
+            "input_file": "./csv/private_matches.csv",
+            "leaderboard": "./csv/private_leaderboard.csv",
+            "history": "./csv/private_elo_history.csv",
+            "timeseries": "./csv/private_elo_timeseries.csv",
+            "start_elos": start_elos
+        }
+
+    run_elo_pipeline(config)
