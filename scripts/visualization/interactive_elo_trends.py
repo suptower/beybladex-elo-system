@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import os
 
 # --- Ordner für Diagramme ---
-OUTPUT_DIR = "./diagrams"
+OUTPUT_DIR = "./plots/official"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "elo_trends_interactive.html")
 

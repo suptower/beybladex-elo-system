@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 # --- Ordner für Diagramme ---
-OUTPUT_DIR = "./diagrams"
+OUTPUT_DIR = "./plots/official"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # --- CSV einlesen ---

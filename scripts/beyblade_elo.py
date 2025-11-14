@@ -16,15 +16,17 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 START_ELO = 1000
+K_LEARNING = 40
+K_INTERMEDIATE = 24
+K_EXPERIENCED = 12
 
 # ------------ K-factor rules ------------
 def dynamic_k(matches):
     if matches < 6:
-        return 40
+        return K_LEARNING
     elif matches < 15:
-        return 24
-    return 12
-
+        return K_INTERMEDIATE
+    return K_EXPERIENCED
 
 # ------------ Elo expected score ------------
 def expected(a, b):

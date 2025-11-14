@@ -6,7 +6,7 @@ import os
 # --- Dateien und Verzeichnisse ---
 LEADERBOARD_FILE = "./csv/leaderboard.csv"
 ADVANCED_FILE = "./csv/advanced_leaderboard.csv"
-OUTPUT_DIR = "./diagrams"
+OUTPUT_DIR = "./plots/official"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # --- CSV einlesen ---
