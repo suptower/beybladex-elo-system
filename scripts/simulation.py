@@ -260,7 +260,7 @@ Examples:
     
     parser.add_argument(
         "-o", "--output",
-        default="./csv/simulated_matches.csv",
+        default="./sim_output/simulated_matches.csv",
         help="Output file for simulated matches (default: ./csv/simulated_matches.csv)"
     )
     
