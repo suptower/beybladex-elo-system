@@ -40,7 +40,7 @@ jobs:
   run-update-script:
     name: Run Update Script
     runs-on: ubuntu-latest
-    needs: generate-plots   # optional, falls Update nach Plots laufen soll
+    #needs: generate-plots   # optional, falls Update nach Plots laufen soll
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -62,4 +62,4 @@ jobs:
 
       - name: Run update script
         run: |
-          python update_script.py -d
+          python update.py -d
