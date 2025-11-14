@@ -1,0 +1,46 @@
+name: Generate Beyblade Plots
+
+# Workflow wird ausgelöst bei Push, Pull Request oder manuell
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # erlaubt manuelles Auslösen
+
+jobs:
+  gen_plots:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        mode: [official, private]  # beide Modi nacheinander
+
+    steps:
+    # 1 Repo auschecken
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2 Python einrichten
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    # Abhängigkeiten installieren
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    # Plots generieren
+    - name: Generate plots
+      run: |
+        python gen_plots.py --mode ${{ matrix.mode }}
+
+    # Plots als Artefakte hochladen
+    - name: Upload plots
+      uses: actions/upload-artifact@v3
+      with:
+        name: plots-${{ matrix.mode }}
+        path: ./plots/${{ matrix.mode }}/
