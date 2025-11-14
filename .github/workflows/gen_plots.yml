@@ -40,7 +40,7 @@ jobs:
 
     # Plots als Artefakte hochladen
     - name: Upload plots
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: plots-${{ matrix.mode }}
         path: ./plots/${{ matrix.mode }}/
