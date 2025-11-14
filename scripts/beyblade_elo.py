@@ -89,7 +89,9 @@ def run_elo_pipeline(config):
     leaderboard_file = config["leaderboard"]
     history_file = config["history"]
     timeseries_file = config["timeseries"]
+    position_file = config["positions"]
     start_elos = config["start_elos"]
+    position_rows = []
 
     print(f"{BOLD}{CYAN}Running ELO Pipeline — Mode: {mode}{RESET}")
     print(f"{YELLOW}Reading matches from {input_file}...{RESET}")
@@ -115,6 +117,7 @@ def run_elo_pipeline(config):
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
 
+
         for m in matches:
             update_elo(
                 m["BeyA"],
@@ -127,8 +130,57 @@ def run_elo_pipeline(config):
                 stats
             )
 
-    # Winrates
-    calculate_winrates(stats)
+        # Winrates
+        calculate_winrates(stats)
+
+        bey_event_index = defaultdict(int)
+        bey_match_index = defaultdict(int)
+        previous_positions = {}
+        event_counter = 0
+        last_date = None
+        for m in matches:
+            update_elo(
+                m["BeyA"],
+                m["BeyB"],
+                int(m["ScoreA"]),
+                int(m["ScoreB"]),
+                m["Date"],
+                writer,
+                elos,
+                stats
+            )
+            bey_match_index[m["BeyA"]] += 1
+            bey_match_index[m["BeyB"]] += 1
+
+            current_date = m["Date"]
+            if current_date != last_date:
+                event_counter += 1
+                last_date = current_date
+
+            sorted_beys = sorted(elos.items(), key=lambda x: x[1], reverse=True)
+
+            for pos, (bey, elo) in enumerate(sorted_beys, start=1):
+
+                # Wenn Position sich NICHT geändert hat → überspringen
+                if previous_positions.get(bey) != pos:
+                    bey_event_index[bey] += 1
+
+                    s = stats[bey]
+                    position_rows.append({
+                        "Event": bey_event_index[bey],
+                        "MatchIndex": bey_match_index[bey],
+                        "Date": m["Date"],
+                        "Bey": bey,
+                        "ELO": round(elo),
+                        "Position": pos,
+                        "Spiele": s["matches"],
+                        "Siege": s["wins"],
+                        "Niederlagen": s["losses"],
+                        "Winrate": s["wins"] / s["matches"] if s["matches"] > 0 else 0.0
+                    })
+                previous_positions[bey] = pos
+
+
 
     # --- Save leaderboard ---
     print(f"{CYAN}Writing leaderboard to {leaderboard_file}...{RESET}")
@@ -193,6 +245,9 @@ def run_elo_pipeline(config):
 
     stacked.to_csv(timeseries_file, index=False, encoding="utf-8")
 
+    pos_df = pd.DataFrame(position_rows)
+    pos_df.to_csv(position_file, index=False, encoding="utf-8")
+
     print(f"{GREEN}Finished {mode} ladder — {leaderboard_file}{RESET}")
 
 
@@ -213,6 +268,7 @@ if __name__ == "__main__":
             "leaderboard": "./csv/leaderboard.csv",
             "history": "./csv/elo_history.csv",
             "timeseries": "./csv/elo_timeseries.csv",
+            "positions": "./csv/position_timeseries.csv",
             "start_elos": None
         }
 
@@ -227,6 +283,7 @@ if __name__ == "__main__":
             "leaderboard": "./csv/private_leaderboard.csv",
             "history": "./csv/private_elo_history.csv",
             "timeseries": "./csv/private_elo_timeseries.csv",
+            "positions": "./csv/private_position_timeseries.csv",
             "start_elos": start_elos
         }
 
