@@ -96,7 +96,7 @@ def run_elo_pipeline(config):
 
     # Initialize ELO + stats
     elos = defaultdict(lambda: START_ELO)
-    stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0})
+    stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
 
     # Load start ratings for private ladder
     if start_elos is not None:
@@ -146,7 +146,7 @@ def run_elo_pipeline(config):
             diff = s["for"] - s["against"]
             writer.writerow([
                 i, bey, round(elo), s["matches"], s["wins"], s["losses"],
-                f"{round(s['winrate'] * 100, 1)}%",
+                f"{round(s["winrate"] * 100, 1)}%",
                 s["for"], s["against"], diff
             ])
 
