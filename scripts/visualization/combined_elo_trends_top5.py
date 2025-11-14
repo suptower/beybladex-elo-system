@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-OUTPUT_DIR = "./diagrams"
+OUTPUT_DIR = "./plots/official"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # --- CSV einlesen ---
