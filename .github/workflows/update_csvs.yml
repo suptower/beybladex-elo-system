@@ -25,8 +25,8 @@ jobs:
 
       - name: Run ELO pipeline
         run: |
-          python beyblade_elo.py --mode official
-          python beyblade_elo.py --mode private
+          python ./scripts/beyblade_elo.py --mode official
+          python ./scripts/beyblade_elo.py --mode private
 
       - name: Commit updated CSVs
         run: |
