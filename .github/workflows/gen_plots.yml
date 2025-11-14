@@ -2,10 +2,6 @@ name: Generate Beyblade Plots
 
 # Workflow wird ausgelöst bei Push, Pull Request oder manuell
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch: # erlaubt manuelles Auslösen
 
 jobs:
