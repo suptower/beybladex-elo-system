@@ -21,6 +21,7 @@ def load_files(mode):
             "leaderboard": "./csv/leaderboard.csv",
             "history": "./csv/elo_history.csv",
             "timeseries": "./csv/elo_timeseries.csv",
+            "positions": "./csv/position_timeseries.csv",
             "outdir": "./plots/official/"
         }
     else:
@@ -28,6 +29,7 @@ def load_files(mode):
             "leaderboard": "./csv/private_leaderboard.csv",
             "history": "./csv/private_elo_history.csv",
             "timeseries": "./csv/private_elo_timeseries.csv",
+            "positions": "./csv/private_position_timeseries.csv",
             "outdir": "./plots/private/"
         }
 
@@ -42,7 +44,7 @@ def ensure_dir(path):
 # Ensure subfolders
 # -------------------
 def ensure_subdirs(base):
-    subdirs = ["elo", "heatmaps", "bars"]
+    subdirs = ["elo", "heatmaps", "bars", "positions"]
     paths = {}
     for s in subdirs:
         path = os.path.join(base, s)
@@ -106,6 +108,129 @@ def plot_leaderboard_bars(df, outdir):
     plt.tight_layout()
     plt.savefig(os.path.join(outdir, "elo_bar_chart.png"))
     plt.close()
+
+# -------------------
+# Position Time Series
+# -------------------
+def plot_position_timeseries(df_pos, outdir):
+    df_pos["Position"] = pd.to_numeric(df_pos["Position"], errors="coerce")
+    df_pos["Event"] = df_pos["Event"].astype(int)
+    df_pos["MatchIndex"] = df_pos["MatchIndex"].astype(int)
+    df_pos = df_pos.sort_values(["Bey", "Event"]).reset_index(drop=True)
+    max_rank = len(df_pos["Bey"].unique())
+
+    for bey, group in df_pos.groupby("Bey"):
+        height = max_rank * 0.15
+        plt.figure(figsize=(6, height))
+        plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.8)
+        plt.gca().invert_yaxis()  # Higher positions (1st) should be at the top
+        plt.xticks(ticks=group["MatchIndex"].unique())
+        plt.title(f"Positionsverlauf: {bey}")
+        plt.xlabel("Match Index")
+        plt.ylabel("Position")
+        plt.ylim(max_rank + 0.5, 0.5)
+        plt.yticks([1, 5, 10, 15, 20, 25, 30, 36])
+
+        label_x_offset = -0.03
+        label_y_offset = 1.5
+
+        # # --- Position als Text direkt neben jedem Punkt ---
+        # for i, row in group.iterrows():
+        #     plt.text(
+        #         row["PlotX"] + label_x_offset,
+        #         row["Position"] + label_y_offset,
+        #         str(int(row["Position"])),
+        #         fontsize=9,
+        #         ha="left",
+        #         va="center",
+        #     )
+
+        plt.grid(True, alpha=0.4)
+        plt.tight_layout()
+
+        safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
+        out_path = os.path.join(outdir, f"{safe_name}_position.png")
+        plt.savefig(out_path, dpi=200)
+        plt.close()
+    print(f"Positions-Diagramme gespeichert im Ordner: {outdir}")
+
+def plot_combined_positions(df_pos, out_path):
+    import matplotlib.pyplot as plt
+
+    df_pos["Position"] = pd.to_numeric(df_pos["Position"], errors="coerce")
+    df_pos["PlotX"] = pd.to_numeric(df_pos["PlotX"], errors="coerce")
+
+    # Sortieren für hübsche Linien
+    df_pos = df_pos.sort_values(["Bey", "PlotX"])
+
+    # Anzahl der Ränge = max Position
+    max_rank = df_pos["Position"].max()
+
+    plt.figure(figsize=(12, 8))
+
+    # Jede Linie plotten
+    for bey, group in df_pos.groupby("Bey"):
+        plt.plot(
+            group["PlotX"],
+            group["Position"],
+            linewidth=1.8,
+            alpha=0.7,
+            label=bey
+        )
+
+    # Invertierte Y-Achse (1 = oben)
+    plt.gca().invert_yaxis()
+    plt.ylim(max_rank + 0.5, 0.5)
+    plt.yticks(range(1, max_rank + 1))
+
+    plt.xlabel("Match Index")
+    plt.ylabel("Position")
+    plt.title("Positionsverläufe aller Beys")
+
+    plt.grid(True, alpha=0.35)
+
+    plt.legend(bbox_to_anchor=(1.05, 1), loc="best", fontsize=7)
+
+    # Wenn es zu viele Beys sind: Legende optional
+    # if len(df_pos["Bey"].unique()) <= 25:
+    #     plt.legend(bbox_to_anchor=(1.05, 1), loc="upper left")
+    # else:
+    #     print("Legende deaktiviert (zu viele Beys).")
+
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=200)
+    plt.close()
+
+    print(f"Kombiniertes Positionsdiagramm gespeichert unter: {out_path}")
+
+
+def create_fractional_positions(df_pos):
+    df_pos["PlotX"] = 0.0
+
+    for bey, group in df_pos.groupby("Bey"):
+        fractional_counter = 0
+        last_match_index = None
+        plot_x_values = []
+
+        for _, row in group.iterrows():
+            mi = row["MatchIndex"]
+
+            if last_match_index is None or mi != last_match_index:
+                # eigener Match gespielt → reset fractional counter
+                fractional_counter = 0
+                plot_x = mi
+            else:
+                # kein eigener Match → passive Positionsänderung
+                fractional_counter += 1
+                plot_x = mi + fractional_counter * 0.1
+
+            plot_x_values.append(plot_x)
+            last_match_index = mi
+
+        df_pos.loc[group.index, "PlotX"] = plot_x_values
+
+
+    
 
 # -------------------
 # Winrate Bar Chart
@@ -213,12 +338,20 @@ def generate_all_plots(mode):
     df_lb = pd.read_csv(files["leaderboard"])
     df_hist = pd.read_csv(files["history"])
     df_ts = pd.read_csv(files["timeseries"])
+    df_pos = pd.read_csv(files["positions"])
 
     print("Rendering charts...")
 
     # ELO
-    plot_elo_combined(df_ts, dirs["elo"])
+    plot_elo_combined(df_ts, files["outdir"])
     plot_elo_single(df_ts, dirs["elo"])
+
+    create_fractional_positions(df_pos)
+    plot_position_timeseries(df_pos, dirs["positions"])
+    plot_combined_positions(
+        df_pos,
+        os.path.join(files["outdir"], "combined_positions.png")
+    )
 
     # BAR CHARTS
     plot_leaderboard_bars(df_lb, dirs["bars"])
