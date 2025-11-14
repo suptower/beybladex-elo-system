@@ -26,8 +26,8 @@ jobs:
 
       - name: Generate plots
         run: |
-          python gen_plots.py --mode official
-          python gen_plots.py --mode private
+          python ./scripts/gen_plots.py --mode official
+          python ./scripts/gen_plots.py --mode private
 
       - name: Upload plots as artifact
         uses: actions/upload-artifact@v4
@@ -55,6 +55,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set up Google Sheets credentials
+        run: |
+            echo "${{ secrets.GSHEETS_CREDENTIALS_JSON }}" > service_account.json
+            export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/service_account.json
+
       - name: Run update script
         run: |
-          python update_script.py
+          python update_script.py -d

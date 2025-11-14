@@ -36,7 +36,7 @@ jobs:
     # Plots generieren
     - name: Generate plots
       run: |
-        python gen_plots.py --mode ${{ matrix.mode }}
+        python ./scripts/gen_plots.py --mode ${{ matrix.mode }}
 
     # Plots als Artefakte hochladen
     - name: Upload plots
