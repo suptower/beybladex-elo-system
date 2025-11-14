@@ -145,6 +145,25 @@ stacked = stacked.sort_values(["Bey", "match_id"]).reset_index(drop=True)
 stacked["MatchIndex"] = stacked.groupby("Bey").cumcount() + 1
 stacked["MatchIndex"] = stacked["MatchIndex"].astype(int)
 
+# Add initial entries (MatchIndex 0 with START_ELO) for each Bey
+unique_beys = stacked["Bey"].unique()
+initial_entries = []
+for bey in unique_beys:
+    # Get the earliest date for this Bey
+    bey_data = stacked[stacked["Bey"] == bey]
+    earliest_date = bey_data["Date"].min()
+    initial_entries.append({
+        "Date": earliest_date,
+        "Bey": bey,
+        "ELO": START_ELO,
+        "match_id": 0,
+        "MatchIndex": 0
+    })
+
+initial_df = pd.DataFrame(initial_entries)
+stacked = pd.concat([initial_df, stacked], ignore_index=True)
+stacked = stacked.sort_values(["Bey", "MatchIndex"]).reset_index(drop=True)
+
 # Optional: falls du eine exakte time-axis willst, kannst du auch:
 # stacked["ExactTime"] = pd.to_datetime(stacked["Date"]) + pd.to_timedelta(stacked["match_id"], unit='s')
 
