@@ -288,6 +288,7 @@ def generate_html_gallery(base_dir):
     html_path = os.path.join(base_dir, "index.html")
     sections = {
         "ELO Charts": "elo",
+        "Position Charts": "positions",
         "Heatmaps": "heatmaps",
         "Barcharts": "bars"
     }
