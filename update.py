@@ -54,10 +54,10 @@ if result.stderr:
 # --- 2. Optional Diagramme erstellen ---
 if args.create_diagrams:
     print(f"{YELLOW}Generiere Diagramme...{RESET}")
-    result = subprocess.run([sys.executable, SCRIPT_GEN_PLOTS], capture_output=True, text=True)
-    print(result.stdout)
-    if result.stderr:
-        print(result.stderr)
+    process = subprocess.Popen([sys.executable, "-u", SCRIPT_GEN_PLOTS], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    for line in process.stdout:
+        print(line, end="")
+    process.wait()
 else:
     print(f"{YELLOW}Diagramme übersprungen (mit --create-diagrams aktivieren){RESET}")
 
@@ -82,9 +82,9 @@ if args.skip_upload:
     print(f"{YELLOW}Upload zu Google Sheets übersprungen (mit --skip-upload deaktivieren){RESET}")
 else:
     print(f"{YELLOW}Lade Daten nach Google Sheets...{RESET}")
-    result = subprocess.run([sys.executable, SCRIPT_SHEETS_UPLOAD], capture_output=True, text=True)
-    print(result.stdout)
-    if result.stderr:
-        print(result.stderr)
+    process = subprocess.Popen([sys.executable, "-u", SCRIPT_SHEETS_UPLOAD], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    for line in process.stdout:
+        print(line, end="")
+    process.wait()
 
 print(f"{GREEN}Alles erledigt! Leaderboard, History und Bey-Counters wurden aktualisiert.{RESET}")

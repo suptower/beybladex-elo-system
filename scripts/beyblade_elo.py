@@ -155,6 +155,24 @@ def run_elo_pipeline(config):
             s = temp_stats[bey]
             delta = prev_positions.get(bey,pos) - pos if prev_positions else 0
             prev_positions[bey] = pos
+            prev_elo = prev_elos.get(bey, START_ELO) if prev_elos else START_ELO
+            elo_delta = round(elo - prev_elo)
+
+            if elo_delta > 0:
+                elo_delta_str = f"+{elo_delta}"
+            elif elo_delta < 0:
+                elo_delta_str = f"{elo_delta}"  # Minus schon drin
+            else:
+                elo_delta_str = "0"
+
+
+            if delta > 0:
+                delta_str = f"▲ {delta}"
+            elif delta < 0:
+                delta_str = f"▼ {abs(delta)}"
+            else:
+                delta_str = "→ 0"
+
 
             tour_rows.append({
                 "Platz": pos,
@@ -163,14 +181,16 @@ def run_elo_pipeline(config):
                 "Spiele": s["matches"],
                 "Siege": s["wins"],
                 "Niederlagen": s["losses"],
-                "Winrate": round(s["winrate"]*100,1),
+                # convert to percentage string with 1 decimal
+                "Winrate": f"{round(s['winrate']*100,1)}%",
                 "Gewonnene Punkte": s["for"],
                 "Verlorene Punkte": s["against"],
                 "Differenz": s["for"]-s["against"],
-                "Positionsdelta": delta
+                "Positionsdelta": delta_str,
+                "ELOdelta": elo_delta_str
             })
 
-        out_file = f"./csv/leaderboard_{t_idx}.csv"
+        out_file = f"./csv/leaderboards/leaderboard_{t_idx}.csv"
         pd.DataFrame(tour_rows).to_csv(out_file,index=False)
 
         # Update für nächstes Turnier
@@ -179,8 +199,8 @@ def run_elo_pipeline(config):
 
 
     # --- Aktuelles Turnier zusätzlich als leaderboard.csv ---
-    latest_csv = f"./csv/leaderboard_{len(tournament_dates)}.csv"
-    pd.read_csv(latest_csv).to_csv(leaderboard_file,index=False)
+    tour_rows_df = pd.DataFrame(tour_rows)
+    tour_rows_df.to_csv(leaderboard_file,index=False)
     print(f"{GREEN}Aktuelles Leaderboard geschrieben: {leaderboard_file}{RESET}")
 
     # --- Time series ---
