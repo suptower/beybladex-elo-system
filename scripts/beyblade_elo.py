@@ -222,6 +222,97 @@ def run_elo_pipeline(config):
 
     print(f"{GREEN}Fertig — Zeitreihen gespeichert: {timeseries_file}{RESET}")
 
+    # --- Position Time Series ---
+    print(f"{CYAN}Generating position time series...{RESET}")
+    
+    # Read the history to track positions after each match
+    df_hist = pd.read_csv(history_file, parse_dates=["Date"])
+    
+    # Initialize tracking structures
+    current_elos = defaultdict(lambda: START_ELO)
+    current_stats = defaultdict(lambda: {"wins":0,"losses":0,"for":0,"against":0,"matches":0,"winrate":0.0})
+    previous_positions = {}
+    
+    # Load start ratings for private ladder
+    if start_elos is not None:
+        for bey, elo in start_elos.items():
+            current_elos[bey] = elo
+    
+    position_rows = []
+    event_counter = 0
+    match_counters = defaultdict(int)
+    
+    # Process each match in chronological order
+    for idx, match in df_hist.iterrows():
+        date = match["Date"]
+        bey_a = match["BeyA"]
+        bey_b = match["BeyB"]
+        
+        # Store previous positions before updating
+        old_positions = previous_positions.copy()
+        
+        # Update ELOs from match
+        current_elos[bey_a] = match["PostA"]
+        current_elos[bey_b] = match["PostB"]
+        
+        # Update stats
+        score_a = match["ScoreA"]
+        score_b = match["ScoreB"]
+        
+        for bey, score_self, score_opp in [(bey_a, score_a, score_b), (bey_b, score_b, score_a)]:
+            current_stats[bey]["matches"] += 1
+            current_stats[bey]["for"] += score_self
+            current_stats[bey]["against"] += score_opp
+            if score_self > score_opp:
+                current_stats[bey]["wins"] += 1
+            else:
+                current_stats[bey]["losses"] += 1
+            if current_stats[bey]["matches"] > 0:
+                current_stats[bey]["winrate"] = current_stats[bey]["wins"] / current_stats[bey]["matches"]
+        
+        # Increment match counter for participating beys
+        match_counters[bey_a] += 1
+        match_counters[bey_b] += 1
+        
+        # Calculate current leaderboard positions
+        sorted_beys = sorted(current_elos.items(), key=lambda x: x[1], reverse=True)
+        position_map = {bey: pos for pos, (bey, elo) in enumerate(sorted_beys, start=1)}
+        
+        # Find beys with position changes
+        beys_with_changes = set()
+        for bey in position_map:
+            old_pos = old_positions.get(bey)
+            new_pos = position_map[bey]
+            if old_pos != new_pos:
+                beys_with_changes.add(bey)
+        
+        # Record entries only for beys with position changes
+        if beys_with_changes:
+            event_counter += 1
+            for bey in beys_with_changes:
+                s = current_stats[bey]
+                elo = current_elos[bey]
+                position_rows.append({
+                    "Event": event_counter,
+                    "MatchIndex": match_counters[bey],
+                    "Date": date,
+                    "Bey": bey,
+                    "ELO": round(elo),
+                    "Position": position_map[bey],
+                    "Spiele": s["matches"],
+                    "Siege": s["wins"],
+                    "Niederlagen": s["losses"],
+                    "Winrate": s["winrate"]
+                })
+        
+        # Update previous positions
+        previous_positions = position_map.copy()
+    
+    # Save position timeseries
+    position_df = pd.DataFrame(position_rows)
+    position_df.to_csv(position_file, index=False, encoding="utf-8")
+    print(f"{GREEN}Position time series gespeichert: {position_file}{RESET}")
+
 # ------------------ MAIN ------------------
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
