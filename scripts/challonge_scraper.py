@@ -13,6 +13,12 @@ Usage:
 Options:
     --dry-run    : Preview matches without writing to CSV
     --date DATE  : Override tournament date (format: YYYY-MM-DD)
+
+Note:
+    If you encounter 403 Forbidden errors, Challonge may be blocking automated
+    requests. The scraper uses browser-like headers to mimic real browsers, but
+    some tournaments or IP addresses may still be blocked. See CHALLONGE_SCRAPER.md
+    for troubleshooting steps.
 """
 
 import requests
@@ -74,9 +80,20 @@ class ChallongeScraper:
             dict: Tournament data including matches and participants
         """
         try:
-            # Set headers to mimic a browser
+            # Set headers to mimic a real browser more convincingly
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+                'Cache-Control': 'max-age=0',
             }
             
             response = requests.get(self.base_url, headers=headers, timeout=30)
@@ -100,6 +117,27 @@ class ChallongeScraper:
                 'success': True
             }
             
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 403:
+                error_msg = (
+                    f"Error fetching tournament data: {e}\n"
+                    f"\nChallonge is blocking this request (403 Forbidden).\n"
+                    f"This can happen due to:\n"
+                    f"  - Anti-bot protection on Challonge\n"
+                    f"  - Rate limiting (too many requests)\n"
+                    f"  - IP address blocking\n"
+                    f"  - Tournament is private/unlisted\n"
+                    f"\nTroubleshooting:\n"
+                    f"  1. Wait a few minutes and try again\n"
+                    f"  2. Verify the tournament is public: {self.base_url}\n"
+                    f"  3. Add delays between multiple tournament scrapes\n"
+                    f"  4. See CHALLONGE_SCRAPER.md for more details"
+                )
+                print(error_msg)
+                return {'success': False, 'error': error_msg}
+            else:
+                print(f"Error fetching tournament data: {e}")
+                return {'success': False, 'error': str(e)}
         except requests.exceptions.RequestException as e:
             print(f"Error fetching tournament data: {e}")
             return {'success': False, 'error': str(e)}

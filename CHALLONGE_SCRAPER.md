@@ -93,6 +93,25 @@ After scraping, review the matches added and manually correct any mismatched nam
 - Check that Challonge is accessible
 - The scraper includes a 30-second timeout for requests
 
+### 403 Forbidden errors
+
+If you encounter "403 Client Error: Forbidden" when scraping:
+
+1. **Challonge anti-bot protection**: Challonge may be blocking automated requests. The scraper now includes comprehensive browser headers to mimic a real browser.
+
+2. **Rate limiting**: If scraping multiple tournaments, add a delay between requests:
+   ```bash
+   python scripts/challonge_scraper.py tournament1
+   sleep 5
+   python scripts/challonge_scraper.py tournament2
+   ```
+
+3. **IP blocking**: If you're making many requests, your IP may be temporarily blocked. Wait a few minutes before trying again.
+
+4. **Alternative approach**: If automated scraping continues to fail, you can manually export tournament data from Challonge and import it into `csv/matches.csv` following the format: `Date,BeyA,BeyB,ScoreA,ScoreB`
+
+5. **Check tournament visibility**: Ensure the tournament is public and not set to private/unlisted on Challonge.
+
 ## Testing
 
 Run the test suite to validate the scraper functionality:
