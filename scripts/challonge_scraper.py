@@ -41,10 +41,29 @@ class ChallongeScraper:
         self.matches = []
         
     def _extract_tournament_id(self, url):
-        """Extract tournament ID from URL"""
+        """Extract tournament ID from URL
+        
+        Security: URL validation is done using startswith() to ensure the URL
+        begins with 'challonge.com/' (after protocol removal). This prevents
+        URL injection attacks where 'challonge.com/' might appear elsewhere.
+        """
         # Remove protocol and domain if present
-        if 'challonge.com/' in url:
-            return url.split('challonge.com/')[-1].strip('/')
+        # Only accept URLs that start with challonge.com (with optional protocol)
+        url = url.strip()
+        
+        # Remove common protocols
+        for protocol in ['https://', 'http://']:
+            if url.startswith(protocol):
+                url = url[len(protocol):]
+        
+        # Validate URL starts with challonge.com/ (prevents URL injection)
+        if url.startswith('challonge.com/'):
+            # Extract tournament ID after 'challonge.com/'
+            # This is safe because we validated with startswith() above
+            tournament_id = url[len('challonge.com/'):].strip('/')
+            return tournament_id
+        
+        # Otherwise assume it's just the tournament ID
         return url.strip('/')
     
     def fetch_tournament_data(self):
