@@ -14,6 +14,7 @@ Lightweight tools for computing and publishing Elo ratings and charts for Beybla
   - `scripts/beyblade_elo.py` — helper functions and Elo logic.
   - `scripts/sheets_upload.py` — uploads CSV or leaderboard data to Google Sheets (uses `service_account.json`).
   - `scripts/simulation.py` — simulates tournaments using Elo-based match predictions.
+  - `scripts/challonge_scraper.py` — scrapes tournament data from Challonge and appends to `matches.csv`.
 
 **Repository Structure**
 - `*.py` — top-level runner scripts for updates, charts and exports.
@@ -40,6 +41,22 @@ python scripts/simulation.py -f round-robin -b FoxBrush ImpactDrake DranSword
 
 # Append simulated matches to matches.csv (then run update.py to recalculate Elo)
 python scripts/simulation.py -n 16 -f single-elimination --append
+```
+
+- Import tournament data from Challonge:
+
+```powershell
+# Scrape a tournament and append matches to matches.csv
+python scripts/challonge_scraper.py https://challonge.com/om3hx2e9
+
+# Preview matches without writing (dry-run)
+python scripts/challonge_scraper.py om3hx2e9 --dry-run
+
+# Specify a custom date for the tournament
+python scripts/challonge_scraper.py zjbg6ab3 --date 2025-09-15
+
+# After scraping, run update.py to recalculate Elo ratings
+python update.py
 ```
 
 
