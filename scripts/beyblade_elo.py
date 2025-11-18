@@ -1,7 +1,39 @@
-# beyblade_elo.py  — Version 2.5
-# Supports official + private ladders with dynamic K-factors
-
-import csv, datetime, argparse
+"""
+Beyblade ELO Rating System
+This module implements an ELO rating system for Beyblade matches with dynamic K-factors
+and comprehensive statistics tracking.
+The system supports two modes:
+- official: Starts all beyblades at the default ELO (1000)
+- private: Uses existing ELO ratings from the official leaderboard as starting values
+Features:
+- Dynamic K-factor based on match experience (learning/intermediate/experienced)
+- Match-by-match ELO history tracking
+- Tournament-based leaderboards with position deltas
+- Time series data for ELO progression
+- Position tracking over time with passive/active change detection
+K-Factor Rules:
+- Learning (< 6 matches): K = 40
+- Intermediate (6-14 matches): K = 24
+- Experienced (15+ matches): K = 12
+Functions:
+    dynamic_k(matches): Calculate K-factor based on number of matches played
+    expected(a, b): Calculate expected score for player A against player B
+    update_elo(a, b, sa, sb, date, elos, stats, writer): Update ELO ratings after a match
+    calculate_winrates(stats): Calculate win rates for all beyblades
+    run_elo_pipeline(pipeline_config): Execute the complete ELO calculation pipeline
+Output Files:
+    - leaderboard.csv: Current tournament standings
+    - elo_history.csv: Complete match-by-match ELO changes
+    - elo_timeseries.csv: ELO progression per beyblade over matches
+    - position_timeseries.csv: Position changes over time
+    - leaderboards/leaderboard_N.csv: Per-tournament leaderboards
+Usage:
+    python beyblade_elo.py --mode official
+    python beyblade_elo.py --mode private
+"""
+import csv
+import argparse
+import datetime
 from collections import defaultdict
 import os
 import pandas as pd
@@ -69,20 +101,20 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None):
 
 # ------------- Calculate winrates -------------
 def calculate_winrates(stats):
-    for bey, s in stats.items():
+    for s in stats.values():
         s["winrate"] = s["wins"]/s["matches"] if s["matches"] > 0 else 0.0
 
 # ----------------- ELO PIPELINE -------------------
-def run_elo_pipeline(config):
-    mode = config["mode"]
-    input_file = config["input_file"]
-    leaderboard_file = config["leaderboard"]
-    history_file = config["history"]
-    timeseries_file = config["timeseries"]
-    position_file = config["positions"]
-    start_elos = config["start_elos"]
+def run_elo_pipeline(pipeline_config):
+    pipeline_mode = pipeline_config["mode"]
+    input_file = pipeline_config["input_file"]
+    leaderboard_file = pipeline_config["leaderboard"]
+    history_file = pipeline_config["history"]
+    timeseries_file = pipeline_config["timeseries"]
+    position_file = pipeline_config["positions"]
+    pipeline_start_elos = pipeline_config["start_elos"]
 
-    print(f"{BOLD}{CYAN}Running ELO Pipeline — Mode: {mode}{RESET}")
+    print(f"{BOLD}{CYAN}Running ELO Pipeline — Mode: {pipeline_mode}{RESET}")
     print(f"{YELLOW}Reading matches from {input_file}...{RESET}")
 
     # Initialize ELO + stats
@@ -90,9 +122,9 @@ def run_elo_pipeline(config):
     stats = defaultdict(lambda: {"wins":0,"losses":0,"for":0,"against":0,"matches":0,"winrate":0.0})
 
     # Load start ratings for private ladder
-    if start_elos is not None:
+    if pipeline_start_elos is not None:
         print(f"{CYAN}Loading starting ELOs from official leaderboard...{RESET}")
-        for bey, elo in start_elos.items():
+        for bey, elo in pipeline_start_elos.items():
             elos[bey] = elo
 
     # --- Full history CSV ---
@@ -121,7 +153,7 @@ def run_elo_pipeline(config):
 
     # Ausgangswerte für Turnier 1
     prev_positions = {}
-    prev_elos = start_elos.copy() if start_elos else {}
+    prev_elos = pipeline_start_elos.copy() if pipeline_start_elos else {}
     prev_stats = defaultdict(lambda: {"wins":0,"losses":0,"for":0,"against":0,"matches":0,"winrate":0.0})
 
     for t_idx, t_date in enumerate(tournament_dates, start=1):
@@ -214,13 +246,119 @@ def run_elo_pipeline(config):
     initial_entries = []
     for bey in stacked["Bey"].unique():
         earliest_date = stacked[stacked["Bey"]==bey]["Date"].min()
-        initial_entries.append({"Date":earliest_date,"Bey":bey,"ELO":start_elos.get(bey,START_ELO) if start_elos else START_ELO,"match_id":0,"MatchIndex":0})
+        initial_entries.append({"Date":earliest_date,"Bey":bey,"ELO":pipeline_start_elos.get(bey,START_ELO) if pipeline_start_elos else START_ELO,"match_id":0,"MatchIndex":0})
 
     stacked = pd.concat([pd.DataFrame(initial_entries),stacked],ignore_index=True)
     stacked = stacked.sort_values(["Bey","MatchIndex"])
     stacked.to_csv(timeseries_file,index=False,encoding="utf-8")
 
     print(f"{GREEN}Fertig — Zeitreihen gespeichert: {timeseries_file}{RESET}")
+
+    # --- Position Time Series ---
+    print(f"{CYAN}Generating position time series...{RESET}")
+    
+    # Read the history to track positions after each match
+    df_hist = pd.read_csv(history_file, parse_dates=["Date"])
+    
+    # Initialize tracking structures
+    current_elos = defaultdict(lambda: START_ELO)
+    current_stats = defaultdict(lambda: {"wins":0,"losses":0,"for":0,"against":0,"matches":0,"winrate":0.0})
+    
+    # Load start ratings for private ladder
+    if pipeline_start_elos is not None:
+        for bey, elo in pipeline_start_elos.items():
+            current_elos[bey] = elo
+    
+    # Calculate initial positions (before any matches)
+    sorted_beys = sorted(current_elos.items(), key=lambda x: x[1], reverse=True)
+    previous_positions = {bey: pos for pos, (bey, elo) in enumerate(sorted_beys, start=1)}
+    
+    position_rows = []
+    match_counters = defaultdict(int)
+    
+    # Process each match in chronological order
+    for match_idx, match in df_hist.iterrows():
+        date = match["Date"]
+        bey_a = match["BeyA"]
+        bey_b = match["BeyB"]
+        
+        # Update ELOs from match
+        current_elos[bey_a] = match["PostA"]
+        current_elos[bey_b] = match["PostB"]
+        
+        # Update stats
+        score_a = match["ScoreA"]
+        score_b = match["ScoreB"]
+        
+        for bey, score_self, score_opp in [(bey_a, score_a, score_b), (bey_b, score_b, score_a)]:
+            current_stats[bey]["matches"] += 1
+            current_stats[bey]["for"] += score_self
+            current_stats[bey]["against"] += score_opp
+            if score_self > score_opp:
+                current_stats[bey]["wins"] += 1
+            else:
+                current_stats[bey]["losses"] += 1
+            if current_stats[bey]["matches"] > 0:
+                current_stats[bey]["winrate"] = current_stats[bey]["wins"] / current_stats[bey]["matches"]
+        
+        # Calculate current leaderboard positions for ALL beys
+        sorted_beys = sorted(current_elos.items(), key=lambda x: x[1], reverse=True)
+        current_positions = {bey: pos for pos, (bey, elo) in enumerate(sorted_beys, start=1)}
+
+        affected_beys = set()
+        affected_beys.add(bey_a)
+        affected_beys.add(bey_b)
+        
+        # Only record positions for beys that actually played in this match
+        # This ensures each entry corresponds to when the bey played, avoiding oscillations
+        for bey in current_positions.keys():
+            if bey not in (bey_a, bey_b):
+                old_pos = previous_positions.get(bey)
+                new_pos = current_positions[bey]
+                if old_pos != new_pos:
+                    affected_beys.add(bey)
+
+        for bey in affected_beys:
+            old_pos = previous_positions.get(bey)
+            new_pos = current_positions[bey]
+
+            # passive oder aktive Änderung?
+            pos_changed = old_pos != new_pos
+
+            # Wir erstellen EINEN Eintrag pro Match für jeden Bey,
+            # aber markieren, ob er aktiv gespielt hat:
+            played = (bey == bey_a) or (bey == bey_b)
+
+            s = current_stats[bey]
+            elo = current_elos[bey]
+
+            # MatchIndex: nur erhöhen wenn aktiver Spieler
+            if played:
+                match_counters[bey] += 1
+
+            position_rows.append({
+                "Event": match_idx + 1,
+                "MatchIndex": match_counters[bey],
+                "Played": int(played),
+                "PassiveChange": int(pos_changed and not played),
+                "Date": date,
+                "Bey": bey,
+                "ELO": round(elo),
+                "Position": new_pos,
+                "Spiele": s["matches"],
+                "Siege": s["wins"],
+                "Niederlagen": s["losses"],
+                "Winrate": s["winrate"]
+            })
+
+        
+        # Update previous positions for next iteration
+        previous_positions = current_positions.copy()
+    
+    # Save position timeseries
+    position_df = pd.DataFrame(position_rows)
+    position_df.to_csv(position_file, index=False, encoding="utf-8")
+    print(f"{GREEN}Position time series gespeichert: {position_file}{RESET}")
 
 # ------------------ MAIN ------------------
 if __name__ == "__main__":
