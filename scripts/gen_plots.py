@@ -3,7 +3,8 @@
 # Now with individual ELO charts, combined ELO chart, organized folders, and HTML gallery.
 
 import argparse
-import os, subprocess
+import os
+import subprocess
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -15,6 +16,8 @@ plt.rcParams["axes.grid"] = True
 # -------------------
 # File selection
 # -------------------
+
+
 def load_files(mode):
     if mode == "official":
         return {
@@ -36,6 +39,8 @@ def load_files(mode):
 # -------------------
 # Ensure output dir
 # -------------------
+
+
 def ensure_dir(path):
     if not os.path.exists(path):
         os.makedirs(path)
@@ -43,6 +48,8 @@ def ensure_dir(path):
 # -------------------
 # Ensure subfolders
 # -------------------
+
+
 def ensure_subdirs(base):
     subdirs = ["elo", "heatmaps", "bars", "positions"]
     paths = {}
@@ -55,6 +62,8 @@ def ensure_subdirs(base):
 # -------------------
 # ELO Charts
 # -------------------
+
+
 def plot_elo_combined(df_ts, outdir):
     df_ts["ELO"] = pd.to_numeric(df_ts["ELO"], errors="coerce")
     df_ts["MatchIndex"] = df_ts["MatchIndex"].astype(int)
@@ -73,6 +82,7 @@ def plot_elo_combined(df_ts, outdir):
     plt.savefig(combined_file, dpi=300)
     plt.close()
     print(f"Kombiniertes ELO-Diagramm gespeichert als {combined_file}")
+
 
 def plot_elo_single(df_ts, outdir):
     df_ts["ELO"] = pd.to_numeric(df_ts["ELO"], errors="coerce")
@@ -98,6 +108,8 @@ def plot_elo_single(df_ts, outdir):
 # -------------------
 # ELO Bar Chart
 # -------------------
+
+
 def plot_leaderboard_bars(df, outdir):
     sorted_df = df.sort_values("ELO", ascending=False)
     plt.figure(figsize=(12, 8))
@@ -112,6 +124,8 @@ def plot_leaderboard_bars(df, outdir):
 # -------------------
 # Position Time Series
 # -------------------
+
+
 def plot_position_timeseries(df_pos, outdir):
     df_pos["Position"] = pd.to_numeric(df_pos["Position"], errors="coerce")
     df_pos["Event"] = df_pos["Event"].astype(int)
@@ -131,9 +145,9 @@ def plot_position_timeseries(df_pos, outdir):
         #         filtered_rows.append(mi_group.iloc[0])
         #         if len(mi_group) > 1:
         #             filtered_rows.append(mi_group.iloc[-1])
-        
+
         # group_filtered = pd.DataFrame(filtered_rows).reset_index(drop=True)
-        
+
         height = max_rank * 0.15
         plt.figure(figsize=(6, height))
         plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2)
@@ -145,7 +159,6 @@ def plot_position_timeseries(df_pos, outdir):
         plt.ylim(max_rank + 0.5, 0.5)
         plt.yticks([1, 5, 10, 15, 20, 25, 30, 36])
         plt.grid(True, which="major", axis="y", alpha=0.2, linestyle="--")
-
 
         # label_x_offset = -0.03
         # label_y_offset = 1.5
@@ -169,6 +182,7 @@ def plot_position_timeseries(df_pos, outdir):
         plt.savefig(out_path, dpi=200)
         plt.close()
     print(f"Positions-Diagramme gespeichert im Ordner: {outdir}")
+
 
 def plot_combined_positions(df_pos, out_path):
     import matplotlib.pyplot as plt
@@ -226,7 +240,6 @@ def create_fractional_positions(df_pos):
 
     for bey, group in df.groupby("Bey"):
         group = group.sort_values("Event")
-        plotxs = []
 
         prev_mi = None
         buffer = []  # (mi, event_idx)
@@ -265,13 +278,6 @@ def create_fractional_positions(df_pos):
     return df
 
 
-
-
-
-
-
-    
-
 # -------------------
 # Winrate Bar Chart
 # -------------------
@@ -290,6 +296,8 @@ def plot_winrates(df, outdir):
 # -------------------
 # Heatmaps: win/loss + point diff
 # -------------------
+
+
 def plot_heatmaps(df_hist, outdir):
     beys = sorted(set(df_hist["BeyA"]) | set(df_hist["BeyB"]))
     win_counts = pd.DataFrame(0, index=beys, columns=beys)
@@ -324,6 +332,8 @@ def plot_heatmaps(df_hist, outdir):
 # -------------------
 # HTML Galerie mit Grid & Lightbox
 # -------------------
+
+
 def generate_html_gallery(base_dir):
     html_path = os.path.join(base_dir, "index.html")
     sections = {
@@ -369,6 +379,8 @@ def generate_html_gallery(base_dir):
 # -------------------
 # Master runner
 # -------------------
+
+
 def generate_all_plots(mode):
     files = load_files(mode)
     ensure_dir(files["outdir"])
@@ -453,6 +465,7 @@ def generate_all_plots(mode):
         print("Interactive ELO Trends generated successfully.")
 
     print(f"All plots saved to: {files['outdir']}")
+
 
 # -------------------
 # Main CLI

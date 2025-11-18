@@ -92,7 +92,7 @@ for bey, s in stats.items():
     elo_trend = round(delta_sum, 2)
 
     advanced_data.append([
-        bey, last_elo, matches, wins, losses, f"{winrate*100:.1f}%",
+        bey, last_elo, matches, wins, losses, f"{winrate * 100:.1f}%",
         points_for, points_against, avg_point_diff, volatility, avg_delta, max_delta, min_delta,
         s["upset_wins"], s["upset_losses"], elo_trend
     ])
