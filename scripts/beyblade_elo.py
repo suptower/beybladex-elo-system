@@ -243,7 +243,6 @@ def run_elo_pipeline(config):
     
     position_rows = []
     match_counters = defaultdict(int)
-    event_counters = defaultdict(int)  # Per-bey event counter
     
     # Process each match in chronological order
     for match_idx, match in df_hist.iterrows():
@@ -278,30 +277,25 @@ def run_elo_pipeline(config):
         sorted_beys = sorted(current_elos.items(), key=lambda x: x[1], reverse=True)
         current_positions = {bey: pos for pos, (bey, elo) in enumerate(sorted_beys, start=1)}
         
-        # Check ALL beys for position changes and record with per-bey event numbering
-        for bey in current_positions:
-            old_pos = previous_positions.get(bey)
+        # Only record positions for beys that actually played in this match
+        # This ensures each entry corresponds to when the bey played, avoiding oscillations
+        for bey in [bey_a, bey_b]:
             new_pos = current_positions[bey]
+            s = current_stats[bey]
+            elo = current_elos[bey]
             
-            # Only add entry if position changed
-            if old_pos != new_pos:
-                # Increment this bey's event counter
-                event_counters[bey] += 1
-                
-                s = current_stats[bey]
-                elo = current_elos[bey]
-                position_rows.append({
-                    "Event": event_counters[bey],  # Per-bey event counter
-                    "MatchIndex": match_counters[bey],
-                    "Date": date,
-                    "Bey": bey,
-                    "ELO": round(elo),
-                    "Position": new_pos,
-                    "Spiele": s["matches"],
-                    "Siege": s["wins"],
-                    "Niederlagen": s["losses"],
-                    "Winrate": s["winrate"]
-                })
+            position_rows.append({
+                "Event": match_idx + 1,  # Global match number
+                "MatchIndex": match_counters[bey],  # This bey's match number
+                "Date": date,
+                "Bey": bey,
+                "ELO": round(elo),
+                "Position": new_pos,
+                "Spiele": s["matches"],
+                "Siege": s["wins"],
+                "Niederlagen": s["losses"],
+                "Winrate": s["winrate"]
+            })
         
         # Update previous positions for next iteration
         previous_positions = current_positions.copy()
