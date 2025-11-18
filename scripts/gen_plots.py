@@ -120,11 +120,25 @@ def plot_position_timeseries(df_pos, outdir):
     max_rank = len(df_pos["Bey"].unique())
 
     for bey, group in df_pos.groupby("Bey"):
+        # Filter to keep only first and last entry per MatchIndex to avoid oscillations
+        filtered_rows = []
+        for mi in group["MatchIndex"].unique():
+            mi_group = group[group["MatchIndex"] == mi]
+            if len(mi_group) == 1:
+                filtered_rows.append(mi_group.iloc[0])
+            else:
+                # Keep first and last entry
+                filtered_rows.append(mi_group.iloc[0])
+                if len(mi_group) > 1:
+                    filtered_rows.append(mi_group.iloc[-1])
+        
+        group_filtered = pd.DataFrame(filtered_rows).reset_index(drop=True)
+        
         height = max_rank * 0.15
         plt.figure(figsize=(6, height))
-        plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.8)
+        plt.plot(group_filtered["PlotX"], group_filtered["Position"], marker="o", linewidth=1.8)
         plt.gca().invert_yaxis()  # Higher positions (1st) should be at the top
-        plt.xticks(ticks=group["MatchIndex"].unique())
+        plt.xticks(ticks=group_filtered["MatchIndex"].unique())
         plt.title(f"Positionsverlauf: {bey}")
         plt.xlabel("Match Index")
         plt.ylabel("Position")
@@ -135,7 +149,7 @@ def plot_position_timeseries(df_pos, outdir):
         label_y_offset = 1.5
 
         # # --- Position als Text direkt neben jedem Punkt ---
-        # for i, row in group.iterrows():
+        # for i, row in group_filtered.iterrows():
         #     plt.text(
         #         row["PlotX"] + label_x_offset,
         #         row["Position"] + label_y_offset,
