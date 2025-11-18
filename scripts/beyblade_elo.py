@@ -243,6 +243,7 @@ def run_elo_pipeline(config):
     
     position_rows = []
     match_counters = defaultdict(int)
+    event_counters = defaultdict(int)  # Per-bey event counter
     
     # Process each match in chronological order
     for match_idx, match in df_hist.iterrows():
@@ -277,21 +278,20 @@ def run_elo_pipeline(config):
         sorted_beys = sorted(current_elos.items(), key=lambda x: x[1], reverse=True)
         current_positions = {bey: pos for pos, (bey, elo) in enumerate(sorted_beys, start=1)}
         
-        # Event number is match index + 1 (1-based)
-        event_num = match_idx + 1
-        
-        # Only record position changes for the beys that played in this match
-        # This prevents recording passive position changes that cause backward lines
-        for bey in [bey_a, bey_b]:
+        # Check ALL beys for position changes and record with per-bey event numbering
+        for bey in current_positions:
             old_pos = previous_positions.get(bey)
             new_pos = current_positions[bey]
             
             # Only add entry if position changed
             if old_pos != new_pos:
+                # Increment this bey's event counter
+                event_counters[bey] += 1
+                
                 s = current_stats[bey]
                 elo = current_elos[bey]
                 position_rows.append({
-                    "Event": event_num,
+                    "Event": event_counters[bey],  # Per-bey event counter
                     "MatchIndex": match_counters[bey],
                     "Date": date,
                     "Bey": bey,
