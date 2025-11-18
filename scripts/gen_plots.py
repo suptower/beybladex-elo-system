@@ -121,32 +121,34 @@ def plot_position_timeseries(df_pos, outdir):
 
     for bey, group in df_pos.groupby("Bey"):
         # Filter to keep only first and last entry per MatchIndex to avoid oscillations
-        filtered_rows = []
-        for mi in group["MatchIndex"].unique():
-            mi_group = group[group["MatchIndex"] == mi]
-            if len(mi_group) == 1:
-                filtered_rows.append(mi_group.iloc[0])
-            else:
-                # Keep first and last entry
-                filtered_rows.append(mi_group.iloc[0])
-                if len(mi_group) > 1:
-                    filtered_rows.append(mi_group.iloc[-1])
+        # filtered_rows = []
+        # for mi in group["MatchIndex"].unique():
+        #     mi_group = group[group["MatchIndex"] == mi]
+        #     if len(mi_group) == 1:
+        #         filtered_rows.append(mi_group.iloc[0])
+        #     else:
+        #         # Keep first and last entry
+        #         filtered_rows.append(mi_group.iloc[0])
+        #         if len(mi_group) > 1:
+        #             filtered_rows.append(mi_group.iloc[-1])
         
-        group_filtered = pd.DataFrame(filtered_rows).reset_index(drop=True)
+        # group_filtered = pd.DataFrame(filtered_rows).reset_index(drop=True)
         
         height = max_rank * 0.15
         plt.figure(figsize=(6, height))
-        plt.plot(group_filtered["PlotX"], group_filtered["Position"], marker="o", linewidth=1.8)
+        plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2)
         plt.gca().invert_yaxis()  # Higher positions (1st) should be at the top
-        plt.xticks(ticks=group_filtered["MatchIndex"].unique())
+        plt.xticks(ticks=group["MatchIndex"].unique())
         plt.title(f"Positionsverlauf: {bey}")
         plt.xlabel("Match Index")
         plt.ylabel("Position")
         plt.ylim(max_rank + 0.5, 0.5)
         plt.yticks([1, 5, 10, 15, 20, 25, 30, 36])
+        plt.grid(True, which="major", axis="y", alpha=0.2, linestyle="--")
 
-        label_x_offset = -0.03
-        label_y_offset = 1.5
+
+        # label_x_offset = -0.03
+        # label_y_offset = 1.5
 
         # # --- Position als Text direkt neben jedem Punkt ---
         # for i, row in group_filtered.iterrows():
@@ -219,29 +221,53 @@ def plot_combined_positions(df_pos, out_path):
 
 
 def create_fractional_positions(df_pos):
-    df_pos["PlotX"] = 0.0
+    df = df_pos.copy()
+    df["PlotX"] = 0.0
 
-    for bey, group in df_pos.groupby("Bey"):
-        fractional_counter = 0
-        last_match_index = None
-        plot_x_values = []
+    for bey, group in df.groupby("Bey"):
+        group = group.sort_values("Event")
+        plotxs = []
 
-        for _, row in group.iterrows():
+        prev_mi = None
+        buffer = []  # (mi, event_idx)
+
+        def flush_buffer(mi):
+            n = len(buffer)
+            if n == 0:
+                return
+            # gleichmäßig zwischen mi und mi+1 verteilen
+            step = 1.0 / (n + 1)
+            for i, (base_mi, idx) in enumerate(buffer, start=1):
+                df.loc[idx, "PlotX"] = base_mi + i * step
+
+        for idx, row in group.iterrows():
             mi = row["MatchIndex"]
+            if prev_mi is None:
+                # erster Punkt → direkt setzen
+                df.loc[idx, "PlotX"] = mi
+                prev_mi = mi
+                continue
 
-            if last_match_index is None or mi != last_match_index:
-                # eigener Match gespielt → reset fractional counter
-                fractional_counter = 0
-                plot_x = mi
+            if mi == prev_mi:
+                # passives Event → puffern
+                buffer.append((mi, idx))
             else:
-                # kein eigener Match → passive Positionsänderung
-                fractional_counter += 1
-                plot_x = mi + fractional_counter * 0.1
+                # MI-Wechsel → Buffer flushen
+                flush_buffer(prev_mi)
+                buffer = []
+                df.loc[idx, "PlotX"] = mi
+                prev_mi = mi
 
-            plot_x_values.append(plot_x)
-            last_match_index = mi
+        # letzten Buffer flushen
+        flush_buffer(prev_mi)
 
-        df_pos.loc[group.index, "PlotX"] = plot_x_values
+    df = df.sort_values(["Bey", "PlotX"]).reset_index(drop=True)
+    return df
+
+
+
+
+
 
 
     
@@ -361,7 +387,7 @@ def generate_all_plots(mode):
     plot_elo_combined(df_ts, files["outdir"])
     plot_elo_single(df_ts, dirs["elo"])
 
-    create_fractional_positions(df_pos)
+    df_pos = create_fractional_positions(df_pos)
     plot_position_timeseries(df_pos, dirs["positions"])
     plot_combined_positions(
         df_pos,
