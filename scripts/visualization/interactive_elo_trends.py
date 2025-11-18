@@ -15,6 +15,8 @@ df_hist = pd.read_csv("./csv/elo_history.csv")       # Date,BeyA,BeyB,ScoreA,Sco
 df_adv = pd.read_csv("./csv/advanced_leaderboard.csv")  # ELO, Volatility etc.
 
 # --- Gegner-Spalte automatisch füllen ---
+
+
 def fill_opponent(df_ts, df_hist):
     opponents = []
     for idx, row in df_ts.iterrows():
@@ -22,23 +24,24 @@ def fill_opponent(df_ts, df_hist):
         bey = row['Bey']
         elo = row['ELO']
 
-        hist_day = df_hist[(df_hist['Date']==date) & ((df_hist['BeyA']==bey) | (df_hist['BeyB']==bey))]
+        hist_day = df_hist[(df_hist['Date'] == date) & ((df_hist['BeyA'] == bey) | (df_hist['BeyB'] == bey))]
         if len(hist_day) == 1:
             r = hist_day.iloc[0]
         else:
             r = None
             for _, m in hist_day.iterrows():
-                post_elo = m['PostA'] if m['BeyA']==bey else m['PostB']
+                post_elo = m['PostA'] if m['BeyA'] == bey else m['PostB']
                 if abs(post_elo - elo) < 0.01:
                     r = m
                     break
             if r is None:
                 r = hist_day.iloc[0]
 
-        opponent = r['BeyB'] if r['BeyA']==bey else r['BeyA']
+        opponent = r['BeyB'] if r['BeyA'] == bey else r['BeyA']
         opponents.append(opponent)
     df_ts['Opponent'] = opponents
     return df_ts
+
 
 df_ts = fill_opponent(df_ts, df_hist)
 
@@ -52,7 +55,7 @@ for f in delta_files:
     for _, r in df_t.iterrows():
         bey = r['Name']
         # MatchIndex abschätzen über Anzahl gespielter Matches bis Turnier
-        mask = df_ts['Bey']==bey
+        mask = df_ts['Bey'] == bey
         df_ts.loc[mask, 'Positionsdelta'] = r.get('Positionsdelta', 0)
         df_ts.loc[mask, 'ELODelta'] = r.get('ELODelta', 0)
 
@@ -60,6 +63,8 @@ for f in delta_files:
 top5_beys = df_adv.sort_values(by='ELO', ascending=False).head(5)['Bey'].tolist()
 
 # --- Farbcode nach Volatilität ---
+
+
 def color_volatility(vol):
     if vol < 5:
         return 'green'
@@ -68,13 +73,14 @@ def color_volatility(vol):
     else:
         return 'red'
 
+
 bey_colors = {row['Bey']: color_volatility(row['Volatility']) for _, row in df_adv.iterrows()}
 
 # --- Plotly-Figur erstellen ---
 fig = go.Figure()
 
 for bey in df_ts['Bey'].unique():
-    df_b = df_ts[df_ts['Bey']==bey].sort_values(by='MatchIndex')
+    df_b = df_ts[df_ts['Bey'] == bey].sort_values(by='MatchIndex')
     line_width = 3 if bey in top5_beys else 1.2
     opacity = 0.9 if bey in top5_beys else 0.5
     color = bey_colors.get(bey, 'gray')
@@ -83,17 +89,17 @@ for bey in df_ts['Bey'].unique():
         f"Bey: {bey}<br>"
         f"MatchIndex: {int(row['MatchIndex'])}<br>"
         f"Date: {row['Date']}<br>"
-        f"ELO: {round(row['ELO'],2)}<br>"
-        f"Score: {row.get('ScoreA','')} - {row.get('ScoreB','')}<br>"
+        f"ELO: {round(row['ELO'], 2)}<br>"
+        f"Score: {row.get('ScoreA', '')} - {row.get('ScoreB', '')}<br>"
         f"Opponent: {row['Opponent']}<br>"
-        f"ELO Δ: {row.get('ELODelta','0')}<br>"
-        f"Positions Δ: {row.get('Positionsdelta','0')}"
+        f"ELO Δ: {row.get('ELODelta', '0')}<br>"
+        f"Positions Δ: {row.get('Positionsdelta', '0')}"
         for _, row in df_b.iterrows()
     ]
 
     # Score über Marker anzeigen
     scores = [
-        f"{row.get('ScoreA','')}-{row.get('ScoreB','')}"
+        f"{row.get('ScoreA', '')}-{row.get('ScoreB', '')}"
         for _, row in df_b.iterrows()
     ]
 
