@@ -280,8 +280,9 @@ def run_elo_pipeline(config):
         # Event number is match index + 1 (1-based)
         event_num = match_idx + 1
         
-        # Check each bey for position changes and record individually
-        for bey in current_positions:
+        # Only record position changes for the beys that played in this match
+        # This prevents recording passive position changes that cause backward lines
+        for bey in [bey_a, bey_b]:
             old_pos = previous_positions.get(bey)
             new_pos = current_positions[bey]
             
