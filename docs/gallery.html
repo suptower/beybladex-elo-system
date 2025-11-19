@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie</title>
+
+    <link rel="stylesheet" href="styles.css">
+
+    <script defer src="darkmode.js"></script>
+    <script defer src="viewer.js"></script>
+
+</head>
+<body>
+
+<header>
+    <h1 id="title"></h1>
+    <nav>
+        <a href="index.html">Start</a>
+        <a href="plots.html">Plots</a>
+        <button id="darkToggle">🌙</button>
+    </nav>
+</header>
+
+<main>
+    <div id="gallery" class="gallery"></div>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script>
+const paths = {
+    bars: "plots/bars/plots.json",
+    elo: "plots/elo/plots.json",
+    positions: "plots/positions/plots.json",
+    heatmaps: "plots/heatmaps/plots.json",
+    single: "plots/plots.json"
+};
+
+const titles = {
+    bars: "Winrate & ELO Balkendiagramme",
+    elo: "ELO-Verläufe",
+    positions: "Positionsverläufe",
+    heatmaps: "Heatmaps",
+    single: "Einzelplots"
+};
+
+const params = new URLSearchParams(window.location.search);
+const type = params.get("type") || "single";
+
+document.getElementById("title").textContent = titles[type];
+
+fetch(paths[type])
+    .then(res => res.json())
+    .then(files => {
+        const gallery = document.getElementById("gallery");
+        const base = paths[type].replace("plots.json", "");
+
+        files.forEach(f => {
+            const img = document.createElement("img");
+            img.src = base + f;
+            img.alt = f;
+            img.onclick = () => openViewer(base + f);
+            gallery.appendChild(img);
+        });
+    });
+</script>
+
+</body>
+</html>
