@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Beyblade Plots</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header>
+    <h1>Beyblade Plots</h1>
+    <nav>
+        <a href="index.html">Start</a>
+        <a href="beys.html">Beys</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Positionsverläufe</h2>
+    <p>Klicke auf einen Plot zum Vergrößern.</p>
+
+    <div id="gallery" class="gallery"></div>
+</main>
+
+<footer>
+    <p>© 2025 Beyblade Elo Dashboard</p>
+</footer>
+
+<script>
+// Automatische Gallery: listet alle PNG-Dateien im /plots Ordner
+const plotFiles = [
+    // 💡 Einfach täglich von Python generieren lassen!
+    // Python kann eine "plots.json" erzeugen, die hier eingelesen wird.
+];
+
+fetch("plots/plots.json")
+    .then(r => r.json())
+    .then(files => {
+        const gallery = document.getElementById("gallery");
+        files.forEach(f => {
+            const img = document.createElement("img");
+            img.src = "plots/" + f;
+            img.alt = f;
+            img.className = "plot";
+            img.onclick = () => window.open(img.src, "_blank");
+            gallery.appendChild(img);
+        });
+    });
+</script>
+
+</body>
+</html>

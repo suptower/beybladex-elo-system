@@ -3,6 +3,7 @@
 # Now with individual ELO charts, combined ELO chart, organized folders, and HTML gallery.
 
 import argparse
+import json
 import os
 import subprocess
 import pandas as pd
@@ -25,7 +26,7 @@ def load_files(mode):
             "history": "./csv/elo_history.csv",
             "timeseries": "./csv/elo_timeseries.csv",
             "positions": "./csv/position_timeseries.csv",
-            "outdir": "./plots/official/"
+            "outdir": "./docs/plots/"
         }
     else:
         return {
@@ -476,3 +477,9 @@ if __name__ == "__main__":
                         help="Select ladder mode: official or private")
     args = parser.parse_args()
     generate_all_plots(args.mode)
+
+    plot_dir = "docs/plots"
+    files = [f for f in os.listdir(plot_dir) if f.lower().endswith(".png")]
+
+    with open(os.path.join(plot_dir, "plots.json"), "w") as f:
+        json.dump(files, f)
