@@ -5,27 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galerie</title>
     <link rel="stylesheet" href="styles.css">
+
+    <script defer src="darkmode.js"></script>
+    <script defer src="viewer.js"></script>
+    <script defer src="search.js"></script>
 </head>
 <body>
 
 <header>
-    <h1 id="title">Galerie</h1>
+    <h1 id="title"></h1>
     <nav>
         <a href="index.html">Start</a>
         <a href="plots.html">Plots</a>
+        <button id="darkToggle">🌙</button>
     </nav>
 </header>
 
 <main>
+    <div id="searchbar">
+        <input id="searchInput"type="text" placeholder="Bey suchen …">
+    </div>
+
     <div id="gallery" class="gallery"></div>
 </main>
 
 <footer>
-    <p>© 2025 Beyblade Dashboard</p>
+    <p>© 2025 suptower</p>
 </footer>
 
 <script>
-// Ordner-Mapping
 const plotPaths = {
     bars: "plots/bars/plots.json",
     elo: "plots/elo/plots.json",
@@ -34,7 +42,6 @@ const plotPaths = {
     single: "plots/plots.json"
 };
 
-// Kategorienamen
 const titles = {
     bars: "Winrate & ELO Balkendiagramme",
     elo: "ELO-Verläufe",
@@ -43,26 +50,20 @@ const titles = {
     single: "Einzelplots"
 };
 
-// Parameter auslesen
 const params = new URLSearchParams(window.location.search);
 const type = params.get("type") || "single";
 
-// Titel setzen
 document.getElementById("title").textContent = titles[type];
 
-// Gallery laden
 fetch(plotPaths[type])
     .then(r => r.json())
     .then(files => {
-        const gallery = document.getElementById("gallery");
+        window.allImages = files.map(f => ({
+            title: f.replace(".png",""),
+            src: plotPaths[type].replace("plots.json", "") + f
+        }));
 
-        files.forEach(f => {
-            const img = document.createElement("img");
-            img.src = plotPaths[type].replace("plots.json", "") + f;
-            img.className = "plot";
-            img.onclick = () => window.open(img.src, "_blank");
-            gallery.appendChild(img);
-        });
+        renderSearchResults(window.allImages);
     });
 </script>
 
