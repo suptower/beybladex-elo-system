@@ -1,4 +1,5 @@
-import gspread, csv
+import gspread
+import csv
 from oauth2client.service_account import ServiceAccountCredentials
 import os
 
@@ -15,6 +16,7 @@ SCOPE = ["https://spreadsheets.google.com/feeds",
 CREDS_FILE = "service_account.json"
 SHEET_ID = "1taZJq9c1H2KfvhH5GMnIQ-c701IZqLXvMnBSENrxNVw"
 
+
 def upload_csv_to_sheet(csv_file, sheet_name, percent_cols=[]):
     creds = ServiceAccountCredentials.from_json_keyfile_name(CREDS_FILE, SCOPE)
     client = gspread.authorize(creds)
@@ -30,8 +32,6 @@ def upload_csv_to_sheet(csv_file, sheet_name, percent_cols=[]):
         data = list(csv.reader(f))
     ws.update(values=data, range_name="A1")
     print(f"{GREEN}{csv_file} -> {sheet_name}{RESET}")
-
-
 
 
 # --- Tabellen hochladen ---
@@ -55,6 +55,6 @@ for file in os.listdir("./csv/leaderboards/"):
         print(f"{GREEN}Lade {file} hoch...{RESET}", flush=True)
         t_idx = file[len("leaderboard_"):-len(".csv")]
         upload_csv_to_sheet(f"./csv/leaderboards/{file}", f"Single_Leaderboard_{t_idx}")
-        
+
 
 print(f"{GREEN}Alle Daten erfolgreich zu Google Sheets hochgeladen!{RESET}")

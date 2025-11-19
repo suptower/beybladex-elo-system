@@ -14,6 +14,8 @@ df_adv = pd.read_csv("./csv/advanced_leaderboard.csv")
 top5_beys = df_adv.sort_values(by='ELO', ascending=False).head(5)['Bey'].tolist()
 
 # --- Farbcode nach Volatilität ---
+
+
 def color_volatility(vol):
     if vol < 5:
         return 'green'
@@ -22,20 +24,22 @@ def color_volatility(vol):
     else:
         return 'red'
 
+
 bey_colors = {row['Bey']: color_volatility(row['Volatility']) for i, row in df_adv.iterrows()}
 
 plt.figure(figsize=(14, 8))
 
 for bey in df_ts['Bey'].unique():
-    df_b = df_ts[df_ts['Bey']==bey].sort_values(by='MatchIndex')
+    df_b = df_ts[df_ts['Bey'] == bey].sort_values(by='MatchIndex')
     matches_played = len(df_b)
     linestyle = '-' if matches_played > 1 else 'dashed'
     linewidth = 2.5 if bey in top5_beys else 0.8
     alpha = 0.9 if bey in top5_beys else 0.5
     color = bey_colors.get(bey, 'gray')
-    
-    plt.plot(df_b['MatchIndex'], df_b['ELO'], label=bey, color=color, linestyle=linestyle, linewidth=linewidth, alpha=alpha)
-    
+
+    plt.plot(df_b['MatchIndex'], df_b['ELO'], label=bey, color=color,
+             linestyle=linestyle, linewidth=linewidth, alpha=alpha)
+
     # Werte auf Linie (nur bei Top 5)
     if bey in top5_beys:
         for x, y in zip(df_b['MatchIndex'], df_b['ELO']):

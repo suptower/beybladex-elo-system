@@ -6,6 +6,7 @@ OUTPUT_CSV = "debug_bey.csv"      # Ziel-Datei
 BEY_NAME = "CerberusFlame"           # Der Bey, den du filtern willst
 # -----------------
 
+
 def main():
     # CSV laden
     df = pd.read_csv(INPUT_CSV)
@@ -22,6 +23,7 @@ def main():
 
     print(f"Gefundene Zeilen: {len(df_filtered)}")
     print(f"Gespeichert in: {OUTPUT_CSV}")
+
 
 if __name__ == "__main__":
     main()

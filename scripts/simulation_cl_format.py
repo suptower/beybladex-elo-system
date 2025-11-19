@@ -34,14 +34,18 @@ if RANDOM_SEED is not None:
     np.random.seed(RANDOM_SEED)
 
 # ---------- Hilfsfunktionen ----------
+
+
 def win_prob(elo_a, elo_b):
     """ELO-basierte Siegwahrscheinlichkeit für A vs B"""
     return 1.0 / (1.0 + 10 ** ((elo_b - elo_a) / 400.0))
+
 
 def simulate_match_by_elo(elo_a, elo_b):
     """Return True if A wins, False if B wins. Single-match sampling."""
     p = win_prob(elo_a, elo_b)
     return random.random() < p
+
 
 def update_elo_pair(elo_a, elo_b, a_wins, k):
     """Update and return new (elo_a, elo_b) given result and k-factor."""
@@ -53,6 +57,7 @@ def update_elo_pair(elo_a, elo_b, a_wins, k):
     new_b = elo_b + k * (sb - eb)
     return new_a, new_b
 
+
 def round1_pairing(sorted_players):
     """Pairing for round 1: top-half vs bottom-half as Challonge did."""
     half = len(sorted_players) // 2
@@ -62,6 +67,7 @@ def round1_pairing(sorted_players):
     for i in range(half):
         pairs.append((top[i], bottom[i]))
     return pairs
+
 
 def swiss_pairing(players_ordered, scores, prev_opponents):
     """
@@ -94,7 +100,8 @@ def swiss_pairing(players_ordered, scores, prev_opponents):
             if found:
                 group.remove(found)
                 pairs.append((a, found))
-                used.add(a); used.add(found)
+                used.add(a)
+                used.add(found)
             else:
                 # seek alternative across lower score groups first
                 found = None
@@ -130,7 +137,8 @@ def swiss_pairing(players_ordered, scores, prev_opponents):
                         except ValueError:
                             pass
                 pairs.append((a, found))
-                used.add(a); used.add(found)
+                used.add(a)
+                used.add(found)
 
     # final: pair remaining arbitrarily
     all_players = [p for p in players_ordered]
@@ -138,10 +146,12 @@ def swiss_pairing(players_ordered, scores, prev_opponents):
     while len(unpaired) >= 2:
         a = unpaired.pop(0)
         b = unpaired.pop(0)
-        pairs.append((a,b))
+        pairs.append((a, b))
     return pairs
 
 # ---------- Tournament routines (live-ELO aware) ----------
+
+
 def play_swiss_once(players, initial_seed_index, start_elos):
     """
     Plays one Swiss tournament with live-ELO updates.
@@ -184,16 +194,22 @@ def play_swiss_once(players, initial_seed_index, start_elos):
             # assign points (win=1)
             if a_wins:
                 scores[a] += 1
-                points_for[a] += 1; points_against[a] += 0
-                points_for[b] += 0; points_against[b] += 1
+                points_for[a] += 1
+                points_against[a] += 0
+                points_for[b] += 0
+                points_against[b] += 1
             else:
                 scores[b] += 1
-                points_for[b] += 1; points_against[b] += 0
-                points_for[a] += 0; points_against[a] += 1
+                points_for[b] += 1
+                points_against[b] += 0
+                points_for[a] += 0
+                points_against[a] += 1
 
             # record opponents
-            opponents[a].append(b); opponents[b].append(a)
-            prev_opponents[a].add(b); prev_opponents[b].add(a)
+            opponents[a].append(b)
+            opponents[b].append(a)
+            prev_opponents[a].add(b)
+            prev_opponents[b].add(a)
 
     # compute Buchholz (sum of opponents' scores)
     buchholz = {}
@@ -212,6 +228,7 @@ def play_swiss_once(players, initial_seed_index, start_elos):
         }
 
     return result, sim_elos
+
 
 def rank_after_swiss(result_dict, seed_list, live_elos):
     """
@@ -237,6 +254,7 @@ def rank_after_swiss(result_dict, seed_list, live_elos):
     df.index += 1
     return list(df["Bey"]), df
 
+
 def build_24_bracket(top24_ordered):
     """
     Returns list of matches for Playoff Round (9..24 vs 24..9 mapping).
@@ -254,6 +272,7 @@ def build_24_bracket(top24_ordered):
     ]
     return pairs
 
+
 def run_playoffs_with_live_elo(top24_ordered, sim_elos):
     """
     Simulate playoffs with live-ELO updates (K_PLAYOFFS).
@@ -262,7 +281,7 @@ def run_playoffs_with_live_elo(top24_ordered, sim_elos):
     # Playoff round (9..24)
     round24_pairs = build_24_bracket(top24_ordered)
     winners_round24 = []
-    for a,b in round24_pairs:
+    for a, b in round24_pairs:
         a_wins = simulate_match_by_elo(sim_elos[a], sim_elos[b])
         # update elos with playoff K
         new_a, new_b = update_elo_pair(sim_elos[a], sim_elos[b], a_wins, K_PLAYOFFS)
@@ -291,7 +310,7 @@ def run_playoffs_with_live_elo(top24_ordered, sim_elos):
     # simulate R16
     winners_r16 = []
     eliminated = set()
-    for a,b in round16_pairs:
+    for a, b in round16_pairs:
         a_wins = simulate_match_by_elo(sim_elos[a], sim_elos[b])
         new_a, new_b = update_elo_pair(sim_elos[a], sim_elos[b], a_wins, K_PLAYOFFS)
         sim_elos[a], sim_elos[b] = new_a, new_b
@@ -305,7 +324,7 @@ def run_playoffs_with_live_elo(top24_ordered, sim_elos):
                 (winners_r16[1], winners_r16[6]),
                 (winners_r16[2], winners_r16[5]),
                 (winners_r16[3], winners_r16[4])]
-    for a,b in qf_pairs:
+    for a, b in qf_pairs:
         a_wins = simulate_match_by_elo(sim_elos[a], sim_elos[b])
         new_a, new_b = update_elo_pair(sim_elos[a], sim_elos[b], a_wins, K_PLAYOFFS)
         sim_elos[a], sim_elos[b] = new_a, new_b
@@ -316,7 +335,7 @@ def run_playoffs_with_live_elo(top24_ordered, sim_elos):
     # Semifinals
     winners_sf = []
     sf_pairs = [(winners_qf[0], winners_qf[3]), (winners_qf[1], winners_qf[2])]
-    for a,b in sf_pairs:
+    for a, b in sf_pairs:
         a_wins = simulate_match_by_elo(sim_elos[a], sim_elos[b])
         new_a, new_b = update_elo_pair(sim_elos[a], sim_elos[b], a_wins, K_PLAYOFFS)
         sim_elos[a], sim_elos[b] = new_a, new_b
@@ -325,7 +344,7 @@ def run_playoffs_with_live_elo(top24_ordered, sim_elos):
         eliminated.add(a if not a_wins else b)
 
     # Final
-    a,b = winners_sf
+    a, b = winners_sf
     a_wins = simulate_match_by_elo(sim_elos[a], sim_elos[b])
     new_a, new_b = update_elo_pair(sim_elos[a], sim_elos[b], a_wins, K_PLAYOFFS)
     sim_elos[a], sim_elos[b] = new_a, new_b
@@ -351,13 +370,14 @@ def run_playoffs_with_live_elo(top24_ordered, sim_elos):
 
     return champion, progress, sim_elos
 
+
 # ---------- Main Simulation Loop ----------
 # load leaderboard
 df_lb = pd.read_csv(LEADERBOARD_CSV)
 if 'Bey' not in df_lb.columns and 'Name' in df_lb.columns:
-    df_lb.rename(columns={'Name':'Bey'}, inplace=True)
+    df_lb.rename(columns={'Name': 'Bey'}, inplace=True)
 if 'ELO' not in df_lb.columns and 'Elo' in df_lb.columns:
-    df_lb.rename(columns={'Elo':'ELO'}, inplace=True)
+    df_lb.rename(columns={'Elo': 'ELO'}, inplace=True)
 
 if 'Bey' not in df_lb.columns or 'ELO' not in df_lb.columns:
     raise SystemExit("leaderboard.csv muss Spalten 'Bey' und 'ELO' enthalten.")
@@ -379,7 +399,7 @@ count_top_cut = Counter()  # how often made top24
 # accumulate final sim elos for averaging
 final_elo_sums = {p: 0.0 for p in players}
 
-for sim in range(1, N_SIMULATIONS+1):
+for sim in range(1, N_SIMULATIONS + 1):
     # start with a fresh copy of initial elos for this sim
     sim_start_elos = initial_elos.copy()
 
@@ -409,7 +429,7 @@ for sim in range(1, N_SIMULATIONS+1):
         final_val = sim_elos_after_playoffs.get(p, sim_elos_after_swiss.get(p, initial_elos[p]))
         final_elo_sums[p] += final_val
 
-    if sim % max(1, N_SIMULATIONS//10) == 0:
+    if sim % max(1, N_SIMULATIONS // 10) == 0:
         print(f"Sim {sim}/{N_SIMULATIONS} done")
 
 # ---------- Prepare output ----------
@@ -419,19 +439,19 @@ for p in players:
     champ_cnt = count_champion[p]
     prob_top24 = made_playoffs / N_SIMULATIONS
     prob_champion = champ_cnt / N_SIMULATIONS
-    prob_R16 = sum(v for k,v in count_progress[p].items() if k>=2) / N_SIMULATIONS
-    prob_QF = sum(v for k,v in count_progress[p].items() if k>=3) / N_SIMULATIONS
-    prob_SF = sum(v for k,v in count_progress[p].items() if k>=5) / N_SIMULATIONS
+    prob_R16 = sum(v for k, v in count_progress[p].items() if k >= 2) / N_SIMULATIONS
+    prob_QF = sum(v for k, v in count_progress[p].items() if k >= 3) / N_SIMULATIONS
+    prob_SF = sum(v for k, v in count_progress[p].items() if k >= 5) / N_SIMULATIONS
     avg_final_elo = final_elo_sums[p] / N_SIMULATIONS
     summary_rows.append({
         "Bey": p,
         "ELO": initial_elos[p],
         "AvgFinalSimELO": round(avg_final_elo, 2),
-        "P(Top24)": round(prob_top24,3),
-        "P(R16)": round(prob_R16,3),
-        "P(QF)": round(prob_QF,3),
-        "P(SF)": round(prob_SF,3),
-        "P(Champion)": round(prob_champion,3)
+        "P(Top24)": round(prob_top24, 3),
+        "P(R16)": round(prob_R16, 3),
+        "P(QF)": round(prob_QF, 3),
+        "P(SF)": round(prob_SF, 3),
+        "P(Champion)": round(prob_champion, 3)
     })
 
 out_df = pd.DataFrame(summary_rows).sort_values(by="ELO", ascending=False)
