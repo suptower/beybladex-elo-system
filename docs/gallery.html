@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Galerie</title>
+
     <link rel="stylesheet" href="styles.css">
 
     <script defer src="darkmode.js"></script>
     <script defer src="viewer.js"></script>
-    <script defer src="search.js"></script>
+
 </head>
 <body>
 
@@ -22,10 +23,6 @@
 </header>
 
 <main>
-    <div id="searchbar">
-        <input id="searchInput"type="text" placeholder="Bey suchen …">
-    </div>
-
     <div id="gallery" class="gallery"></div>
 </main>
 
@@ -34,7 +31,7 @@
 </footer>
 
 <script>
-const plotPaths = {
+const paths = {
     bars: "plots/bars/plots.json",
     elo: "plots/elo/plots.json",
     positions: "plots/positions/plots.json",
@@ -55,15 +52,19 @@ const type = params.get("type") || "single";
 
 document.getElementById("title").textContent = titles[type];
 
-fetch(plotPaths[type])
-    .then(r => r.json())
+fetch(paths[type])
+    .then(res => res.json())
     .then(files => {
-        window.allImages = files.map(f => ({
-            title: f.replace(".png",""),
-            src: plotPaths[type].replace("plots.json", "") + f
-        }));
+        const gallery = document.getElementById("gallery");
+        const base = paths[type].replace("plots.json", "");
 
-        renderSearchResults(window.allImages);
+        files.forEach(f => {
+            const img = document.createElement("img");
+            img.src = base + f;
+            img.alt = f;
+            img.onclick = () => openViewer(base + f);
+            gallery.appendChild(img);
+        });
     });
 </script>
 
