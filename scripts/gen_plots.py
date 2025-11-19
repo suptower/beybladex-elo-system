@@ -467,6 +467,23 @@ def generate_all_plots(mode):
 
     print(f"All plots saved to: {files['outdir']}")
 
+def generate_plot_jsons():
+    base = "docs/plots"
+    subfolders = ["bars", "elo", "heatmaps", "positions"]
+
+    for folder in subfolders:
+        path = os.path.join(base, folder)
+        files = [f for f in os.listdir(path) if f.lower().endswith(".png")]
+        with open(os.path.join(path, "plots.json"), "w") as f:
+            json.dump(files, f)
+
+    root_files = [
+        f for f in os.listdir(base)
+        if f.lower().endswith(".png")
+    ]
+
+    with open(os.path.join(base, "plots.json"), "w") as f:
+        json.dump(root_files, f)
 
 # -------------------
 # Main CLI
@@ -477,32 +494,4 @@ if __name__ == "__main__":
                         help="Select ladder mode: official or private")
     args = parser.parse_args()
     generate_all_plots(args.mode)
-    
-    base = "docs/plots"
-
-    subfolders = ["bars", "elo", "heatmaps", "positions"]
-
-    # Für Unterordner
-    for folder in subfolders:
-        path = os.path.join(base, folder)
-        files = [f for f in os.listdir(path) if f.lower().endswith(".png")]
-        with open(os.path.join(path, "plots.json"), "w") as f:
-            json.dump(files, f)
-
-        base = "docs/plots"
-        subfolders = ["bars", "elo", "heatmaps", "positions"]
-
-        # Für Unterordner
-        for folder in subfolders:
-            path = os.path.join(base, folder)
-            files = [f for f in os.listdir(path) if f.lower().endswith(".png")]
-            with open(os.path.join(path, "plots.json"), "w") as f:
-                json.dump(files, f)
-
-        # Für PNGs direkt in /plots/
-        root_files = [
-            f for f in os.listdir(base)
-            if f.lower().endswith(".png")
-        ]
-        with open(os.path.join(base, "plots.json"), "w") as f:
-            json.dump(root_files, f)
+    generate_plot_jsons()
