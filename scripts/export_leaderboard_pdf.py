@@ -46,7 +46,7 @@ with open(input_file, newline="", encoding="utf-8") as f:
     data = list(reader)
 
 # === Tabellenkopf anpassen ===
-data[0] = ["Platz","Bey","ELO","Sp","S","N","WR","GP","VP","Diff","ΔPos","ΔELO"]
+data[0] = ["Platz", "Bey", "ELO", "Sp", "S", "N", "WR", "GP", "VP", "Diff", "ΔPos", "ΔELO"]
 
 # === Spaltenbreiten ===
 col_widths = [25, 90, 50, 30, 30, 30, 30, 30, 30, 30, 30, 30]

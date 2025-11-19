@@ -1,6 +1,7 @@
 # update_beyblade.py
 import subprocess
-import sys, os
+import sys
+import os
 import argparse
 
 SCRIPT_ADVANCED_STATS = "./scripts/advanced_stats.py"
@@ -54,13 +55,17 @@ if result.stderr:
 # --- 2. Optional Diagramme erstellen ---
 if args.create_diagrams:
     print(f"{YELLOW}Generiere Diagramme...{RESET}")
-    process = subprocess.Popen([sys.executable, "-u", SCRIPT_GEN_PLOTS], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    process = subprocess.Popen(
+        [sys.executable, "-u", SCRIPT_GEN_PLOTS],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True
+    )
     for line in process.stdout:
         print(line, end="")
     process.wait()
 else:
     print(f"{YELLOW}Diagramme übersprungen (mit --create-diagrams aktivieren){RESET}")
-
 
 
 # PDF-Rangliste erstellen
@@ -82,7 +87,12 @@ if args.skip_upload:
     print(f"{YELLOW}Upload zu Google Sheets übersprungen (mit --skip-upload deaktivieren){RESET}")
 else:
     print(f"{YELLOW}Lade Daten nach Google Sheets...{RESET}")
-    process = subprocess.Popen([sys.executable, "-u", SCRIPT_SHEETS_UPLOAD], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    process = subprocess.Popen(
+        [sys.executable, "-u", SCRIPT_SHEETS_UPLOAD],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True
+    )
     for line in process.stdout:
         print(line, end="")
     process.wait()
