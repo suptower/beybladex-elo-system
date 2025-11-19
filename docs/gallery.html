@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+    <h1 id="title">Galerie</h1>
+    <nav>
+        <a href="index.html">Start</a>
+        <a href="plots.html">Plots</a>
+    </nav>
+</header>
+
+<main>
+    <div id="gallery" class="gallery"></div>
+</main>
+
+<footer>
+    <p>© 2025 Beyblade Dashboard</p>
+</footer>
+
+<script>
+// Ordner-Mapping
+const plotPaths = {
+    bars: "plots/bars/plots.json",
+    elo: "plots/elo/plots.json",
+    positions: "plots/positions/plots.json",
+    heatmaps: "plots/heatmaps/plots.json",
+    single: "plots/plots.json"
+};
+
+// Kategorienamen
+const titles = {
+    bars: "Winrate & ELO Balkendiagramme",
+    elo: "ELO-Verläufe",
+    positions: "Positionsverläufe",
+    heatmaps: "Heatmaps",
+    single: "Einzelplots"
+};
+
+// Parameter auslesen
+const params = new URLSearchParams(window.location.search);
+const type = params.get("type") || "single";
+
+// Titel setzen
+document.getElementById("title").textContent = titles[type];
+
+// Gallery laden
+fetch(plotPaths[type])
+    .then(r => r.json())
+    .then(files => {
+        const gallery = document.getElementById("gallery");
+
+        files.forEach(f => {
+            const img = document.createElement("img");
+            img.src = plotPaths[type].replace("plots.json", "") + f;
+            img.className = "plot";
+            img.onclick = () => window.open(img.src, "_blank");
+            gallery.appendChild(img);
+        });
+    });
+</script>
+
+</body>
+</html>

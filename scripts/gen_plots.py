@@ -477,9 +477,32 @@ if __name__ == "__main__":
                         help="Select ladder mode: official or private")
     args = parser.parse_args()
     generate_all_plots(args.mode)
+    
+    base = "docs/plots"
 
-    plot_dir = "docs/plots"
-    files = [f for f in os.listdir(plot_dir) if f.lower().endswith(".png")]
+    subfolders = ["bars", "elo", "heatmaps", "positions"]
 
-    with open(os.path.join(plot_dir, "plots.json"), "w") as f:
-        json.dump(files, f)
+    # Für Unterordner
+    for folder in subfolders:
+        path = os.path.join(base, folder)
+        files = [f for f in os.listdir(path) if f.lower().endswith(".png")]
+        with open(os.path.join(path, "plots.json"), "w") as f:
+            json.dump(files, f)
+
+        base = "docs/plots"
+        subfolders = ["bars", "elo", "heatmaps", "positions"]
+
+        # Für Unterordner
+        for folder in subfolders:
+            path = os.path.join(base, folder)
+            files = [f for f in os.listdir(path) if f.lower().endswith(".png")]
+            with open(os.path.join(path, "plots.json"), "w") as f:
+                json.dump(files, f)
+
+        # Für PNGs direkt in /plots/
+        root_files = [
+            f for f in os.listdir(base)
+            if f.lower().endswith(".png")
+        ]
+        with open(os.path.join(base, "plots.json"), "w") as f:
+            json.dump(root_files, f)
