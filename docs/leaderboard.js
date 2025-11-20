@@ -1,6 +1,7 @@
 let leaderboardRows = [];
 let leaderboardHeaders = [];
 let currentSort = { column: null, asc: true };
+let currentSearchQuery = ""; // Track the current search query
 
 function parseCSV(text) {
     const lines = text.trim().split("\n");
@@ -191,14 +192,21 @@ function updateView() {
     const tableWrapper = document.querySelector(".table-wrapper");
     const cardWrapper = document.getElementById("leaderboardCards");
 
+    // Apply current search filter
+    const filtered = currentSearchQuery 
+        ? leaderboardRows.filter(r =>
+            Object.values(r).some(v => String(v).toLowerCase().includes(currentSearchQuery.toLowerCase()))
+          )
+        : leaderboardRows;
+
     if (isMobile) {
         tableWrapper.style.display = "none";
         cardWrapper.style.display = "grid";
-        renderCards(leaderboardHeaders, leaderboardRows);
+        renderCards(leaderboardHeaders, filtered);
     } else {
         tableWrapper.style.display = "block";
         cardWrapper.style.display = "none";
-        renderTable(leaderboardHeaders, leaderboardRows);
+        renderTable(leaderboardHeaders, filtered);
     }
 }
 
@@ -270,9 +278,10 @@ function sortByColumn(colIndex) {
 
 
 function filterRows(query) {
+    currentSearchQuery = query; // Store the current search query
     query = query.toLowerCase();
     const filtered = leaderboardRows.filter(r =>
-        Object.values(r).some(v => v.toLowerCase().includes(query))
+        Object.values(r).some(v => String(v).toLowerCase().includes(query))
     );
 
     if (window.innerWidth < 900) {
@@ -282,10 +291,6 @@ function filterRows(query) {
     }
 }
 
-document.getElementById("searchInput").addEventListener("input", e => {
-    filterRows(e.target.value);
-});
-
 window.addEventListener("resize", updateView);
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -293,8 +298,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (searchInput) {
         searchInput.addEventListener("input", e => filterRows(e.target.value));
     }
-
-    window.addEventListener("resize", updateView);
 
     fetch("./data/leaderboard.csv")
         .then(res => res.text())
@@ -309,9 +312,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function getDeltaClass(value) {
     if (!value) return "delta-neutral";
+    
+    const strValue = String(value).trim();
 
-    if (value.includes("▲")) return "delta-pos-up";
-    if (value.includes("▼")) return "delta-pos-down";
+    // Handle arrows (for Positionsdelta)
+    if (strValue.includes("▲")) return "delta-pos-up";
+    if (strValue.includes("▼")) return "delta-pos-down";
+    
+    // Handle +/- signs (for ELOdelta)
+    if (strValue.startsWith("+") || (strValue.match(/^[0-9]/) && !strValue.startsWith("-"))) {
+        return "delta-elo-up";
+    }
+    if (strValue.startsWith("-")) {
+        return "delta-elo-down";
+    }
+    
     return "delta-neutral";
 }
 
