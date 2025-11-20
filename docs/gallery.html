@@ -23,6 +23,9 @@
 </header>
 
 <main>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Suche nach Beys">
+    </div>
     <div id="gallery" class="gallery"></div>
 </main>
 
@@ -44,28 +47,62 @@ const titles = {
     elo: "ELO-Verläufe",
     positions: "Positionsverläufe",
     heatmaps: "Heatmaps",
-    single: "Einzelplots"
+    single: "Kombinierte Plots"
 };
 
 const params = new URLSearchParams(window.location.search);
 const type = params.get("type") || "single";
 
+// only show search bar for position and elo
+document.addEventListener("DOMContentLoaded", () => {
+    if (type === "elo" || type === "positions") {
+        document.querySelector(".search-container").style.display = "block";
+    } else {
+        document.querySelector(".search-container").style.display = "none";
+    }
+});
+
 document.getElementById("title").textContent = titles[type];
+
+let allImages = [];
+let currentImages = [];
 
 fetch(paths[type])
     .then(res => res.json())
     .then(files => {
-        const gallery = document.getElementById("gallery");
         const base = paths[type].replace("plots.json", "");
-
-        files.forEach(f => {
-            const img = document.createElement("img");
-            img.src = base + f;
-            img.alt = f;
-            img.onclick = () => openViewer(base + f);
-            gallery.appendChild(img);
+        
+        allImages = files.map(f => ({
+            src: base + f,
+            title: f.replace(/\.(png|jpg|jpeg)$/i, '').replace(/_position$/i, '')
+        }));
+        
+        currentImages = [...allImages];
+        renderGallery(currentImages);
+        
+        // Setup search
+        const searchInput = document.getElementById("searchInput");
+        searchInput.addEventListener("input", e => {
+            const query = e.target.value.toLowerCase();
+            currentImages = allImages.filter(img => 
+                img.title.toLowerCase().includes(query)
+            );
+            renderGallery(currentImages);
         });
     });
+
+function renderGallery(images) {
+    const gallery = document.getElementById("gallery");
+    gallery.innerHTML = "";
+    
+    images.forEach((imgObj, index) => {
+        const img = document.createElement("img");
+        img.src = imgObj.src;
+        img.alt = imgObj.title;
+        img.onclick = () => openViewer(index, currentImages);
+        gallery.appendChild(img);
+    });
+}
 </script>
 
 </body>
