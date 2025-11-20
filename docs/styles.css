@@ -544,32 +544,136 @@ footer p {
 
 .lb-card {
     background: var(--card);
-    padding: 1.5rem;
+    padding: 1rem 1.25rem;
     border-radius: var(--radius);
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border);
+    position: relative;
+    transition: var(--transition);
 }
 
-.lb-card h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-    color: var(--accent);
+.lb-card:active {
+    transform: scale(0.98);
 }
 
-.lb-line {
-    margin: 0.5rem 0;
+.lb-card-header {
     display: flex;
     justify-content: space-between;
-    font-size: 0.9375rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    gap: 0.75rem;
 }
 
-.lb-line strong {
+.lb-card-rank {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-light);
+    min-width: 2.5rem;
+    text-align: center;
+}
+
+.lb-card-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--accent);
+    flex: 1;
+    margin: 0;
+}
+
+.lb-card-elo {
+    font-size: 1.25rem;
+    font-weight: 700;
     color: var(--text);
 }
 
-.lb-line span {
+.lb-card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.lb-stat {
+    text-align: center;
+}
+
+.lb-stat-label {
+    font-size: 0.75rem;
     color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.lb-stat-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.lb-card-expand {
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+    display: none;
+}
+
+.lb-card-expand.expanded {
+    display: block;
+}
+
+.lb-card-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+}
+
+.lb-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    padding: 0.25rem 0;
+}
+
+.lb-detail-label {
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.lb-detail-value {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.lb-expand-btn {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-light);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: 'Inter', sans-serif;
+}
+
+.lb-expand-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.lb-expand-btn::after {
+    content: " ▼";
+    font-size: 0.625rem;
+    margin-left: 0.25rem;
+}
+
+.lb-card-expand.expanded + .lb-expand-btn::after {
+    content: " ▲";
 }
 
 /* ============================================
@@ -578,42 +682,48 @@ footer p {
 @media (max-width: 768px) {
     header {
         padding: 1rem;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        gap: 0.5rem;
     }
     
     header h1 {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
+        flex-shrink: 0;
     }
     
     nav {
         gap: 0.25rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
     
     nav a, nav button {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.875rem;
+        padding: 0.5rem 0.625rem;
+        font-size: 0.8125rem;
+        white-space: nowrap;
     }
     
     main {
-        padding: 2rem 1rem;
+        padding: 1.5rem 1rem;
     }
     
     main h2 {
-        font-size: 2rem;
+        font-size: 1.75rem;
+        margin-bottom: 2rem;
     }
     
     .grid {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1.25rem;
     }
     
     .tile {
-        padding: 1.5rem;
+        padding: 1.25rem;
     }
     
     .gallery {
         grid-template-columns: 1fr;
-        gap: 1.5rem;
+        gap: 1.25rem;
     }
     
     .viewer-nav {
@@ -632,24 +742,71 @@ footer p {
     .viewer-title {
         font-size: 1rem;
         padding: 0.75rem 1.5rem;
+        top: 1rem;
     }
     
     th, td {
         padding: 0.5rem 0.375rem;
         font-size: 0.8125rem;
     }
+    
+    .search-container {
+        padding: 0.75rem 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    #searchInput {
+        padding: 0.875rem 1.25rem;
+        font-size: 0.9375rem;
+    }
 }
 
 @media (max-width: 480px) {
+    header {
+        padding: 0.875rem 1rem;
+    }
+    
     header h1 {
+        font-size: 1rem;
+    }
+    
+    nav a, nav button {
+        padding: 0.4375rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    nav button {
         font-size: 1.125rem;
+        padding: 0.375rem 0.5rem;
+    }
+    
+    main {
+        padding: 1.25rem 0.875rem;
     }
     
     main h2 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+    }
+    
+    .tile {
+        padding: 1rem;
     }
     
     .tile h3 {
-        font-size: 1.125rem;
+        font-size: 1.0625rem;
+    }
+    
+    .tile p {
+        font-size: 0.875rem;
+    }
+    
+    #searchInput {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    footer {
+        padding: 1.5rem 1rem;
+        font-size: 0.8125rem;
     }
 }
