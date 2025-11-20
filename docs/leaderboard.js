@@ -84,28 +84,102 @@ function renderCards(headers, rows) {
         const card = document.createElement("div");
         card.className = "lb-card";
 
-        // Titel
-        const title = document.createElement("h3");
-        title.textContent = row["Name"] || "Unbekannt";
-        card.appendChild(title);
+        // Header with rank, name, and ELO
+        const cardHeader = document.createElement("div");
+        cardHeader.className = "lb-card-header";
+        
+        const rank = document.createElement("div");
+        rank.className = "lb-card-rank";
+        rank.textContent = row["Platz"] || "-";
+        
+        const name = document.createElement("h3");
+        name.className = "lb-card-name";
+        name.textContent = row["Name"] || "Unknown";
+        
+        const elo = document.createElement("div");
+        elo.className = "lb-card-elo";
+        elo.textContent = row["ELO"] || "-";
+        
+        cardHeader.appendChild(rank);
+        cardHeader.appendChild(name);
+        cardHeader.appendChild(elo);
+        card.appendChild(cardHeader);
 
-        // Datenzeilen
-        headers.forEach(h => {
-            if (h === "Name") return;
+        // Main stats (Wins/Losses/Winrate)
+        const stats = document.createElement("div");
+        stats.className = "lb-card-stats";
+        
+        const createStat = (label, value) => {
+            const stat = document.createElement("div");
+            stat.className = "lb-stat";
+            
+            const statLabel = document.createElement("div");
+            statLabel.className = "lb-stat-label";
+            statLabel.textContent = label;
+            
+            const statValue = document.createElement("div");
+            statValue.className = "lb-stat-value";
+            statValue.textContent = value;
+            
+            stat.appendChild(statLabel);
+            stat.appendChild(statValue);
+            return stat;
+        };
+        
+        stats.appendChild(createStat("Wins", row["Siege"] || "0"));
+        stats.appendChild(createStat("Losses", row["Niederlagen"] || "0"));
+        stats.appendChild(createStat("Winrate", row["Winrate"] || "0%"));
+        card.appendChild(stats);
 
-            const div = document.createElement("div");
-            div.className = "lb-line";
-
-            let value = row[h] ?? "";
-            let styled = value;
-
-            if (h.toLowerCase().includes("positionsdelta") || h.toLowerCase().includes("elod")) {
-                styled = `<span class="${getDeltaClass(value)}">${value}</span>`;
+        // Expandable details section
+        const expandSection = document.createElement("div");
+        expandSection.className = "lb-card-expand";
+        
+        const details = document.createElement("div");
+        details.className = "lb-card-details";
+        
+        const createDetail = (label, value, applyDelta = false) => {
+            const detail = document.createElement("div");
+            detail.className = "lb-detail";
+            
+            const detailLabel = document.createElement("span");
+            detailLabel.className = "lb-detail-label";
+            detailLabel.textContent = label;
+            
+            const detailValue = document.createElement("span");
+            detailValue.className = "lb-detail-value";
+            
+            if (applyDelta && value) {
+                detailValue.classList.add(getDeltaClass(value));
             }
-
-            div.innerHTML = `<strong>${h}:</strong> ${styled}`;
-            card.appendChild(div);
-        });
+            detailValue.textContent = value || "-";
+            
+            detail.appendChild(detailLabel);
+            detail.appendChild(detailValue);
+            return detail;
+        };
+        
+        details.appendChild(createDetail("Games", row["Spiele"]));
+        details.appendChild(createDetail("Pts Won", row["Gewonnene Punkte"]));
+        details.appendChild(createDetail("Pts Lost", row["Verlorene Punkte"]));
+        details.appendChild(createDetail("Difference", row["Differenz"]));
+        details.appendChild(createDetail("Pos Δ", row["Positionsdelta"], true));
+        details.appendChild(createDetail("ELO Δ", row["ELOdelta"], true));
+        
+        expandSection.appendChild(details);
+        card.appendChild(expandSection);
+        
+        // Expand button
+        const expandBtn = document.createElement("button");
+        expandBtn.className = "lb-expand-btn";
+        expandBtn.textContent = "Show Details";
+        expandBtn.onclick = () => {
+            expandSection.classList.toggle("expanded");
+            expandBtn.textContent = expandSection.classList.contains("expanded") 
+                ? "Hide Details" 
+                : "Show Details";
+        };
+        card.appendChild(expandBtn);
 
         container.appendChild(card);
     });
