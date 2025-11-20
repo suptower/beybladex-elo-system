@@ -409,12 +409,16 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin: 0;
+    table-layout: fixed;
 }
 
 th, td {
-    padding: 1rem;
+    padding: 0.5rem 0.375rem;
     text-align: left;
     border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 th {
@@ -425,12 +429,26 @@ th {
     z-index: 10;
     text-transform: capitalize;
     letter-spacing: 0.025em;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
 }
 
 td {
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
 }
+
+/* Specific column widths to fit in 1920px */
+th:nth-child(1), td:nth-child(1) { width: 3%; min-width: 35px; text-align: center; } /* Platz */
+th:nth-child(2), td:nth-child(2) { width: 11%; min-width: 95px; } /* Name */
+th:nth-child(3), td:nth-child(3) { width: 5%; min-width: 50px; } /* ELO */
+th:nth-child(4), td:nth-child(4) { width: 6%; min-width: 50px; } /* Spiele */
+th:nth-child(5), td:nth-child(5) { width: 5%; min-width: 45px; } /* Siege */
+th:nth-child(6), td:nth-child(6) { width: 8%; min-width: 75px; } /* Niederlagen */
+th:nth-child(7), td:nth-child(7) { width: 7%; min-width: 65px; } /* Winrate */
+th:nth-child(8), td:nth-child(8) { width: 12%; min-width: 90px; } /* Gewonnene Punkte */
+th:nth-child(9), td:nth-child(9) { width: 10%; min-width: 85px; } /* Verlorene Punkte */
+th:nth-child(10), td:nth-child(10) { width: 8%; min-width: 65px; } /* Differenz */
+th:nth-child(11), td:nth-child(11) { width: 11%; min-width: 90px; } /* Positionsdelta */
+th:nth-child(12), td:nth-child(12) { width: 9%; min-width: 70px; } /* ELOdelta */
 
 tbody tr {
     transition: var(--transition);
@@ -449,15 +467,15 @@ th.sortable {
     cursor: pointer;
     user-select: none;
     position: relative;
-    padding-right: 2rem;
+    padding-right: 1.5rem;
 }
 
 th.sortable::after {
     content: "⇅";
     position: absolute;
-    right: 1rem;
+    right: 0.5rem;
     opacity: 0.3;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
 }
 
 th.sortable.sorted-asc::after {
@@ -617,8 +635,8 @@ footer p {
     }
     
     th, td {
-        padding: 0.75rem 0.5rem;
-        font-size: 0.875rem;
+        padding: 0.5rem 0.375rem;
+        font-size: 0.8125rem;
     }
 }
 
