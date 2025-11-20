@@ -467,6 +467,7 @@ def generate_all_plots(mode):
 
     print(f"All plots saved to: {files['outdir']}")
 
+
 def generate_plot_jsons():
     base = "docs/plots"
     subfolders = ["bars", "elo", "heatmaps", "positions"]
@@ -484,6 +485,7 @@ def generate_plot_jsons():
 
     with open(os.path.join(base, "plots.json"), "w") as f:
         json.dump(root_files, f)
+
 
 # -------------------
 # Main CLI
