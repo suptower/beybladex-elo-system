@@ -24,7 +24,7 @@
 
 <main>
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Suche nach Beyblade-Namen...">
+        <input type="text" id="searchInput" placeholder="Suche nach Beys">
     </div>
     <div id="gallery" class="gallery"></div>
 </main>
@@ -47,11 +47,20 @@ const titles = {
     elo: "ELO-Verläufe",
     positions: "Positionsverläufe",
     heatmaps: "Heatmaps",
-    single: "Einzelplots"
+    single: "Kombinierte Plots"
 };
 
 const params = new URLSearchParams(window.location.search);
 const type = params.get("type") || "single";
+
+// only show search bar for position and elo
+document.addEventListener("DOMContentLoaded", () => {
+    if (type === "elo" || type === "positions") {
+        document.querySelector(".search-container").style.display = "block";
+    } else {
+        document.querySelector(".search-container").style.display = "none";
+    }
+});
 
 document.getElementById("title").textContent = titles[type];
 
