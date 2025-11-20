@@ -14,10 +14,11 @@
 <body>
 
 <header>
-    <h1 id="title"></h1>
+    <h1>Gallery</h1>
     <nav>
         <a href="index.html">Start</a>
         <a href="plots.html">Plots</a>
+        <a href="leaderboard.html">Leaderboard</a>
         <button id="darkToggle">🌙</button>
     </nav>
 </header>
@@ -62,7 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-document.getElementById("title").textContent = titles[type];
+const titleElem = document.getElementById("title");
+if (titleElem) {
+    titleElem.textContent = titles[type];
+}
+
 
 let allImages = [];
 let currentImages = [];

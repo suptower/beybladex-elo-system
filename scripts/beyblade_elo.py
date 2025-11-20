@@ -240,6 +240,8 @@ def run_elo_pipeline(pipeline_config):
     # --- Aktuelles Turnier zusätzlich als leaderboard.csv ---
     tour_rows_df = pd.DataFrame(tour_rows)
     tour_rows_df.to_csv(leaderboard_file, index=False)
+    # copy leaderboard to data folder for docs
+    tour_rows_df.to_csv("./docs/data/leaderboard.csv", index=False)
     print(f"{GREEN}Aktuelles Leaderboard geschrieben: {leaderboard_file}{RESET}")
 
     # --- Time series ---

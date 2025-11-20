@@ -174,3 +174,262 @@ nav a, nav button {
     outline: none;
     border-color: #4a90e2;
 }
+
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+th, td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-color);
+    text-align: left;
+}
+
+th {
+    font-weight: bold;
+}
+
+/* Leaderboard styles */
+.search-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.search-container input {
+    padding: 10px;
+    width: 300px;
+    max-width: 90%;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+table th {
+    cursor: pointer;
+}
+
+/* ELO Highlights */
+.elo-high {
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.elo-low {
+    color: #e53935;
+    font-weight: bold;
+}
+
+/* Mobile Cards */
+#leaderboardCards {
+    display: none; /* auto-shown on mobile */
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin: 20px auto;
+}
+
+.lb-card {
+    background: var(--bg-secondary);
+    padding: 16px;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.lb-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+.lb-line {
+    margin: 4px 0;
+}
+
+/* -------------------------------------------
+   Modernes Farb- & Spacing-System
+------------------------------------------- */
+:root {
+    --bg: #f5f6fa;
+    --bg-alt: #ffffff;
+    --text: #222;
+    --text-light: #555;
+    --accent: #0078ff;
+    --card: #fff;
+
+    --radius: 14px;
+    --shadow: 0 4px 18px rgba(0,0,0,0.06);
+    --shadow-hover: 0 6px 25px rgba(0,0,0,0.08);
+
+    --transition: 0.25s ease;
+}
+
+body.dark {
+    --bg: #111;
+    --bg-alt: #181818;
+    --text: #f0f0f0;
+    --text-light: #bbb;
+    --accent: #4c9dff;
+    --card: #1d1d1d;
+
+    --shadow: 0 4px 18px rgba(0,0,0,0.6);
+    --shadow-hover: 0 6px 25px rgba(0,0,0,0.7);
+}
+
+/* -------------------------------------------
+   Grundlayout
+------------------------------------------- */
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+    margin: 0;
+    transition: background var(--transition), color var(--transition);
+}
+
+header {
+    background: var(--bg-alt);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+nav a, nav button {
+    margin-left: 16px;
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+nav a:hover {
+    color: var(--accent);
+}
+
+h1, h2, h3 {
+    margin: 10px 0;
+}
+
+/* -------------------------------------------
+   Dashboard Tiles
+------------------------------------------- */
+.tile {
+    background: var(--card);
+    padding: 24px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.tile:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* -------------------------------------------
+   Grid Layout
+------------------------------------------- */
+.grid {
+    display: grid;
+    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    margin: 30px 0;
+}
+
+/* -------------------------------------------
+   Gallery
+------------------------------------------- */
+.gallery img {
+    width: 100%;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.gallery img:hover {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-hover);
+}
+
+/* -------------------------------------------
+   Viewer Overlay
+------------------------------------------- */
+#viewerOverlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px);
+}
+
+.viewer-image-container img {
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Navigation Buttons */
+.viewer-nav {
+    background: var(--card);
+    color: var(--text);
+    border: none;
+    font-size: 40px;
+    padding: 12px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin: 0 25px;
+    transition: var(--transition);
+}
+
+.viewer-nav:hover {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* Title in viewer */
+.viewer-title {
+    position: fixed;
+    bottom: 30px;
+    font-size: 20px;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+}
+
+.tile:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 25px rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.3);
+}
+
+@media (max-width: 600px) {
+
+    h1 {
+        font-size: 1.4rem;
+    }
+
+    .tile {
+        padding: 18px;
+    }
+
+    .viewer-nav {
+        font-size: 28px;
+        padding: 8px 14px;
+    }
+
+    .viewer-title {
+        font-size: 16px;
+    }
+}

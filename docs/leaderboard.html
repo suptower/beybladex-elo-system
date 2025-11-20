@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beyblade X Dashboard</title>
+    <title>Leaderboard</title>
+
     <link rel="stylesheet" href="styles.css">
     <script defer src="darkmode.js"></script>
+    <script defer src="leaderboard.js"></script>
 </head>
 <body>
 
 <header>
-    <h1>Beyblade X Dashboard</h1>
+    <h1>Leaderboard</h1>
     <nav>
         <a href="index.html">Start</a>
         <a href="plots.html">Plots</a>
@@ -20,16 +22,21 @@
 </header>
 
 <main>
-    <h2>BEYBLADE X ELO SYSTEM</h2>
 
-    <a class="tile" href="plots.html">
-        <h3>📊 Grafiken</h3>
-        <p>Alle Plots in einer Übersicht.</p>
-    </a>
-    <a class="tile" href="leaderboard.html">
-        <h3>🏆 Leaderboard</h3>
-        <p>Die aktuelle Tabelle.</p>
-    </a>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Suche nach Bey…">
+    </div>
+
+    <div class="table-wrapper">
+        <table id="leaderboardTable">
+            <thead id="leaderboardHead"></thead>
+            <tbody id="leaderboardBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Mobile card list -->
+    <div id="leaderboardCards" class="cards"></div>
+
 </main>
 
 <footer>

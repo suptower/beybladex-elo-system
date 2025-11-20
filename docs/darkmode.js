@@ -4,11 +4,13 @@ if (localStorage.getItem("darkmode") === "1") {
 }
 
 const toggle = document.getElementById("darkToggle");
-if (toggle) {
-    toggle.onclick = () => {
-        document.body.classList.toggle("dark");
-        localStorage.setItem("darkmode",
-            document.body.classList.contains("dark") ? "1" : "0"
-        );
-    };
+
+toggle.onclick = () => {
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+};
+
+if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
 }
+
