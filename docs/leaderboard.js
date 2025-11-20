@@ -220,14 +220,24 @@ document.getElementById("searchInput").addEventListener("input", e => {
 
 window.addEventListener("resize", updateView);
 
-fetch("./data/leaderboard.csv")
-    .then(res => res.text())
-    .then(csv => {
-        const parsed = parseCSV(csv);
-        leaderboardHeaders = parsed.headers;
-        leaderboardRows = parsed.rows;
-        updateView();
-    });
+document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.addEventListener("input", e => filterRows(e.target.value));
+    }
+
+    window.addEventListener("resize", updateView);
+
+    fetch("./data/leaderboard.csv")
+        .then(res => res.text())
+        .then(csv => {
+            const parsed = parseCSV(csv);
+            leaderboardHeaders = parsed.headers;
+            leaderboardRows = parsed.rows;
+            updateView();
+        });
+});
+
 
 function getDeltaClass(value) {
     if (!value) return "delta-neutral";
