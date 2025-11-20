@@ -80,43 +80,37 @@ function renderCards(headers, rows) {
     const container = document.getElementById("leaderboardCards");
     container.innerHTML = "";
 
-    headers.forEach(h => {
-        if (h === "Bey") return;
-
-        const div = document.createElement("div");
-        div.className = "lb-line";
-
-        let value = row[h];
-        let styled = value;
-
-        if (h.toLowerCase().includes("positionsdelta") || h.toLowerCase().includes("elod")) {
-            styled = `<span class="${getDeltaClass(value)}">${value}</span>`;
-        }
-
-        div.innerHTML = `<strong>${h}:</strong> ${styled}`;
-        card.appendChild(div);
-    });
-
-
     rows.forEach(row => {
         const card = document.createElement("div");
         card.className = "lb-card";
 
+        // Titel
         const title = document.createElement("h3");
-        title.textContent = row["Bey"] || "Unbekannt";
+        title.textContent = row["Name"] || "Unbekannt";
         card.appendChild(title);
 
+        // Datenzeilen
         headers.forEach(h => {
-            if (h === "Bey") return;
+            if (h === "Name") return;
+
             const div = document.createElement("div");
             div.className = "lb-line";
-            div.innerHTML = `<strong>${h}:</strong> ${row[h]}`;
+
+            let value = row[h] ?? "";
+            let styled = value;
+
+            if (h.toLowerCase().includes("positionsdelta") || h.toLowerCase().includes("elod")) {
+                styled = `<span class="${getDeltaClass(value)}">${value}</span>`;
+            }
+
+            div.innerHTML = `<strong>${h}:</strong> ${styled}`;
             card.appendChild(div);
         });
 
         container.appendChild(card);
     });
 }
+
 
 function updateView() {
     const isMobile = window.innerWidth < 900;
