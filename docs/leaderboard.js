@@ -4,12 +4,28 @@ let currentSort = { column: null, asc: true };
 let currentSearchQuery = ""; // Track the current search query
 let isAdvancedMode = false; // Track which leaderboard is being displayed
 
+function getAbbreviatedHeader(header) {
+    const abbreviations = {
+        'PointsFor': 'Pts+',
+        'PointsAgainst': 'Pts-',
+        'AvgPointDiff': 'AvgΔPts',
+        'Volatility': 'Vol',
+        'AvgΔELO': 'AvgΔ',
+        'MaxΔELO': 'MaxΔ',
+        'MinΔELO': 'MinΔ',
+        'UpsetWins': 'U-W',
+        'UpsetLosses': 'U-L',
+        'ELOTrend': 'Trend'
+    };
+    return abbreviations[header] || header;
+}
+
 function parseCSV(text) {
-    const lines = text.trim().split("\n");
-    const headers = lines[0].split(",");
+    const lines = text.trim().split(/\r?\n/);  // Handle both \n and \r\n
+    const headers = lines[0].split(",").map(h => h.trim());
 
     const rows = lines.slice(1).map(line => {
-        const values = line.split(",");
+        const values = line.split(",").map(v => v.trim());
         const obj = {};
         headers.forEach((h, i) => obj[h] = values[i]);
         return obj;
@@ -51,7 +67,8 @@ function renderTable(headers, rows) {
     displayHeaders.forEach((h, index) => {
         const th = document.createElement("th");
         th.classList.add("sortable");
-        th.textContent = h;
+        // Use abbreviated headers for advanced mode
+        th.textContent = (isAdvancedMode && index > 0) ? getAbbreviatedHeader(h) : h;
 
         // Set sort indicator if this is the active column
         // Adjust index for advanced mode since we added "Platz" column
