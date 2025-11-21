@@ -47,6 +47,7 @@ function loadLeaderboard(isAdvanced = false) {
             leaderboardRows = parsed.rows;
             currentSort = { column: null, asc: true }; // Reset sort when switching
             updateView();
+            updateLegend(); // Update legend when data loads
         })
         .catch(err => {
             console.error("Error loading leaderboard:", err);
@@ -392,12 +393,103 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("leaderboardMode", isAdvancedMode ? "advanced" : "standard");
             // Reload data
             loadLeaderboard(isAdvancedMode);
+            // Update legend
+            updateLegend();
         });
     } else {
         // Fallback if toggle doesn't exist
         loadLeaderboard(false);
     }
+
+    // Setup legend toggle
+    setupLegend();
 });
+
+function setupLegend() {
+    const legendToggle = document.getElementById("legendToggle");
+    const legendContent = document.getElementById("legendContent");
+    const legendHeader = document.querySelector(".legend-header");
+    
+    if (legendToggle && legendContent && legendHeader) {
+        // Start collapsed
+        legendContent.classList.add("collapsed");
+        
+        // Toggle on click
+        legendHeader.addEventListener("click", () => {
+            const isExpanded = legendContent.classList.contains("expanded");
+            
+            if (isExpanded) {
+                legendContent.classList.remove("expanded");
+                legendContent.classList.add("collapsed");
+                legendToggle.textContent = "▼";
+            } else {
+                legendContent.classList.remove("collapsed");
+                legendContent.classList.add("expanded");
+                legendToggle.textContent = "▲";
+            }
+        });
+    }
+}
+
+function updateLegend() {
+    const legend = document.getElementById("legend");
+    const legendContent = document.getElementById("legendContent");
+    
+    if (!legend || !legendContent) return;
+    
+    if (isAdvancedMode) {
+        // Show legend for advanced mode with abbreviations
+        legend.style.display = "block";
+        
+        const abbreviations = {
+            'Platz': 'Rank/Position',
+            'Bey': 'Beyblade Name',
+            'Pts+': 'Points For',
+            'Pts-': 'Points Against',
+            'AvgΔPts': 'Average Point Difference',
+            'Vol': 'Volatility',
+            'AvgΔ': 'Average ELO Change',
+            'MaxΔ': 'Maximum ELO Change',
+            'MinΔ': 'Minimum ELO Change',
+            'U-W': 'Upset Wins',
+            'U-L': 'Upset Losses',
+            'Trend': 'ELO Trend'
+        };
+        
+        legendContent.innerHTML = Object.entries(abbreviations)
+            .map(([abbr, full]) => `
+                <div class="legend-item">
+                    <span class="legend-abbr">${abbr}</span>
+                    <span class="legend-full">= ${full}</span>
+                </div>
+            `).join('');
+    } else {
+        // Show legend for standard mode
+        legend.style.display = "block";
+        
+        const standardColumns = {
+            'Platz': 'Rank/Position',
+            'Name': 'Beyblade Name',
+            'Spiele': 'Games Played',
+            'Siege': 'Wins',
+            'Niederlagen': 'Losses',
+            'Gewonnene Punkte': 'Points Won',
+            'Verlorene Punkte': 'Points Lost',
+            'Differenz': 'Point Difference',
+            'Positionsdelta': 'Position Change',
+            'ELOdelta': 'ELO Change'
+        };
+        
+        legendContent.innerHTML = Object.entries(standardColumns)
+            .map(([col, desc]) => `
+                <div class="legend-item">
+                    <span class="legend-abbr">${col}</span>
+                    <span class="legend-full">= ${desc}</span>
+                </div>
+            `).join('');
+    }
+}
+
 
 
 function getDeltaClass(value) {

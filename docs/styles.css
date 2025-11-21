@@ -483,6 +483,91 @@ body.dark .viewer-counter {
 }
 
 /* ============================================
+   LEGEND
+============================================ */
+.legend {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin: 1.5rem 0;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.legend-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid var(--border);
+}
+
+.legend-header:hover {
+    background: var(--bg);
+}
+
+.legend-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.legend-toggle {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    transition: var(--transition);
+}
+
+.legend-toggle:hover {
+    color: var(--accent);
+    transform: scale(1.1);
+}
+
+.legend-content {
+    padding: 1.25rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+}
+
+.legend-content.expanded {
+    max-height: 500px;
+    padding: 1.25rem;
+}
+
+.legend-content.collapsed {
+    max-height: 0;
+    padding: 0 1.25rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.legend-abbr {
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 60px;
+    font-family: 'Courier New', monospace;
+}
+
+.legend-full {
+    color: var(--text-light);
+}
+
+/* ============================================
    TABLE
 ============================================ */
 .table-wrapper {
@@ -879,6 +964,15 @@ footer p {
     
     .toggle-switch input:checked + .toggle-slider:before {
         transform: translateX(24px);
+    }
+
+    .legend-content {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .legend-item {
+        font-size: 0.8125rem;
     }
 }
 
