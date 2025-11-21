@@ -545,7 +545,6 @@ function updateLegend() {
                         <div class="legend-long">${desc.long}</div>
                     </div>
                 </div>
-                </div>
             `).join('');
     }
 }
