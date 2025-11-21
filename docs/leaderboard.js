@@ -2,6 +2,7 @@ let leaderboardRows = [];
 let leaderboardHeaders = [];
 let currentSort = { column: null, asc: true };
 let currentSearchQuery = ""; // Track the current search query
+let isAdvancedMode = false; // Track which leaderboard is being displayed
 
 function parseCSV(text) {
     const lines = text.trim().split("\n");
@@ -15,6 +16,25 @@ function parseCSV(text) {
     });
 
     return { headers, rows };
+}
+
+function loadLeaderboard(isAdvanced = false) {
+    const csvPath = isAdvanced 
+        ? "./data/advanced_leaderboard.csv" 
+        : "./data/leaderboard.csv";
+    
+    fetch(csvPath)
+        .then(res => res.text())
+        .then(csv => {
+            const parsed = parseCSV(csv);
+            leaderboardHeaders = parsed.headers;
+            leaderboardRows = parsed.rows;
+            currentSort = { column: null, asc: true }; // Reset sort when switching
+            updateView();
+        })
+        .catch(err => {
+            console.error("Error loading leaderboard:", err);
+        });
 }
 
 function renderTable(headers, rows) {
@@ -81,7 +101,7 @@ function renderCards(headers, rows) {
     const container = document.getElementById("leaderboardCards");
     container.innerHTML = "";
 
-    rows.forEach(row => {
+    rows.forEach((row, index) => {
         const card = document.createElement("div");
         card.className = "lb-card";
 
@@ -91,11 +111,13 @@ function renderCards(headers, rows) {
         
         const rank = document.createElement("div");
         rank.className = "lb-card-rank";
-        rank.textContent = row["Platz"] || "-";
+        // Use index+1 for advanced mode since it doesn't have "Platz"
+        rank.textContent = row["Platz"] || (index + 1);
         
         const name = document.createElement("h3");
         name.className = "lb-card-name";
-        name.textContent = row["Name"] || "Unknown";
+        // Advanced mode uses "Bey", standard uses "Name"
+        name.textContent = row["Name"] || row["Bey"] || "Unknown";
         
         const elo = document.createElement("div");
         elo.className = "lb-card-elo";
@@ -127,8 +149,9 @@ function renderCards(headers, rows) {
             return stat;
         };
         
-        stats.appendChild(createStat("Wins", row["Siege"] || "0"));
-        stats.appendChild(createStat("Losses", row["Niederlagen"] || "0"));
+        // Advanced mode uses "Wins/Losses/Matches", standard uses "Siege/Niederlagen/Spiele"
+        stats.appendChild(createStat("Wins", row["Siege"] || row["Wins"] || "0"));
+        stats.appendChild(createStat("Losses", row["Niederlagen"] || row["Losses"] || "0"));
         stats.appendChild(createStat("Winrate", row["Winrate"] || "0%"));
         card.appendChild(stats);
 
@@ -160,12 +183,27 @@ function renderCards(headers, rows) {
             return detail;
         };
         
-        details.appendChild(createDetail("Games", row["Spiele"]));
-        details.appendChild(createDetail("Pts Won", row["Gewonnene Punkte"]));
-        details.appendChild(createDetail("Pts Lost", row["Verlorene Punkte"]));
-        details.appendChild(createDetail("Difference", row["Differenz"]));
-        details.appendChild(createDetail("Pos Δ", row["Positionsdelta"], true));
-        details.appendChild(createDetail("ELO Δ", row["ELOdelta"], true));
+        // Conditional details based on mode
+        if (isAdvancedMode) {
+            details.appendChild(createDetail("Matches", row["Matches"]));
+            details.appendChild(createDetail("Pts For", row["PointsFor"]));
+            details.appendChild(createDetail("Pts Against", row["PointsAgainst"]));
+            details.appendChild(createDetail("Avg Δ", row["AvgPointDiff"]));
+            details.appendChild(createDetail("Volatility", row["Volatility"]));
+            details.appendChild(createDetail("Avg ΔELO", row["AvgΔELO"]));
+            details.appendChild(createDetail("Max ΔELO", row["MaxΔELO"]));
+            details.appendChild(createDetail("Min ΔELO", row["MinΔELO"]));
+            details.appendChild(createDetail("Upset W", row["UpsetWins"]));
+            details.appendChild(createDetail("Upset L", row["UpsetLosses"]));
+            details.appendChild(createDetail("ELO Trend", row["ELOTrend"]));
+        } else {
+            details.appendChild(createDetail("Games", row["Spiele"]));
+            details.appendChild(createDetail("Pts Won", row["Gewonnene Punkte"]));
+            details.appendChild(createDetail("Pts Lost", row["Verlorene Punkte"]));
+            details.appendChild(createDetail("Difference", row["Differenz"]));
+            details.appendChild(createDetail("Pos Δ", row["Positionsdelta"], true));
+            details.appendChild(createDetail("ELO Δ", row["ELOdelta"], true));
+        }
         
         expandSection.appendChild(details);
         card.appendChild(expandSection);
@@ -299,14 +337,30 @@ document.addEventListener("DOMContentLoaded", () => {
         searchInput.addEventListener("input", e => filterRows(e.target.value));
     }
 
-    fetch("./data/leaderboard.csv")
-        .then(res => res.text())
-        .then(csv => {
-            const parsed = parseCSV(csv);
-            leaderboardHeaders = parsed.headers;
-            leaderboardRows = parsed.rows;
-            updateView();
+    const toggleInput = document.getElementById("leaderboardToggle");
+    if (toggleInput) {
+        // Load saved preference from localStorage
+        const savedMode = localStorage.getItem("leaderboardMode");
+        if (savedMode === "advanced") {
+            toggleInput.checked = true;
+            isAdvancedMode = true;
+        }
+        
+        // Load initial data
+        loadLeaderboard(isAdvancedMode);
+        
+        // Handle toggle changes
+        toggleInput.addEventListener("change", (e) => {
+            isAdvancedMode = e.target.checked;
+            // Save preference
+            localStorage.setItem("leaderboardMode", isAdvancedMode ? "advanced" : "standard");
+            // Reload data
+            loadLeaderboard(isAdvancedMode);
         });
+    } else {
+        // Fallback if toggle doesn't exist
+        loadLeaderboard(false);
+    }
 });
 
 
