@@ -18,35 +18,35 @@ const COLUMN_ABBREVIATIONS = {
     'ELOTrend': 'Trend'
 };
 
-// Full descriptions for legend
+// Full descriptions for legend with detailed explanations
 const COLUMN_DESCRIPTIONS = {
-    'Platz': 'Rank/Position',
-    'Bey': 'Beyblade Name',
-    'ELO': 'ELO Rating',
-    'Matches': 'Games Played',
-    'Wins': 'Wins',
-    'Losses': 'Losses',
-    'Winrate': 'Win Rate',
-    'Pts+': 'Points For',
-    'Pts-': 'Points Against',
-    'AvgΔPts': 'Average Point Difference',
-    'Vol': 'Volatility',
-    'AvgΔ': 'Average ELO Change',
-    'MaxΔ': 'Maximum ELO Change',
-    'MinΔ': 'Minimum ELO Change',
-    'U-W': 'Upset Wins',
-    'U-L': 'Upset Losses',
-    'Trend': 'ELO Trend',
+    'Platz': { short: 'Rank/Position', long: 'Current ranking position in the leaderboard' },
+    'Bey': { short: 'Beyblade Name', long: 'Name of the Beyblade' },
+    'ELO': { short: 'ELO Rating', long: 'Current ELO rating (skill level indicator)' },
+    'Matches': { short: 'Games Played', long: 'Total number of matches played' },
+    'Wins': { short: 'Wins', long: 'Total number of wins' },
+    'Losses': { short: 'Losses', long: 'Total number of losses' },
+    'Winrate': { short: 'Win Rate', long: 'Percentage of games won' },
+    'Pts+': { short: 'Points For', long: 'Total points scored across all matches' },
+    'Pts-': { short: 'Points Against', long: 'Total points conceded across all matches' },
+    'AvgΔPts': { short: 'Average Point Difference', long: 'Average point margin per match (positive = more points scored than conceded)' },
+    'Vol': { short: 'Volatility', long: 'Standard deviation of ELO changes - measures performance consistency (lower = more consistent)' },
+    'AvgΔ': { short: 'Average ELO Change', long: 'Average ELO rating change per match' },
+    'MaxΔ': { short: 'Maximum ELO Change', long: 'Largest single-match ELO gain' },
+    'MinΔ': { short: 'Minimum ELO Change', long: 'Largest single-match ELO loss' },
+    'U-W': { short: 'Upset Wins', long: 'Number of wins against higher-rated opponents' },
+    'U-L': { short: 'Upset Losses', long: 'Number of losses against lower-rated opponents' },
+    'Trend': { short: 'ELO Trend', long: 'Overall ELO trend/momentum (positive = improving, negative = declining)' },
     // Standard mode columns
-    'Name': 'Beyblade Name',
-    'Spiele': 'Games Played',
-    'Siege': 'Wins',
-    'Niederlagen': 'Losses',
-    'Gewonnene Punkte': 'Points Won',
-    'Verlorene Punkte': 'Points Lost',
-    'Differenz': 'Point Difference',
-    'Positionsdelta': 'Position Change',
-    'ELOdelta': 'ELO Change'
+    'Name': { short: 'Beyblade Name', long: 'Name of the Beyblade' },
+    'Spiele': { short: 'Games Played', long: 'Total number of matches played' },
+    'Siege': { short: 'Wins', long: 'Total number of wins' },
+    'Niederlagen': { short: 'Losses', long: 'Total number of losses' },
+    'Gewonnene Punkte': { short: 'Points Won', long: 'Total points scored across all matches' },
+    'Verlorene Punkte': { short: 'Points Lost', long: 'Total points conceded across all matches' },
+    'Differenz': { short: 'Point Difference', long: 'Total point difference (points won - points lost)' },
+    'Positionsdelta': { short: 'Position Change', long: 'Change in ranking position since last update' },
+    'ELOdelta': { short: 'ELO Change', long: 'ELO rating change since last update' }
 };
 
 function getAbbreviatedHeader(header) {
@@ -159,6 +159,11 @@ function renderTable(headers, rows) {
                 applyDeltaStyling(td, value, "elo");
             }
 
+            // Highlight ELOTrend (for advanced mode)
+            if (h === "ELOTrend" || h.toLowerCase() === "trend") {
+                applyTrendStyling(td, value);
+            }
+
             tr.appendChild(td);
         });
 
@@ -265,7 +270,14 @@ function renderCards(headers, rows) {
             details.appendChild(createDetail("Min ΔELO", row["MinΔELO"]));
             details.appendChild(createDetail("Upset W", row["UpsetWins"]));
             details.appendChild(createDetail("Upset L", row["UpsetLosses"]));
-            details.appendChild(createDetail("ELO Trend", row["ELOTrend"]));
+            
+            // Add ELO Trend with conditional styling
+            const trendDetail = createDetail("ELO Trend", row["ELOTrend"]);
+            const trendValue = trendDetail.querySelector('.lb-detail-value');
+            if (trendValue && row["ELOTrend"]) {
+                applyTrendStyling(trendValue, row["ELOTrend"]);
+            }
+            details.appendChild(trendDetail);
         } else {
             details.appendChild(createDetail("Games", row["Spiele"]));
             details.appendChild(createDetail("Pts Won", row["Gewonnene Punkte"]));
@@ -496,10 +508,13 @@ function updateLegend() {
         ];
         
         legendContent.innerHTML = legendEntries
-            .map(([abbr, full]) => `
+            .map(([abbr, desc]) => `
                 <div class="legend-item">
-                    <span class="legend-abbr">${abbr}</span>
-                    <span class="legend-full">= ${full}</span>
+                    <div class="legend-abbr">${abbr}</div>
+                    <div class="legend-desc">
+                        <div class="legend-short">${desc.short}</div>
+                        <div class="legend-long">${desc.long}</div>
+                    </div>
                 </div>
             `).join('');
     } else {
@@ -524,8 +539,12 @@ function updateLegend() {
         legendContent.innerHTML = standardEntries
             .map(([col, desc]) => `
                 <div class="legend-item">
-                    <span class="legend-abbr">${col}</span>
-                    <span class="legend-full">= ${desc}</span>
+                    <div class="legend-abbr">${col}</div>
+                    <div class="legend-desc">
+                        <div class="legend-short">${desc.short}</div>
+                        <div class="legend-long">${desc.long}</div>
+                    </div>
+                </div>
                 </div>
             `).join('');
     }
@@ -565,5 +584,31 @@ function applyDeltaStyling(td, value, type) {
         td.classList.add(type === "pos" ? "delta-pos-down" : "delta-elo-down");
     } else {
         td.classList.add("delta-neutral");
+    }
+}
+
+function applyTrendStyling(element, value) {
+    if (!value) {
+        element.classList.add("trend-neutral");
+        return;
+    }
+
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) {
+        element.classList.add("trend-neutral");
+        return;
+    }
+
+    // Apply color based on trend value
+    if (numValue > 20) {
+        element.classList.add("trend-very-positive");
+    } else if (numValue > 0) {
+        element.classList.add("trend-positive");
+    } else if (numValue < -20) {
+        element.classList.add("trend-very-negative");
+    } else if (numValue < 0) {
+        element.classList.add("trend-negative");
+    } else {
+        element.classList.add("trend-neutral");
     }
 }
