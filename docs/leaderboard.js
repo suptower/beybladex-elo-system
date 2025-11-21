@@ -44,28 +44,47 @@ function renderTable(headers, rows) {
     headRow.innerHTML = "";
     body.innerHTML = "";
 
+    // Add "Platz" column for advanced mode
+    const displayHeaders = isAdvancedMode ? ["Platz", ...headers] : headers;
+
     // --- Kopfzeile bauen ---
-    headers.forEach((h, index) => {
+    displayHeaders.forEach((h, index) => {
         const th = document.createElement("th");
         th.classList.add("sortable");
         th.textContent = h;
 
         // Set sort indicator if this is the active column
-        if (currentSort.column === index) {
+        // Adjust index for advanced mode since we added "Platz" column
+        const sortIndex = isAdvancedMode && index > 0 ? index - 1 : index;
+        if (currentSort.column === sortIndex && (!isAdvancedMode || index > 0)) {
             th.classList.add(currentSort.asc ? "sorted-asc" : "sorted-desc");
         }
 
-        th.onclick = () => sortByColumn(index);
+        // Only make sortable if not the rank column in advanced mode or any column in standard mode
+        if (!isAdvancedMode || index > 0) {
+            th.onclick = () => sortByColumn(sortIndex);
+        } else {
+            th.classList.remove("sortable");
+            th.style.cursor = "default";
+        }
+        
         headRow.appendChild(th);
     });
 
     // --- Datenzeilen bauen ---
-    rows.forEach(row => {
+    rows.forEach((row, rowIndex) => {
         const tr = document.createElement("tr");
 
-        headers.forEach(h => {
+        displayHeaders.forEach((h, colIndex) => {
             const td = document.createElement("td");
-            const value = row[h] ?? "";
+            
+            // For advanced mode, add rank column
+            let value;
+            if (isAdvancedMode && colIndex === 0) {
+                value = (rowIndex + 1).toString();
+            } else {
+                value = row[h] ?? "";
+            }
 
             // Standard-Text setzen (wird ggf. durch HTML ersetzt bei Cards)
             td.textContent = value;
