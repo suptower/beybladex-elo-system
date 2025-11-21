@@ -714,28 +714,33 @@ th.sorted-desc {
     opacity: 0.7;
 }
 
-/* ELO Trend Highlights */
-.trend-very-positive {
+/* ELO Trend Highlights - applies to both table cells and mobile card details */
+.trend-very-positive,
+.lb-detail-value.trend-very-positive {
     color: #10b981;
     font-weight: 700;
 }
 
-.trend-positive {
+.trend-positive,
+.lb-detail-value.trend-positive {
     color: #22c55e;
     font-weight: 600;
 }
 
-.trend-neutral {
+.trend-neutral,
+.lb-detail-value.trend-neutral {
     color: var(--text-light);
     opacity: 0.7;
 }
 
-.trend-negative {
+.trend-negative,
+.lb-detail-value.trend-negative {
     color: #f59e0b;
     font-weight: 600;
 }
 
-.trend-very-negative {
+.trend-very-negative,
+.lb-detail-value.trend-very-negative {
     color: #ef4444;
     font-weight: 700;
 }
@@ -886,32 +891,6 @@ footer p {
 .lb-detail-value.delta-neutral {
     color: var(--text-light);
     opacity: 0.7;
-}
-
-/* Trend colors for mobile card details */
-.lb-detail-value.trend-very-positive {
-    color: #10b981;
-    font-weight: 700;
-}
-
-.lb-detail-value.trend-positive {
-    color: #22c55e;
-    font-weight: 600;
-}
-
-.lb-detail-value.trend-neutral {
-    color: var(--text-light);
-    opacity: 0.7;
-}
-
-.lb-detail-value.trend-negative {
-    color: #f59e0b;
-    font-weight: 600;
-}
-
-.lb-detail-value.trend-very-negative {
-    color: #ef4444;
-    font-weight: 700;
 }
 
 .lb-expand-btn {
