@@ -4,20 +4,53 @@ let currentSort = { column: null, asc: true };
 let currentSearchQuery = ""; // Track the current search query
 let isAdvancedMode = false; // Track which leaderboard is being displayed
 
+// Column abbreviations for advanced mode
+const COLUMN_ABBREVIATIONS = {
+    'PointsFor': 'Pts+',
+    'PointsAgainst': 'Pts-',
+    'AvgPointDiff': 'AvgΔPts',
+    'Volatility': 'Vol',
+    'AvgΔELO': 'AvgΔ',
+    'MaxΔELO': 'MaxΔ',
+    'MinΔELO': 'MinΔ',
+    'UpsetWins': 'U-W',
+    'UpsetLosses': 'U-L',
+    'ELOTrend': 'Trend'
+};
+
+// Full descriptions for legend
+const COLUMN_DESCRIPTIONS = {
+    'Platz': 'Rank/Position',
+    'Bey': 'Beyblade Name',
+    'ELO': 'ELO Rating',
+    'Matches': 'Games Played',
+    'Wins': 'Wins',
+    'Losses': 'Losses',
+    'Winrate': 'Win Rate',
+    'Pts+': 'Points For',
+    'Pts-': 'Points Against',
+    'AvgΔPts': 'Average Point Difference',
+    'Vol': 'Volatility',
+    'AvgΔ': 'Average ELO Change',
+    'MaxΔ': 'Maximum ELO Change',
+    'MinΔ': 'Minimum ELO Change',
+    'U-W': 'Upset Wins',
+    'U-L': 'Upset Losses',
+    'Trend': 'ELO Trend',
+    // Standard mode columns
+    'Name': 'Beyblade Name',
+    'Spiele': 'Games Played',
+    'Siege': 'Wins',
+    'Niederlagen': 'Losses',
+    'Gewonnene Punkte': 'Points Won',
+    'Verlorene Punkte': 'Points Lost',
+    'Differenz': 'Point Difference',
+    'Positionsdelta': 'Position Change',
+    'ELOdelta': 'ELO Change'
+};
+
 function getAbbreviatedHeader(header) {
-    const abbreviations = {
-        'PointsFor': 'Pts+',
-        'PointsAgainst': 'Pts-',
-        'AvgPointDiff': 'AvgΔPts',
-        'Volatility': 'Vol',
-        'AvgΔELO': 'AvgΔ',
-        'MaxΔELO': 'MaxΔ',
-        'MinΔELO': 'MinΔ',
-        'UpsetWins': 'U-W',
-        'UpsetLosses': 'U-L',
-        'ELOTrend': 'Trend'
-    };
-    return abbreviations[header] || header;
+    return COLUMN_ABBREVIATIONS[header] || header;
 }
 
 function parseCSV(text) {
@@ -441,22 +474,28 @@ function updateLegend() {
         // Show legend for advanced mode with abbreviations
         legend.style.display = "block";
         
-        const abbreviations = {
-            'Platz': 'Rank/Position',
-            'Bey': 'Beyblade Name',
-            'Pts+': 'Points For',
-            'Pts-': 'Points Against',
-            'AvgΔPts': 'Average Point Difference',
-            'Vol': 'Volatility',
-            'AvgΔ': 'Average ELO Change',
-            'MaxΔ': 'Maximum ELO Change',
-            'MinΔ': 'Minimum ELO Change',
-            'U-W': 'Upset Wins',
-            'U-L': 'Upset Losses',
-            'Trend': 'ELO Trend'
-        };
+        // Get headers and map them to descriptions
+        const legendEntries = [
+            ['Platz', COLUMN_DESCRIPTIONS['Platz']],
+            ['Bey', COLUMN_DESCRIPTIONS['Bey']],
+            ['ELO', COLUMN_DESCRIPTIONS['ELO']],
+            ['Matches', COLUMN_DESCRIPTIONS['Matches']],
+            ['Wins', COLUMN_DESCRIPTIONS['Wins']],
+            ['Losses', COLUMN_DESCRIPTIONS['Losses']],
+            ['Winrate', COLUMN_DESCRIPTIONS['Winrate']],
+            ['Pts+', COLUMN_DESCRIPTIONS['Pts+']],
+            ['Pts-', COLUMN_DESCRIPTIONS['Pts-']],
+            ['AvgΔPts', COLUMN_DESCRIPTIONS['AvgΔPts']],
+            ['Vol', COLUMN_DESCRIPTIONS['Vol']],
+            ['AvgΔ', COLUMN_DESCRIPTIONS['AvgΔ']],
+            ['MaxΔ', COLUMN_DESCRIPTIONS['MaxΔ']],
+            ['MinΔ', COLUMN_DESCRIPTIONS['MinΔ']],
+            ['U-W', COLUMN_DESCRIPTIONS['U-W']],
+            ['U-L', COLUMN_DESCRIPTIONS['U-L']],
+            ['Trend', COLUMN_DESCRIPTIONS['Trend']]
+        ];
         
-        legendContent.innerHTML = Object.entries(abbreviations)
+        legendContent.innerHTML = legendEntries
             .map(([abbr, full]) => `
                 <div class="legend-item">
                     <span class="legend-abbr">${abbr}</span>
@@ -467,20 +506,22 @@ function updateLegend() {
         // Show legend for standard mode
         legend.style.display = "block";
         
-        const standardColumns = {
-            'Platz': 'Rank/Position',
-            'Name': 'Beyblade Name',
-            'Spiele': 'Games Played',
-            'Siege': 'Wins',
-            'Niederlagen': 'Losses',
-            'Gewonnene Punkte': 'Points Won',
-            'Verlorene Punkte': 'Points Lost',
-            'Differenz': 'Point Difference',
-            'Positionsdelta': 'Position Change',
-            'ELOdelta': 'ELO Change'
-        };
+        const standardEntries = [
+            ['Platz', COLUMN_DESCRIPTIONS['Platz']],
+            ['Name', COLUMN_DESCRIPTIONS['Name']],
+            ['ELO', COLUMN_DESCRIPTIONS['ELO']],
+            ['Spiele', COLUMN_DESCRIPTIONS['Spiele']],
+            ['Siege', COLUMN_DESCRIPTIONS['Siege']],
+            ['Niederlagen', COLUMN_DESCRIPTIONS['Niederlagen']],
+            ['Winrate', COLUMN_DESCRIPTIONS['Winrate']],
+            ['Gewonnene Punkte', COLUMN_DESCRIPTIONS['Gewonnene Punkte']],
+            ['Verlorene Punkte', COLUMN_DESCRIPTIONS['Verlorene Punkte']],
+            ['Differenz', COLUMN_DESCRIPTIONS['Differenz']],
+            ['Positionsdelta', COLUMN_DESCRIPTIONS['Positionsdelta']],
+            ['ELOdelta', COLUMN_DESCRIPTIONS['ELOdelta']]
+        ];
         
-        legendContent.innerHTML = Object.entries(standardColumns)
+        legendContent.innerHTML = standardEntries
             .map(([col, desc]) => `
                 <div class="legend-item">
                     <span class="legend-abbr">${col}</span>
