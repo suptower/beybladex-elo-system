@@ -10,7 +10,8 @@ import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
-from plot_styles import configure_light_mode, configure_dark_mode
+
+from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
 
 # --- Ordner für Diagramme ---
 OUTPUT_DIR = "./plots/official"
@@ -62,12 +63,13 @@ pointdiff_matrix = pointdiff_matrix.fillna(0).astype(float)
 
 
 # --- Funktionen für Heatmaps ---
-def plot_heatmap(matrix, title, output_file, annot=False, cmap='YlOrRd', center=None, dark_mode=False):
+def plot_heatmap(matrix, title, output_file, annot=False, cmap='YlOrRd',
+                 center=None, dark_mode=False):
     if dark_mode:
         configure_dark_mode()
     else:
         configure_light_mode()
-    
+
     plt.figure(figsize=(12, 10))
     sns.heatmap(matrix, annot=annot, fmt=".2f" if annot else "", cmap=cmap, center=center,
                 cbar_kws={'label': title.split('-')[-1].strip()})
@@ -88,10 +90,13 @@ plot_heatmap(pointdiff_matrix, "Beyblade X - Head-to-Head Avg Point Diff (All Be
 
 # Dark mode versions
 plot_heatmap(winrate_matrix, "Beyblade X - Head-to-Head Winrate (All Beys)",
-             os.path.join(OUTPUT_DIR, "dark", "heatmap_winrate_all_dark.png"), annot=False, dark_mode=True)
+             os.path.join(OUTPUT_DIR, "dark", "heatmap_winrate_all_dark.png"),
+             annot=False, dark_mode=True)
 
-plot_heatmap(pointdiff_matrix, "Beyblade X - Head-to-Head Avg Point Diff (All Beys)",
-             os.path.join(OUTPUT_DIR, "dark", "heatmap_pointdiff_all_dark.png"), annot=False, cmap='RdBu_r', center=0, dark_mode=True)
+plot_heatmap(pointdiff_matrix,
+             "Beyblade X - Head-to-Head Avg Point Diff (All Beys)",
+             os.path.join(OUTPUT_DIR, "dark", "heatmap_pointdiff_all_dark.png"),
+             annot=False, cmap='RdBu_r', center=0, dark_mode=True)
 
 # --- Top 10 nach ELO ---
 top10_beys = df_adv.sort_values('ELO', ascending=False)['Bey'].head(10).tolist()
@@ -106,10 +111,13 @@ plot_heatmap(pointdiff_top10, "Beyblade X - Head-to-Head Avg Point Diff (Top 10)
 
 # Dark mode versions
 plot_heatmap(winrate_top10, "Beyblade X - Head-to-Head Winrate (Top 10)",
-             os.path.join(OUTPUT_DIR, "dark", "heatmap_winrate_top10_dark.png"), annot=True, dark_mode=True)
+             os.path.join(OUTPUT_DIR, "dark", "heatmap_winrate_top10_dark.png"),
+             annot=True, dark_mode=True)
 
-plot_heatmap(pointdiff_top10, "Beyblade X - Head-to-Head Avg Point Diff (Top 10)",
-             os.path.join(OUTPUT_DIR, "dark", "heatmap_pointdiff_top10_dark.png"), annot=True, cmap='RdBu_r', center=0, dark_mode=True)
+plot_heatmap(pointdiff_top10,
+             "Beyblade X - Head-to-Head Avg Point Diff (Top 10)",
+             os.path.join(OUTPUT_DIR, "dark", "heatmap_pointdiff_top10_dark.png"),
+             annot=True, cmap='RdBu_r', center=0, dark_mode=True)
 
 print("Heatmaps erstellt:")
 print(f"   {os.path.join(OUTPUT_DIR, 'heatmap_winrate_all.png')}")

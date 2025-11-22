@@ -3,11 +3,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import sys
+
 # Add scripts directory to path for imports
 script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
-from plot_styles import configure_light_mode, configure_dark_mode
+
+from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
 
 # --- Dateien und Verzeichnisse ---
 LEADERBOARD_FILE = "./csv/leaderboard.csv"
