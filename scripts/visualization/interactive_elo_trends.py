@@ -3,6 +3,12 @@ import pandas as pd
 import plotly.graph_objects as go
 import os
 import glob
+import sys
+
+# Add scripts directory to path for imports
+script_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(script_dir)
+sys.path.insert(0, parent_dir)
 
 # --- Ordner für Diagramme ---
 OUTPUT_DIR = "./plots/official"
@@ -81,6 +87,8 @@ bey_colors = {row['Bey']: color_volatility(row['Volatility']) for _, row in df_a
 
 def create_interactive_plot(df_ts, top5_beys, bey_colors, template="plotly_white"):
     """Create interactive ELO trends plot"""
+    from plot_styles import get_text_color
+    
     fig = go.Figure()
 
     for bey in df_ts['Bey'].unique():
@@ -107,8 +115,8 @@ def create_interactive_plot(df_ts, top5_beys, bey_colors, template="plotly_white
             for _, row in df_b.iterrows()
         ]
         
-        # Adjust text color based on template
-        text_color = 'white' if template == "plotly_dark" else 'black'
+        # Use text color from plot_styles module
+        text_color = get_text_color(dark_mode=(template == "plotly_dark"))
 
         fig.add_trace(go.Scatter(
             x=df_b['MatchIndex'],

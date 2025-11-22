@@ -47,14 +47,18 @@ def get_color_palette(dark_mode=False):
         return sns.color_palette("deep")
 
 
+def get_text_color(dark_mode=False):
+    """Get appropriate text color for the mode."""
+    return 'white' if dark_mode else 'black'
+
+
 def get_heatmap_cmap(dark_mode=False):
     """Get appropriate heatmap colormap for the mode."""
-    if dark_mode:
-        return "viridis"  # Good for dark backgrounds
-    else:
-        return "viridis"  # Also works well for light backgrounds
+    # viridis works well in both modes
+    return "viridis"
 
 
 def get_diverging_cmap(dark_mode=False):
     """Get appropriate diverging colormap for the mode."""
-    return "coolwarm"  # Works well in both modes
+    # coolwarm works well in both modes
+    return "coolwarm"

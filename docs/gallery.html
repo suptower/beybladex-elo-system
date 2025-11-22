@@ -75,13 +75,13 @@ let currentImages = [];
 // Function to get appropriate image based on dark mode
 function getImageSrc(base, filename) {
     const isDark = document.body.classList.contains('dark');
+    const darkFilename = filename.replace('.png', '_dark.png');
+    
     if (isDark && type !== 'single') {
         // For subdirectories, dark mode images are in a 'dark' subfolder
-        const darkFilename = filename.replace('.png', '_dark.png');
         return base + 'dark/' + darkFilename;
     } else if (isDark && type === 'single') {
         // For root level plots, dark images are in 'dark/' folder
-        const darkFilename = filename.replace('.png', '_dark.png');
         return './plots/dark/' + darkFilename;
     }
     return base + filename;
