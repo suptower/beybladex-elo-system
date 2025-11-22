@@ -5,7 +5,9 @@ import os
 import sys
 
 # Add scripts directory to path for imports
-sys.path.insert(0, os.path.dirname(__file__))
+script_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(script_dir)
+sys.path.insert(0, parent_dir)
 from plot_styles import configure_light_mode, configure_dark_mode
 
 # --- Dateien und Verzeichnisse ---
