@@ -241,23 +241,23 @@ def run_elo_pipeline(pipeline_config):
     # Use tour_rows from the last tournament iteration (which has correct deltas)
     # but correct the ELO values to match the sequential calculation (elos dict)
     # to ensure consistency with elo_history.csv and advanced_leaderboard.csv
-    
+
     # Create a mapping of bey names to their correct ELO from sequential calculation
     correct_elos = {bey: round(elo) for bey, elo in elos.items()}
-    
+
     # Update tour_rows with correct ELO values while preserving delta calculations
     for row in tour_rows:
         bey_name = row["Name"]
         if bey_name in correct_elos:
             row["ELO"] = correct_elos[bey_name]
-    
+
     # Resort by corrected ELO to ensure proper ranking
     tour_rows_sorted = sorted(tour_rows, key=lambda x: x["ELO"], reverse=True)
-    
+
     # Update Platz (rank) based on new ELO order
     for pos, row in enumerate(tour_rows_sorted, start=1):
         row["Platz"] = pos
-    
+
     tour_rows_df = pd.DataFrame(tour_rows_sorted)
     tour_rows_df.to_csv(leaderboard_file, index=False)
     # copy leaderboard to data folder for docs

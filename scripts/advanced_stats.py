@@ -102,7 +102,7 @@ for pos, (bey, s) in enumerate(sorted_stats):
 
 # --- CSV speichern (nach ELO sortiert) ---
 header = [
-    "Platz","Bey", "ELO", "Matches", "Wins", "Losses", "Winrate",
+    "Platz", "Bey", "ELO", "Matches", "Wins", "Losses", "Winrate",
     "PointsFor", "PointsAgainst", "AvgPointDiff", "Volatility",
     "AvgΔELO", "MaxΔELO", "MinΔELO", "UpsetWins", "UpsetLosses", "ELOTrend"
 ]
