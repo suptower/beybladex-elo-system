@@ -18,6 +18,7 @@ ADVANCED_FILE = "./csv/advanced_leaderboard.csv"
 
 # --- Datenstrukturen ---
 stats = defaultdict(lambda: {
+    "rank": 0,
     "matches": 0,
     "wins": 0,
     "losses": 0,
@@ -69,7 +70,9 @@ with open(HISTORY_FILE, newline="", encoding="utf-8") as f:
 
 # --- Advanced Stats berechnen ---
 advanced_data = []
-for bey, s in stats.items():
+sorted_stats = sorted(stats.items(), key=lambda x: -x[1]["last_elo"])
+for pos, (bey, s) in enumerate(sorted_stats):
+    rank = pos + 1
     matches = s["matches"]
     wins = s["wins"]
     losses = s["losses"]
@@ -92,14 +95,14 @@ for bey, s in stats.items():
     elo_trend = round(delta_sum, 2)
 
     advanced_data.append([
-        bey, last_elo, matches, wins, losses, f"{winrate * 100:.1f}%",
+        rank, bey, last_elo, matches, wins, losses, f"{winrate * 100:.1f}%",
         points_for, points_against, avg_point_diff, volatility, avg_delta, max_delta, min_delta,
         s["upset_wins"], s["upset_losses"], elo_trend
     ])
 
 # --- CSV speichern (nach ELO sortiert) ---
 header = [
-    "Bey", "ELO", "Matches", "Wins", "Losses", "Winrate",
+    "Platz","Bey", "ELO", "Matches", "Wins", "Losses", "Winrate",
     "PointsFor", "PointsAgainst", "AvgPointDiff", "Volatility",
     "AvgΔELO", "MaxΔELO", "MinΔELO", "UpsetWins", "UpsetLosses", "ELOTrend"
 ]
@@ -107,8 +110,12 @@ header = [
 with open(ADVANCED_FILE, "w", newline="", encoding="utf-8") as f:
     writer = csv.writer(f)
     writer.writerow(header)
-    for row in sorted(advanced_data, key=lambda x: -x[1]):  # sortiert nach ELO absteigend
+    for row in sorted(advanced_data, key=lambda x: -x[2]):  # sortiert nach ELO absteigend
         writer.writerow(row)
+
+# copy to docs folder
+with open(ADVANCED_FILE, "r", encoding="utf-8") as src, open("./docs/advanced_leaderboard.csv", "w", encoding="utf-8") as dst:
+    dst.write(src.read())
 
 print(f"{GREEN} Advanced Leaderboard erstellt: {ADVANCED_FILE}")
 

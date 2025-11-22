@@ -45,8 +45,8 @@ const COLUMN_DESCRIPTIONS = {
     'Gewonnene Punkte': { short: 'Points Won', long: 'Total points scored across all matches' },
     'Verlorene Punkte': { short: 'Points Lost', long: 'Total points conceded across all matches' },
     'Differenz': { short: 'Point Difference', long: 'Total point difference (points won - points lost)' },
-    'Positionsdelta': { short: 'Position Change', long: 'Change in ranking position since last update' },
-    'ELOdelta': { short: 'ELO Change', long: 'ELO rating change since last update' }
+    'ΔPosition': { short: 'Position Change', long: 'Change in ranking position since last update' },
+    'ΔELO': { short: 'ELO Change', long: 'ELO rating change since last update' }
 };
 
 function getAbbreviatedHeader(header) {
@@ -56,6 +56,7 @@ function getAbbreviatedHeader(header) {
 function parseCSV(text) {
     const lines = text.trim().split(/\r?\n/);  // Handle both \n and \r\n
     const headers = lines[0].split(",").map(h => h.trim());
+    console.log("Parsed Headers:", headers);
 
     const rows = lines.slice(1).map(line => {
         const values = line.split(",").map(v => v.trim());
@@ -94,8 +95,7 @@ function renderTable(headers, rows) {
     headRow.innerHTML = "";
     body.innerHTML = "";
 
-    // Add "Platz" column for advanced mode
-    const displayHeaders = isAdvancedMode ? ["Platz", ...headers] : headers;
+    const displayHeaders = headers;
 
     // --- Kopfzeile bauen ---
     displayHeaders.forEach((h, index) => {
