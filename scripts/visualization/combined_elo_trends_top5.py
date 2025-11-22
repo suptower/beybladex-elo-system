@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import sys
-
 # Add scripts directory to path for imports
 script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
@@ -42,7 +41,7 @@ def plot_combined_elo_trends(df_ts, top5_beys, bey_colors, output_file, dark_mod
         configure_dark_mode()
     else:
         configure_light_mode()
-    
+
     plt.figure(figsize=(14, 8))
 
     for bey in df_ts['Bey'].unique():

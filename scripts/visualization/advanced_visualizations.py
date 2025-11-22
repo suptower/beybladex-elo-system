@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import sys
-
 # Add scripts directory to path for imports
 script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
@@ -47,13 +46,14 @@ def plot_winrate_bar(df_adv, output_file, dark_mode=False):
         configure_dark_mode()
     else:
         configure_light_mode()
-    
+
     df_sorted = df_adv.sort_values(by='WinrateInt', ascending=False)
-    
+
     plt.figure(figsize=(12, 6))
     bars = plt.bar(df_sorted['Bey'], df_sorted['WinrateInt'], color=df_sorted['WinrateInt'].apply(color_winrate))
     for bar, value in zip(bars, df_sorted['WinrateInt']):
-        plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1, f"{value}%", ha='center', va='bottom', fontsize=8)
+        size = bar.get_x() + bar.get_width() / 2
+        plt.text(size, bar.get_height() + 1, f"{value}%", ha='center', va='bottom', fontsize=8)
     plt.xticks(rotation=45, ha='right')
     plt.ylabel("Winrate (%)")
     plt.title("Beyblade X - Winrate Übersicht")
@@ -68,9 +68,9 @@ def plot_volatility_bar(df_adv, output_file, dark_mode=False):
         configure_dark_mode()
     else:
         configure_light_mode()
-    
+
     df_sorted_vol = df_adv.sort_values(by='Volatility', ascending=False)
-    
+
     plt.figure(figsize=(12, 6))
     bars = plt.bar(df_sorted_vol['Bey'], df_sorted_vol['Volatility'],
                    color=df_sorted_vol['Volatility'].apply(color_volatility))
@@ -91,9 +91,9 @@ def plot_upset_bar(df_adv, output_file, dark_mode=False):
         configure_dark_mode()
     else:
         configure_light_mode()
-    
+
     df_sorted_upset = df_adv.sort_values(by='UpsetWins', ascending=False)
-    
+
     plt.figure(figsize=(12, 6))
     plt.bar(df_sorted_upset['Bey'], df_sorted_upset['UpsetWins'], color='blue', label='Upset Wins')
     plt.bar(df_sorted_upset['Bey'], df_sorted_upset['UpsetLosses'], color='red',
@@ -113,7 +113,7 @@ def plot_winrate_vs_pointdiff(df_adv, output_file, dark_mode=False):
         configure_dark_mode()
     else:
         configure_light_mode()
-    
+
     plt.figure(figsize=(10, 6))
     plt.scatter(df_adv['AvgPointDiff'], df_adv['WinrateFloat'], s=df_adv['Matches'] * 5, c='skyblue', alpha=0.7)
     for i, row in df_adv.iterrows():
@@ -132,12 +132,12 @@ def plot_elo_trends_top5(output_file, dark_mode=False):
         configure_dark_mode()
     else:
         configure_light_mode()
-    
+
     # ELO Verlauf aus timeseries CSV
     df_ts = pd.read_csv("./csv/elo_timeseries.csv")
     df_adv = pd.read_csv("./csv/advanced_leaderboard.csv")
     df_trend = df_adv.sort_values(by='ELO', ascending=False).head(5)
-    
+
     plt.figure(figsize=(12, 6))
     for bey in df_trend['Bey']:
         df_bey = df_ts[(df_ts['Bey'] == bey)].sort_values(by='MatchIndex')
