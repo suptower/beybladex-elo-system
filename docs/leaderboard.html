@@ -23,8 +23,32 @@
 
 <main>
 
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Suche nach Bey…">
+    <div class="leaderboard-controls">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Suche nach Bey…">
+        </div>
+        
+        <div class="toggle-container">
+            <label class="toggle-label">
+                <span class="toggle-text">Standard</span>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="leaderboardToggle">
+                    <span class="toggle-slider"></span>
+                </div>
+                <span class="toggle-text">Advanced</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Legend for abbreviations -->
+    <div id="legend" class="legend" style="display: none;">
+        <div class="legend-header">
+            <span class="legend-title">📖 Column Legend</span>
+            <button class="legend-toggle" id="legendToggle">▼</button>
+        </div>
+        <div class="legend-content" id="legendContent">
+            <!-- Content will be populated by JavaScript -->
+        </div>
     </div>
 
     <div class="table-wrapper">
