@@ -7,7 +7,9 @@ import glob
 # --- Ordner für Diagramme ---
 OUTPUT_DIR = "./plots/official"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "elo_trends_interactive.html")
+OUTPUT_FILE_DARK = os.path.join(OUTPUT_DIR, "dark", "elo_trends_interactive_dark.html")
 
 # --- CSVs einlesen ---
 df_ts = pd.read_csv("./csv/elo_timeseries.csv")      # Date,Bey,ELO,match_id,MatchIndex
@@ -76,58 +78,72 @@ def color_volatility(vol):
 
 bey_colors = {row['Bey']: color_volatility(row['Volatility']) for _, row in df_adv.iterrows()}
 
-# --- Plotly-Figur erstellen ---
-fig = go.Figure()
 
-for bey in df_ts['Bey'].unique():
-    df_b = df_ts[df_ts['Bey'] == bey].sort_values(by='MatchIndex')
-    line_width = 3 if bey in top5_beys else 1.2
-    opacity = 0.9 if bey in top5_beys else 0.5
-    color = bey_colors.get(bey, 'gray')
+def create_interactive_plot(df_ts, top5_beys, bey_colors, template="plotly_white"):
+    """Create interactive ELO trends plot"""
+    fig = go.Figure()
 
-    hover_text = [
-        f"Bey: {bey}<br>"
-        f"MatchIndex: {int(row['MatchIndex'])}<br>"
-        f"Date: {row['Date']}<br>"
-        f"ELO: {round(row['ELO'], 2)}<br>"
-        f"Score: {row.get('ScoreA', '')} - {row.get('ScoreB', '')}<br>"
-        f"Opponent: {row['Opponent']}<br>"
-        f"ELO Δ: {row.get('ELODelta', '0')}<br>"
-        f"Positions Δ: {row.get('Positionsdelta', '0')}"
-        for _, row in df_b.iterrows()
-    ]
+    for bey in df_ts['Bey'].unique():
+        df_b = df_ts[df_ts['Bey'] == bey].sort_values(by='MatchIndex')
+        line_width = 3 if bey in top5_beys else 1.2
+        opacity = 0.9 if bey in top5_beys else 0.5
+        color = bey_colors.get(bey, 'gray')
 
-    # Score über Marker anzeigen
-    scores = [
-        f"{row.get('ScoreA', '')}-{row.get('ScoreB', '')}"
-        for _, row in df_b.iterrows()
-    ]
+        hover_text = [
+            f"Bey: {bey}<br>"
+            f"MatchIndex: {int(row['MatchIndex'])}<br>"
+            f"Date: {row['Date']}<br>"
+            f"ELO: {round(row['ELO'], 2)}<br>"
+            f"Score: {row.get('ScoreA', '')} - {row.get('ScoreB', '')}<br>"
+            f"Opponent: {row['Opponent']}<br>"
+            f"ELO Δ: {row.get('ELODelta', '0')}<br>"
+            f"Positions Δ: {row.get('Positionsdelta', '0')}"
+            for _, row in df_b.iterrows()
+        ]
 
-    fig.add_trace(go.Scatter(
-        x=df_b['MatchIndex'],
-        y=df_b['ELO'],
-        mode='lines+markers+text',
-        name=bey,
-        line=dict(color=color, width=line_width),
-        opacity=opacity,
-        text=scores,
-        textposition="top center",
-        textfont=dict(size=10, color='black'),
-        hovertext=hover_text,
-        hoverinfo='text'
-    ))
+        # Score über Marker anzeigen
+        scores = [
+            f"{row.get('ScoreA', '')}-{row.get('ScoreB', '')}"
+            for _, row in df_b.iterrows()
+        ]
+        
+        # Adjust text color based on template
+        text_color = 'white' if template == "plotly_dark" else 'black'
 
-fig.update_layout(
-    title="Beyblade X - Interaktive ELO Verläufe mit Gegnerinfo",
-    xaxis_title="Match Index",
-    yaxis_title="ELO",
-    legend_title="Bey",
-    template="plotly_white",
-    hovermode="closest",
-    width=1400,
-    height=800
-)
+        fig.add_trace(go.Scatter(
+            x=df_b['MatchIndex'],
+            y=df_b['ELO'],
+            mode='lines+markers+text',
+            name=bey,
+            line=dict(color=color, width=line_width),
+            opacity=opacity,
+            text=scores,
+            textposition="top center",
+            textfont=dict(size=10, color=text_color),
+            hovertext=hover_text,
+            hoverinfo='text'
+        ))
 
-# --- HTML speichern ---
-fig.write_html(OUTPUT_FILE)
+    fig.update_layout(
+        title="Beyblade X - Interaktive ELO Verläufe mit Gegnerinfo",
+        xaxis_title="Match Index",
+        yaxis_title="ELO",
+        legend_title="Bey",
+        template=template,
+        hovermode="closest",
+        width=1400,
+        height=800
+    )
+    
+    return fig
+
+
+# --- Light mode plot ---
+fig_light = create_interactive_plot(df_ts, top5_beys, bey_colors, template="plotly_white")
+fig_light.write_html(OUTPUT_FILE)
 print(f"Interaktive ELO-Trends mit Gegnerinfo erstellt: {OUTPUT_FILE}")
+
+# --- Dark mode plot ---
+fig_dark = create_interactive_plot(df_ts, top5_beys, bey_colors, template="plotly_dark")
+fig_dark.write_html(OUTPUT_FILE_DARK)
+print(f"Interaktive ELO-Trends (Dark Mode) mit Gegnerinfo erstellt: {OUTPUT_FILE_DARK}")

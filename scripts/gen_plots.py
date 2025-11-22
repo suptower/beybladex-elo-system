@@ -1,15 +1,21 @@
-# gen_plots.py — Version 3.0
+# gen_plots.py — Version 3.1
 # Renders all plots (heatmaps, trends, bars) for official or private ladder.
 # Now with individual ELO charts, combined ELO chart, organized folders, and HTML gallery.
+# Supports light and dark mode plot generation.
 
 import argparse
 import json
 import os
 import subprocess
+import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+
+# Add scripts directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
+from plot_styles import configure_light_mode, configure_dark_mode
 
 plt.rcParams["figure.figsize"] = (10, 6)
 plt.rcParams["axes.grid"] = True
@@ -51,13 +57,21 @@ def ensure_dir(path):
 # -------------------
 
 
-def ensure_subdirs(base):
+def ensure_subdirs(base, dark_mode=False):
     subdirs = ["elo", "heatmaps", "bars", "positions"]
     paths = {}
     for s in subdirs:
         path = os.path.join(base, s)
         os.makedirs(path, exist_ok=True)
         paths[s] = path
+        # Create dark mode subdirectories
+        if dark_mode:
+            dark_path = os.path.join(path, "dark")
+            os.makedirs(dark_path, exist_ok=True)
+    # Create dark mode root directory if needed
+    if dark_mode:
+        dark_root = os.path.join(base, "dark")
+        os.makedirs(dark_root, exist_ok=True)
     return paths
 
 # -------------------
@@ -65,12 +79,20 @@ def ensure_subdirs(base):
 # -------------------
 
 
-def plot_elo_combined(df_ts, outdir):
+def plot_elo_combined(df_ts, outdir, dark_mode=False):
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+    
     df_ts["ELO"] = pd.to_numeric(df_ts["ELO"], errors="coerce")
     df_ts["MatchIndex"] = df_ts["MatchIndex"].astype(int)
     df_ts = df_ts.sort_values(["Bey", "MatchIndex"]).reset_index(drop=True)
 
-    combined_file = os.path.join(outdir, "elo_combined.png")
+    suffix = "_dark" if dark_mode else ""
+    subdir = "dark" if dark_mode else ""
+    combined_file = os.path.join(outdir, subdir, f"elo_combined{suffix}.png") if dark_mode else os.path.join(outdir, "elo_combined.png")
+    
     plt.figure(figsize=(10, 6))
     for bey, group in df_ts.groupby("Bey"):
         plt.plot(group["MatchIndex"], group["ELO"], label=bey, linewidth=1.3)
@@ -85,11 +107,19 @@ def plot_elo_combined(df_ts, outdir):
     print(f"Kombiniertes ELO-Diagramm gespeichert als {combined_file}")
 
 
-def plot_elo_single(df_ts, outdir):
+def plot_elo_single(df_ts, outdir, dark_mode=False):
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+    
     df_ts["ELO"] = pd.to_numeric(df_ts["ELO"], errors="coerce")
     df_ts["MatchIndex"] = df_ts["MatchIndex"].astype(int)
     df_ts = df_ts.sort_values(["Bey", "MatchIndex"]).reset_index(drop=True)
 
+    subdir = os.path.join(outdir, "dark") if dark_mode else outdir
+    suffix = "_dark" if dark_mode else ""
+    
     for bey, group in df_ts.groupby("Bey"):
         plt.figure(figsize=(6, 4))
         plt.plot(group["MatchIndex"], group["ELO"], marker="o", linewidth=1.8)
@@ -101,25 +131,34 @@ def plot_elo_single(df_ts, outdir):
         plt.tight_layout()
 
         safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
-        out_path = os.path.join(outdir, f"{safe_name}.png")
+        out_path = os.path.join(subdir, f"{safe_name}{suffix}.png")
         plt.savefig(out_path, dpi=200)
         plt.close()
-    print(f"Einzelne ELO-Diagramme gespeichert im Ordner: {outdir}")
+    print(f"Einzelne ELO-Diagramme gespeichert im Ordner: {subdir}")
 
 # -------------------
 # ELO Bar Chart
 # -------------------
 
 
-def plot_leaderboard_bars(df, outdir):
+def plot_leaderboard_bars(df, outdir, dark_mode=False):
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+    
     sorted_df = df.sort_values("ELO", ascending=False)
+    
+    suffix = "_dark" if dark_mode else ""
+    subdir = os.path.join(outdir, "dark") if dark_mode else outdir
+    
     plt.figure(figsize=(12, 8))
     sns.barplot(data=sorted_df, x="ELO", y="Name")
     plt.title("ELO Leaderboard")
     plt.xlabel("ELO")
     plt.ylabel("Bey")
     plt.tight_layout()
-    plt.savefig(os.path.join(outdir, "elo_bar_chart.png"))
+    plt.savefig(os.path.join(subdir, f"elo_bar_chart{suffix}.png"))
     plt.close()
 
 # -------------------
@@ -127,12 +166,20 @@ def plot_leaderboard_bars(df, outdir):
 # -------------------
 
 
-def plot_position_timeseries(df_pos, outdir):
+def plot_position_timeseries(df_pos, outdir, dark_mode=False):
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+    
     df_pos["Position"] = pd.to_numeric(df_pos["Position"], errors="coerce")
     df_pos["Event"] = df_pos["Event"].astype(int)
     df_pos["MatchIndex"] = df_pos["MatchIndex"].astype(int)
     df_pos = df_pos.sort_values(["Bey", "Event"]).reset_index(drop=True)
     max_rank = len(df_pos["Bey"].unique())
+
+    subdir = os.path.join(outdir, "dark") if dark_mode else outdir
+    suffix = "_dark" if dark_mode else ""
 
     for bey, group in df_pos.groupby("Bey"):
         # Filter to keep only first and last entry per MatchIndex to avoid oscillations
@@ -179,14 +226,19 @@ def plot_position_timeseries(df_pos, outdir):
         plt.tight_layout()
 
         safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
-        out_path = os.path.join(outdir, f"{safe_name}_position.png")
+        out_path = os.path.join(subdir, f"{safe_name}_position{suffix}.png")
         plt.savefig(out_path, dpi=200)
         plt.close()
-    print(f"Positions-Diagramme gespeichert im Ordner: {outdir}")
+    print(f"Positions-Diagramme gespeichert im Ordner: {subdir}")
 
 
-def plot_combined_positions(df_pos, out_path):
+def plot_combined_positions(df_pos, out_path, dark_mode=False):
     import matplotlib.pyplot as plt
+
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
 
     df_pos["Position"] = pd.to_numeric(df_pos["Position"], errors="coerce")
     df_pos["PlotX"] = pd.to_numeric(df_pos["PlotX"], errors="coerce")
@@ -282,16 +334,25 @@ def create_fractional_positions(df_pos):
 # -------------------
 # Winrate Bar Chart
 # -------------------
-def plot_winrates(df, outdir):
+def plot_winrates(df, outdir, dark_mode=False):
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+    
     df["WR"] = df["Winrate"].str.replace("%", "").astype(float)
     sorted_df = df.sort_values("WR", ascending=False)
+    
+    suffix = "_dark" if dark_mode else ""
+    subdir = os.path.join(outdir, "dark") if dark_mode else outdir
+    
     plt.figure(figsize=(12, 8))
     sns.barplot(data=sorted_df, x="WR", y="Name")
     plt.title("Winrates")
     plt.xlabel("Winrate (%)")
     plt.ylabel("Bey")
     plt.tight_layout()
-    plt.savefig(os.path.join(outdir, "winrate_bar_chart.png"))
+    plt.savefig(os.path.join(subdir, f"winrate_bar_chart{suffix}.png"))
     plt.close()
 
 # -------------------
@@ -299,7 +360,12 @@ def plot_winrates(df, outdir):
 # -------------------
 
 
-def plot_heatmaps(df_hist, outdir):
+def plot_heatmaps(df_hist, outdir, dark_mode=False):
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+    
     beys = sorted(set(df_hist["BeyA"]) | set(df_hist["BeyB"]))
     win_counts = pd.DataFrame(0, index=beys, columns=beys)
     point_diff = pd.DataFrame(0, index=beys, columns=beys)
@@ -316,18 +382,22 @@ def plot_heatmaps(df_hist, outdir):
 
     matches = win_counts + win_counts.T
     winrate = (win_counts / matches.replace(0, np.nan)).fillna(0)
+    
+    suffix = "_dark" if dark_mode else ""
+    subdir = os.path.join(outdir, "dark") if dark_mode else outdir
+    
     plt.figure(figsize=(18, 14))
     sns.heatmap(winrate, cmap="viridis")
     plt.title("Winrate Heatmap")
     plt.tight_layout()
-    plt.savefig(os.path.join(outdir, "heatmap_winrate.png"))
+    plt.savefig(os.path.join(subdir, f"heatmap_winrate{suffix}.png"))
     plt.close()
 
     plt.figure(figsize=(18, 14))
     sns.heatmap(point_diff, cmap="coolwarm", center=0)
     plt.title("Point Differential Heatmap")
     plt.tight_layout()
-    plt.savefig(os.path.join(outdir, "heatmap_pointdiff.png"))
+    plt.savefig(os.path.join(subdir, f"heatmap_pointdiff{suffix}.png"))
     plt.close()
 
 # -------------------
@@ -385,7 +455,7 @@ def generate_html_gallery(base_dir):
 def generate_all_plots(mode):
     files = load_files(mode)
     ensure_dir(files["outdir"])
-    dirs = ensure_subdirs(files["outdir"])
+    dirs = ensure_subdirs(files["outdir"], dark_mode=True)
 
     print(f"Loading data for mode: {mode}")
 
@@ -396,23 +466,31 @@ def generate_all_plots(mode):
 
     print("Rendering charts...")
 
-    # ELO
-    plot_elo_combined(df_ts, files["outdir"])
-    plot_elo_single(df_ts, dirs["elo"])
+    # Generate both light and dark mode plots
+    for dark_mode in [False, True]:
+        mode_label = "dark mode" if dark_mode else "light mode"
+        print(f"\nGenerating {mode_label} plots...")
+        
+        # ELO
+        plot_elo_combined(df_ts, files["outdir"], dark_mode=dark_mode)
+        plot_elo_single(df_ts, dirs["elo"], dark_mode=dark_mode)
 
-    df_pos = create_fractional_positions(df_pos)
-    plot_position_timeseries(df_pos, dirs["positions"])
-    plot_combined_positions(
-        df_pos,
-        os.path.join(files["outdir"], "combined_positions.png")
-    )
+        df_pos_frac = create_fractional_positions(df_pos)
+        plot_position_timeseries(df_pos_frac, dirs["positions"], dark_mode=dark_mode)
+        
+        # Combined positions with proper path handling for dark mode
+        if dark_mode:
+            combined_pos_path = os.path.join(files["outdir"], "dark", "combined_positions_dark.png")
+        else:
+            combined_pos_path = os.path.join(files["outdir"], "combined_positions.png")
+        plot_combined_positions(df_pos_frac, combined_pos_path, dark_mode=dark_mode)
 
-    # BAR CHARTS
-    plot_leaderboard_bars(df_lb, dirs["bars"])
-    plot_winrates(df_lb, dirs["bars"])
+        # BAR CHARTS
+        plot_leaderboard_bars(df_lb, dirs["bars"], dark_mode=dark_mode)
+        plot_winrates(df_lb, dirs["bars"], dark_mode=dark_mode)
 
-    # HEATMAPS
-    plot_heatmaps(df_hist, dirs["heatmaps"])
+        # HEATMAPS
+        plot_heatmaps(df_hist, dirs["heatmaps"], dark_mode=dark_mode)
 
     # HTML-Galerie
     generate_html_gallery(files["outdir"])
