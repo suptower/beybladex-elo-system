@@ -45,6 +45,8 @@ const COLUMN_DESCRIPTIONS = {
     'Gewonnene Punkte': { short: 'Points Won', long: 'Total points scored across all matches' },
     'Verlorene Punkte': { short: 'Points Lost', long: 'Total points conceded across all matches' },
     'Differenz': { short: 'Point Difference', long: 'Total point difference (points won - points lost)' },
+    'Positionsdelta': { short: 'Position Change', long: 'Change in ranking position since last update' },
+    'ELOdelta': { short: 'ELO Change', long: 'ELO rating change since last update' },
     'ΔPosition': { short: 'Position Change', long: 'Change in ranking position since last update' },
     'ΔELO': { short: 'ELO Change', long: 'ELO rating change since last update' }
 };
@@ -129,10 +131,11 @@ function renderTable(headers, rows) {
         displayHeaders.forEach((h, colIndex) => {
             const td = document.createElement("td");
             
-            // For advanced mode, add rank column
+            // For advanced mode, use the actual Platz value from the data
             let value;
             if (isAdvancedMode && colIndex === 0) {
-                value = (rowIndex + 1).toString();
+                // Use the Platz value from the row data, or calculate from original position
+                value = row["Platz"] || (leaderboardRows.indexOf(row) + 1).toString();
             } else {
                 value = row[h] ?? "";
             }
@@ -186,8 +189,8 @@ function renderCards(headers, rows) {
         
         const rank = document.createElement("div");
         rank.className = "lb-card-rank";
-        // Use index+1 for advanced mode since it doesn't have "Platz"
-        rank.textContent = row["Platz"] || (index + 1);
+        // Use the Platz value from the row data, or calculate from original position
+        rank.textContent = row["Platz"] || (leaderboardRows.indexOf(row) + 1);
         
         const name = document.createElement("h3");
         name.className = "lb-card-name";
