@@ -85,10 +85,11 @@ def color_volatility(vol):
 bey_colors = {row['Bey']: color_volatility(row['Volatility']) for _, row in df_adv.iterrows()}
 
 
-def create_interactive_plot(df_ts, top5_beys, bey_colors, template="plotly_white"):
+def create_interactive_plot(df_ts, top5_beys, bey_colors,
+                            template="plotly_white"):
     """Create interactive ELO trends plot"""
     from plot_styles import get_text_color
-    
+
     fig = go.Figure()
 
     for bey in df_ts['Bey'].unique():
@@ -114,7 +115,7 @@ def create_interactive_plot(df_ts, top5_beys, bey_colors, template="plotly_white
             f"{row.get('ScoreA', '')}-{row.get('ScoreB', '')}"
             for _, row in df_b.iterrows()
         ]
-        
+
         # Use text color from plot_styles module
         text_color = get_text_color(dark_mode=(template == "plotly_dark"))
 
@@ -142,7 +143,7 @@ def create_interactive_plot(df_ts, top5_beys, bey_colors, template="plotly_white
         width=1400,
         height=800
     )
-    
+
     return fig
 
 
