@@ -57,21 +57,19 @@ def ensure_dir(path):
 # -------------------
 
 
-def ensure_subdirs(base, dark_mode=False):
+def ensure_subdirs(base):
     subdirs = ["elo", "heatmaps", "bars", "positions"]
     paths = {}
     for s in subdirs:
         path = os.path.join(base, s)
         os.makedirs(path, exist_ok=True)
         paths[s] = path
-        # Create dark mode subdirectories
-        if dark_mode:
-            dark_path = os.path.join(path, "dark")
-            os.makedirs(dark_path, exist_ok=True)
-    # Create dark mode root directory if needed
-    if dark_mode:
-        dark_root = os.path.join(base, "dark")
-        os.makedirs(dark_root, exist_ok=True)
+        # Always create dark mode subdirectories for plot generation
+        dark_path = os.path.join(path, "dark")
+        os.makedirs(dark_path, exist_ok=True)
+    # Create dark mode root directory
+    dark_root = os.path.join(base, "dark")
+    os.makedirs(dark_root, exist_ok=True)
     return paths
 
 # -------------------
@@ -455,7 +453,7 @@ def generate_html_gallery(base_dir):
 def generate_all_plots(mode):
     files = load_files(mode)
     ensure_dir(files["outdir"])
-    dirs = ensure_subdirs(files["outdir"], dark_mode=True)
+    dirs = ensure_subdirs(files["outdir"])
 
     print(f"Loading data for mode: {mode}")
 
