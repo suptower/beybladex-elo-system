@@ -238,51 +238,30 @@ def run_elo_pipeline(pipeline_config):
         prev_stats = temp_stats.copy()
 
     # --- Aktuelles Turnier zusätzlich als leaderboard.csv ---
-    # Use the sequential ELO calculations (from elos dict) for the final leaderboard
+    # Use tour_rows from the last tournament iteration (which has correct deltas)
+    # but correct the ELO values to match the sequential calculation (elos dict)
     # to ensure consistency with elo_history.csv and advanced_leaderboard.csv
-    sorted_beys_final = sorted(elos.items(), key=lambda x: x[1], reverse=True)
-    final_rows = []
     
-    for pos, (bey, elo) in enumerate(sorted_beys_final, start=1):
-        s = stats[bey]
-        delta = prev_positions.get(bey, pos) - pos if prev_positions else 0
-        prev_elo = prev_elos.get(bey, START_ELO) if prev_elos else START_ELO
-        elo_delta = round(elo - prev_elo)
-
-        if elo_delta > 0:
-            elo_delta_str = f"+{elo_delta}"
-        elif elo_delta < 0:
-            elo_delta_str = f"{elo_delta}"  # Minus schon drin
-        else:
-            elo_delta_str = "0"
-
-        if delta > 0:
-            delta_str = f"▲ {delta}"
-        elif delta < 0:
-            delta_str = f"▼ {abs(delta)}"
-        else:
-            delta_str = "→ 0"
-
-        final_rows.append({
-            "Platz": pos,
-            "Name": bey,
-            "ELO": round(elo),
-            "Spiele": s["matches"],
-            "Siege": s["wins"],
-            "Niederlagen": s["losses"],
-            # convert to percentage string with 1 decimal
-            "Winrate": f"{round(s['winrate'] * 100, 1)}%",
-            "Gewonnene Punkte": s["for"],
-            "Verlorene Punkte": s["against"],
-            "Differenz": s["for"] - s["against"],
-            "Positionsdelta": delta_str,
-            "ELOdelta": elo_delta_str
-        })
+    # Create a mapping of bey names to their correct ELO from sequential calculation
+    correct_elos = {bey: round(elo) for bey, elo in elos.items()}
     
-    final_rows_df = pd.DataFrame(final_rows)
-    final_rows_df.to_csv(leaderboard_file, index=False)
+    # Update tour_rows with correct ELO values while preserving delta calculations
+    for row in tour_rows:
+        bey_name = row["Name"]
+        if bey_name in correct_elos:
+            row["ELO"] = correct_elos[bey_name]
+    
+    # Resort by corrected ELO to ensure proper ranking
+    tour_rows_sorted = sorted(tour_rows, key=lambda x: x["ELO"], reverse=True)
+    
+    # Update Platz (rank) based on new ELO order
+    for pos, row in enumerate(tour_rows_sorted, start=1):
+        row["Platz"] = pos
+    
+    tour_rows_df = pd.DataFrame(tour_rows_sorted)
+    tour_rows_df.to_csv(leaderboard_file, index=False)
     # copy leaderboard to data folder for docs
-    final_rows_df.to_csv("./docs/data/leaderboard.csv", index=False)
+    tour_rows_df.to_csv("./docs/data/leaderboard.csv", index=False)
     print(f"{GREEN}Aktuelles Leaderboard geschrieben: {leaderboard_file}{RESET}")
 
     # --- Time series ---
