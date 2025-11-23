@@ -72,13 +72,28 @@ if (titleElem) {
 let allImages = [];
 let currentImages = [];
 
+// Function to get appropriate image based on dark mode
+function getImageSrc(base, filename) {
+    const isDark = document.body.classList.contains('dark');
+    const darkFilename = filename.replace('.png', '_dark.png');
+    
+    if (isDark && type !== 'single') {
+        // For subdirectories, dark mode images are in a 'dark' subfolder
+        return base + 'dark/' + darkFilename;
+    } else if (isDark && type === 'single') {
+        // For root level plots, dark images are in 'dark/' folder
+        return './plots/dark/' + darkFilename;
+    }
+    return base + filename;
+}
+
 fetch(paths[type])
     .then(res => res.json())
     .then(files => {
         const base = paths[type].replace("plots.json", "");
         
         allImages = files.map(f => ({
-            src: base + f,
+            filename: f,
             title: f.replace(/\.(png|jpg|jpeg)$/i, '').replace(/_position$/i, '')
         }));
         
@@ -94,17 +109,31 @@ fetch(paths[type])
             );
             renderGallery(currentImages);
         });
+        
+        // Re-render gallery when dark mode changes
+        const observer = new MutationObserver(() => {
+            renderGallery(currentImages);
+        });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     });
 
 function renderGallery(images) {
     const gallery = document.getElementById("gallery");
     gallery.innerHTML = "";
+    const base = paths[type].replace("plots.json", "");
     
     images.forEach((imgObj, index) => {
         const img = document.createElement("img");
-        img.src = imgObj.src;
+        img.src = getImageSrc(base, imgObj.filename);
         img.alt = imgObj.title;
-        img.onclick = () => openViewer(index, currentImages);
+        img.onclick = () => {
+            // Create viewer images array with proper src based on current mode
+            const viewerImgs = currentImages.map(i => ({
+                src: getImageSrc(base, i.filename),
+                title: i.title
+            }));
+            openViewer(index, viewerImgs);
+        };
         gallery.appendChild(img);
     });
 }
