@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plots</title>
+    <title>Match History</title>
+
     <link rel="stylesheet" href="styles.css">
     <script defer src="darkmode.js"></script>
+    <script defer src="matches.js"></script>
     <script defer src="hamburger.js"></script>
 </head>
 <body>
 
 <header>
     <a href="index.html" class="header-link">
-        <h1>Beyblade Plots</h1>
+        <h1>Match History</h1>
     </a>
     <nav>
         <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
@@ -35,31 +37,38 @@
 </header>
 
 <main>
-    <h2>Kategorien</h2>
 
-    <div class="grid">
-
-        <a class="tile" href="gallery.html?type=bars">
-            <h3>📊 Winrate & ELO Bars</h3>
-        </a>
-
-        <a class="tile" href="gallery.html?type=elo">
-            <h3>📈 ELO-Verläufe</h3>
-        </a>
-
-        <a class="tile" href="gallery.html?type=positions">
-            <h3>📉 Positionsverläufe</h3>
-        </a>
-
-        <a class="tile" href="gallery.html?type=heatmaps">
-            <h3>🔥 Heatmaps</h3>
-        </a>
-
-        <a class="tile" href="gallery.html?type=single">
-            <h3>🖼️ Kombinierte Plots</h3>
-        </a>
-
+    <div class="leaderboard-controls">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Suche nach Bey oder Datum…">
+        </div>
+        
+        <div class="filter-controls">
+            <label for="dateFilter">Filter by Date:</label>
+            <select id="dateFilter">
+                <option value="all">All Dates</option>
+            </select>
+        </div>
     </div>
+
+    <div class="table-wrapper">
+        <table id="matchesTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Bey A</th>
+                    <th>Score A</th>
+                    <th>Score B</th>
+                    <th>Bey B</th>
+                    <th>Winner</th>
+                </tr>
+            </thead>
+            <tbody id="matchesBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Mobile card list -->
+    <div id="matchesCards" class="cards"></div>
 
 </main>
 
