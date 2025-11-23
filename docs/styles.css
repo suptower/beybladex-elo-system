@@ -903,6 +903,18 @@ footer p {
     text-align: center;
 }
 
+.rank-gold {
+    color: #d4af37;
+}
+
+.rank-silver {
+    color: #f0f0f0;
+}
+
+.rank-bronze {
+    color: #cd7f32;
+}
+
 .lb-card-name {
     font-size: 1.125rem;
     font-weight: 700;
@@ -917,6 +929,27 @@ footer p {
     color: var(--text);
     text-align: center;
     margin-top: 0.25rem;
+}
+
+.lb-card-elo.trend-very-positive {
+    color: #10b981;
+}
+
+.lb-card-elo.trend-positive {
+    color: #22c55e;
+}
+
+.lb-card-elo.trend-neutral {
+    color: var(--text);
+    opacity: 1.0;
+}
+
+.lb-card-elo.trend-negative {
+    color: #f59e0b;
+}
+
+.lb-card-elo.trend-very-negative {
+    color: #ef4444;
 }
 
 .lb-card-elo-label {
@@ -950,6 +983,27 @@ footer p {
     font-size: 1rem;
     font-weight: 700;
     color: var(--text);
+}
+
+.lb-stat-value.trend-very-positive {
+    color: #10b981;
+}
+
+.lb-stat-value.trend-positive {
+    color: #22c55e;
+}
+
+.lb-stat-value.trend-neutral {
+    color: var(--text);
+    opacity: 1.0;
+}
+
+.lb-stat-value.trend-negative {
+    color: #f59e0b;
+}
+
+.lb-stat-value.trend-very-negative {
+    color: #ef4444;
 }
 
 .lb-card-expand {

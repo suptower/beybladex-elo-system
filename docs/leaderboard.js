@@ -158,6 +158,15 @@ function renderTable(headers, rows) {
                 applyWinrateStyling(td, value);
             }
 
+            // Highlight diff
+            if (h.toLowerCase().includes("differenz") || h.toLowerCase().includes("pointdiff")) {
+                const diff = parseInt(value);
+                if (!isNaN(diff)) {
+                    if (diff > 0) td.classList.add("trend-very-positive");
+                    else if (diff < 0) td.classList.add("trend-very-negative");
+                }
+            }
+
             // Highlight Positionsdelta (Spaltenname enthält "positionsdelta" oder ähnlich)
             if (h.toLowerCase().includes("positionsdelta") || h.toLowerCase().includes("positiondelta")) {
                 applyDeltaStyling(td, value, "pos");
@@ -202,16 +211,29 @@ function renderCards(headers, rows) {
         rank.className = "lb-card-rank";
         // Use the Platz value from the row data, or calculate from original position
         rank.textContent = row["Platz"] || (leaderboardRows.indexOf(row) + 1);
+        // make rank gold/silver/bronze for top 3
+        if (rank.textContent === "1") rank.classList.add("rank-gold");
+        else if (rank.textContent === "2") rank.classList.add("rank-silver");
+        else if (rank.textContent === "3") rank.classList.add("rank-bronze");
         
         const name = document.createElement("h3");
         name.className = "lb-card-name";
         // Advanced mode uses "Bey", standard uses "Name"
         name.textContent = row["Name"] || row["Bey"] || "Unknown";
         
-        // show ELO and add small text "ELO" below number
+        // show ELO and add small text "ELO" below number, also apply elo color coding
         const elo = document.createElement("div");
         elo.className = "lb-card-elo";
         elo.textContent = row["ELO"] || "-";
+        // Apply ELO color coding
+        const eloValue = parseInt(row["ELO"]);
+        if (!isNaN(eloValue)) {
+            if (eloValue >= 1050) elo.classList.add("trend-very-positive");
+            else if (eloValue >= 1010) elo.classList.add("trend-positive");
+            else if (eloValue >= 990) elo.classList.add("trend-neutral");
+            else if (eloValue >= 950) elo.classList.add("trend-negative");
+            else if (eloValue < 950) elo.classList.add("trend-very-negative");
+        }
         const eloLabel = document.createElement("div");
         eloLabel.className = "lb-card-elo-label";
         eloLabel.textContent = "ELO";
@@ -247,6 +269,11 @@ function renderCards(headers, rows) {
         stats.appendChild(createStat("Wins", row["Siege"] || row["Wins"] || "0"));
         stats.appendChild(createStat("Losses", row["Niederlagen"] || row["Losses"] || "0"));
         stats.appendChild(createStat("Winrate", row["Winrate"] || "0%"));
+        // apply winrate styling via css class
+        const winrateStatValue = stats.children[2].querySelector(".lb-stat-value");
+        if (winrateStatValue) {
+            applyWinrateStyling(winrateStatValue, row["Winrate"] || "0%");
+        }
         card.appendChild(stats);
 
         // Expandable details section
@@ -283,7 +310,12 @@ function renderCards(headers, rows) {
             details.appendChild(createDetail("Pts For", row["PointsFor"]));
             details.appendChild(createDetail("Pts Against", row["PointsAgainst"]));
             details.appendChild(createDetail("Avg Δ", row["AvgPointDiff"]));
-            details.appendChild(createDetail("Volatility", row["Volatility"]));
+            const volDetail = createDetail("Volatility", row["Volatility"]);
+            const volValue = volDetail.querySelector('.lb-detail-value');
+            if (volValue && row["Volatility"]) {
+                applyVolatilityStyling(volValue, row["Volatility"]);
+            }
+            details.appendChild(volDetail);
             details.appendChild(createDetail("Avg ΔELO", row["AvgΔELO"]));
             details.appendChild(createDetail("Max ΔELO", row["MaxΔELO"]));
             details.appendChild(createDetail("Min ΔELO", row["MinΔELO"]));
@@ -301,7 +333,16 @@ function renderCards(headers, rows) {
             details.appendChild(createDetail("Games", row["Spiele"]));
             details.appendChild(createDetail("Pts Won", row["Gewonnene Punkte"]));
             details.appendChild(createDetail("Pts Lost", row["Verlorene Punkte"]));
-            details.appendChild(createDetail("Difference", row["Differenz"]));
+            const diffDetail = createDetail("Difference", row["Differenz"]);
+            const diffValue = diffDetail.querySelector('.lb-detail-value');
+            if (diffValue && row["Differenz"]) {
+                const diffNum = parseInt(row["Differenz"]);
+                if (!isNaN(diffNum)) {
+                    if (diffNum > 0) diffValue.classList.add("trend-very-positive");
+                    else if (diffNum < 0) diffValue.classList.add("trend-very-negative");
+                }
+            }
+            details.appendChild(diffDetail);
             details.appendChild(createDetail("Pos Δ", row["Positionsdelta"], true));
             details.appendChild(createDetail("ELO Δ", row["ELOdelta"], true));
         }
