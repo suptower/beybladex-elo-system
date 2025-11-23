@@ -5,13 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Beyblade Plots</title>
     <link rel="stylesheet" href="styles.css" />
+    <script defer src="hamburger.js"></script>
 </head>
 <body>
 <header>
     <h1>Beyblade Plots</h1>
     <nav>
-        <a href="index.html">Start</a>
-        <a href="beys.html">Beys</a>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="index.html" aria-label="Home">🏠</a>
+            <a href="wiki.html">Wiki</a>
+            <a href="beys.html">Beys</a>
+            <label class="theme-switch" aria-label="Toggle dark mode">
+                <input type="checkbox" id="darkToggle">
+                <span class="theme-slider"></span>
+            </label>
+        </div>
     </nav>
 </header>
 
