@@ -73,8 +73,10 @@ function filterMatches() {
 
 // Display matches in table and cards
 function displayMatches() {
+    const isMobile = window.innerWidth < 900;
     const tbody = document.getElementById('matchesBody');
     const cardsContainer = document.getElementById('matchesCards');
+    const tableWrapper = document.querySelector('.table-wrapper');
     
     // Clear existing content
     tbody.innerHTML = '';
@@ -84,6 +86,15 @@ function displayMatches() {
         tbody.innerHTML = '<tr><td colspan="6">No matches found</td></tr>';
         cardsContainer.innerHTML = '<div class="no-results">No matches found</div>';
         return;
+    }
+    
+    // Show/hide based on screen size
+    if (isMobile) {
+        tableWrapper.style.display = 'none';
+        cardsContainer.style.display = 'grid';
+    } else {
+        tableWrapper.style.display = 'block';
+        cardsContainer.style.display = 'none';
     }
     
     // Display table rows (desktop)
@@ -139,4 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', filterMatches);
+    
+    // Add resize event listener to handle responsive view switching
+    window.addEventListener('resize', displayMatches);
 });
