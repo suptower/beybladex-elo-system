@@ -25,7 +25,7 @@ async function loadMatches() {
         });
         
         // Reverse to show newest first
-        // allMatches.reverse();
+        allMatches.reverse();
         filteredMatches = [...allMatches];
         
         populateDateFilter();
@@ -105,8 +105,6 @@ function displayMatches() {
     // Display table rows (desktop)
     filteredMatches.forEach(match => {
         const row = document.createElement('tr');
-        
-        const winnerClass = match.winner === match.beyA ? 'winner-a' : 'winner-b';
         
         row.innerHTML = `
             <td>${match.date}</td>
