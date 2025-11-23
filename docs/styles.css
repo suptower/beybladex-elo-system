@@ -915,6 +915,15 @@ footer p {
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--text);
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+.lb-card-elo-label {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--text-light);
+    text-align: center;
 }
 
 .lb-card-stats {
