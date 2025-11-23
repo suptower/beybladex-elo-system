@@ -24,8 +24,8 @@ async function loadMatches() {
             };
         });
         
-        // Reverse to show newest first
-        allMatches.reverse();
+        // Uncomment to reverse list so newest match is shown first, for now unwanted behaviour
+        // allMatches.reverse();
         filteredMatches = [...allMatches];
         
         populateDateFilter();
