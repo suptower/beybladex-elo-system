@@ -107,15 +107,13 @@ function renderTable(headers, rows) {
         th.textContent = (isAdvancedMode && index > 0) ? getAbbreviatedHeader(h) : h;
 
         // Set sort indicator if this is the active column
-        // Adjust index for advanced mode since we added "Platz" column
-        const sortIndex = isAdvancedMode && index > 0 ? index - 1 : index;
-        if (currentSort.column === sortIndex && (!isAdvancedMode || index > 0)) {
+        if (currentSort.column === index) {
             th.classList.add(currentSort.asc ? "sorted-asc" : "sorted-desc");
         }
 
-        // Only make sortable if not the rank column in advanced mode or any column in standard mode
+        // Only make sortable if not the rank column (Platz) in advanced mode or any column in standard mode
         if (!isAdvancedMode || index > 0) {
-            th.onclick = () => sortByColumn(sortIndex);
+            th.onclick = () => sortByColumn(index);
         } else {
             th.classList.remove("sortable");
             th.style.cursor = "default";
