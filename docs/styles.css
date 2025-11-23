@@ -69,6 +69,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -225,7 +226,7 @@ nav button:hover {
 }
 
 .hamburger.active span:nth-child(1) {
-    transform: rotate(45deg) translate(5px, 5px);
+    transform: rotate(45deg) translate(6px, 6px);
 }
 
 .hamburger.active span:nth-child(2) {
@@ -233,7 +234,7 @@ nav button:hover {
 }
 
 .hamburger.active span:nth-child(3) {
-    transform: rotate(-45deg) translate(7px, -6px);
+    transform: rotate(-45deg) translate(6px, -6px);
 }
 
 .nav-menu {
@@ -1277,6 +1278,7 @@ footer p {
         top: 4.5rem;
         right: -100%;
         width: 250px;
+        max-width: 80vw;
         background: var(--bg-alt);
         flex-direction: column;
         align-items: flex-start;
@@ -1285,6 +1287,8 @@ footer p {
         border-left: 1px solid var(--border);
         transition: right 0.3s ease;
         gap: 0;
+        height: calc(100vh - 4.5rem);
+        overflow-y: auto;
     }
     
     .nav-menu.active {
@@ -1303,12 +1307,6 @@ footer p {
     .nav-menu a:hover,
     .nav-menu button:hover {
         transform: none;
-    }
-    
-    .nav-menu .theme-switch {
-        margin-top: 0.5rem;
-        border-top: 1px solid var(--border);
-        padding-top: 1.5rem;
     }
     
     header {
