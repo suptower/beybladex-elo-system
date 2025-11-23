@@ -1278,7 +1278,7 @@ footer p {
         top: 4.5rem;
         right: -100%;
         width: 250px;
-        max-width: 80vw;
+        max-width: 70vw;
         background: var(--bg-alt);
         flex-direction: column;
         align-items: flex-start;
@@ -1287,7 +1287,7 @@ footer p {
         border-left: 1px solid var(--border);
         transition: right 0.3s ease;
         gap: 0;
-        height: calc(100vh - 4.5rem);
+        max-height: calc(100vh - 4.5rem);
         overflow-y: auto;
     }
     
