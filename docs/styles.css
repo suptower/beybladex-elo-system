@@ -106,6 +106,28 @@ header h1 {
     letter-spacing: -0.025em;
 }
 
+.header-link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.header-link:hover {
+    opacity: 0.8;
+}
+
+.home-icon {
+    font-size: 1.5rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+    padding: 0.25rem 0.5rem;
+}
+
+.home-icon:hover {
+    transform: scale(1.2);
+}
+
 nav {
     display: flex;
     align-items: center;
