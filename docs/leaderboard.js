@@ -367,29 +367,6 @@ function renderCards(headers, rows) {
 }
 
 
-function updateView() {
-    const isMobile = window.innerWidth < 900;
-    const tableWrapper = document.querySelector(".table-wrapper");
-    const cardWrapper = document.getElementById("leaderboardCards");
-
-    // Apply current search filter
-    const filtered = currentSearchQuery 
-        ? leaderboardRows.filter(r =>
-            Object.values(r).some(v => String(v).toLowerCase().includes(currentSearchQuery.toLowerCase()))
-          )
-        : leaderboardRows;
-
-    if (isMobile) {
-        tableWrapper.style.display = "none";
-        cardWrapper.style.display = "grid";
-        renderCards(leaderboardHeaders, filtered);
-    } else {
-        tableWrapper.style.display = "block";
-        cardWrapper.style.display = "none";
-        renderTable(leaderboardHeaders, filtered);
-    }
-}
-
 function parseDeltaValue(value) {
     if (!value) return 0;
 
@@ -416,11 +393,9 @@ function parseDeltaValue(value) {
 }
 
 
-function sortByColumn(colIndex) {
+// Shared sorting logic
+function performSort(colIndex, asc) {
     const key = leaderboardHeaders[colIndex];
-
-    const asc = currentSort.column === colIndex ? !currentSort.asc : true;
-    currentSort = { column: colIndex, asc };
 
     leaderboardRows.sort((a, b) => {
         const raw1 = a[key];
@@ -444,6 +419,13 @@ function sortByColumn(colIndex) {
         // --- fallback: alphabetic ---
         return asc ? raw1.localeCompare(raw2) : raw2.localeCompare(raw1);
     });
+}
+
+function sortByColumn(colIndex) {
+    const asc = currentSort.column === colIndex ? !currentSort.asc : true;
+    currentSort = { column: colIndex, asc };
+
+    performSort(colIndex, asc);
     
     // Animation für sortierte Zeilen
     const rows = document.querySelectorAll("#leaderboardBody tr");
@@ -451,7 +433,6 @@ function sortByColumn(colIndex) {
         r.classList.add("sort-animate");
         setTimeout(() => r.classList.remove("sort-animate"), 250);
     });
-
 
     updateView();
 }
@@ -467,6 +448,156 @@ function filterRows(query) {
     if (window.innerWidth < 900) {
         renderCards(leaderboardHeaders, filtered);
     } else {
+        renderTable(leaderboardHeaders, filtered);
+    }
+}
+
+// Mobile sorting functions
+function setupMobileSorting() {
+    const sortButton = document.getElementById("mobileSortButton");
+    const sortModal = document.getElementById("sortModal");
+    const sortModalClose = document.getElementById("sortModalClose");
+    const sortModalBody = document.getElementById("sortModalBody");
+    
+    if (!sortButton || !sortModal || !sortModalClose || !sortModalBody) return;
+    
+    // Open modal on button click
+    sortButton.addEventListener("click", () => {
+        openSortModal();
+    });
+    
+    // Close modal on close button click
+    sortModalClose.addEventListener("click", () => {
+        closeSortModal();
+    });
+    
+    // Close modal when clicking outside
+    sortModal.addEventListener("click", (e) => {
+        if (e.target === sortModal) {
+            closeSortModal();
+        }
+    });
+}
+
+function openSortModal() {
+    const sortModal = document.getElementById("sortModal");
+    const sortModalBody = document.getElementById("sortModalBody");
+    
+    if (!sortModal || !sortModalBody) return;
+    
+    // Generate sort options based on current headers
+    sortModalBody.innerHTML = "";
+    
+    leaderboardHeaders.forEach((header, index) => {
+        // Skip rank column in advanced mode (it's calculated, not sortable)
+        if (isAdvancedMode && index === 0) return;
+        
+        const option = document.createElement("div");
+        option.className = "sort-option";
+        if (currentSort.column === index) {
+            option.classList.add("active");
+        }
+        
+        const label = document.createElement("div");
+        label.className = "sort-option-label";
+        // Use abbreviated header for advanced mode
+        label.textContent = (isAdvancedMode && index > 0) ? getAbbreviatedHeader(header) : header;
+        
+        const directionContainer = document.createElement("div");
+        directionContainer.className = "sort-option-direction";
+        
+        const ascBtn = document.createElement("button");
+        ascBtn.className = "direction-btn";
+        ascBtn.textContent = "↑";
+        ascBtn.title = "Ascending";
+        if (currentSort.column === index && currentSort.asc) {
+            ascBtn.classList.add("active");
+        }
+        ascBtn.onclick = (e) => {
+            e.stopPropagation();
+            sortByColumnMobile(index, true);
+            closeSortModal();
+        };
+        
+        const descBtn = document.createElement("button");
+        descBtn.className = "direction-btn";
+        descBtn.textContent = "↓";
+        descBtn.title = "Descending";
+        if (currentSort.column === index && !currentSort.asc) {
+            descBtn.classList.add("active");
+        }
+        descBtn.onclick = (e) => {
+            e.stopPropagation();
+            sortByColumnMobile(index, false);
+            closeSortModal();
+        };
+        
+        directionContainer.appendChild(ascBtn);
+        directionContainer.appendChild(descBtn);
+        
+        option.appendChild(label);
+        option.appendChild(directionContainer);
+        
+        // Click on option also sorts (with toggle direction)
+        option.addEventListener("click", () => {
+            const newAsc = currentSort.column === index ? !currentSort.asc : true;
+            sortByColumnMobile(index, newAsc);
+            closeSortModal();
+        });
+        
+        sortModalBody.appendChild(option);
+    });
+    
+    sortModal.classList.add("active");
+}
+
+function closeSortModal() {
+    const sortModal = document.getElementById("sortModal");
+    if (sortModal) {
+        sortModal.classList.remove("active");
+    }
+}
+
+function sortByColumnMobile(colIndex, asc) {
+    currentSort = { column: colIndex, asc };
+    performSort(colIndex, asc);
+    updateView();
+    updateCurrentSortLabel();
+}
+
+function updateCurrentSortLabel() {
+    const currentSortLabel = document.getElementById("currentSortLabel");
+    if (!currentSortLabel || currentSort.column === null) return;
+    
+    const header = leaderboardHeaders[currentSort.column];
+    const displayHeader = (isAdvancedMode && currentSort.column > 0) ? getAbbreviatedHeader(header) : header;
+    const direction = currentSort.asc ? "↑" : "↓";
+    
+    currentSortLabel.textContent = `${displayHeader} ${direction}`;
+}
+
+function updateView() {
+    const isMobile = window.innerWidth < 900;
+    const tableWrapper = document.querySelector(".table-wrapper");
+    const cardWrapper = document.getElementById("leaderboardCards");
+    const mobileSortControls = document.getElementById("mobileSortControls");
+
+    // Apply current search filter
+    const filtered = currentSearchQuery 
+        ? leaderboardRows.filter(r =>
+            Object.values(r).some(v => String(v).toLowerCase().includes(currentSearchQuery.toLowerCase()))
+          )
+        : leaderboardRows;
+
+    if (isMobile) {
+        tableWrapper.style.display = "none";
+        cardWrapper.style.display = "grid";
+        if (mobileSortControls) mobileSortControls.style.display = "block";
+        renderCards(leaderboardHeaders, filtered);
+    } else {
+        tableWrapper.style.display = "block";
+        cardWrapper.style.display = "none";
+        if (mobileSortControls) mobileSortControls.style.display = "none";
         renderTable(leaderboardHeaders, filtered);
     }
 }
@@ -508,6 +639,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Setup legend toggle
     setupLegend();
+    
+    // Setup mobile sorting
+    setupMobileSorting();
 });
 
 function setupLegend() {

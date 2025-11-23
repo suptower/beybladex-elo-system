@@ -75,7 +75,26 @@
     </div>
 
     <!-- Mobile card list -->
+    <div class="mobile-sort-controls" id="mobileSortControls">
+        <button class="sort-button" id="mobileSortButton">
+            <span class="sort-icon">⇅</span>
+            <span class="sort-label">Sort by: <span id="currentSortLabel">Rank</span></span>
+        </button>
+    </div>
     <div id="leaderboardCards" class="cards"></div>
+    
+    <!-- Sort modal for mobile -->
+    <div class="sort-modal" id="sortModal">
+        <div class="sort-modal-content">
+            <div class="sort-modal-header">
+                <h3>Sort Options</h3>
+                <button class="sort-modal-close" id="sortModalClose">&times;</button>
+            </div>
+            <div class="sort-modal-body" id="sortModalBody">
+                <!-- Populated dynamically by JavaScript -->
+            </div>
+        </div>
+    </div>
 
 </main>
 
