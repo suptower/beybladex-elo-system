@@ -11,7 +11,7 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 # --- Ordner für Diagramme ---
-OUTPUT_DIR = "./plots/official"
+OUTPUT_DIR = "./docs/plots"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "elo_trends_interactive.html")

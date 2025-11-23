@@ -147,9 +147,17 @@ function renderTable(headers, rows) {
             if (h.toLowerCase() === "elo") {
                 const elo = parseInt(value);
                 if (!isNaN(elo)) {
-                    if (elo >= 1200) td.classList.add("elo-high");
-                    else if (elo <= 900) td.classList.add("elo-low");
+                    if (elo >= 1050) td.classList.add("trend-very-positive");
+                    else if (elo >= 1010) td.classList.add("trend-positive");
+                    else if (elo >= 990) td.classList.add("trend-neutral");
+                    else if (elo >= 950) td.classList.add("trend-negative");
+                    else if (elo < 950) td.classList.add("trend-very-negative");
                 }
+            }
+
+            // Highlight Winrate
+            if (h.toLowerCase() === "winrate") {
+                applyWinrateStyling(td, value);
             }
 
             // Highlight Positionsdelta (Spaltenname enthält "positionsdelta" oder ähnlich)
@@ -165,6 +173,11 @@ function renderTable(headers, rows) {
             // Highlight ELOTrend (for advanced mode)
             if (h === "ELOTrend" || h.toLowerCase() === "trend") {
                 applyTrendStyling(td, value);
+            }
+
+            // Highlight Volatility (for advanced mode)
+            if (h === "Volatility" || h.toLowerCase() === "vol") {
+                applyVolatilityStyling(td, value);
             }
 
             tr.appendChild(td);
@@ -612,5 +625,39 @@ function applyTrendStyling(element, value) {
         element.classList.add("trend-negative");
     } else {
         element.classList.add("trend-neutral");
+    }
+}
+
+function applyWinrateStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value.replace("%", ""));
+    if (isNaN(numValue)) return;
+    if (numValue >= 80) {
+        td.classList.add("trend-very-positive");
+    } else if (numValue >= 60) {
+        td.classList.add("trend-positive");
+    } else if (numValue >= 40) {
+        td.classList.add("trend-neutral");
+    } else if (numValue >= 20) {
+        td.classList.add("trend-negative");
+    } else {
+        td.classList.add("trend-very-negative");
+    }
+}
+
+function applyVolatilityStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    if (numValue <= 1) {
+        td.classList.add("trend-very-positive");
+    } else if (numValue <= 3) {
+        td.classList.add("trend-positive");
+    } else if (numValue <= 5) {
+        td.classList.add("trend-neutral");
+    } else if (numValue <= 10) {
+        td.classList.add("trend-negative");
+    } else {
+        td.classList.add("trend-very-negative");
     }
 }
