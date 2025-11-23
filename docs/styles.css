@@ -143,6 +143,66 @@ nav button:hover {
 }
 
 /* ============================================
+   THEME SWITCH (Dark Mode Toggle)
+============================================ */
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.theme-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--border);
+    transition: var(--transition);
+    border-radius: 24px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.theme-slider:before {
+    position: absolute;
+    content: "🌙";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    background: white;
+    transition: var(--transition);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.theme-switch input:checked + .theme-slider {
+    background: var(--accent);
+}
+
+.theme-switch input:checked + .theme-slider:before {
+    content: "☀️";
+    transform: translateX(26px);
+}
+
+.theme-switch input:focus + .theme-slider {
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ============================================
    HAMBURGER MENU
 ============================================ */
 .hamburger {
@@ -1182,7 +1242,7 @@ footer p {
         transform: none;
     }
     
-    .nav-menu #darkToggle {
+    .nav-menu .theme-switch {
         margin-top: 0.5rem;
         border-top: 1px solid var(--border);
         padding-top: 1.5rem;
