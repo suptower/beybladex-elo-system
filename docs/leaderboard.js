@@ -208,9 +208,14 @@ function renderCards(headers, rows) {
         // Advanced mode uses "Bey", standard uses "Name"
         name.textContent = row["Name"] || row["Bey"] || "Unknown";
         
+        // show ELO and add small text "ELO" below number
         const elo = document.createElement("div");
         elo.className = "lb-card-elo";
         elo.textContent = row["ELO"] || "-";
+        const eloLabel = document.createElement("div");
+        eloLabel.className = "lb-card-elo-label";
+        eloLabel.textContent = "ELO";
+        elo.appendChild(eloLabel);
         
         cardHeader.appendChild(rank);
         cardHeader.appendChild(name);
