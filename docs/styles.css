@@ -1722,6 +1722,13 @@ footer p {
 }
 
 /* Match cards for mobile */
+#matchesCards {
+    display: none;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
 .card-match {
     display: flex;
     align-items: center;
