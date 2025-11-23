@@ -15,22 +15,24 @@
 <body>
 
 <header>
-    <h1>Gallery</h1>
+    <a href="index.html" class="header-link">
+        <h1>Gallery</h1>
+    </a>
     <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
         <button class="hamburger" id="hamburger" aria-label="Toggle menu">
             <span></span>
             <span></span>
             <span></span>
         </button>
         <div class="nav-menu" id="navMenu">
-            <a href="index.html" aria-label="Home">🏠</a>
             <a href="wiki.html">Wiki</a>
             <a href="plots.html">Plots</a>
             <a href="leaderboard.html">Leaderboard</a>
-            <label class="theme-switch" aria-label="Toggle dark mode">
-                <input type="checkbox" id="darkToggle">
-                <span class="theme-slider"></span>
-            </label>
         </div>
     </nav>
 </header>
