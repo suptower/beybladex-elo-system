@@ -37,6 +37,7 @@ import datetime
 from collections import defaultdict
 import os
 import pandas as pd
+import shutil
 
 # Colors for Windows
 os.system("")
@@ -262,6 +263,10 @@ def run_elo_pipeline(pipeline_config):
     tour_rows_df.to_csv(leaderboard_file, index=False)
     # copy leaderboard to data folder for docs
     tour_rows_df.to_csv("./docs/data/leaderboard.csv", index=False)
+
+    # copy matches to data folder for docs
+    shutil.copy(input_file, "./docs/data/matches.csv")
+
     print(f"{GREEN}Aktuelles Leaderboard geschrieben: {leaderboard_file}{RESET}")
 
     # --- Time series ---
