@@ -9,6 +9,7 @@ async function loadMatches() {
         const text = await response.text();
         
         const lines = text.trim().split('\n');
+        // Skip the header row
         const headers = lines[0].split(',');
         
         allMatches = lines.slice(1).map(line => {
