@@ -367,29 +367,6 @@ function renderCards(headers, rows) {
 }
 
 
-function updateView() {
-    const isMobile = window.innerWidth < 900;
-    const tableWrapper = document.querySelector(".table-wrapper");
-    const cardWrapper = document.getElementById("leaderboardCards");
-
-    // Apply current search filter
-    const filtered = currentSearchQuery 
-        ? leaderboardRows.filter(r =>
-            Object.values(r).some(v => String(v).toLowerCase().includes(currentSearchQuery.toLowerCase()))
-          )
-        : leaderboardRows;
-
-    if (isMobile) {
-        tableWrapper.style.display = "none";
-        cardWrapper.style.display = "grid";
-        renderCards(leaderboardHeaders, filtered);
-    } else {
-        tableWrapper.style.display = "block";
-        cardWrapper.style.display = "none";
-        renderTable(leaderboardHeaders, filtered);
-    }
-}
-
 function parseDeltaValue(value) {
     if (!value) return 0;
 
@@ -416,11 +393,9 @@ function parseDeltaValue(value) {
 }
 
 
-function sortByColumn(colIndex) {
+// Shared sorting logic
+function performSort(colIndex, asc) {
     const key = leaderboardHeaders[colIndex];
-
-    const asc = currentSort.column === colIndex ? !currentSort.asc : true;
-    currentSort = { column: colIndex, asc };
 
     leaderboardRows.sort((a, b) => {
         const raw1 = a[key];
@@ -444,6 +419,13 @@ function sortByColumn(colIndex) {
         // --- fallback: alphabetic ---
         return asc ? raw1.localeCompare(raw2) : raw2.localeCompare(raw1);
     });
+}
+
+function sortByColumn(colIndex) {
+    const asc = currentSort.column === colIndex ? !currentSort.asc : true;
+    currentSort = { column: colIndex, asc };
+
+    performSort(colIndex, asc);
     
     // Animation für sortierte Zeilen
     const rows = document.querySelectorAll("#leaderboardBody tr");
@@ -451,7 +433,6 @@ function sortByColumn(colIndex) {
         r.classList.add("sort-animate");
         setTimeout(() => r.classList.remove("sort-animate"), 250);
     });
-
 
     updateView();
 }
@@ -578,34 +559,8 @@ function closeSortModal() {
 }
 
 function sortByColumnMobile(colIndex, asc) {
-    // Use the existing sortByColumn function but override the asc parameter
     currentSort = { column: colIndex, asc };
-    
-    const key = leaderboardHeaders[colIndex];
-
-    leaderboardRows.sort((a, b) => {
-        const raw1 = a[key];
-        const raw2 = b[key];
-
-        // --- Spezialfall: Positionsdelta ---
-        if (key.toLowerCase().includes("positionsdelta")) {
-            const v1 = parseDeltaValue(raw1);
-            const v2 = parseDeltaValue(raw2);
-            return asc ? v1 - v2 : v2 - v1;
-        }
-
-        // --- normaler numeric sort ---
-        const n1 = parseFloat(raw1);
-        const n2 = parseFloat(raw2);
-
-        if (!isNaN(n1) && !isNaN(n2)) {
-            return asc ? n1 - n2 : n2 - n1;
-        }
-
-        // --- fallback: alphabetic ---
-        return asc ? raw1.localeCompare(raw2) : raw2.localeCompare(raw1);
-    });
-    
+    performSort(colIndex, asc);
     updateView();
     updateCurrentSortLabel();
 }
