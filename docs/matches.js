@@ -15,7 +15,7 @@ async function loadMatches() {
         allMatches = lines.slice(1).map(line => {
             const values = line.split(',');
             return {
-                date: values[0],
+                date: adaptDate(values[0]),
                 beyA: values[1],
                 beyB: values[2],
                 scoreA: parseInt(values[3]),
@@ -25,7 +25,7 @@ async function loadMatches() {
         });
         
         // Reverse to show newest first
-        allMatches.reverse();
+        // allMatches.reverse();
         filteredMatches = [...allMatches];
         
         populateDateFilter();
@@ -35,6 +35,11 @@ async function loadMatches() {
         document.getElementById('matchesBody').innerHTML = 
             '<tr><td colspan="6">Error loading matches data</td></tr>';
     }
+}
+
+function adaptDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
 }
 
 // Populate date filter dropdown
