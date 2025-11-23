@@ -58,6 +58,10 @@ body.dark {
     box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -70,6 +74,8 @@ body {
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
+    position: relative;
+    width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
