@@ -6,6 +6,7 @@
     <title>Beyblade Wiki</title>
     <link rel="stylesheet" href="styles.css">
     <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
 </head>
 <body>
 
@@ -117,9 +118,9 @@ function updateCount() {
     countEl.textContent = `Showing ${filteredBeys.length} of ${beysData.length} beyblades`;
 }
 
-// Search functionality
-document.getElementById('wikiSearch').addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
+// Apply filters to beyblade list
+function applyFilters() {
+    const searchTerm = document.getElementById('wikiSearch').value.toLowerCase();
     const activeFilter = document.querySelector('.filter-btn.active').dataset.type;
     
     filteredBeys = beysData.filter(bey => {
@@ -132,7 +133,10 @@ document.getElementById('wikiSearch').addEventListener('input', (e) => {
     
     renderBeys();
     updateCount();
-});
+}
+
+// Search functionality
+document.getElementById('wikiSearch').addEventListener('input', applyFilters);
 
 // Filter functionality
 document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -140,20 +144,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
         // Update active state
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        
-        const filterType = btn.dataset.type;
-        const searchTerm = document.getElementById('wikiSearch').value.toLowerCase();
-        
-        filteredBeys = beysData.filter(bey => {
-            const matchesSearch = bey.name.toLowerCase().includes(searchTerm) ||
-                                bey.blade.toLowerCase().includes(searchTerm) ||
-                                bey.description.toLowerCase().includes(searchTerm);
-            const matchesFilter = filterType === 'all' || bey.type === filterType;
-            return matchesSearch && matchesFilter;
-        });
-        
-        renderBeys();
-        updateCount();
+        applyFilters();
     });
 });
 
@@ -161,26 +152,28 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
 
-hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navMenu.classList.toggle('active');
-});
-
-// Close menu when clicking outside
-document.addEventListener('click', (e) => {
-    if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
-        hamburger.classList.remove('active');
-        navMenu.classList.remove('active');
-    }
-});
-
-// Close menu when clicking a link
-navMenu.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-        hamburger.classList.remove('active');
-        navMenu.classList.remove('active');
+if (hamburger && navMenu) {
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        navMenu.classList.toggle('active');
     });
-});
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+        }
+    });
+
+    // Close menu when clicking a link
+    navMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+        });
+    });
+}
 </script>
 
 </body>
