@@ -14,7 +14,7 @@ from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
 # --- Dateien und Verzeichnisse ---
 LEADERBOARD_FILE = "./csv/leaderboard.csv"
 ADVANCED_FILE = "./csv/advanced_leaderboard.csv"
-OUTPUT_DIR = "./plots/official"
+OUTPUT_DIR = "./docs/plots"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 

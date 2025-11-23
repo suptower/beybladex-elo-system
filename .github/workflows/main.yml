@@ -31,7 +31,7 @@ jobs:
         with:
           name: plots
           path: |
-            ./plots/official
+            ./data/plots
             ./plots/private
 
   run-update-script:

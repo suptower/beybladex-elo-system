@@ -14,7 +14,7 @@ sys.path.insert(0, parent_dir)
 from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
 
 # --- Ordner für Diagramme ---
-OUTPUT_DIR = "./plots/official"
+OUTPUT_DIR = "./docs/plots"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 
