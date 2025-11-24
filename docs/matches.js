@@ -24,7 +24,7 @@ async function loadMatches() {
             };
         });
         
-        // Uncomment to reverse list so newest match is shown first, for now unwanted behaviour
+        // Uncomment to reverse list so newest match is shown first, for now unwanted behavior
         // allMatches.reverse();
         filteredMatches = [...allMatches];
         
