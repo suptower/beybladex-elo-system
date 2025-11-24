@@ -106,8 +106,7 @@ fetch('data/beys_data.json')
         beysData = data;
         filteredBeys = [...beysData];
         populateDynamicFilters();
-        renderBeys();
-        updateCount();
+        applyFilters();
     })
     .catch(error => {
         console.error('Error loading beyblade data:', error);
@@ -158,14 +157,7 @@ function renderBeys() {
         return;
     }
     
-    // Sort beys by code in lexical order
-    const sortedBeys = [...filteredBeys].sort((a, b) => {
-        const codeA = a.code || '';
-        const codeB = b.code || '';
-        return codeA.localeCompare(codeB);
-    });
-    
-    grid.innerHTML = sortedBeys.map(bey => `
+    grid.innerHTML = filteredBeys.map(bey => `
         <div class="wiki-card" data-type="${bey.type}">
             <div class="wiki-card-image">
                 <img src="${bey.image}" alt="${bey.name}" loading="lazy">
@@ -249,6 +241,13 @@ function applyFilters() {
         }
         
         return matchesSearch && matchesType && matchesSystem && matchesRatchet && matchesBit;
+    });
+    
+    // Sort the filtered results by code
+    filteredBeys.sort((a, b) => {
+        const codeA = a.code || '';
+        const codeB = b.code || '';
+        return codeA.localeCompare(codeB);
     });
     
     renderBeys();
