@@ -1,10 +1,7 @@
 name: Update ELO CSVs
 
 on:
-  push:
-    paths:
-      - 'csv/matches.csv'
-      - 'csv/private_matches.csv'
+  workflow_dispatch:
 
 jobs:
   update_csvs:
