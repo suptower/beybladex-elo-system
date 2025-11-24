@@ -1422,7 +1422,18 @@ footer p {
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--text);
+    margin: 0 0 0.5rem 0;
+}
+
+.wiki-card-code {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-family: 'Courier New', monospace;
     margin: 0 0 0.75rem 0;
+    padding: 0.25rem 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    display: inline-block;
 }
 
 .wiki-card-description {
