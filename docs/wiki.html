@@ -42,38 +42,40 @@
             <input type="text" id="wikiSearch" placeholder="Search beyblades...">
         </div>
         
-        <div class="filter-section">
-            <h4 class="filter-section-title">Type</h4>
-            <div class="filter-container">
-                <button class="filter-btn active" data-filter-type="type" data-value="all">All</button>
-                <button class="filter-btn" data-filter-type="type" data-value="Attack">Attack</button>
-                <button class="filter-btn" data-filter-type="type" data-value="Defense">Defense</button>
-                <button class="filter-btn" data-filter-type="type" data-value="Stamina">Stamina</button>
-                <button class="filter-btn" data-filter-type="type" data-value="Balance">Balance</button>
+        <div class="filters-row">
+            <div class="filter-group">
+                <label class="filter-label">Type</label>
+                <select id="typeFilter" class="filter-select">
+                    <option value="all">All Types</option>
+                    <option value="Attack">Attack</option>
+                    <option value="Defense">Defense</option>
+                    <option value="Stamina">Stamina</option>
+                    <option value="Balance">Balance</option>
+                </select>
             </div>
-        </div>
 
-        <div class="filter-section">
-            <h4 class="filter-section-title">System Line</h4>
-            <div class="filter-container">
-                <button class="filter-btn active" data-filter-type="system" data-value="all">All</button>
-                <button class="filter-btn" data-filter-type="system" data-value="BX">Basic Line</button>
-                <button class="filter-btn" data-filter-type="system" data-value="UX">Unique Line</button>
-                <button class="filter-btn" data-filter-type="system" data-value="CX">Custom Line</button>
+            <div class="filter-group">
+                <label class="filter-label">System Line</label>
+                <select id="systemFilter" class="filter-select">
+                    <option value="all">All Lines</option>
+                    <option value="BX">Basic Line</option>
+                    <option value="UX">Unique Line</option>
+                    <option value="CX">Custom Line</option>
+                </select>
             </div>
-        </div>
 
-        <div class="filter-section">
-            <h4 class="filter-section-title">Ratchet</h4>
-            <div class="filter-container" id="ratchetFilters">
-                <button class="filter-btn active" data-filter-type="ratchet" data-value="all">All</button>
+            <div class="filter-group">
+                <label class="filter-label">Ratchet</label>
+                <select id="ratchetFilter" class="filter-select">
+                    <option value="all">All Ratchets</option>
+                </select>
             </div>
-        </div>
 
-        <div class="filter-section">
-            <h4 class="filter-section-title">Bit</h4>
-            <div class="filter-container" id="bitFilters">
-                <button class="filter-btn active" data-filter-type="bit" data-value="all">All</button>
+            <div class="filter-group">
+                <label class="filter-label">Bit</label>
+                <select id="bitFilter" class="filter-select">
+                    <option value="all">All Bits</option>
+                </select>
             </div>
         </div>
     </div>
@@ -125,26 +127,22 @@ function populateDynamicFilters() {
         if (bey.ratchet_integrated_bit) bits.add(bey.ratchet_integrated_bit);
     });
     
-    // Sort and add ratchet filters
-    const ratchetContainer = document.getElementById('ratchetFilters');
+    // Sort and add ratchet options
+    const ratchetSelect = document.getElementById('ratchetFilter');
     Array.from(ratchets).sort().forEach(ratchet => {
-        const btn = document.createElement('button');
-        btn.className = 'filter-btn';
-        btn.dataset.filterType = 'ratchet';
-        btn.dataset.value = ratchet;
-        btn.textContent = ratchet;
-        ratchetContainer.appendChild(btn);
+        const option = document.createElement('option');
+        option.value = ratchet;
+        option.textContent = ratchet;
+        ratchetSelect.appendChild(option);
     });
     
-    // Sort and add bit filters
-    const bitContainer = document.getElementById('bitFilters');
+    // Sort and add bit options
+    const bitSelect = document.getElementById('bitFilter');
     Array.from(bits).sort().forEach(bit => {
-        const btn = document.createElement('button');
-        btn.className = 'filter-btn';
-        btn.dataset.filterType = 'bit';
-        btn.dataset.value = bit;
-        btn.textContent = bit;
-        bitContainer.appendChild(btn);
+        const option = document.createElement('option');
+        option.value = bit;
+        option.textContent = bit;
+        bitSelect.appendChild(option);
     });
 }
 
@@ -267,23 +265,25 @@ function applyFilters() {
 // Search functionality
 document.getElementById('wikiSearch').addEventListener('input', applyFilters);
 
-// Filter functionality - use event delegation on document
-document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('filter-btn')) {
-        const filterType = e.target.dataset.filterType;
-        const value = e.target.dataset.value;
-        
-        if (filterType) {
-            // Update active state within the same filter type
-            const sameTypeButtons = document.querySelectorAll(`[data-filter-type="${filterType}"]`);
-            sameTypeButtons.forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            
-            // Update active filters
-            activeFilters[filterType] = value;
-            applyFilters();
-        }
-    }
+// Filter functionality - dropdown selects
+document.getElementById('typeFilter').addEventListener('change', (e) => {
+    activeFilters.type = e.target.value;
+    applyFilters();
+});
+
+document.getElementById('systemFilter').addEventListener('change', (e) => {
+    activeFilters.system = e.target.value;
+    applyFilters();
+});
+
+document.getElementById('ratchetFilter').addEventListener('change', (e) => {
+    activeFilters.ratchet = e.target.value;
+    applyFilters();
+});
+
+document.getElementById('bitFilter').addEventListener('change', (e) => {
+    activeFilters.bit = e.target.value;
+    applyFilters();
 });
 
 // Hamburger menu functionality
