@@ -1295,6 +1295,34 @@ footer p {
     margin-bottom: 1.5rem;
 }
 
+.wiki-controls .search-container {
+    width: 100%;
+    max-width: 600px;
+}
+
+#wikiSearch {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--text);
+    transition: var(--transition);
+    font-family: 'Inter', sans-serif;
+    box-shadow: var(--shadow);
+}
+
+#wikiSearch:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+#wikiSearch::placeholder {
+    color: var(--text-light);
+}
+
 .filters-row {
     display: flex;
     flex-wrap: wrap;
