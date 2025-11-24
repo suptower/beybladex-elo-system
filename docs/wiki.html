@@ -42,12 +42,39 @@
             <input type="text" id="wikiSearch" placeholder="Search beyblades...">
         </div>
         
-        <div class="filter-container">
-            <button class="filter-btn active" data-type="all">All</button>
-            <button class="filter-btn" data-type="Attack">Attack</button>
-            <button class="filter-btn" data-type="Defense">Defense</button>
-            <button class="filter-btn" data-type="Stamina">Stamina</button>
-            <button class="filter-btn" data-type="Balance">Balance</button>
+        <div class="filter-section">
+            <h4 class="filter-section-title">Type</h4>
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter-type="type" data-value="all">All</button>
+                <button class="filter-btn" data-filter-type="type" data-value="Attack">Attack</button>
+                <button class="filter-btn" data-filter-type="type" data-value="Defense">Defense</button>
+                <button class="filter-btn" data-filter-type="type" data-value="Stamina">Stamina</button>
+                <button class="filter-btn" data-filter-type="type" data-value="Balance">Balance</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h4 class="filter-section-title">System Line</h4>
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter-type="system" data-value="all">All</button>
+                <button class="filter-btn" data-filter-type="system" data-value="BX">Basic Line</button>
+                <button class="filter-btn" data-filter-type="system" data-value="UX">Unique Line</button>
+                <button class="filter-btn" data-filter-type="system" data-value="CX">Custom Line</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h4 class="filter-section-title">Ratchet</h4>
+            <div class="filter-container" id="ratchetFilters">
+                <button class="filter-btn active" data-filter-type="ratchet" data-value="all">All</button>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h4 class="filter-section-title">Bit</h4>
+            <div class="filter-container" id="bitFilters">
+                <button class="filter-btn active" data-filter-type="bit" data-value="all">All</button>
+            </div>
         </div>
     </div>
 
@@ -65,6 +92,12 @@
 <script>
 let beysData = [];
 let filteredBeys = [];
+let activeFilters = {
+    type: 'all',
+    system: 'all',
+    ratchet: 'all',
+    bit: 'all'
+};
 
 // Load beyblade data
 fetch('data/beys_data.json')
@@ -72,6 +105,7 @@ fetch('data/beys_data.json')
     .then(data => {
         beysData = data;
         filteredBeys = [...beysData];
+        populateDynamicFilters();
         renderBeys();
         updateCount();
     })
@@ -80,6 +114,40 @@ fetch('data/beys_data.json')
         document.getElementById('wikiGrid').innerHTML = 
             '<p style="text-align: center; color: var(--text-light);">Failed to load beyblade data.</p>';
     });
+
+// Populate dynamic filters for ratchets and bits
+function populateDynamicFilters() {
+    const ratchets = new Set();
+    const bits = new Set();
+    
+    beysData.forEach(bey => {
+        if (bey.ratchet) ratchets.add(bey.ratchet);
+        if (bey.bit) bits.add(bey.bit);
+        if (bey.ratchet_integrated_bit) bits.add(bey.ratchet_integrated_bit);
+    });
+    
+    // Sort and add ratchet filters
+    const ratchetContainer = document.getElementById('ratchetFilters');
+    Array.from(ratchets).sort().forEach(ratchet => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.dataset.filterType = 'ratchet';
+        btn.dataset.value = ratchet;
+        btn.textContent = ratchet;
+        ratchetContainer.appendChild(btn);
+    });
+    
+    // Sort and add bit filters
+    const bitContainer = document.getElementById('bitFilters');
+    Array.from(bits).sort().forEach(bit => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.dataset.filterType = 'bit';
+        btn.dataset.value = bit;
+        btn.textContent = bit;
+        bitContainer.appendChild(btn);
+    });
+}
 
 // Render beyblade cards
 function renderBeys() {
@@ -90,7 +158,14 @@ function renderBeys() {
         return;
     }
     
-    grid.innerHTML = filteredBeys.map(bey => `
+    // Sort beys by code in lexical order
+    const sortedBeys = [...filteredBeys].sort((a, b) => {
+        const codeA = a.code || '';
+        const codeB = b.code || '';
+        return codeA.localeCompare(codeB);
+    });
+    
+    grid.innerHTML = sortedBeys.map(bey => `
         <div class="wiki-card" data-type="${bey.type}">
             <div class="wiki-card-image">
                 <img src="${bey.image}" alt="${bey.name}" loading="lazy">
@@ -144,14 +219,36 @@ function updateCount() {
 // Apply filters to beyblade list
 function applyFilters() {
     const searchTerm = document.getElementById('wikiSearch').value.toLowerCase();
-    const activeFilter = document.querySelector('.filter-btn.active').dataset.type;
     
     filteredBeys = beysData.filter(bey => {
+        // Search filter
         const matchesSearch = bey.name.toLowerCase().includes(searchTerm) ||
                             bey.blade.toLowerCase().includes(searchTerm) ||
-                            bey.description.toLowerCase().includes(searchTerm);
-        const matchesFilter = activeFilter === 'all' || bey.type === activeFilter;
-        return matchesSearch && matchesFilter;
+                            bey.description.toLowerCase().includes(searchTerm) ||
+                            (bey.code && bey.code.toLowerCase().includes(searchTerm));
+        
+        // Type filter
+        const matchesType = activeFilters.type === 'all' || bey.type === activeFilters.type;
+        
+        // System line filter
+        let matchesSystem = true;
+        if (activeFilters.system !== 'all') {
+            matchesSystem = bey.code && bey.code.startsWith(activeFilters.system);
+        }
+        
+        // Ratchet filter
+        let matchesRatchet = true;
+        if (activeFilters.ratchet !== 'all') {
+            matchesRatchet = bey.ratchet === activeFilters.ratchet;
+        }
+        
+        // Bit filter
+        let matchesBit = true;
+        if (activeFilters.bit !== 'all') {
+            matchesBit = bey.bit === activeFilters.bit || bey.ratchet_integrated_bit === activeFilters.bit;
+        }
+        
+        return matchesSearch && matchesType && matchesSystem && matchesRatchet && matchesBit;
     });
     
     renderBeys();
@@ -161,14 +258,23 @@ function applyFilters() {
 // Search functionality
 document.getElementById('wikiSearch').addEventListener('input', applyFilters);
 
-// Filter functionality
-document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Update active state
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        applyFilters();
-    });
+// Filter functionality - use event delegation on document
+document.addEventListener('click', (e) => {
+    if (e.target.classList.contains('filter-btn')) {
+        const filterType = e.target.dataset.filterType;
+        const value = e.target.dataset.value;
+        
+        if (filterType) {
+            // Update active state within the same filter type
+            const sameTypeButtons = document.querySelectorAll(`[data-filter-type="${filterType}"]`);
+            sameTypeButtons.forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            // Update active filters
+            activeFilters[filterType] = value;
+            applyFilters();
+        }
+    }
 });
 
 // Hamburger menu functionality

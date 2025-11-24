@@ -1295,6 +1295,20 @@ footer p {
     margin-bottom: 2rem;
 }
 
+.filter-section {
+    width: 100%;
+    text-align: center;
+}
+
+.filter-section-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.75rem 0;
+}
+
 .filter-container {
     display: flex;
     gap: 0.75rem;
@@ -1426,14 +1440,25 @@ footer p {
 }
 
 .wiki-card-code {
-    font-size: 0.75rem;
-    color: var(--text-light);
+    font-size: 0.8125rem;
+    color: #ffffff;
     font-family: 'Courier New', monospace;
+    font-weight: 700;
     margin: 0 0 0.75rem 0;
-    padding: 0.25rem 0.5rem;
-    background: var(--bg-secondary);
-    border-radius: 4px;
+    padding: 0.5rem 0.875rem;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    border-radius: var(--radius-sm);
     display: inline-block;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: var(--transition);
+}
+
+.wiki-card:hover .wiki-card-code {
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.5);
+    transform: translateY(-2px);
 }
 
 .wiki-card-description {
