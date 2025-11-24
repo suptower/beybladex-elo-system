@@ -98,20 +98,37 @@ function renderBeys() {
             </div>
             <div class="wiki-card-content">
                 <h3 class="wiki-card-title">${bey.name}</h3>
+                ${bey.code ? `<p class="wiki-card-code">${bey.code}</p>` : ''}
                 <p class="wiki-card-description">${bey.description}</p>
                 <div class="wiki-card-parts">
                     <div class="part-item">
                         <span class="part-label">Blade:</span>
                         <span class="part-value">${bey.blade}</span>
                     </div>
+                    ${bey.assist_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Assist Blade:</span>
+                        <span class="part-value">${bey.assist_blade}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.ratchet_integrated_bit ? `
+                    <div class="part-item">
+                        <span class="part-label">Ratchet Integrated Bit:</span>
+                        <span class="part-value">${bey.ratchet_integrated_bit}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.ratchet && !bey.ratchet_integrated_bit ? `
                     <div class="part-item">
                         <span class="part-label">Ratchet:</span>
                         <span class="part-value">${bey.ratchet}</span>
                     </div>
+                    ` : ''}
+                    ${bey.bit && !bey.ratchet_integrated_bit ? `
                     <div class="part-item">
                         <span class="part-label">Bit:</span>
                         <span class="part-value">${bey.bit}</span>
                     </div>
+                    ` : ''}
                 </div>
             </div>
         </div>
