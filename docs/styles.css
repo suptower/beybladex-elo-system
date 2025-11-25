@@ -2583,3 +2583,171 @@ body.dark .wiki-card-rank.rank-bronze {
         text-align: right;
     }
 }
+
+/* ============================================
+   BEY HOVER CARD STYLES
+============================================ */
+.bey-hover-card {
+    position: absolute;
+    z-index: 9999;
+    width: 280px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+}
+
+.bey-hover-card.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.hover-card-inner {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.hover-card-image {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    background: var(--bg);
+    overflow: hidden;
+}
+
+.hover-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hover-card-type {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    box-shadow: var(--shadow);
+}
+
+.hover-card-type.attack {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.hover-card-type.defense {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.hover-card-type.stamina {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.hover-card-type.balance {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.hover-card-content {
+    padding: 1rem;
+}
+
+.hover-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 0.375rem 0;
+}
+
+.hover-card-code {
+    display: inline-block;
+    font-size: 0.6875rem;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.hover-card-code.basic-line {
+    background: linear-gradient(135deg, #70bbe9 0%, #4a9fd9 100%);
+}
+
+.hover-card-code.unique-line {
+    background: linear-gradient(135deg, #ee7700 0%, #cc6600 100%);
+}
+
+.hover-card-code.custom-line {
+    background: linear-gradient(135deg, #e8314a 0%, #c92842 100%);
+}
+
+.hover-card-description {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    margin: 0 0 0.75rem 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.hover-card-parts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.hover-card-part {
+    font-size: 0.6875rem;
+}
+
+.hover-card-part .part-label {
+    color: var(--text-light);
+    font-weight: 600;
+}
+
+.hover-card-part .part-value {
+    color: var(--accent);
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.hover-card-footer {
+    margin-top: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.625rem;
+    color: var(--text-light);
+    text-align: center;
+    font-style: italic;
+}
+
+/* Hide hover cards on mobile/touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .bey-hover-card {
+        display: none !important;
+    }
+}
+
+/* Also hide on small screens */
+@media (max-width: 768px) {
+    .bey-hover-card {
+        display: none !important;
+    }
+}
