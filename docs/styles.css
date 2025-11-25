@@ -2977,3 +2977,102 @@ body.dark .wiki-card-rank.rank-bronze {
         display: none !important;
     }
 }
+
+/* ============================================
+   UPSET ANALYSIS PAGE STYLES
+============================================ */
+
+/* Summary Cards */
+.upset-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+.summary-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.summary-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.summary-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.summary-label {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+/* Upset Match Card specific styles */
+.upset-match-card {
+    position: relative;
+}
+
+.upset-magnitude {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+.card-bey.loser {
+    opacity: 0.8;
+}
+
+.bey-elo {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+/* Responsive styles for summary cards */
+@media (max-width: 768px) {
+    .upset-summary-cards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .summary-card {
+        padding: 1rem;
+    }
+    
+    .summary-icon {
+        font-size: 2rem;
+    }
+    
+    .summary-value {
+        font-size: 1rem;
+    }
+}

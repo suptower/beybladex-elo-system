@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>suptower Beyblade X</title>
+    <title>suptower Beyblade X - Upsets</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
     <script defer src="darkmode.js"></script>
-    <script defer src="leaderboard.js"></script>
+    <script defer src="upsets.js"></script>
     <script defer src="bey-hover-card.js"></script>
     <script defer src="hamburger.js"></script>
 </head>
@@ -15,7 +15,7 @@
 
 <header>
     <a href="index.html" class="header-link">
-        <h1>Leaderboard</h1>
+        <h1>Upset Analysis</h1>
     </a>
     <nav>
         <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
@@ -42,23 +42,23 @@
 
     <div class="leaderboard-controls">
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Suche nach Bey…">
+            <input type="text" id="searchInput" placeholder="Search by Bey name…">
         </div>
         
         <div class="toggle-container">
             <label class="toggle-label">
-                <span class="toggle-text">Standard</span>
+                <span class="toggle-text">Giant Killers</span>
                 <div class="toggle-switch">
-                    <input type="checkbox" id="leaderboardToggle">
+                    <input type="checkbox" id="upsetToggle">
                     <span class="toggle-slider"></span>
                 </div>
-                <span class="toggle-text">Advanced</span>
+                <span class="toggle-text">Biggest Upsets</span>
             </label>
         </div>
     </div>
 
-    <!-- Legend for abbreviations -->
-    <div id="legend" class="legend" style="display: none;">
+    <!-- Legend for Giant Killers view -->
+    <div id="legend" class="legend">
         <div class="legend-header">
             <span class="legend-title">📖 Column Legend</span>
             <button class="legend-toggle" id="legendToggle">▼</button>
@@ -68,12 +68,17 @@
         </div>
     </div>
 
+    <!-- Summary Cards -->
+    <div id="summaryCards" class="upset-summary-cards">
+        <!-- Populated by JavaScript -->
+    </div>
+
     <div class="table-wrapper">
-        <table id="leaderboardTable">
+        <table id="upsetsTable">
             <thead>
-                <tr id="leaderboardHeadRow"></tr>
+                <tr id="upsetsHeadRow"></tr>
             </thead>
-            <tbody id="leaderboardBody"></tbody>
+            <tbody id="upsetsBody"></tbody>
         </table>
     </div>
 
@@ -84,7 +89,7 @@
             <span class="sort-label">Sort by: <span id="currentSortLabel">Rank</span></span>
         </button>
     </div>
-    <div id="leaderboardCards" class="cards"></div>
+    <div id="upsetsCards" class="cards"></div>
     
     <!-- Sort modal for mobile -->
     <div class="sort-modal" id="sortModal">
