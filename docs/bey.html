@@ -58,6 +58,9 @@
                 <div class="profile-info">
                     <h2 id="beyName" class="profile-name"></h2>
                     <p id="beyCode" class="profile-code"></p>
+                    <div id="profileTrophies" class="profile-trophies" style="display: none;">
+                        <!-- Trophies will be dynamically added -->
+                    </div>
                     <p id="beyDescription" class="profile-description"></p>
                     <div id="beyParts" class="profile-parts">
                         <!-- Parts will be dynamically added -->
@@ -113,6 +116,7 @@ const beyName = params.get('name');
 let beyData = null;
 let leaderboardData = null;
 let matchesData = [];
+let tournamentsData = [];
 
 // Helper function to normalize bey names for comparison
 function normalizeBeyName(name) {
@@ -218,6 +222,19 @@ async function loadData() {
         }));
         matchesData = getMatchesForBey(allMatches, beyName);
         
+        // Load tournaments data
+        try {
+            const tournamentsResponse = await fetch('data/tournaments.json');
+            const tournaments = await tournamentsResponse.json();
+            const normalizedBeyName = normalizeBeyName(beyName);
+            tournamentsData = tournaments.tournaments.filter(t => 
+                normalizeBeyName(t.winner) === normalizedBeyName
+            );
+        } catch (e) {
+            console.warn('Could not load tournaments data:', e);
+            tournamentsData = [];
+        }
+        
         // Render the profile
         renderProfile();
     } catch (error) {
@@ -272,6 +289,9 @@ function renderProfile() {
         document.querySelector('.profile-header').style.display = 'none';
     }
     
+    // Render trophies
+    renderTrophies();
+    
     // Render stats
     renderStats();
     
@@ -318,6 +338,27 @@ function renderParts(bey) {
             partsContainer.appendChild(partEl);
         }
     });
+}
+
+// Render trophies
+function renderTrophies() {
+    const trophiesContainer = document.getElementById('profileTrophies');
+    
+    if (!tournamentsData || tournamentsData.length === 0) {
+        trophiesContainer.style.display = 'none';
+        return;
+    }
+    
+    // Show trophies container
+    trophiesContainer.style.display = 'flex';
+    
+    // Generate trophy HTML
+    trophiesContainer.innerHTML = tournamentsData.map(tournament => `
+        <div class="profile-trophy" title="${tournament.name} - ${tournament.date}">
+            <span class="profile-trophy-icon">🏆</span>
+            <span class="profile-trophy-name">${tournament.name}</span>
+        </div>
+    `).join('');
 }
 
 // Render statistics

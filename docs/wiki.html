@@ -95,6 +95,8 @@
 <script>
 let beysData = [];
 let filteredBeys = [];
+let leaderboardData = {};
+let tournamentsData = {};
 let activeFilters = {
     type: 'all',
     system: 'all',
@@ -102,20 +104,76 @@ let activeFilters = {
     bit: 'all'
 };
 
-// Load beyblade data
-fetch('data/beys_data.json')
-    .then(response => response.json())
-    .then(data => {
-        beysData = data;
+// Helper function to normalize bey names for comparison
+function normalizeBeyName(name) {
+    if (!name) return '';
+    return name.toLowerCase().replace(/[\s\-_]/g, '');
+}
+
+// Parse CSV text to array of objects
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i]);
+        return obj;
+    });
+}
+
+// Load all data
+async function loadAllData() {
+    try {
+        // Load beyblade data
+        const beyResponse = await fetch('data/beys_data.json');
+        beysData = await beyResponse.json();
+        
+        // Load leaderboard data
+        try {
+            const leaderboardResponse = await fetch('data/advanced_leaderboard.csv');
+            const leaderboardText = await leaderboardResponse.text();
+            const leaderboardArray = parseCSV(leaderboardText);
+            // Create a map by normalized bey name
+            leaderboardArray.forEach(entry => {
+                const name = entry.Bey || entry.Name;
+                if (name) {
+                    leaderboardData[normalizeBeyName(name)] = entry;
+                }
+            });
+        } catch (e) {
+            console.warn('Could not load leaderboard data:', e);
+        }
+        
+        // Load tournaments data
+        try {
+            const tournamentsResponse = await fetch('data/tournaments.json');
+            const tournaments = await tournamentsResponse.json();
+            // Create a map of bey name to array of tournament wins
+            tournaments.tournaments.forEach(tournament => {
+                const normalizedWinner = normalizeBeyName(tournament.winner);
+                if (!tournamentsData[normalizedWinner]) {
+                    tournamentsData[normalizedWinner] = [];
+                }
+                tournamentsData[normalizedWinner].push(tournament);
+            });
+        } catch (e) {
+            console.warn('Could not load tournaments data:', e);
+        }
+        
         filteredBeys = [...beysData];
         populateDynamicFilters();
         applyFilters();
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error loading beyblade data:', error);
         document.getElementById('wikiGrid').innerHTML = 
             '<p style="text-align: center; color: var(--text-light);">Failed to load beyblade data.</p>';
-    });
+    }
+}
+
+// Initialize data loading
+loadAllData();
 
 // Populate dynamic filters for ratchets and bits
 function populateDynamicFilters() {
@@ -165,6 +223,30 @@ function renderBeys() {
             else if (bey.code.startsWith('CX')) lineClass = 'custom-line';
         }
         
+        // Get rank from leaderboard
+        const normalizedBlade = normalizeBeyName(bey.blade);
+        const leaderboardEntry = leaderboardData[normalizedBlade];
+        const rank = leaderboardEntry ? leaderboardEntry.Platz : null;
+        
+        // Get tournament wins
+        const trophies = tournamentsData[normalizedBlade] || [];
+        
+        // Generate rank badge HTML with color classes for top 3
+        let rankClass = '';
+        if (rank === '1') rankClass = 'rank-gold';
+        else if (rank === '2') rankClass = 'rank-silver';
+        else if (rank === '3') rankClass = 'rank-bronze';
+        const rankBadgeHtml = rank ? `<span class="wiki-card-rank ${rankClass}">#${rank}</span>` : '';
+        
+        // Generate trophies HTML for content area
+        let trophiesHtml = '';
+        if (trophies.length > 0) {
+            const trophyIcons = trophies.map(t => 
+                `<span class="trophy-icon" title="${t.name}">🏆</span>`
+            ).join('');
+            trophiesHtml = `<div class="wiki-card-trophies">${trophyIcons}</div>`;
+        }
+        
         return `
         <div class="wiki-card wiki-card-clickable" data-type="${bey.type}" onclick="window.location.href='bey.html?name=${encodeURIComponent(bey.blade)}'">
             <div class="wiki-card-image">
@@ -172,7 +254,11 @@ function renderBeys() {
                 <div class="wiki-card-type ${bey.type.toLowerCase()}">${bey.type}</div>
             </div>
             <div class="wiki-card-content">
-                <h3 class="wiki-card-title">${bey.name}</h3>
+                <div class="wiki-card-title-row">
+                    <h3 class="wiki-card-title">${bey.name}</h3>
+                    ${rankBadgeHtml}
+                </div>
+                ${trophiesHtml}
                 ${bey.code ? `<p class="wiki-card-code ${lineClass}">${bey.code}</p>` : ''}
                 <p class="wiki-card-description">${bey.description}</p>
                 <div class="wiki-card-parts">
