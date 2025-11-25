@@ -396,7 +396,7 @@ function renderKeyStats() {
     if (elo) {
         const eloClass = getEloClass(parseInt(elo));
         const eloCard = document.createElement('div');
-        eloCard.className = 'key-stat-card';
+        eloCard.className = `key-stat-card ${eloClass}`;
         eloCard.innerHTML = `
             <div class="key-stat-label">ELO Rating</div>
             <div class="key-stat-value ${eloClass}">${elo}</div>
@@ -409,7 +409,7 @@ function renderKeyStats() {
     if (powerIndex) {
         const pwrClass = getPowerIndexClass(parseFloat(powerIndex));
         const pwrCard = document.createElement('div');
-        pwrCard.className = 'key-stat-card';
+        pwrCard.className = `key-stat-card ${pwrClass}`;
         pwrCard.innerHTML = `
             <div class="key-stat-label">Power Index</div>
             <div class="key-stat-value ${pwrClass}">${powerIndex}</div>

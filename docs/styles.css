@@ -1774,6 +1774,59 @@ body.dark .wiki-card-rank.rank-bronze {
     transform: translateY(-2px);
 }
 
+/* Wiki Card Stats (ELO and Power Index) */
+.wiki-card-stats {
+    display: flex;
+    gap: 1rem;
+    margin: 0.75rem 0;
+    padding: 0.5rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    justify-content: center;
+}
+
+.wiki-card-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.wiki-stat-label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.wiki-stat-value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.wiki-stat-value.trend-very-positive {
+    color: #10b981;
+}
+
+.wiki-stat-value.trend-positive {
+    color: #22c55e;
+}
+
+.wiki-stat-value.trend-neutral {
+    color: var(--text-light);
+}
+
+.wiki-stat-value.trend-negative {
+    color: #f59e0b;
+}
+
+.wiki-stat-value.trend-very-negative {
+    color: #ef4444;
+}
+
 .wiki-card-description {
     color: var(--text-light);
     font-size: 0.875rem;
@@ -2434,6 +2487,47 @@ body.dark .wiki-card-rank.rank-bronze {
 
 .key-stat-value.trend-very-negative {
     color: #ef4444;
+}
+
+/* Key stat card border colors based on trend */
+.key-stat-card.trend-very-positive {
+    border-color: #10b981;
+}
+
+.key-stat-card.trend-very-positive::before {
+    background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.key-stat-card.trend-positive {
+    border-color: #22c55e;
+}
+
+.key-stat-card.trend-positive::before {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.key-stat-card.trend-neutral {
+    border-color: var(--text-light);
+}
+
+.key-stat-card.trend-neutral::before {
+    background: linear-gradient(90deg, var(--text-light), var(--text-light));
+}
+
+.key-stat-card.trend-negative {
+    border-color: #f59e0b;
+}
+
+.key-stat-card.trend-negative::before {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.key-stat-card.trend-very-negative {
+    border-color: #ef4444;
+}
+
+.key-stat-card.trend-very-negative::before {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
 }
 
 .key-stat-desc {
