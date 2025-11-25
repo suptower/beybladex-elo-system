@@ -2323,6 +2323,15 @@ footer p {
     color: var(--accent-hover);
 }
 
+/* Fix bey-link color in winner cards (mobile matches view) */
+.card-bey.winner .bey-link {
+    color: white;
+}
+
+.card-bey.winner .bey-link:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
 /* Wiki Card Clickable */
 .wiki-card-clickable {
     cursor: pointer;

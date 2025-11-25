@@ -73,6 +73,14 @@
                 </div>
             </div>
             
+            <!-- Advanced Stats Section -->
+            <div class="profile-section" id="advancedStatsSection" style="display: none;">
+                <h3 class="section-title">📈 Advanced Statistics</h3>
+                <div id="advancedStatsGrid" class="stats-grid">
+                    <!-- Advanced stats will be dynamically added -->
+                </div>
+            </div>
+            
             <!-- Recent Matches Section -->
             <div class="profile-section">
                 <h3 class="section-title">⚔️ Recent Matches</h3>
@@ -267,6 +275,9 @@ function renderProfile() {
     // Render stats
     renderStats();
     
+    // Render advanced stats
+    renderAdvancedStats();
+    
     // Render recent matches
     renderRecentMatches();
     
@@ -387,6 +398,63 @@ function getTrendClass(trend) {
     return 'trend-neutral';
 }
 
+// Render advanced statistics
+function renderAdvancedStats() {
+    const advancedStatsGrid = document.getElementById('advancedStatsGrid');
+    const advancedStatsSection = document.getElementById('advancedStatsSection');
+    advancedStatsGrid.innerHTML = '';
+    
+    if (!leaderboardData) {
+        return;
+    }
+    
+    // Check if advanced stats are available
+    const hasAdvancedStats = leaderboardData.Volatility !== undefined || 
+                             leaderboardData['AvgΔELO'] !== undefined ||
+                             leaderboardData.UpsetWins !== undefined;
+    
+    if (!hasAdvancedStats) {
+        return;
+    }
+    
+    // Show advanced stats section
+    advancedStatsSection.style.display = 'block';
+    
+    // Define advanced stats to display
+    const advancedStats = [
+        { label: 'Volatility', value: leaderboardData.Volatility, icon: '📊', tooltip: 'Rating stability measure' },
+        { label: 'Avg ELO Change', value: leaderboardData['AvgΔELO'], icon: '📈', highlight: 'trend' },
+        { label: 'Max ELO Gain', value: leaderboardData['MaxΔELO'], icon: '⬆️', highlight: 'positive' },
+        { label: 'Max ELO Loss', value: leaderboardData['MinΔELO'], icon: '⬇️', highlight: 'negative' },
+        { label: 'Upset Wins', value: leaderboardData.UpsetWins, icon: '🎯', tooltip: 'Wins against higher-rated opponents' },
+        { label: 'Upset Losses', value: leaderboardData.UpsetLosses, icon: '💔', tooltip: 'Losses against lower-rated opponents' }
+    ];
+    
+    advancedStats.forEach(stat => {
+        if (stat.value !== undefined && stat.value !== null && stat.value !== '') {
+            const statEl = document.createElement('div');
+            statEl.className = 'stat-card';
+            
+            let valueClass = '';
+            const numValue = parseFloat(stat.value);
+            if (stat.highlight === 'trend') {
+                valueClass = getTrendClass(numValue);
+            } else if (stat.highlight === 'positive' && numValue > 0) {
+                valueClass = 'trend-very-positive';
+            } else if (stat.highlight === 'negative' && numValue < 0) {
+                valueClass = 'trend-very-negative';
+            }
+            
+            statEl.innerHTML = `
+                <div class="stat-icon">${stat.icon}</div>
+                <div class="stat-value ${valueClass}">${stat.value}</div>
+                <div class="stat-label">${stat.label}</div>
+            `;
+            advancedStatsGrid.appendChild(statEl);
+        }
+    });
+}
+
 // Render recent matches
 function renderRecentMatches() {
     const matchesContainer = document.getElementById('recentMatches');
@@ -397,8 +465,8 @@ function renderRecentMatches() {
         return;
     }
     
-    // Show last 10 matches (most recent first)
-    const recentMatches = [...matchesData].reverse().slice(0, 10);
+    // Show last 5 matches (most recent first)
+    const recentMatches = [...matchesData].reverse().slice(0, 5);
     const normalizedBeyName = normalizeBeyName(beyName);
     
     recentMatches.forEach(match => {
