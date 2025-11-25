@@ -299,16 +299,12 @@ nav button:hover {
 .nav-dropdown-toggle:hover {
     color: var(--accent);
     background: var(--bg);
+    transform: translateY(-2px);
 }
 
 .nav-dropdown-toggle::after {
     content: "▼";
     font-size: 0.625rem;
-    transition: transform 0.2s ease;
-}
-
-.nav-dropdown:hover .nav-dropdown-toggle::after {
-    transform: rotate(180deg);
 }
 
 .nav-dropdown-content {
@@ -2009,10 +2005,6 @@ body.dark .wiki-card-rank.rank-bronze {
     
     .nav-dropdown.active .nav-dropdown-content {
         display: block;
-    }
-    
-    .nav-dropdown.active .nav-dropdown-toggle::after {
-        transform: rotate(180deg);
     }
     
     .nav-dropdown-content a {
