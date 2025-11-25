@@ -7,6 +7,7 @@ const HOVER_CARD_ESTIMATED_HEIGHT = 300; // Estimated height before card is rend
 const HOVER_CARD_PADDING = 10;
 
 let beysDataCache = null;
+let leaderboardDataCache = null;
 let hoverCardElement = null;
 let hoverTimeout = null;
 let hideTimeout = null;
@@ -23,6 +24,45 @@ async function loadBeysData() {
         console.warn('Could not load beys data for hover cards:', error);
         return [];
     }
+}
+
+// Load leaderboard data for ELO and Power Index
+async function loadLeaderboardData() {
+    if (leaderboardDataCache) return leaderboardDataCache;
+    
+    try {
+        const response = await fetch('data/advanced_leaderboard.csv');
+        const text = await response.text();
+        leaderboardDataCache = parseHoverCardCSV(text);
+        return leaderboardDataCache;
+    } catch (error) {
+        console.warn('Could not load leaderboard data for hover cards:', error);
+        return [];
+    }
+}
+
+// Parse CSV text to array of objects
+function parseHoverCardCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i]);
+        return obj;
+    });
+}
+
+// Find leaderboard entry by name
+function findLeaderboardEntry(name) {
+    if (!leaderboardDataCache || !name) return null;
+    const normalizedSearch = normalizeHoverBeyName(name);
+    
+    return leaderboardDataCache.find(entry => {
+        const entryName = entry.Name || entry.Bey || '';
+        return normalizeHoverBeyName(entryName) === normalizedSearch;
+    });
 }
 
 // Normalize bey name for matching
@@ -67,6 +107,7 @@ function createHoverCard() {
             <div class="hover-card-content">
                 <h4 class="hover-card-title"></h4>
                 <p class="hover-card-code"></p>
+                <div class="hover-card-stats"></div>
                 <p class="hover-card-description"></p>
                 <div class="hover-card-parts"></div>
                 <div class="hover-card-footer">Click to view full profile</div>
@@ -87,8 +128,28 @@ function createHoverCard() {
     return hoverCardElement;
 }
 
+// Get color class for ELO value
+function getHoverEloClass(elo) {
+    if (isNaN(elo)) return '';
+    if (elo >= 1050) return 'trend-very-positive';
+    if (elo >= 1010) return 'trend-positive';
+    if (elo >= 990) return 'trend-neutral';
+    if (elo >= 950) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get color class for Power Index value
+function getHoverPowerIndexClass(pwr) {
+    if (isNaN(pwr)) return '';
+    if (pwr >= 80) return 'trend-very-positive';
+    if (pwr >= 60) return 'trend-positive';
+    if (pwr >= 40) return 'trend-neutral';
+    if (pwr >= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
 // Show hover card with bey data
-function showHoverCard(beyData, targetElement) {
+function showHoverCard(beyData, targetElement, leaderboardEntry) {
     if (!beyData) return;
     
     const card = createHoverCard();
@@ -118,6 +179,29 @@ function showHoverCard(beyData, targetElement) {
     }
     
     card.querySelector('.hover-card-description').textContent = beyData.description || '';
+    
+    // Build stats section (ELO and Power Index)
+    const statsContainer = card.querySelector('.hover-card-stats');
+    statsContainer.innerHTML = '';
+    
+    if (leaderboardEntry) {
+        const elo = parseInt(leaderboardEntry.ELO);
+        const powerIndex = parseFloat(leaderboardEntry.PowerIndex);
+        
+        statsContainer.innerHTML = `
+            <div class="hover-card-stat">
+                <span class="hover-stat-label">ELO</span>
+                <span class="hover-stat-value ${getHoverEloClass(elo)}">${leaderboardEntry.ELO || '-'}</span>
+            </div>
+            <div class="hover-card-stat">
+                <span class="hover-stat-label">PWR</span>
+                <span class="hover-stat-value ${getHoverPowerIndexClass(powerIndex)}">${leaderboardEntry.PowerIndex || '-'}</span>
+            </div>
+        `;
+        statsContainer.style.display = 'flex';
+    } else {
+        statsContainer.style.display = 'none';
+    }
     
     // Build parts list
     const partsContainer = card.querySelector('.hover-card-parts');
@@ -182,8 +266,8 @@ function hideHoverCard() {
 
 // Initialize hover functionality for bey links
 function initBeyHoverCards() {
-    // Load beys data first
-    loadBeysData().then(() => {
+    // Load beys data and leaderboard data first
+    Promise.all([loadBeysData(), loadLeaderboardData()]).then(() => {
         // Use event delegation for better performance
         document.addEventListener('mouseover', handleMouseOver);
         document.addEventListener('mouseout', handleMouseOut);
@@ -214,10 +298,11 @@ async function handleMouseOver(event) {
             }
         }
         
-        // Find bey data
+        // Find bey data and leaderboard entry
         const beyData = findBeyByName(beyName);
+        const leaderboardEntry = findLeaderboardEntry(beyName);
         if (beyData) {
-            showHoverCard(beyData, link);
+            showHoverCard(beyData, link, leaderboardEntry);
         }
     }, 200); // 200ms delay before showing
 }
