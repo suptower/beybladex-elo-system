@@ -2416,6 +2416,26 @@ body.dark .wiki-card-rank.rank-bronze {
     margin-bottom: 0.5rem;
 }
 
+.key-stat-value.trend-very-positive {
+    color: #10b981;
+}
+
+.key-stat-value.trend-positive {
+    color: #22c55e;
+}
+
+.key-stat-value.trend-neutral {
+    color: var(--text-light);
+}
+
+.key-stat-value.trend-negative {
+    color: #f59e0b;
+}
+
+.key-stat-value.trend-very-negative {
+    color: #ef4444;
+}
+
 .key-stat-desc {
     font-size: 0.75rem;
     color: var(--text-light);
@@ -2795,6 +2815,26 @@ body.dark .wiki-card-rank.rank-bronze {
     font-size: 1.125rem;
     font-weight: 800;
     color: var(--text);
+}
+
+.hover-stat-value.trend-very-positive {
+    color: #10b981;
+}
+
+.hover-stat-value.trend-positive {
+    color: #22c55e;
+}
+
+.hover-stat-value.trend-neutral {
+    color: var(--text-light);
+}
+
+.hover-stat-value.trend-negative {
+    color: #f59e0b;
+}
+
+.hover-stat-value.trend-very-negative {
+    color: #ef4444;
 }
 
 .hover-card-parts {
