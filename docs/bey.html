@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1 id="pageTitle">Bey Profile</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="plots.html">Plots</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <div id="profileContainer" class="bey-profile">
+        <!-- Loading state -->
+        <div id="loadingState" class="loading-state">
+            <p>Loading bey profile...</p>
+        </div>
+        
+        <!-- Error state -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <p>Bey not found. <a href="wiki.html">Return to Wiki</a></p>
+        </div>
+        
+        <!-- Profile content (hidden until loaded) -->
+        <div id="profileContent" style="display: none;">
+            <!-- Bey Info Card -->
+            <div class="profile-header">
+                <div class="profile-image-container">
+                    <img id="beyImage" src="" alt="" class="profile-image">
+                    <div id="beyType" class="profile-type"></div>
+                </div>
+                <div class="profile-info">
+                    <h2 id="beyName" class="profile-name"></h2>
+                    <p id="beyCode" class="profile-code"></p>
+                    <p id="beyDescription" class="profile-description"></p>
+                    <div id="beyParts" class="profile-parts">
+                        <!-- Parts will be dynamically added -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Section -->
+            <div class="profile-section">
+                <h3 class="section-title">📊 Statistics</h3>
+                <div id="statsGrid" class="stats-grid">
+                    <!-- Stats will be dynamically added -->
+                </div>
+            </div>
+            
+            <!-- Advanced Stats Section -->
+            <div class="profile-section" id="advancedStatsSection" style="display: none;">
+                <h3 class="section-title">📈 Advanced Statistics</h3>
+                <div id="advancedStatsGrid" class="stats-grid">
+                    <!-- Advanced stats will be dynamically added -->
+                </div>
+            </div>
+            
+            <!-- Recent Matches Section -->
+            <div class="profile-section">
+                <h3 class="section-title">⚔️ Recent Matches</h3>
+                <div id="recentMatches" class="recent-matches">
+                    <!-- Matches will be dynamically added -->
+                </div>
+            </div>
+            
+            <!-- Individual Plot Section -->
+            <div class="profile-section" id="plotSection">
+                <h3 class="section-title">📈 ELO History</h3>
+                <div class="profile-plot-container">
+                    <img id="eloPlot" src="" alt="ELO History" class="profile-plot">
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script>
+// Get bey name from URL parameter
+const params = new URLSearchParams(window.location.search);
+const beyName = params.get('name');
+
+// Data storage
+let beyData = null;
+let leaderboardData = null;
+let matchesData = [];
+
+// Helper function to normalize bey names for comparison
+function normalizeBeyName(name) {
+    if (!name) return '';
+    // Remove spaces and common separators, convert to lowercase
+    return name.toLowerCase().replace(/[\s\-_]/g, '');
+}
+
+// Helper function to find bey by name (case-insensitive, flexible matching)
+function findBeyByName(beys, searchName) {
+    if (!searchName || !beys) return null;
+    const normalizedSearch = normalizeBeyName(searchName);
+    
+    // First try exact match on blade name
+    let found = beys.find(b => normalizeBeyName(b.blade) === normalizedSearch);
+    if (found) return found;
+    
+    // Then try full name match
+    found = beys.find(b => normalizeBeyName(b.name) === normalizedSearch);
+    if (found) return found;
+    
+    // Try partial match on blade
+    found = beys.find(b => normalizeBeyName(b.blade).includes(normalizedSearch) || 
+                          normalizedSearch.includes(normalizeBeyName(b.blade)));
+    if (found) return found;
+    
+    return null;
+}
+
+// Helper function to find leaderboard entry by name
+function findLeaderboardEntry(data, searchName) {
+    if (!searchName || !data) return null;
+    const normalizedSearch = normalizeBeyName(searchName);
+    
+    return data.find(entry => {
+        const entryName = entry.Name || entry.Bey || '';
+        return normalizeBeyName(entryName) === normalizedSearch;
+    });
+}
+
+// Helper function to filter matches for a specific bey
+function getMatchesForBey(matches, beyName) {
+    if (!beyName || !matches) return [];
+    const normalizedName = normalizeBeyName(beyName);
+    
+    return matches.filter(match => {
+        return normalizeBeyName(match.beyA) === normalizedName || 
+               normalizeBeyName(match.beyB) === normalizedName;
+    });
+}
+
+// Parse CSV text to array of objects
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i]);
+        return obj;
+    });
+}
+
+// Format date for display
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+}
+
+// Load all data
+async function loadData() {
+    try {
+        // Load bey wiki data
+        const beyResponse = await fetch('data/beys_data.json');
+        const beys = await beyResponse.json();
+        beyData = findBeyByName(beys, beyName);
+        
+        // Load leaderboard data (try advanced first, then standard)
+        try {
+            const advancedResponse = await fetch('data/advanced_leaderboard.csv');
+            const advancedText = await advancedResponse.text();
+            const advancedData = parseCSV(advancedText);
+            leaderboardData = findLeaderboardEntry(advancedData, beyName);
+        } catch (e) {
+            // Fallback to standard leaderboard
+            const standardResponse = await fetch('data/leaderboard.csv');
+            const standardText = await standardResponse.text();
+            const standardData = parseCSV(standardText);
+            leaderboardData = findLeaderboardEntry(standardData, beyName);
+        }
+        
+        // Load matches data
+        const matchesResponse = await fetch('data/matches.csv');
+        const matchesText = await matchesResponse.text();
+        const allMatches = parseCSV(matchesText).map(m => ({
+            date: m.Date,
+            beyA: m.BeyA,
+            beyB: m.BeyB,
+            scoreA: parseInt(m.ScoreA),
+            scoreB: parseInt(m.ScoreB),
+            winner: parseInt(m.ScoreA) > parseInt(m.ScoreB) ? m.BeyA : m.BeyB
+        }));
+        matchesData = getMatchesForBey(allMatches, beyName);
+        
+        // Render the profile
+        renderProfile();
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showError();
+    }
+}
+
+// Show error state
+function showError() {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+}
+
+// Render the profile
+function renderProfile() {
+    // Hide loading state
+    document.getElementById('loadingState').style.display = 'none';
+    
+    // Check if we found the bey
+    if (!beyData && !leaderboardData) {
+        showError();
+        return;
+    }
+    
+    // Show profile content
+    document.getElementById('profileContent').style.display = 'block';
+    
+    // Update page title
+    const displayName = beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName);
+    document.getElementById('pageTitle').textContent = displayName;
+    document.title = `${displayName} - suptower Beyblade X`;
+    
+    // Render bey info
+    if (beyData) {
+        document.getElementById('beyImage').src = beyData.image;
+        document.getElementById('beyImage').alt = beyData.name;
+        document.getElementById('beyName').textContent = beyData.name;
+        document.getElementById('beyCode').textContent = beyData.code || '';
+        document.getElementById('beyCode').className = `profile-code ${getLineClass(beyData.code)}`;
+        document.getElementById('beyDescription').textContent = beyData.description;
+        
+        // Type badge
+        const typeEl = document.getElementById('beyType');
+        typeEl.textContent = beyData.type;
+        typeEl.className = `profile-type ${beyData.type.toLowerCase()}`;
+        
+        // Parts
+        renderParts(beyData);
+    } else {
+        // Hide wiki info section if no wiki data
+        document.querySelector('.profile-header').style.display = 'none';
+    }
+    
+    // Render stats
+    renderStats();
+    
+    // Render advanced stats
+    renderAdvancedStats();
+    
+    // Render recent matches
+    renderRecentMatches();
+    
+    // Try to load ELO plot
+    loadEloPlot();
+}
+
+// Get line class from code
+function getLineClass(code) {
+    if (!code) return '';
+    if (code.startsWith('BX')) return 'basic-line';
+    if (code.startsWith('UX')) return 'unique-line';
+    if (code.startsWith('CX')) return 'custom-line';
+    return '';
+}
+
+// Render parts information
+function renderParts(bey) {
+    const partsContainer = document.getElementById('beyParts');
+    partsContainer.innerHTML = '';
+    
+    const parts = [
+        { label: 'Blade', value: bey.blade },
+        { label: 'Assist Blade', value: bey.assist_blade },
+        { label: 'Ratchet Integrated Bit', value: bey.ratchet_integrated_bit },
+        { label: 'Ratchet', value: bey.ratchet && !bey.ratchet_integrated_bit ? bey.ratchet : null },
+        { label: 'Bit', value: bey.bit && !bey.ratchet_integrated_bit ? bey.bit : null }
+    ];
+    
+    parts.forEach(part => {
+        if (part.value) {
+            const partEl = document.createElement('div');
+            partEl.className = 'part-item';
+            partEl.innerHTML = `
+                <span class="part-label">${part.label}:</span>
+                <span class="part-value">${part.value}</span>
+            `;
+            partsContainer.appendChild(partEl);
+        }
+    });
+}
+
+// Render statistics
+function renderStats() {
+    const statsGrid = document.getElementById('statsGrid');
+    statsGrid.innerHTML = '';
+    
+    if (!leaderboardData) {
+        statsGrid.innerHTML = '<p class="no-data">No statistics available for this bey.</p>';
+        return;
+    }
+    
+    // Define stats to display
+    const stats = [
+        { label: 'Rank', value: leaderboardData.Platz, icon: '🏆' },
+        { label: 'ELO', value: leaderboardData.ELO, icon: '📊', highlight: 'elo' },
+        { label: 'Matches', value: leaderboardData.Matches || leaderboardData.Spiele, icon: '🎮' },
+        { label: 'Wins', value: leaderboardData.Wins || leaderboardData.Siege, icon: '✅' },
+        { label: 'Losses', value: leaderboardData.Losses || leaderboardData.Niederlagen, icon: '❌' },
+        { label: 'Winrate', value: leaderboardData.Winrate, icon: '📈', highlight: 'winrate' },
+        { label: 'Points For', value: leaderboardData.PointsFor || leaderboardData['Gewonnene Punkte'], icon: '⬆️' },
+        { label: 'Points Against', value: leaderboardData.PointsAgainst || leaderboardData['Verlorene Punkte'], icon: '⬇️' },
+        { label: 'Point Diff', value: leaderboardData.AvgPointDiff || leaderboardData.Differenz, icon: '📉' },
+        { label: 'ELO Trend', value: leaderboardData.ELOTrend, icon: '📈', highlight: 'trend' }
+    ];
+    
+    stats.forEach(stat => {
+        if (stat.value !== undefined && stat.value !== null && stat.value !== '') {
+            const statEl = document.createElement('div');
+            statEl.className = 'stat-card';
+            
+            let valueClass = '';
+            if (stat.highlight === 'elo') {
+                valueClass = getEloClass(parseInt(stat.value));
+            } else if (stat.highlight === 'winrate') {
+                valueClass = getWinrateClass(parseFloat(stat.value));
+            } else if (stat.highlight === 'trend') {
+                valueClass = getTrendClass(parseFloat(stat.value));
+            }
+            
+            statEl.innerHTML = `
+                <div class="stat-icon">${stat.icon}</div>
+                <div class="stat-value ${valueClass}">${stat.value}</div>
+                <div class="stat-label">${stat.label}</div>
+            `;
+            statsGrid.appendChild(statEl);
+        }
+    });
+}
+
+// Get ELO color class
+function getEloClass(elo) {
+    if (isNaN(elo)) return '';
+    if (elo >= 1050) return 'trend-very-positive';
+    if (elo >= 1010) return 'trend-positive';
+    if (elo >= 990) return 'trend-neutral';
+    if (elo >= 950) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get winrate color class
+function getWinrateClass(winrate) {
+    if (isNaN(winrate)) return '';
+    if (winrate >= 80) return 'trend-very-positive';
+    if (winrate >= 60) return 'trend-positive';
+    if (winrate >= 40) return 'trend-neutral';
+    if (winrate >= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get trend color class
+function getTrendClass(trend) {
+    if (isNaN(trend)) return '';
+    if (trend > 20) return 'trend-very-positive';
+    if (trend > 0) return 'trend-positive';
+    if (trend < -20) return 'trend-very-negative';
+    if (trend < 0) return 'trend-negative';
+    return 'trend-neutral';
+}
+
+// Render advanced statistics
+function renderAdvancedStats() {
+    const advancedStatsGrid = document.getElementById('advancedStatsGrid');
+    const advancedStatsSection = document.getElementById('advancedStatsSection');
+    advancedStatsGrid.innerHTML = '';
+    
+    if (!leaderboardData) {
+        return;
+    }
+    
+    // Check if advanced stats are available
+    const hasAdvancedStats = leaderboardData.Volatility !== undefined || 
+                             leaderboardData['AvgΔELO'] !== undefined ||
+                             leaderboardData.UpsetWins !== undefined;
+    
+    if (!hasAdvancedStats) {
+        return;
+    }
+    
+    // Show advanced stats section
+    advancedStatsSection.style.display = 'block';
+    
+    // Define advanced stats to display
+    const advancedStats = [
+        { label: 'Volatility', value: leaderboardData.Volatility, icon: '📊', tooltip: 'Rating stability measure' },
+        { label: 'Avg ELO Change', value: leaderboardData['AvgΔELO'], icon: '📈', highlight: 'trend' },
+        { label: 'Max ELO Gain', value: leaderboardData['MaxΔELO'], icon: '⬆️', highlight: 'positive' },
+        { label: 'Max ELO Loss', value: leaderboardData['MinΔELO'], icon: '⬇️', highlight: 'negative' },
+        { label: 'Upset Wins', value: leaderboardData.UpsetWins, icon: '🎯', tooltip: 'Wins against higher-rated opponents' },
+        { label: 'Upset Losses', value: leaderboardData.UpsetLosses, icon: '💔', tooltip: 'Losses against lower-rated opponents' }
+    ];
+    
+    advancedStats.forEach(stat => {
+        if (stat.value !== undefined && stat.value !== null && stat.value !== '') {
+            const statEl = document.createElement('div');
+            statEl.className = 'stat-card';
+            
+            let valueClass = '';
+            const numValue = parseFloat(stat.value);
+            if (stat.highlight === 'trend') {
+                valueClass = getTrendClass(numValue);
+            } else if (stat.highlight === 'positive' && numValue > 0) {
+                valueClass = 'trend-very-positive';
+            } else if (stat.highlight === 'negative' && numValue < 0) {
+                valueClass = 'trend-very-negative';
+            }
+            
+            statEl.innerHTML = `
+                <div class="stat-icon">${stat.icon}</div>
+                <div class="stat-value ${valueClass}">${stat.value}</div>
+                <div class="stat-label">${stat.label}</div>
+            `;
+            advancedStatsGrid.appendChild(statEl);
+        }
+    });
+}
+
+// Render recent matches
+function renderRecentMatches() {
+    const matchesContainer = document.getElementById('recentMatches');
+    matchesContainer.innerHTML = '';
+    
+    if (matchesData.length === 0) {
+        matchesContainer.innerHTML = '<p class="no-data">No match history available.</p>';
+        return;
+    }
+    
+    // Show last 5 matches (most recent first)
+    const recentMatches = [...matchesData].reverse().slice(0, 5);
+    const normalizedBeyName = normalizeBeyName(beyName);
+    
+    recentMatches.forEach(match => {
+        const isWinner = normalizeBeyName(match.winner) === normalizedBeyName;
+        const isBeyA = normalizeBeyName(match.beyA) === normalizedBeyName;
+        const opponent = isBeyA ? match.beyB : match.beyA;
+        const myScore = isBeyA ? match.scoreA : match.scoreB;
+        const oppScore = isBeyA ? match.scoreB : match.scoreA;
+        
+        const matchEl = document.createElement('div');
+        matchEl.className = `match-card ${isWinner ? 'win' : 'loss'}`;
+        matchEl.innerHTML = `
+            <div class="match-result">${isWinner ? 'WIN' : 'LOSS'}</div>
+            <div class="match-details">
+                <div class="match-opponent">
+                    vs <a href="bey.html?name=${encodeURIComponent(opponent)}" class="opponent-link">${opponent}</a>
+                </div>
+                <div class="match-score">${myScore} - ${oppScore}</div>
+            </div>
+            <div class="match-date">${formatDate(match.date)}</div>
+        `;
+        matchesContainer.appendChild(matchEl);
+    });
+}
+
+// Try to load ELO plot
+function loadEloPlot() {
+    const plotSection = document.getElementById('plotSection');
+    const plotImg = document.getElementById('eloPlot');
+    
+    // Try to find the plot for this bey
+    const bladeName = beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName);
+    
+    // Check for dark mode
+    const isDark = document.body.classList.contains('dark');
+    const basePath = isDark ? './plots/elo/dark/' : './plots/elo/';
+    const filename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
+    
+    plotImg.src = basePath + filename;
+    plotImg.alt = `${bladeName} ELO History`;
+    
+    // Hide section if image fails to load
+    plotImg.onerror = () => {
+        plotSection.style.display = 'none';
+    };
+    
+    plotImg.onload = () => {
+        plotSection.style.display = 'block';
+    };
+    
+    // Update plot when dark mode changes
+    const observer = new MutationObserver(() => {
+        const isDark = document.body.classList.contains('dark');
+        const basePath = isDark ? './plots/elo/dark/' : './plots/elo/';
+        const filename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
+        plotImg.src = basePath + filename;
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+}
+
+// Initialize
+if (!beyName) {
+    showError();
+} else {
+    loadData();
+}
+</script>
+
+</body>
+</html>

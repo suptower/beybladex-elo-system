@@ -108,11 +108,11 @@ function displayMatches() {
         
         row.innerHTML = `
             <td>${match.date}</td>
-            <td class="${match.winner === match.beyA ? 'winner' : ''}">${match.beyA}</td>
+            <td class="${match.winner === match.beyA ? 'winner' : ''}"><a href="bey.html?name=${encodeURIComponent(match.beyA)}" class="bey-link">${match.beyA}</a></td>
             <td class="${match.winner === match.beyA ? 'score-winner' : ''}">${match.scoreA}</td>
             <td class="${match.winner === match.beyB ? 'score-winner' : ''}">${match.scoreB}</td>
-            <td class="${match.winner === match.beyB ? 'winner' : ''}">${match.beyB}</td>
-            <td class="match-winner">${match.winner}</td>
+            <td class="${match.winner === match.beyB ? 'winner' : ''}"><a href="bey.html?name=${encodeURIComponent(match.beyB)}" class="bey-link">${match.beyB}</a></td>
+            <td class="match-winner"><a href="bey.html?name=${encodeURIComponent(match.winner)}" class="bey-link">${match.winner}</a></td>
         `;
         
         tbody.appendChild(row);
@@ -129,17 +129,17 @@ function displayMatches() {
             </div>
             <div class="card-match">
                 <div class="card-bey ${match.winner === match.beyA ? 'winner' : ''}">
-                    <div class="bey-name">${match.beyA}</div>
+                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyA)}" class="bey-link">${match.beyA}</a></div>
                     <div class="bey-score ${match.winner === match.beyA ? 'score-winner' : ''}">${match.scoreA}</div>
                 </div>
                 <div class="card-vs">VS</div>
                 <div class="card-bey ${match.winner === match.beyB ? 'winner' : ''}">
-                    <div class="bey-name">${match.beyB}</div>
+                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyB)}" class="bey-link">${match.beyB}</a></div>
                     <div class="bey-score ${match.winner === match.beyB ? 'score-winner' : ''}">${match.scoreB}</div>
                 </div>
             </div>
             <div class="card-footer">
-                Winner: <strong>${match.winner}</strong>
+                Winner: <strong><a href="bey.html?name=${encodeURIComponent(match.winner)}" class="bey-link">${match.winner}</a></strong>
             </div>
         `;
         

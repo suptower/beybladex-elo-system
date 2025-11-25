@@ -166,7 +166,7 @@ function renderBeys() {
         }
         
         return `
-        <div class="wiki-card" data-type="${bey.type}">
+        <div class="wiki-card wiki-card-clickable" data-type="${bey.type}" onclick="window.location.href='bey.html?name=${encodeURIComponent(bey.blade)}'">
             <div class="wiki-card-image">
                 <img src="${bey.image}" alt="${bey.name}" loading="lazy">
                 <div class="wiki-card-type ${bey.type.toLowerCase()}">${bey.type}</div>
