@@ -138,6 +138,10 @@ function renderGallery(images) {
     const base = paths[type].replace("plots.json", "");
     
     images.forEach((imgObj, index) => {
+        // Create container for image with optional profile link
+        const container = document.createElement("div");
+        container.className = "gallery-item";
+        
         const img = document.createElement("img");
         img.src = getImageSrc(base, imgObj.filename);
         img.alt = imgObj.title;
@@ -149,7 +153,19 @@ function renderGallery(images) {
             }));
             openViewer(index, viewerImgs);
         };
-        gallery.appendChild(img);
+        container.appendChild(img);
+        
+        // For ELO and position plots, add a link to the bey profile
+        if (type === "elo" || type === "positions") {
+            const profileLink = document.createElement("a");
+            profileLink.href = `bey.html?name=${encodeURIComponent(imgObj.title)}`;
+            profileLink.className = "profile-link-btn";
+            profileLink.textContent = "View Profile →";
+            profileLink.onclick = (e) => e.stopPropagation();
+            container.appendChild(profileLink);
+        }
+        
+        gallery.appendChild(container);
     });
 }
 </script>
