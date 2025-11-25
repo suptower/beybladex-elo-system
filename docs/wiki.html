@@ -110,6 +110,26 @@ function normalizeBeyName(name) {
     return name.toLowerCase().replace(/[\s\-_]/g, '');
 }
 
+// Get ELO color class
+function getEloClass(elo) {
+    if (isNaN(elo)) return '';
+    if (elo >= 1050) return 'trend-very-positive';
+    if (elo >= 1010) return 'trend-positive';
+    if (elo >= 990) return 'trend-neutral';
+    if (elo >= 950) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get Power Index color class
+function getPowerIndexClass(pwr) {
+    if (isNaN(pwr)) return '';
+    if (pwr >= 80) return 'trend-very-positive';
+    if (pwr >= 60) return 'trend-positive';
+    if (pwr >= 40) return 'trend-neutral';
+    if (pwr >= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
 // Parse CSV text to array of objects
 function parseCSV(text) {
     const lines = text.trim().split(/\r?\n/);
@@ -227,6 +247,8 @@ function renderBeys() {
         const normalizedBlade = normalizeBeyName(bey.blade);
         const leaderboardEntry = leaderboardData[normalizedBlade];
         const rank = leaderboardEntry ? leaderboardEntry.Platz : null;
+        const elo = leaderboardEntry ? leaderboardEntry.ELO : null;
+        const powerIndex = leaderboardEntry ? leaderboardEntry.PowerIndex : null;
         
         // Get tournament wins
         const trophies = tournamentsData[normalizedBlade] || [];
@@ -247,6 +269,24 @@ function renderBeys() {
             trophiesHtml = `<div class="wiki-card-trophies">${trophyIcons}</div>`;
         }
         
+        // Generate ELO and Power Index stats HTML
+        let statsHtml = '';
+        if (elo || powerIndex) {
+            const eloClass = elo ? getEloClass(parseInt(elo)) : '';
+            const pwrClass = powerIndex ? getPowerIndexClass(parseFloat(powerIndex)) : '';
+            statsHtml = `
+            <div class="wiki-card-stats">
+                ${elo ? `<div class="wiki-card-stat">
+                    <span class="wiki-stat-label">ELO</span>
+                    <span class="wiki-stat-value ${eloClass}">${elo}</span>
+                </div>` : ''}
+                ${powerIndex ? `<div class="wiki-card-stat">
+                    <span class="wiki-stat-label">PWR</span>
+                    <span class="wiki-stat-value ${pwrClass}">${powerIndex}</span>
+                </div>` : ''}
+            </div>`;
+        }
+        
         return `
         <div class="wiki-card wiki-card-clickable" data-type="${bey.type}" onclick="window.location.href='bey.html?name=${encodeURIComponent(bey.blade)}'">
             <div class="wiki-card-image">
@@ -260,6 +300,7 @@ function renderBeys() {
                 </div>
                 ${trophiesHtml}
                 ${bey.code ? `<p class="wiki-card-code ${lineClass}">${bey.code}</p>` : ''}
+                ${statsHtml}
                 <p class="wiki-card-description">${bey.description}</p>
                 <div class="wiki-card-parts">
                     <div class="part-item">

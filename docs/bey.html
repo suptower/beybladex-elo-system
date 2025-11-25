@@ -68,6 +68,13 @@
                 </div>
             </div>
             
+            <!-- Key Stats Section (ELO and Power Index) -->
+            <div class="profile-section" id="keyStatsSection" style="display: none;">
+                <div id="keyStatsGrid" class="key-stats-grid">
+                    <!-- Key stats (ELO, Power Index) will be dynamically added -->
+                </div>
+            </div>
+            
             <!-- Stats Section -->
             <div class="profile-section">
                 <h3 class="section-title">📊 Statistics</h3>
@@ -292,6 +299,9 @@ function renderProfile() {
     // Render trophies
     renderTrophies();
     
+    // Render key stats (ELO and Power Index)
+    renderKeyStats();
+    
     // Render stats
     renderStats();
     
@@ -361,6 +371,64 @@ function renderTrophies() {
     `).join('');
 }
 
+// Render key stats (ELO and Power Index) - highlighted prominently
+function renderKeyStats() {
+    const keyStatsGrid = document.getElementById('keyStatsGrid');
+    const keyStatsSection = document.getElementById('keyStatsSection');
+    keyStatsGrid.innerHTML = '';
+    
+    if (!leaderboardData) {
+        return;
+    }
+    
+    const elo = leaderboardData.ELO;
+    const powerIndex = leaderboardData.PowerIndex;
+    
+    // Only show if we have at least one key stat
+    if (!elo && !powerIndex) {
+        return;
+    }
+    
+    // Show the section
+    keyStatsSection.style.display = 'block';
+    
+    // ELO Card
+    if (elo) {
+        const eloClass = getEloClass(parseInt(elo));
+        const eloCard = document.createElement('div');
+        eloCard.className = `key-stat-card ${eloClass}`;
+        eloCard.innerHTML = `
+            <div class="key-stat-label">ELO Rating</div>
+            <div class="key-stat-value ${eloClass}">${elo}</div>
+            <div class="key-stat-desc">Skill Level Indicator</div>
+        `;
+        keyStatsGrid.appendChild(eloCard);
+    }
+    
+    // Power Index Card
+    if (powerIndex) {
+        const pwrClass = getPowerIndexClass(parseFloat(powerIndex));
+        const pwrCard = document.createElement('div');
+        pwrCard.className = `key-stat-card ${pwrClass}`;
+        pwrCard.innerHTML = `
+            <div class="key-stat-label">Power Index</div>
+            <div class="key-stat-value ${pwrClass}">${powerIndex}</div>
+            <div class="key-stat-desc">Meta Score (0-100)</div>
+        `;
+        keyStatsGrid.appendChild(pwrCard);
+    }
+}
+
+// Get Power Index color class
+function getPowerIndexClass(pwr) {
+    if (isNaN(pwr)) return '';
+    if (pwr >= 80) return 'trend-very-positive';
+    if (pwr >= 60) return 'trend-positive';
+    if (pwr >= 40) return 'trend-neutral';
+    if (pwr >= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
 // Render statistics
 function renderStats() {
     const statsGrid = document.getElementById('statsGrid');
@@ -371,10 +439,9 @@ function renderStats() {
         return;
     }
     
-    // Define stats to display
+    // Define stats to display (ELO and Power Index are shown in key stats section)
     const stats = [
         { label: 'Rank', value: leaderboardData.Platz, icon: '🏆' },
-        { label: 'ELO', value: leaderboardData.ELO, icon: '📊', highlight: 'elo' },
         { label: 'Matches', value: leaderboardData.Matches || leaderboardData.Spiele, icon: '🎮' },
         { label: 'Wins', value: leaderboardData.Wins || leaderboardData.Siege, icon: '✅' },
         { label: 'Losses', value: leaderboardData.Losses || leaderboardData.Niederlagen, icon: '❌' },
