@@ -1652,6 +1652,15 @@ body.dark .wiki-card-rank.rank-bronze {
     box-shadow: 0 0 12px rgba(205, 127, 50, 0.6), 0 0 20px rgba(205, 127, 50, 0.3);
 }
 
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .wiki-card-rank.rank-gold::after,
+    .wiki-card-rank.rank-silver::after,
+    .wiki-card-rank.rank-bronze::after {
+        animation: none;
+    }
+}
+
 /* Trophy container on Wiki Card - now in content area */
 .wiki-card-trophies {
     display: flex;
