@@ -231,10 +231,14 @@ function renderBeys() {
         // Get tournament wins
         const trophies = tournamentsData[normalizedBlade] || [];
         
-        // Generate rank badge HTML
-        const rankBadgeHtml = rank ? `<div class="wiki-card-rank">#${rank}</div>` : '';
+        // Generate rank badge HTML with color classes for top 3
+        let rankClass = '';
+        if (rank === '1') rankClass = 'rank-gold';
+        else if (rank === '2') rankClass = 'rank-silver';
+        else if (rank === '3') rankClass = 'rank-bronze';
+        const rankBadgeHtml = rank ? `<span class="wiki-card-rank ${rankClass}">#${rank}</span>` : '';
         
-        // Generate trophies HTML
+        // Generate trophies HTML for content area
         let trophiesHtml = '';
         if (trophies.length > 0) {
             const trophyIcons = trophies.map(t => 
@@ -247,12 +251,14 @@ function renderBeys() {
         <div class="wiki-card wiki-card-clickable" data-type="${bey.type}" onclick="window.location.href='bey.html?name=${encodeURIComponent(bey.blade)}'">
             <div class="wiki-card-image">
                 <img src="${bey.image}" alt="${bey.name}" loading="lazy">
-                ${rankBadgeHtml}
                 <div class="wiki-card-type ${bey.type.toLowerCase()}">${bey.type}</div>
-                ${trophiesHtml}
             </div>
             <div class="wiki-card-content">
-                <h3 class="wiki-card-title">${bey.name}</h3>
+                <div class="wiki-card-title-row">
+                    <h3 class="wiki-card-title">${bey.name}</h3>
+                    ${rankBadgeHtml}
+                </div>
+                ${trophiesHtml}
                 ${bey.code ? `<p class="wiki-card-code ${lineClass}">${bey.code}</p>` : ''}
                 <p class="wiki-card-description">${bey.description}</p>
                 <div class="wiki-card-parts">
