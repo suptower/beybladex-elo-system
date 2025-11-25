@@ -272,6 +272,85 @@ nav button:hover {
 }
 
 /* ============================================
+   NAV DROPDOWN MENU
+============================================ */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.625rem 1.25rem;
+    text-decoration: none;
+    color: var(--text-light);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    border: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.nav-dropdown-toggle:hover {
+    color: var(--accent);
+    background: var(--bg);
+}
+
+.nav-dropdown-toggle::after {
+    content: "▼";
+    font-size: 0.625rem;
+    transition: transform 0.2s ease;
+}
+
+.nav-dropdown:hover .nav-dropdown-toggle::after {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 160px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.nav-dropdown:hover .nav-dropdown-content {
+    display: block;
+}
+
+.nav-dropdown-content a {
+    display: block;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: var(--transition);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-dropdown-content a:last-child {
+    border-bottom: none;
+}
+
+.nav-dropdown-content a:hover {
+    background: var(--bg);
+    color: var(--accent);
+    transform: none;
+}
+
+/* ============================================
    MAIN CONTENT
 ============================================ */
 main {
@@ -1904,6 +1983,46 @@ body.dark .wiki-card-rank.rank-bronze {
     .nav-menu a:hover,
     .nav-menu button:hover {
         transform: none;
+    }
+    
+    /* Mobile dropdown styles */
+    .nav-dropdown {
+        width: 100%;
+    }
+    
+    .nav-dropdown-toggle {
+        width: 100%;
+        text-align: left;
+        padding: 0.875rem 1rem;
+        justify-content: space-between;
+    }
+    
+    .nav-dropdown-content {
+        position: static;
+        display: none;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        padding-left: 1rem;
+    }
+    
+    .nav-dropdown.active .nav-dropdown-content {
+        display: block;
+    }
+    
+    .nav-dropdown.active .nav-dropdown-toggle::after {
+        transform: rotate(180deg);
+    }
+    
+    .nav-dropdown-content a {
+        padding: 0.75rem 1rem;
+        border-bottom: none;
+        border-left: 2px solid var(--border);
+    }
+    
+    .nav-dropdown-content a:hover {
+        border-left-color: var(--accent);
     }
     
     header {
