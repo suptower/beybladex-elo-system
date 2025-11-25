@@ -232,8 +232,8 @@ for d in intermediate_data:
         "power_index": power_index
     })
 
-# --- Phase 4: Sort by Power Index and assign ranks ---
-advanced_data_sorted = sorted(advanced_data, key=lambda x: -x["power_index"])
+# --- Phase 4: Sort by ELO and assign ranks ---
+advanced_data_sorted = sorted(advanced_data, key=lambda x: -x["elo"])
 for rank, d in enumerate(advanced_data_sorted, start=1):
     d["rank"] = rank
 
@@ -257,7 +257,7 @@ with open(ADVANCED_FILE, "w", newline="", encoding="utf-8") as f:
         ])
 
 # copy to docs folder
-with open(ADVANCED_FILE, "r", encoding="utf-8") as src, open("./docs/advanced_leaderboard.csv", "w", encoding="utf-8") as dst:
+with open(ADVANCED_FILE, "r", encoding="utf-8") as src, open("./docs/data/advanced_leaderboard.csv", "w", encoding="utf-8") as dst:
     dst.write(src.read())
 
 print(f"{GREEN} Advanced Leaderboard erstellt: {ADVANCED_FILE}")
