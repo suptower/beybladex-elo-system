@@ -1,6 +1,11 @@
 // bey-hover-card.js - Reusable hover card component for bey previews
 // Shows a mini preview card similar to wiki cards when hovering over bey names
 
+// Constants for hover card dimensions
+const HOVER_CARD_WIDTH = 280;
+const HOVER_CARD_ESTIMATED_HEIGHT = 300; // Estimated height before card is rendered
+const HOVER_CARD_PADDING = 10;
+
 let beysDataCache = null;
 let hoverCardElement = null;
 let hoverTimeout = null;
@@ -143,27 +148,25 @@ function showHoverCard(beyData, targetElement) {
 // Position the hover card near the target element
 function positionHoverCard(card, targetElement) {
     const targetRect = targetElement.getBoundingClientRect();
-    const cardWidth = 280; // Fixed width from CSS
-    const cardHeight = card.offsetHeight || 300; // Estimate if not rendered yet
-    const padding = 10;
+    const cardHeight = card.offsetHeight || HOVER_CARD_ESTIMATED_HEIGHT;
     
     let left = targetRect.left + window.scrollX;
-    let top = targetRect.bottom + window.scrollY + padding;
+    let top = targetRect.bottom + window.scrollY + HOVER_CARD_PADDING;
     
     // Check if card would go off right edge of screen
-    if (left + cardWidth > window.innerWidth) {
-        left = window.innerWidth - cardWidth - padding;
+    if (left + HOVER_CARD_WIDTH > window.innerWidth) {
+        left = window.innerWidth - HOVER_CARD_WIDTH - HOVER_CARD_PADDING;
     }
     
     // Check if card would go off left edge
-    if (left < padding) {
-        left = padding;
+    if (left < HOVER_CARD_PADDING) {
+        left = HOVER_CARD_PADDING;
     }
     
     // Check if card would go off bottom of viewport
-    if (targetRect.bottom + cardHeight + padding > window.innerHeight) {
+    if (targetRect.bottom + cardHeight + HOVER_CARD_PADDING > window.innerHeight) {
         // Position above the element instead
-        top = targetRect.top + window.scrollY - cardHeight - padding;
+        top = targetRect.top + window.scrollY - cardHeight - HOVER_CARD_PADDING;
     }
     
     card.style.left = `${left}px`;
@@ -201,11 +204,14 @@ async function handleMouseOver(event) {
         // Get the bey name from the link
         let beyName = link.textContent.trim();
         
-        // Try to extract from href if available
+        // Try to extract from href if available (e.g., bey.html?name=FoxBrush)
         const href = link.getAttribute('href');
-        if (href && href.includes('name=')) {
-            const urlParams = new URLSearchParams(href.split('?')[1]);
-            beyName = urlParams.get('name') || beyName;
+        if (href && href.includes('?') && href.includes('name=')) {
+            const queryString = href.split('?')[1];
+            if (queryString) {
+                const urlParams = new URLSearchParams(queryString);
+                beyName = urlParams.get('name') || beyName;
+            }
         }
         
         // Find bey data
