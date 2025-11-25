@@ -1535,12 +1535,49 @@ body.dark .wiki-card-rank {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Shimmer animation for top 3 ranks */
+@keyframes shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
 /* Gold rank for #1 */
 .wiki-card-rank.rank-gold {
     background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
     color: #1a1a1a;
     border: 1px solid rgba(255, 215, 0, 0.5);
     box-shadow: var(--shadow), 0 0 8px rgba(255, 215, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.wiki-card-rank.rank-gold::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+    pointer-events: none;
+}
+
+body.dark .wiki-card-rank.rank-gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffcc00 100%);
+    color: #1a1a1a;
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
 /* Silver rank for #2 */
@@ -1549,6 +1586,34 @@ body.dark .wiki-card-rank {
     color: #1a1a1a;
     border: 1px solid rgba(192, 192, 192, 0.5);
     box-shadow: var(--shadow), 0 0 8px rgba(192, 192, 192, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.wiki-card-rank.rank-silver::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+    animation-delay: 0.3s;
+    pointer-events: none;
+}
+
+body.dark .wiki-card-rank.rank-silver {
+    background: linear-gradient(135deg, #d4d4d4 0%, #a8a8a8 100%);
+    color: #1a1a1a;
+    border: 2px solid #c0c0c0;
+    box-shadow: 0 0 12px rgba(192, 192, 192, 0.6), 0 0 20px rgba(192, 192, 192, 0.3);
 }
 
 /* Bronze rank for #3 */
@@ -1557,6 +1622,34 @@ body.dark .wiki-card-rank {
     color: #ffffff;
     border: 1px solid rgba(205, 127, 50, 0.5);
     box-shadow: var(--shadow), 0 0 8px rgba(205, 127, 50, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.wiki-card-rank.rank-bronze::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+    animation-delay: 0.6s;
+    pointer-events: none;
+}
+
+body.dark .wiki-card-rank.rank-bronze {
+    background: linear-gradient(135deg, #d4883a 0%, #b8742e 100%);
+    color: #ffffff;
+    border: 2px solid #cd7f32;
+    box-shadow: 0 0 12px rgba(205, 127, 50, 0.6), 0 0 20px rgba(205, 127, 50, 0.3);
 }
 
 /* Trophy container on Wiki Card - now in content area */
