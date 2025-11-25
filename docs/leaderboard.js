@@ -6,6 +6,7 @@ let isAdvancedMode = false; // Track which leaderboard is being displayed
 
 // Column abbreviations for advanced mode
 const COLUMN_ABBREVIATIONS = {
+    'PowerIndex': 'PWR',
     'PointsFor': 'Pts+',
     'PointsAgainst': 'Pts-',
     'AvgPointDiff': 'AvgΔPts',
@@ -23,6 +24,7 @@ const COLUMN_DESCRIPTIONS = {
     'Platz': { short: 'Rank/Position', long: 'Current ranking position in the leaderboard' },
     'Bey': { short: 'Beyblade Name', long: 'Name of the Beyblade' },
     'ELO': { short: 'ELO Rating', long: 'Current ELO rating (skill level indicator)' },
+    'PWR': { short: 'Power Index', long: 'Composite meta score (0-100) combining: ELO rating (40% - base skill), Winrate (25% - win consistency), Trend (15% - current form), Activity (10% - match engagement), Consistency (10% - performance reliability)' },
     'Matches': { short: 'Games Played', long: 'Total number of matches played' },
     'Wins': { short: 'Wins', long: 'Total number of wins' },
     'Losses': { short: 'Losses', long: 'Total number of losses' },
@@ -196,6 +198,11 @@ function renderTable(headers, rows) {
                 applyVolatilityStyling(td, value);
             }
 
+            // Highlight Power Index (for advanced mode)
+            if (h === "PowerIndex" || h.toLowerCase() === "powerindex") {
+                applyPowerIndexStyling(td, value);
+            }
+
             tr.appendChild(td);
         });
 
@@ -317,6 +324,14 @@ function renderCards(headers, rows) {
         
         // Conditional details based on mode
         if (isAdvancedMode) {
+            // Add Power Index at the top for advanced mode
+            const pwrDetail = createDetail("Power Index", row["PowerIndex"]);
+            const pwrValue = pwrDetail.querySelector('.lb-detail-value');
+            if (pwrValue && row["PowerIndex"]) {
+                applyPowerIndexStyling(pwrValue, row["PowerIndex"]);
+            }
+            details.appendChild(pwrDetail);
+            
             details.appendChild(createDetail("Matches", row["Matches"]));
             details.appendChild(createDetail("Pts For", row["PointsFor"]));
             details.appendChild(createDetail("Pts Against", row["PointsAgainst"]));
@@ -696,6 +711,7 @@ function updateLegend() {
             ['Platz', COLUMN_DESCRIPTIONS['Platz']],
             ['Bey', COLUMN_DESCRIPTIONS['Bey']],
             ['ELO', COLUMN_DESCRIPTIONS['ELO']],
+            ['PWR', COLUMN_DESCRIPTIONS['PWR']],
             ['Matches', COLUMN_DESCRIPTIONS['Matches']],
             ['Wins', COLUMN_DESCRIPTIONS['Wins']],
             ['Losses', COLUMN_DESCRIPTIONS['Losses']],
@@ -845,6 +861,24 @@ function applyVolatilityStyling(td, value) {
     } else if (numValue <= 5) {
         td.classList.add("trend-neutral");
     } else if (numValue <= 10) {
+        td.classList.add("trend-negative");
+    } else {
+        td.classList.add("trend-very-negative");
+    }
+}
+
+function applyPowerIndexStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    // Power Index ranges from 0-100
+    if (numValue >= 80) {
+        td.classList.add("trend-very-positive");
+    } else if (numValue >= 60) {
+        td.classList.add("trend-positive");
+    } else if (numValue >= 40) {
+        td.classList.add("trend-neutral");
+    } else if (numValue >= 20) {
         td.classList.add("trend-negative");
     } else {
         td.classList.add("trend-very-negative");

@@ -1774,6 +1774,59 @@ body.dark .wiki-card-rank.rank-bronze {
     transform: translateY(-2px);
 }
 
+/* Wiki Card Stats (ELO and Power Index) */
+.wiki-card-stats {
+    display: flex;
+    gap: 1rem;
+    margin: 0.75rem 0;
+    padding: 0.5rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    justify-content: center;
+}
+
+.wiki-card-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.wiki-stat-label {
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.wiki-stat-value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.wiki-stat-value.trend-very-positive {
+    color: #10b981;
+}
+
+.wiki-stat-value.trend-positive {
+    color: #22c55e;
+}
+
+.wiki-stat-value.trend-neutral {
+    color: var(--text-light);
+}
+
+.wiki-stat-value.trend-negative {
+    color: #f59e0b;
+}
+
+.wiki-stat-value.trend-very-negative {
+    color: #ef4444;
+}
+
 .wiki-card-description {
     color: var(--text-light);
     font-size: 0.875rem;
@@ -2363,6 +2416,126 @@ body.dark .wiki-card-rank.rank-bronze {
     color: var(--text);
 }
 
+/* Key Stats Grid (ELO and Power Index) */
+.key-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.key-stat-card {
+    background: linear-gradient(135deg, var(--card) 0%, var(--bg) 100%);
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+    border: 2px solid var(--accent);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.key-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-hover));
+}
+
+.key-stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-xl);
+}
+
+.key-stat-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+}
+
+.key-stat-value {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.key-stat-value.trend-very-positive {
+    color: #10b981;
+}
+
+.key-stat-value.trend-positive {
+    color: #22c55e;
+}
+
+.key-stat-value.trend-neutral {
+    color: var(--text-light);
+}
+
+.key-stat-value.trend-negative {
+    color: #f59e0b;
+}
+
+.key-stat-value.trend-very-negative {
+    color: #ef4444;
+}
+
+/* Key stat card border colors based on trend */
+.key-stat-card.trend-very-positive {
+    border-color: #10b981;
+}
+
+.key-stat-card.trend-very-positive::before {
+    background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.key-stat-card.trend-positive {
+    border-color: #22c55e;
+}
+
+.key-stat-card.trend-positive::before {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.key-stat-card.trend-neutral {
+    border-color: var(--text-light);
+}
+
+.key-stat-card.trend-neutral::before {
+    background: linear-gradient(90deg, var(--text-light), var(--text-light));
+}
+
+.key-stat-card.trend-negative {
+    border-color: #f59e0b;
+}
+
+.key-stat-card.trend-negative::before {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.key-stat-card.trend-very-negative {
+    border-color: #ef4444;
+}
+
+.key-stat-card.trend-very-negative::before {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.key-stat-desc {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-style: italic;
+}
+
 /* Stats Grid */
 .stats-grid {
     display: grid;
@@ -2703,6 +2876,59 @@ body.dark .wiki-card-rank.rank-bronze {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+/* Hover Card Stats (ELO and Power Index) */
+.hover-card-stats {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    justify-content: center;
+}
+
+.hover-card-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.hover-stat-label {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.hover-stat-value {
+    font-size: 1.125rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.hover-stat-value.trend-very-positive {
+    color: #10b981;
+}
+
+.hover-stat-value.trend-positive {
+    color: #22c55e;
+}
+
+.hover-stat-value.trend-neutral {
+    color: var(--text-light);
+}
+
+.hover-stat-value.trend-negative {
+    color: #f59e0b;
+}
+
+.hover-stat-value.trend-very-negative {
+    color: #ef4444;
 }
 
 .hover-card-parts {
