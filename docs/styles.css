@@ -272,6 +272,81 @@ nav button:hover {
 }
 
 /* ============================================
+   NAV DROPDOWN MENU
+============================================ */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.nav-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.625rem 1.25rem;
+    text-decoration: none;
+    color: var(--text-light);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    border: none;
+    font-family: 'Inter', sans-serif;
+}
+
+.nav-dropdown-toggle:hover {
+    color: var(--accent);
+    background: var(--bg);
+    transform: translateY(-2px);
+}
+
+.nav-dropdown-toggle::after {
+    content: "▼";
+    font-size: 0.625rem;
+}
+
+.nav-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 160px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    z-index: 200;
+    overflow: hidden;
+}
+
+.nav-dropdown:hover .nav-dropdown-content {
+    display: block;
+}
+
+.nav-dropdown-content a {
+    display: block;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: var(--transition);
+    border-bottom: 1px solid var(--border);
+}
+
+.nav-dropdown-content a:last-child {
+    border-bottom: none;
+}
+
+.nav-dropdown-content a:hover {
+    background: var(--bg);
+    color: var(--accent);
+    transform: none;
+}
+
+/* ============================================
    MAIN CONTENT
 ============================================ */
 main {
@@ -1906,6 +1981,42 @@ body.dark .wiki-card-rank.rank-bronze {
         transform: none;
     }
     
+    /* Mobile dropdown styles */
+    .nav-dropdown {
+        width: 100%;
+    }
+    
+    .nav-dropdown-toggle {
+        width: 100%;
+        text-align: left;
+        padding: 0.875rem 1rem;
+        justify-content: space-between;
+    }
+    
+    .nav-dropdown-content {
+        position: static;
+        display: none;
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        padding-left: 1rem;
+    }
+    
+    .nav-dropdown.active .nav-dropdown-content {
+        display: block;
+    }
+    
+    .nav-dropdown-content a {
+        padding: 0.75rem 1rem;
+        border-bottom: none;
+        border-left: 2px solid var(--border);
+    }
+    
+    .nav-dropdown-content a:hover {
+        border-left-color: var(--accent);
+    }
+    
     header {
         padding: 1rem;
         flex-wrap: nowrap;
@@ -2975,5 +3086,104 @@ body.dark .wiki-card-rank.rank-bronze {
 @media (max-width: 768px) {
     .bey-hover-card {
         display: none !important;
+    }
+}
+
+/* ============================================
+   UPSET ANALYSIS PAGE STYLES
+============================================ */
+
+/* Summary Cards */
+.upset-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+.summary-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.summary-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.summary-value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+.summary-label {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+/* Upset Match Card specific styles */
+.upset-match-card {
+    position: relative;
+}
+
+.upset-magnitude {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 700;
+}
+
+.card-bey.loser {
+    opacity: 0.8;
+}
+
+.bey-elo {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.25rem;
+}
+
+/* Responsive styles for summary cards */
+@media (max-width: 768px) {
+    .upset-summary-cards {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .summary-card {
+        padding: 1rem;
+    }
+    
+    .summary-icon {
+        font-size: 2rem;
+    }
+    
+    .summary-value {
+        font-size: 1rem;
     }
 }

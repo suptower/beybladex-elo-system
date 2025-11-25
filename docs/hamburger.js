@@ -16,11 +16,20 @@ if (hamburger && navMenu) {
         }
     });
 
-    // Close menu when clicking a link
+    // Close menu when clicking a link (but not dropdown toggles)
     navMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
             hamburger.classList.remove('active');
             navMenu.classList.remove('active');
+        });
+    });
+
+    // Handle dropdown toggle on mobile
+    navMenu.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            const dropdown = toggle.closest('.nav-dropdown');
+            dropdown.classList.toggle('active');
         });
     });
 }
