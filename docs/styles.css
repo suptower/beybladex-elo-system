@@ -366,6 +366,13 @@ main h2 {
     padding: 0;
 }
 
+.gallery-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
 .gallery img {
     width: 100%;
     border-radius: var(--radius);
@@ -378,6 +385,27 @@ main h2 {
 .gallery img:hover {
     transform: scale(1.03);
     box-shadow: var(--shadow-xl);
+}
+
+.profile-link-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.profile-link-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    transform: translateY(-2px);
 }
 
 /* ============================================
@@ -1966,5 +1994,373 @@ footer p {
     .leaderboard-controls {
         flex-direction: column;
         gap: 1rem;
+    }
+}
+
+/* ============================================
+   BEY PROFILE PAGE STYLES
+============================================ */
+.bey-profile {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.loading-state,
+.error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-light);
+    font-size: 1.125rem;
+}
+
+.error-state a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.error-state a:hover {
+    text-decoration: underline;
+}
+
+.profile-header {
+    display: flex;
+    gap: 2rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    margin-bottom: 2rem;
+}
+
+.profile-image-container {
+    position: relative;
+    flex-shrink: 0;
+    width: 200px;
+    height: 200px;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+}
+
+.profile-type {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.profile-type.attack {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.profile-type.defense {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.profile-type.stamina {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.profile-type.balance {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.profile-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-name {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.profile-code {
+    display: inline-block;
+    font-size: 0.875rem;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    padding: 0.5rem 0.875rem;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-code.basic-line {
+    background: linear-gradient(135deg, #70bbe9 0%, #4a9fd9 100%);
+    box-shadow: 0 2px 12px rgba(112, 187, 233, 0.4);
+}
+
+.profile-code.unique-line {
+    background: linear-gradient(135deg, #ee7700 0%, #cc6600 100%);
+    box-shadow: 0 2px 12px rgba(238, 119, 0, 0.4);
+}
+
+.profile-code.custom-line {
+    background: linear-gradient(135deg, #e8314a 0%, #c92842 100%);
+    box-shadow: 0 2px 12px rgba(232, 49, 74, 0.4);
+}
+
+.profile-description {
+    color: var(--text-light);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0 0 1.5rem 0;
+    flex: 1;
+}
+
+.profile-parts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.profile-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    color: var(--text);
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.5rem 1rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.no-data {
+    text-align: center;
+    color: var(--text-light);
+    font-style: italic;
+    padding: 2rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+}
+
+/* Recent Matches */
+.recent-matches {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.match-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.match-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+}
+
+.match-card.win {
+    border-left: 4px solid #10b981;
+}
+
+.match-card.loss {
+    border-left: 4px solid #ef4444;
+}
+
+.match-result {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    min-width: 50px;
+    text-align: center;
+}
+
+.match-card.win .match-result {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.match-card.loss .match-result {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.match-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.match-opponent {
+    font-size: 0.9375rem;
+    color: var(--text);
+}
+
+.opponent-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.opponent-link:hover {
+    text-decoration: underline;
+}
+
+.match-score {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.match-date {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+/* Profile Plot */
+.profile-plot-container {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+.profile-plot {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+}
+
+/* Clickable Bey Names */
+.bey-link {
+    color: var(--accent);
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.bey-link:hover {
+    text-decoration: underline;
+    color: var(--accent-hover);
+}
+
+/* Wiki Card Clickable */
+.wiki-card-clickable {
+    cursor: pointer;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .profile-image-container {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .profile-name {
+        font-size: 1.5rem;
+    }
+    
+    .profile-parts {
+        align-items: center;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .match-card {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .match-date {
+        width: 100%;
+        text-align: right;
     }
 }

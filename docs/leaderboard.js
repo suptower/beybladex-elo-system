@@ -138,8 +138,17 @@ function renderTable(headers, rows) {
                 value = row[h] ?? "";
             }
 
-            // Standard-Text setzen (wird ggf. durch HTML ersetzt bei Cards)
-            td.textContent = value;
+            // Check if this is the name/bey column and make it a link
+            if (h.toLowerCase() === "name" || h.toLowerCase() === "bey") {
+                const link = document.createElement("a");
+                link.href = `bey.html?name=${encodeURIComponent(value)}`;
+                link.className = "bey-link";
+                link.textContent = value;
+                td.appendChild(link);
+            } else {
+                // Standard-Text setzen (wird ggf. durch HTML ersetzt bei Cards)
+                td.textContent = value;
+            }
 
             // Highlight ELO
             if (h.toLowerCase() === "elo") {
@@ -216,10 +225,12 @@ function renderCards(headers, rows) {
         else if (rank.textContent === "2") rank.classList.add("rank-silver");
         else if (rank.textContent === "3") rank.classList.add("rank-bronze");
         
-        const name = document.createElement("h3");
-        name.className = "lb-card-name";
-        // Advanced mode uses "Bey", standard uses "Name"
-        name.textContent = row["Name"] || row["Bey"] || "Unknown";
+        // Make the name a clickable link
+        const nameLink = document.createElement("a");
+        nameLink.className = "lb-card-name bey-link";
+        const beyNameValue = row["Name"] || row["Bey"] || "Unknown";
+        nameLink.textContent = beyNameValue;
+        nameLink.href = `bey.html?name=${encodeURIComponent(beyNameValue)}`;
         
         // show ELO and add small text "ELO" below number, also apply elo color coding
         const elo = document.createElement("div");
@@ -240,7 +251,7 @@ function renderCards(headers, rows) {
         elo.appendChild(eloLabel);
         
         cardHeader.appendChild(rank);
-        cardHeader.appendChild(name);
+        cardHeader.appendChild(nameLink);
         cardHeader.appendChild(elo);
         card.appendChild(cardHeader);
 
