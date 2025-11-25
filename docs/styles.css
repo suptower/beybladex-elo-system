@@ -1515,6 +1515,170 @@ footer p {
     box-shadow: var(--shadow-md);
 }
 
+/* Rank Badge on Wiki Card - now inline with title */
+.wiki-card-rank {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #f8fafc;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 800;
+    font-family: 'Inter', sans-serif;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    white-space: nowrap;
+}
+
+body.dark .wiki-card-rank {
+    background: linear-gradient(135deg, #475569 0%, #334155 100%);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Shimmer animation for top 3 ranks */
+@keyframes shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+/* Gold rank for #1 */
+.wiki-card-rank.rank-gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+    color: #1a1a1a;
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    box-shadow: var(--shadow), 0 0 8px rgba(255, 215, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.wiki-card-rank.rank-gold::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+    pointer-events: none;
+}
+
+body.dark .wiki-card-rank.rank-gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffcc00 100%);
+    color: #1a1a1a;
+    border: 2px solid #ffd700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+/* Silver rank for #2 */
+.wiki-card-rank.rank-silver {
+    background: linear-gradient(135deg, #e8e8e8 0%, #c0c0c0 100%);
+    color: #1a1a1a;
+    border: 1px solid rgba(192, 192, 192, 0.5);
+    box-shadow: var(--shadow), 0 0 8px rgba(192, 192, 192, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.wiki-card-rank.rank-silver::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+    animation-delay: 0.3s;
+    pointer-events: none;
+}
+
+body.dark .wiki-card-rank.rank-silver {
+    background: linear-gradient(135deg, #d4d4d4 0%, #a8a8a8 100%);
+    color: #1a1a1a;
+    border: 2px solid #c0c0c0;
+    box-shadow: 0 0 12px rgba(192, 192, 192, 0.6), 0 0 20px rgba(192, 192, 192, 0.3);
+}
+
+/* Bronze rank for #3 */
+.wiki-card-rank.rank-bronze {
+    background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%);
+    color: #ffffff;
+    border: 1px solid rgba(205, 127, 50, 0.5);
+    box-shadow: var(--shadow), 0 0 8px rgba(205, 127, 50, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.wiki-card-rank.rank-bronze::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s infinite;
+    animation-delay: 0.6s;
+    pointer-events: none;
+}
+
+body.dark .wiki-card-rank.rank-bronze {
+    background: linear-gradient(135deg, #d4883a 0%, #b8742e 100%);
+    color: #ffffff;
+    border: 2px solid #cd7f32;
+    box-shadow: 0 0 12px rgba(205, 127, 50, 0.6), 0 0 20px rgba(205, 127, 50, 0.3);
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .wiki-card-rank.rank-gold::after,
+    .wiki-card-rank.rank-silver::after,
+    .wiki-card-rank.rank-bronze::after {
+        animation: none;
+    }
+}
+
+/* Trophy container on Wiki Card - now in content area */
+.wiki-card-trophies {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.trophy-icon {
+    font-size: 1.125rem;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    cursor: default;
+    transition: var(--transition);
+}
+
+.trophy-icon:hover {
+    transform: scale(1.2);
+}
+
 .wiki-card-type.attack {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
@@ -1538,11 +1702,21 @@ footer p {
     flex-direction: column;
 }
 
+/* Title row with rank badge */
+.wiki-card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
 .wiki-card-title {
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--text);
-    margin: 0 0 0.5rem 0;
+    margin: 0;
+    flex: 1;
 }
 
 .wiki-card-code {
@@ -2124,6 +2298,42 @@ footer p {
 .profile-code.custom-line {
     background: linear-gradient(135deg, #e8314a 0%, #c92842 100%);
     box-shadow: 0 2px 12px rgba(232, 49, 74, 0.4);
+}
+
+/* Profile Trophies */
+.profile-trophies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.profile-trophy {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #ffd700 0%, #ffb300 100%);
+    color: #1a1a1a;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-md), 0 0 15px rgba(255, 215, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: var(--transition);
+}
+
+.profile-trophy:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), 0 0 25px rgba(255, 215, 0, 0.6);
+}
+
+.profile-trophy-icon {
+    font-size: 1.25rem;
+}
+
+.profile-trophy-name {
+    letter-spacing: 0.025em;
 }
 
 .profile-description {
