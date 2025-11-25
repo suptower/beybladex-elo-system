@@ -24,7 +24,7 @@ const COLUMN_DESCRIPTIONS = {
     'Platz': { short: 'Rank/Position', long: 'Current ranking position in the leaderboard' },
     'Bey': { short: 'Beyblade Name', long: 'Name of the Beyblade' },
     'ELO': { short: 'ELO Rating', long: 'Current ELO rating (skill level indicator)' },
-    'PWR': { short: 'Power Index', long: 'Composite score (0-100) combining ELO (40%), Winrate (25%), Trend (15%), Activity (10%), and Consistency (10%)' },
+    'PWR': { short: 'Power Index', long: 'Composite meta score (0-100) combining: ELO rating (40% - base skill), Winrate (25% - win consistency), Trend (15% - current form), Activity (10% - match engagement), Consistency (10% - performance reliability)' },
     'Matches': { short: 'Games Played', long: 'Total number of matches played' },
     'Wins': { short: 'Wins', long: 'Total number of wins' },
     'Losses': { short: 'Losses', long: 'Total number of losses' },
