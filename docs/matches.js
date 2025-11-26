@@ -239,8 +239,15 @@ function applyFilters() {
                 const eloChange = match.beyA === filters.bey ? match.eloChangeA : match.eloChangeB;
                 if (filters.eloChange === 'gain' && eloChange <= 0) return false;
                 if (filters.eloChange === 'loss' && eloChange >= 0) return false;
+            } else {
+                // If no specific bey selected, show matches where either had gain/loss
+                if (filters.eloChange === 'gain') {
+                    if (match.eloChangeA <= 0 && match.eloChangeB <= 0) return false;
+                }
+                if (filters.eloChange === 'loss') {
+                    if (match.eloChangeA >= 0 && match.eloChangeB >= 0) return false;
+                }
             }
-            // If no specific bey selected, show matches where either had gain/loss
         }
         
         return true;
@@ -270,10 +277,11 @@ function sortMatches() {
         let valA = a[key];
         let valB = b[key];
         
-        // Handle date sorting
+        // Handle date sorting - convert to Date objects for comparison
         if (key === 'date') {
             valA = new Date(valA);
             valB = new Date(valB);
+            return currentSort.asc ? valA - valB : valB - valA;
         }
         
         // Handle numeric sorting
@@ -284,11 +292,6 @@ function sortMatches() {
         // Handle string sorting
         if (typeof valA === 'string' && typeof valB === 'string') {
             return currentSort.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-        }
-        
-        // Handle date objects
-        if (valA instanceof Date && valB instanceof Date) {
-            return currentSort.asc ? valA - valB : valB - valA;
         }
         
         return 0;
