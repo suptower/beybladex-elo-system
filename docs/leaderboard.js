@@ -57,6 +57,68 @@ function getAbbreviatedHeader(header) {
     return COLUMN_ABBREVIATIONS[header] || header;
 }
 
+// Get display info for the value shown in mobile card header
+// When sorting by a non-ELO column, show that column's value instead
+function getCardHeaderDisplayInfo(row) {
+    // Default to showing ELO
+    let displayValue = row["ELO"] || "-";
+    let displayLabel = "ELO";
+    let sortedColumn = null;
+
+    // Check if we're sorting by a column other than ELO
+    if (currentSort.column !== null) {
+        sortedColumn = leaderboardHeaders[currentSort.column];
+        
+        // If not sorting by ELO, Name/Bey, or Platz, show the sorted column
+        if (sortedColumn && 
+            sortedColumn !== "ELO" && 
+            sortedColumn !== "Name" && 
+            sortedColumn !== "Bey" && 
+            sortedColumn !== "Platz") {
+            displayValue = row[sortedColumn] || "-";
+            displayLabel = getAbbreviatedHeader(sortedColumn);
+        }
+    }
+
+    return { displayValue, displayLabel, sortedColumn };
+}
+
+// Apply appropriate styling for a value based on its column type
+function applyValueStyling(element, value, columnName) {
+    if (!value || !columnName) return;
+
+    const col = columnName.toLowerCase();
+    
+    if (col === "elo") {
+        const eloValue = parseInt(value);
+        if (!isNaN(eloValue)) {
+            if (eloValue >= 1050) element.classList.add("trend-very-positive");
+            else if (eloValue >= 1010) element.classList.add("trend-positive");
+            else if (eloValue >= 990) element.classList.add("trend-neutral");
+            else if (eloValue >= 950) element.classList.add("trend-negative");
+            else if (eloValue < 950) element.classList.add("trend-very-negative");
+        }
+    } else if (col === "winrate") {
+        applyWinrateStyling(element, value);
+    } else if (col === "volatility") {
+        applyVolatilityStyling(element, value);
+    } else if (col === "powerindex") {
+        applyPowerIndexStyling(element, value);
+    } else if (col === "elotrend") {
+        applyTrendStyling(element, value);
+    } else if (col.includes("differenz") || col.includes("pointdiff") || col === "avgpointdiff") {
+        const diff = parseFloat(value);
+        if (!isNaN(diff)) {
+            if (diff > 0) element.classList.add("trend-very-positive");
+            else if (diff < 0) element.classList.add("trend-very-negative");
+        }
+    } else if (col.includes("positionsdelta") || col.includes("positiondelta")) {
+        applyDeltaStyling(element, value, "pos");
+    } else if (col.includes("elod") || col.includes("elodelta")) {
+        applyDeltaStyling(element, value, "elo");
+    }
+}
+
 function parseCSV(text) {
     const lines = text.trim().split(/\r?\n/);  // Handle both \n and \r\n
     const headers = lines[0].split(",").map(h => h.trim());
@@ -239,27 +301,24 @@ function renderCards(headers, rows) {
         nameLink.textContent = beyNameValue;
         nameLink.href = `bey.html?name=${encodeURIComponent(beyNameValue)}`;
         
-        // show ELO and add small text "ELO" below number, also apply elo color coding
-        const elo = document.createElement("div");
-        elo.className = "lb-card-elo";
-        elo.textContent = row["ELO"] || "-";
-        // Apply ELO color coding
-        const eloValue = parseInt(row["ELO"]);
-        if (!isNaN(eloValue)) {
-            if (eloValue >= 1050) elo.classList.add("trend-very-positive");
-            else if (eloValue >= 1010) elo.classList.add("trend-positive");
-            else if (eloValue >= 990) elo.classList.add("trend-neutral");
-            else if (eloValue >= 950) elo.classList.add("trend-negative");
-            else if (eloValue < 950) elo.classList.add("trend-very-negative");
-        }
-        const eloLabel = document.createElement("div");
-        eloLabel.className = "lb-card-elo-label";
-        eloLabel.textContent = "ELO";
-        elo.appendChild(eloLabel);
+        // Get the value to display in header (ELO by default, or sorted column value)
+        const headerInfo = getCardHeaderDisplayInfo(row);
+        
+        // show value and add small text label below number, also apply appropriate color coding
+        const headerValue = document.createElement("div");
+        headerValue.className = "lb-card-elo";
+        headerValue.textContent = headerInfo.displayValue;
+        // Apply appropriate styling based on the column being displayed
+        applyValueStyling(headerValue, headerInfo.displayValue, headerInfo.sortedColumn || "ELO");
+        
+        const headerLabel = document.createElement("div");
+        headerLabel.className = "lb-card-elo-label";
+        headerLabel.textContent = headerInfo.displayLabel;
+        headerValue.appendChild(headerLabel);
         
         cardHeader.appendChild(rank);
         cardHeader.appendChild(nameLink);
-        cardHeader.appendChild(elo);
+        cardHeader.appendChild(headerValue);
         card.appendChild(cardHeader);
 
         // Main stats (Wins/Losses/Winrate)
@@ -322,55 +381,101 @@ function renderCards(headers, rows) {
             return detail;
         };
         
+        // If sorting by non-ELO column, add ELO to the details section first
+        if (headerInfo.sortedColumn && headerInfo.sortedColumn !== "ELO") {
+            const eloDetail = createDetail("ELO", row["ELO"]);
+            const eloValue = eloDetail.querySelector('.lb-detail-value');
+            if (eloValue && row["ELO"]) {
+                applyValueStyling(eloValue, row["ELO"], "ELO");
+            }
+            details.appendChild(eloDetail);
+        }
+        
         // Conditional details based on mode
         if (isAdvancedMode) {
-            // Add Power Index at the top for advanced mode
-            const pwrDetail = createDetail("Power Index", row["PowerIndex"]);
-            const pwrValue = pwrDetail.querySelector('.lb-detail-value');
-            if (pwrValue && row["PowerIndex"]) {
-                applyPowerIndexStyling(pwrValue, row["PowerIndex"]);
-            }
-            details.appendChild(pwrDetail);
-            
-            details.appendChild(createDetail("Matches", row["Matches"]));
-            details.appendChild(createDetail("Pts For", row["PointsFor"]));
-            details.appendChild(createDetail("Pts Against", row["PointsAgainst"]));
-            details.appendChild(createDetail("Avg Δ", row["AvgPointDiff"]));
-            const volDetail = createDetail("Volatility", row["Volatility"]);
-            const volValue = volDetail.querySelector('.lb-detail-value');
-            if (volValue && row["Volatility"]) {
-                applyVolatilityStyling(volValue, row["Volatility"]);
-            }
-            details.appendChild(volDetail);
-            details.appendChild(createDetail("Avg ΔELO", row["AvgΔELO"]));
-            details.appendChild(createDetail("Max ΔELO", row["MaxΔELO"]));
-            details.appendChild(createDetail("Min ΔELO", row["MinΔELO"]));
-            details.appendChild(createDetail("Upset W", row["UpsetWins"]));
-            details.appendChild(createDetail("Upset L", row["UpsetLosses"]));
-            
-            // Add ELO Trend with conditional styling
-            const trendDetail = createDetail("ELO Trend", row["ELOTrend"]);
-            const trendValue = trendDetail.querySelector('.lb-detail-value');
-            if (trendValue && row["ELOTrend"]) {
-                applyTrendStyling(trendValue, row["ELOTrend"]);
-            }
-            details.appendChild(trendDetail);
-        } else {
-            details.appendChild(createDetail("Games", row["Spiele"]));
-            details.appendChild(createDetail("Pts Won", row["Gewonnene Punkte"]));
-            details.appendChild(createDetail("Pts Lost", row["Verlorene Punkte"]));
-            const diffDetail = createDetail("Difference", row["Differenz"]);
-            const diffValue = diffDetail.querySelector('.lb-detail-value');
-            if (diffValue && row["Differenz"]) {
-                const diffNum = parseInt(row["Differenz"]);
-                if (!isNaN(diffNum)) {
-                    if (diffNum > 0) diffValue.classList.add("trend-very-positive");
-                    else if (diffNum < 0) diffValue.classList.add("trend-very-negative");
+            // Add Power Index at the top for advanced mode (skip if it's the sorted column shown in header)
+            if (headerInfo.sortedColumn !== "PowerIndex") {
+                const pwrDetail = createDetail("Power Index", row["PowerIndex"]);
+                const pwrValue = pwrDetail.querySelector('.lb-detail-value');
+                if (pwrValue && row["PowerIndex"]) {
+                    applyPowerIndexStyling(pwrValue, row["PowerIndex"]);
                 }
+                details.appendChild(pwrDetail);
             }
-            details.appendChild(diffDetail);
-            details.appendChild(createDetail("Pos Δ", row["Positionsdelta"], true));
-            details.appendChild(createDetail("ELO Δ", row["ELOdelta"], true));
+            
+            if (headerInfo.sortedColumn !== "Matches") {
+                details.appendChild(createDetail("Matches", row["Matches"]));
+            }
+            if (headerInfo.sortedColumn !== "PointsFor") {
+                details.appendChild(createDetail("Pts For", row["PointsFor"]));
+            }
+            if (headerInfo.sortedColumn !== "PointsAgainst") {
+                details.appendChild(createDetail("Pts Against", row["PointsAgainst"]));
+            }
+            if (headerInfo.sortedColumn !== "AvgPointDiff") {
+                details.appendChild(createDetail("Avg Δ", row["AvgPointDiff"]));
+            }
+            if (headerInfo.sortedColumn !== "Volatility") {
+                const volDetail = createDetail("Volatility", row["Volatility"]);
+                const volValue = volDetail.querySelector('.lb-detail-value');
+                if (volValue && row["Volatility"]) {
+                    applyVolatilityStyling(volValue, row["Volatility"]);
+                }
+                details.appendChild(volDetail);
+            }
+            if (headerInfo.sortedColumn !== "AvgΔELO") {
+                details.appendChild(createDetail("Avg ΔELO", row["AvgΔELO"]));
+            }
+            if (headerInfo.sortedColumn !== "MaxΔELO") {
+                details.appendChild(createDetail("Max ΔELO", row["MaxΔELO"]));
+            }
+            if (headerInfo.sortedColumn !== "MinΔELO") {
+                details.appendChild(createDetail("Min ΔELO", row["MinΔELO"]));
+            }
+            if (headerInfo.sortedColumn !== "UpsetWins") {
+                details.appendChild(createDetail("Upset W", row["UpsetWins"]));
+            }
+            if (headerInfo.sortedColumn !== "UpsetLosses") {
+                details.appendChild(createDetail("Upset L", row["UpsetLosses"]));
+            }
+            
+            // Add ELO Trend with conditional styling (skip if it's the sorted column shown in header)
+            if (headerInfo.sortedColumn !== "ELOTrend") {
+                const trendDetail = createDetail("ELO Trend", row["ELOTrend"]);
+                const trendValue = trendDetail.querySelector('.lb-detail-value');
+                if (trendValue && row["ELOTrend"]) {
+                    applyTrendStyling(trendValue, row["ELOTrend"]);
+                }
+                details.appendChild(trendDetail);
+            }
+        } else {
+            if (headerInfo.sortedColumn !== "Spiele") {
+                details.appendChild(createDetail("Games", row["Spiele"]));
+            }
+            if (headerInfo.sortedColumn !== "Gewonnene Punkte") {
+                details.appendChild(createDetail("Pts Won", row["Gewonnene Punkte"]));
+            }
+            if (headerInfo.sortedColumn !== "Verlorene Punkte") {
+                details.appendChild(createDetail("Pts Lost", row["Verlorene Punkte"]));
+            }
+            if (headerInfo.sortedColumn !== "Differenz") {
+                const diffDetail = createDetail("Difference", row["Differenz"]);
+                const diffValue = diffDetail.querySelector('.lb-detail-value');
+                if (diffValue && row["Differenz"]) {
+                    const diffNum = parseInt(row["Differenz"]);
+                    if (!isNaN(diffNum)) {
+                        if (diffNum > 0) diffValue.classList.add("trend-very-positive");
+                        else if (diffNum < 0) diffValue.classList.add("trend-very-negative");
+                    }
+                }
+                details.appendChild(diffDetail);
+            }
+            if (headerInfo.sortedColumn !== "Positionsdelta") {
+                details.appendChild(createDetail("Pos Δ", row["Positionsdelta"], true));
+            }
+            if (headerInfo.sortedColumn !== "ELOdelta") {
+                details.appendChild(createDetail("ELO Δ", row["ELOdelta"], true));
+            }
         }
         
         expandSection.appendChild(details);
