@@ -118,8 +118,19 @@ def load_challonge_json(filepath: str) -> list[dict]:
         # Parse scores - handle Challonge scores_csv format
         scores_csv = item.get("scores_csv")
         if isinstance(scores_csv, str) and "-" in scores_csv:
-            score_a = int(scores_csv.split("-")[0])
-            score_b = int(scores_csv.split("-")[1])
+            try:
+                parts = scores_csv.split("-")
+                if len(parts) == 2:
+                    score_a = int(parts[0])
+                    score_b = int(parts[1])
+                else:
+                    # Malformed scores_csv, fall back to other fields
+                    score_a = item.get("score_a", item.get("ScoreA", 0))
+                    score_b = item.get("score_b", item.get("ScoreB", 0))
+            except (ValueError, IndexError):
+                # Parse error, fall back to other fields
+                score_a = item.get("score_a", item.get("ScoreA", 0))
+                score_b = item.get("score_b", item.get("ScoreB", 0))
         else:
             score_a = item.get("score_a", item.get("ScoreA", 0))
             score_b = item.get("score_b", item.get("ScoreB", 0))
@@ -156,19 +167,22 @@ def load_rounds_csv(filepath: str) -> dict[str, list[dict]]:
             if not match_id:
                 continue
 
+            raw_finish_type = row.get("finish_type", "").lower().strip()
+            # Track if finish_type was defaulted (empty or invalid)
+            was_defaulted = not raw_finish_type or raw_finish_type not in VALID_FINISH_TYPES
+
             round_data = {
                 "round_number": int(row.get("round_number", 0)) if row.get("round_number") else None,
                 "winner": row.get("winner", ""),
-                "finish_type": row.get("finish_type", "").lower().strip() or DEFAULT_FINISH_TYPE,
+                "finish_type": raw_finish_type if raw_finish_type in VALID_FINISH_TYPES else DEFAULT_FINISH_TYPE,
                 "points_awarded": int(row.get("points_awarded", 1)) if row.get("points_awarded") else 1,
                 "notes": row.get("notes", ""),
+                "_finish_type_defaulted": was_defaulted,  # Internal tracking field
             }
 
-            # Validate and default finish_type
-            if round_data["finish_type"] not in VALID_FINISH_TYPES:
-                ft = round_data["finish_type"]
-                print(f"Warning: Invalid finish_type '{ft}' in match {match_id}, defaulting to 'spin'")
-                round_data["finish_type"] = DEFAULT_FINISH_TYPE
+            # Log warning for invalid finish_type
+            if raw_finish_type and raw_finish_type not in VALID_FINISH_TYPES:
+                print(f"Warning: Invalid finish_type '{raw_finish_type}' in match {match_id}, defaulting to 'spin'")
 
             rounds_by_match[match_id].append(round_data)
 
@@ -246,15 +260,18 @@ def merge_matches_and_rounds(
             rounds = rounds_by_match[match_id]
             used_round_keys.add(match_id)
         elif match_by_players:
-            # Try matching by player names
+            # Try matching by player names - require both players to appear as winners
             for rm_id, rm_rounds in rounds_by_match.items():
                 if rm_id in used_round_keys:
                     continue
-                # Check if round winners match the players
+                # Collect all round winners
                 round_players = set()
                 for r in rm_rounds:
                     round_players.add(r["winner"].lower())
-                if bey_a.lower() in round_players or bey_b.lower() in round_players:
+                # Require that the round winners are a subset of the match players
+                # and at least one player from the match appears in the rounds
+                match_players = {bey_a.lower(), bey_b.lower()}
+                if round_players.issubset(match_players) and len(round_players.intersection(match_players)) > 0:
                     rounds = rm_rounds
                     used_round_keys.add(rm_id)
                     stats["warnings"].append(
@@ -272,11 +289,20 @@ def merge_matches_and_rounds(
         }
 
         if rounds:
-            merged_match["rounds"] = rounds
+            # Remove internal tracking field before storing, and count defaults
+            clean_rounds = []
+            for r in rounds:
+                if r.get("_finish_type_defaulted"):
+                    stats["defaults_applied"] += 1
+                # Create copy without internal field
+                clean_r = {k: v for k, v in r.items() if not k.startswith("_")}
+                clean_rounds.append(clean_r)
+
+            merged_match["rounds"] = clean_rounds
             stats["merged"] += 1
 
             # Compute scores from rounds and validate
-            computed_a, computed_b = compute_scores_from_rounds(rounds, bey_a, bey_b)
+            computed_a, computed_b = compute_scores_from_rounds(clean_rounds, bey_a, bey_b)
 
             if (computed_a, computed_b) != (match["score_a"], match["score_b"]):
                 stats["score_mismatches"] += 1
@@ -293,12 +319,6 @@ def merge_matches_and_rounds(
                     "score_a": match["score_a"],
                     "score_b": match["score_b"]
                 }
-
-            # Count defaults applied
-            for r in rounds:
-                if r["finish_type"] == DEFAULT_FINISH_TYPE:
-                    # Only count if it wasn't explicitly set (approximation)
-                    stats["defaults_applied"] += 1
         else:
             stats["unmerged"] += 1
             stats["warnings"].append(f"Match {match_id} ({bey_a} vs {bey_b}): No rounds data found")
