@@ -47,35 +47,151 @@
 
     <div class="leaderboard-controls">
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Suche nach Bey oder Datum…">
+            <input type="text" id="searchInput" placeholder="Search by Bey name or date…">
         </div>
         
-        <div class="filter-controls">
-            <label for="dateFilter">Filter by Date:</label>
-            <select id="dateFilter">
-                <option value="all">All Dates</option>
-            </select>
+        <!-- Collapsible Filter Section -->
+        <div class="filters-panel" id="filtersPanel">
+            <div class="filters-header" id="filtersHeader">
+                <span class="filters-title">
+                    <span class="filters-icon">🔍</span>
+                    Filters
+                    <span class="active-filters-count" id="activeFiltersCount"></span>
+                </span>
+                <button class="filters-toggle" id="filtersToggle">▼</button>
+            </div>
+            <div class="filters-content collapsed" id="filtersContent">
+                <!-- Filter Controls Row -->
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label class="filter-label" for="dateFilter">Date</label>
+                        <select id="dateFilter" class="filter-select">
+                            <option value="all">All Dates</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="beyFilter">Bey</label>
+                        <select id="beyFilter" class="filter-select">
+                            <option value="all">All Beys</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="bladeFilter">Blade</label>
+                        <select id="bladeFilter" class="filter-select">
+                            <option value="all">All Blades</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="ratchetFilter">Ratchet</label>
+                        <select id="ratchetFilter" class="filter-select">
+                            <option value="all">All Ratchets</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="bitFilter">Bit</label>
+                        <select id="bitFilter" class="filter-select">
+                            <option value="all">All Bits</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Advanced Filters Row -->
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label class="filter-label" for="minEloDiff">Min ELO Diff</label>
+                        <input type="number" id="minEloDiff" class="filter-input" placeholder="0" min="0">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="maxEloDiff">Max ELO Diff</label>
+                        <input type="number" id="maxEloDiff" class="filter-input" placeholder="∞" min="0">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="eloChangeFilter">ELO Change</label>
+                        <select id="eloChangeFilter" class="filter-select">
+                            <option value="all">All</option>
+                            <option value="gain">Gains Only</option>
+                            <option value="loss">Losses Only</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <button id="clearFilters" class="filter-btn">Clear Filters</button>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <!-- Legend Section -->
+    <div class="legend" id="legend">
+        <div class="legend-header">
+            <span class="legend-title">Column Legend</span>
+            <button class="legend-toggle" id="legendToggle">▼</button>
+        </div>
+        <div class="legend-content" id="legendContent">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Match Count Display -->
+    <div class="match-count" id="matchCount"></div>
+
+    <!-- Mobile Sort Controls -->
+    <div class="mobile-sort-controls" id="mobileSortControls">
+        <button class="sort-button" id="mobileSortButton">
+            <span class="sort-icon">⇅</span>
+            <span class="sort-label">Sort: </span>
+            <span id="currentSortLabel">Date ↓</span>
+        </button>
     </div>
 
     <div class="table-wrapper">
         <table id="matchesTable">
             <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Bey A</th>
-                    <th>Score A</th>
-                    <th>Score B</th>
-                    <th>Bey B</th>
-                    <th>Winner</th>
+                <tr id="matchesHeadRow">
+                    <!-- Headers populated by JavaScript -->
                 </tr>
             </thead>
             <tbody id="matchesBody"></tbody>
         </table>
     </div>
 
+    <!-- Pagination Controls -->
+    <div class="pagination" id="pagination">
+        <button class="pagination-btn" id="prevPage" disabled>← Previous</button>
+        <span class="pagination-info">
+            Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+        </span>
+        <button class="pagination-btn" id="nextPage" disabled>Next →</button>
+        <select id="pageSize" class="filter-select">
+            <option value="25">25 per page</option>
+            <option value="50" selected>50 per page</option>
+            <option value="100">100 per page</option>
+            <option value="all">Show all</option>
+        </select>
+    </div>
+
     <!-- Mobile card list -->
     <div id="matchesCards" class="cards"></div>
+
+    <!-- Sort Modal for Mobile -->
+    <div class="sort-modal" id="sortModal">
+        <div class="sort-modal-content">
+            <div class="sort-modal-header">
+                <h3>Sort Matches</h3>
+                <button class="sort-modal-close" id="sortModalClose">&times;</button>
+            </div>
+            <div class="sort-modal-body" id="sortModalBody">
+                <!-- Sort options populated by JavaScript -->
+            </div>
+        </div>
+    </div>
 
 </main>
 
