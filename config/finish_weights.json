@@ -1,0 +1,17 @@
+{
+  "description": "Default point weights for different finish types in Beyblade matches",
+  "weights": {
+    "spin": 1,
+    "ring_out": 2,
+    "pocket": 2,
+    "burst": 2,
+    "extreme": 3
+  },
+  "notes": {
+    "spin": "Outspin finish - opponent stops spinning first",
+    "ring_out": "Ring out - opponent exits the stadium",
+    "pocket": "Pocket finish - opponent falls into a pocket (treated same as ring_out)",
+    "burst": "Burst finish - opponent's beyblade bursts apart",
+    "extreme": "Extreme finish - special finish condition worth maximum points"
+  }
+}

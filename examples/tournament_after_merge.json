@@ -1,0 +1,149 @@
+{
+  "description": "Example tournament data AFTER merging rounds with per-round finish types",
+  "matches": [
+    {
+      "match_id": "M001",
+      "date": "2025-09-07",
+      "bey_a": "ViperTail",
+      "bey_b": "WizardArc",
+      "score_a": 4,
+      "score_b": 2,
+      "rounds": [
+        {
+          "round_number": 1,
+          "winner": "ViperTail",
+          "points_awarded": 1,
+          "finish_type": "spin",
+          "notes": "Close outspin finish"
+        },
+        {
+          "round_number": 2,
+          "winner": "WizardArc",
+          "points_awarded": 2,
+          "finish_type": "burst",
+          "notes": "Quick burst"
+        },
+        {
+          "round_number": 3,
+          "winner": "ViperTail",
+          "points_awarded": 2,
+          "finish_type": "ring_out",
+          "notes": "Stadium KO"
+        },
+        {
+          "round_number": 4,
+          "winner": "ViperTail",
+          "points_awarded": 1,
+          "finish_type": "spin",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "match_id": "M002",
+      "date": "2025-09-07",
+      "bey_a": "SamuraiSaber",
+      "bey_b": "TuskMammoth",
+      "score_a": 2,
+      "score_b": 4,
+      "rounds": [
+        {
+          "round_number": 1,
+          "winner": "TuskMammoth",
+          "points_awarded": 1,
+          "finish_type": "spin",
+          "notes": ""
+        },
+        {
+          "round_number": 2,
+          "winner": "SamuraiSaber",
+          "points_awarded": 2,
+          "finish_type": "burst",
+          "notes": ""
+        },
+        {
+          "round_number": 3,
+          "winner": "TuskMammoth",
+          "points_awarded": 1,
+          "finish_type": "spin",
+          "notes": ""
+        },
+        {
+          "round_number": 4,
+          "winner": "TuskMammoth",
+          "points_awarded": 2,
+          "finish_type": "ring_out",
+          "notes": "Decisive KO"
+        }
+      ]
+    },
+    {
+      "match_id": "M003",
+      "date": "2025-09-07",
+      "bey_a": "DranBrave",
+      "bey_b": "HellsReaper",
+      "score_a": 4,
+      "score_b": 2,
+      "rounds": [
+        {
+          "round_number": 1,
+          "winner": "DranBrave",
+          "points_awarded": 2,
+          "finish_type": "burst",
+          "notes": "Early burst"
+        },
+        {
+          "round_number": 2,
+          "winner": "HellsReaper",
+          "points_awarded": 1,
+          "finish_type": "spin",
+          "notes": ""
+        },
+        {
+          "round_number": 3,
+          "winner": "HellsReaper",
+          "points_awarded": 1,
+          "finish_type": "spin",
+          "notes": "Finish type uncertain - defaulted to spin"
+        },
+        {
+          "round_number": 4,
+          "winner": "DranBrave",
+          "points_awarded": 2,
+          "finish_type": "pocket",
+          "notes": "Pocket finish"
+        }
+      ]
+    },
+    {
+      "match_id": "M004",
+      "date": "2025-09-07",
+      "bey_a": "FoxBrush",
+      "bey_b": "DranBuster",
+      "score_a": 5,
+      "score_b": 0,
+      "rounds": [
+        {
+          "round_number": 1,
+          "winner": "FoxBrush",
+          "points_awarded": 2,
+          "finish_type": "ring_out",
+          "notes": ""
+        },
+        {
+          "round_number": 2,
+          "winner": "FoxBrush",
+          "points_awarded": 3,
+          "finish_type": "extreme",
+          "notes": "Extreme finish!"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "tournament_id": "T1",
+    "tournament_name": "Example Tournament",
+    "date": "2025-09-07",
+    "note": "This file demonstrates the extended match format with per-round finish types"
+  }
+}
