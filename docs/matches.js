@@ -37,7 +37,7 @@ const COLUMN_DESCRIPTIONS = {
 };
 
 // Load beys data for part filtering
-async function loadBeysData() {
+async function loadBeysDataForFilters() {
     try {
         const response = await fetch('data/beys_data.json');
         beysData = await response.json();
@@ -803,7 +803,7 @@ function setupPagination() {
 // Main initialization
 document.addEventListener('DOMContentLoaded', async () => {
     // Load beys data first for part filtering
-    await loadBeysData();
+    await loadBeysDataForFilters();
     
     // Load matches
     await loadMatches();
