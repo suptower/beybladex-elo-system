@@ -81,35 +81,118 @@
                 </div>
             </div>
             
-            <!-- Stats Section -->
-            <div class="profile-section">
-                <h3 class="section-title">📊 Statistics</h3>
+            <!-- Stats Section (collapsible) -->
+            <details class="profile-section-details" open>
+                <summary class="section-summary">📊 Statistics</summary>
                 <div id="statsGrid" class="stats-grid">
                     <!-- Stats will be dynamically added -->
                 </div>
-            </div>
+            </details>
             
-            <!-- Advanced Stats Section -->
-            <div class="profile-section" id="advancedStatsSection" style="display: none;">
-                <h3 class="section-title">📈 Advanced Statistics</h3>
+            <!-- Advanced Stats Section (collapsible) -->
+            <details class="profile-section-details" id="advancedStatsSection" style="display: none;">
+                <summary class="section-summary">📈 Advanced Statistics</summary>
                 <div id="advancedStatsGrid" class="stats-grid">
                     <!-- Advanced stats will be dynamically added -->
                 </div>
-            </div>
-            
-            <!-- Recent Matches Section -->
-            <div class="profile-section">
-                <h3 class="section-title">⚔️ Recent Matches</h3>
-                <div id="recentMatches" class="recent-matches">
-                    <!-- Matches will be dynamically added -->
-                </div>
-            </div>
+            </details>
             
             <!-- Individual Plot Section -->
             <div class="profile-section" id="plotSection">
                 <h3 class="section-title">📈 ELO History</h3>
                 <div class="profile-plot-container">
                     <img id="eloPlot" src="" alt="ELO History" class="profile-plot">
+                </div>
+            </div>
+            
+            <!-- History/Timeline Section -->
+            <div class="profile-section" id="historySection" style="display: none;">
+                <h3 class="section-title">📜 History & Timeline</h3>
+                
+                <!-- Performance Trends -->
+                <div class="history-trends">
+                    <div class="trend-card" id="eloTrendCard">
+                        <div class="trend-header">
+                            <span class="trend-label">ELO Over Time</span>
+                            <span id="eloTrendChange" class="trend-change"></span>
+                        </div>
+                        <div class="sparkline-container" id="eloSparkline"></div>
+                        <div class="trend-range">
+                            <span id="eloMin" class="range-min"></span>
+                            <span id="eloMax" class="range-max"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="trend-card" id="positionTrendCard">
+                        <div class="trend-header">
+                            <span class="trend-label">Rank Progression</span>
+                            <span id="positionTrendChange" class="trend-change"></span>
+                        </div>
+                        <div class="sparkline-container" id="positionSparkline"></div>
+                        <div class="trend-range">
+                            <span id="positionBest" class="range-min"></span>
+                            <span id="positionWorst" class="range-max"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="trend-card" id="winrateTrendCard">
+                        <div class="trend-header">
+                            <span class="trend-label">Winrate Trend</span>
+                            <span id="winrateTrendChange" class="trend-change"></span>
+                        </div>
+                        <div class="sparkline-container" id="winrateSparkline"></div>
+                        <div class="trend-range">
+                            <span id="winrateMin" class="range-min"></span>
+                            <span id="winrateMax" class="range-max"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Milestones Section -->
+                <div class="milestones-section">
+                    <h4 class="subsection-title">🏅 Milestones</h4>
+                    <div id="milestonesContainer" class="milestones-grid">
+                        <!-- Milestones will be dynamically added -->
+                    </div>
+                </div>
+                
+                <!-- Timeline (collapsible) -->
+                <details class="timeline-details">
+                    <summary class="timeline-summary">📅 Full Match Timeline</summary>
+                    <div id="timelineContainer" class="timeline-container">
+                        <!-- Timeline entries will be dynamically added -->
+                    </div>
+                </details>
+            </div>
+            
+            <!-- Related Beys Section -->
+            <div class="profile-section" id="relatedBeysSection" style="display: none;">
+                <h3 class="section-title">🔗 Related Beys</h3>
+                
+                <div class="related-beys-container">
+                    <!-- Similar Parts -->
+                    <div class="related-category" id="samePartsSection">
+                        <h4 class="related-category-title">🔧 Same Parts</h4>
+                        <div id="samePartsBeys" class="related-beys-grid">
+                            <!-- Related beys with same parts -->
+                        </div>
+                    </div>
+                    
+                    <!-- Frequent Opponents -->
+                    <div class="related-category" id="frequentOpponentsSection">
+                        <h4 class="related-category-title">⚔️ Frequent Opponents</h4>
+                        <div id="frequentOpponentsBeys" class="related-beys-list">
+                            <!-- Frequent opponents -->
+                        </div>
+                    </div>
+                    
+                    <!-- Similar Performance -->
+                    <div class="related-category" id="similarPerformanceSection">
+                        <h4 class="related-category-title">📊 Similar ELO</h4>
+                        <div id="similarPerformanceBeys" class="related-beys-grid">
+                            <!-- Similar performance beys -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -130,6 +213,11 @@ let beyData = null;
 let leaderboardData = null;
 let matchesData = [];
 let tournamentsData = [];
+let eloTimeseriesData = [];
+let positionTimeseriesData = [];
+let allBeysData = [];
+let allLeaderboardData = [];
+let allEloHistoryData = [];
 
 // Helper function to normalize bey names for comparison
 function normalizeBeyName(name) {
@@ -206,6 +294,7 @@ async function loadData() {
         // Load bey wiki data
         const beyResponse = await fetch('data/beys_data.json');
         const beys = await beyResponse.json();
+        allBeysData = beys;
         beyData = findBeyByName(beys, beyName);
         
         // Load leaderboard data (try advanced first, then standard)
@@ -213,12 +302,14 @@ async function loadData() {
             const advancedResponse = await fetch('data/advanced_leaderboard.csv');
             const advancedText = await advancedResponse.text();
             const advancedData = parseCSV(advancedText);
+            allLeaderboardData = advancedData;
             leaderboardData = findLeaderboardEntry(advancedData, beyName);
         } catch (e) {
             // Fallback to standard leaderboard
             const standardResponse = await fetch('data/leaderboard.csv');
             const standardText = await standardResponse.text();
             const standardData = parseCSV(standardText);
+            allLeaderboardData = standardData;
             leaderboardData = findLeaderboardEntry(standardData, beyName);
         }
         
@@ -246,6 +337,36 @@ async function loadData() {
         } catch (e) {
             console.warn('Could not load tournaments data:', e);
             tournamentsData = [];
+        }
+        
+        // Load ELO timeseries data
+        try {
+            const eloTsResponse = await fetch('data/elo_timeseries.csv');
+            const eloTsText = await eloTsResponse.text();
+            eloTimeseriesData = parseCSV(eloTsText);
+        } catch (e) {
+            console.warn('Could not load ELO timeseries data:', e);
+            eloTimeseriesData = [];
+        }
+        
+        // Load position timeseries data
+        try {
+            const posTsResponse = await fetch('data/position_timeseries.csv');
+            const posTsText = await posTsResponse.text();
+            positionTimeseriesData = parseCSV(posTsText);
+        } catch (e) {
+            console.warn('Could not load position timeseries data:', e);
+            positionTimeseriesData = [];
+        }
+        
+        // Load ELO history data (for milestones)
+        try {
+            const eloHistoryResponse = await fetch('data/elo_history.csv');
+            const eloHistoryText = await eloHistoryResponse.text();
+            allEloHistoryData = parseCSV(eloHistoryText);
+        } catch (e) {
+            console.warn('Could not load ELO history data:', e);
+            allEloHistoryData = [];
         }
         
         // Render the profile
@@ -314,11 +435,14 @@ function renderProfile() {
     // Render advanced stats
     renderAdvancedStats();
     
-    // Render recent matches
-    renderRecentMatches();
-    
     // Try to load ELO plot
     loadEloPlot();
+    
+    // Render history and timeline section
+    renderHistorySection();
+    
+    // Render related beys section
+    renderRelatedBeys();
 }
 
 // Get line class from code
@@ -447,14 +571,14 @@ function renderStats() {
     
     // Define stats to display (ELO and Power Index are shown in key stats section)
     const stats = [
-        { label: 'Rank', value: leaderboardData.Platz, icon: '🏆' },
+        { label: 'Rank', value: leaderboardData.Platz, icon: '🏆', highlight: 'rank' },
         { label: 'Matches', value: leaderboardData.Matches || leaderboardData.Spiele, icon: '🎮' },
         { label: 'Wins', value: leaderboardData.Wins || leaderboardData.Siege, icon: '✅' },
         { label: 'Losses', value: leaderboardData.Losses || leaderboardData.Niederlagen, icon: '❌' },
         { label: 'Winrate', value: leaderboardData.Winrate, icon: '📈', highlight: 'winrate' },
         { label: 'Points For', value: leaderboardData.PointsFor || leaderboardData['Gewonnene Punkte'], icon: '⬆️' },
         { label: 'Points Against', value: leaderboardData.PointsAgainst || leaderboardData['Verlorene Punkte'], icon: '⬇️' },
-        { label: 'Point Diff', value: leaderboardData.AvgPointDiff || leaderboardData.Differenz, icon: '📉' },
+        { label: 'Point Diff', value: leaderboardData.AvgPointDiff || leaderboardData.Differenz, icon: '📉', highlight: 'pointdiff' },
         { label: 'ELO Trend', value: leaderboardData.ELOTrend, icon: '📈', highlight: 'trend' }
     ];
     
@@ -464,12 +588,17 @@ function renderStats() {
             statEl.className = 'stat-card';
             
             let valueClass = '';
+            const numValue = parseFloat(stat.value);
             if (stat.highlight === 'elo') {
                 valueClass = getEloClass(parseInt(stat.value));
             } else if (stat.highlight === 'winrate') {
-                valueClass = getWinrateClass(parseFloat(stat.value));
+                valueClass = getWinrateClass(numValue);
             } else if (stat.highlight === 'trend') {
-                valueClass = getTrendClass(parseFloat(stat.value));
+                valueClass = getTrendClass(numValue);
+            } else if (stat.highlight === 'pointdiff') {
+                valueClass = getPointDiffClass(numValue);
+            } else if (stat.highlight === 'rank') {
+                valueClass = getRankClass(parseInt(stat.value));
             }
             
             statEl.innerHTML = `
@@ -512,6 +641,54 @@ function getTrendClass(trend) {
     return 'trend-neutral';
 }
 
+// Get point diff color class
+function getPointDiffClass(diff) {
+    if (isNaN(diff)) return '';
+    if (diff > 2) return 'trend-very-positive';
+    if (diff > 0) return 'trend-positive';
+    if (diff < -2) return 'trend-very-negative';
+    if (diff < 0) return 'trend-negative';
+    return 'trend-neutral';
+}
+
+// Get volatility color class (lower is better)
+function getVolatilityClass(volatility) {
+    if (isNaN(volatility)) return '';
+    if (volatility <= 5) return 'trend-very-positive';
+    if (volatility <= 10) return 'trend-positive';
+    if (volatility <= 15) return 'trend-neutral';
+    if (volatility <= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get rank color class (lower is better)
+function getRankClass(rank) {
+    if (isNaN(rank)) return '';
+    if (rank <= 3) return 'trend-very-positive';
+    if (rank <= 10) return 'trend-positive';
+    if (rank <= 20) return 'trend-neutral';
+    if (rank <= 30) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get upset wins color class (more is better)
+function getUpsetWinsClass(wins) {
+    if (isNaN(wins)) return '';
+    if (wins >= 5) return 'trend-very-positive';
+    if (wins >= 2) return 'trend-positive';
+    if (wins >= 1) return 'trend-neutral';
+    return '';
+}
+
+// Get upset losses color class (fewer is better)
+function getUpsetLossesClass(losses) {
+    if (isNaN(losses)) return '';
+    if (losses === 0) return 'trend-very-positive';
+    if (losses <= 1) return 'trend-neutral';
+    if (losses <= 3) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
 // Render advanced statistics
 function renderAdvancedStats() {
     const advancedStatsGrid = document.getElementById('advancedStatsGrid');
@@ -536,12 +713,12 @@ function renderAdvancedStats() {
     
     // Define advanced stats to display
     const advancedStats = [
-        { label: 'Volatility', value: leaderboardData.Volatility, icon: '📊', tooltip: 'Rating stability measure' },
+        { label: 'Volatility', value: leaderboardData.Volatility, icon: '📊', highlight: 'volatility' },
         { label: 'Avg ELO Change', value: leaderboardData['AvgΔELO'], icon: '📈', highlight: 'trend' },
         { label: 'Max ELO Gain', value: leaderboardData['MaxΔELO'], icon: '⬆️', highlight: 'positive' },
         { label: 'Max ELO Loss', value: leaderboardData['MinΔELO'], icon: '⬇️', highlight: 'negative' },
-        { label: 'Upset Wins', value: leaderboardData.UpsetWins, icon: '🎯', tooltip: 'Wins against higher-rated opponents' },
-        { label: 'Upset Losses', value: leaderboardData.UpsetLosses, icon: '💔', tooltip: 'Losses against lower-rated opponents' }
+        { label: 'Upset Wins', value: leaderboardData.UpsetWins, icon: '🎯', highlight: 'upsetwins' },
+        { label: 'Upset Losses', value: leaderboardData.UpsetLosses, icon: '💔', highlight: 'upsetlosses' }
     ];
     
     advancedStats.forEach(stat => {
@@ -553,6 +730,12 @@ function renderAdvancedStats() {
             const numValue = parseFloat(stat.value);
             if (stat.highlight === 'trend') {
                 valueClass = getTrendClass(numValue);
+            } else if (stat.highlight === 'volatility') {
+                valueClass = getVolatilityClass(numValue);
+            } else if (stat.highlight === 'upsetwins') {
+                valueClass = getUpsetWinsClass(numValue);
+            } else if (stat.highlight === 'upsetlosses') {
+                valueClass = getUpsetLossesClass(numValue);
             } else if (stat.highlight === 'positive' && numValue > 0) {
                 valueClass = 'trend-very-positive';
             } else if (stat.highlight === 'negative' && numValue < 0) {
@@ -566,43 +749,6 @@ function renderAdvancedStats() {
             `;
             advancedStatsGrid.appendChild(statEl);
         }
-    });
-}
-
-// Render recent matches
-function renderRecentMatches() {
-    const matchesContainer = document.getElementById('recentMatches');
-    matchesContainer.innerHTML = '';
-    
-    if (matchesData.length === 0) {
-        matchesContainer.innerHTML = '<p class="no-data">No match history available.</p>';
-        return;
-    }
-    
-    // Show last 5 matches (most recent first)
-    const recentMatches = [...matchesData].reverse().slice(0, 5);
-    const normalizedBeyName = normalizeBeyName(beyName);
-    
-    recentMatches.forEach(match => {
-        const isWinner = normalizeBeyName(match.winner) === normalizedBeyName;
-        const isBeyA = normalizeBeyName(match.beyA) === normalizedBeyName;
-        const opponent = isBeyA ? match.beyB : match.beyA;
-        const myScore = isBeyA ? match.scoreA : match.scoreB;
-        const oppScore = isBeyA ? match.scoreB : match.scoreA;
-        
-        const matchEl = document.createElement('div');
-        matchEl.className = `match-card ${isWinner ? 'win' : 'loss'}`;
-        matchEl.innerHTML = `
-            <div class="match-result">${isWinner ? 'WIN' : 'LOSS'}</div>
-            <div class="match-details">
-                <div class="match-opponent">
-                    vs <a href="bey.html?name=${encodeURIComponent(opponent)}" class="opponent-link">${opponent}</a>
-                </div>
-                <div class="match-score">${myScore} - ${oppScore}</div>
-            </div>
-            <div class="match-date">${formatDate(match.date)}</div>
-        `;
-        matchesContainer.appendChild(matchEl);
     });
 }
 
@@ -639,6 +785,551 @@ function loadEloPlot() {
         plotImg.src = basePath + filename;
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+}
+
+// Get ELO timeseries data for this bey
+function getBeyEloTimeseries() {
+    if (!eloTimeseriesData || eloTimeseriesData.length === 0) return [];
+    const normalizedName = normalizeBeyName(beyName);
+    return eloTimeseriesData
+        .filter(entry => normalizeBeyName(entry.Bey) === normalizedName)
+        .sort((a, b) => parseInt(a.MatchIndex) - parseInt(b.MatchIndex));
+}
+
+// Get position timeseries data for this bey
+function getBeyPositionTimeseries() {
+    if (!positionTimeseriesData || positionTimeseriesData.length === 0) return [];
+    const normalizedName = normalizeBeyName(beyName);
+    return positionTimeseriesData
+        .filter(entry => normalizeBeyName(entry.Bey) === normalizedName)
+        .sort((a, b) => parseInt(a.MatchIndex) - parseInt(b.MatchIndex));
+}
+
+// Get ELO history for this bey
+function getBeyEloHistory() {
+    if (!allEloHistoryData || allEloHistoryData.length === 0) return [];
+    const normalizedName = normalizeBeyName(beyName);
+    return allEloHistoryData.filter(entry => 
+        normalizeBeyName(entry.BeyA) === normalizedName || 
+        normalizeBeyName(entry.BeyB) === normalizedName
+    );
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Create SVG sparkline
+function createSparkline(container, data, options = {}) {
+    if (!data || data.length === 0) {
+        container.innerHTML = '<span class="no-data-small">No data</span>';
+        return;
+    }
+    
+    const width = options.width || 200;
+    const height = options.height || 40;
+    const padding = options.padding || 4;
+    const strokeColor = options.strokeColor || 'var(--accent)';
+    const fillColor = options.fillColor || 'rgba(99, 102, 241, 0.1)';
+    const invertY = options.invertY || false;
+    
+    // Filter out invalid values and convert to numbers
+    const values = data.map(d => parseFloat(d)).filter(v => !isNaN(v) && isFinite(v));
+    
+    if (values.length === 0) {
+        container.innerHTML = '<span class="no-data-small">No valid data</span>';
+        return;
+    }
+    
+    if (values.length === 1) {
+        // Single data point - just show a dot
+        container.innerHTML = `
+            <svg viewBox="0 0 ${width} ${height}" class="sparkline-svg">
+                <circle cx="${width / 2}" cy="${height / 2}" r="4" fill="${strokeColor}"/>
+            </svg>
+        `;
+        return;
+    }
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    
+    // Scale values to SVG coordinates
+    const points = values.map((v, i) => {
+        const x = padding + (i / (values.length - 1)) * (width - 2 * padding);
+        let y;
+        if (invertY) {
+            // For position (rank), lower is better, so invert
+            y = padding + ((v - min) / range) * (height - 2 * padding);
+        } else {
+            y = height - padding - ((v - min) / range) * (height - 2 * padding);
+        }
+        return `${x},${y}`;
+    });
+    
+    const linePoints = points.join(' ');
+    
+    // Create area fill path
+    const firstPoint = points[0].split(',');
+    const lastPoint = points[points.length - 1].split(',');
+    const areaPath = `M ${firstPoint[0]},${height - padding} L ${linePoints} L ${lastPoint[0]},${height - padding} Z`;
+    
+    const svg = `
+        <svg viewBox="0 0 ${width} ${height}" class="sparkline-svg">
+            <path d="${areaPath}" fill="${fillColor}" />
+            <polyline points="${linePoints}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="${lastPoint[0]}" cy="${lastPoint[1]}" r="3" fill="${strokeColor}"/>
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// Calculate milestones for this bey
+function calculateMilestones() {
+    const milestones = [];
+    const normalizedName = normalizeBeyName(beyName);
+    const eloHistory = getBeyEloHistory();
+    const positionTimeseries = getBeyPositionTimeseries();
+    
+    // First appearance date
+    if (matchesData.length > 0) {
+        const firstMatch = matchesData[0];
+        milestones.push({
+            icon: '🎬',
+            title: 'First Appearance',
+            value: formatDate(firstMatch.date),
+            description: `vs ${normalizeBeyName(firstMatch.beyA) === normalizedName ? firstMatch.beyB : firstMatch.beyA}`
+        });
+    }
+    
+    // Peak ELO
+    if (eloHistory.length > 0) {
+        let peakElo = 1000;
+        let peakDate = null;
+        
+        eloHistory.forEach(match => {
+            const isA = normalizeBeyName(match.BeyA) === normalizedName;
+            const postElo = parseFloat(isA ? match.PostA : match.PostB);
+            if (postElo > peakElo) {
+                peakElo = postElo;
+                peakDate = match.Date;
+            }
+        });
+        
+        if (peakDate) {
+            milestones.push({
+                icon: '⭐',
+                title: 'Peak ELO',
+                value: Math.round(peakElo),
+                description: formatDate(peakDate)
+            });
+        }
+    }
+    
+    // Best rank position
+    if (positionTimeseries.length > 0) {
+        const positions = positionTimeseries.map(p => parseInt(p.Position));
+        const bestPosition = Math.min(...positions);
+        const bestEntry = positionTimeseries.find(p => parseInt(p.Position) === bestPosition);
+        
+        milestones.push({
+            icon: '🏅',
+            title: 'Best Rank',
+            value: `#${bestPosition}`,
+            description: bestEntry ? formatDate(bestEntry.Date) : ''
+        });
+    }
+    
+    // Match count milestones
+    const matchCount = matchesData.length;
+    if (matchCount >= 10) {
+        milestones.push({
+            icon: '🎮',
+            title: 'Total Matches',
+            value: matchCount,
+            description: matchCount >= 50 ? 'Veteran' : matchCount >= 25 ? 'Experienced' : 'Active'
+        });
+    }
+    
+    // Win streak
+    let currentStreak = 0;
+    let maxStreak = 0;
+    
+    matchesData.forEach(match => {
+        const isWinner = normalizeBeyName(match.winner) === normalizedName;
+        if (isWinner) {
+            currentStreak++;
+            maxStreak = Math.max(maxStreak, currentStreak);
+        } else {
+            currentStreak = 0;
+        }
+    });
+    
+    if (maxStreak >= 3) {
+        milestones.push({
+            icon: '🔥',
+            title: 'Best Win Streak',
+            value: `${maxStreak} wins`,
+            description: maxStreak >= 5 ? 'Dominant' : 'Impressive'
+        });
+    }
+    
+    // Tournament wins
+    if (tournamentsData.length > 0) {
+        milestones.push({
+            icon: '🏆',
+            title: 'Tournament Wins',
+            value: tournamentsData.length,
+            description: tournamentsData.map(t => t.name).join(', ')
+        });
+    }
+    
+    return milestones;
+}
+
+// Calculate winrate trend over time
+function calculateWinrateTrend() {
+    if (matchesData.length < 3) return [];
+    
+    const normalizedName = normalizeBeyName(beyName);
+    const windowSize = Math.min(5, matchesData.length);
+    const winrateTrend = [];
+    
+    for (let i = windowSize - 1; i < matchesData.length; i++) {
+        const windowMatches = matchesData.slice(i - windowSize + 1, i + 1);
+        const wins = windowMatches.filter(m => normalizeBeyName(m.winner) === normalizedName).length;
+        const winrate = (wins / windowSize) * 100;
+        winrateTrend.push(winrate);
+    }
+    
+    return winrateTrend;
+}
+
+// Render history section
+function renderHistorySection() {
+    const historySection = document.getElementById('historySection');
+    const eloTimeseries = getBeyEloTimeseries();
+    const positionTimeseries = getBeyPositionTimeseries();
+    const winrateTrend = calculateWinrateTrend();
+    const milestones = calculateMilestones();
+    
+    // Check if we have any history data
+    if (eloTimeseries.length === 0 && positionTimeseries.length === 0 && milestones.length === 0) {
+        historySection.style.display = 'none';
+        return;
+    }
+    
+    historySection.style.display = 'block';
+    
+    // Render ELO sparkline
+    if (eloTimeseries.length > 1) {
+        const eloValues = eloTimeseries.map(e => e.ELO);
+        createSparkline(
+            document.getElementById('eloSparkline'),
+            eloValues,
+            { strokeColor: '#6366f1', fillColor: 'rgba(99, 102, 241, 0.1)' }
+        );
+        
+        const minElo = Math.min(...eloValues.map(v => parseFloat(v)));
+        const maxElo = Math.max(...eloValues.map(v => parseFloat(v)));
+        const eloChange = parseFloat(eloValues[eloValues.length - 1]) - parseFloat(eloValues[0]);
+        
+        document.getElementById('eloMin').textContent = `Low: ${Math.round(minElo)}`;
+        document.getElementById('eloMax').textContent = `High: ${Math.round(maxElo)}`;
+        
+        const changeEl = document.getElementById('eloTrendChange');
+        changeEl.textContent = eloChange >= 0 ? `+${Math.round(eloChange)}` : Math.round(eloChange);
+        changeEl.className = `trend-change ${eloChange >= 0 ? 'positive' : 'negative'}`;
+    } else {
+        document.getElementById('eloTrendCard').style.display = 'none';
+    }
+    
+    // Render position sparkline
+    if (positionTimeseries.length > 1) {
+        const positionValues = positionTimeseries.map(p => p.Position);
+        createSparkline(
+            document.getElementById('positionSparkline'),
+            positionValues,
+            { strokeColor: '#10b981', fillColor: 'rgba(16, 185, 129, 0.1)', invertY: true }
+        );
+        
+        const bestPos = Math.min(...positionValues.map(v => parseInt(v)));
+        const worstPos = Math.max(...positionValues.map(v => parseInt(v)));
+        const posChange = parseInt(positionValues[0]) - parseInt(positionValues[positionValues.length - 1]);
+        
+        document.getElementById('positionBest').textContent = `Best: #${bestPos}`;
+        document.getElementById('positionWorst').textContent = `Worst: #${worstPos}`;
+        
+        const changeEl = document.getElementById('positionTrendChange');
+        changeEl.textContent = posChange >= 0 ? `↑${posChange}` : `↓${Math.abs(posChange)}`;
+        changeEl.className = `trend-change ${posChange >= 0 ? 'positive' : 'negative'}`;
+    } else {
+        document.getElementById('positionTrendCard').style.display = 'none';
+    }
+    
+    // Render winrate sparkline
+    if (winrateTrend.length > 1) {
+        createSparkline(
+            document.getElementById('winrateSparkline'),
+            winrateTrend,
+            { strokeColor: '#f59e0b', fillColor: 'rgba(245, 158, 11, 0.1)' }
+        );
+        
+        const minWr = Math.min(...winrateTrend);
+        const maxWr = Math.max(...winrateTrend);
+        const wrChange = winrateTrend[winrateTrend.length - 1] - winrateTrend[0];
+        
+        document.getElementById('winrateMin').textContent = `Low: ${Math.round(minWr)}%`;
+        document.getElementById('winrateMax').textContent = `High: ${Math.round(maxWr)}%`;
+        
+        const changeEl = document.getElementById('winrateTrendChange');
+        changeEl.textContent = wrChange >= 0 ? `+${Math.round(wrChange)}%` : `${Math.round(wrChange)}%`;
+        changeEl.className = `trend-change ${wrChange >= 0 ? 'positive' : 'negative'}`;
+    } else {
+        document.getElementById('winrateTrendCard').style.display = 'none';
+    }
+    
+    // Render milestones
+    const milestonesContainer = document.getElementById('milestonesContainer');
+    if (milestones.length > 0) {
+        milestonesContainer.innerHTML = milestones.map(m => `
+            <div class="milestone-card">
+                <div class="milestone-icon">${escapeHtml(m.icon)}</div>
+                <div class="milestone-content">
+                    <div class="milestone-title">${escapeHtml(m.title)}</div>
+                    <div class="milestone-value">${escapeHtml(m.value)}</div>
+                    ${m.description ? `<div class="milestone-desc">${escapeHtml(m.description)}</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+    } else {
+        document.querySelector('.milestones-section').style.display = 'none';
+    }
+    
+    // Render timeline
+    renderTimeline();
+}
+
+// Render match timeline
+function renderTimeline() {
+    const timelineContainer = document.getElementById('timelineContainer');
+    const normalizedName = normalizeBeyName(beyName);
+    
+    if (matchesData.length === 0) {
+        document.querySelector('.timeline-details').style.display = 'none';
+        return;
+    }
+    
+    // Group matches by date
+    const matchesByDate = {};
+    matchesData.forEach(match => {
+        if (!matchesByDate[match.date]) {
+            matchesByDate[match.date] = [];
+        }
+        matchesByDate[match.date].push(match);
+    });
+    
+    // Create timeline entries
+    const timelineHtml = Object.entries(matchesByDate)
+        .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+        .map(([date, matches]) => {
+            const matchItems = matches.map(match => {
+                const isWinner = normalizeBeyName(match.winner) === normalizedName;
+                const isBeyA = normalizeBeyName(match.beyA) === normalizedName;
+                const opponent = isBeyA ? match.beyB : match.beyA;
+                const myScore = isBeyA ? match.scoreA : match.scoreB;
+                const oppScore = isBeyA ? match.scoreB : match.scoreA;
+                
+                return `
+                    <div class="timeline-match ${isWinner ? 'win' : 'loss'}">
+                        <span class="timeline-result">${isWinner ? 'W' : 'L'}</span>
+                        <span class="timeline-opponent">vs <a href="bey.html?name=${encodeURIComponent(opponent)}" class="opponent-link">${escapeHtml(opponent)}</a></span>
+                        <span class="timeline-score">${escapeHtml(myScore)}-${escapeHtml(oppScore)}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            return `
+                <div class="timeline-day">
+                    <div class="timeline-date">${escapeHtml(formatDate(date))}</div>
+                    <div class="timeline-matches">${matchItems}</div>
+                </div>
+            `;
+        }).join('');
+    
+    timelineContainer.innerHTML = timelineHtml;
+}
+
+// Render related beys section
+function renderRelatedBeys() {
+    const relatedSection = document.getElementById('relatedBeysSection');
+    let hasRelatedContent = false;
+    
+    // Find beys with same parts
+    if (beyData) {
+        const samePartsBeys = findBeysWithSameParts();
+        if (samePartsBeys.length > 0) {
+            renderSamePartsBeys(samePartsBeys);
+            hasRelatedContent = true;
+        } else {
+            document.getElementById('samePartsSection').style.display = 'none';
+        }
+    } else {
+        document.getElementById('samePartsSection').style.display = 'none';
+    }
+    
+    // Find frequent opponents
+    const frequentOpponents = findFrequentOpponents();
+    if (frequentOpponents.length > 0) {
+        renderFrequentOpponents(frequentOpponents);
+        hasRelatedContent = true;
+    } else {
+        document.getElementById('frequentOpponentsSection').style.display = 'none';
+    }
+    
+    // Find similar ELO beys
+    const similarBeys = findSimilarEloBeys();
+    if (similarBeys.length > 0) {
+        renderSimilarPerformanceBeys(similarBeys);
+        hasRelatedContent = true;
+    } else {
+        document.getElementById('similarPerformanceSection').style.display = 'none';
+    }
+    
+    relatedSection.style.display = hasRelatedContent ? 'block' : 'none';
+}
+
+// Find beys with same parts (ratchet or bit)
+function findBeysWithSameParts() {
+    if (!beyData || !allBeysData) return [];
+    
+    const normalizedName = normalizeBeyName(beyData.blade);
+    const matches = [];
+    
+    allBeysData.forEach(bey => {
+        if (normalizeBeyName(bey.blade) === normalizedName) return;
+        
+        const sharedParts = [];
+        if (beyData.ratchet && bey.ratchet === beyData.ratchet) {
+            sharedParts.push(`Ratchet: ${beyData.ratchet}`);
+        }
+        if (beyData.bit && bey.bit === beyData.bit) {
+            sharedParts.push(`Bit: ${beyData.bit}`);
+        }
+        if (beyData.assist_blade && bey.assist_blade === beyData.assist_blade) {
+            sharedParts.push(`Assist: ${beyData.assist_blade}`);
+        }
+        
+        if (sharedParts.length > 0) {
+            matches.push({
+                bey,
+                sharedParts
+            });
+        }
+    });
+    
+    return matches.slice(0, 6);
+}
+
+// Find frequent opponents
+function findFrequentOpponents() {
+    if (matchesData.length === 0) return [];
+    
+    const normalizedName = normalizeBeyName(beyName);
+    const opponentCounts = {};
+    const opponentResults = {};
+    
+    matchesData.forEach(match => {
+        const opponent = normalizeBeyName(match.beyA) === normalizedName ? match.beyB : match.beyA;
+        const normalizedOpponent = normalizeBeyName(opponent);
+        const isWin = normalizeBeyName(match.winner) === normalizedName;
+        
+        if (!opponentCounts[normalizedOpponent]) {
+            opponentCounts[normalizedOpponent] = { name: opponent, count: 0, wins: 0, losses: 0 };
+        }
+        opponentCounts[normalizedOpponent].count++;
+        if (isWin) {
+            opponentCounts[normalizedOpponent].wins++;
+        } else {
+            opponentCounts[normalizedOpponent].losses++;
+        }
+    });
+    
+    return Object.values(opponentCounts)
+        .filter(o => o.count >= 2)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+}
+
+// Find beys with similar ELO
+function findSimilarEloBeys() {
+    if (!leaderboardData || !allLeaderboardData) return [];
+    
+    const currentElo = parseFloat(leaderboardData.ELO);
+    if (isNaN(currentElo)) return [];
+    
+    const normalizedName = normalizeBeyName(beyName);
+    const threshold = 20; // Within 20 ELO points
+    
+    return allLeaderboardData
+        .filter(entry => {
+            const entryName = entry.Name || entry.Bey || '';
+            if (normalizeBeyName(entryName) === normalizedName) return false;
+            const entryElo = parseFloat(entry.ELO);
+            return !isNaN(entryElo) && Math.abs(entryElo - currentElo) <= threshold;
+        })
+        .sort((a, b) => Math.abs(parseFloat(a.ELO) - currentElo) - Math.abs(parseFloat(b.ELO) - currentElo))
+        .slice(0, 4);
+}
+
+// Render same parts beys
+function renderSamePartsBeys(beys) {
+    const container = document.getElementById('samePartsBeys');
+    container.innerHTML = beys.map(({ bey, sharedParts }) => `
+        <a href="bey.html?name=${encodeURIComponent(bey.blade)}" class="related-bey-card">
+            <div class="related-bey-name">${escapeHtml(bey.blade)}</div>
+            <div class="related-bey-shared">${escapeHtml(sharedParts.join(', '))}</div>
+        </a>
+    `).join('');
+}
+
+// Render frequent opponents
+function renderFrequentOpponents(opponents) {
+    const container = document.getElementById('frequentOpponentsBeys');
+    container.innerHTML = opponents.map(opp => {
+        const winrate = Math.round((opp.wins / opp.count) * 100);
+        const wrClass = winrate >= 60 ? 'positive' : winrate <= 40 ? 'negative' : 'neutral';
+        return `
+            <a href="bey.html?name=${encodeURIComponent(opp.name)}" class="frequent-opponent-card">
+                <div class="opponent-info">
+                    <span class="opponent-name">${escapeHtml(opp.name)}</span>
+                    <span class="opponent-record">${escapeHtml(opp.wins)}W - ${escapeHtml(opp.losses)}L</span>
+                </div>
+                <div class="opponent-winrate ${wrClass}">${escapeHtml(winrate)}%</div>
+            </a>
+        `;
+    }).join('');
+}
+
+// Render similar performance beys
+function renderSimilarPerformanceBeys(beys) {
+    const container = document.getElementById('similarPerformanceBeys');
+    container.innerHTML = beys.map(entry => {
+        const name = entry.Name || entry.Bey;
+        return `
+            <a href="bey.html?name=${encodeURIComponent(name)}" class="related-bey-card">
+                <div class="related-bey-name">${escapeHtml(name)}</div>
+                <div class="related-bey-elo">ELO: ${escapeHtml(entry.ELO)}</div>
+            </a>
+        `;
+    }).join('');
 }
 
 // Initialize
