@@ -87,7 +87,7 @@ function applyValueStyling(element, value, columnName) {
 
     const col = columnName.toLowerCase();
     
-    if (col === "giantkillercore" || col === "giantkillerscore") {
+    if (col === "giantkillerscore") {
         applyGiantKillerStyling(element, value);
     } else if (col === "elo") {
         const eloValue = parseInt(value);
