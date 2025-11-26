@@ -251,6 +251,13 @@ function renderTable(headers, rows) {
         headRow.appendChild(th);
     });
 
+    // Add Win Probability column header for matches view
+    if (isMatchesMode) {
+        const winProbTh = document.createElement("th");
+        winProbTh.textContent = "Win %";
+        headRow.appendChild(winProbTh);
+    }
+
     rows.forEach(row => {
         const tr = document.createElement("tr");
 
@@ -299,6 +306,21 @@ function renderTable(headers, rows) {
 
             tr.appendChild(td);
         });
+
+        // Add Win Probability column for matches view
+        if (isMatchesMode) {
+            const winProbTd = document.createElement("td");
+            const winnerELO = parseFloat(row["WinnerPreELO"]);
+            const loserELO = parseFloat(row["LoserPreELO"]);
+            if (!isNaN(winnerELO) && !isNaN(loserELO)) {
+                const winProb = calculateWinProbability(winnerELO, loserELO);
+                const probSpan = document.createElement("span");
+                probSpan.className = "win-probability";
+                probSpan.textContent = `${winProb}%`;
+                winProbTd.appendChild(probSpan);
+            }
+            tr.appendChild(winProbTd);
+        }
 
         body.appendChild(tr);
     });

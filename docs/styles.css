@@ -3316,17 +3316,18 @@ body.dark .hover-card-rank.rank-bronze {
 /* Win probability styling for upset cards */
 .win-probability {
     font-size: 0.6875rem;
-    color: #10b981;
+    color: #059669;
     font-weight: 700;
     margin-top: 0.25rem;
     padding: 0.125rem 0.375rem;
-    background: rgba(16, 185, 129, 0.1);
+    background: rgba(16, 185, 129, 0.15);
     border-radius: var(--radius-sm);
     display: inline-block;
 }
 
 body.dark .win-probability {
-    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.25);
 }
 
 /* Responsive styles for summary cards */
