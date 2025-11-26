@@ -3354,6 +3354,89 @@ body.dark .win-probability {
    EXTENDED MATCH HISTORY STYLES
 ============================================ */
 
+/* Collapsible Filters Panel */
+.filters-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 1rem;
+    overflow: hidden;
+}
+
+.filters-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    user-select: none;
+    transition: var(--transition);
+}
+
+.filters-header:hover {
+    background: var(--bg);
+}
+
+.filters-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--text);
+}
+
+.filters-icon {
+    font-size: 1rem;
+}
+
+.active-filters-count {
+    background: var(--accent);
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    display: none;
+}
+
+.active-filters-count.visible {
+    display: inline-block;
+}
+
+.filters-toggle {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: transform 0.2s ease;
+}
+
+.filters-content {
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+    transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.2s ease;
+    max-height: 500px;
+    opacity: 1;
+}
+
+.filters-content.collapsed {
+    max-height: 0;
+    padding: 0 1rem;
+    opacity: 0;
+    border-top: none;
+    overflow: hidden;
+}
+
+.filters-content.expanded {
+    max-height: 500px;
+    padding: 1rem;
+    opacity: 1;
+    border-top: 1px solid var(--border);
+}
+
 /* Filter Input Fields */
 .filter-input {
     padding: 0.5rem 0.75rem;
@@ -3448,6 +3531,19 @@ body.dark .win-probability {
     font-weight: 700;
 }
 
+/* Mobile Card Stat Labels */
+.stat-label {
+    font-size: 0.6875rem;
+    color: var(--text-light);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.card-bey.winner .stat-label {
+    color: rgba(255, 255, 255, 0.7);
+}
+
 /* Mobile Card ELO Change */
 .bey-elo-change {
     font-size: 0.8125rem;
@@ -3457,10 +3553,17 @@ body.dark .win-probability {
 
 /* ELO display in mobile cards */
 .bey-elo {
-    font-size: 0.75rem;
-    color: var(--text-light);
+    font-size: 0.8125rem;
+    color: var(--text);
     font-weight: 500;
-    margin-top: 0.125rem;
+    margin-top: 0.25rem;
+}
+
+/* Score display in mobile cards */
+.bey-score {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.25rem 0;
 }
 
 /* Fix bey-elo-change color inside winner cards */
@@ -3474,6 +3577,10 @@ body.dark .win-probability {
 
 .card-bey.winner .bey-elo-change.delta-elo-down {
     color: #fecaca;
+}
+
+.card-bey.winner .bey-elo {
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* Mobile Filter Adjustments */

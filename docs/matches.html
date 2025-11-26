@@ -50,67 +50,80 @@
             <input type="text" id="searchInput" placeholder="Search by Bey name or date…">
         </div>
         
-        <!-- Filter Controls Row -->
-        <div class="filters-row">
-            <div class="filter-group">
-                <label class="filter-label" for="dateFilter">Date</label>
-                <select id="dateFilter" class="filter-select">
-                    <option value="all">All Dates</option>
-                </select>
+        <!-- Collapsible Filter Section -->
+        <div class="filters-panel" id="filtersPanel">
+            <div class="filters-header" id="filtersHeader">
+                <span class="filters-title">
+                    <span class="filters-icon">🔍</span>
+                    Filters
+                    <span class="active-filters-count" id="activeFiltersCount"></span>
+                </span>
+                <button class="filters-toggle" id="filtersToggle">▼</button>
             </div>
-            
-            <div class="filter-group">
-                <label class="filter-label" for="beyFilter">Bey</label>
-                <select id="beyFilter" class="filter-select">
-                    <option value="all">All Beys</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label class="filter-label" for="bladeFilter">Blade</label>
-                <select id="bladeFilter" class="filter-select">
-                    <option value="all">All Blades</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label class="filter-label" for="ratchetFilter">Ratchet</label>
-                <select id="ratchetFilter" class="filter-select">
-                    <option value="all">All Ratchets</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <label class="filter-label" for="bitFilter">Bit</label>
-                <select id="bitFilter" class="filter-select">
-                    <option value="all">All Bits</option>
-                </select>
-            </div>
-        </div>
-        
-        <!-- Advanced Filters Row -->
-        <div class="filters-row">
-            <div class="filter-group">
-                <label class="filter-label" for="minEloDiff">Min ELO Diff</label>
-                <input type="number" id="minEloDiff" class="filter-input" placeholder="0" min="0">
-            </div>
-            
-            <div class="filter-group">
-                <label class="filter-label" for="maxEloDiff">Max ELO Diff</label>
-                <input type="number" id="maxEloDiff" class="filter-input" placeholder="∞" min="0">
-            </div>
-            
-            <div class="filter-group">
-                <label class="filter-label" for="eloChangeFilter">ELO Change</label>
-                <select id="eloChangeFilter" class="filter-select">
-                    <option value="all">All</option>
-                    <option value="gain">Gains Only</option>
-                    <option value="loss">Losses Only</option>
-                </select>
-            </div>
-            
-            <div class="filter-group">
-                <button id="clearFilters" class="filter-btn">Clear Filters</button>
+            <div class="filters-content collapsed" id="filtersContent">
+                <!-- Filter Controls Row -->
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label class="filter-label" for="dateFilter">Date</label>
+                        <select id="dateFilter" class="filter-select">
+                            <option value="all">All Dates</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="beyFilter">Bey</label>
+                        <select id="beyFilter" class="filter-select">
+                            <option value="all">All Beys</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="bladeFilter">Blade</label>
+                        <select id="bladeFilter" class="filter-select">
+                            <option value="all">All Blades</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="ratchetFilter">Ratchet</label>
+                        <select id="ratchetFilter" class="filter-select">
+                            <option value="all">All Ratchets</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="bitFilter">Bit</label>
+                        <select id="bitFilter" class="filter-select">
+                            <option value="all">All Bits</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Advanced Filters Row -->
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label class="filter-label" for="minEloDiff">Min ELO Diff</label>
+                        <input type="number" id="minEloDiff" class="filter-input" placeholder="0" min="0">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="maxEloDiff">Max ELO Diff</label>
+                        <input type="number" id="maxEloDiff" class="filter-input" placeholder="∞" min="0">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="eloChangeFilter">ELO Change</label>
+                        <select id="eloChangeFilter" class="filter-select">
+                            <option value="all">All</option>
+                            <option value="gain">Gains Only</option>
+                            <option value="loss">Losses Only</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <button id="clearFilters" class="filter-btn">Clear Filters</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

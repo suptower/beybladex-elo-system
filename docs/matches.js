@@ -262,6 +262,9 @@ function applyFilters() {
     // Save filters to URL
     saveFiltersToURL();
     
+    // Update active filters count
+    updateActiveFiltersCount();
+    
     // Update display
     updateMatchCount();
     updatePagination();
@@ -483,21 +486,21 @@ function displayMatches() {
         card.innerHTML = `
             <div class="card-header">
                 <span class="card-date">${match.dateFormatted}</span>
-                <span class="match-elo-diff">Δ${match.eloDiff} ELO</span>
+                <span class="match-elo-diff" title="ELO Difference">Δ${match.eloDiff} ELO</span>
             </div>
             <div class="card-match">
                 <div class="card-bey ${match.winner === match.beyA ? 'winner' : ''}">
                     <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyA)}" class="bey-link">${match.beyA}</a></div>
-                    <div class="bey-elo">${match.preEloA} ELO</div>
-                    <div class="bey-score ${match.winner === match.beyA ? 'score-winner' : ''}">${match.scoreA}</div>
-                    <div class="bey-elo-change ${match.eloChangeA >= 0 ? 'delta-elo-up' : 'delta-elo-down'}">${match.eloChangeA >= 0 ? '+' : ''}${match.eloChangeA}</div>
+                    <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${match.preEloA}</div>
+                    <div class="bey-score ${match.winner === match.beyA ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.scoreA}</div>
+                    <div class="bey-elo-change ${match.eloChangeA >= 0 ? 'delta-elo-up' : 'delta-elo-down'}"><span class="stat-label">ELO Δ:</span> ${match.eloChangeA >= 0 ? '+' : ''}${match.eloChangeA}</div>
                 </div>
                 <div class="card-vs">VS</div>
                 <div class="card-bey ${match.winner === match.beyB ? 'winner' : ''}">
                     <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyB)}" class="bey-link">${match.beyB}</a></div>
-                    <div class="bey-elo">${match.preEloB} ELO</div>
-                    <div class="bey-score ${match.winner === match.beyB ? 'score-winner' : ''}">${match.scoreB}</div>
-                    <div class="bey-elo-change ${match.eloChangeB >= 0 ? 'delta-elo-up' : 'delta-elo-down'}">${match.eloChangeB >= 0 ? '+' : ''}${match.eloChangeB}</div>
+                    <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${match.preEloB}</div>
+                    <div class="bey-score ${match.winner === match.beyB ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.scoreB}</div>
+                    <div class="bey-elo-change ${match.eloChangeB >= 0 ? 'delta-elo-up' : 'delta-elo-down'}"><span class="stat-label">ELO Δ:</span> ${match.eloChangeB >= 0 ? '+' : ''}${match.eloChangeB}</div>
                 </div>
             </div>
             <div class="card-footer">
@@ -621,6 +624,57 @@ function setupLegend() {
                 legendToggle.textContent = '▲';
             }
         });
+    }
+}
+
+// Setup collapsible filters panel
+function setupFiltersPanel() {
+    const filtersHeader = document.getElementById('filtersHeader');
+    const filtersContent = document.getElementById('filtersContent');
+    const filtersToggle = document.getElementById('filtersToggle');
+    
+    if (filtersHeader && filtersContent && filtersToggle) {
+        // Start collapsed
+        filtersContent.classList.add('collapsed');
+        
+        filtersHeader.addEventListener('click', () => {
+            const isExpanded = filtersContent.classList.contains('expanded');
+            
+            if (isExpanded) {
+                filtersContent.classList.remove('expanded');
+                filtersContent.classList.add('collapsed');
+                filtersToggle.textContent = '▼';
+            } else {
+                filtersContent.classList.remove('collapsed');
+                filtersContent.classList.add('expanded');
+                filtersToggle.textContent = '▲';
+            }
+        });
+    }
+}
+
+// Update active filters count badge
+function updateActiveFiltersCount() {
+    const filters = getFilterValues();
+    let activeCount = 0;
+    
+    if (filters.date !== 'all') activeCount++;
+    if (filters.bey !== 'all') activeCount++;
+    if (filters.blade !== 'all') activeCount++;
+    if (filters.ratchet !== 'all') activeCount++;
+    if (filters.bit !== 'all') activeCount++;
+    if (filters.minEloDiff > 0) activeCount++;
+    if (filters.maxEloDiff < Infinity && document.getElementById('maxEloDiff').value) activeCount++;
+    if (filters.eloChange !== 'all') activeCount++;
+    
+    const countBadge = document.getElementById('activeFiltersCount');
+    if (countBadge) {
+        if (activeCount > 0) {
+            countBadge.textContent = activeCount;
+            countBadge.classList.add('visible');
+        } else {
+            countBadge.classList.remove('visible');
+        }
     }
 }
 
@@ -767,10 +821,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('clearFilters').addEventListener('click', clearFilters);
     
     // Setup other features
+    setupFiltersPanel();
     setupLegend();
     setupMobileSorting();
     setupPagination();
     updateCurrentSortLabel();
+    updateActiveFiltersCount();
     
     // Handle resize
     window.addEventListener('resize', displayMatches);
