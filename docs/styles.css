@@ -3349,3 +3349,160 @@ body.dark .win-probability {
         font-size: 1rem;
     }
 }
+
+/* ============================================
+   EXTENDED MATCH HISTORY STYLES
+============================================ */
+
+/* Filter Input Fields */
+.filter-input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: var(--transition);
+    min-width: 80px;
+    width: 100px;
+}
+
+.filter-input:hover {
+    border-color: var(--accent);
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.filter-input::placeholder {
+    color: var(--text-light);
+}
+
+/* Match Count Display */
+.match-count {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin: 1rem 0;
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    padding: 0.625rem 1.25rem;
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    transition: var(--transition);
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    font-size: 0.9375rem;
+    color: var(--text);
+    font-weight: 500;
+}
+
+.pagination-info span {
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* Match Card ELO Diff Badge */
+.match-elo-diff {
+    background: var(--accent);
+    color: white;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* Mobile Card ELO Change */
+.bey-elo-change {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    margin-top: 0.25rem;
+}
+
+/* ELO display in mobile cards */
+.bey-elo {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-weight: 500;
+    margin-top: 0.125rem;
+}
+
+/* Fix bey-elo-change color inside winner cards */
+.card-bey.winner .bey-elo-change {
+    color: white;
+}
+
+.card-bey.winner .bey-elo-change.delta-elo-up {
+    color: #bbf7d0;
+}
+
+.card-bey.winner .bey-elo-change.delta-elo-down {
+    color: #fecaca;
+}
+
+/* Mobile Filter Adjustments */
+@media (max-width: 768px) {
+    .filters-row {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-select,
+    .filter-input {
+        width: 100%;
+        min-width: unset;
+    }
+    
+    .pagination {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .pagination-btn {
+        width: 100%;
+    }
+    
+    #pageSize {
+        width: 100%;
+    }
+}
