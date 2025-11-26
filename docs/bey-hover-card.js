@@ -105,7 +105,10 @@ function createHoverCard() {
                 <div class="hover-card-type"></div>
             </div>
             <div class="hover-card-content">
-                <h4 class="hover-card-title"></h4>
+                <div class="hover-card-title-row">
+                    <h4 class="hover-card-title"></h4>
+                    <span class="hover-card-rank"></span>
+                </div>
                 <p class="hover-card-code"></p>
                 <div class="hover-card-stats"></div>
                 <p class="hover-card-description"></p>
@@ -164,6 +167,21 @@ function showHoverCard(beyData, targetElement, leaderboardEntry) {
     type.className = `hover-card-type ${beyData.type.toLowerCase()}`;
     
     card.querySelector('.hover-card-title').textContent = beyData.name;
+    
+    // Populate rank badge
+    const rankBadge = card.querySelector('.hover-card-rank');
+    if (leaderboardEntry && leaderboardEntry.Platz) {
+        const rank = leaderboardEntry.Platz;
+        let rankClass = 'hover-card-rank';
+        if (rank === '1') rankClass += ' rank-gold';
+        else if (rank === '2') rankClass += ' rank-silver';
+        else if (rank === '3') rankClass += ' rank-bronze';
+        rankBadge.className = rankClass;
+        rankBadge.textContent = `#${rank}`;
+        rankBadge.style.display = 'inline-block';
+    } else {
+        rankBadge.style.display = 'none';
+    }
     
     const codeEl = card.querySelector('.hover-card-code');
     if (beyData.code) {
