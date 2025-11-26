@@ -2728,6 +2728,26 @@ body.dark .wiki-card-rank.rank-bronze {
     margin-bottom: 0.25rem;
 }
 
+.stat-value.trend-very-positive {
+    color: #10b981;
+}
+
+.stat-value.trend-positive {
+    color: #22c55e;
+}
+
+.stat-value.trend-neutral {
+    color: var(--text-light);
+}
+
+.stat-value.trend-negative {
+    color: #f59e0b;
+}
+
+.stat-value.trend-very-negative {
+    color: #ef4444;
+}
+
 .stat-label {
     font-size: 0.75rem;
     font-weight: 600;

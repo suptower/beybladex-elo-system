@@ -571,14 +571,14 @@ function renderStats() {
     
     // Define stats to display (ELO and Power Index are shown in key stats section)
     const stats = [
-        { label: 'Rank', value: leaderboardData.Platz, icon: '🏆' },
+        { label: 'Rank', value: leaderboardData.Platz, icon: '🏆', highlight: 'rank' },
         { label: 'Matches', value: leaderboardData.Matches || leaderboardData.Spiele, icon: '🎮' },
         { label: 'Wins', value: leaderboardData.Wins || leaderboardData.Siege, icon: '✅' },
         { label: 'Losses', value: leaderboardData.Losses || leaderboardData.Niederlagen, icon: '❌' },
         { label: 'Winrate', value: leaderboardData.Winrate, icon: '📈', highlight: 'winrate' },
         { label: 'Points For', value: leaderboardData.PointsFor || leaderboardData['Gewonnene Punkte'], icon: '⬆️' },
         { label: 'Points Against', value: leaderboardData.PointsAgainst || leaderboardData['Verlorene Punkte'], icon: '⬇️' },
-        { label: 'Point Diff', value: leaderboardData.AvgPointDiff || leaderboardData.Differenz, icon: '📉' },
+        { label: 'Point Diff', value: leaderboardData.AvgPointDiff || leaderboardData.Differenz, icon: '📉', highlight: 'pointdiff' },
         { label: 'ELO Trend', value: leaderboardData.ELOTrend, icon: '📈', highlight: 'trend' }
     ];
     
@@ -588,12 +588,17 @@ function renderStats() {
             statEl.className = 'stat-card';
             
             let valueClass = '';
+            const numValue = parseFloat(stat.value);
             if (stat.highlight === 'elo') {
                 valueClass = getEloClass(parseInt(stat.value));
             } else if (stat.highlight === 'winrate') {
-                valueClass = getWinrateClass(parseFloat(stat.value));
+                valueClass = getWinrateClass(numValue);
             } else if (stat.highlight === 'trend') {
-                valueClass = getTrendClass(parseFloat(stat.value));
+                valueClass = getTrendClass(numValue);
+            } else if (stat.highlight === 'pointdiff') {
+                valueClass = getPointDiffClass(numValue);
+            } else if (stat.highlight === 'rank') {
+                valueClass = getRankClass(parseInt(stat.value));
             }
             
             statEl.innerHTML = `
@@ -636,6 +641,54 @@ function getTrendClass(trend) {
     return 'trend-neutral';
 }
 
+// Get point diff color class
+function getPointDiffClass(diff) {
+    if (isNaN(diff)) return '';
+    if (diff > 2) return 'trend-very-positive';
+    if (diff > 0) return 'trend-positive';
+    if (diff < -2) return 'trend-very-negative';
+    if (diff < 0) return 'trend-negative';
+    return 'trend-neutral';
+}
+
+// Get volatility color class (lower is better)
+function getVolatilityClass(volatility) {
+    if (isNaN(volatility)) return '';
+    if (volatility <= 5) return 'trend-very-positive';
+    if (volatility <= 10) return 'trend-positive';
+    if (volatility <= 15) return 'trend-neutral';
+    if (volatility <= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get rank color class (lower is better)
+function getRankClass(rank) {
+    if (isNaN(rank)) return '';
+    if (rank <= 3) return 'trend-very-positive';
+    if (rank <= 10) return 'trend-positive';
+    if (rank <= 20) return 'trend-neutral';
+    if (rank <= 30) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get upset wins color class (more is better)
+function getUpsetWinsClass(wins) {
+    if (isNaN(wins)) return '';
+    if (wins >= 5) return 'trend-very-positive';
+    if (wins >= 2) return 'trend-positive';
+    if (wins >= 1) return 'trend-neutral';
+    return '';
+}
+
+// Get upset losses color class (fewer is better)
+function getUpsetLossesClass(losses) {
+    if (isNaN(losses)) return '';
+    if (losses === 0) return 'trend-very-positive';
+    if (losses <= 1) return 'trend-neutral';
+    if (losses <= 3) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
 // Render advanced statistics
 function renderAdvancedStats() {
     const advancedStatsGrid = document.getElementById('advancedStatsGrid');
@@ -660,12 +713,12 @@ function renderAdvancedStats() {
     
     // Define advanced stats to display
     const advancedStats = [
-        { label: 'Volatility', value: leaderboardData.Volatility, icon: '📊', tooltip: 'Rating stability measure' },
+        { label: 'Volatility', value: leaderboardData.Volatility, icon: '📊', highlight: 'volatility' },
         { label: 'Avg ELO Change', value: leaderboardData['AvgΔELO'], icon: '📈', highlight: 'trend' },
         { label: 'Max ELO Gain', value: leaderboardData['MaxΔELO'], icon: '⬆️', highlight: 'positive' },
         { label: 'Max ELO Loss', value: leaderboardData['MinΔELO'], icon: '⬇️', highlight: 'negative' },
-        { label: 'Upset Wins', value: leaderboardData.UpsetWins, icon: '🎯', tooltip: 'Wins against higher-rated opponents' },
-        { label: 'Upset Losses', value: leaderboardData.UpsetLosses, icon: '💔', tooltip: 'Losses against lower-rated opponents' }
+        { label: 'Upset Wins', value: leaderboardData.UpsetWins, icon: '🎯', highlight: 'upsetwins' },
+        { label: 'Upset Losses', value: leaderboardData.UpsetLosses, icon: '💔', highlight: 'upsetlosses' }
     ];
     
     advancedStats.forEach(stat => {
@@ -677,6 +730,12 @@ function renderAdvancedStats() {
             const numValue = parseFloat(stat.value);
             if (stat.highlight === 'trend') {
                 valueClass = getTrendClass(numValue);
+            } else if (stat.highlight === 'volatility') {
+                valueClass = getVolatilityClass(numValue);
+            } else if (stat.highlight === 'upsetwins') {
+                valueClass = getUpsetWinsClass(numValue);
+            } else if (stat.highlight === 'upsetlosses') {
+                valueClass = getUpsetLossesClass(numValue);
             } else if (stat.highlight === 'positive' && numValue > 0) {
                 valueClass = 'trend-very-positive';
             } else if (stat.highlight === 'negative' && numValue < 0) {
