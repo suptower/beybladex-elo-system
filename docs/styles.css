@@ -963,7 +963,7 @@ th.sorted-desc {
 .trend-neutral,
 .lb-detail-value.trend-neutral {
     color: var(--text-light);
-    opacity: 0.7;
+    font-weight: 500;
 }
 
 .trend-negative,
@@ -3303,13 +3303,14 @@ body.dark .hover-card-rank.rank-bronze {
 }
 
 .card-bey.loser {
-    opacity: 0.8;
+    opacity: 0.9;
 }
 
 .bey-elo {
     font-size: 0.75rem;
-    color: var(--text-light);
+    color: var(--text);
     margin-top: 0.25rem;
+    font-weight: 500;
 }
 
 /* Responsive styles for summary cards */

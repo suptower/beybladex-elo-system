@@ -51,6 +51,73 @@ function getAbbreviatedHeader(header) {
     return COLUMN_ABBREVIATIONS[header] || header;
 }
 
+// Get display info for the value shown in mobile card header
+// When sorting by a non-GK column, show that column's value instead
+function getCardHeaderDisplayInfo(row) {
+    const headers = isMatchesMode ? matchHeaders : upsetHeaders;
+    
+    // Default to showing GK Score for Giant Killers, ELO Difference for Matches
+    let displayValue = isMatchesMode ? (row["ELODifference"] || "-") : (row["GiantKillerScore"] || "0");
+    let displayLabel = isMatchesMode ? "ELO Diff" : "GK Score";
+    let sortedColumn = null;
+
+    // Check if we're sorting by a column other than the default
+    if (currentSort.column !== null) {
+        sortedColumn = headers[currentSort.column];
+        
+        // If not sorting by the default column or name columns, show the sorted column
+        if (sortedColumn && 
+            sortedColumn !== "GiantKillerScore" && 
+            sortedColumn !== "ELODifference" &&
+            sortedColumn !== "Bey" && 
+            sortedColumn !== "Winner" &&
+            sortedColumn !== "Loser" &&
+            sortedColumn !== "Rank") {
+            displayValue = row[sortedColumn] || "-";
+            displayLabel = getAbbreviatedHeader(sortedColumn);
+        }
+    }
+
+    return { displayValue, displayLabel, sortedColumn };
+}
+
+// Apply appropriate styling for a value based on its column type
+function applyValueStyling(element, value, columnName) {
+    if (!value || !columnName) return;
+
+    const col = columnName.toLowerCase();
+    
+    if (col === "giantkillercore" || col === "giantkillerscore") {
+        applyGiantKillerStyling(element, value);
+    } else if (col === "elo") {
+        const eloValue = parseInt(value);
+        if (!isNaN(eloValue)) {
+            if (eloValue >= 1050) element.classList.add("trend-very-positive");
+            else if (eloValue >= 1010) element.classList.add("trend-positive");
+            else if (eloValue >= 990) element.classList.add("trend-neutral");
+            else if (eloValue >= 950) element.classList.add("trend-negative");
+            else if (eloValue < 950) element.classList.add("trend-very-negative");
+        }
+    } else if (col === "elodifference") {
+        const diff = parseFloat(value);
+        if (!isNaN(diff)) {
+            if (diff >= 50) element.classList.add("trend-very-positive");
+            else if (diff >= 30) element.classList.add("trend-positive");
+            else if (diff >= 15) element.classList.add("trend-neutral");
+            else element.classList.add("trend-negative");
+        }
+    } else if (col === "upsetrate" || col === "vulnerability") {
+        const numValue = parseFloat(value.replace("%", ""));
+        if (!isNaN(numValue)) {
+            if (numValue >= 80) element.classList.add("trend-very-positive");
+            else if (numValue >= 60) element.classList.add("trend-positive");
+            else if (numValue >= 40) element.classList.add("trend-neutral");
+            else if (numValue >= 20) element.classList.add("trend-negative");
+            else element.classList.add("trend-very-negative");
+        }
+    }
+}
+
 function parseCSV(text) {
     const lines = text.trim().split(/\r?\n/);
     const headers = lines[0].split(",").map(h => h.trim());
@@ -262,18 +329,22 @@ function renderCards(headers, rows) {
             nameLink.textContent = row["Bey"] || "Unknown";
             nameLink.href = `bey.html?name=${encodeURIComponent(row["Bey"])}`;
             
-            const gkScore = document.createElement("div");
-            gkScore.className = "lb-card-elo";
-            gkScore.textContent = row["GiantKillerScore"] || "0";
-            applyGiantKillerStyling(gkScore, row["GiantKillerScore"]);
-            const gkLabel = document.createElement("div");
-            gkLabel.className = "lb-card-elo-label";
-            gkLabel.textContent = "GK Score";
-            gkScore.appendChild(gkLabel);
+            // Get the value to display in header (GK Score by default, or sorted column value)
+            const headerInfo = getCardHeaderDisplayInfo(row);
+            
+            const headerValue = document.createElement("div");
+            headerValue.className = "lb-card-elo";
+            headerValue.textContent = headerInfo.displayValue;
+            // Apply appropriate styling based on the column being displayed
+            applyValueStyling(headerValue, headerInfo.displayValue, headerInfo.sortedColumn || "GiantKillerScore");
+            const headerLabel = document.createElement("div");
+            headerLabel.className = "lb-card-elo-label";
+            headerLabel.textContent = headerInfo.displayLabel;
+            headerValue.appendChild(headerLabel);
             
             cardHeader.appendChild(rank);
             cardHeader.appendChild(nameLink);
-            cardHeader.appendChild(gkScore);
+            cardHeader.appendChild(headerValue);
             card.appendChild(cardHeader);
 
             // Stats row
@@ -306,7 +377,7 @@ function renderCards(headers, rows) {
             const details = document.createElement("div");
             details.className = "lb-card-details";
             
-            const createDetail = (label, value) => {
+            const createDetail = (label, value, columnName) => {
                 const detail = document.createElement("div");
                 detail.className = "lb-detail";
                 const detailLabel = document.createElement("span");
@@ -315,18 +386,42 @@ function renderCards(headers, rows) {
                 const detailValue = document.createElement("span");
                 detailValue.className = "lb-detail-value";
                 detailValue.textContent = value || "-";
+                // Apply styling to the detail value
+                if (columnName) {
+                    applyValueStyling(detailValue, value, columnName);
+                }
                 detail.appendChild(detailLabel);
                 detail.appendChild(detailValue);
                 return detail;
             };
             
-            details.appendChild(createDetail("Matches", row["Matches"]));
-            details.appendChild(createDetail("Wins", row["Wins"]));
-            details.appendChild(createDetail("Losses", row["Losses"]));
-            details.appendChild(createDetail("Upset Losses", row["UpsetLosses"]));
-            details.appendChild(createDetail("Vulnerability", row["Vulnerability"]));
-            details.appendChild(createDetail("Avg Upset Mag", row["AvgUpsetWinMagnitude"]));
-            details.appendChild(createDetail("Biggest Upset", row["BiggestUpsetWin"]));
+            // If sorting by non-GK column, add GK Score to the details section first
+            if (headerInfo.sortedColumn && headerInfo.sortedColumn !== "GiantKillerScore") {
+                const gkDetail = createDetail("GK Score", row["GiantKillerScore"], "GiantKillerScore");
+                details.appendChild(gkDetail);
+            }
+            
+            if (headerInfo.sortedColumn !== "Matches") {
+                details.appendChild(createDetail("Matches", row["Matches"]));
+            }
+            if (headerInfo.sortedColumn !== "Wins") {
+                details.appendChild(createDetail("Wins", row["Wins"]));
+            }
+            if (headerInfo.sortedColumn !== "Losses") {
+                details.appendChild(createDetail("Losses", row["Losses"]));
+            }
+            if (headerInfo.sortedColumn !== "UpsetLosses") {
+                details.appendChild(createDetail("Upset Losses", row["UpsetLosses"]));
+            }
+            if (headerInfo.sortedColumn !== "Vulnerability") {
+                details.appendChild(createDetail("Vulnerability", row["Vulnerability"], "Vulnerability"));
+            }
+            if (headerInfo.sortedColumn !== "AvgUpsetWinMagnitude") {
+                details.appendChild(createDetail("Avg Upset Mag", row["AvgUpsetWinMagnitude"]));
+            }
+            if (headerInfo.sortedColumn !== "BiggestUpsetWin") {
+                details.appendChild(createDetail("Biggest Upset", row["BiggestUpsetWin"]));
+            }
             
             expandSection.appendChild(details);
             card.appendChild(expandSection);
