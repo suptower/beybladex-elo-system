@@ -106,7 +106,7 @@ function applyValueStyling(element, value, columnName) {
         applyPowerIndexStyling(element, value);
     } else if (col === "elotrend") {
         applyTrendStyling(element, value);
-    } else if (col.includes("differenz") || col.includes("pointdiff") || col === "avgpointdiff") {
+    } else if (col.includes("differenz") || col.includes("pointdiff")) {
         const diff = parseFloat(value);
         if (!isNaN(diff)) {
             if (diff > 0) element.classList.add("trend-very-positive");
@@ -114,7 +114,7 @@ function applyValueStyling(element, value, columnName) {
         }
     } else if (col.includes("positionsdelta") || col.includes("positiondelta")) {
         applyDeltaStyling(element, value, "pos");
-    } else if (col.includes("elod") || col.includes("elodelta")) {
+    } else if (col === "elodelta" || col.includes("δelo")) {
         applyDeltaStyling(element, value, "elo");
     }
 }
