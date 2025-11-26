@@ -2527,6 +2527,52 @@ body.dark .wiki-card-rank.rank-bronze {
     color: var(--text);
 }
 
+/* Collapsible Profile Section Details */
+.profile-section-details {
+    margin-bottom: 2rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.section-summary {
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--text);
+    background: var(--bg);
+    transition: var(--transition);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-summary::-webkit-details-marker {
+    display: none;
+}
+
+.section-summary::after {
+    content: "▼";
+    font-size: 0.625rem;
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+.profile-section-details[open] .section-summary::after {
+    transform: rotate(180deg);
+}
+
+.section-summary:hover {
+    background: var(--bg-alt);
+}
+
+.profile-section-details .stats-grid {
+    padding: 1rem 1.25rem;
+}
+
 /* Key Stats Grid (ELO and Power Index) */
 .key-stats-grid {
     display: grid;

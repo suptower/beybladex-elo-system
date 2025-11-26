@@ -81,29 +81,21 @@
                 </div>
             </div>
             
-            <!-- Stats Section -->
-            <div class="profile-section">
-                <h3 class="section-title">📊 Statistics</h3>
+            <!-- Stats Section (collapsible) -->
+            <details class="profile-section-details" open>
+                <summary class="section-summary">📊 Statistics</summary>
                 <div id="statsGrid" class="stats-grid">
                     <!-- Stats will be dynamically added -->
                 </div>
-            </div>
+            </details>
             
-            <!-- Advanced Stats Section -->
-            <div class="profile-section" id="advancedStatsSection" style="display: none;">
-                <h3 class="section-title">📈 Advanced Statistics</h3>
+            <!-- Advanced Stats Section (collapsible) -->
+            <details class="profile-section-details" id="advancedStatsSection" style="display: none;">
+                <summary class="section-summary">📈 Advanced Statistics</summary>
                 <div id="advancedStatsGrid" class="stats-grid">
                     <!-- Advanced stats will be dynamically added -->
                 </div>
-            </div>
-            
-            <!-- Recent Matches Section -->
-            <div class="profile-section">
-                <h3 class="section-title">⚔️ Recent Matches</h3>
-                <div id="recentMatches" class="recent-matches">
-                    <!-- Matches will be dynamically added -->
-                </div>
-            </div>
+            </details>
             
             <!-- Individual Plot Section -->
             <div class="profile-section" id="plotSection">
@@ -443,9 +435,6 @@ function renderProfile() {
     // Render advanced stats
     renderAdvancedStats();
     
-    // Render recent matches
-    renderRecentMatches();
-    
     // Try to load ELO plot
     loadEloPlot();
     
@@ -701,43 +690,6 @@ function renderAdvancedStats() {
             `;
             advancedStatsGrid.appendChild(statEl);
         }
-    });
-}
-
-// Render recent matches
-function renderRecentMatches() {
-    const matchesContainer = document.getElementById('recentMatches');
-    matchesContainer.innerHTML = '';
-    
-    if (matchesData.length === 0) {
-        matchesContainer.innerHTML = '<p class="no-data">No match history available.</p>';
-        return;
-    }
-    
-    // Show last 5 matches (most recent first)
-    const recentMatches = [...matchesData].reverse().slice(0, 5);
-    const normalizedBeyName = normalizeBeyName(beyName);
-    
-    recentMatches.forEach(match => {
-        const isWinner = normalizeBeyName(match.winner) === normalizedBeyName;
-        const isBeyA = normalizeBeyName(match.beyA) === normalizedBeyName;
-        const opponent = isBeyA ? match.beyB : match.beyA;
-        const myScore = isBeyA ? match.scoreA : match.scoreB;
-        const oppScore = isBeyA ? match.scoreB : match.scoreA;
-        
-        const matchEl = document.createElement('div');
-        matchEl.className = `match-card ${isWinner ? 'win' : 'loss'}`;
-        matchEl.innerHTML = `
-            <div class="match-result">${isWinner ? 'WIN' : 'LOSS'}</div>
-            <div class="match-details">
-                <div class="match-opponent">
-                    vs <a href="bey.html?name=${encodeURIComponent(opponent)}" class="opponent-link">${opponent}</a>
-                </div>
-                <div class="match-score">${myScore} - ${oppScore}</div>
-            </div>
-            <div class="match-date">${formatDate(match.date)}</div>
-        `;
-        matchesContainer.appendChild(matchEl);
     });
 }
 
