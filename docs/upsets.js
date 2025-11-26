@@ -446,6 +446,11 @@ function renderCards(headers, rows) {
             const card = document.createElement("div");
             card.className = "card upset-match-card";
             
+            // Calculate the winner's (underdog's) win probability before the match
+            const winnerELO = parseFloat(row["WinnerPreELO"]);
+            const loserELO = parseFloat(row["LoserPreELO"]);
+            const winProbability = calculateWinProbability(winnerELO, loserELO);
+            
             card.innerHTML = `
                 <div class="card-header">
                     <span class="card-date">${row["Date"] || ""}</span>
@@ -455,6 +460,7 @@ function renderCards(headers, rows) {
                     <div class="card-bey winner">
                         <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(row["Winner"])}" class="bey-link">${row["Winner"]}</a></div>
                         <div class="bey-elo">${row["WinnerPreELO"]} ELO</div>
+                        <div class="win-probability">${winProbability}% win chance</div>
                     </div>
                     <div class="card-vs">beat</div>
                     <div class="card-bey loser">
@@ -470,6 +476,14 @@ function renderCards(headers, rows) {
             container.appendChild(card);
         });
     }
+}
+
+// Calculate win probability based on ELO ratings
+// Returns the expected win probability for the lower-rated player (underdog)
+function calculateWinProbability(underdogELO, favoriteELO) {
+    const eloDiff = favoriteELO - underdogELO;
+    const expectedWin = 1 / (1 + Math.pow(10, eloDiff / 400));
+    return (expectedWin * 100).toFixed(1);
 }
 
 function applyGiantKillerStyling(element, value) {
