@@ -267,6 +267,9 @@ def run_elo_pipeline(pipeline_config):
     # copy matches to data folder for docs
     shutil.copy(input_file, "./docs/data/matches.csv")
 
+    # copy elo_history to data folder for docs (extended match history)
+    shutil.copy(history_file, "./docs/data/elo_history.csv")
+
     print(f"{GREEN}Aktuelles Leaderboard geschrieben: {leaderboard_file}{RESET}")
 
     # --- Time series ---
