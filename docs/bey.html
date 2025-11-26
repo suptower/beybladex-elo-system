@@ -804,6 +804,15 @@ function getBeyEloHistory() {
     );
 }
 
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 // Create SVG sparkline
 function createSparkline(container, data, options = {}) {
     if (!data || data.length === 0) {
@@ -818,14 +827,31 @@ function createSparkline(container, data, options = {}) {
     const fillColor = options.fillColor || 'rgba(99, 102, 241, 0.1)';
     const invertY = options.invertY || false;
     
-    const values = data.map(d => parseFloat(d));
+    // Filter out invalid values and convert to numbers
+    const values = data.map(d => parseFloat(d)).filter(v => !isNaN(v) && isFinite(v));
+    
+    if (values.length === 0) {
+        container.innerHTML = '<span class="no-data-small">No valid data</span>';
+        return;
+    }
+    
+    if (values.length === 1) {
+        // Single data point - just show a dot
+        container.innerHTML = `
+            <svg viewBox="0 0 ${width} ${height}" class="sparkline-svg">
+                <circle cx="${width / 2}" cy="${height / 2}" r="4" fill="${strokeColor}"/>
+            </svg>
+        `;
+        return;
+    }
+    
     const min = Math.min(...values);
     const max = Math.max(...values);
     const range = max - min || 1;
     
     // Scale values to SVG coordinates
     const points = values.map((v, i) => {
-        const x = padding + (i / (values.length - 1 || 1)) * (width - 2 * padding);
+        const x = padding + (i / (values.length - 1)) * (width - 2 * padding);
         let y;
         if (invertY) {
             // For position (rank), lower is better, so invert
@@ -1064,11 +1090,11 @@ function renderHistorySection() {
     if (milestones.length > 0) {
         milestonesContainer.innerHTML = milestones.map(m => `
             <div class="milestone-card">
-                <div class="milestone-icon">${m.icon}</div>
+                <div class="milestone-icon">${escapeHtml(m.icon)}</div>
                 <div class="milestone-content">
-                    <div class="milestone-title">${m.title}</div>
-                    <div class="milestone-value">${m.value}</div>
-                    ${m.description ? `<div class="milestone-desc">${m.description}</div>` : ''}
+                    <div class="milestone-title">${escapeHtml(m.title)}</div>
+                    <div class="milestone-value">${escapeHtml(m.value)}</div>
+                    ${m.description ? `<div class="milestone-desc">${escapeHtml(m.description)}</div>` : ''}
                 </div>
             </div>
         `).join('');
@@ -1113,15 +1139,15 @@ function renderTimeline() {
                 return `
                     <div class="timeline-match ${isWinner ? 'win' : 'loss'}">
                         <span class="timeline-result">${isWinner ? 'W' : 'L'}</span>
-                        <span class="timeline-opponent">vs <a href="bey.html?name=${encodeURIComponent(opponent)}" class="opponent-link">${opponent}</a></span>
-                        <span class="timeline-score">${myScore}-${oppScore}</span>
+                        <span class="timeline-opponent">vs <a href="bey.html?name=${encodeURIComponent(opponent)}" class="opponent-link">${escapeHtml(opponent)}</a></span>
+                        <span class="timeline-score">${escapeHtml(myScore)}-${escapeHtml(oppScore)}</span>
                     </div>
                 `;
             }).join('');
             
             return `
                 <div class="timeline-day">
-                    <div class="timeline-date">${formatDate(date)}</div>
+                    <div class="timeline-date">${escapeHtml(formatDate(date))}</div>
                     <div class="timeline-matches">${matchItems}</div>
                 </div>
             `;
@@ -1257,8 +1283,8 @@ function renderSamePartsBeys(beys) {
     const container = document.getElementById('samePartsBeys');
     container.innerHTML = beys.map(({ bey, sharedParts }) => `
         <a href="bey.html?name=${encodeURIComponent(bey.blade)}" class="related-bey-card">
-            <div class="related-bey-name">${bey.blade}</div>
-            <div class="related-bey-shared">${sharedParts.join(', ')}</div>
+            <div class="related-bey-name">${escapeHtml(bey.blade)}</div>
+            <div class="related-bey-shared">${escapeHtml(sharedParts.join(', '))}</div>
         </a>
     `).join('');
 }
@@ -1272,10 +1298,10 @@ function renderFrequentOpponents(opponents) {
         return `
             <a href="bey.html?name=${encodeURIComponent(opp.name)}" class="frequent-opponent-card">
                 <div class="opponent-info">
-                    <span class="opponent-name">${opp.name}</span>
-                    <span class="opponent-record">${opp.wins}W - ${opp.losses}L</span>
+                    <span class="opponent-name">${escapeHtml(opp.name)}</span>
+                    <span class="opponent-record">${escapeHtml(opp.wins)}W - ${escapeHtml(opp.losses)}L</span>
                 </div>
-                <div class="opponent-winrate ${wrClass}">${winrate}%</div>
+                <div class="opponent-winrate ${wrClass}">${escapeHtml(winrate)}%</div>
             </a>
         `;
     }).join('');
@@ -1288,8 +1314,8 @@ function renderSimilarPerformanceBeys(beys) {
         const name = entry.Name || entry.Bey;
         return `
             <a href="bey.html?name=${encodeURIComponent(name)}" class="related-bey-card">
-                <div class="related-bey-name">${name}</div>
-                <div class="related-bey-elo">ELO: ${entry.ELO}</div>
+                <div class="related-bey-name">${escapeHtml(name)}</div>
+                <div class="related-bey-elo">ELO: ${escapeHtml(entry.ELO)}</div>
             </a>
         `;
     }).join('');
