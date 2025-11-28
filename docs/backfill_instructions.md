@@ -52,7 +52,7 @@ python scripts/filter_csv.py --date 2025-09-07 --output backfill_work/original_m
    match_id,round_number,winner,finish_type,points_awarded,notes
    M001,1,ViperTail,spin,1,
    M001,2,WizardArc,burst,2,
-   M001,3,ViperTail,ring_out,2,
+   M001,3,ViperTail,pocket,2,
    M001,4,ViperTail,spin,1,
    M002,1,TuskMammoth,spin,1,
    M002,2,TuskMammoth,burst,2,
@@ -235,7 +235,7 @@ By default, the tool prefers round-level data when there's a mismatch.
 
 ### "Invalid finish_type"
 
-Only these values are allowed: `spin`, `ring_out`, `pocket`, `burst`, `extreme`
+Only these values are allowed: `spin`, `pocket`, `burst`, `extreme`
 
 Check for typos or use the correct value.
 

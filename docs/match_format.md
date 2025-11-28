@@ -49,7 +49,7 @@ The extended JSON format adds optional round-level tracking:
       "round_number": 3,
       "winner": "ViperTail",
       "points_awarded": 2,
-      "finish_type": "ring_out",
+      "finish_type": "pocket",
       "notes": ""
     },
     {
@@ -70,8 +70,7 @@ The extended JSON format adds optional round-level tracking:
 | Finish Type | Default Points | Description |
 |-------------|----------------|-------------|
 | `spin` | 1 | Outspin finish - opponent stops spinning first |
-| `ring_out` | 2 | Ring out - opponent exits the stadium |
-| `pocket` | 2 | Pocket finish - opponent falls into a pocket (treated same as ring_out) |
+| `pocket` | 2 | Pocket finish - opponent falls into a pocket |
 | `burst` | 2 | Burst finish - opponent's beyblade bursts apart |
 | `extreme` | 3 | Extreme finish - special finish condition worth maximum points |
 
@@ -112,7 +111,7 @@ The extended JSON format adds optional round-level tracking:
 ## Validation Rules
 
 1. `winner` in each round must match either `bey_a` or `bey_b`
-2. `finish_type` must be one of: `spin`, `ring_out`, `pocket`, `burst`, `extreme`
+2. `finish_type` must be one of: `spin`, `pocket`, `burst`, `extreme`
 3. `points_awarded` must be a positive integer
 4. If both `score_a`/`score_b` and `rounds` are provided, they should be consistent
 

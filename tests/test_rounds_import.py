@@ -32,10 +32,6 @@ class TestValidFinishTypes:
         """spin should be a valid finish type."""
         assert "spin" in VALID_FINISH_TYPES
 
-    def test_valid_finish_types_contains_ring_out(self):
-        """ring_out should be a valid finish type."""
-        assert "ring_out" in VALID_FINISH_TYPES
-
     def test_valid_finish_types_contains_pocket(self):
         """pocket should be a valid finish type."""
         assert "pocket" in VALID_FINISH_TYPES
@@ -66,7 +62,6 @@ class TestLoadFinishWeights:
         """Should have correct default weight values."""
         weights = load_finish_weights()
         assert weights.get("spin") == 1
-        assert weights.get("ring_out") == 2
         assert weights.get("pocket") == 2
         assert weights.get("burst") == 2
         assert weights.get("extreme") == 3
@@ -167,7 +162,7 @@ class TestLoadRoundsCsv:
             f.write("match_id,round_number,winner,finish_type,points_awarded,notes\n")
             f.write("M001,3,ViperTail,spin,1,\n")
             f.write("M001,1,WizardArc,burst,2,\n")
-            f.write("M001,2,ViperTail,ring_out,2,\n")
+            f.write("M001,2,ViperTail,pocket,2,\n")
             f.flush()
 
             rounds = load_rounds_csv(f.name)
@@ -222,7 +217,7 @@ class TestMergeMatchesAndRounds:
             "M001": [
                 {"round_number": 1, "winner": "BeyA", "points_awarded": 1, "finish_type": "spin", "notes": ""},
                 {"round_number": 2, "winner": "BeyB", "points_awarded": 2, "finish_type": "burst", "notes": ""},
-                {"round_number": 3, "winner": "BeyA", "points_awarded": 2, "finish_type": "ring_out", "notes": ""},
+                {"round_number": 3, "winner": "BeyA", "points_awarded": 2, "finish_type": "pocket", "notes": ""},
             ]
         }
 
@@ -301,7 +296,7 @@ class TestValidateMergedData:
                         "rounds": [
                             {"round_number": 1, "winner": "BeyA", "points_awarded": 1, "finish_type": "spin"},
                             {"round_number": 2, "winner": "BeyB", "points_awarded": 2, "finish_type": "burst"},
-                            {"round_number": 3, "winner": "BeyA", "points_awarded": 2, "finish_type": "ring_out"},
+                            {"round_number": 3, "winner": "BeyA", "points_awarded": 2, "finish_type": "pocket"},
                         ]
                     }
                 ]
@@ -370,7 +365,7 @@ class TestWeightedScoring:
 
         # Verify weights are as expected
         assert weights["spin"] == 1
-        assert weights["ring_out"] == 2
+        assert weights["pocket"] == 2
         assert weights["burst"] == 2
         assert weights["extreme"] == 3
 

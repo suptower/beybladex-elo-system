@@ -22,7 +22,7 @@ from typing import Optional
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Valid finish types
-VALID_FINISH_TYPES = {"spin", "ring_out", "pocket", "burst", "extreme"}
+VALID_FINISH_TYPES = {"spin", "pocket", "burst", "extreme"}
 DEFAULT_FINISH_TYPE = "spin"
 
 # Default weights path
@@ -43,7 +43,6 @@ def load_finish_weights(weights_path: Optional[str] = None) -> dict:
     # Default weights if config not found
     return {
         "spin": 1,
-        "ring_out": 2,
         "pocket": 2,
         "burst": 2,
         "extreme": 3

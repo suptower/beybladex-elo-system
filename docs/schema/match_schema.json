@@ -56,9 +56,9 @@
           },
           "finish_type": {
             "type": "string",
-            "enum": ["spin", "ring_out", "pocket", "burst", "extreme"],
+            "enum": ["spin", "pocket", "burst", "extreme"],
             "default": "spin",
-            "description": "Type of finish: spin (outspin), ring_out/pocket (ring out or pocket), burst, or extreme"
+            "description": "Type of finish: spin (outspin), pocket, burst, or extreme"
           },
           "notes": {
             "type": "string",
@@ -79,8 +79,8 @@
   "definitions": {
     "finish_type": {
       "type": "string",
-      "enum": ["spin", "ring_out", "pocket", "burst", "extreme"],
-      "description": "Allowed finish types: spin (1pt default), ring_out/pocket (2pt), burst (2pt), extreme (3pt)"
+      "enum": ["spin", "pocket", "burst", "extreme"],
+      "description": "Allowed finish types: spin (1pt default), pocket (2pt), burst (2pt), extreme (3pt)"
     }
   }
 }

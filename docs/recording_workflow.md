@@ -27,7 +27,7 @@ Create a Google Sheet or CSV file with these columns:
 | `match_id` | Challonge match ID or custom identifier | Yes |
 | `round_number` | Sequential round number within match | Yes |
 | `winner` | Name of the round winner | Yes |
-| `finish_type` | Type of finish (spin, ring_out, pocket, burst, extreme) | No (defaults to spin) |
+| `finish_type` | Type of finish (spin, pocket, burst, extreme) | No (defaults to spin) |
 | `points_awarded` | Points won this round | Yes |
 | `notes` | Any additional observations | No |
 
@@ -53,14 +53,14 @@ Example entry:
 match_id,round_number,winner,finish_type,points_awarded,notes
 M001,1,ViperTail,spin,1,Close outspin
 M001,2,WizardArc,burst,2,Quick burst finish
-M001,3,ViperTail,ring_out,2,Stadium KO
+M001,3,ViperTail,pocket,2,Stadium KO
 M001,4,ViperTail,spin,1,Final outspin
 ```
 
 ### Tips for Efficient Recording
 
 - **Assign dedicated scorekeepers** for rounds tracking
-- **Use shorthand codes** if needed (s=spin, r=ring_out, b=burst, e=extreme)
+- **Use shorthand codes** if needed (s=spin, p=pocket, b=burst, e=extreme)
 - **Record notes** for unusual situations or close calls
 - **Mark uncertain finish types** in notes column for later review
 
