@@ -13,9 +13,9 @@ The Beyblade Elo system supports two match data formats:
 The existing CSV format remains fully supported:
 
 ```csv
-Date,BeyA,BeyB,ScoreA,ScoreB
-2025-09-07,ViperTail,WizardArc,4,2
-2025-09-07,SamuraiSaber,TuskMammoth,2,4
+MatchID,Date,BeyA,BeyB,ScoreA,ScoreB
+M0001,2025-09-07,ViperTail,WizardArc,4,2
+M0002,2025-09-07,SamuraiSaber,TuskMammoth,2,4
 ```
 
 ## Extended Match Format (JSON)
@@ -122,6 +122,6 @@ The full JSON Schema is available at: `docs/schema/match_schema.json`
 ## Backward Compatibility
 
 All existing functionality is preserved:
-- CSV files with simple `Date,BeyA,BeyB,ScoreA,ScoreB` format continue to work
+- CSV files with `MatchID,Date,BeyA,BeyB,ScoreA,ScoreB` format continue to work
 - Matches without `rounds` array are processed using existing logic
 - The Elo calculation algorithm remains unchanged unless weighted scoring is explicitly enabled

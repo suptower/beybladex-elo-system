@@ -55,7 +55,7 @@ def load_challonge_csv(filepath: str) -> list[dict]:
 
     Supports both Challonge export format and internal CSV format:
     - Challonge: Various column names for players and scores
-    - Internal: Date,BeyA,BeyB,ScoreA,ScoreB
+    - Internal: MatchID,Date,BeyA,BeyB,ScoreA,ScoreB
     """
     matches = []
     with open(filepath, "r", encoding="utf-8") as f:
@@ -73,7 +73,7 @@ def load_challonge_csv(filepath: str) -> list[dict]:
                     "bey_b": row.get("BeyB", ""),
                     "score_a": int(row.get("ScoreA", 0)),
                     "score_b": int(row.get("ScoreB", 0)),
-                    "match_id": row.get("match_id", ""),
+                    "match_id": row.get("MatchID", row.get("match_id", "")),
                 }
             else:
                 # Challonge format - adapt as needed
@@ -83,7 +83,7 @@ def load_challonge_csv(filepath: str) -> list[dict]:
                     "bey_b": row.get("Player 2", row.get("player2", row.get("BeyB", ""))),
                     "score_a": int(row.get("Player 1 Score", row.get("score1", row.get("ScoreA", 0))) or 0),
                     "score_b": int(row.get("Player 2 Score", row.get("score2", row.get("ScoreB", 0))) or 0),
-                    "match_id": row.get("Match ID", row.get("match_id", row.get("id", ""))),
+                    "match_id": row.get("Match ID", row.get("MatchID", row.get("match_id", row.get("id", "")))),
                 }
 
             # Generate match_id if not present

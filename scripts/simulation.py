@@ -203,7 +203,7 @@ def simulate_round_robin(participants, elos, start_date, verbose=True):
     return matches
 
 
-def save_matches(matches, output_file, append=False):
+def save_matches(matches, output_file, append=False, start_id=1):
     """Save simulated matches to CSV file"""
     mode = "a" if append else "w"
 
@@ -211,10 +211,11 @@ def save_matches(matches, output_file, append=False):
         writer = csv.writer(f)
 
         if not append:
-            writer.writerow(["Date", "BeyA", "BeyB", "ScoreA", "ScoreB"])
+            writer.writerow(["MatchID", "Date", "BeyA", "BeyB", "ScoreA", "ScoreB"])
 
-        for match in matches:
-            writer.writerow(match)
+        for i, match in enumerate(matches, start=start_id):
+            match_id = f"SIM{i:04d}"
+            writer.writerow([match_id] + list(match))
 
     print(f"{GREEN}Matches saved to {output_file}{RESET}")
 

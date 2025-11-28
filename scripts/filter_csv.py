@@ -11,9 +11,9 @@ FILTER_DATE = None           # Das Datum, nach dem du filtern willst (Format: YY
 def main():
     # CSV laden
     df = pd.read_csv(INPUT_CSV)
-    
+
     df_filtered = pd.DataFrame()
-    
+
     if FILTER_DATE:
         # Filtern nach Datum
         df_filtered = df[df['Date'] == FILTER_DATE]
