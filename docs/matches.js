@@ -60,22 +60,23 @@ async function loadMatches() {
         
         const lines = text.trim().split('\n');
         const headers = lines[0].split(',');
+        console.log(headers);
         
         allMatches = lines.slice(1).map((line, index) => {
             const values = line.split(',');
-            const scoreA = parseInt(values[3]);
-            const scoreB = parseInt(values[4]);
-            const preA = parseFloat(values[5]);
-            const preB = parseFloat(values[6]);
-            const postA = parseFloat(values[7]);
-            const postB = parseFloat(values[8]);
+            const scoreA = parseInt(values[4]);
+            const scoreB = parseInt(values[5]);
+            const preA = parseFloat(values[6]);
+            const preB = parseFloat(values[7]);
+            const postA = parseFloat(values[8]);
+            const postB = parseFloat(values[9]);
             
             return {
                 id: index,
-                date: values[0],
-                dateFormatted: formatDate(values[0]),
-                beyA: values[1],
-                beyB: values[2],
+                date: values[1],
+                dateFormatted: formatDate(values[1]),
+                beyA: values[2],
+                beyB: values[3],
                 scoreA: scoreA,
                 scoreB: scoreB,
                 preEloA: Math.round(preA),
@@ -85,7 +86,7 @@ async function loadMatches() {
                 eloChangeA: Math.round(postA - preA),
                 eloChangeB: Math.round(postB - preB),
                 eloDiff: Math.round(Math.abs(preA - preB)),
-                winner: scoreA > scoreB ? values[1] : values[2]
+                winner: scoreA > scoreB ? values[2] : values[3]
             };
         });
         

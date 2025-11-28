@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/suptower/beybladex-elo-system/docs/schema/match_schema.json",
+  "title": "Beyblade Match Schema",
+  "description": "Schema for Beyblade match data with optional per-round finish type tracking",
+  "type": "object",
+  "required": ["date", "bey_a", "bey_b"],
+  "properties": {
+    "match_id": {
+      "type": "string",
+      "description": "Unique identifier for the match"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Match date in ISO 8601 format (YYYY-MM-DD)"
+    },
+    "bey_a": {
+      "type": "string",
+      "description": "Name of the first beyblade/player"
+    },
+    "bey_b": {
+      "type": "string",
+      "description": "Name of the second beyblade/player"
+    },
+    "score_a": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Final score for bey_a (can be computed from rounds if not provided)"
+    },
+    "score_b": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Final score for bey_b (can be computed from rounds if not provided)"
+    },
+    "rounds": {
+      "type": "array",
+      "description": "Optional array of round-level data for detailed match tracking",
+      "items": {
+        "type": "object",
+        "required": ["winner", "points_awarded"],
+        "properties": {
+          "round_number": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Sequential round number within the match"
+          },
+          "winner": {
+            "type": "string",
+            "description": "Name of the round winner (must match bey_a or bey_b)"
+          },
+          "points_awarded": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Points awarded for winning this round"
+          },
+          "finish_type": {
+            "type": "string",
+            "enum": ["spin", "pocket", "burst", "extreme"],
+            "default": "spin",
+            "description": "Type of finish: spin (outspin), pocket, burst, or extreme"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Optional notes about the round"
+          }
+        }
+      }
+    },
+    "tournament_id": {
+      "type": "string",
+      "description": "Optional tournament identifier"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes about the match"
+    }
+  },
+  "definitions": {
+    "finish_type": {
+      "type": "string",
+      "enum": ["spin", "pocket", "burst", "extreme"],
+      "description": "Allowed finish types: spin (1pt default), pocket (2pt), burst (2pt), extreme (3pt)"
+    }
+  }
+}
