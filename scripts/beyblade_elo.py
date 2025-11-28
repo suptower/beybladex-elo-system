@@ -72,7 +72,7 @@ def expected(a, b):
 # ------------- Elo update for ONE MATCH -------------
 
 
-def update_elo(a, b, sa, sb, date, elos, stats, writer=None):
+def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None):
     ra, rb = elos[a], elos[b]
     ea, eb = expected(ra, rb), expected(rb, ra)
 
@@ -90,7 +90,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None):
 
     # Nur schreiben, wenn writer vorhanden
     if writer is not None:
-        writer.writerow([date, a, b, sa, sb, round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2)])
+        writer.writerow([match_id, date, a, b, sa, sb, round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2)])
 
     stats[a]["for"] += sa
     stats[a]["against"] += sb
@@ -144,14 +144,15 @@ def run_elo_pipeline(pipeline_config):
 
         reader = csv.DictReader(f_in)
         writer = csv.writer(f_hist)
-        writer.writerow(["Date", "BeyA", "BeyB", "ScoreA", "ScoreB", "PreA", "PreB", "PostA", "PostB"])
+        writer.writerow(["MatchID", "Date", "BeyA", "BeyB", "ScoreA", "ScoreB", "PreA", "PreB", "PostA", "PostB"])
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
         for m in matches:
             update_elo(
                 m["BeyA"], m["BeyB"],
                 int(m["ScoreA"]), int(m["ScoreB"]),
-                m["Date"], elos, stats, writer
+                m["Date"], elos, stats, writer,
+                m.get("MatchID", "")
             )
 
         calculate_winrates(stats)
@@ -185,7 +186,8 @@ def run_elo_pipeline(pipeline_config):
             update_elo(
                 m["BeyA"], m["BeyB"],
                 int(m["ScoreA"]), int(m["ScoreB"]),
-                m["Date"], temp_elos, temp_stats
+                m["Date"], temp_elos, temp_stats,
+                match_id=m.get("MatchID", "")
             )
 
         calculate_winrates(temp_stats)
