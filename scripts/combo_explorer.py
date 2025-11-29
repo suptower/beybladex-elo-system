@@ -202,7 +202,7 @@ def find_beys_with_combo(
     matching_beys = []
     for bey in beys_data:
         if (bey.get("blade") == blade
-            and bey.get("ratchet") == ratchet
+                and bey.get("ratchet") == ratchet
                 and bey.get("bit") == bit):
             matching_beys.append({
                 "name": bey.get("name", ""),
@@ -270,8 +270,9 @@ def generate_combo_data() -> dict:
         combo_synergy = calculate_combo_synergy(blade, ratchet, bit, synergy_lookup)
 
         # Get performance data from RPG stats and leaderboard
-        # Use normalized blade name for lookup
-        bey_lookup_name = blade  # Default to blade name
+        # Blade name corresponds to bey name in leaderboard data
+        # (e.g., "FoxBrush" in advanced_leaderboard.csv)
+        bey_lookup_name = blade
         rpg = rpg_stats.get(bey_lookup_name, {})
         lb = adv_leaderboard.get(bey_lookup_name, {})
 

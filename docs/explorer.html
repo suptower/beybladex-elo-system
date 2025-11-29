@@ -197,7 +197,10 @@ async function loadComboData() {
 
 // Apply filters and render results
 function applyFilters() {
-    if (!comboData || !comboData.combos) return;
+    if (!comboData || !comboData.combos) {
+        console.warn('applyFilters called but comboData is missing or has no combos property');
+        return;
+    }
     
     const searchTerm = document.getElementById('search-input').value.toLowerCase();
     const bladeType = document.getElementById('blade-type-filter').value;
