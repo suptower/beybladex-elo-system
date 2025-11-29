@@ -645,7 +645,7 @@ function renderRpgStats() {
         }
     };
     
-    // Create stat bars for each stat
+    // Create stat tiles for each stat
     const stats = rpgStatsData.stats;
     const subMetrics = rpgStatsData.sub_metrics;
     
@@ -653,7 +653,9 @@ function renderRpgStats() {
         const value = stats[statKey];
         if (value === undefined || value === null) return;
         
-        const percentage = (value / 5.0) * 100;
+        // Calculate full tiles and partial fill
+        const fullTiles = Math.floor(value);
+        const partialFill = (value - fullTiles) * 100; // Percentage for partial tile
         
         // Build sub-metrics tooltip content
         let tooltipContent = '';
@@ -673,6 +675,33 @@ function renderRpgStats() {
                 }).join('');
         }
         
+        // Generate 5 tiles
+        let tilesHtml = '';
+        for (let i = 0; i < 5; i++) {
+            let tileClass = statKey;
+            let fillWidth = 0;
+            
+            if (i < fullTiles) {
+                // Full tile
+                tileClass += ' filled';
+                fillWidth = 100;
+            } else if (i === fullTiles && partialFill > 0) {
+                // Partial tile
+                tileClass += ' partial';
+                fillWidth = partialFill;
+            } else {
+                // Empty tile
+                tileClass += ' empty';
+                fillWidth = 0;
+            }
+            
+            tilesHtml += `
+                <div class="rpg-stat-tile ${tileClass}">
+                    <div class="rpg-stat-tile-fill" data-target="${fillWidth}"></div>
+                </div>
+            `;
+        }
+        
         const statRow = document.createElement('div');
         statRow.className = 'rpg-stat-row';
         statRow.innerHTML = `
@@ -687,15 +716,8 @@ function renderRpgStats() {
                 ` : ''}
             </div>
             <div class="rpg-stat-bar-container">
-                <div class="rpg-stat-bar">
-                    <div class="rpg-stat-bar-segments">
-                        <div class="rpg-stat-bar-segment"></div>
-                        <div class="rpg-stat-bar-segment"></div>
-                        <div class="rpg-stat-bar-segment"></div>
-                        <div class="rpg-stat-bar-segment"></div>
-                        <div class="rpg-stat-bar-segment"></div>
-                    </div>
-                    <div class="rpg-stat-bar-fill ${statKey}" style="width: 0%;" data-target="${percentage}"></div>
+                <div class="rpg-stat-tiles">
+                    ${tilesHtml}
                 </div>
                 <span class="rpg-stat-value">${value.toFixed(1)}</span>
             </div>
@@ -703,11 +725,11 @@ function renderRpgStats() {
         rpgStatsContainer.appendChild(statRow);
     });
     
-    // Animate stat bars after a short delay
+    // Animate tile fills after a short delay
     setTimeout(() => {
-        document.querySelectorAll('.rpg-stat-bar-fill').forEach(bar => {
-            const targetWidth = bar.getAttribute('data-target');
-            bar.style.width = targetWidth + '%';
+        document.querySelectorAll('.rpg-stat-tile-fill').forEach(fill => {
+            const targetWidth = fill.getAttribute('data-target');
+            fill.style.width = targetWidth + '%';
         });
     }, 100);
 }

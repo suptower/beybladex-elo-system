@@ -4107,7 +4107,7 @@ body.dark .win-probability {
 }
 
 /* ============================================
-   RPG STAT BARS
+   RPG STAT BARS - Parallelogram Tile Design
 ============================================ */
 .rpg-stats-section {
     margin-bottom: 2rem;
@@ -4152,26 +4152,38 @@ body.dark .win-probability {
     gap: 0.75rem;
 }
 
-.rpg-stat-bar {
+/* Tile container for parallelogram tiles */
+.rpg-stat-tiles {
+    display: flex;
+    gap: 4px;
     flex: 1;
-    height: 12px;
+}
+
+/* Individual parallelogram tile */
+.rpg-stat-tile {
+    width: 40px;
+    height: 20px;
+    position: relative;
+    transform: skewX(-12deg);
+    border: 2px solid var(--border);
+    border-radius: 3px;
     background: var(--bg);
-    border-radius: 6px;
     overflow: hidden;
-    position: relative;
-    border: 1px solid var(--border);
+    transition: border-color 0.3s ease;
 }
 
-.rpg-stat-bar-fill {
+/* Tile fill for full and partial values */
+.rpg-stat-tile-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
     height: 100%;
-    border-radius: 5px;
-    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
+    width: 0%;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Stat bar fill animation shimmer effect */
-.rpg-stat-bar-fill::after {
+/* Shimmer animation for filled tiles */
+.rpg-stat-tile-fill::after {
     content: '';
     position: absolute;
     top: 0;
@@ -4181,13 +4193,13 @@ body.dark .win-probability {
     background: linear-gradient(
         90deg,
         transparent,
-        rgba(255, 255, 255, 0.2),
+        rgba(255, 255, 255, 0.3),
         transparent
     );
-    animation: shimmer 2s infinite;
+    animation: tileShimmer 2s infinite;
 }
 
-@keyframes shimmer {
+@keyframes tileShimmer {
     0% {
         left: -100%;
     }
@@ -4196,25 +4208,55 @@ body.dark .win-probability {
     }
 }
 
-/* Stat bar colors for each stat type */
-.rpg-stat-bar-fill.attack {
+/* Stat tile colors for each stat type */
+.rpg-stat-tile.attack .rpg-stat-tile-fill {
     background: linear-gradient(90deg, #ef4444, #f87171);
 }
 
-.rpg-stat-bar-fill.defense {
+.rpg-stat-tile.attack.filled,
+.rpg-stat-tile.attack.partial {
+    border-color: #ef4444;
+}
+
+.rpg-stat-tile.defense .rpg-stat-tile-fill {
     background: linear-gradient(90deg, #3b82f6, #60a5fa);
 }
 
-.rpg-stat-bar-fill.stamina {
+.rpg-stat-tile.defense.filled,
+.rpg-stat-tile.defense.partial {
+    border-color: #3b82f6;
+}
+
+.rpg-stat-tile.stamina .rpg-stat-tile-fill {
     background: linear-gradient(90deg, #10b981, #34d399);
 }
 
-.rpg-stat-bar-fill.control {
+.rpg-stat-tile.stamina.filled,
+.rpg-stat-tile.stamina.partial {
+    border-color: #10b981;
+}
+
+.rpg-stat-tile.control .rpg-stat-tile-fill {
     background: linear-gradient(90deg, #f59e0b, #fbbf24);
 }
 
-.rpg-stat-bar-fill.meta_impact {
+.rpg-stat-tile.control.filled,
+.rpg-stat-tile.control.partial {
+    border-color: #f59e0b;
+}
+
+.rpg-stat-tile.meta_impact .rpg-stat-tile-fill {
     background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+}
+
+.rpg-stat-tile.meta_impact.filled,
+.rpg-stat-tile.meta_impact.partial {
+    border-color: #8b5cf6;
+}
+
+/* Empty tile styling */
+.rpg-stat-tile.empty {
+    opacity: 0.5;
 }
 
 .rpg-stat-value {
@@ -4223,26 +4265,6 @@ body.dark .win-probability {
     font-size: 0.9375rem;
     color: var(--text);
     text-align: right;
-}
-
-/* Stat bar segments for 1-5 scale visualization */
-.rpg-stat-bar-segments {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    pointer-events: none;
-}
-
-.rpg-stat-bar-segment {
-    flex: 1;
-    border-right: 1px solid var(--border);
-}
-
-.rpg-stat-bar-segment:last-child {
-    border-right: none;
 }
 
 /* RPG Stats Tooltip */
@@ -4338,5 +4360,21 @@ body.dark .win-probability {
     
     .rpg-stat-bar-container {
         width: 100%;
+    }
+    
+    .rpg-stat-tile {
+        width: 32px;
+        height: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rpg-stat-tiles {
+        gap: 3px;
+    }
+    
+    .rpg-stat-tile {
+        width: 28px;
+        height: 14px;
     }
 }
