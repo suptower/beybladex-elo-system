@@ -81,6 +81,14 @@
                 </div>
             </div>
             
+            <!-- RPG Stats Section -->
+            <details class="profile-section-details" id="rpgStatsSection" style="display: none;" open>
+                <summary class="section-summary">⚔️ Skill Bars</summary>
+                <div id="rpgStatsContainer" class="rpg-stats-container">
+                    <!-- RPG stat bars will be dynamically added -->
+                </div>
+            </details>
+            
             <!-- Stats Section (collapsible) -->
             <details class="profile-section-details" open>
                 <summary class="section-summary">📊 Statistics</summary>
@@ -218,6 +226,7 @@ let positionTimeseriesData = [];
 let allBeysData = [];
 let allLeaderboardData = [];
 let allEloHistoryData = [];
+let rpgStatsData = null;
 
 // Helper function to normalize bey names for comparison
 function normalizeBeyName(name) {
@@ -369,6 +378,23 @@ async function loadData() {
             allEloHistoryData = [];
         }
         
+        // Load RPG stats data
+        try {
+            const rpgStatsResponse = await fetch('data/rpg_stats.json');
+            const allRpgStats = await rpgStatsResponse.json();
+            // Find RPG stats for this bey
+            const normalizedName = normalizeBeyName(beyName);
+            rpgStatsData = Object.entries(allRpgStats).find(([name, _]) => 
+                normalizeBeyName(name) === normalizedName
+            );
+            if (rpgStatsData) {
+                rpgStatsData = { name: rpgStatsData[0], ...rpgStatsData[1] };
+            }
+        } catch (e) {
+            console.warn('Could not load RPG stats data:', e);
+            rpgStatsData = null;
+        }
+        
         // Render the profile
         renderProfile();
     } catch (error) {
@@ -428,6 +454,9 @@ function renderProfile() {
     
     // Render key stats (ELO and Power Index)
     renderKeyStats();
+    
+    // Render RPG stats (skill bars)
+    renderRpgStats();
     
     // Render stats
     renderStats();
@@ -557,6 +586,128 @@ function getPowerIndexClass(pwr) {
     if (pwr >= 40) return 'trend-neutral';
     if (pwr >= 20) return 'trend-negative';
     return 'trend-very-negative';
+}
+
+// Render RPG Stats (Skill Bars)
+function renderRpgStats() {
+    const rpgStatsSection = document.getElementById('rpgStatsSection');
+    const rpgStatsContainer = document.getElementById('rpgStatsContainer');
+    rpgStatsContainer.innerHTML = '';
+    
+    if (!rpgStatsData || !rpgStatsData.stats) {
+        rpgStatsSection.style.display = 'none';
+        return;
+    }
+    
+    // Show the section
+    rpgStatsSection.style.display = 'block';
+    
+    // Define stat configurations with icons and display names
+    const statConfig = {
+        attack: { icon: '⚔️', name: 'Attack', desc: 'Offensive pressure and high-impact scoring' },
+        defense: { icon: '🛡️', name: 'Defense', desc: 'Ability to resist high-impact losses' },
+        stamina: { icon: '💪', name: 'Stamina', desc: 'Endurance and spin finish performance' },
+        control: { icon: '🎯', name: 'Control', desc: 'Consistency and match flow stability' },
+        meta_impact: { icon: '⭐', name: 'Meta', desc: 'Competitive relevance and meta influence' }
+    };
+    
+    // Sub-metric display names for tooltips
+    const subMetricNames = {
+        attack: {
+            burst_finish_rate: 'Burst Finish Rate',
+            pocket_finish_rate: 'Pocket Finish Rate',
+            extreme_finish_rate: 'Extreme Finish Rate',
+            offensive_point_efficiency: 'Point Efficiency',
+            opening_dominance: 'Opening Dominance'
+        },
+        defense: {
+            burst_resistance: 'Burst Resistance',
+            pocket_resistance: 'Pocket Resistance',
+            extreme_resistance: 'Extreme Resistance',
+            defensive_conversion: 'Defensive Conversion'
+        },
+        stamina: {
+            spin_finish_win_rate: 'Spin Win Rate',
+            spin_differential_index: 'Spin Differential',
+            long_round_win_rate: 'Long Match Win Rate'
+        },
+        control: {
+            volatility_inverse: 'Consistency',
+            first_contact_advantage: 'First Contact Advantage',
+            match_flow_stability: 'Match Flow Stability'
+        },
+        meta_impact: {
+            elo_normalized: 'Normalized ELO',
+            elo_per_match: 'ELO per Match',
+            upset_rate: 'Upset Rate',
+            matchup_spread: 'Matchup Spread',
+            anti_meta_score: 'Anti-Meta Score'
+        }
+    };
+    
+    // Create stat bars for each stat
+    const stats = rpgStatsData.stats;
+    const subMetrics = rpgStatsData.sub_metrics;
+    
+    Object.entries(statConfig).forEach(([statKey, config]) => {
+        const value = stats[statKey];
+        if (value === undefined || value === null) return;
+        
+        const percentage = (value / 5.0) * 100;
+        
+        // Build sub-metrics tooltip content
+        let tooltipContent = '';
+        if (subMetrics && subMetrics[statKey]) {
+            const metricNames = subMetricNames[statKey] || {};
+            tooltipContent = Object.entries(subMetrics[statKey])
+                .map(([key, val]) => {
+                    const displayName = metricNames[key] || key;
+                    const displayVal = typeof val === 'number' ? 
+                        (val < 1 ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
+                    return `<div class="rpg-stat-tooltip-metric">
+                        <span class="rpg-stat-tooltip-metric-name">${escapeHtml(displayName)}</span>
+                        <span class="rpg-stat-tooltip-metric-value">${escapeHtml(displayVal)}</span>
+                    </div>`;
+                }).join('');
+        }
+        
+        const statRow = document.createElement('div');
+        statRow.className = 'rpg-stat-row';
+        statRow.innerHTML = `
+            <div class="rpg-stat-label rpg-stat-tooltip" tabindex="0">
+                <span class="rpg-stat-label-icon">${config.icon}</span>
+                <span>${config.name}</span>
+                ${tooltipContent ? `
+                    <div class="rpg-stat-tooltip-content">
+                        <div class="rpg-stat-tooltip-title">${config.name} - ${config.desc}</div>
+                        ${tooltipContent}
+                    </div>
+                ` : ''}
+            </div>
+            <div class="rpg-stat-bar-container">
+                <div class="rpg-stat-bar">
+                    <div class="rpg-stat-bar-segments">
+                        <div class="rpg-stat-bar-segment"></div>
+                        <div class="rpg-stat-bar-segment"></div>
+                        <div class="rpg-stat-bar-segment"></div>
+                        <div class="rpg-stat-bar-segment"></div>
+                        <div class="rpg-stat-bar-segment"></div>
+                    </div>
+                    <div class="rpg-stat-bar-fill ${statKey}" style="width: 0%;" data-target="${percentage}"></div>
+                </div>
+                <span class="rpg-stat-value">${value.toFixed(1)}</span>
+            </div>
+        `;
+        rpgStatsContainer.appendChild(statRow);
+    });
+    
+    // Animate stat bars after a short delay
+    setTimeout(() => {
+        document.querySelectorAll('.rpg-stat-bar-fill').forEach(bar => {
+            const targetWidth = bar.getAttribute('data-target');
+            bar.style.width = targetWidth + '%';
+        });
+    }, 100);
 }
 
 // Render statistics
