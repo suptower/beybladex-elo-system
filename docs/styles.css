@@ -4196,7 +4196,7 @@ body.dark .win-probability {
         rgba(255, 255, 255, 0.3),
         transparent
     );
-    animation: tileShimmer 2s infinite;
+    animation: tileShimmer 2s ease-in-out infinite alternate;
 }
 
 @keyframes tileShimmer {
