@@ -436,6 +436,305 @@ def create_meta_landscape_interactive(df: pd.DataFrame, output_file: str, dark_m
     print(f"Meta Landscape (interactive) saved to: {output_file}")
 
 
+def create_meta_landscape_interactive_with_toggle(df: pd.DataFrame, output_file: str):
+    """
+    Create an interactive Meta Landscape Plot with built-in dark/light mode toggle.
+
+    This creates a single HTML file that includes a theme toggle button,
+    allowing users to switch between light and dark modes dynamically.
+
+    Args:
+        df: DataFrame with meta landscape data
+        output_file: Path to save the HTML file
+    """
+    # Normalize sizes for better visualization
+    min_marker_size = 10
+    max_marker_size = 40
+    if df["matches"].max() > df["matches"].min():
+        marker_sizes = list(min_marker_size + (df["matches"] - df["matches"].min()) / (
+            df["matches"].max() - df["matches"].min()
+        ) * (max_marker_size - min_marker_size))
+    else:
+        marker_sizes = [25] * len(df)
+
+    # Create hover text
+    hover_text = [
+        f"<b>{row['bey']}</b><br>"
+        f"Rank: #{row['rank']}<br>"
+        f"ELO: {row['elo']}<br>"
+        f"Winrate: {row['winrate']:.1f}%<br>"
+        f"Matches: {row['matches']}<br>"
+        f"<br>"
+        f"Offense: {row['offense']:.2f}<br>"
+        f"Defense: {row['defense']:.2f}<br>"
+        f"<br>"
+        f"<i>Click for Bey profile</i>"
+        for _, row in df.iterrows()
+    ]
+
+    # Prepare data as JSON-serializable lists
+    x_data = df["offense"].tolist()
+    y_data = df["defense"].tolist()
+    text_data = df["bey"].tolist()
+    elo_data = df["elo"].tolist()
+
+    # Create HTML with embedded JavaScript for theme toggle
+    html_content = f'''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Landscape - Beyblade X</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }}
+        body.light {{
+            background-color: #ffffff;
+            color: #1a1a1a;
+        }}
+        body.dark {{
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }}
+        .header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+        }}
+        .header h1 {{
+            margin: 0;
+            font-size: 1.5em;
+        }}
+        .theme-toggle {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        .theme-toggle label {{
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }}
+        body.light .theme-toggle label {{
+            background-color: #e5e7eb;
+        }}
+        body.dark .theme-toggle label {{
+            background-color: #334155;
+        }}
+        .theme-toggle input {{
+            display: none;
+        }}
+        .theme-icon {{
+            font-size: 1.2em;
+        }}
+        .back-link {{
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }}
+        body.light .back-link {{
+            color: #1a1a1a;
+            background-color: #e5e7eb;
+        }}
+        body.dark .back-link {{
+            color: #f1f5f9;
+            background-color: #334155;
+        }}
+        .back-link:hover {{
+            opacity: 0.8;
+        }}
+        #plotDiv {{
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }}
+    </style>
+</head>
+<body class="light">
+    <div class="header">
+        <a href="../plots.html" class="back-link">← Back to Plots</a>
+        <h1>🗺️ Meta Landscape</h1>
+        <div class="theme-toggle">
+            <label>
+                <input type="checkbox" id="themeToggle">
+                <span class="theme-icon" id="themeIcon">🌙</span>
+                <span id="themeLabel">Dark Mode</span>
+            </label>
+        </div>
+    </div>
+    <div id="plotDiv"></div>
+
+    <script>
+        // Data
+        const xData = {x_data};
+        const yData = {y_data};
+        const textData = {json.dumps(text_data)};
+        const eloData = {elo_data};
+        const markerSizes = {marker_sizes};
+        const hoverText = {json.dumps(hover_text)};
+
+        // Light mode layout
+        const lightLayout = {{
+            title: {{
+                text: 'Meta Landscape: Offense vs Defense Map',
+                font: {{ size: 18, color: '#1a1a1a' }}
+            }},
+            xaxis: {{
+                title: 'Offense Score →',
+                range: [-0.2, 5.2],
+                gridcolor: 'rgba(128,128,128,0.2)',
+                color: '#1a1a1a'
+            }},
+            yaxis: {{
+                title: 'Defense Score →',
+                range: [-0.2, 5.2],
+                gridcolor: 'rgba(128,128,128,0.2)',
+                color: '#1a1a1a'
+            }},
+            paper_bgcolor: '#ffffff',
+            plot_bgcolor: '#ffffff',
+            hovermode: 'closest',
+            width: 1000,
+            height: 800,
+            shapes: [
+                {{ type: 'line', x0: -0.2, x1: 5.2, y0: 2.5, y1: 2.5, line: {{ dash: 'dash', color: 'gray', width: 1 }}, opacity: 0.4 }},
+                {{ type: 'line', x0: 2.5, x1: 2.5, y0: -0.2, y1: 5.2, line: {{ dash: 'dash', color: 'gray', width: 1 }}, opacity: 0.4 }}
+            ],
+            annotations: [
+                {{ x: 4.5, y: 4.5, text: 'Balanced<br>(High Off/Def)', showarrow: false, font: {{ size: 10, color: 'rgba(0,0,0,0.3)' }} }},
+                {{ x: 0.5, y: 4.5, text: 'Defensive<br>Specialist', showarrow: false, font: {{ size: 10, color: 'rgba(0,0,0,0.3)' }} }},
+                {{ x: 4.5, y: 0.5, text: 'Offensive<br>Specialist', showarrow: false, font: {{ size: 10, color: 'rgba(0,0,0,0.3)' }} }},
+                {{ x: 0.5, y: 0.5, text: 'Low Impact', showarrow: false, font: {{ size: 10, color: 'rgba(0,0,0,0.3)' }} }}
+            ]
+        }};
+
+        // Dark mode layout
+        const darkLayout = {{
+            title: {{
+                text: 'Meta Landscape: Offense vs Defense Map',
+                font: {{ size: 18, color: '#f1f5f9' }}
+            }},
+            xaxis: {{
+                title: 'Offense Score →',
+                range: [-0.2, 5.2],
+                gridcolor: 'rgba(128,128,128,0.2)',
+                color: '#f1f5f9'
+            }},
+            yaxis: {{
+                title: 'Defense Score →',
+                range: [-0.2, 5.2],
+                gridcolor: 'rgba(128,128,128,0.2)',
+                color: '#f1f5f9'
+            }},
+            paper_bgcolor: '#0f172a',
+            plot_bgcolor: '#1e293b',
+            hovermode: 'closest',
+            width: 1000,
+            height: 800,
+            shapes: [
+                {{ type: 'line', x0: -0.2, x1: 5.2, y0: 2.5, y1: 2.5, line: {{ dash: 'dash', color: 'gray', width: 1 }}, opacity: 0.4 }},
+                {{ type: 'line', x0: 2.5, x1: 2.5, y0: -0.2, y1: 5.2, line: {{ dash: 'dash', color: 'gray', width: 1 }}, opacity: 0.4 }}
+            ],
+            annotations: [
+                {{ x: 4.5, y: 4.5, text: 'Balanced<br>(High Off/Def)', showarrow: false, font: {{ size: 10, color: 'rgba(255,255,255,0.4)' }} }},
+                {{ x: 0.5, y: 4.5, text: 'Defensive<br>Specialist', showarrow: false, font: {{ size: 10, color: 'rgba(255,255,255,0.4)' }} }},
+                {{ x: 4.5, y: 0.5, text: 'Offensive<br>Specialist', showarrow: false, font: {{ size: 10, color: 'rgba(255,255,255,0.4)' }} }},
+                {{ x: 0.5, y: 0.5, text: 'Low Impact', showarrow: false, font: {{ size: 10, color: 'rgba(255,255,255,0.4)' }} }}
+            ]
+        }};
+
+        // Create trace function with theme-specific colors
+        function createTrace(isDark) {{
+            return {{
+                x: xData,
+                y: yData,
+                mode: 'markers+text',
+                type: 'scatter',
+                text: textData,
+                textposition: 'top center',
+                textfont: {{ size: 9, color: isDark ? '#f1f5f9' : '#1a1a1a' }},
+                marker: {{
+                    size: markerSizes,
+                    color: eloData,
+                    colorscale: 'RdYlGn',
+                    colorbar: {{
+                        title: {{ text: 'ELO', font: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }} }},
+                        thickness: 15,
+                        len: 0.7,
+                        tickfont: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }}
+                    }},
+                    showscale: true,
+                    line: {{ width: 1, color: isDark ? '#ffffff' : '#000000' }}
+                }},
+                hovertext: hoverText,
+                hoverinfo: 'text'
+            }};
+        }}
+
+        // Config
+        const config = {{
+            displayModeBar: true,
+            modeBarButtonsToAdd: ['pan2d', 'zoomIn2d', 'zoomOut2d', 'resetScale2d'],
+            responsive: true
+        }};
+
+        // Initialize plot
+        let isDarkMode = localStorage.getItem('theme') === 'dark';
+        const toggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeLabel = document.getElementById('themeLabel');
+
+        function updateTheme(isDark) {{
+            document.body.className = isDark ? 'dark' : 'light';
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+            themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+            toggle.checked = isDark;
+
+            const layout = isDark ? darkLayout : lightLayout;
+            const trace = createTrace(isDark);
+
+            Plotly.react('plotDiv', [trace], layout, config);
+        }}
+
+        // Set initial state
+        updateTheme(isDarkMode);
+
+        // Handle toggle change
+        toggle.addEventListener('change', function() {{
+            isDarkMode = this.checked;
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            updateTheme(isDarkMode);
+        }});
+
+        // Listen for theme changes from other pages
+        window.addEventListener('storage', function(e) {{
+            if (e.key === 'theme') {{
+                isDarkMode = e.newValue === 'dark';
+                updateTheme(isDarkMode);
+            }}
+        }});
+    </script>
+</body>
+</html>'''
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(html_content)
+
+    print(f"Meta Landscape (interactive with toggle) saved to: {output_file}")
+
+
 def generate_meta_landscape_plots():
     """Generate all Meta Landscape plots (static and interactive, light and dark modes)."""
     print("Generating Meta Landscape plots...")
@@ -459,12 +758,13 @@ def generate_meta_landscape_plots():
         dark_mode=True
     )
 
-    # Generate interactive plots
-    create_meta_landscape_interactive(
+    # Generate interactive plot with built-in theme toggle (main version)
+    create_meta_landscape_interactive_with_toggle(
         df,
-        os.path.join(OUTPUT_DIR, "meta_landscape_interactive.html"),
-        dark_mode=False
+        os.path.join(OUTPUT_DIR, "meta_landscape_interactive.html")
     )
+
+    # Also generate separate light/dark versions for backward compatibility
     create_meta_landscape_interactive(
         df,
         os.path.join(OUTPUT_DIR, "dark", "meta_landscape_interactive_dark.html"),
