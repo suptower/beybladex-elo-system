@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combo Explorer - suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Parts Combination Explorer</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle">Analysis ▼</button>
+                <div class="nav-dropdown-content">
+                    <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
+                    <a href="parts.html">Parts</a>
+                    <a href="synergy.html">Synergy</a>
+                    <a href="explorer.html">Explorer</a>
+                    <a href="plots.html">Plots</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h2>🔍 Parts Combination Explorer</h2>
+    <p class="page-description">Search, filter, and analyze Beyblade part combinations (Blade × Ratchet × Bit). Discover viable builds, compare combinations, and explore the meta.</p>
+    
+    <!-- Filter Section -->
+    <section class="explorer-filters">
+        <div class="filter-row">
+            <!-- Search Box -->
+            <div class="filter-group search-group">
+                <label for="search-input">🔎 Search</label>
+                <input type="text" id="search-input" placeholder="Search by part name..." class="filter-input">
+            </div>
+            
+            <!-- Blade Type Filter -->
+            <div class="filter-group">
+                <label for="blade-type-filter">⚔️ Blade Type</label>
+                <select id="blade-type-filter" class="filter-select">
+                    <option value="all">All Types</option>
+                    <option value="Attack">Attack</option>
+                    <option value="Defense">Defense</option>
+                    <option value="Stamina">Stamina</option>
+                    <option value="Balance">Balance</option>
+                </select>
+            </div>
+            
+            <!-- Bit Category Filter -->
+            <div class="filter-group">
+                <label for="bit-category-filter">💫 Bit Category</label>
+                <select id="bit-category-filter" class="filter-select">
+                    <option value="all">All Categories</option>
+                    <option value="Attack">Attack</option>
+                    <option value="Defense">Defense</option>
+                    <option value="Stamina">Stamina</option>
+                    <option value="Balance">Balance</option>
+                </select>
+            </div>
+            
+            <!-- Min Matches Filter -->
+            <div class="filter-group">
+                <label for="min-matches-filter">📊 Min Matches</label>
+                <select id="min-matches-filter" class="filter-select">
+                    <option value="0">All</option>
+                    <option value="1">1+</option>
+                    <option value="3" selected>3+</option>
+                    <option value="5">5+</option>
+                    <option value="10">10+</option>
+                </select>
+            </div>
+            
+            <!-- Sort By -->
+            <div class="filter-group">
+                <label for="sort-by">📈 Sort By</label>
+                <select id="sort-by" class="filter-select">
+                    <option value="rating">Combo Rating</option>
+                    <option value="synergy">Synergy Score</option>
+                    <option value="win_rate">Win Rate</option>
+                    <option value="elo">ELO</option>
+                    <option value="matches">Match Count</option>
+                    <option value="attack">Attack</option>
+                    <option value="defense">Defense</option>
+                    <option value="stamina">Stamina</option>
+                    <option value="control">Control</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="filter-row filter-row-secondary">
+            <!-- Synergy Filter -->
+            <div class="filter-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="high-synergy-filter">
+                    🌟 High Synergy Only (60+)
+                </label>
+            </div>
+            
+            <!-- Data Quality Filter -->
+            <div class="filter-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="sufficient-data-filter">
+                    ✅ Sufficient Synergy Data Only
+                </label>
+            </div>
+            
+            <!-- Reset Button -->
+            <button id="reset-filters" class="reset-btn">↻ Reset Filters</button>
+        </div>
+    </section>
+    
+    <!-- Results Summary -->
+    <div class="results-summary">
+        <span id="results-count">Loading...</span>
+        <span class="results-hint">Click a combo to see details</span>
+    </div>
+    
+    <!-- Combo Results Grid -->
+    <section id="combo-results" class="combo-grid">
+        <!-- Combo cards will be dynamically loaded -->
+        <div class="loading-state">Loading combinations...</div>
+    </section>
+    
+    <!-- No Results State -->
+    <div id="no-results" class="no-results" style="display: none;">
+        <p>😕 No combinations match your filters.</p>
+        <p>Try adjusting your search criteria or <button id="clear-filters-btn" class="link-btn">clear all filters</button>.</p>
+    </div>
+    
+    <!-- Combo Detail Modal -->
+    <div id="combo-modal" class="combo-modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close">×</button>
+            <div id="modal-body">
+                <!-- Modal content will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script>
+// Global data
+let comboData = null;
+let filteredCombos = [];
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Load combo data
+async function loadComboData() {
+    try {
+        const response = await fetch('data/combo_data.json');
+        comboData = await response.json();
+        applyFilters();
+        setupEventListeners();
+    } catch (error) {
+        console.error('Error loading combo data:', error);
+        document.getElementById('combo-results').innerHTML = 
+            '<p class="error-message">Error loading combo data. Please try refreshing the page.</p>';
+    }
+}
+
+// Apply filters and render results
+function applyFilters() {
+    if (!comboData || !comboData.combos) {
+        console.warn('applyFilters called but comboData is missing or has no combos property');
+        return;
+    }
+    
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const bladeType = document.getElementById('blade-type-filter').value;
+    const bitCategory = document.getElementById('bit-category-filter').value;
+    const minMatches = parseInt(document.getElementById('min-matches-filter').value);
+    const sortBy = document.getElementById('sort-by').value;
+    const highSynergyOnly = document.getElementById('high-synergy-filter').checked;
+    const sufficientDataOnly = document.getElementById('sufficient-data-filter').checked;
+    
+    // Filter combos
+    filteredCombos = comboData.combos.filter(combo => {
+        // Search filter
+        if (searchTerm && !combo.combo_name.toLowerCase().includes(searchTerm) &&
+            !combo.blade.toLowerCase().includes(searchTerm) &&
+            !combo.ratchet.toLowerCase().includes(searchTerm) &&
+            !combo.bit.toLowerCase().includes(searchTerm)) {
+            return false;
+        }
+        
+        // Blade type filter
+        if (bladeType !== 'all' && combo.blade_type !== bladeType) {
+            return false;
+        }
+        
+        // Bit category filter
+        if (bitCategory !== 'all' && combo.bit_category !== bitCategory) {
+            return false;
+        }
+        
+        // Min matches filter
+        if (combo.matches < minMatches) {
+            return false;
+        }
+        
+        // High synergy filter
+        if (highSynergyOnly && combo.synergy.score < 60) {
+            return false;
+        }
+        
+        // Sufficient data filter
+        if (sufficientDataOnly && !combo.synergy.has_sufficient_data) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // Sort combos
+    filteredCombos.sort((a, b) => {
+        switch (sortBy) {
+            case 'rating':
+                return b.rating.overall - a.rating.overall;
+            case 'synergy':
+                return b.synergy.score - a.synergy.score;
+            case 'win_rate':
+                return b.win_rate - a.win_rate;
+            case 'elo':
+                return b.elo - a.elo;
+            case 'matches':
+                return b.matches - a.matches;
+            case 'attack':
+                return b.rating.attack - a.rating.attack;
+            case 'defense':
+                return b.rating.defense - a.rating.defense;
+            case 'stamina':
+                return b.rating.stamina - a.rating.stamina;
+            case 'control':
+                return b.rating.control - a.rating.control;
+            default:
+                return b.rating.overall - a.rating.overall;
+        }
+    });
+    
+    renderCombos();
+}
+
+// Render combo cards
+function renderCombos() {
+    const container = document.getElementById('combo-results');
+    const noResults = document.getElementById('no-results');
+    const resultsCount = document.getElementById('results-count');
+    
+    resultsCount.textContent = `${filteredCombos.length} combination${filteredCombos.length !== 1 ? 's' : ''} found`;
+    
+    if (filteredCombos.length === 0) {
+        container.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+    }
+    
+    noResults.style.display = 'none';
+    
+    container.innerHTML = filteredCombos.map((combo, index) => {
+        const ratingClass = getRatingClass(combo.rating.overall);
+        const synergyClass = getSynergyClass(combo.synergy.score, combo.synergy.has_sufficient_data);
+        
+        return `
+            <div class="combo-card ${ratingClass}" data-index="${index}">
+                <div class="combo-header">
+                    <span class="combo-rank">#${index + 1}</span>
+                    <span class="combo-type-badge ${combo.blade_type.toLowerCase()}">${escapeHtml(combo.blade_type)}</span>
+                </div>
+                
+                <h3 class="combo-name">${escapeHtml(combo.combo_name)}</h3>
+                
+                <div class="combo-parts">
+                    <span class="part-tag blade">⚔️ ${escapeHtml(combo.blade)}</span>
+                    <span class="part-tag ratchet">🔧 ${escapeHtml(combo.ratchet)}</span>
+                    <span class="part-tag bit">💫 ${escapeHtml(combo.bit)}</span>
+                </div>
+                
+                <div class="combo-scores">
+                    <div class="score-item">
+                        <span class="score-label">Rating</span>
+                        <span class="score-value ${ratingClass}">${combo.rating.overall.toFixed(1)}</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">Synergy</span>
+                        <span class="score-value ${synergyClass}">${combo.synergy.score.toFixed(1)}</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-label">Win Rate</span>
+                        <span class="score-value">${combo.win_rate.toFixed(1)}%</span>
+                    </div>
+                </div>
+                
+                <div class="combo-stats-mini">
+                    <div class="stat-mini" title="Attack">⚔️ ${combo.rating.attack.toFixed(1)}</div>
+                    <div class="stat-mini" title="Defense">🛡️ ${combo.rating.defense.toFixed(1)}</div>
+                    <div class="stat-mini" title="Stamina">💪 ${combo.rating.stamina.toFixed(1)}</div>
+                    <div class="stat-mini" title="Control">🎮 ${combo.rating.control.toFixed(1)}</div>
+                </div>
+                
+                <div class="combo-meta">
+                    <span class="meta-item">📊 ${combo.matches} matches</span>
+                    <span class="meta-item">🏆 ELO ${combo.elo}</span>
+                    ${!combo.synergy.has_sufficient_data ? '<span class="meta-item warning">⚠️ Limited data</span>' : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Add click handlers to cards
+    document.querySelectorAll('.combo-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const index = parseInt(card.dataset.index);
+            showComboDetail(filteredCombos[index]);
+        });
+    });
+}
+
+// Get rating class for styling
+function getRatingClass(rating) {
+    if (rating >= 80) return 'excellent';
+    if (rating >= 65) return 'good';
+    if (rating >= 50) return 'average';
+    return 'below-average';
+}
+
+// Get synergy class for styling
+function getSynergyClass(score, hasSufficientData) {
+    if (!hasSufficientData) return 'insufficient';
+    if (score >= 80) return 'excellent';
+    if (score >= 60) return 'good';
+    if (score >= 40) return 'average';
+    return 'low';
+}
+
+// Show combo detail modal
+function showComboDetail(combo) {
+    const modal = document.getElementById('combo-modal');
+    const modalBody = document.getElementById('modal-body');
+    
+    const ratingClass = getRatingClass(combo.rating.overall);
+    const synergyClass = getSynergyClass(combo.synergy.score, combo.synergy.has_sufficient_data);
+    
+    modalBody.innerHTML = `
+        <div class="modal-header">
+            <h2>${escapeHtml(combo.combo_name)}</h2>
+            <span class="combo-type-badge ${combo.blade_type.toLowerCase()}">${escapeHtml(combo.blade_type)}</span>
+        </div>
+        
+        <div class="modal-section">
+            <h3>📦 Parts</h3>
+            <div class="modal-parts">
+                <div class="part-detail">
+                    <span class="part-label">Blade</span>
+                    <span class="part-value">⚔️ ${escapeHtml(combo.blade)}</span>
+                    <span class="part-type">${escapeHtml(combo.blade_type)}</span>
+                </div>
+                <div class="part-detail">
+                    <span class="part-label">Ratchet</span>
+                    <span class="part-value">🔧 ${escapeHtml(combo.ratchet)}</span>
+                </div>
+                <div class="part-detail">
+                    <span class="part-label">Bit</span>
+                    <span class="part-value">💫 ${escapeHtml(combo.bit)}</span>
+                    <span class="part-type">${escapeHtml(combo.bit_category)}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-section">
+            <h3>📊 Combo Rating</h3>
+            <div class="rating-detail ${ratingClass}">
+                <span class="rating-overall">${combo.rating.overall.toFixed(1)}</span>
+                <span class="rating-label">/ 100</span>
+            </div>
+            <div class="rating-bars">
+                ${createRatingBar('Attack', combo.rating.attack, '⚔️')}
+                ${createRatingBar('Defense', combo.rating.defense, '🛡️')}
+                ${createRatingBar('Stamina', combo.rating.stamina, '💪')}
+                ${createRatingBar('Control', combo.rating.control, '🎮')}
+                ${createRatingBar('Meta Impact', combo.rating.meta_impact, '🌟')}
+            </div>
+        </div>
+        
+        <div class="modal-section">
+            <h3>🔗 Synergy Analysis</h3>
+            <div class="synergy-detail ${synergyClass}">
+                <span class="synergy-overall">${combo.synergy.score.toFixed(1)}</span>
+                <span class="synergy-label">/ 100</span>
+                ${!combo.synergy.has_sufficient_data ? '<span class="synergy-warning">⚠️ Limited data</span>' : ''}
+            </div>
+            <div class="synergy-breakdown">
+                <div class="synergy-pair">
+                    <span class="pair-label">Blade × Bit</span>
+                    <span class="pair-value">${combo.synergy.blade_bit !== null ? combo.synergy.blade_bit.toFixed(1) : 'N/A'}</span>
+                </div>
+                <div class="synergy-pair">
+                    <span class="pair-label">Blade × Ratchet</span>
+                    <span class="pair-value">${combo.synergy.blade_ratchet !== null ? combo.synergy.blade_ratchet.toFixed(1) : 'N/A'}</span>
+                </div>
+                <div class="synergy-pair">
+                    <span class="pair-label">Bit × Ratchet</span>
+                    <span class="pair-value">${combo.synergy.bit_ratchet !== null ? combo.synergy.bit_ratchet.toFixed(1) : 'N/A'}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-section">
+            <h3>📈 Performance</h3>
+            <div class="performance-stats">
+                <div class="perf-stat">
+                    <span class="perf-value">${combo.elo}</span>
+                    <span class="perf-label">ELO</span>
+                </div>
+                <div class="perf-stat">
+                    <span class="perf-value">${combo.win_rate.toFixed(1)}%</span>
+                    <span class="perf-label">Win Rate</span>
+                </div>
+                <div class="perf-stat">
+                    <span class="perf-value">${combo.matches}</span>
+                    <span class="perf-label">Matches</span>
+                </div>
+                <div class="perf-stat">
+                    <span class="perf-value">#${combo.rank}</span>
+                    <span class="perf-label">Rank</span>
+                </div>
+            </div>
+        </div>
+        
+        ${combo.beys && combo.beys.length > 0 ? `
+        <div class="modal-section">
+            <h3>🎯 Beyblades Using This Combo</h3>
+            <div class="bey-links">
+                ${combo.beys.map(bey => `
+                    <a href="bey.html?name=${encodeURIComponent(bey.blade)}" class="bey-link">
+                        ${escapeHtml(bey.name)} (${escapeHtml(bey.code)})
+                    </a>
+                `).join('')}
+            </div>
+        </div>
+        ` : ''}
+        
+        <div class="modal-actions">
+            <a href="synergy.html" class="action-link">🔗 View Synergy Heatmaps</a>
+            <a href="parts.html" class="action-link">📊 View Parts Stats</a>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+// Create rating bar HTML
+function createRatingBar(label, value, icon) {
+    const percentage = (value / 10) * 100;
+    return `
+        <div class="rating-bar-item">
+            <span class="bar-label">${icon} ${label}</span>
+            <div class="bar-container">
+                <div class="bar-fill" style="width: ${percentage}%"></div>
+            </div>
+            <span class="bar-value">${value.toFixed(1)}</span>
+        </div>
+    `;
+}
+
+// Close modal
+function closeModal() {
+    const modal = document.getElementById('combo-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+// Reset all filters
+function resetFilters() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('blade-type-filter').value = 'all';
+    document.getElementById('bit-category-filter').value = 'all';
+    document.getElementById('min-matches-filter').value = '3';
+    document.getElementById('sort-by').value = 'rating';
+    document.getElementById('high-synergy-filter').checked = false;
+    document.getElementById('sufficient-data-filter').checked = false;
+    applyFilters();
+}
+
+// Debounce function for search
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    // Filter changes
+    document.getElementById('blade-type-filter').addEventListener('change', applyFilters);
+    document.getElementById('bit-category-filter').addEventListener('change', applyFilters);
+    document.getElementById('min-matches-filter').addEventListener('change', applyFilters);
+    document.getElementById('sort-by').addEventListener('change', applyFilters);
+    document.getElementById('high-synergy-filter').addEventListener('change', applyFilters);
+    document.getElementById('sufficient-data-filter').addEventListener('change', applyFilters);
+    
+    // Search with debounce
+    document.getElementById('search-input').addEventListener('input', debounce(applyFilters, 300));
+    
+    // Reset button
+    document.getElementById('reset-filters').addEventListener('click', resetFilters);
+    document.getElementById('clear-filters-btn').addEventListener('click', resetFilters);
+    
+    // Modal close
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.querySelector('.modal-overlay').addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
+}
+
+// Initialize
+loadComboData();
+</script>
+
+<style>
+/* Explorer-specific styles */
+.page-description {
+    text-align: center;
+    color: var(--text-light);
+    max-width: 800px;
+    margin: 0 auto 2rem auto;
+}
+
+/* Filter Section */
+.explorer-filters {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-row:last-child {
+    margin-bottom: 0;
+}
+
+.filter-row-secondary {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 140px;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.filter-input,
+.filter-select {
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.filter-input:focus,
+.filter-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.search-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+}
+
+.reset-btn {
+    padding: 0.625rem 1.25rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-left: auto;
+}
+
+.reset-btn:hover {
+    background: var(--bg);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* Results Summary */
+.results-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+}
+
+#results-count {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.results-hint {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+/* Combo Grid */
+.combo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Combo Card */
+.combo-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.combo-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: var(--transition);
+}
+
+.combo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.combo-card:hover::before {
+    transform: scaleX(1);
+}
+
+.combo-card.excellent::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); transform: scaleX(1); }
+.combo-card.good::before { background: linear-gradient(90deg, #22c55e, #4ade80); transform: scaleX(1); }
+.combo-card.average::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); transform: scaleX(1); }
+.combo-card.below-average::before { background: linear-gradient(90deg, #ef4444, #f87171); transform: scaleX(1); }
+
+.combo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.combo-rank {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-light);
+}
+
+.combo-type-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.combo-type-badge.attack { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.combo-type-badge.defense { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.combo-type-badge.stamina { background: rgba(34, 197, 94, 0.15); color: #22c55e; }
+.combo-type-badge.balance { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+
+.combo-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+    color: var(--text);
+}
+
+.combo-parts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.part-tag {
+    padding: 0.25rem 0.5rem;
+    background: var(--bg);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.combo-scores {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.score-item {
+    text-align: center;
+}
+
+.score-label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+.score-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.score-value.excellent { color: #3b82f6; }
+.score-value.good { color: #22c55e; }
+.score-value.average { color: #f59e0b; }
+.score-value.low { color: #ef4444; }
+.score-value.insufficient { color: #64748b; }
+
+.combo-stats-mini {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.stat-mini {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.combo-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.meta-item.warning {
+    color: #f59e0b;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-light);
+}
+
+.no-results p {
+    margin: 0.5rem 0;
+}
+
+.link-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: inherit;
+    text-decoration: underline;
+}
+
+.link-btn:hover {
+    color: var(--accent-hover);
+}
+
+/* Modal */
+.combo-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position: relative;
+    background: var(--card);
+    border-radius: var(--radius);
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+    border: 1px solid var(--border);
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-light);
+    line-height: 1;
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: var(--text);
+}
+
+#modal-body {
+    padding: 1.5rem;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    background: none;
+    -webkit-text-fill-color: var(--text);
+}
+
+.modal-section {
+    margin-bottom: 1.5rem;
+}
+
+.modal-section h3 {
+    font-size: 1rem;
+    margin: 0 0 1rem 0;
+    color: var(--text-light);
+}
+
+/* Modal Parts */
+.modal-parts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.part-detail {
+    text-align: center;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.part-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.part-value {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.part-type {
+    font-size: 0.75rem;
+    color: var(--accent);
+}
+
+/* Rating Detail */
+.rating-detail {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.rating-overall {
+    font-size: 3rem;
+    font-weight: 800;
+}
+
+.rating-detail.excellent .rating-overall { color: #3b82f6; }
+.rating-detail.good .rating-overall { color: #22c55e; }
+.rating-detail.average .rating-overall { color: #f59e0b; }
+.rating-detail.below-average .rating-overall { color: #ef4444; }
+
+.rating-label {
+    font-size: 1.25rem;
+    color: var(--text-light);
+}
+
+/* Rating Bars */
+.rating-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.rating-bar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.bar-label {
+    min-width: 120px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.bar-container {
+    flex: 1;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    background: var(--gradient-primary);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.bar-value {
+    min-width: 35px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Synergy Detail */
+.synergy-detail {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.synergy-overall {
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+.synergy-detail.excellent .synergy-overall { color: #3b82f6; }
+.synergy-detail.good .synergy-overall { color: #22c55e; }
+.synergy-detail.average .synergy-overall { color: #f59e0b; }
+.synergy-detail.low .synergy-overall { color: #ef4444; }
+.synergy-detail.insufficient .synergy-overall { color: #64748b; }
+
+.synergy-label {
+    font-size: 1rem;
+    color: var(--text-light);
+}
+
+.synergy-warning {
+    font-size: 0.85rem;
+    color: #f59e0b;
+    margin-left: 0.5rem;
+}
+
+.synergy-breakdown {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.synergy-pair {
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.pair-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+}
+
+.pair-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Performance Stats */
+.performance-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.perf-stat {
+    text-align: center;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.perf-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.perf-label {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+}
+
+/* Bey Links */
+.bey-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.bey-link {
+    padding: 0.5rem 1rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--accent);
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.bey-link:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* Modal Actions */
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.action-link {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--accent);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.action-link:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* Loading State */
+.loading-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-light);
+}
+
+.error-message {
+    text-align: center;
+    padding: 3rem;
+    color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .reset-btn {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .combo-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-parts,
+    .synergy-breakdown,
+    .performance-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .combo-scores {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+</body>
+</html>
