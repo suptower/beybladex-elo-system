@@ -19,6 +19,7 @@ from collections import defaultdict
 from typing import Any
 import os
 
+# Initialize Windows terminal for ANSI color support (no-op on Unix systems)
 os.system("")
 
 # Colors for terminal output
@@ -37,6 +38,8 @@ RPG_STATS_CSV = "./csv/rpg_stats.csv"
 DOCS_RPG_STATS_JSON = "./docs/data/rpg_stats.json"
 
 # Minimum matches threshold to compute reliable stats
+# Set to 1 to include all beys in the leaderboard even with limited data
+# Consider increasing to 3-5 for larger datasets with more statistical significance
 MIN_MATCHES_FOR_STATS = 1
 
 

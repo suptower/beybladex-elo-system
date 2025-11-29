@@ -662,8 +662,10 @@ function renderRpgStats() {
             tooltipContent = Object.entries(subMetrics[statKey])
                 .map(([key, val]) => {
                     const displayName = metricNames[key] || key;
+                    // Display values < 1 as percentages (rates/ratios), otherwise as decimal
+                    const isPercentageMetric = typeof val === 'number' && val < 1;
                     const displayVal = typeof val === 'number' ? 
-                        (val < 1 ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
+                        (isPercentageMetric ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
                     return `<div class="rpg-stat-tooltip-metric">
                         <span class="rpg-stat-tooltip-metric-name">${escapeHtml(displayName)}</span>
                         <span class="rpg-stat-tooltip-metric-value">${escapeHtml(displayVal)}</span>
