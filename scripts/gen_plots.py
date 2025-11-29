@@ -557,6 +557,18 @@ def generate_all_plots(mode):
     else:
         print("Meta Landscape plots generated successfully.")
 
+    # ELO Density Map
+    result = subprocess.run(
+        ["python", "scripts/visualization/elo_density_map.py"],
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print("Error running elo_density_map.py:")
+        print(result.stderr)
+    else:
+        print("ELO Density Map plots generated successfully.")
+
     print(f"All plots saved to: {files['outdir']}")
 
 
