@@ -32,9 +32,10 @@
             <a href="leaderboard.html">Leaderboard</a>
             <a href="matches.html">Matches</a>
             <div class="nav-dropdown">
-                <button class="nav-dropdown-toggle">Analysis</button>
+                <button class="nav-dropdown-toggle">Analysis ▼</button>
                 <div class="nav-dropdown-content">
                     <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
                 </div>
             </div>
         </div>
@@ -71,6 +72,9 @@
                     <div id="beyParts" class="profile-parts">
                         <!-- Parts will be dynamically added -->
                     </div>
+                    <a id="compareBeyBtn" href="#" class="compare-bey-btn" title="Compare this Bey">
+                        ⚔️ Compare
+                    </a>
                 </div>
             </div>
             
@@ -80,6 +84,14 @@
                     <!-- Key stats (ELO, Power Index) will be dynamically added -->
                 </div>
             </div>
+            
+            <!-- RPG Stats Section -->
+            <details class="profile-section-details" id="rpgStatsSection" style="display: none;" open>
+                <summary class="section-summary">⚔️ Skill Bars</summary>
+                <div id="rpgStatsContainer" class="rpg-stats-container">
+                    <!-- RPG stat bars will be dynamically added -->
+                </div>
+            </details>
             
             <!-- Stats Section (collapsible) -->
             <details class="profile-section-details" open>
@@ -218,6 +230,7 @@ let positionTimeseriesData = [];
 let allBeysData = [];
 let allLeaderboardData = [];
 let allEloHistoryData = [];
+let rpgStatsData = null;
 
 // Helper function to normalize bey names for comparison
 function normalizeBeyName(name) {
@@ -369,6 +382,23 @@ async function loadData() {
             allEloHistoryData = [];
         }
         
+        // Load RPG stats data
+        try {
+            const rpgStatsResponse = await fetch('data/rpg_stats.json');
+            const allRpgStats = await rpgStatsResponse.json();
+            // Find RPG stats for this bey
+            const normalizedName = normalizeBeyName(beyName);
+            rpgStatsData = Object.entries(allRpgStats).find(([name, _]) => 
+                normalizeBeyName(name) === normalizedName
+            );
+            if (rpgStatsData) {
+                rpgStatsData = { name: rpgStatsData[0], ...rpgStatsData[1] };
+            }
+        } catch (e) {
+            console.warn('Could not load RPG stats data:', e);
+            rpgStatsData = null;
+        }
+        
         // Render the profile
         renderProfile();
     } catch (error) {
@@ -429,6 +459,9 @@ function renderProfile() {
     // Render key stats (ELO and Power Index)
     renderKeyStats();
     
+    // Render RPG stats (skill bars)
+    renderRpgStats();
+    
     // Render stats
     renderStats();
     
@@ -443,6 +476,13 @@ function renderProfile() {
     
     // Render related beys section
     renderRelatedBeys();
+    
+    // Set compare button URL
+    const compareBeyBtn = document.getElementById('compareBeyBtn');
+    if (compareBeyBtn) {
+        const displayName = beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName);
+        compareBeyBtn.href = `compare.html?compare=${encodeURIComponent(displayName)}`;
+    }
 }
 
 // Get line class from code
@@ -557,6 +597,200 @@ function getPowerIndexClass(pwr) {
     if (pwr >= 40) return 'trend-neutral';
     if (pwr >= 20) return 'trend-negative';
     return 'trend-very-negative';
+}
+
+// Render RPG Stats (Skill Bars)
+function renderRpgStats() {
+    const rpgStatsSection = document.getElementById('rpgStatsSection');
+    const rpgStatsContainer = document.getElementById('rpgStatsContainer');
+    rpgStatsContainer.innerHTML = '';
+    
+    if (!rpgStatsData || !rpgStatsData.stats) {
+        rpgStatsSection.style.display = 'none';
+        return;
+    }
+    
+    // Show the section
+    rpgStatsSection.style.display = 'block';
+    
+    // Define stat configurations with icons and display names
+    const statConfig = {
+        attack: { icon: '⚔️', name: 'Attack', desc: 'Offensive pressure and high-impact scoring' },
+        defense: { icon: '🛡️', name: 'Defense', desc: 'Ability to resist high-impact losses' },
+        stamina: { icon: '💪', name: 'Stamina', desc: 'Endurance and spin finish performance' },
+        control: { icon: '🎯', name: 'Control', desc: 'Consistency and match flow stability' },
+        meta_impact: { icon: '⭐', name: 'Meta', desc: 'Competitive relevance and meta influence' }
+    };
+    
+    // Sub-metric display names for tooltips
+    const subMetricNames = {
+        attack: {
+            burst_finish_rate: 'Burst Finish Rate',
+            pocket_finish_rate: 'Pocket Finish Rate',
+            extreme_finish_rate: 'Extreme Finish Rate',
+            offensive_point_efficiency: 'Point Efficiency',
+            opening_dominance: 'Opening Dominance'
+        },
+        defense: {
+            burst_resistance: 'Burst Resistance',
+            pocket_resistance: 'Pocket Resistance',
+            extreme_resistance: 'Extreme Resistance',
+            defensive_conversion: 'Defensive Conversion'
+        },
+        stamina: {
+            spin_finish_win_rate: 'Spin Win Rate',
+            spin_differential_index: 'Spin Differential',
+            long_round_win_rate: 'Long Match Win Rate'
+        },
+        control: {
+            volatility_inverse: 'Consistency',
+            first_contact_advantage: 'First Contact Advantage',
+            match_flow_stability: 'Match Flow Stability'
+        },
+        meta_impact: {
+            elo_normalized: 'Normalized ELO',
+            elo_per_match: 'ELO per Match',
+            upset_rate: 'Upset Rate',
+            matchup_spread: 'Matchup Spread',
+            anti_meta_score: 'Anti-Meta Score'
+        }
+    };
+    
+    // Sub-metric descriptions for detailed explanations
+    const subMetricDescriptions = {
+        attack: {
+            burst_finish_rate: 'Percentage of wins via burst finishes',
+            pocket_finish_rate: 'Percentage of wins via pocket finishes',
+            extreme_finish_rate: 'Percentage of wins via extreme finishes',
+            offensive_point_efficiency: 'Average points earned per round won',
+            opening_dominance: 'Win rate in the first round of matches'
+        },
+        defense: {
+            burst_resistance: 'Resistance to opponent burst finishes',
+            pocket_resistance: 'Resistance to opponent pocket finishes',
+            extreme_resistance: 'Resistance to opponent extreme finishes',
+            defensive_conversion: 'Win rate after losing a round'
+        },
+        stamina: {
+            spin_finish_win_rate: 'Frequency of winning via spin-out finishes',
+            spin_differential_index: 'Ratio of spin finish wins vs losses',
+            long_round_win_rate: 'Win rate in matches with many rounds'
+        },
+        control: {
+            volatility_inverse: 'Match result predictability (higher = more consistent)',
+            first_contact_advantage: 'Match win rate when winning first round',
+            match_flow_stability: 'Consistency of match score patterns'
+        },
+        meta_impact: {
+            elo_normalized: 'ELO rating compared to dataset',
+            elo_per_match: 'Average ELO gained per match played',
+            upset_rate: 'Win rate against higher-ranked opponents',
+            matchup_spread: 'Performance breadth across opponent types',
+            anti_meta_score: 'Effectiveness against top-5 rated beys'
+        }
+    };
+    
+    // Create stat tiles for each stat
+    const stats = rpgStatsData.stats;
+    const subMetrics = rpgStatsData.sub_metrics;
+    
+    Object.entries(statConfig).forEach(([statKey, config]) => {
+        const value = stats[statKey];
+        if (value === undefined || value === null) return;
+        
+        // Calculate full tiles and partial fill
+        const fullTiles = Math.floor(value);
+        const partialFill = (value - fullTiles) * 100; // Percentage for partial tile
+        
+        // Build expandable details content with sub-metrics
+        let detailsContent = '';
+        if (subMetrics && subMetrics[statKey]) {
+            const metricNames = subMetricNames[statKey] || {};
+            const metricDescs = subMetricDescriptions[statKey] || {};
+            detailsContent = Object.entries(subMetrics[statKey])
+                .map(([key, val]) => {
+                    const displayName = metricNames[key] || key;
+                    const description = metricDescs[key] || '';
+                    // Display values < 1 as percentages (rates/ratios), otherwise as decimal
+                    const isPercentageMetric = typeof val === 'number' && val < 1;
+                    const displayVal = typeof val === 'number' ? 
+                        (isPercentageMetric ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
+                    return `<div class="rpg-stat-detail-item">
+                        <div class="rpg-stat-detail-header">
+                            <span class="rpg-stat-detail-name">${escapeHtml(displayName)}</span>
+                            <span class="rpg-stat-detail-value">${escapeHtml(displayVal)}</span>
+                        </div>
+                        <div class="rpg-stat-detail-desc">${escapeHtml(description)}</div>
+                    </div>`;
+                }).join('');
+        }
+        
+        // Generate 5 tiles
+        let tilesHtml = '';
+        for (let i = 0; i < 5; i++) {
+            let tileClass = statKey;
+            let fillWidth = 0;
+            
+            if (i < fullTiles) {
+                // Full tile
+                tileClass += ' filled';
+                fillWidth = 100;
+            } else if (i === fullTiles && partialFill > 0) {
+                // Partial tile
+                tileClass += ' partial';
+                fillWidth = partialFill;
+            } else {
+                // Empty tile
+                tileClass += ' empty';
+                fillWidth = 0;
+            }
+            
+            tilesHtml += `
+                <div class="rpg-stat-tile ${tileClass}">
+                    <div class="rpg-stat-tile-fill" data-target="${fillWidth}"></div>
+                </div>
+            `;
+        }
+        
+        const statRow = document.createElement('div');
+        statRow.className = 'rpg-stat-row-wrapper';
+        statRow.innerHTML = `
+            <div class="rpg-stat-row" onclick="this.parentElement.classList.toggle('expanded')">
+                <div class="rpg-stat-label">
+                    <span class="rpg-stat-label-icon">${config.icon}</span>
+                    <span>${config.name}</span>
+                    <span class="rpg-stat-info-btn" title="Click to see calculation details">ℹ️</span>
+                </div>
+                <div class="rpg-stat-bar-container">
+                    <div class="rpg-stat-tiles">
+                        ${tilesHtml}
+                    </div>
+                    <span class="rpg-stat-value">${value.toFixed(1)}</span>
+                </div>
+            </div>
+            ${detailsContent ? `
+                <div class="rpg-stat-details">
+                    <div class="rpg-stat-details-header">
+                        <span class="rpg-stat-details-title">${config.icon} ${config.name} Breakdown</span>
+                        <span class="rpg-stat-details-score">Score: ${value.toFixed(2)} / 5.0</span>
+                    </div>
+                    <div class="rpg-stat-details-desc">${config.desc}</div>
+                    <div class="rpg-stat-details-grid">
+                        ${detailsContent}
+                    </div>
+                </div>
+            ` : ''}
+        `;
+        rpgStatsContainer.appendChild(statRow);
+    });
+    
+    // Animate tile fills after a short delay
+    setTimeout(() => {
+        document.querySelectorAll('.rpg-stat-tile-fill').forEach(fill => {
+            const targetWidth = fill.getAttribute('data-target');
+            fill.style.width = targetWidth + '%';
+        });
+    }, 100);
 }
 
 // Render statistics
