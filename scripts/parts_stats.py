@@ -11,14 +11,10 @@ Each stat uses a 0-5 scale with fractional values supported.
 """
 
 import json
-import os
 
 # File paths
 PARTS_STATS_JSON = "./csv/parts_stats.json"
 DOCS_PARTS_STATS_JSON = "./docs/data/parts_stats.json"
-
-# Initialize Windows terminal for ANSI color support (no-op on Unix systems)
-os.system("")
 
 # Colors for terminal output
 RESET = "\033[0m"
