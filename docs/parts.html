@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parts Performance - suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Parts Performance</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle">Analysis ▼</button>
+                <div class="nav-dropdown-content">
+                    <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
+                    <a href="parts.html">Parts</a>
+                    <a href="plots.html">Plots</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h2>Parts Performance Rankings</h2>
+    <p class="page-description">Compare individual Beyblade parts (Blades, Ratchets, Bits) by their performance metrics. Each stat uses a 1-5 scale.</p>
+    
+    <!-- Tab Navigation -->
+    <div class="parts-tabs">
+        <button class="parts-tab active" data-tab="blades">⚔️ Blades</button>
+        <button class="parts-tab" data-tab="ratchets">🔧 Ratchets</button>
+        <button class="parts-tab" data-tab="bits">💫 Bits</button>
+    </div>
+    
+    <!-- Blades Section -->
+    <section id="blades-section" class="parts-section active">
+        <div class="parts-header">
+            <h3>Blade Performance Rankings</h3>
+            <div class="parts-filters">
+                <select id="blades-type-filter" class="filter-select">
+                    <option value="all">All Types</option>
+                    <option value="Attack">Attack</option>
+                    <option value="Defense">Defense</option>
+                    <option value="Stamina">Stamina</option>
+                    <option value="Balance">Balance</option>
+                </select>
+                <select id="blades-sort" class="filter-select">
+                    <option value="total">Sort by Total</option>
+                    <option value="contact_power">Sort by Contact Power</option>
+                    <option value="spin_control">Sort by Spin Control</option>
+                    <option value="deflection_ability">Sort by Deflection</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="stats-legend">
+            <div class="legend-item">
+                <span class="legend-icon">⚔️</span>
+                <span class="legend-label">Contact Power</span>
+                <span class="legend-desc">Impact strength during direct clashes</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">🎯</span>
+                <span class="legend-label">Spin Control</span>
+                <span class="legend-desc">Stability during sustained contact</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">🛡️</span>
+                <span class="legend-label">Deflection</span>
+                <span class="legend-desc">Ability to redirect incoming attacks</span>
+            </div>
+        </div>
+        
+        <div id="blades-grid" class="parts-grid">
+            <!-- Blade cards will be dynamically loaded -->
+        </div>
+        
+        <div class="parts-table-container">
+            <h4>📊 Overview Table</h4>
+            <table id="blades-table" class="parts-table">
+                <thead>
+                    <tr>
+                        <th>Blade</th>
+                        <th>Type</th>
+                        <th>Contact Power</th>
+                        <th>Spin Control</th>
+                        <th>Deflection</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+    
+    <!-- Ratchets Section -->
+    <section id="ratchets-section" class="parts-section">
+        <div class="parts-header">
+            <h3>Ratchet Performance Rankings</h3>
+            <div class="parts-filters">
+                <select id="ratchets-sort" class="filter-select">
+                    <option value="total">Sort by Total</option>
+                    <option value="burst_resistance">Sort by Burst Resistance</option>
+                    <option value="lock_stability">Sort by Lock Stability</option>
+                    <option value="weight_efficiency">Sort by Weight Efficiency</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="stats-legend">
+            <div class="legend-item">
+                <span class="legend-icon">🔒</span>
+                <span class="legend-label">Burst Resistance</span>
+                <span class="legend-desc">How effectively prevents bursts</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">⚡</span>
+                <span class="legend-label">Lock Stability</span>
+                <span class="legend-desc">Consistency of grip over time</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">⚖️</span>
+                <span class="legend-label">Weight Efficiency</span>
+                <span class="legend-desc">Balance without excessive weight</span>
+            </div>
+        </div>
+        
+        <div id="ratchets-grid" class="parts-grid">
+            <!-- Ratchet cards will be dynamically loaded -->
+        </div>
+        
+        <div class="parts-table-container">
+            <h4>📊 Overview Table</h4>
+            <table id="ratchets-table" class="parts-table">
+                <thead>
+                    <tr>
+                        <th>Ratchet</th>
+                        <th>Height</th>
+                        <th>Protrusions</th>
+                        <th>Burst Resistance</th>
+                        <th>Lock Stability</th>
+                        <th>Weight Efficiency</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+    
+    <!-- Bits Section -->
+    <section id="bits-section" class="parts-section">
+        <div class="parts-header">
+            <h3>Bit Performance Rankings</h3>
+            <div class="parts-filters">
+                <select id="bits-category-filter" class="filter-select">
+                    <option value="all">All Categories</option>
+                    <option value="Attack">Attack</option>
+                    <option value="Defense">Defense</option>
+                    <option value="Stamina">Stamina</option>
+                    <option value="Balance">Balance</option>
+                </select>
+                <select id="bits-sort" class="filter-select">
+                    <option value="total">Sort by Total</option>
+                    <option value="tip_control">Sort by Tip Control</option>
+                    <option value="speed_rating">Sort by Speed Rating</option>
+                    <option value="stamina_output">Sort by Stamina Output</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="stats-legend">
+            <div class="legend-item">
+                <span class="legend-icon">🎮</span>
+                <span class="legend-label">Tip Control</span>
+                <span class="legend-desc">Stability during movement</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">💨</span>
+                <span class="legend-label">Speed Rating</span>
+                <span class="legend-desc">Acceleration at battle start</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-icon">💪</span>
+                <span class="legend-label">Stamina Output</span>
+                <span class="legend-desc">Long-term spin efficiency</span>
+            </div>
+        </div>
+        
+        <div id="bits-grid" class="parts-grid">
+            <!-- Bit cards will be dynamically loaded -->
+        </div>
+        
+        <div class="parts-table-container">
+            <h4>📊 Overview Table</h4>
+            <table id="bits-table" class="parts-table">
+                <thead>
+                    <tr>
+                        <th>Bit</th>
+                        <th>Category</th>
+                        <th>Tip Control</th>
+                        <th>Speed Rating</th>
+                        <th>Stamina Output</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script>
+// Global data
+let partsData = null;
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Load parts data
+async function loadPartsData() {
+    try {
+        const response = await fetch('data/parts_stats.json');
+        partsData = await response.json();
+        renderAllSections();
+        setupEventListeners();
+    } catch (error) {
+        console.error('Error loading parts data:', error);
+    }
+}
+
+// Calculate total score
+function calculateTotal(stats) {
+    return Object.values(stats).reduce((sum, val) => sum + val, 0);
+}
+
+// Create parallelogram stat tiles
+function createStatTiles(value, statType) {
+    const fullTiles = Math.floor(value);
+    const partialFill = (value - fullTiles) * 100;
+    
+    let tilesHtml = '';
+    for (let i = 0; i < 5; i++) {
+        let tileClass = statType;
+        let fillWidth = 0;
+        
+        if (i < fullTiles) {
+            tileClass += ' filled';
+            fillWidth = 100;
+        } else if (i === fullTiles && partialFill > 0) {
+            tileClass += ' partial';
+            fillWidth = partialFill;
+        } else {
+            tileClass += ' empty';
+        }
+        
+        tilesHtml += `
+            <div class="rpg-stat-tile ${tileClass}">
+                <div class="rpg-stat-tile-fill" style="width: ${fillWidth}%"></div>
+            </div>
+        `;
+    }
+    
+    return tilesHtml;
+}
+
+// Create stat row HTML
+function createStatRow(icon, label, value, statType) {
+    return `
+        <div class="part-stat-row">
+            <div class="part-stat-label">
+                <span class="part-stat-icon">${icon}</span>
+                <span>${escapeHtml(label)}</span>
+            </div>
+            <div class="part-stat-bar">
+                <div class="rpg-stat-tiles">
+                    ${createStatTiles(value, statType)}
+                </div>
+                <span class="part-stat-value">${value.toFixed(1)}</span>
+            </div>
+        </div>
+    `;
+}
+
+// Render blade cards
+function renderBlades(typeFilter = 'all', sortBy = 'total') {
+    const bladesGrid = document.getElementById('blades-grid');
+    const bladesTable = document.querySelector('#blades-table tbody');
+    
+    if (!partsData || !partsData.blades) {
+        bladesGrid.innerHTML = '<p class="no-data">No blade data available.</p>';
+        return;
+    }
+    
+    // Convert to array and add totals
+    let blades = Object.entries(partsData.blades).map(([name, data]) => ({
+        name,
+        type: data.type,
+        ...data.stats,
+        total: calculateTotal(data.stats)
+    }));
+    
+    // Filter by type
+    if (typeFilter !== 'all') {
+        blades = blades.filter(b => b.type === typeFilter);
+    }
+    
+    // Sort
+    if (sortBy === 'total') {
+        blades.sort((a, b) => b.total - a.total);
+    } else if (sortBy in blades[0]) {
+        blades.sort((a, b) => b[sortBy] - a[sortBy]);
+    }
+    
+    // Find max values for highlighting
+    const maxValues = {
+        contact_power: Math.max(...blades.map(b => b.contact_power)),
+        spin_control: Math.max(...blades.map(b => b.spin_control)),
+        deflection_ability: Math.max(...blades.map(b => b.deflection_ability)),
+        total: Math.max(...blades.map(b => b.total))
+    };
+    
+    // Render cards
+    bladesGrid.innerHTML = blades.map(blade => `
+        <div class="part-card blade-card ${blade.type.toLowerCase()}">
+            <div class="part-card-header">
+                <h4 class="part-name">${escapeHtml(blade.name)}</h4>
+                <span class="part-type-badge ${blade.type.toLowerCase()}">${escapeHtml(blade.type)}</span>
+            </div>
+            <div class="part-stats">
+                ${createStatRow('⚔️', 'Contact Power', blade.contact_power, 'contact_power')}
+                ${createStatRow('🎯', 'Spin Control', blade.spin_control, 'spin_control')}
+                ${createStatRow('🛡️', 'Deflection', blade.deflection_ability, 'deflection')}
+            </div>
+            <div class="part-total">
+                <span class="total-label">Total Score</span>
+                <span class="total-value">${blade.total.toFixed(1)}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    // Render table
+    bladesTable.innerHTML = blades.map(blade => `
+        <tr>
+            <td><strong>${escapeHtml(blade.name)}</strong></td>
+            <td><span class="type-badge ${blade.type.toLowerCase()}">${escapeHtml(blade.type)}</span></td>
+            <td class="${blade.contact_power === maxValues.contact_power ? 'highlight-max' : ''}">${blade.contact_power.toFixed(1)}</td>
+            <td class="${blade.spin_control === maxValues.spin_control ? 'highlight-max' : ''}">${blade.spin_control.toFixed(1)}</td>
+            <td class="${blade.deflection_ability === maxValues.deflection_ability ? 'highlight-max' : ''}">${blade.deflection_ability.toFixed(1)}</td>
+            <td class="${blade.total === maxValues.total ? 'highlight-max' : ''}"><strong>${blade.total.toFixed(1)}</strong></td>
+        </tr>
+    `).join('');
+}
+
+// Render ratchet cards
+function renderRatchets(sortBy = 'total') {
+    const ratchetsGrid = document.getElementById('ratchets-grid');
+    const ratchetsTable = document.querySelector('#ratchets-table tbody');
+    
+    if (!partsData || !partsData.ratchets) {
+        ratchetsGrid.innerHTML = '<p class="no-data">No ratchet data available.</p>';
+        return;
+    }
+    
+    // Convert to array and add totals
+    let ratchets = Object.entries(partsData.ratchets).map(([name, data]) => ({
+        name,
+        height: data.height,
+        protrusions: data.protrusions,
+        ...data.stats,
+        total: calculateTotal(data.stats)
+    }));
+    
+    // Sort
+    if (sortBy === 'total') {
+        ratchets.sort((a, b) => b.total - a.total);
+    } else if (sortBy in ratchets[0]) {
+        ratchets.sort((a, b) => b[sortBy] - a[sortBy]);
+    }
+    
+    // Find max values for highlighting
+    const maxValues = {
+        burst_resistance: Math.max(...ratchets.map(r => r.burst_resistance)),
+        lock_stability: Math.max(...ratchets.map(r => r.lock_stability)),
+        weight_efficiency: Math.max(...ratchets.map(r => r.weight_efficiency)),
+        total: Math.max(...ratchets.map(r => r.total))
+    };
+    
+    // Render cards
+    ratchetsGrid.innerHTML = ratchets.map(ratchet => `
+        <div class="part-card ratchet-card">
+            <div class="part-card-header">
+                <h4 class="part-name">${escapeHtml(ratchet.name)}</h4>
+                <span class="part-info">${ratchet.height}-${ratchet.protrusions}</span>
+            </div>
+            <div class="part-stats">
+                ${createStatRow('🔒', 'Burst Resistance', ratchet.burst_resistance, 'burst_resistance')}
+                ${createStatRow('⚡', 'Lock Stability', ratchet.lock_stability, 'lock_stability')}
+                ${createStatRow('⚖️', 'Weight Efficiency', ratchet.weight_efficiency, 'weight_efficiency')}
+            </div>
+            <div class="part-total">
+                <span class="total-label">Total Score</span>
+                <span class="total-value">${ratchet.total.toFixed(1)}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    // Render table
+    ratchetsTable.innerHTML = ratchets.map(ratchet => `
+        <tr>
+            <td><strong>${escapeHtml(ratchet.name)}</strong></td>
+            <td>${ratchet.height}</td>
+            <td>${ratchet.protrusions}</td>
+            <td class="${ratchet.burst_resistance === maxValues.burst_resistance ? 'highlight-max' : ''}">${ratchet.burst_resistance.toFixed(1)}</td>
+            <td class="${ratchet.lock_stability === maxValues.lock_stability ? 'highlight-max' : ''}">${ratchet.lock_stability.toFixed(1)}</td>
+            <td class="${ratchet.weight_efficiency === maxValues.weight_efficiency ? 'highlight-max' : ''}">${ratchet.weight_efficiency.toFixed(1)}</td>
+            <td class="${ratchet.total === maxValues.total ? 'highlight-max' : ''}"><strong>${ratchet.total.toFixed(1)}</strong></td>
+        </tr>
+    `).join('');
+}
+
+// Render bit cards
+function renderBits(categoryFilter = 'all', sortBy = 'total') {
+    const bitsGrid = document.getElementById('bits-grid');
+    const bitsTable = document.querySelector('#bits-table tbody');
+    
+    if (!partsData || !partsData.bits) {
+        bitsGrid.innerHTML = '<p class="no-data">No bit data available.</p>';
+        return;
+    }
+    
+    // Convert to array and add totals
+    let bits = Object.entries(partsData.bits).map(([name, data]) => ({
+        name,
+        category: data.category,
+        ...data.stats,
+        total: calculateTotal(data.stats)
+    }));
+    
+    // Filter by category
+    if (categoryFilter !== 'all') {
+        bits = bits.filter(b => b.category === categoryFilter);
+    }
+    
+    // Sort
+    if (sortBy === 'total') {
+        bits.sort((a, b) => b.total - a.total);
+    } else if (sortBy in bits[0]) {
+        bits.sort((a, b) => b[sortBy] - a[sortBy]);
+    }
+    
+    // Find max values for highlighting
+    const maxValues = {
+        tip_control: Math.max(...bits.map(b => b.tip_control)),
+        speed_rating: Math.max(...bits.map(b => b.speed_rating)),
+        stamina_output: Math.max(...bits.map(b => b.stamina_output)),
+        total: Math.max(...bits.map(b => b.total))
+    };
+    
+    // Render cards
+    bitsGrid.innerHTML = bits.map(bit => `
+        <div class="part-card bit-card ${bit.category.toLowerCase()}">
+            <div class="part-card-header">
+                <h4 class="part-name">${escapeHtml(bit.name)}</h4>
+                <span class="part-type-badge ${bit.category.toLowerCase()}">${escapeHtml(bit.category)}</span>
+            </div>
+            <div class="part-stats">
+                ${createStatRow('🎮', 'Tip Control', bit.tip_control, 'tip_control')}
+                ${createStatRow('💨', 'Speed Rating', bit.speed_rating, 'speed_rating')}
+                ${createStatRow('💪', 'Stamina Output', bit.stamina_output, 'stamina_output')}
+            </div>
+            <div class="part-total">
+                <span class="total-label">Total Score</span>
+                <span class="total-value">${bit.total.toFixed(1)}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    // Render table
+    bitsTable.innerHTML = bits.map(bit => `
+        <tr>
+            <td><strong>${escapeHtml(bit.name)}</strong></td>
+            <td><span class="type-badge ${bit.category.toLowerCase()}">${escapeHtml(bit.category)}</span></td>
+            <td class="${bit.tip_control === maxValues.tip_control ? 'highlight-max' : ''}">${bit.tip_control.toFixed(1)}</td>
+            <td class="${bit.speed_rating === maxValues.speed_rating ? 'highlight-max' : ''}">${bit.speed_rating.toFixed(1)}</td>
+            <td class="${bit.stamina_output === maxValues.stamina_output ? 'highlight-max' : ''}">${bit.stamina_output.toFixed(1)}</td>
+            <td class="${bit.total === maxValues.total ? 'highlight-max' : ''}"><strong>${bit.total.toFixed(1)}</strong></td>
+        </tr>
+    `).join('');
+}
+
+// Render all sections
+function renderAllSections() {
+    renderBlades();
+    renderRatchets();
+    renderBits();
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    // Tab switching
+    document.querySelectorAll('.parts-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs and sections
+            document.querySelectorAll('.parts-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.parts-section').forEach(s => s.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding section
+            tab.classList.add('active');
+            const tabName = tab.dataset.tab;
+            document.getElementById(`${tabName}-section`).classList.add('active');
+        });
+    });
+    
+    // Blades filters
+    document.getElementById('blades-type-filter').addEventListener('change', (e) => {
+        const sortBy = document.getElementById('blades-sort').value;
+        renderBlades(e.target.value, sortBy);
+    });
+    
+    document.getElementById('blades-sort').addEventListener('change', (e) => {
+        const typeFilter = document.getElementById('blades-type-filter').value;
+        renderBlades(typeFilter, e.target.value);
+    });
+    
+    // Ratchets filters
+    document.getElementById('ratchets-sort').addEventListener('change', (e) => {
+        renderRatchets(e.target.value);
+    });
+    
+    // Bits filters
+    document.getElementById('bits-category-filter').addEventListener('change', (e) => {
+        const sortBy = document.getElementById('bits-sort').value;
+        renderBits(e.target.value, sortBy);
+    });
+    
+    document.getElementById('bits-sort').addEventListener('change', (e) => {
+        const categoryFilter = document.getElementById('bits-category-filter').value;
+        renderBits(categoryFilter, e.target.value);
+    });
+}
+
+// Initialize
+loadPartsData();
+</script>
+
+</body>
+</html>
