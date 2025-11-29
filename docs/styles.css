@@ -12,6 +12,7 @@
     --text-light: #6c757d;
     --accent: #6366f1;
     --accent-hover: #4f46e5;
+    --accent-hover-subtle: rgba(79, 70, 229, 0.35);
     --card: #ffffff;
     --border: #e5e7eb;
     
@@ -19,6 +20,7 @@
     --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --gradient-green-analytics: linear-gradient(135deg, #10b981 0%, #059669 100%);
     
     /* Radius */
     --radius: 16px;
@@ -42,6 +44,7 @@ body.dark {
     --text-light: #94a3b8;
     --accent: #818cf8;
     --accent-hover: #6366f1;
+    --accent-hover-subtle: rgba(99, 102, 241, 0.35);
     --card: #1e293b;
     --border: #334155;
     
@@ -6124,15 +6127,15 @@ body.dark .win-probability {
     line-height: 1.6;
 }
 
-/* Highlighted Feature Card */
+/* Highlighted Feature Card with gradient/border*/
 .feature-card-highlight {
-    border: 2px solid var(--accent);
-    background: linear-gradient(135deg, var(--card) 0%, rgba(99, 102, 241, 0.05) 100%);
+    border: 1px solid var(--accent-hover-subtle);
+    /* background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0)); */
 }
 
-.feature-card-highlight::before {
+/* .feature-card-highlight::before {
     transform: scaleX(1);
-}
+} */
 
 @media (max-width: 768px) {
     .analytics-tools-grid {
