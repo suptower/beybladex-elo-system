@@ -13,9 +13,13 @@ from synergy_heatmaps import (
     calculate_stat_complementarity,
     calculate_synergy_score,
     build_bey_components_map,
+    normalize_bey_name,
+    get_bey_components,
     SYNERGY_WEIGHTS,
     FINISH_QUALITY,
     MIN_MATCHES_THRESHOLD,
+    COMPLEMENTARITY_BASELINE_BONUS,
+    MAX_ELO_STD_DEVIATION,
 )
 
 
@@ -194,7 +198,7 @@ class TestBuildBeyComponentsMap:
         assert result["TestBlade"]["bit"] == "Flat"
 
     def test_handles_space_in_name(self):
-        """Should handle blade names with spaces."""
+        """Should handle blade names with spaces via normalized key."""
         beys_data = [{
             "name": "Hells Hammer 3-70H",
             "blade": "Hells Hammer",
@@ -204,9 +208,10 @@ class TestBuildBeyComponentsMap:
         }]
         result = build_bey_components_map(beys_data)
 
-        # Both normalized and original should be accessible
+        # Normalized name should be the key
         assert "HellsHammer" in result
-        assert "Hells Hammer" in result
+        # Original blade name should be preserved in the data
+        assert result["HellsHammer"]["blade"] == "Hells Hammer"
 
     def test_skips_entries_without_blade(self):
         """Should skip entries without blade field."""
@@ -220,6 +225,45 @@ class TestBuildBeyComponentsMap:
         assert len(result) == 1
 
 
+class TestNormalizeBeyName:
+    """Tests for the normalize_bey_name function."""
+
+    def test_removes_spaces(self):
+        """Should remove spaces from name."""
+        assert normalize_bey_name("Hells Hammer") == "HellsHammer"
+
+    def test_no_change_without_spaces(self):
+        """Should not change names without spaces."""
+        assert normalize_bey_name("FoxBrush") == "FoxBrush"
+
+    def test_handles_empty_string(self):
+        """Should handle empty string."""
+        assert normalize_bey_name("") == ""
+
+    def test_handles_none(self):
+        """Should handle None input."""
+        assert normalize_bey_name(None) == ""
+
+
+class TestGetBeyComponents:
+    """Tests for the get_bey_components helper function."""
+
+    def test_finds_by_normalized_name(self):
+        """Should find components using normalized name."""
+        bey_components = {
+            "HellsHammer": {"blade": "Hells Hammer", "ratchet": "3-70", "bit": "Hexa"}
+        }
+        result = get_bey_components("Hells Hammer", bey_components)
+        assert result is not None
+        assert result["blade"] == "Hells Hammer"
+
+    def test_returns_none_for_missing(self):
+        """Should return None for missing beys."""
+        bey_components = {"FoxBrush": {"blade": "FoxBrush"}}
+        result = get_bey_components("NonExistent", bey_components)
+        assert result is None
+
+
 class TestMinMatchesThreshold:
     """Tests for minimum matches threshold configuration."""
 
@@ -231,3 +275,17 @@ class TestMinMatchesThreshold:
     def test_threshold_is_reasonable(self):
         """Threshold should be within reasonable range (3-20)."""
         assert 3 <= MIN_MATCHES_THRESHOLD <= 20
+
+
+class TestSynergyConstants:
+    """Tests for synergy calculation constants."""
+
+    def test_complementarity_baseline_bonus_is_positive(self):
+        """Complementarity baseline bonus should be positive."""
+        assert COMPLEMENTARITY_BASELINE_BONUS > 0
+        assert COMPLEMENTARITY_BASELINE_BONUS < 1.0
+
+    def test_max_elo_std_deviation_is_reasonable(self):
+        """Max ELO std deviation should be a reasonable value."""
+        assert MAX_ELO_STD_DEVIATION > 0
+        assert MAX_ELO_STD_DEVIATION <= 500  # Reasonable upper bound

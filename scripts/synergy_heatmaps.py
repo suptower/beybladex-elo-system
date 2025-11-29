@@ -44,6 +44,16 @@ FINISH_QUALITY = {
     "spin": 0.4       # 1 point - standard finish
 }
 
+# Stat complementarity constants
+# Baseline bonus added to complementarity score to ensure moderate synergy
+# for average stat combinations (prevents all-zero or negative scores)
+COMPLEMENTARITY_BASELINE_BONUS = 0.1
+
+# Maximum expected ELO standard deviation for stability normalization
+# Based on typical competitive ELO distributions; values above this
+# indicate highly volatile performance
+MAX_ELO_STD_DEVIATION = 100
+
 
 def load_beys_data() -> list:
     """Load beyblade data with component information."""
@@ -67,33 +77,52 @@ def load_rounds_data() -> pd.DataFrame:
     return pd.read_csv(ROUNDS_CSV)
 
 
+def normalize_bey_name(name: str) -> str:
+    """Normalize bey name by removing spaces for consistent lookups."""
+    return name.replace(" ", "") if name else ""
+
+
 def build_bey_components_map(beys_data: list) -> dict:
     """
     Build a mapping from bey names to their component parts.
+
+    Uses normalized names (spaces removed) as primary keys to handle
+    inconsistencies like "Hells Hammer" vs "HellsHammer".
 
     Args:
         beys_data: List of bey dictionaries from beys_data.json
 
     Returns:
-        Dictionary mapping bey blade names to their components
+        Dictionary mapping normalized bey blade names to their components
     """
     components = {}
     for bey in beys_data:
         blade = bey.get("blade", "")
         if blade:
-            # Normalize blade name (handle "Hells Hammer" vs "HellsHammer")
-            normalized_blade = blade.replace(" ", "")
+            normalized_blade = normalize_bey_name(blade)
             components[normalized_blade] = {
                 "blade": blade,
                 "ratchet": bey.get("ratchet", ""),
                 "bit": bey.get("bit", ""),
                 "type": bey.get("type", "")
             }
-            # Also store original name mapping
-            if blade != normalized_blade:
-                components[blade] = components[normalized_blade]
 
     return components
+
+
+def get_bey_components(bey_name: str, bey_components: dict) -> dict | None:
+    """
+    Get components for a bey by name, handling name normalization.
+
+    Args:
+        bey_name: The bey name (may contain spaces)
+        bey_components: The components mapping dictionary
+
+    Returns:
+        Components dict or None if not found
+    """
+    normalized = normalize_bey_name(bey_name)
+    return bey_components.get(normalized)
 
 
 def calculate_finish_quality_score(finish_counts: dict) -> float:
@@ -152,10 +181,10 @@ def calculate_stat_complementarity(
     # Simple complementarity: higher total stats = better synergy potential
     base_score = (avg1 + avg2) / 2.0
 
-    # Bonus for balanced combination (neither too high nor too low variance)
+    # Penalty for imbalanced stat combinations
     variance_penalty = abs(avg1 - avg2) * 0.2
 
-    return min(1.0, max(0.0, base_score - variance_penalty + 0.1))
+    return min(1.0, max(0.0, base_score - variance_penalty + COMPLEMENTARITY_BASELINE_BONUS))
 
 
 def calculate_synergy_score(
@@ -241,12 +270,10 @@ def compute_pair_synergy(
             (bey_a, score_a, score_b, post_a),
             (bey_b, score_b, score_a, post_b)
         ]:
-            # Normalize bey name
-            normalized_bey = bey.replace(" ", "")
-            if normalized_bey not in bey_components:
+            components = get_bey_components(bey, bey_components)
+            if components is None:
                 continue
 
-            components = bey_components[normalized_bey]
             p1 = components.get(part1_key, "")
             p2 = components.get(part2_key, "")
 
@@ -276,12 +303,10 @@ def compute_pair_synergy(
         winner = round_row["winner"]
         finish_type = round_row["finish_type"]
 
-        # Normalize winner name
-        normalized_winner = winner.replace(" ", "")
-        if normalized_winner not in bey_components:
+        components = get_bey_components(winner, bey_components)
+        if components is None:
             continue
 
-        components = bey_components[normalized_winner]
         p1 = components.get(part1_key, "")
         p2 = components.get(part2_key, "")
 
@@ -323,8 +348,7 @@ def compute_pair_synergy(
         # Stability (inverse of variance, normalized)
         if len(stats["elo_values"]) > 1:
             elo_std = np.std(stats["elo_values"])
-            max_std = 100  # Reasonable maximum std
-            stability = 1.0 - min(elo_std / max_std, 1.0)
+            stability = 1.0 - min(elo_std / MAX_ELO_STD_DEVIATION, 1.0)
         else:
             stability = 0.5  # Neutral for single data point
 
