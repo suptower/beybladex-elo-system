@@ -15,5 +15,7 @@ extend-ignore = E203
 per-file-ignores =
     # Allow long lines in documentation table at end of file
     scripts/advanced_stats.py:E501
+    # Allow long lines in embedded JavaScript/HTML code
+    scripts/visualization/meta_landscape.py:E501
     # Allow imports after sys.path modification in test files
     tests/*.py:E402
