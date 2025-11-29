@@ -5832,6 +5832,20 @@ body.dark .win-probability {
     line-height: 1.6;
 }
 
+/* Features Subsection Title */
+.features-subsection-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin: 2rem 0 1.25rem 0;
+    padding-left: 0.5rem;
+    border-left: 3px solid var(--accent);
+}
+
+.features-subsection-title:first-of-type {
+    margin-top: 0;
+}
+
 /* Getting Started Section */
 .getting-started {
     padding: 3rem 2rem;
