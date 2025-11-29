@@ -70,8 +70,12 @@ def load_elo_timeseries_data(min_matches: int = DEFAULT_MIN_MATCHES) -> pd.DataF
 
     # Ensure correct data types
     df["ELO"] = pd.to_numeric(df["ELO"], errors="coerce")
-    df["MatchIndex"] = pd.to_numeric(df["MatchIndex"], errors="coerce").astype(int)
+    df["MatchIndex"] = pd.to_numeric(df["MatchIndex"], errors="coerce")
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+
+    # Drop rows with NaN values in essential columns
+    df = df.dropna(subset=["ELO", "MatchIndex"])
+    df["MatchIndex"] = df["MatchIndex"].astype(int)
 
     # Filter by minimum matches if specified
     if min_matches > 0:
