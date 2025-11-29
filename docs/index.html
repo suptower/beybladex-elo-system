@@ -214,6 +214,8 @@
 
 <script>
 // Parse CSV text to array of objects
+// Note: This simple parser works for the project's CSV files which don't contain
+// quoted fields with embedded commas. For more complex CSV data, use a library.
 function parseCSV(text) {
     const lines = text.trim().split(/\r?\n/);
     const headers = lines[0].split(',').map(h => h.trim());
@@ -288,8 +290,8 @@ async function loadRecentMatches() {
         const container = document.getElementById('recentMatchesList');
         
         container.innerHTML = recentMatches.map(match => {
-            const scoreA = parseInt(match.ScoreA);
-            const scoreB = parseInt(match.ScoreB);
+            const scoreA = parseInt(match.ScoreA, 10);
+            const scoreB = parseInt(match.ScoreB, 10);
             const winnerIsA = scoreA > scoreB;
             
             return `
@@ -315,8 +317,12 @@ async function loadTrendingBeys() {
         
         // Sort by ELO trend and get top 5 gainers
         const sortedByTrend = data
-            .filter(bey => bey.ELOTrend && !isNaN(parseFloat(bey.ELOTrend)))
-            .sort((a, b) => parseFloat(b.ELOTrend) - parseFloat(a.ELOTrend))
+            .map(bey => ({
+                ...bey,
+                eloTrendNum: parseFloat(bey.ELOTrend)
+            }))
+            .filter(bey => bey.ELOTrend && !isNaN(bey.eloTrendNum))
+            .sort((a, b) => b.eloTrendNum - a.eloTrendNum)
             .slice(0, 5);
         
         const container = document.getElementById('trendingBeysList');
@@ -327,7 +333,7 @@ async function loadTrendingBeys() {
         }
         
         container.innerHTML = sortedByTrend.map((bey, index) => {
-            const trendValue = parseFloat(bey.ELOTrend).toFixed(1);
+            const trendValue = bey.eloTrendNum.toFixed(1);
             const trendClass = getEloTrendClass(trendValue);
             
             return `
