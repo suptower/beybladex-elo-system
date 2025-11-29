@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synergy Heatmaps - suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Synergy Heatmaps</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle">Analysis ▼</button>
+                <div class="nav-dropdown-content">
+                    <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
+                    <a href="parts.html">Parts</a>
+                    <a href="synergy.html">Synergy</a>
+                    <a href="plots.html">Plots</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h2>Part Synergy Heatmaps</h2>
+    <p class="page-description">Visualize how well different Beyblade parts perform together. Higher scores indicate stronger synergy between components based on match performance data.</p>
+    
+    <!-- Synergy Score Legend -->
+    <div class="synergy-legend">
+        <h4>Synergy Score Legend</h4>
+        <div class="synergy-scale">
+            <div class="scale-item low">
+                <div class="scale-color"></div>
+                <span>0-40: Low Synergy</span>
+            </div>
+            <div class="scale-item neutral">
+                <div class="scale-color"></div>
+                <span>40-60: Neutral</span>
+            </div>
+            <div class="scale-item high">
+                <div class="scale-color"></div>
+                <span>60-80: Good Synergy</span>
+            </div>
+            <div class="scale-item excellent">
+                <div class="scale-color"></div>
+                <span>80-100: Excellent Synergy</span>
+            </div>
+            <div class="scale-item nodata">
+                <div class="scale-color"></div>
+                <span>Insufficient Data (&lt;5 matches)</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="parts-tabs">
+        <button class="parts-tab active" data-tab="blade-bit">⚔️ Blade × Bit</button>
+        <button class="parts-tab" data-tab="blade-ratchet">⚔️ Blade × Ratchet</button>
+        <button class="parts-tab" data-tab="bit-ratchet">💫 Bit × Ratchet</button>
+    </div>
+    
+    <!-- Filters -->
+    <div class="synergy-filters">
+        <label>
+            <input type="checkbox" id="show-insufficient-data" checked>
+            Show combinations with insufficient data
+        </label>
+        <label>
+            Min Matches: 
+            <select id="min-matches-filter" class="filter-select">
+                <option value="0">All</option>
+                <option value="3">3+</option>
+                <option value="5" selected>5+</option>
+                <option value="10">10+</option>
+            </select>
+        </label>
+    </div>
+    
+    <!-- Blade × Bit Section -->
+    <section id="blade-bit-section" class="synergy-section active">
+        <h3>Blade × Bit Synergy</h3>
+        <p class="section-description">How blades and bits perform together. Strong synergies suggest optimal combinations.</p>
+        
+        <!-- Top/Bottom Synergies -->
+        <div class="synergy-highlights">
+            <div class="highlight-card top-synergies">
+                <h4>🌟 Top Synergies</h4>
+                <div id="blade-bit-top" class="highlight-list"></div>
+            </div>
+            <div class="highlight-card bottom-synergies">
+                <h4>⚠️ Low Synergies</h4>
+                <div id="blade-bit-bottom" class="highlight-list"></div>
+            </div>
+        </div>
+        
+        <!-- Heatmap Grid -->
+        <div class="heatmap-container">
+            <div id="blade-bit-heatmap" class="heatmap-grid"></div>
+        </div>
+        
+        <!-- Data Table -->
+        <div class="synergy-table-container">
+            <h4>📊 Detailed Data</h4>
+            <table id="blade-bit-table" class="synergy-table">
+                <thead>
+                    <tr>
+                        <th>Blade</th>
+                        <th>Bit</th>
+                        <th>Synergy Score</th>
+                        <th>Win Rate</th>
+                        <th>Matches</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+    
+    <!-- Blade × Ratchet Section -->
+    <section id="blade-ratchet-section" class="synergy-section">
+        <h3>Blade × Ratchet Synergy</h3>
+        <p class="section-description">How blades and ratchets perform together. Affects burst resistance and balance.</p>
+        
+        <div class="synergy-highlights">
+            <div class="highlight-card top-synergies">
+                <h4>🌟 Top Synergies</h4>
+                <div id="blade-ratchet-top" class="highlight-list"></div>
+            </div>
+            <div class="highlight-card bottom-synergies">
+                <h4>⚠️ Low Synergies</h4>
+                <div id="blade-ratchet-bottom" class="highlight-list"></div>
+            </div>
+        </div>
+        
+        <div class="heatmap-container">
+            <div id="blade-ratchet-heatmap" class="heatmap-grid"></div>
+        </div>
+        
+        <div class="synergy-table-container">
+            <h4>📊 Detailed Data</h4>
+            <table id="blade-ratchet-table" class="synergy-table">
+                <thead>
+                    <tr>
+                        <th>Blade</th>
+                        <th>Ratchet</th>
+                        <th>Synergy Score</th>
+                        <th>Win Rate</th>
+                        <th>Matches</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+    
+    <!-- Bit × Ratchet Section -->
+    <section id="bit-ratchet-section" class="synergy-section">
+        <h3>Bit × Ratchet Synergy</h3>
+        <p class="section-description">How bits and ratchets perform together. Affects movement and stability.</p>
+        
+        <div class="synergy-highlights">
+            <div class="highlight-card top-synergies">
+                <h4>🌟 Top Synergies</h4>
+                <div id="bit-ratchet-top" class="highlight-list"></div>
+            </div>
+            <div class="highlight-card bottom-synergies">
+                <h4>⚠️ Low Synergies</h4>
+                <div id="bit-ratchet-bottom" class="highlight-list"></div>
+            </div>
+        </div>
+        
+        <div class="heatmap-container">
+            <div id="bit-ratchet-heatmap" class="heatmap-grid"></div>
+        </div>
+        
+        <div class="synergy-table-container">
+            <h4>📊 Detailed Data</h4>
+            <table id="bit-ratchet-table" class="synergy-table">
+                <thead>
+                    <tr>
+                        <th>Bit</th>
+                        <th>Ratchet</th>
+                        <th>Synergy Score</th>
+                        <th>Win Rate</th>
+                        <th>Matches</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+    
+    <!-- Methodology Section -->
+    <section class="methodology-section">
+        <h3>📐 Methodology</h3>
+        <div class="methodology-content">
+            <p>Synergy scores are calculated using a weighted formula combining:</p>
+            <ul>
+                <li><strong>Win Rate (35%)</strong> — How often the combination wins matches</li>
+                <li><strong>Finish Quality (25%)</strong> — Weighted score favoring decisive finishes (Extreme > Burst > Pocket > Spin)</li>
+                <li><strong>ELO Performance (20%)</strong> — Average ELO achieved with this combination</li>
+                <li><strong>Stability (10%)</strong> — Consistency of performance (lower variance = higher stability)</li>
+                <li><strong>Stat Complementarity (10%)</strong> — How well part statistics reinforce each other</li>
+            </ul>
+            <p class="methodology-note">Combinations with fewer than 5 matches are marked as having insufficient data and should be interpreted with caution.</p>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script>
+// Global data
+let synergyData = null;
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Get synergy class based on score
+function getSynergyClass(score, hasSufficientData) {
+    if (!hasSufficientData) return 'insufficient';
+    if (score >= 80) return 'excellent';
+    if (score >= 60) return 'high';
+    if (score >= 40) return 'neutral';
+    return 'low';
+}
+
+// Get synergy label
+function getSynergyLabel(score, hasSufficientData) {
+    if (!hasSufficientData) return 'Insufficient Data';
+    if (score >= 80) return 'Excellent';
+    if (score >= 60) return 'Good';
+    if (score >= 40) return 'Neutral';
+    return 'Low';
+}
+
+// Load synergy data
+async function loadSynergyData() {
+    try {
+        const response = await fetch('data/synergy_data.json');
+        synergyData = await response.json();
+        renderAllSections();
+        setupEventListeners();
+    } catch (error) {
+        console.error('Error loading synergy data:', error);
+        document.querySelectorAll('.synergy-section').forEach(section => {
+            section.innerHTML = '<p class="error-message">Error loading synergy data. Please try refreshing the page.</p>';
+        });
+    }
+}
+
+// Render highlights (top/bottom synergies)
+function renderHighlights(pairType, containerId, data, isTop = true) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const validData = data.filter(d => d.has_sufficient_data);
+    const sorted = validData.sort((a, b) => isTop ? b.score - a.score : a.score - b.score);
+    const top5 = sorted.slice(0, 5);
+    
+    if (top5.length === 0) {
+        container.innerHTML = '<p class="no-data">No data available</p>';
+        return;
+    }
+    
+    container.innerHTML = top5.map((item, index) => `
+        <div class="highlight-item ${getSynergyClass(item.score, true)}">
+            <span class="highlight-rank">#${index + 1}</span>
+            <span class="highlight-parts">${escapeHtml(item.part1)} × ${escapeHtml(item.part2)}</span>
+            <span class="highlight-score">${item.score.toFixed(1)}</span>
+            <span class="highlight-winrate">${item.win_rate}% WR</span>
+        </div>
+    `).join('');
+}
+
+// Render heatmap grid
+function renderHeatmap(pairType, heatmapId, pairData) {
+    const container = document.getElementById(heatmapId);
+    if (!container || !pairData) return;
+    
+    const showInsufficient = document.getElementById('show-insufficient-data').checked;
+    const minMatches = parseInt(document.getElementById('min-matches-filter').value);
+    
+    const parts1 = pairData.parts1;
+    const parts2 = pairData.parts2;
+    const dataMap = {};
+    
+    // Build lookup map
+    pairData.data.forEach(item => {
+        dataMap[`${item.part1}|${item.part2}`] = item;
+    });
+    
+    // Calculate grid dimensions
+    const cellSize = 40;
+    const labelWidth = 100;
+    const labelHeight = 80;
+    
+    let html = `<div class="heatmap-wrapper" style="overflow-x: auto;">`;
+    html += `<table class="heatmap-table">`;
+    
+    // Header row with part2 labels
+    html += `<thead><tr><th class="corner-cell"></th>`;
+    parts2.forEach(p2 => {
+        html += `<th class="heatmap-header-cell"><span class="rotated-label">${escapeHtml(p2)}</span></th>`;
+    });
+    html += `</tr></thead>`;
+    
+    // Data rows
+    html += `<tbody>`;
+    parts1.forEach(p1 => {
+        html += `<tr><th class="heatmap-row-label">${escapeHtml(p1)}</th>`;
+        parts2.forEach(p2 => {
+            const key = `${p1}|${p2}`;
+            const item = dataMap[key];
+            
+            if (item && item.matches >= minMatches) {
+                const synergyClass = getSynergyClass(item.score, item.has_sufficient_data);
+                const shouldShow = showInsufficient || item.has_sufficient_data;
+                
+                if (shouldShow) {
+                    html += `<td class="heatmap-cell ${synergyClass}" 
+                                title="${escapeHtml(p1)} × ${escapeHtml(p2)}: Score ${item.score.toFixed(1)}, WR ${item.win_rate}%, ${item.matches} matches"
+                                data-part1="${escapeHtml(p1)}" 
+                                data-part2="${escapeHtml(p2)}"
+                                data-score="${item.score}">
+                                <span class="cell-score">${item.has_sufficient_data ? item.score.toFixed(0) : '?'}</span>
+                            </td>`;
+                } else {
+                    html += `<td class="heatmap-cell empty"></td>`;
+                }
+            } else {
+                html += `<td class="heatmap-cell empty"></td>`;
+            }
+        });
+        html += `</tr>`;
+    });
+    html += `</tbody></table></div>`;
+    
+    container.innerHTML = html;
+}
+
+// Render data table
+function renderTable(pairType, tableId, pairData) {
+    const table = document.querySelector(`#${tableId} tbody`);
+    if (!table || !pairData) return;
+    
+    const showInsufficient = document.getElementById('show-insufficient-data').checked;
+    const minMatches = parseInt(document.getElementById('min-matches-filter').value);
+    
+    // Filter and sort data
+    let filteredData = pairData.data.filter(item => item.matches >= minMatches);
+    if (!showInsufficient) {
+        filteredData = filteredData.filter(item => item.has_sufficient_data);
+    }
+    
+    // Sort by score descending
+    filteredData.sort((a, b) => b.score - a.score);
+    
+    if (filteredData.length === 0) {
+        table.innerHTML = '<tr><td colspan="6" class="no-data">No data matches the current filters</td></tr>';
+        return;
+    }
+    
+    table.innerHTML = filteredData.map(item => {
+        const synergyClass = getSynergyClass(item.score, item.has_sufficient_data);
+        const statusLabel = getSynergyLabel(item.score, item.has_sufficient_data);
+        
+        return `
+            <tr class="${synergyClass}">
+                <td><strong>${escapeHtml(item.part1)}</strong></td>
+                <td>${escapeHtml(item.part2)}</td>
+                <td class="score-cell ${synergyClass}">${item.score.toFixed(1)}</td>
+                <td>${item.win_rate}%</td>
+                <td>${item.matches}</td>
+                <td><span class="status-badge ${synergyClass}">${statusLabel}</span></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Render a single section
+function renderSection(sectionId, pairType) {
+    const pairData = synergyData[pairType.replace('-', '_')];
+    if (!pairData) return;
+    
+    // Render highlights
+    renderHighlights(pairType, `${pairType}-top`, pairData.data, true);
+    renderHighlights(pairType, `${pairType}-bottom`, pairData.data, false);
+    
+    // Render heatmap
+    renderHeatmap(pairType, `${pairType}-heatmap`, pairData);
+    
+    // Render table
+    renderTable(pairType, `${pairType}-table`, pairData);
+}
+
+// Render all sections
+function renderAllSections() {
+    if (!synergyData) return;
+    
+    renderSection('blade-bit-section', 'blade-bit');
+    renderSection('blade-ratchet-section', 'blade-ratchet');
+    renderSection('bit-ratchet-section', 'bit-ratchet');
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    // Tab switching
+    document.querySelectorAll('.parts-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.parts-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.synergy-section').forEach(s => s.classList.remove('active'));
+            
+            tab.classList.add('active');
+            const tabName = tab.dataset.tab;
+            document.getElementById(`${tabName}-section`).classList.add('active');
+        });
+    });
+    
+    // Filter changes
+    document.getElementById('show-insufficient-data').addEventListener('change', renderAllSections);
+    document.getElementById('min-matches-filter').addEventListener('change', renderAllSections);
+}
+
+// Initialize
+loadSynergyData();
+</script>
+
+<style>
+/* Synergy-specific styles */
+.synergy-legend {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+}
+
+.synergy-legend h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
+}
+
+.synergy-scale {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.scale-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.scale-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.scale-item.low .scale-color { background: #ef4444; }
+.scale-item.neutral .scale-color { background: #f59e0b; }
+.scale-item.high .scale-color { background: #22c55e; }
+.scale-item.excellent .scale-color { background: #3b82f6; }
+.scale-item.nodata .scale-color { 
+    background: repeating-linear-gradient(
+        45deg,
+        #64748b,
+        #64748b 2px,
+        #475569 2px,
+        #475569 4px
+    );
+}
+
+.synergy-filters {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.synergy-filters label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.synergy-section {
+    display: none;
+}
+
+.synergy-section.active {
+    display: block;
+}
+
+.section-description {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+/* Highlights */
+.synergy-highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.highlight-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid var(--border);
+}
+
+.highlight-card h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1rem;
+}
+
+.highlight-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.highlight-item.excellent { background: rgba(59, 130, 246, 0.15); border-left: 3px solid #3b82f6; }
+.highlight-item.high { background: rgba(34, 197, 94, 0.15); border-left: 3px solid #22c55e; }
+.highlight-item.neutral { background: rgba(245, 158, 11, 0.15); border-left: 3px solid #f59e0b; }
+.highlight-item.low { background: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; }
+
+.highlight-rank {
+    font-weight: bold;
+    min-width: 30px;
+}
+
+.highlight-parts {
+    flex: 1;
+    font-weight: 500;
+}
+
+.highlight-score {
+    font-weight: bold;
+    min-width: 40px;
+    text-align: right;
+}
+
+.highlight-winrate {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    min-width: 60px;
+    text-align: right;
+}
+
+/* Heatmap */
+.heatmap-container {
+    margin-bottom: 2rem;
+    overflow-x: auto;
+}
+
+.heatmap-wrapper {
+    min-width: min-content;
+}
+
+.heatmap-table {
+    border-collapse: collapse;
+    font-size: 0.75rem;
+}
+
+.heatmap-table th,
+.heatmap-table td {
+    border: 1px solid var(--border);
+}
+
+.corner-cell {
+    width: 100px;
+    min-width: 100px;
+}
+
+.heatmap-header-cell {
+    height: 100px;
+    vertical-align: bottom;
+    padding: 0.25rem;
+    white-space: nowrap;
+}
+
+.rotated-label {
+    display: block;
+    transform: rotate(-45deg);
+    transform-origin: bottom left;
+    width: 0;
+    white-space: nowrap;
+}
+
+.heatmap-row-label {
+    text-align: right;
+    padding: 0.25rem 0.5rem;
+    font-weight: 500;
+    white-space: nowrap;
+    min-width: 100px;
+}
+
+.heatmap-cell {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.1);
+    z-index: 10;
+    position: relative;
+}
+
+.heatmap-cell.excellent { background: #3b82f6; color: white; }
+.heatmap-cell.high { background: #22c55e; color: white; }
+.heatmap-cell.neutral { background: #f59e0b; color: white; }
+.heatmap-cell.low { background: #ef4444; color: white; }
+.heatmap-cell.insufficient { 
+    background: repeating-linear-gradient(
+        45deg,
+        #64748b,
+        #64748b 2px,
+        #475569 2px,
+        #475569 4px
+    );
+    color: white;
+}
+.heatmap-cell.empty { background: var(--card-bg); }
+
+.cell-score {
+    font-weight: bold;
+    font-size: 0.7rem;
+}
+
+/* Data Table */
+.synergy-table-container {
+    margin-top: 2rem;
+}
+
+.synergy-table-container h4 {
+    margin-bottom: 1rem;
+}
+
+.synergy-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.synergy-table th,
+.synergy-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.synergy-table th {
+    background: var(--card-bg);
+    font-weight: 600;
+}
+
+.synergy-table tr:hover {
+    background: var(--hover-bg);
+}
+
+.score-cell {
+    font-weight: bold;
+}
+
+.score-cell.excellent { color: #3b82f6; }
+.score-cell.high { color: #22c55e; }
+.score-cell.neutral { color: #f59e0b; }
+.score-cell.low { color: #ef4444; }
+.score-cell.insufficient { color: #64748b; }
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.excellent { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.status-badge.high { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+.status-badge.neutral { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+.status-badge.low { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+.status-badge.insufficient { background: rgba(100, 116, 139, 0.2); color: #64748b; }
+
+/* Methodology */
+.methodology-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.methodology-content {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.methodology-content ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.methodology-content li {
+    margin-bottom: 0.5rem;
+}
+
+.methodology-note {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.9rem;
+}
+
+.no-data {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 1rem;
+}
+
+.error-message {
+    text-align: center;
+    color: #ef4444;
+    padding: 2rem;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .heatmap-cell.empty {
+    background: #1e293b;
+}
+
+[data-theme="dark"] .methodology-note {
+    background: rgba(245, 158, 11, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .synergy-highlights {
+        grid-template-columns: 1fr;
+    }
+    
+    .synergy-filters {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .highlight-item {
+        flex-wrap: wrap;
+    }
+    
+    .synergy-table {
+        font-size: 0.8rem;
+    }
+    
+    .synergy-table th,
+    .synergy-table td {
+        padding: 0.5rem;
+    }
+}
+</style>
+
+</body>
+</html>

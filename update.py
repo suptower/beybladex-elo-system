@@ -10,6 +10,7 @@ SCRIPT_COUNTER_CHECKER = "./scripts/counter_checker.py"
 SCRIPT_SHEETS_UPLOAD = "./scripts/sheets_upload.py"
 SCRIPT_EXPORT_PDF = "./scripts/export_leaderboard_pdf.py"
 SCRIPT_GEN_PLOTS = "./scripts/gen_plots.py"
+SCRIPT_SYNERGY_HEATMAPS = "./scripts/synergy_heatmaps.py"
 
 # --- Argumente parsen ---
 parser = argparse.ArgumentParser(description="Beyblade X Update Script")
@@ -48,6 +49,13 @@ if result.stderr:
 # Advanced Stats berechnen
 print(f"{YELLOW}Starte Skript zur Berechnung erweiterter Statistiken...{RESET}")
 result = subprocess.run([sys.executable, SCRIPT_ADVANCED_STATS], capture_output=True, text=True)
+print(result.stdout)
+if result.stderr:
+    print(result.stderr)
+
+# Synergy Heatmaps generieren
+print(f"{YELLOW}Generiere Synergy Heatmap Daten...{RESET}")
+result = subprocess.run([sys.executable, SCRIPT_SYNERGY_HEATMAPS], capture_output=True, text=True)
 print(result.stdout)
 if result.stderr:
     print(result.stderr)
