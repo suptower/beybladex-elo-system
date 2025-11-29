@@ -4161,8 +4161,8 @@ body.dark .win-probability {
 
 /* Individual parallelogram tile */
 .rpg-stat-tile {
-    width: 40px;
-    height: 20px;
+    flex: 1;
+    height: 24px;
     position: relative;
     transform: skewX(-12deg);
     border: 2px solid var(--border);
@@ -4363,8 +4363,7 @@ body.dark .win-probability {
     }
     
     .rpg-stat-tile {
-        width: 32px;
-        height: 16px;
+        height: 18px;
     }
 }
 
@@ -4374,7 +4373,6 @@ body.dark .win-probability {
     }
     
     .rpg-stat-tile {
-        width: 28px;
-        height: 14px;
+        height: 16px;
     }
 }
