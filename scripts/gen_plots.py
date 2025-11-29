@@ -545,6 +545,18 @@ def generate_all_plots(mode):
     else:
         print("Interactive ELO Trends generated successfully.")
 
+    # Meta Landscape Plot
+    result = subprocess.run(
+        ["python", "scripts/visualization/meta_landscape.py"],
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print("Error running meta_landscape.py:")
+        print(result.stderr)
+    else:
+        print("Meta Landscape plots generated successfully.")
+
     print(f"All plots saved to: {files['outdir']}")
 
 
