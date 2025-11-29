@@ -1,0 +1,1658 @@
+{
+  "FoxBrush": {
+    "stats": {
+      "attack": 3.16,
+      "defense": 1.95,
+      "stamina": 3.49,
+      "control": 2.33,
+      "meta_impact": 3.5
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.087,
+        "pocket_finish_rate": 0.2174,
+        "extreme_finish_rate": 0.2609,
+        "offensive_point_efficiency": 1.8261,
+        "opening_dominance": 0.8
+      },
+      "defense": {
+        "burst_resistance": 0.7273,
+        "pocket_resistance": 0.7273,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.3636
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4348,
+        "spin_differential_index": 0.6667,
+        "long_round_win_rate": 0.6667
+      },
+      "control": {
+        "volatility_inverse": 0.4343,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.8622
+      },
+      "meta_impact": {
+        "elo_normalized": 1.0,
+        "elo_per_match": 7.588,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.2857,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 1,
+      "elo": 1076,
+      "matches": 10
+    }
+  },
+  "ImpactDrake": {
+    "stats": {
+      "attack": 3.16,
+      "defense": 2.27,
+      "stamina": 3.2,
+      "control": 2.44,
+      "meta_impact": 4.54
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2105,
+        "pocket_finish_rate": 0.2105,
+        "extreme_finish_rate": 0.1579,
+        "offensive_point_efficiency": 1.7368,
+        "opening_dominance": 0.625
+      },
+      "defense": {
+        "burst_resistance": 0.7778,
+        "pocket_resistance": 0.6667,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.6667
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4211,
+        "spin_differential_index": 0.6667,
+        "long_round_win_rate": 0.6
+      },
+      "control": {
+        "volatility_inverse": 0.4844,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.8571
+      },
+      "meta_impact": {
+        "elo_normalized": 0.8889,
+        "elo_per_match": 7.9988,
+        "upset_rate": 0.2857,
+        "matchup_spread": 0.2286,
+        "anti_meta_score": 1.0
+      }
+    },
+    "leaderboard": {
+      "rank": 2,
+      "elo": 1064,
+      "matches": 8
+    }
+  },
+  "CerberusFlame": {
+    "stats": {
+      "attack": 2.42,
+      "defense": 3.06,
+      "stamina": 1.87,
+      "control": 2.47,
+      "meta_impact": 2.61
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.5,
+        "pocket_finish_rate": 0.125,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.625,
+        "opening_dominance": 0.75
+      },
+      "defense": {
+        "burst_resistance": 1.0,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 0.75,
+        "defensive_conversion": 0.5
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.375,
+        "spin_differential_index": 0.5,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.3704,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9333
+      },
+      "meta_impact": {
+        "elo_normalized": 0.6019,
+        "elo_per_match": 8.1775,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.1143,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 3,
+      "elo": 1033,
+      "matches": 4
+    }
+  },
+  "CobaltDragoon": {
+    "stats": {
+      "attack": 3.11,
+      "defense": 2.06,
+      "stamina": 2.5,
+      "control": 1.76,
+      "meta_impact": 3.2
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0909,
+        "pocket_finish_rate": 0.1818,
+        "extreme_finish_rate": 0.2727,
+        "offensive_point_efficiency": 1.8182,
+        "opening_dominance": 1.0
+      },
+      "defense": {
+        "burst_resistance": 0.75,
+        "pocket_resistance": 0.75,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.375
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4545,
+        "spin_differential_index": 0.5556,
+        "long_round_win_rate": 0.4545
+      },
+      "control": {
+        "volatility_inverse": 0.367,
+        "first_contact_advantage": 0.6,
+        "match_flow_stability": 0.73
+      },
+      "meta_impact": {
+        "elo_normalized": 0.5648,
+        "elo_per_match": 5.864,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.1429,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 4,
+      "elo": 1029,
+      "matches": 5
+    }
+  },
+  "KnightMail": {
+    "stats": {
+      "attack": 1.58,
+      "defense": 1.9,
+      "stamina": 3.77,
+      "control": 2.36,
+      "meta_impact": 3.54
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.125,
+        "pocket_finish_rate": 0.375,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.5,
+        "opening_dominance": 0.3333
+      },
+      "defense": {
+        "burst_resistance": 0.75,
+        "pocket_resistance": 0.5,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.75
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.5,
+        "spin_differential_index": 0.8,
+        "long_round_win_rate": 0.6
+      },
+      "control": {
+        "volatility_inverse": 0.3906,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9
+      },
+      "meta_impact": {
+        "elo_normalized": 0.5,
+        "elo_per_match": 7.35,
+        "upset_rate": 1.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 5,
+      "elo": 1022,
+      "matches": 3
+    }
+  },
+  "TuskMammoth": {
+    "stats": {
+      "attack": 2.74,
+      "defense": 1.84,
+      "stamina": 2.46,
+      "control": 2.18,
+      "meta_impact": 3.22
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2,
+        "pocket_finish_rate": 0.3333,
+        "extreme_finish_rate": 0.0667,
+        "offensive_point_efficiency": 1.6667,
+        "opening_dominance": 0.5714
+      },
+      "defense": {
+        "burst_resistance": 0.75,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 0.625,
+        "defensive_conversion": 0.375
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4,
+        "spin_differential_index": 0.6667,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.3127,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9095
+      },
+      "meta_impact": {
+        "elo_normalized": 0.5,
+        "elo_per_match": 3.14,
+        "upset_rate": 0.4,
+        "matchup_spread": 0.1714,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 6,
+      "elo": 1022,
+      "matches": 7
+    }
+  },
+  "DranDagger": {
+    "stats": {
+      "attack": 3.39,
+      "defense": 2.78,
+      "stamina": 1.2,
+      "control": 1.67,
+      "meta_impact": 3.51
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.3333,
+        "pocket_finish_rate": 0.2222,
+        "extreme_finish_rate": 0.1111,
+        "offensive_point_efficiency": 1.7778,
+        "opening_dominance": 0.6
+      },
+      "defense": {
+        "burst_resistance": 0.875,
+        "pocket_resistance": 0.875,
+        "extreme_resistance": 0.875,
+        "defensive_conversion": 0.25
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.3333,
+        "spin_differential_index": 0.375,
+        "long_round_win_rate": 0.2
+      },
+      "control": {
+        "volatility_inverse": 0.2112,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.87
+      },
+      "meta_impact": {
+        "elo_normalized": 0.5,
+        "elo_per_match": 4.328,
+        "upset_rate": 0.3333,
+        "matchup_spread": 0.1143,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 7,
+      "elo": 1022,
+      "matches": 5
+    }
+  },
+  "RhinoReaper": {
+    "stats": {
+      "attack": 3.0,
+      "defense": 1.92,
+      "stamina": 3.63,
+      "control": 1.57,
+      "meta_impact": 3.89
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2308,
+        "pocket_finish_rate": 0.1538,
+        "extreme_finish_rate": 0.1538,
+        "offensive_point_efficiency": 1.6923,
+        "opening_dominance": 0.6667
+      },
+      "defense": {
+        "burst_resistance": 0.6,
+        "pocket_resistance": 0.7,
+        "extreme_resistance": 0.9,
+        "defensive_conversion": 0.5
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4615,
+        "spin_differential_index": 0.75,
+        "long_round_win_rate": 0.5625
+      },
+      "control": {
+        "volatility_inverse": 0.3078,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.7033
+      },
+      "meta_impact": {
+        "elo_normalized": 0.4907,
+        "elo_per_match": 3.56,
+        "upset_rate": 1.0,
+        "matchup_spread": 0.1714,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 8,
+      "elo": 1021,
+      "matches": 6
+    }
+  },
+  "WeissTiger": {
+    "stats": {
+      "attack": 2.59,
+      "defense": 2.53,
+      "stamina": 1.21,
+      "control": 1.28,
+      "meta_impact": 2.01
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.5,
+        "pocket_finish_rate": 0.1667,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.6667,
+        "opening_dominance": 1.0
+      },
+      "defense": {
+        "burst_resistance": 0.8333,
+        "pocket_resistance": 0.8333,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.3333
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.3333,
+        "spin_differential_index": 0.3333,
+        "long_round_win_rate": 0.4
+      },
+      "control": {
+        "volatility_inverse": 0.3896,
+        "first_contact_advantage": 0.3333,
+        "match_flow_stability": 0.7
+      },
+      "meta_impact": {
+        "elo_normalized": 0.4537,
+        "elo_per_match": 5.5133,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 9,
+      "elo": 1017,
+      "matches": 3
+    }
+  },
+  "UnicornSting": {
+    "stats": {
+      "attack": 2.85,
+      "defense": 2.22,
+      "stamina": 2.83,
+      "control": 1.61,
+      "meta_impact": 2.66
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.125,
+        "pocket_finish_rate": 0.125,
+        "extreme_finish_rate": 0.25,
+        "offensive_point_efficiency": 1.75,
+        "opening_dominance": 0.8
+      },
+      "defense": {
+        "burst_resistance": 0.8571,
+        "pocket_resistance": 0.7143,
+        "extreme_resistance": 0.8571,
+        "defensive_conversion": 0.2857
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.5,
+        "spin_differential_index": 0.5714,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.1587,
+        "first_contact_advantage": 0.75,
+        "match_flow_stability": 0.9
+      },
+      "meta_impact": {
+        "elo_normalized": 0.3426,
+        "elo_per_match": 1.09,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.1143,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 10,
+      "elo": 1005,
+      "matches": 5
+    }
+  },
+  "ViperTail": {
+    "stats": {
+      "attack": 1.34,
+      "defense": 2.49,
+      "stamina": 3.87,
+      "control": 2.07,
+      "meta_impact": 2.56
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.25,
+        "pocket_finish_rate": 0.125,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.375,
+        "opening_dominance": 0.25
+      },
+      "defense": {
+        "burst_resistance": 0.875,
+        "pocket_resistance": 0.625,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.375
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.625,
+        "spin_differential_index": 0.5556,
+        "long_round_win_rate": 0.6
+      },
+      "control": {
+        "volatility_inverse": 0.2511,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9333
+      },
+      "meta_impact": {
+        "elo_normalized": 0.3333,
+        "elo_per_match": 0.99,
+        "upset_rate": 0.5,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 11,
+      "elo": 1004,
+      "matches": 4
+    }
+  },
+  "DranSword": {
+    "stats": {
+      "attack": 2.11,
+      "defense": 2.75,
+      "stamina": 4.3,
+      "control": 1.79,
+      "meta_impact": 2.99
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0909,
+        "pocket_finish_rate": 0.1818,
+        "extreme_finish_rate": 0.0909,
+        "offensive_point_efficiency": 1.4545,
+        "opening_dominance": 0.6
+      },
+      "defense": {
+        "burst_resistance": 0.8889,
+        "pocket_resistance": 0.6667,
+        "extreme_resistance": 0.8889,
+        "defensive_conversion": 0.4444
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.6364,
+        "spin_differential_index": 0.6364,
+        "long_round_win_rate": 0.6667
+      },
+      "control": {
+        "volatility_inverse": 0.4954,
+        "first_contact_advantage": 0.3333,
+        "match_flow_stability": 0.85
+      },
+      "meta_impact": {
+        "elo_normalized": 0.3148,
+        "elo_per_match": 0.396,
+        "upset_rate": 0.6667,
+        "matchup_spread": 0.1429,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 12,
+      "elo": 1002,
+      "matches": 5
+    }
+  },
+  "SilverWolf": {
+    "stats": {
+      "attack": 2.4,
+      "defense": 1.46,
+      "stamina": 3.6,
+      "control": 2.04,
+      "meta_impact": 3.33
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2857,
+        "pocket_finish_rate": 0.0,
+        "extreme_finish_rate": 0.1429,
+        "offensive_point_efficiency": 1.5714,
+        "opening_dominance": 0.5
+      },
+      "defense": {
+        "burst_resistance": 0.3333,
+        "pocket_resistance": 0.8333,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.1667
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.5714,
+        "spin_differential_index": 0.8,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.2896,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9083
+      },
+      "meta_impact": {
+        "elo_normalized": 0.2963,
+        "elo_per_match": -0.035,
+        "upset_rate": 1.0,
+        "matchup_spread": 0.1143,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 13,
+      "elo": 1000,
+      "matches": 4
+    }
+  },
+  "WizardRod": {
+    "stats": {
+      "attack": 2.37,
+      "defense": 1.84,
+      "stamina": 1.51,
+      "control": 3.67,
+      "meta_impact": 2.69
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.3333,
+        "pocket_finish_rate": 0.3333,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.6667,
+        "opening_dominance": 0.6
+      },
+      "defense": {
+        "burst_resistance": 0.75,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 0.625,
+        "defensive_conversion": 0.375
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.3333,
+        "spin_differential_index": 0.5,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.5984,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.97
+      },
+      "meta_impact": {
+        "elo_normalized": 0.287,
+        "elo_per_match": -0.206,
+        "upset_rate": 0.3333,
+        "matchup_spread": 0.1429,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 14,
+      "elo": 999,
+      "matches": 5
+    }
+  },
+  "DranBuster": {
+    "stats": {
+      "attack": 2.85,
+      "defense": 1.78,
+      "stamina": 0.23,
+      "control": 1.51,
+      "meta_impact": 2.42
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.3333,
+        "pocket_finish_rate": 0.6667,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 2.0,
+        "opening_dominance": 0.3333
+      },
+      "defense": {
+        "burst_resistance": 0.5,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.1667
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.0,
+        "spin_differential_index": 0.0,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.0082,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9
+      },
+      "meta_impact": {
+        "elo_normalized": 0.2593,
+        "elo_per_match": -1.4233,
+        "upset_rate": 1.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 15,
+      "elo": 996,
+      "matches": 3
+    }
+  },
+  "HellsChain": {
+    "stats": {
+      "attack": 3.43,
+      "defense": 2.21,
+      "stamina": 1.7,
+      "control": 2.56,
+      "meta_impact": 1.48
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2,
+        "pocket_finish_rate": 0.2,
+        "extreme_finish_rate": 0.4,
+        "offensive_point_efficiency": 2.2,
+        "opening_dominance": 0.3333
+      },
+      "defense": {
+        "burst_resistance": 0.625,
+        "pocket_resistance": 0.875,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.375
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.2,
+        "spin_differential_index": 0.2,
+        "long_round_win_rate": 0.6
+      },
+      "control": {
+        "volatility_inverse": 0.6508,
+        "first_contact_advantage": 0.0,
+        "match_flow_stability": 0.9667
+      },
+      "meta_impact": {
+        "elo_normalized": 0.25,
+        "elo_per_match": -1.78,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 16,
+      "elo": 995,
+      "matches": 3
+    }
+  },
+  "GolemRock": {
+    "stats": {
+      "attack": 0.87,
+      "defense": 1.41,
+      "stamina": 4.01,
+      "control": 1.87,
+      "meta_impact": 1.69
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 0.2857,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.2857,
+        "opening_dominance": 0.5
+      },
+      "defense": {
+        "burst_resistance": 0.4,
+        "pocket_resistance": 0.6,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.4
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.7143,
+        "spin_differential_index": 1.0,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.1174,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9333
+      },
+      "meta_impact": {
+        "elo_normalized": 0.2407,
+        "elo_per_match": -1.515,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.1143,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 17,
+      "elo": 994,
+      "matches": 4
+    }
+  },
+  "WizardArrow": {
+    "stats": {
+      "attack": 1.83,
+      "defense": 2.21,
+      "stamina": 2.27,
+      "control": 2.54,
+      "meta_impact": 1.68
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.5,
+        "pocket_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.5,
+        "opening_dominance": 0.5
+      },
+      "defense": {
+        "burst_resistance": 0.8,
+        "pocket_resistance": 0.6,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.6
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.5,
+        "spin_differential_index": 0.5,
+        "long_round_win_rate": 0.4
+      },
+      "control": {
+        "volatility_inverse": 0.9668,
+        "first_contact_advantage": 0.0,
+        "match_flow_stability": 0.95
+      },
+      "meta_impact": {
+        "elo_normalized": 0.2315,
+        "elo_per_match": -3.35,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0571,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 18,
+      "elo": 993,
+      "matches": 2
+    }
+  },
+  "WhaleFlame": {
+    "stats": {
+      "attack": 2.46,
+      "defense": 1.45,
+      "stamina": 0.87,
+      "control": 2.1,
+      "meta_impact": 1.31
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 1.0,
+        "pocket_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 2.0,
+        "opening_dominance": 0.0
+      },
+      "defense": {
+        "burst_resistance": 0.5,
+        "pocket_resistance": 0.5,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.5
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.0,
+        "spin_differential_index": 0.5,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 1.0,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 0.5
+      },
+      "meta_impact": {
+        "elo_normalized": 0.2222,
+        "elo_per_match": -7.82,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0286,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 19,
+      "elo": 992,
+      "matches": 1
+    }
+  },
+  "PerseusDark": {
+    "stats": {
+      "attack": 0.54,
+      "defense": 1.54,
+      "stamina": 4.04,
+      "control": 2.11,
+      "meta_impact": 1.74
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 0.1667,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.1667,
+        "opening_dominance": 0.3333
+      },
+      "defense": {
+        "burst_resistance": 0.8,
+        "pocket_resistance": 0.4,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.2
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.8333,
+        "spin_differential_index": 0.8333,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.0,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9667
+      },
+      "meta_impact": {
+        "elo_normalized": 0.2222,
+        "elo_per_match": -2.7867,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 20,
+      "elo": 992,
+      "matches": 3
+    }
+  },
+  "ScorpioSpear": {
+    "stats": {
+      "attack": 2.59,
+      "defense": 1.86,
+      "stamina": 1.94,
+      "control": 2.96,
+      "meta_impact": 1.48
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 0.2,
+        "extreme_finish_rate": 0.4,
+        "offensive_point_efficiency": 2.0,
+        "opening_dominance": 0.5
+      },
+      "defense": {
+        "burst_resistance": 1.0,
+        "pocket_resistance": 0.4286,
+        "extreme_resistance": 0.8571,
+        "defensive_conversion": 0.1429
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4,
+        "spin_differential_index": 0.5,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.3256,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 1.0
+      },
+      "meta_impact": {
+        "elo_normalized": 0.2222,
+        "elo_per_match": -2.1175,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.1143,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 21,
+      "elo": 992,
+      "matches": 4
+    }
+  },
+  "PhoenixRudder": {
+    "stats": {
+      "attack": 1.79,
+      "defense": 2.48,
+      "stamina": 2.67,
+      "control": 3.02,
+      "meta_impact": 2.66
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.1429,
+        "pocket_finish_rate": 0.4286,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.5714,
+        "opening_dominance": 0.25
+      },
+      "defense": {
+        "burst_resistance": 0.7778,
+        "pocket_resistance": 0.7778,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.4444
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4286,
+        "spin_differential_index": 0.375,
+        "long_round_win_rate": 0.6
+      },
+      "control": {
+        "volatility_inverse": 0.5734,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9333
+      },
+      "meta_impact": {
+        "elo_normalized": 0.213,
+        "elo_per_match": -2.185,
+        "upset_rate": 0.5,
+        "matchup_spread": 0.1143,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 22,
+      "elo": 991,
+      "matches": 4
+    }
+  },
+  "LeonCrest": {
+    "stats": {
+      "attack": 2.01,
+      "defense": 2.53,
+      "stamina": 1.0,
+      "control": 2.84,
+      "meta_impact": 0.86
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.3333,
+        "pocket_finish_rate": 0.3333,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.6667,
+        "opening_dominance": 0.0
+      },
+      "defense": {
+        "burst_resistance": 0.8333,
+        "pocket_resistance": 0.8333,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.3333
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.3333,
+        "spin_differential_index": 0.2,
+        "long_round_win_rate": 0.4
+      },
+      "control": {
+        "volatility_inverse": 0.874,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 0.95
+      },
+      "meta_impact": {
+        "elo_normalized": 0.213,
+        "elo_per_match": -4.71,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0571,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 23,
+      "elo": 991,
+      "matches": 2
+    }
+  },
+  "WizardArc": {
+    "stats": {
+      "attack": 0.29,
+      "defense": 2.77,
+      "stamina": 3.5,
+      "control": 2.49,
+      "meta_impact": 0.77
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.0,
+        "opening_dominance": 0.5
+      },
+      "defense": {
+        "burst_resistance": 0.8333,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 0.8333,
+        "defensive_conversion": 0.6667
+      },
+      "stamina": {
+        "spin_finish_win_rate": 1.0,
+        "spin_differential_index": 0.5556,
+        "long_round_win_rate": 0.4545
+      },
+      "control": {
+        "volatility_inverse": 0.9057,
+        "first_contact_advantage": 0.0,
+        "match_flow_stability": 0.95
+      },
+      "meta_impact": {
+        "elo_normalized": 0.1944,
+        "elo_per_match": -5.285,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0571,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 24,
+      "elo": 989,
+      "matches": 2
+    }
+  },
+  "TyrannoBeat": {
+    "stats": {
+      "attack": 1.61,
+      "defense": 1.64,
+      "stamina": 3.37,
+      "control": 2.41,
+      "meta_impact": 0.92
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.4,
+        "pocket_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.4,
+        "opening_dominance": 0.3333
+      },
+      "defense": {
+        "burst_resistance": 0.5,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 0.8333,
+        "defensive_conversion": 0.3333
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.6,
+        "spin_differential_index": 0.6,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.5301,
+        "first_contact_advantage": 0.0,
+        "match_flow_stability": 0.9667
+      },
+      "meta_impact": {
+        "elo_normalized": 0.1759,
+        "elo_per_match": -4.3567,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 25,
+      "elo": 987,
+      "matches": 3
+    }
+  },
+  "HellsReaper": {
+    "stats": {
+      "attack": 2.91,
+      "defense": 2.88,
+      "stamina": 0.23,
+      "control": 3.46,
+      "meta_impact": 1.19
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.5,
+        "pocket_finish_rate": 0.5,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 2.0,
+        "opening_dominance": 0.0
+      },
+      "defense": {
+        "burst_resistance": 1.0,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 0.5,
+        "defensive_conversion": 0.5
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.0,
+        "spin_differential_index": 0.0,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.9995,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 1.0
+      },
+      "meta_impact": {
+        "elo_normalized": 0.1759,
+        "elo_per_match": -6.665,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0571,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 26,
+      "elo": 987,
+      "matches": 2
+    }
+  },
+  "PhoenixWing": {
+    "stats": {
+      "attack": 2.69,
+      "defense": 2.34,
+      "stamina": 1.03,
+      "control": 1.3,
+      "meta_impact": 2.38
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.3333,
+        "pocket_finish_rate": 0.5,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.8333,
+        "opening_dominance": 0.25
+      },
+      "defense": {
+        "burst_resistance": 0.875,
+        "pocket_resistance": 0.75,
+        "extreme_resistance": 0.75,
+        "defensive_conversion": 0.375
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.1667,
+        "spin_differential_index": 0.25,
+        "long_round_win_rate": 0.4
+      },
+      "control": {
+        "volatility_inverse": 0.4348,
+        "first_contact_advantage": 0.0,
+        "match_flow_stability": 0.8333
+      },
+      "meta_impact": {
+        "elo_normalized": 0.1574,
+        "elo_per_match": -3.765,
+        "upset_rate": 0.5,
+        "matchup_spread": 0.1143,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 27,
+      "elo": 985,
+      "matches": 4
+    }
+  },
+  "SharkEdge": {
+    "stats": {
+      "attack": 1.06,
+      "defense": 1.32,
+      "stamina": 2.96,
+      "control": 1.76,
+      "meta_impact": 0.79
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 0.5,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.5,
+        "opening_dominance": 0.3333
+      },
+      "defense": {
+        "burst_resistance": 0.8,
+        "pocket_resistance": 0.6,
+        "extreme_resistance": 0.8,
+        "defensive_conversion": 0.2
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.5,
+        "spin_differential_index": 0.6667,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.2256,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9
+      },
+      "meta_impact": {
+        "elo_normalized": 0.1574,
+        "elo_per_match": -5.0467,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 28,
+      "elo": 985,
+      "matches": 3
+    }
+  },
+  "PegasusBlast": {
+    "stats": {
+      "attack": 0.0,
+      "defense": 2.28,
+      "stamina": 0.23,
+      "control": 2.1,
+      "meta_impact": 0.3
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 0.0,
+        "opening_dominance": 0.0
+      },
+      "defense": {
+        "burst_resistance": 1.0,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 0.5,
+        "defensive_conversion": 0.0
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.0,
+        "spin_differential_index": 0.0,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 1.0,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 0.5
+      },
+      "meta_impact": {
+        "elo_normalized": 0.1296,
+        "elo_per_match": -17.9,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0286,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 29,
+      "elo": 982,
+      "matches": 1
+    }
+  },
+  "DranBrave": {
+    "stats": {
+      "attack": 2.91,
+      "defense": 1.56,
+      "stamina": 2.44,
+      "control": 2.21,
+      "meta_impact": 1.21
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.25,
+        "pocket_finish_rate": 0.0,
+        "extreme_finish_rate": 0.25,
+        "offensive_point_efficiency": 1.75,
+        "opening_dominance": 0.6667
+      },
+      "defense": {
+        "burst_resistance": 0.8333,
+        "pocket_resistance": 0.6667,
+        "extreme_resistance": 0.8333,
+        "defensive_conversion": 0.1667
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.5,
+        "spin_differential_index": 0.5,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.3526,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 0.9667
+      },
+      "meta_impact": {
+        "elo_normalized": 0.1204,
+        "elo_per_match": -6.25,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 30,
+      "elo": 981,
+      "matches": 3
+    }
+  },
+  "LeonClaw": {
+    "stats": {
+      "attack": 1.73,
+      "defense": 2.51,
+      "stamina": 0.23,
+      "control": 2.14,
+      "meta_impact": 0.26
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 1.0,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 2.0,
+        "opening_dominance": 0.0
+      },
+      "defense": {
+        "burst_resistance": 1.0,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 0.5,
+        "defensive_conversion": 0.25
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.0,
+        "spin_differential_index": 0.0,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.3757,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 0.95
+      },
+      "meta_impact": {
+        "elo_normalized": 0.0926,
+        "elo_per_match": -10.825,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0571,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 31,
+      "elo": 978,
+      "matches": 2
+    }
+  },
+  "HellsHammer": {
+    "stats": {
+      "attack": 0.91,
+      "defense": 2.95,
+      "stamina": 1.86,
+      "control": 1.54,
+      "meta_impact": 0.24
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 0.5,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.5,
+        "opening_dominance": 0.0
+      },
+      "defense": {
+        "burst_resistance": 1.0,
+        "pocket_resistance": 1.0,
+        "extreme_resistance": 0.8571,
+        "defensive_conversion": 0.2857
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.5,
+        "spin_differential_index": 0.1429,
+        "long_round_win_rate": 0.3333
+      },
+      "control": {
+        "volatility_inverse": 0.4545,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 0.55
+      },
+      "meta_impact": {
+        "elo_normalized": 0.0926,
+        "elo_per_match": -10.88,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0571,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 32,
+      "elo": 978,
+      "matches": 2
+    }
+  },
+  "BlackShell": {
+    "stats": {
+      "attack": 1.73,
+      "defense": 2.54,
+      "stamina": 0.23,
+      "control": 1.91,
+      "meta_impact": 1.35
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 1.0,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 2.0,
+        "opening_dominance": 0.0
+      },
+      "defense": {
+        "burst_resistance": 1.0,
+        "pocket_resistance": 0.7143,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.1429
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.0,
+        "spin_differential_index": 0.0,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.0976,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 1.0
+      },
+      "meta_impact": {
+        "elo_normalized": 0.0926,
+        "elo_per_match": -7.4967,
+        "upset_rate": 1.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 33,
+      "elo": 978,
+      "matches": 3
+    }
+  },
+  "WhaleWave": {
+    "stats": {
+      "attack": 2.17,
+      "defense": 2.31,
+      "stamina": 1.17,
+      "control": 2.66,
+      "meta_impact": 1.81
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.3333,
+        "pocket_finish_rate": 0.3333,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.6667,
+        "opening_dominance": 0.3333
+      },
+      "defense": {
+        "burst_resistance": 0.8571,
+        "pocket_resistance": 0.8571,
+        "extreme_resistance": 0.8571,
+        "defensive_conversion": 0.1429
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.3333,
+        "spin_differential_index": 0.2,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.3155,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.9667
+      },
+      "meta_impact": {
+        "elo_normalized": 0.0833,
+        "elo_per_match": -7.8267,
+        "upset_rate": 1.0,
+        "matchup_spread": 0.0857,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 34,
+      "elo": 977,
+      "matches": 3
+    }
+  },
+  "SamuraiSaber": {
+    "stats": {
+      "attack": 2.71,
+      "defense": 1.99,
+      "stamina": 0.23,
+      "control": 1.46,
+      "meta_impact": 0.13
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 1.0,
+        "pocket_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 2.0,
+        "opening_dominance": 0.5
+      },
+      "defense": {
+        "burst_resistance": 1.0,
+        "pocket_resistance": 0.4,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.0
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.0,
+        "spin_differential_index": 0.0,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.5209,
+        "first_contact_advantage": 0.0,
+        "match_flow_stability": 0.8
+      },
+      "meta_impact": {
+        "elo_normalized": 0.0463,
+        "elo_per_match": -13.715,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0571,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 35,
+      "elo": 973,
+      "matches": 2
+    }
+  },
+  "CrimsonGaruda": {
+    "stats": {
+      "attack": 0.04,
+      "defense": 2.42,
+      "stamina": 2.96,
+      "control": 2.79,
+      "meta_impact": 0.61
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.0,
+        "pocket_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0,
+        "offensive_point_efficiency": 1.0,
+        "opening_dominance": 0.0
+      },
+      "defense": {
+        "burst_resistance": 1.0,
+        "pocket_resistance": 0.6667,
+        "extreme_resistance": 1.0,
+        "defensive_conversion": 0.1667
+      },
+      "stamina": {
+        "spin_finish_win_rate": 1.0,
+        "spin_differential_index": 0.2,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.7278,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 0.95
+      },
+      "meta_impact": {
+        "elo_normalized": 0.0,
+        "elo_per_match": -16.0,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0571,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 36,
+      "elo": 968,
+      "matches": 2
+    }
+  }
+}

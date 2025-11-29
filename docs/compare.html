@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Beys - suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Compare Beys</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="plots.html">Plots</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <div class="nav-dropdown">
+                <button class="nav-dropdown-toggle">Analysis ▼</button>
+                <div class="nav-dropdown-content">
+                    <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="compare-page">
+    <!-- View Toggle -->
+    <div class="compare-view-toggle">
+        <button class="view-btn active" id="tableViewBtn" onclick="showView('table')">
+            📊 Stats Table
+        </button>
+        <button class="view-btn" id="compareViewBtn" onclick="showView('compare')">
+            ⚔️ Compare Beys
+        </button>
+    </div>
+
+    <!-- Stats Table View -->
+    <section id="tableView" class="compare-section">
+        <div class="section-header">
+            <h2>📊 RPG Stats Overview</h2>
+            <p>View and sort all Beyblade stats in one place</p>
+        </div>
+        
+        <div class="table-controls">
+            <div class="search-container">
+                <input type="text" id="tableSearch" placeholder="Search beys...">
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table id="statsTable" class="stats-table">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="rank">Rank</th>
+                        <th class="sortable" data-sort="name">Bey</th>
+                        <th class="sortable" data-sort="elo">ELO</th>
+                        <th class="sortable stat-attack" data-sort="attack">⚔️ ATK</th>
+                        <th class="sortable stat-defense" data-sort="defense">🛡️ DEF</th>
+                        <th class="sortable stat-stamina" data-sort="stamina">💪 STA</th>
+                        <th class="sortable stat-control" data-sort="control">🎯 CTR</th>
+                        <th class="sortable stat-meta" data-sort="meta_impact">⭐ META</th>
+                        <th class="sortable" data-sort="total">Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="statsTableBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Compare View -->
+    <section id="compareView" class="compare-section" style="display: none;">
+        <div class="section-header">
+            <h2>⚔️ Compare Beyblades</h2>
+            <p>Select up to 4 beys to compare side-by-side</p>
+        </div>
+        
+        <div class="compare-selector">
+            <div class="selector-grid" id="selectorGrid">
+                <!-- Selector slots populated by JavaScript -->
+            </div>
+            <button class="clear-compare-btn" onclick="clearComparison()">Clear All</button>
+        </div>
+        
+        <div class="compare-cards" id="compareCards">
+            <!-- Comparison cards populated by JavaScript -->
+        </div>
+        
+        <div class="compare-chart-section" id="compareChartSection" style="display: none;">
+            <h3>📈 Stats Comparison Chart</h3>
+            <div class="compare-radar-container">
+                <canvas id="compareRadarChart"></canvas>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let rpgStatsData = {};
+let allBeys = [];
+let selectedBeys = [];
+let currentSort = { column: 'rank', asc: true };
+let radarChart = null;
+
+// Stat colors
+const statColors = {
+    attack: { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgb(239, 68, 68)' },
+    defense: { bg: 'rgba(59, 130, 246, 0.2)', border: 'rgb(59, 130, 246)' },
+    stamina: { bg: 'rgba(16, 185, 129, 0.2)', border: 'rgb(16, 185, 129)' },
+    control: { bg: 'rgba(245, 158, 11, 0.2)', border: 'rgb(245, 158, 11)' },
+    meta_impact: { bg: 'rgba(139, 92, 246, 0.2)', border: 'rgb(139, 92, 246)' }
+};
+
+// Bey colors for comparison
+const beyColors = [
+    { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgb(239, 68, 68)' },
+    { bg: 'rgba(59, 130, 246, 0.2)', border: 'rgb(59, 130, 246)' },
+    { bg: 'rgba(16, 185, 129, 0.2)', border: 'rgb(16, 185, 129)' },
+    { bg: 'rgba(245, 158, 11, 0.2)', border: 'rgb(245, 158, 11)' }
+];
+
+// Sub-metric display names
+const subMetricNames = {
+    attack: {
+        burst_finish_rate: 'Burst Finish Rate',
+        pocket_finish_rate: 'Pocket Finish Rate',
+        extreme_finish_rate: 'Extreme Finish Rate',
+        offensive_point_efficiency: 'Point Efficiency',
+        opening_dominance: 'Opening Dominance'
+    },
+    defense: {
+        burst_resistance: 'Burst Resistance',
+        pocket_resistance: 'Pocket Resistance',
+        extreme_resistance: 'Extreme Resistance',
+        defensive_conversion: 'Defensive Conversion'
+    },
+    stamina: {
+        spin_finish_win_rate: 'Spin Win Rate',
+        spin_differential_index: 'Spin Differential',
+        long_round_win_rate: 'Long Round Win Rate'
+    },
+    control: {
+        volatility_inverse: 'Consistency',
+        first_contact_advantage: 'First Contact Advantage',
+        match_flow_stability: 'Match Flow Stability'
+    },
+    meta_impact: {
+        elo_normalized: 'Normalized ELO',
+        elo_per_match: 'ELO per Match',
+        upset_rate: 'Upset Rate',
+        matchup_spread: 'Matchup Spread',
+        anti_meta_score: 'Anti-Meta Score'
+    }
+};
+
+// Load data
+async function loadData() {
+    try {
+        const response = await fetch('data/rpg_stats.json');
+        rpgStatsData = await response.json();
+        
+        // Convert to array with names
+        allBeys = Object.entries(rpgStatsData).map(([name, data]) => ({
+            name,
+            ...data.stats,
+            total: Object.values(data.stats).reduce((a, b) => a + b, 0),
+            sub_metrics: data.sub_metrics,
+            leaderboard: data.leaderboard || {}
+        }));
+        
+        // Sort by rank initially
+        allBeys.sort((a, b) => (a.leaderboard.rank || 999) - (b.leaderboard.rank || 999));
+        
+        renderStatsTable();
+        renderSelectorSlots();
+        
+        // Check URL for pre-selected beys
+        const urlParams = new URLSearchParams(window.location.search);
+        const compareParam = urlParams.get('compare');
+        if (compareParam) {
+            const beys = compareParam.split(',');
+            beys.forEach(bey => {
+                if (rpgStatsData[bey]) {
+                    addToComparison(bey);
+                }
+            });
+            showView('compare');
+        }
+    } catch (error) {
+        console.error('Error loading data:', error);
+    }
+}
+
+// Show view
+function showView(view) {
+    document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
+    document.getElementById('compareView').style.display = view === 'compare' ? 'block' : 'none';
+    document.getElementById('tableViewBtn').classList.toggle('active', view === 'table');
+    document.getElementById('compareViewBtn').classList.toggle('active', view === 'compare');
+}
+
+// Render stats table
+function renderStatsTable() {
+    const tbody = document.getElementById('statsTableBody');
+    const searchQuery = document.getElementById('tableSearch').value.toLowerCase();
+    
+    let filteredBeys = allBeys.filter(bey => 
+        bey.name.toLowerCase().includes(searchQuery)
+    );
+    
+    // Sort
+    filteredBeys.sort((a, b) => {
+        let aVal, bVal;
+        if (currentSort.column === 'name') {
+            aVal = a.name;
+            bVal = b.name;
+        } else if (currentSort.column === 'rank') {
+            aVal = a.leaderboard.rank || 999;
+            bVal = b.leaderboard.rank || 999;
+        } else if (currentSort.column === 'elo') {
+            aVal = a.leaderboard.elo || 0;
+            bVal = b.leaderboard.elo || 0;
+        } else {
+            aVal = a[currentSort.column] || 0;
+            bVal = b[currentSort.column] || 0;
+        }
+        
+        if (typeof aVal === 'string') {
+            return currentSort.asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        }
+        return currentSort.asc ? aVal - bVal : bVal - aVal;
+    });
+    
+    tbody.innerHTML = filteredBeys.map(bey => `
+        <tr>
+            <td class="rank-cell">#${bey.leaderboard.rank || '-'}</td>
+            <td class="name-cell">
+                <a href="bey.html?name=${encodeURIComponent(bey.name)}">${escapeHtml(bey.name)}</a>
+            </td>
+            <td class="elo-cell">${bey.leaderboard.elo || '-'}</td>
+            <td class="stat-cell stat-attack">${bey.attack.toFixed(1)}</td>
+            <td class="stat-cell stat-defense">${bey.defense.toFixed(1)}</td>
+            <td class="stat-cell stat-stamina">${bey.stamina.toFixed(1)}</td>
+            <td class="stat-cell stat-control">${bey.control.toFixed(1)}</td>
+            <td class="stat-cell stat-meta">${bey.meta_impact.toFixed(1)}</td>
+            <td class="total-cell">${bey.total.toFixed(1)}</td>
+            <td class="actions-cell">
+                <button class="add-compare-btn ${selectedBeys.includes(bey.name) ? 'selected' : ''}" 
+                        onclick="toggleComparison('${escapeHtml(bey.name)}')"
+                        title="${selectedBeys.includes(bey.name) ? 'Remove from comparison' : 'Add to comparison'}">
+                    ${selectedBeys.includes(bey.name) ? '✓' : '+'}
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Update sort indicators
+    document.querySelectorAll('.stats-table th.sortable').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        if (th.dataset.sort === currentSort.column) {
+            th.classList.add(currentSort.asc ? 'sort-asc' : 'sort-desc');
+        }
+    });
+}
+
+// Sort table
+function sortTable(column) {
+    if (currentSort.column === column) {
+        currentSort.asc = !currentSort.asc;
+    } else {
+        currentSort.column = column;
+        currentSort.asc = column === 'name' ? true : false; // Desc for numbers
+    }
+    renderStatsTable();
+}
+
+// Render selector slots for compare view
+function renderSelectorSlots() {
+    const grid = document.getElementById('selectorGrid');
+    grid.innerHTML = '';
+    
+    for (let i = 0; i < 4; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'selector-slot';
+        
+        if (selectedBeys[i]) {
+            const bey = rpgStatsData[selectedBeys[i]];
+            slot.classList.add('filled');
+            slot.innerHTML = `
+                <div class="slot-content" style="border-color: ${beyColors[i].border}">
+                    <span class="slot-name">${escapeHtml(selectedBeys[i])}</span>
+                    <button class="slot-remove" onclick="removeFromComparison(${i})">×</button>
+                </div>
+            `;
+        } else {
+            slot.innerHTML = `
+                <select class="slot-select" onchange="selectBeyForSlot(${i}, this.value)">
+                    <option value="">Select Bey ${i + 1}...</option>
+                    ${allBeys.filter(b => !selectedBeys.includes(b.name)).map(b => 
+                        `<option value="${escapeHtml(b.name)}">${escapeHtml(b.name)}</option>`
+                    ).join('')}
+                </select>
+            `;
+        }
+        
+        grid.appendChild(slot);
+    }
+}
+
+// Select bey for slot
+function selectBeyForSlot(slot, name) {
+    if (name && !selectedBeys.includes(name)) {
+        selectedBeys[slot] = name;
+        renderSelectorSlots();
+        renderCompareCards();
+        renderStatsTable();
+        updateURL();
+    }
+}
+
+// Toggle comparison from table
+function toggleComparison(name) {
+    if (selectedBeys.includes(name)) {
+        removeFromComparison(selectedBeys.indexOf(name));
+    } else if (selectedBeys.length < 4) {
+        addToComparison(name);
+    }
+}
+
+// Add to comparison
+function addToComparison(name) {
+    if (!selectedBeys.includes(name) && selectedBeys.length < 4) {
+        selectedBeys.push(name);
+        renderSelectorSlots();
+        renderCompareCards();
+        renderStatsTable();
+        updateURL();
+    }
+}
+
+// Remove from comparison
+function removeFromComparison(index) {
+    selectedBeys.splice(index, 1);
+    renderSelectorSlots();
+    renderCompareCards();
+    renderStatsTable();
+    updateURL();
+}
+
+// Clear comparison
+function clearComparison() {
+    selectedBeys = [];
+    renderSelectorSlots();
+    renderCompareCards();
+    renderStatsTable();
+    updateURL();
+}
+
+// Update URL with selected beys
+function updateURL() {
+    const url = new URL(window.location);
+    if (selectedBeys.length > 0) {
+        url.searchParams.set('compare', selectedBeys.join(','));
+    } else {
+        url.searchParams.delete('compare');
+    }
+    window.history.replaceState({}, '', url);
+}
+
+// Render compare cards
+function renderCompareCards() {
+    const container = document.getElementById('compareCards');
+    const chartSection = document.getElementById('compareChartSection');
+    
+    if (selectedBeys.length === 0) {
+        container.innerHTML = '<div class="compare-empty">Select beys from the table or dropdowns above to compare them.</div>';
+        chartSection.style.display = 'none';
+        return;
+    }
+    
+    container.innerHTML = selectedBeys.map((name, idx) => {
+        const bey = rpgStatsData[name];
+        const color = beyColors[idx];
+        
+        return `
+            <div class="compare-card" style="border-top-color: ${color.border}">
+                <div class="compare-card-header">
+                    <h3>
+                        <a href="bey.html?name=${encodeURIComponent(name)}">${escapeHtml(name)}</a>
+                    </h3>
+                    <div class="compare-card-rank">
+                        <span class="rank-badge">#${bey.leaderboard?.rank || '-'}</span>
+                        <span class="elo-badge">ELO: ${bey.leaderboard?.elo || '-'}</span>
+                    </div>
+                </div>
+                
+                <div class="compare-stats-grid">
+                    ${renderStatBar('attack', '⚔️ Attack', bey.stats.attack, bey.sub_metrics.attack)}
+                    ${renderStatBar('defense', '🛡️ Defense', bey.stats.defense, bey.sub_metrics.defense)}
+                    ${renderStatBar('stamina', '💪 Stamina', bey.stats.stamina, bey.sub_metrics.stamina)}
+                    ${renderStatBar('control', '🎯 Control', bey.stats.control, bey.sub_metrics.control)}
+                    ${renderStatBar('meta_impact', '⭐ Meta', bey.stats.meta_impact, bey.sub_metrics.meta_impact)}
+                </div>
+                
+                <div class="compare-total">
+                    <span>Total Score</span>
+                    <span class="total-value">${Object.values(bey.stats).reduce((a, b) => a + b, 0).toFixed(1)}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Show chart if 2+ beys selected
+    if (selectedBeys.length >= 2) {
+        chartSection.style.display = 'block';
+        renderRadarChart();
+    } else {
+        chartSection.style.display = 'none';
+    }
+}
+
+// Render stat bar for compare card
+function renderStatBar(stat, label, value, subMetrics) {
+    const percentage = (value / 5) * 100;
+    const metricNames = subMetricNames[stat] || {};
+    
+    let subMetricsHtml = '';
+    if (subMetrics) {
+        subMetricsHtml = `
+            <div class="compare-sub-metrics">
+                ${Object.entries(subMetrics).map(([key, val]) => {
+                    const displayName = metricNames[key] || key;
+                    const displayVal = typeof val === 'number' ? 
+                        (val < 1 ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
+                    return `<div class="sub-metric-item">
+                        <span class="sub-metric-name">${escapeHtml(displayName)}</span>
+                        <span class="sub-metric-value">${escapeHtml(String(displayVal))}</span>
+                    </div>`;
+                }).join('')}
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="compare-stat-row">
+            <div class="compare-stat-header" onclick="this.parentElement.classList.toggle('expanded')">
+                <span class="compare-stat-label">${label}</span>
+                <div class="compare-stat-bar">
+                    <div class="compare-stat-fill stat-${stat}" style="width: ${percentage}%"></div>
+                </div>
+                <span class="compare-stat-value">${value.toFixed(1)}</span>
+                <span class="compare-expand-icon">▼</span>
+            </div>
+            ${subMetricsHtml}
+        </div>
+    `;
+}
+
+// Render radar chart
+function renderRadarChart() {
+    const ctx = document.getElementById('compareRadarChart').getContext('2d');
+    
+    if (radarChart) {
+        radarChart.destroy();
+    }
+    
+    const datasets = selectedBeys.map((name, idx) => {
+        const bey = rpgStatsData[name];
+        return {
+            label: name,
+            data: [
+                bey.stats.attack,
+                bey.stats.defense,
+                bey.stats.stamina,
+                bey.stats.control,
+                bey.stats.meta_impact
+            ],
+            backgroundColor: beyColors[idx].bg,
+            borderColor: beyColors[idx].border,
+            borderWidth: 2,
+            pointBackgroundColor: beyColors[idx].border,
+            pointRadius: 4
+        };
+    });
+    
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        document.getElementById('compareChartSection').style.display = 'none';
+        return;
+    }
+    
+    radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Attack', 'Defense', 'Stamina', 'Control', 'Meta Impact'],
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        color: getComputedStyle(document.body).getPropertyValue('--text-light')
+                    },
+                    grid: {
+                        color: getComputedStyle(document.body).getPropertyValue('--border')
+                    },
+                    angleLines: {
+                        color: getComputedStyle(document.body).getPropertyValue('--border')
+                    },
+                    pointLabels: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text'),
+                        font: { size: 12, weight: 600 }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text'),
+                        padding: 20
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    
+    // Search
+    document.getElementById('tableSearch').addEventListener('input', renderStatsTable);
+    
+    // Sort headers
+    document.querySelectorAll('.stats-table th.sortable').forEach(th => {
+        th.addEventListener('click', () => sortTable(th.dataset.sort));
+    });
+});
+</script>
+
+</body>
+</html>
