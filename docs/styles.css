@@ -302,11 +302,6 @@ nav button:hover {
     transform: translateY(-2px);
 }
 
-.nav-dropdown-toggle::after {
-    content: "▼";
-    font-size: 0.625rem;
-}
-
 .nav-dropdown-content {
     display: none;
     position: absolute;
