@@ -2,6 +2,11 @@
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
 
+// Detect if we're on mobile
+function isMobile() {
+    return window.innerWidth <= 768;
+}
+
 if (hamburger && navMenu) {
     hamburger.addEventListener('click', () => {
         hamburger.classList.toggle('active');
@@ -16,20 +21,19 @@ if (hamburger && navMenu) {
         }
     });
 
-    // Close menu when clicking a link (but not dropdown toggles)
+    // Close menu when clicking a link (but not dropdown toggles on mobile)
     navMenu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
+        link.addEventListener('click', (e) => {
+            // On mobile, if this is a dropdown toggle, prevent navigation and toggle dropdown
+            if (link.hasAttribute('data-dropdown-link') && isMobile()) {
+                e.preventDefault();
+                const dropdown = link.closest('.nav-dropdown');
+                dropdown.classList.toggle('active');
+                return;
+            }
+            // Otherwise, close the menu
             hamburger.classList.remove('active');
             navMenu.classList.remove('active');
-        });
-    });
-
-    // Handle dropdown toggle on mobile
-    navMenu.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
-        toggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            const dropdown = toggle.closest('.nav-dropdown');
-            dropdown.classList.toggle('active');
         });
     });
 }

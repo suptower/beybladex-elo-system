@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>suptower Beyblade X</title>
+    <title>Beyblade X ELO Analytics - suptower</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
     <script defer src="darkmode.js"></script>
@@ -31,7 +31,7 @@
             <a href="leaderboard.html">Leaderboard</a>
             <a href="matches.html">Matches</a>
             <div class="nav-dropdown">
-                <button class="nav-dropdown-toggle">Analysis ▼</button>
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link>Analysis ▼</a>
                 <div class="nav-dropdown-content">
                     <a href="upsets.html">Upsets</a>
                     <a href="compare.html">Compare</a>
@@ -45,34 +45,306 @@
     </nav>
 </header>
 
-<main>
-    <h2>BEYBLADE X ELO SYSTEM</h2>
+<main class="homepage">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Beyblade X ELO Analytics</h1>
+            <p class="hero-tagline">Competitive Stats for Every Bey</p>
+            <p class="hero-description">
+                Track performance, analyze matchups, and discover winning combinations with our comprehensive ELO rating system.
+            </p>
+            <div class="hero-buttons">
+                <a href="leaderboard.html" class="hero-btn primary">🏆 View Leaderboard</a>
+                <a href="wiki.html" class="hero-btn secondary">📚 Explore Wiki</a>
+                <a href="plots.html" class="hero-btn secondary">📊 View Plots</a>
+                <a href="explorer.html" class="hero-btn secondary">🔍 Part Explorer</a>
+            </div>
+        </div>
+    </section>
 
-    <a class="tile" href="wiki.html">
-        <h3>📚 Wiki</h3>
-        <p>Beyblade Enzyklopädie mit allen Teilen und Bildern.</p>
-    </a>
-    <a class="tile" href="plots.html">
-        <h3>📊 Grafiken</h3>
-        <p>Alle Plots in einer Übersicht.</p>
-    </a>
-    <a class="tile" href="leaderboard.html">
-        <h3>🏆 Leaderboard</h3>
-        <p>Die aktuelle Tabelle.</p>
-    </a>
-    <a class="tile" href="matches.html">
-        <h3>⚔️ Match History</h3>
-        <p>Alle vergangenen Matches.</p>
-    </a>
-    <a class="tile" href="upsets.html">
-        <h3>📈 Analysis</h3>
-        <p>Upset Analysis, Giant Killers und weitere Statistiken.</p>
-    </a>
+    <!-- Live Meta Snapshot -->
+    <section class="meta-snapshot">
+        <h2 class="section-title">📈 Live Meta Snapshot</h2>
+        <div class="snapshot-grid">
+            <!-- Top 5 Beys -->
+            <div class="snapshot-card">
+                <h3>🥇 Top 5 Beys by ELO</h3>
+                <div id="topBeysList" class="top-beys-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+                <a href="leaderboard.html" class="snapshot-link">View Full Leaderboard →</a>
+            </div>
+
+            <!-- Recent Matches -->
+            <div class="snapshot-card">
+                <h3>⚔️ Recent Matches</h3>
+                <div id="recentMatchesList" class="recent-matches-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+                <a href="matches.html" class="snapshot-link">View All Matches →</a>
+            </div>
+
+            <!-- Trending Beys -->
+            <div class="snapshot-card">
+                <h3>🔥 Trending Beys</h3>
+                <div id="trendingBeysList" class="trending-beys-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+                <a href="upsets.html" class="snapshot-link">View Analysis →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Overview Cards -->
+    <section class="features-section">
+        <h2 class="section-title">🎯 Explore Features</h2>
+        <div class="features-grid">
+            <a href="leaderboard.html" class="feature-card">
+                <div class="feature-icon">🏆</div>
+                <h3>Leaderboard</h3>
+                <p>View competitive rankings, ELO ratings, win rates, and detailed performance statistics for every Beyblade.</p>
+            </a>
+            
+            <a href="wiki.html" class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>Wiki</h3>
+                <p>Encyclopedia of all Beyblades with images, part breakdowns, types, and comprehensive metadata.</p>
+            </a>
+            
+            <a href="matches.html" class="feature-card">
+                <div class="feature-icon">⚔️</div>
+                <h3>Match History</h3>
+                <p>Browse past tournament results, match outcomes, and head-to-head battle records.</p>
+            </a>
+            
+            <a href="analytics.html" class="feature-card feature-card-highlight">
+                <div class="feature-icon">📊</div>
+                <h3>Analytics Tools</h3>
+                <p>Comprehensive suite of analytical tools including plots, upset analysis, part synergy heatmaps, and the parts explorer.</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Getting Started Section -->
+    <section class="getting-started">
+        <h2 class="section-title">📖 Getting Started</h2>
+        <div class="getting-started-content">
+            <div class="info-card">
+                <h3>What is ELO?</h3>
+                <p>ELO is a rating system that calculates the relative skill levels of competitors. In Beyblade X, each Bey starts at 1000 ELO. Winning against higher-rated opponents earns more points, while losing to lower-rated opponents costs more points.</p>
+            </div>
+            
+            <div class="info-card">
+                <h3>How Matches Are Recorded</h3>
+                <p>All tournament matches are recorded with detailed results including scores, finishes, and ELO changes. The system tracks wins, losses, and calculates comprehensive statistics for each Beyblade.</p>
+            </div>
+            
+            <div class="info-card">
+                <h3>How to Interpret Stats</h3>
+                <p>Higher ELO means stronger performance. Win rate shows consistency. Power Index combines multiple factors into a single score. Check the leaderboard for detailed breakdowns including volatility, trend, and head-to-head records.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Changelog Section -->
+    <section class="changelog-section">
+        <h2 class="section-title">📋 Recent Updates</h2>
+        <div class="changelog-list">
+            <div class="changelog-item">
+                <span class="changelog-version">v2.0</span>
+                <span class="changelog-text">Homepage Redesign — Modern layout with live meta snapshot</span>
+            </div>
+            <div class="changelog-item">
+                <span class="changelog-version">v1.5</span>
+                <span class="changelog-text">Added Parts Combination Explorer with filtering and search</span>
+            </div>
+            <div class="changelog-item">
+                <span class="changelog-version">v1.4</span>
+                <span class="changelog-text">Introduced Synergy Heatmaps for part compatibility analysis</span>
+            </div>
+            <div class="changelog-item">
+                <span class="changelog-version">v1.3</span>
+                <span class="changelog-text">Enhanced Wiki with rankings, trophies, and stats integration</span>
+            </div>
+            <div class="changelog-item">
+                <span class="changelog-version">v1.2</span>
+                <span class="changelog-text">Added Compare page and RPG-style stat bars</span>
+            </div>
+        </div>
+    </section>
 </main>
 
-<footer>
-    <p>© 2025 suptower</p>
+<footer class="enhanced-footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h4>Beyblade X ELO System</h4>
+            <p>Comprehensive analytics platform for competitive Beyblade X.</p>
+        </div>
+        <div class="footer-section">
+            <h4>Quick Links</h4>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="wiki.html">Wiki</a>
+            <a href="matches.html">Matches</a>
+            <a href="plots.html">Plots</a>
+        </div>
+        <div class="footer-section">
+            <h4>Resources</h4>
+            <a href="https://github.com/suptower/beybladex-elo-system" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+            <a href="synergy.html">Synergy Heatmaps</a>
+            <a href="explorer.html">Parts Explorer</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2025 suptower • Built with 💜 for the Beyblade X community</p>
+    </div>
 </footer>
+
+<script>
+// Parse CSV text to array of objects
+// Note: This simple parser works for the project's CSV files which don't contain
+// quoted fields with embedded commas. For more complex CSV data, use a library.
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i]);
+        return obj;
+    });
+}
+
+// Get ELO trend class
+function getEloTrendClass(delta) {
+    const num = parseFloat(delta);
+    if (isNaN(num)) return '';
+    if (num >= 20) return 'trend-very-positive';
+    if (num > 0) return 'trend-positive';
+    if (num === 0) return 'trend-neutral';
+    if (num > -20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get rank medal
+function getRankMedal(rank) {
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return `#${rank}`;
+}
+
+// Load and display top 5 Beys
+async function loadTopBeys() {
+    try {
+        const response = await fetch('data/leaderboard.csv');
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        const topBeys = data.slice(0, 5);
+        const container = document.getElementById('topBeysList');
+        
+        container.innerHTML = topBeys.map((bey, index) => {
+            const rank = index + 1;
+            const trendClass = getEloTrendClass(bey.ELOdelta);
+            const eloDeltaNum = parseFloat(bey.ELOdelta);
+            const eloDeltaSign = eloDeltaNum > 0 ? '+' : '';
+            
+            return `
+                <a href="bey.html?name=${encodeURIComponent(bey.Name)}" class="top-bey-item">
+                    <span class="top-bey-rank">${getRankMedal(rank)}</span>
+                    <span class="top-bey-name">${bey.Name}</span>
+                    <span class="top-bey-elo">${bey.ELO}</span>
+                    <span class="top-bey-trend ${trendClass}">${eloDeltaSign}${bey.ELOdelta}</span>
+                </a>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading top beys:', error);
+        document.getElementById('topBeysList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Load and display recent matches
+async function loadRecentMatches() {
+    try {
+        const response = await fetch('data/matches.csv');
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        // Get 5 most recent matches (last ones in the file)
+        const recentMatches = data.slice(-5).reverse();
+        const container = document.getElementById('recentMatchesList');
+        
+        container.innerHTML = recentMatches.map(match => {
+            const scoreA = parseInt(match.ScoreA, 10);
+            const scoreB = parseInt(match.ScoreB, 10);
+            const winnerIsA = scoreA > scoreB;
+            
+            return `
+                <div class="recent-match-item">
+                    <span class="match-bey ${winnerIsA ? 'winner' : ''}">${match.BeyA}</span>
+                    <span class="match-score">${match.ScoreA} - ${match.ScoreB}</span>
+                    <span class="match-bey ${!winnerIsA ? 'winner' : ''}">${match.BeyB}</span>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading recent matches:', error);
+        document.getElementById('recentMatchesList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Load and display trending beys (highest ELO gain)
+async function loadTrendingBeys() {
+    try {
+        const response = await fetch('data/advanced_leaderboard.csv');
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        // Sort by ELO trend and get top 5 gainers
+        const sortedByTrend = data
+            .map(bey => ({
+                ...bey,
+                eloTrendNum: parseFloat(bey.ELOTrend)
+            }))
+            .filter(bey => bey.ELOTrend && !isNaN(bey.eloTrendNum))
+            .sort((a, b) => b.eloTrendNum - a.eloTrendNum)
+            .slice(0, 5);
+        
+        const container = document.getElementById('trendingBeysList');
+        
+        if (sortedByTrend.length === 0) {
+            container.innerHTML = '<p class="no-data-text">No trending data available</p>';
+            return;
+        }
+        
+        container.innerHTML = sortedByTrend.map((bey, index) => {
+            const trendValue = bey.eloTrendNum.toFixed(1);
+            const trendClass = getEloTrendClass(trendValue);
+            
+            return `
+                <a href="bey.html?name=${encodeURIComponent(bey.Bey)}" class="trending-bey-item">
+                    <span class="trending-rank">🔥</span>
+                    <span class="trending-name">${bey.Bey}</span>
+                    <span class="trending-value ${trendClass}">+${trendValue}</span>
+                </a>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading trending beys:', error);
+        document.getElementById('trendingBeysList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadTopBeys();
+    loadRecentMatches();
+    loadTrendingBeys();
+});
+</script>
 
 </body>
 </html>

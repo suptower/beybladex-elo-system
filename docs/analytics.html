@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Tools - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Analytics Tools</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link>Analysis ▼</a>
+                <div class="nav-dropdown-content">
+                    <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
+                    <a href="parts.html">Parts</a>
+                    <a href="synergy.html">Synergy</a>
+                    <a href="explorer.html">Explorer</a>
+                    <a href="plots.html">Plots</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="analytics-page">
+    <section class="analytics-hero">
+        <h2>📊 Analytics Tools</h2>
+        <p class="analytics-description">
+            Explore our comprehensive suite of analytical tools to dive deep into Beyblade X competitive data. 
+            From performance visualizations to part synergy analysis, discover insights to optimize your builds and strategies.
+        </p>
+    </section>
+
+    <section class="analytics-tools-grid">
+        <a href="plots.html" class="analytics-tool-card">
+            <div class="tool-icon">📈</div>
+            <div class="tool-content">
+                <h3>Plots & Visualizations</h3>
+                <p>ELO curves, position timelines, winrate charts, and interactive heatmaps to visualize performance trends over time.</p>
+            </div>
+        </a>
+        
+        <a href="upsets.html" class="analytics-tool-card">
+            <div class="tool-icon">🎲</div>
+            <div class="tool-content">
+                <h3>Upset Analysis</h3>
+                <p>Discover surprising match outcomes, giant killers, and unexpected victories in competitive play.</p>
+            </div>
+        </a>
+        
+        <a href="compare.html" class="analytics-tool-card">
+            <div class="tool-icon">⚖️</div>
+            <div class="tool-content">
+                <h3>Compare</h3>
+                <p>Compare multiple Beyblades side-by-side with detailed stat breakdowns and performance metrics.</p>
+            </div>
+        </a>
+        
+        <a href="parts.html" class="analytics-tool-card">
+            <div class="tool-icon">🔧</div>
+            <div class="tool-content">
+                <h3>Parts Performance</h3>
+                <p>Analyze individual part statistics including blades, ratchets, and bits to optimize your builds.</p>
+            </div>
+        </a>
+        
+        <a href="synergy.html" class="analytics-tool-card">
+            <div class="tool-icon">🔗</div>
+            <div class="tool-content">
+                <h3>Synergy Heatmaps</h3>
+                <p>Analyze how different Beyblade parts perform together with detailed synergy scores and compatibility data.</p>
+            </div>
+        </a>
+        
+        <a href="explorer.html" class="analytics-tool-card">
+            <div class="tool-icon">🔍</div>
+            <div class="tool-content">
+                <h3>Parts Explorer</h3>
+                <p>Search, filter, and compare part combinations. Discover optimal builds and explore the competitive meta.</p>
+            </div>
+        </a>
+    </section>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+</body>
+</html>
