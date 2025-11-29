@@ -645,6 +645,40 @@ function renderRpgStats() {
         }
     };
     
+    // Sub-metric descriptions for detailed explanations
+    const subMetricDescriptions = {
+        attack: {
+            burst_finish_rate: 'Percentage of wins via burst finishes',
+            pocket_finish_rate: 'Percentage of wins via pocket finishes',
+            extreme_finish_rate: 'Percentage of wins via extreme finishes',
+            offensive_point_efficiency: 'Average points earned per round won',
+            opening_dominance: 'Win rate in the first round of matches'
+        },
+        defense: {
+            burst_resistance: 'Resistance to opponent burst finishes',
+            pocket_resistance: 'Resistance to opponent pocket finishes',
+            extreme_resistance: 'Resistance to opponent extreme finishes',
+            defensive_conversion: 'Win rate after losing a round'
+        },
+        stamina: {
+            spin_finish_win_rate: 'Frequency of winning via spin-out finishes',
+            spin_differential_index: 'Ratio of spin finish wins vs losses',
+            long_round_win_rate: 'Win rate in matches with many rounds'
+        },
+        control: {
+            volatility_inverse: 'Match result predictability (higher = more consistent)',
+            first_contact_advantage: 'Match win rate when winning first round',
+            match_flow_stability: 'Consistency of match score patterns'
+        },
+        meta_impact: {
+            elo_normalized: 'ELO rating compared to dataset',
+            elo_per_match: 'Average ELO gained per match played',
+            upset_rate: 'Win rate against higher-ranked opponents',
+            matchup_spread: 'Performance breadth across opponent types',
+            anti_meta_score: 'Effectiveness against top-5 rated beys'
+        }
+    };
+    
     // Create stat tiles for each stat
     const stats = rpgStatsData.stats;
     const subMetrics = rpgStatsData.sub_metrics;
@@ -657,20 +691,25 @@ function renderRpgStats() {
         const fullTiles = Math.floor(value);
         const partialFill = (value - fullTiles) * 100; // Percentage for partial tile
         
-        // Build sub-metrics tooltip content
-        let tooltipContent = '';
+        // Build expandable details content with sub-metrics
+        let detailsContent = '';
         if (subMetrics && subMetrics[statKey]) {
             const metricNames = subMetricNames[statKey] || {};
-            tooltipContent = Object.entries(subMetrics[statKey])
+            const metricDescs = subMetricDescriptions[statKey] || {};
+            detailsContent = Object.entries(subMetrics[statKey])
                 .map(([key, val]) => {
                     const displayName = metricNames[key] || key;
+                    const description = metricDescs[key] || '';
                     // Display values < 1 as percentages (rates/ratios), otherwise as decimal
                     const isPercentageMetric = typeof val === 'number' && val < 1;
                     const displayVal = typeof val === 'number' ? 
                         (isPercentageMetric ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
-                    return `<div class="rpg-stat-tooltip-metric">
-                        <span class="rpg-stat-tooltip-metric-name">${escapeHtml(displayName)}</span>
-                        <span class="rpg-stat-tooltip-metric-value">${escapeHtml(displayVal)}</span>
+                    return `<div class="rpg-stat-detail-item">
+                        <div class="rpg-stat-detail-header">
+                            <span class="rpg-stat-detail-name">${escapeHtml(displayName)}</span>
+                            <span class="rpg-stat-detail-value">${escapeHtml(displayVal)}</span>
+                        </div>
+                        <div class="rpg-stat-detail-desc">${escapeHtml(description)}</div>
                     </div>`;
                 }).join('');
         }
@@ -703,24 +742,33 @@ function renderRpgStats() {
         }
         
         const statRow = document.createElement('div');
-        statRow.className = 'rpg-stat-row';
+        statRow.className = 'rpg-stat-row-wrapper';
         statRow.innerHTML = `
-            <div class="rpg-stat-label rpg-stat-tooltip" tabindex="0">
-                <span class="rpg-stat-label-icon">${config.icon}</span>
-                <span>${config.name}</span>
-                ${tooltipContent ? `
-                    <div class="rpg-stat-tooltip-content">
-                        <div class="rpg-stat-tooltip-title">${config.name} - ${config.desc}</div>
-                        ${tooltipContent}
-                    </div>
-                ` : ''}
-            </div>
-            <div class="rpg-stat-bar-container">
-                <div class="rpg-stat-tiles">
-                    ${tilesHtml}
+            <div class="rpg-stat-row" onclick="this.parentElement.classList.toggle('expanded')">
+                <div class="rpg-stat-label">
+                    <span class="rpg-stat-label-icon">${config.icon}</span>
+                    <span>${config.name}</span>
+                    <span class="rpg-stat-info-btn" title="Click to see calculation details">ℹ️</span>
                 </div>
-                <span class="rpg-stat-value">${value.toFixed(1)}</span>
+                <div class="rpg-stat-bar-container">
+                    <div class="rpg-stat-tiles">
+                        ${tilesHtml}
+                    </div>
+                    <span class="rpg-stat-value">${value.toFixed(1)}</span>
+                </div>
             </div>
+            ${detailsContent ? `
+                <div class="rpg-stat-details">
+                    <div class="rpg-stat-details-header">
+                        <span class="rpg-stat-details-title">${config.icon} ${config.name} Breakdown</span>
+                        <span class="rpg-stat-details-score">Score: ${value.toFixed(2)} / 5.0</span>
+                    </div>
+                    <div class="rpg-stat-details-desc">${config.desc}</div>
+                    <div class="rpg-stat-details-grid">
+                        ${detailsContent}
+                    </div>
+                </div>
+            ` : ''}
         `;
         rpgStatsContainer.appendChild(statRow);
     });
