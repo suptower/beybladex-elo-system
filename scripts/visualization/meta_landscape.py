@@ -135,16 +135,36 @@ def load_meta_landscape_data() -> pd.DataFrame:
         - attack_raw: Raw attack stat from RPG stats
         - defense_raw: Raw defense stat from RPG stats
     """
-    # Load RPG stats
-    with open(RPG_STATS_FILE, "r", encoding="utf-8") as f:
-        rpg_stats = json.load(f)
+    # Load RPG stats with error handling
+    try:
+        with open(RPG_STATS_FILE, "r", encoding="utf-8") as f:
+            rpg_stats = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: RPG stats file not found at {RPG_STATS_FILE}")
+        return pd.DataFrame()
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON in {RPG_STATS_FILE}: {e}")
+        return pd.DataFrame()
 
-    # Load advanced leaderboard for additional context
-    df_adv = pd.read_csv(ADVANCED_LEADERBOARD_FILE)
+    # Load advanced leaderboard for additional context with error handling
+    try:
+        df_adv = pd.read_csv(ADVANCED_LEADERBOARD_FILE)
+    except FileNotFoundError:
+        print(f"Error: Advanced leaderboard file not found at {ADVANCED_LEADERBOARD_FILE}")
+        return pd.DataFrame()
+    except pd.errors.ParserError as e:
+        print(f"Error: Could not parse CSV file {ADVANCED_LEADERBOARD_FILE}: {e}")
+        return pd.DataFrame()
+
+    # Build winrate map with safe parsing
     winrate_map = {}
     for _, row in df_adv.iterrows():
-        winrate_str = str(row["Winrate"]).rstrip("%")
-        winrate_map[row["Bey"]] = float(winrate_str)
+        try:
+            winrate_str = str(row.get("Winrate", "50%")).rstrip("%")
+            winrate_map[row["Bey"]] = float(winrate_str)
+        except (ValueError, TypeError):
+            # Default to 50% if parsing fails
+            winrate_map[row.get("Bey", "")] = 50.0
 
     # Build data
     data = []
