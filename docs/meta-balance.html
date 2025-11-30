@@ -485,6 +485,14 @@ function renderMetricCard(id, score, details) {
 
 // Render charts
 function renderCharts() {
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not available - skipping chart rendering');
+        document.querySelectorAll('.chart-container').forEach(container => {
+            container.innerHTML = '<p class="chart-unavailable">Charts require Chart.js library to load</p>';
+        });
+        return;
+    }
     renderUsageWinrateChart();
     renderEloDistributionChart();
     renderBreakdownChart();
@@ -1099,6 +1107,17 @@ loadMetaBalanceData();
 .chart-container {
     height: 350px;
     position: relative;
+}
+
+.chart-unavailable {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-light);
+    font-style: italic;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
 }
 
 .chart-legend {
