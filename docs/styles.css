@@ -7515,24 +7515,6 @@ html {
         font-size: 0.875rem;
     }
     
-    /* Match cards for very small screens */
-    .recent-match-item {
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 0.75rem;
-    }
-    
-    .match-bey {
-        text-align: center !important;
-        width: 100%;
-    }
-    
-    .match-score {
-        order: 0;
-        margin: 0;
-        width: auto;
-    }
-    
     /* Section titles */
     .section-title {
         font-size: 1.25rem;
@@ -7689,20 +7671,6 @@ html {
     
     .related-bey-card {
         padding: 0.75rem;
-    }
-    
-    /* Matches page */
-    .card-match {
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-    
-    .card-bey {
-        width: 100%;
-    }
-    
-    .card-vs {
-        margin: 0;
     }
     
     /* Pagination */
@@ -7867,43 +7835,45 @@ html {
     }
 }
 
-/* Prevent horizontal scroll on all screen sizes */
-html,
-body {
-    max-width: 100%;
-    overflow-x: hidden;
+/* Allow horizontal scrolling for tables when needed */
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Improved table responsiveness */
+/* Mobile table scrolling - wrap tables that need horizontal scroll */
 @media (max-width: 768px) {
-    .table-wrapper {
-        margin: 0 -1rem;
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
+    /* Stats table (compare page) - allow horizontal scroll */
+    .stats-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
     }
     
-    table {
-        font-size: 0.8125rem;
+    /* Synergy heatmap tables */
+    .synergy-table,
+    .heatmap-container table,
+    .synergy-heatmap {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
-    th, td {
-        padding: 0.5rem 0.375rem;
-        min-width: 60px;
+    /* Generic table scroll wrapper */
+    .table-scroll-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -0.5rem;
+        padding: 0 0.5rem;
     }
     
-    /* Priority column hiding on narrow screens */
-    th:nth-child(n+7),
-    td:nth-child(n+7) {
-        display: none;
-    }
-}
-
-@media (max-width: 480px) {
-    /* Even more aggressive column hiding */
-    th:nth-child(n+5),
-    td:nth-child(n+5) {
-        display: none;
+    /* Meta balance tables */
+    .outlier-table,
+    .balance-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
