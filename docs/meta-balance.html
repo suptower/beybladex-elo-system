@@ -329,14 +329,23 @@ function formatPercent(value) {
 // Load meta balance data
 async function loadMetaBalanceData() {
     try {
-        const [metaResponse, leaderboardResponse] = await Promise.all([
-            fetch('data/meta_balance.json'),
-            fetch('data/advanced_leaderboard.csv')
-        ]);
-        
+        // Fetch meta balance data first (required)
+        const metaResponse = await fetch('data/meta_balance.json');
+        if (!metaResponse.ok) {
+            throw new Error(`Failed to load meta_balance.json: ${metaResponse.status}`);
+        }
         metaBalanceData = await metaResponse.json();
-        const csvText = await leaderboardResponse.text();
-        leaderboardData = parseCSV(csvText);
+        
+        // Try to fetch leaderboard data (optional for charts)
+        try {
+            const leaderboardResponse = await fetch('data/advanced_leaderboard.csv');
+            if (leaderboardResponse.ok) {
+                const csvText = await leaderboardResponse.text();
+                leaderboardData = parseCSV(csvText);
+            }
+        } catch (csvError) {
+            console.warn('Leaderboard CSV not available, charts will be limited:', csvError);
+        }
         
         renderDashboard();
     } catch (error) {
@@ -346,13 +355,22 @@ async function loadMetaBalanceData() {
 }
 
 // Parse CSV data
+// Note: This parser handles simple CSV files where fields don't contain commas.
+// The advanced_leaderboard.csv format is controlled by our backend and doesn't
+// include comma-containing fields, so this simple parser is sufficient.
 function parseCSV(csvText) {
     const lines = csvText.trim().split('\n');
+    if (lines.length === 0) return [];
+    
     const headers = lines[0].split(',');
     const data = [];
     
     for (let i = 1; i < lines.length; i++) {
         const values = lines[i].split(',');
+        if (values.length !== headers.length) {
+            console.warn(`Skipping malformed CSV row ${i}: expected ${headers.length} columns, got ${values.length}`);
+            continue;
+        }
         const row = {};
         headers.forEach((header, index) => {
             row[header] = values[index];

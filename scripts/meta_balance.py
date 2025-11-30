@@ -23,8 +23,6 @@ import os
 import statistics
 from collections import defaultdict
 
-os.system("")
-
 # Colors for terminal output
 RESET = "\033[0m"
 BOLD = "\033[1m"
@@ -57,6 +55,21 @@ OUTLIER_THRESHOLDS = {
     "underpowered_win_rate": 0.40,               # <40% win rate
     "problematic_matchup_threshold": 0.70,       # >70% win rate in matchup
     "min_matches_for_analysis": 3                # Min matches for inclusion
+}
+
+# ELO Compression scoring constants
+# These define the optimal range for ELO compression ratio
+# Ratio = std_dev / range
+# - Below 0.20: Too compressed (not enough skill differentiation)
+# - 0.25-0.35: Optimal range (healthy differentiation)
+# - Above 0.40: Too spread (extreme imbalances)
+ELO_COMPRESSION_CONFIG = {
+    "low_threshold": 0.20,          # Below this = too compressed
+    "optimal_center": 0.30,         # Center of optimal range
+    "optimal_tolerance": 0.10,      # Distance from center for optimal
+    "high_threshold": 0.40,         # Above this = too spread
+    "high_upper_bound": 0.60,       # Upper bound for normalization
+    "suboptimal_penalty": 0.70      # Max score when outside optimal range
 }
 
 
@@ -345,18 +358,27 @@ def calculate_elo_compression_ratio(leaderboard_data):
     compression_ratio = std_dev / elo_range if elo_range > 0 else 0
 
     # Score: Moderate compression is healthy
-    # Too compressed (ratio < 0.2) = not enough differentiation
-    # Too spread (ratio > 0.4) = extreme imbalances
-    # Optimal around 0.25-0.35
-    if compression_ratio < 0.20:
-        score = normalize_to_0_100(compression_ratio, 0, 0.20) * 0.7  # Penalize low
-    elif compression_ratio > 0.40:
-        score = normalize_to_0_100(compression_ratio, 0.40, 0.60, invert=True) * 0.7
+    # Use configuration constants for scoring thresholds
+    config = ELO_COMPRESSION_CONFIG
+    if compression_ratio < config["low_threshold"]:
+        # Too compressed - penalize with max score of suboptimal_penalty
+        score = normalize_to_0_100(
+            compression_ratio, 0, config["low_threshold"]
+        ) * config["suboptimal_penalty"]
+    elif compression_ratio > config["high_threshold"]:
+        # Too spread - penalize with max score of suboptimal_penalty
+        score = normalize_to_0_100(
+            compression_ratio, config["high_threshold"],
+            config["high_upper_bound"], invert=True
+        ) * config["suboptimal_penalty"]
     else:
-        # Optimal range
-        score = 70 + normalize_to_0_100(
-            abs(compression_ratio - 0.30), 0, 0.10, invert=True
-        ) * 0.3
+        # Optimal range - score 70-100 based on distance from optimal center
+        base_score = config["suboptimal_penalty"] * 100
+        deviation = abs(compression_ratio - config["optimal_center"])
+        bonus = normalize_to_0_100(
+            deviation, 0, config["optimal_tolerance"], invert=True
+        ) * (100 - base_score) / 100
+        score = base_score + bonus
 
     return {
         "score": round(score, 1),
