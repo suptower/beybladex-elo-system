@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elo Outcome Simulator - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Elo Outcome Simulator</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link>Analysis ▼</a>
+                <div class="nav-dropdown-content">
+                    <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
+                    <a href="parts.html">Parts</a>
+                    <a href="synergy.html">Synergy</a>
+                    <a href="explorer.html">Explorer</a>
+                    <a href="plots.html">Plots</a>
+                    <a href="simulator.html">Simulator</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="simulator-page">
+    <section class="simulator-hero">
+        <h2>🎮 Elo Outcome Simulator</h2>
+        <p class="simulator-description">
+            Experiment with hypothetical matchups and preview expected Elo changes. 
+            Understand the impact of wins, losses, rating disparity, and run multi-match simulations.
+        </p>
+    </section>
+
+    <div class="simulator-layout">
+        <!-- Left Panel: Inputs -->
+        <section class="simulator-inputs">
+            <div class="input-panel">
+                <h3>⚙️ Setup</h3>
+                
+                <!-- Player A Selection -->
+                <div class="player-input-group">
+                    <label class="player-label player-a-label" id="playerALabel">Player A</label>
+                    <div class="player-controls">
+                        <select id="playerASelect" class="player-select">
+                            <option value="">Select a Beyblade...</option>
+                        </select>
+                        <div class="manual-override">
+                            <label class="override-toggle">
+                                <input type="checkbox" id="playerAManual">
+                                <span>Manual</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="elo-input-row">
+                        <label>ELO:</label>
+                        <input type="number" id="playerAElo" value="1000" min="0" max="3000" class="elo-input">
+                    </div>
+                    <div class="matches-input-row">
+                        <label>Matches played:</label>
+                        <input type="number" id="playerAMatches" value="0" min="0" class="matches-input">
+                    </div>
+                    <div class="player-stats" id="playerAStats"></div>
+                </div>
+
+                <!-- Player B Selection -->
+                <div class="player-input-group">
+                    <label class="player-label player-b-label" id="playerBLabel">Player B</label>
+                    <div class="player-controls">
+                        <select id="playerBSelect" class="player-select">
+                            <option value="">Select a Beyblade...</option>
+                        </select>
+                        <div class="manual-override">
+                            <label class="override-toggle">
+                                <input type="checkbox" id="playerBManual">
+                                <span>Manual</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="elo-input-row">
+                        <label>ELO:</label>
+                        <input type="number" id="playerBElo" value="1000" min="0" max="3000" class="elo-input">
+                    </div>
+                    <div class="matches-input-row">
+                        <label>Matches played:</label>
+                        <input type="number" id="playerBMatches" value="0" min="0" class="matches-input">
+                    </div>
+                    <div class="player-stats" id="playerBStats"></div>
+                </div>
+
+                <!-- Simulation Settings -->
+                <div class="simulation-settings">
+                    <h4>📊 Simulation Settings</h4>
+                    <div class="setting-row">
+                        <label for="numMatches">Number of Matches:</label>
+                        <input type="range" id="numMatches" min="1" max="50" value="10" class="range-slider">
+                        <span id="numMatchesValue">10</span>
+                    </div>
+                    <div class="setting-row">
+                        <label for="numSimulations">Monte Carlo Runs:</label>
+                        <input type="range" id="numSimulations" min="100" max="1000" step="100" value="500" class="range-slider">
+                        <span id="numSimulationsValue">500</span>
+                    </div>
+                </div>
+
+                <button class="simulate-btn" id="simulateBtn">
+                    🎲 Run Simulation
+                </button>
+            </div>
+        </section>
+
+        <!-- Right Panel: Results -->
+        <section class="simulator-results">
+            <!-- Single Match Results -->
+            <div class="result-card single-match-card">
+                <h3>🎯 Single Match Analysis</h3>
+                <div class="probability-display">
+                    <div class="prob-bar-container">
+                        <div class="prob-bar prob-bar-a" id="probBarA" style="width: 50%"></div>
+                        <div class="prob-bar prob-bar-b" id="probBarB" style="width: 50%"></div>
+                    </div>
+                    <div class="prob-labels">
+                        <span class="prob-label-a" id="probLabelA">50%</span>
+                        <span class="prob-label-b" id="probLabelB">50%</span>
+                    </div>
+                </div>
+
+                <div class="outcome-grid">
+                    <div class="outcome-section">
+                        <h4 class="outcome-title-a" id="outcomeIfAWins">If A Wins</h4>
+                        <div class="outcome-details">
+                            <div class="outcome-row">
+                                <span id="labelAEloChangeWin">A's ELO Change:</span>
+                                <span class="outcome-value positive" id="eloChangeAWin">+20</span>
+                            </div>
+                            <div class="outcome-row">
+                                <span id="labelBEloChangeLoss">B's ELO Change:</span>
+                                <span class="outcome-value negative" id="eloChangeBLoss">-20</span>
+                            </div>
+                            <div class="outcome-row">
+                                <span id="labelANewEloWin">A's New ELO:</span>
+                                <span class="outcome-value" id="newEloAWin">1020</span>
+                            </div>
+                            <div class="outcome-row">
+                                <span id="labelBNewEloLoss">B's New ELO:</span>
+                                <span class="outcome-value" id="newEloBLoss">980</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="outcome-section">
+                        <h4 class="outcome-title-b" id="outcomeIfBWins">If B Wins</h4>
+                        <div class="outcome-details">
+                            <div class="outcome-row">
+                                <span id="labelAEloChangeLoss">A's ELO Change:</span>
+                                <span class="outcome-value negative" id="eloChangeALoss">-20</span>
+                            </div>
+                            <div class="outcome-row">
+                                <span id="labelBEloChangeWin">B's ELO Change:</span>
+                                <span class="outcome-value positive" id="eloChangeBWin">+20</span>
+                            </div>
+                            <div class="outcome-row">
+                                <span id="labelANewEloLoss">A's New ELO:</span>
+                                <span class="outcome-value" id="newEloALoss">980</span>
+                            </div>
+                            <div class="outcome-row">
+                                <span id="labelBNewEloWin">B's New ELO:</span>
+                                <span class="outcome-value" id="newEloBWin">1020</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="k-factor-info">
+                    <span><span id="kFactorALabel">K-Factor A</span>: <strong id="kFactorA">40</strong></span>
+                    <span><span id="kFactorBLabel">K-Factor B</span>: <strong id="kFactorB">40</strong></span>
+                </div>
+            </div>
+
+            <!-- Multi-Match Simulation Results -->
+            <div class="result-card multi-match-card">
+                <h3>📈 Multi-Match Simulation</h3>
+                
+                <div class="sim-summary">
+                    <div class="sim-stat">
+                        <span class="sim-stat-label" id="expectedWinsALabel">Expected Wins A</span>
+                        <span class="sim-stat-value" id="avgWinsA">5.0</span>
+                    </div>
+                    <div class="sim-stat">
+                        <span class="sim-stat-label" id="expectedWinsBLabel">Expected Wins B</span>
+                        <span class="sim-stat-value" id="avgWinsB">5.0</span>
+                    </div>
+                    <div class="sim-stat">
+                        <span class="sim-stat-label" id="avgFinalEloALabel">Avg Final ELO A</span>
+                        <span class="sim-stat-value" id="avgFinalEloA">1000</span>
+                    </div>
+                    <div class="sim-stat">
+                        <span class="sim-stat-label" id="avgFinalEloBLabel">Avg Final ELO B</span>
+                        <span class="sim-stat-value" id="avgFinalEloB">1000</span>
+                    </div>
+                </div>
+
+                <div class="percentile-ranges">
+                    <h4 id="percentileRangesTitle">📊 ELO Outcome Ranges (Player A)</h4>
+                    <div class="percentile-bar-container">
+                        <div class="percentile-bar" id="percentileBarA">
+                            <div class="percentile-range p5-p95" id="rangeA5_95"></div>
+                            <div class="percentile-range p25-p75" id="rangeA25_75"></div>
+                            <div class="percentile-marker p50" id="markerA50"></div>
+                        </div>
+                    </div>
+                    <div class="percentile-labels">
+                        <span class="percentile-label" id="p5LabelA">950</span>
+                        <span class="percentile-label" id="p50LabelA">1000</span>
+                        <span class="percentile-label" id="p95LabelA">1050</span>
+                    </div>
+                    <div class="percentile-legend">
+                        <span><span class="legend-box p25-75"></span> 25th-75th percentile</span>
+                        <span><span class="legend-box p5-95"></span> 5th-95th percentile</span>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h4>ELO Progression Distribution</h4>
+                    <canvas id="eloProgressionChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h4 id="distributionChartTitle">Final ELO Distribution (Player A)</h4>
+                    <canvas id="eloDistributionChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Share Section -->
+    <section class="share-section">
+        <button class="share-btn" id="shareBtn">🔗 Copy Shareable Link</button>
+        <span class="share-status" id="shareStatus"></span>
+    </section>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script>
+// ============================================
+// ELO CALCULATION FUNCTIONS
+// ============================================
+
+const K_LEARNING = 40;
+const K_INTERMEDIATE = 24;
+const K_EXPERIENCED = 12;
+const DEFAULT_ELO = 1000;
+
+function dynamicK(matches) {
+    if (matches < 6) return K_LEARNING;
+    if (matches < 15) return K_INTERMEDIATE;
+    return K_EXPERIENCED;
+}
+
+function expectedScore(eloA, eloB) {
+    return 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
+}
+
+function calculateEloChange(eloA, eloB, actualScoreA, kFactor) {
+    const expected = expectedScore(eloA, eloB);
+    return kFactor * (actualScoreA - expected);
+}
+
+function calculateMatchOutcomes(eloA, eloB, matchesA, matchesB) {
+    const kA = dynamicK(matchesA);
+    const kB = dynamicK(matchesB);
+    const expA = expectedScore(eloA, eloB);
+    const expB = 1 - expA;
+
+    return {
+        expectedA: expA,
+        expectedB: expB,
+        kFactorA: kA,
+        kFactorB: kB,
+        eloChangeAWin: calculateEloChange(eloA, eloB, 1.0, kA),
+        eloChangeALoss: calculateEloChange(eloA, eloB, 0.0, kA),
+        eloChangeBWin: calculateEloChange(eloB, eloA, 1.0, kB),
+        eloChangeBLoss: calculateEloChange(eloB, eloA, 0.0, kB)
+    };
+}
+
+function simulateSingleMatch(eloA, eloB, maxPoints = 5) {
+    const expA = expectedScore(eloA, eloB);
+    let scoreA = 0, scoreB = 0;
+    
+    while (scoreA < maxPoints && scoreB < maxPoints) {
+        if (Math.random() < expA) scoreA++;
+        else scoreB++;
+    }
+    
+    return { scoreA, scoreB };
+}
+
+function runMultiMatchSimulation(eloA, eloB, numMatches, matchesA, matchesB) {
+    let currentEloA = eloA;
+    let currentEloB = eloB;
+    let currentMatchesA = matchesA;
+    let currentMatchesB = matchesB;
+    
+    const eloProgressionA = [currentEloA];
+    const eloProgressionB = [currentEloB];
+    let winsA = 0, winsB = 0;
+    
+    for (let i = 0; i < numMatches; i++) {
+        const result = simulateSingleMatch(currentEloA, currentEloB);
+        const winnerIsA = result.scoreA > result.scoreB;
+        
+        if (winnerIsA) winsA++;
+        else winsB++;
+        
+        const kA = dynamicK(currentMatchesA);
+        const kB = dynamicK(currentMatchesB);
+        
+        const changeA = calculateEloChange(currentEloA, currentEloB, winnerIsA ? 1 : 0, kA);
+        const changeB = calculateEloChange(currentEloB, currentEloA, winnerIsA ? 0 : 1, kB);
+        
+        currentEloA += changeA;
+        currentEloB += changeB;
+        currentMatchesA++;
+        currentMatchesB++;
+        
+        eloProgressionA.push(currentEloA);
+        eloProgressionB.push(currentEloB);
+    }
+    
+    return {
+        eloProgressionA,
+        eloProgressionB,
+        winsA,
+        winsB,
+        finalEloA: currentEloA,
+        finalEloB: currentEloB
+    };
+}
+
+function getPercentileRanges(eloA, eloB, numMatches, numSimulations, matchesA, matchesB) {
+    const finalElosA = [];
+    const finalElosB = [];
+    let totalWinsA = 0, totalWinsB = 0;
+    
+    for (let i = 0; i < numSimulations; i++) {
+        const result = runMultiMatchSimulation(eloA, eloB, numMatches, matchesA, matchesB);
+        finalElosA.push(result.finalEloA);
+        finalElosB.push(result.finalEloB);
+        totalWinsA += result.winsA;
+        totalWinsB += result.winsB;
+    }
+    
+    const sortedA = [...finalElosA].sort((a, b) => a - b);
+    const sortedB = [...finalElosB].sort((a, b) => a - b);
+    
+    const getPercentile = (arr, p) => arr[Math.min(Math.floor(arr.length * p / 100), arr.length - 1)];
+    
+    return {
+        finalElosA,
+        finalElosB,
+        percentilesA: {
+            p5: getPercentile(sortedA, 5),
+            p25: getPercentile(sortedA, 25),
+            p50: getPercentile(sortedA, 50),
+            p75: getPercentile(sortedA, 75),
+            p95: getPercentile(sortedA, 95)
+        },
+        percentilesB: {
+            p5: getPercentile(sortedB, 5),
+            p25: getPercentile(sortedB, 25),
+            p50: getPercentile(sortedB, 50),
+            p75: getPercentile(sortedB, 75),
+            p95: getPercentile(sortedB, 95)
+        },
+        avgFinalEloA: finalElosA.reduce((a, b) => a + b, 0) / finalElosA.length,
+        avgFinalEloB: finalElosB.reduce((a, b) => a + b, 0) / finalElosB.length,
+        avgWinsA: totalWinsA / numSimulations,
+        avgWinsB: totalWinsB / numSimulations
+    };
+}
+
+// ============================================
+// UI FUNCTIONS
+// ============================================
+
+let leaderboardData = [];
+let progressionChart = null;
+let distributionChart = null;
+
+async function loadLeaderboardData() {
+    try {
+        const response = await fetch('data/leaderboard.csv');
+        const text = await response.text();
+        const lines = text.trim().split(/\r?\n/);
+        const headers = lines[0].split(',');
+        
+        leaderboardData = lines.slice(1).map(line => {
+            const values = line.split(',');
+            return {
+                name: values[1],
+                elo: parseInt(values[2]),
+                matches: parseInt(values[3]),
+                wins: parseInt(values[4]),
+                losses: parseInt(values[5]),
+                winrate: values[6]
+            };
+        });
+        
+        populateSelectors();
+        loadFromURL();
+    } catch (error) {
+        console.error('Error loading leaderboard:', error);
+    }
+}
+
+function populateSelectors() {
+    const selectA = document.getElementById('playerASelect');
+    const selectB = document.getElementById('playerBSelect');
+    
+    leaderboardData.forEach(bey => {
+        const optionA = document.createElement('option');
+        optionA.value = bey.name;
+        optionA.textContent = `${bey.name} (${bey.elo} ELO)`;
+        selectA.appendChild(optionA);
+        
+        const optionB = document.createElement('option');
+        optionB.value = bey.name;
+        optionB.textContent = `${bey.name} (${bey.elo} ELO)`;
+        selectB.appendChild(optionB);
+    });
+}
+
+function updatePlayerStats(player) {
+    const select = document.getElementById(`player${player}Select`);
+    const eloInput = document.getElementById(`player${player}Elo`);
+    const matchesInput = document.getElementById(`player${player}Matches`);
+    const statsDiv = document.getElementById(`player${player}Stats`);
+    const manualCheckbox = document.getElementById(`player${player}Manual`);
+    
+    if (manualCheckbox.checked) {
+        statsDiv.innerHTML = '<em>Manual mode - enter values above</em>';
+        eloInput.disabled = false;
+        matchesInput.disabled = false;
+        updatePlayerLabels();
+        return;
+    }
+    
+    const bey = leaderboardData.find(b => b.name === select.value);
+    
+    if (bey) {
+        eloInput.value = bey.elo;
+        matchesInput.value = bey.matches;
+        eloInput.disabled = true;
+        matchesInput.disabled = true;
+        statsDiv.innerHTML = `
+            <div class="stat-item"><span>Wins:</span> <strong>${bey.wins}</strong></div>
+            <div class="stat-item"><span>Losses:</span> <strong>${bey.losses}</strong></div>
+            <div class="stat-item"><span>Winrate:</span> <strong>${bey.winrate}</strong></div>
+        `;
+    } else {
+        eloInput.disabled = false;
+        matchesInput.disabled = false;
+        statsDiv.innerHTML = '';
+    }
+    
+    updatePlayerLabels();
+    updateSingleMatch();
+}
+
+function getPlayerName(player) {
+    const select = document.getElementById(`player${player}Select`);
+    const manualCheckbox = document.getElementById(`player${player}Manual`);
+    
+    if (manualCheckbox.checked || !select.value) {
+        return `Player ${player}`;
+    }
+    return select.value;
+}
+
+function updatePlayerLabels() {
+    const nameA = getPlayerName('A');
+    const nameB = getPlayerName('B');
+    
+    // Update setup section labels
+    document.getElementById('playerALabel').textContent = nameA;
+    document.getElementById('playerBLabel').textContent = nameB;
+    
+    // Update outcome section headers
+    document.getElementById('outcomeIfAWins').textContent = `If ${nameA} Wins`;
+    document.getElementById('outcomeIfBWins').textContent = `If ${nameB} Wins`;
+    
+    // Update outcome row labels
+    document.getElementById('labelAEloChangeWin').textContent = `${nameA}'s ELO Change:`;
+    document.getElementById('labelBEloChangeLoss').textContent = `${nameB}'s ELO Change:`;
+    document.getElementById('labelANewEloWin').textContent = `${nameA}'s New ELO:`;
+    document.getElementById('labelBNewEloLoss').textContent = `${nameB}'s New ELO:`;
+    document.getElementById('labelAEloChangeLoss').textContent = `${nameA}'s ELO Change:`;
+    document.getElementById('labelBEloChangeWin').textContent = `${nameB}'s ELO Change:`;
+    document.getElementById('labelANewEloLoss').textContent = `${nameA}'s New ELO:`;
+    document.getElementById('labelBNewEloWin').textContent = `${nameB}'s New ELO:`;
+    
+    // Update K-factor labels
+    document.getElementById('kFactorALabel').textContent = `K-Factor ${nameA}`;
+    document.getElementById('kFactorBLabel').textContent = `K-Factor ${nameB}`;
+    
+    // Update multi-match simulation labels
+    document.getElementById('expectedWinsALabel').textContent = `Expected Wins ${nameA}`;
+    document.getElementById('expectedWinsBLabel').textContent = `Expected Wins ${nameB}`;
+    document.getElementById('avgFinalEloALabel').textContent = `Avg Final ELO ${nameA}`;
+    document.getElementById('avgFinalEloBLabel').textContent = `Avg Final ELO ${nameB}`;
+    
+    // Update percentile and chart titles
+    document.getElementById('percentileRangesTitle').textContent = `📊 ELO Outcome Ranges (${nameA})`;
+    document.getElementById('distributionChartTitle').textContent = `Final ELO Distribution (${nameA})`;
+}
+
+function updateSingleMatch() {
+    const eloA = parseInt(document.getElementById('playerAElo').value) || DEFAULT_ELO;
+    const eloB = parseInt(document.getElementById('playerBElo').value) || DEFAULT_ELO;
+    const matchesA = parseInt(document.getElementById('playerAMatches').value) || 0;
+    const matchesB = parseInt(document.getElementById('playerBMatches').value) || 0;
+    
+    const outcomes = calculateMatchOutcomes(eloA, eloB, matchesA, matchesB);
+    
+    // Update probability bars
+    const probA = (outcomes.expectedA * 100).toFixed(1);
+    const probB = (outcomes.expectedB * 100).toFixed(1);
+    document.getElementById('probBarA').style.width = `${probA}%`;
+    document.getElementById('probBarB').style.width = `${probB}%`;
+    document.getElementById('probLabelA').textContent = `${probA}%`;
+    document.getElementById('probLabelB').textContent = `${probB}%`;
+    
+    // Update outcome values
+    const formatChange = (val) => (val >= 0 ? '+' : '') + val.toFixed(1);
+    
+    document.getElementById('eloChangeAWin').textContent = formatChange(outcomes.eloChangeAWin);
+    document.getElementById('eloChangeAWin').className = 'outcome-value ' + (outcomes.eloChangeAWin >= 0 ? 'positive' : 'negative');
+    
+    document.getElementById('eloChangeBLoss').textContent = formatChange(outcomes.eloChangeBLoss);
+    document.getElementById('eloChangeBLoss').className = 'outcome-value ' + (outcomes.eloChangeBLoss >= 0 ? 'positive' : 'negative');
+    
+    document.getElementById('newEloAWin').textContent = (eloA + outcomes.eloChangeAWin).toFixed(0);
+    document.getElementById('newEloBLoss').textContent = (eloB + outcomes.eloChangeBLoss).toFixed(0);
+    
+    document.getElementById('eloChangeALoss').textContent = formatChange(outcomes.eloChangeALoss);
+    document.getElementById('eloChangeALoss').className = 'outcome-value ' + (outcomes.eloChangeALoss >= 0 ? 'positive' : 'negative');
+    
+    document.getElementById('eloChangeBWin').textContent = formatChange(outcomes.eloChangeBWin);
+    document.getElementById('eloChangeBWin').className = 'outcome-value ' + (outcomes.eloChangeBWin >= 0 ? 'positive' : 'negative');
+    
+    document.getElementById('newEloALoss').textContent = (eloA + outcomes.eloChangeALoss).toFixed(0);
+    document.getElementById('newEloBWin').textContent = (eloB + outcomes.eloChangeBWin).toFixed(0);
+    
+    // Update K-factors
+    document.getElementById('kFactorA').textContent = outcomes.kFactorA;
+    document.getElementById('kFactorB').textContent = outcomes.kFactorB;
+}
+
+function runSimulation() {
+    const eloA = parseInt(document.getElementById('playerAElo').value) || DEFAULT_ELO;
+    const eloB = parseInt(document.getElementById('playerBElo').value) || DEFAULT_ELO;
+    const matchesA = parseInt(document.getElementById('playerAMatches').value) || 0;
+    const matchesB = parseInt(document.getElementById('playerBMatches').value) || 0;
+    const numMatches = parseInt(document.getElementById('numMatches').value) || 10;
+    const numSims = parseInt(document.getElementById('numSimulations').value) || 500;
+    
+    const results = getPercentileRanges(eloA, eloB, numMatches, numSims, matchesA, matchesB);
+    
+    // Update summary stats
+    document.getElementById('avgWinsA').textContent = results.avgWinsA.toFixed(1);
+    document.getElementById('avgWinsB').textContent = results.avgWinsB.toFixed(1);
+    document.getElementById('avgFinalEloA').textContent = results.avgFinalEloA.toFixed(0);
+    document.getElementById('avgFinalEloB').textContent = results.avgFinalEloB.toFixed(0);
+    
+    // Update percentile visualization
+    updatePercentileVisualization(results, eloA);
+    
+    // Update charts
+    updateProgressionChart(eloA, eloB, matchesA, matchesB, numMatches);
+    updateDistributionChart(results.finalElosA, eloA);
+}
+
+function updatePercentileVisualization(results, startElo) {
+    const p = results.percentilesA;
+    const minElo = p.p5 - 20;
+    const maxElo = p.p95 + 20;
+    const range = maxElo - minElo;
+    
+    const toPercent = (elo) => ((elo - minElo) / range * 100);
+    
+    // Update 5th-95th range
+    const range5_95 = document.getElementById('rangeA5_95');
+    range5_95.style.left = toPercent(p.p5) + '%';
+    range5_95.style.width = (toPercent(p.p95) - toPercent(p.p5)) + '%';
+    
+    // Update 25th-75th range
+    const range25_75 = document.getElementById('rangeA25_75');
+    range25_75.style.left = toPercent(p.p25) + '%';
+    range25_75.style.width = (toPercent(p.p75) - toPercent(p.p25)) + '%';
+    
+    // Update median marker
+    const marker50 = document.getElementById('markerA50');
+    marker50.style.left = toPercent(p.p50) + '%';
+    
+    // Update labels
+    document.getElementById('p5LabelA').textContent = p.p5.toFixed(0);
+    document.getElementById('p50LabelA').textContent = p.p50.toFixed(0);
+    document.getElementById('p95LabelA').textContent = p.p95.toFixed(0);
+}
+
+function updateProgressionChart(eloA, eloB, matchesA, matchesB, numMatches) {
+    const ctx = document.getElementById('eloProgressionChart').getContext('2d');
+    
+    // Run a single simulation for visualization
+    const result = runMultiMatchSimulation(eloA, eloB, numMatches, matchesA, matchesB);
+    
+    if (progressionChart) progressionChart.destroy();
+    
+    const nameA = getPlayerName('A');
+    const nameB = getPlayerName('B');
+    
+    progressionChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: numMatches + 1}, (_, i) => i),
+            datasets: [
+                {
+                    label: `${nameA} ELO`,
+                    data: result.eloProgressionA,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                },
+                {
+                    label: `${nameB} ELO`,
+                    data: result.eloProgressionB,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: { color: getComputedStyle(document.body).getPropertyValue('--text') }
+                }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Match Number', color: getComputedStyle(document.body).getPropertyValue('--text') },
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-light') },
+                    grid: { color: getComputedStyle(document.body).getPropertyValue('--border') }
+                },
+                y: {
+                    title: { display: true, text: 'ELO Rating', color: getComputedStyle(document.body).getPropertyValue('--text') },
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-light') },
+                    grid: { color: getComputedStyle(document.body).getPropertyValue('--border') }
+                }
+            }
+        }
+    });
+}
+
+function updateDistributionChart(finalElos, startElo) {
+    const ctx = document.getElementById('eloDistributionChart').getContext('2d');
+    
+    // Create histogram bins
+    const minElo = Math.min(...finalElos);
+    const maxElo = Math.max(...finalElos);
+    const binWidth = Math.max(10, Math.ceil((maxElo - minElo) / 20));
+    const binStart = Math.floor(minElo / binWidth) * binWidth;
+    const binEnd = Math.ceil(maxElo / binWidth) * binWidth;
+    
+    const bins = [];
+    const labels = [];
+    
+    for (let i = binStart; i < binEnd; i += binWidth) {
+        bins.push(0);
+        labels.push(`${i}-${i + binWidth}`);
+    }
+    
+    finalElos.forEach(elo => {
+        const binIndex = Math.floor((elo - binStart) / binWidth);
+        if (binIndex >= 0 && binIndex < bins.length) bins[binIndex]++;
+    });
+    
+    if (distributionChart) distributionChart.destroy();
+    
+    distributionChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Frequency',
+                data: bins,
+                backgroundColor: 'rgba(239, 68, 68, 0.6)',
+                borderColor: '#ef4444',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Final ELO Range', color: getComputedStyle(document.body).getPropertyValue('--text') },
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-light'), maxRotation: 45 },
+                    grid: { display: false }
+                },
+                y: {
+                    title: { display: true, text: 'Count', color: getComputedStyle(document.body).getPropertyValue('--text') },
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-light') },
+                    grid: { color: getComputedStyle(document.body).getPropertyValue('--border') }
+                }
+            }
+        }
+    });
+}
+
+function updateURL() {
+    const params = new URLSearchParams();
+    
+    const playerASelect = document.getElementById('playerASelect').value;
+    const playerBSelect = document.getElementById('playerBSelect').value;
+    const playerAManual = document.getElementById('playerAManual').checked;
+    const playerBManual = document.getElementById('playerBManual').checked;
+    
+    if (playerAManual || !playerASelect) {
+        params.set('eloA', document.getElementById('playerAElo').value);
+        params.set('matchesA', document.getElementById('playerAMatches').value);
+    } else {
+        params.set('playerA', playerASelect);
+    }
+    
+    if (playerBManual || !playerBSelect) {
+        params.set('eloB', document.getElementById('playerBElo').value);
+        params.set('matchesB', document.getElementById('playerBMatches').value);
+    } else {
+        params.set('playerB', playerBSelect);
+    }
+    
+    params.set('matches', document.getElementById('numMatches').value);
+    params.set('sims', document.getElementById('numSimulations').value);
+    
+    window.history.replaceState({}, '', `?${params.toString()}`);
+}
+
+function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (params.has('playerA')) {
+        document.getElementById('playerASelect').value = params.get('playerA');
+        updatePlayerStats('A');
+    } else if (params.has('eloA')) {
+        document.getElementById('playerAManual').checked = true;
+        document.getElementById('playerAElo').value = params.get('eloA');
+        document.getElementById('playerAMatches').value = params.get('matchesA') || 0;
+        updatePlayerStats('A');
+    }
+    
+    if (params.has('playerB')) {
+        document.getElementById('playerBSelect').value = params.get('playerB');
+        updatePlayerStats('B');
+    } else if (params.has('eloB')) {
+        document.getElementById('playerBManual').checked = true;
+        document.getElementById('playerBElo').value = params.get('eloB');
+        document.getElementById('playerBMatches').value = params.get('matchesB') || 0;
+        updatePlayerStats('B');
+    }
+    
+    if (params.has('matches')) {
+        document.getElementById('numMatches').value = params.get('matches');
+        document.getElementById('numMatchesValue').textContent = params.get('matches');
+    }
+    
+    if (params.has('sims')) {
+        document.getElementById('numSimulations').value = params.get('sims');
+        document.getElementById('numSimulationsValue').textContent = params.get('sims');
+    }
+    
+    updateSingleMatch();
+}
+
+function copyShareLink() {
+    updateURL();
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        const status = document.getElementById('shareStatus');
+        status.textContent = '✓ Link copied!';
+        setTimeout(() => status.textContent = '', 2000);
+    });
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadLeaderboardData();
+    
+    // Player selection changes
+    document.getElementById('playerASelect').addEventListener('change', () => updatePlayerStats('A'));
+    document.getElementById('playerBSelect').addEventListener('change', () => updatePlayerStats('B'));
+    
+    // Manual override toggles
+    document.getElementById('playerAManual').addEventListener('change', () => updatePlayerStats('A'));
+    document.getElementById('playerBManual').addEventListener('change', () => updatePlayerStats('B'));
+    
+    // ELO input changes
+    document.getElementById('playerAElo').addEventListener('input', updateSingleMatch);
+    document.getElementById('playerBElo').addEventListener('input', updateSingleMatch);
+    document.getElementById('playerAMatches').addEventListener('input', updateSingleMatch);
+    document.getElementById('playerBMatches').addEventListener('input', updateSingleMatch);
+    
+    // Slider updates
+    document.getElementById('numMatches').addEventListener('input', (e) => {
+        document.getElementById('numMatchesValue').textContent = e.target.value;
+    });
+    document.getElementById('numSimulations').addEventListener('input', (e) => {
+        document.getElementById('numSimulationsValue').textContent = e.target.value;
+    });
+    
+    // Simulation button
+    document.getElementById('simulateBtn').addEventListener('click', () => {
+        runSimulation();
+        updateURL();
+    });
+    
+    // Share button
+    document.getElementById('shareBtn').addEventListener('click', copyShareLink);
+    
+    // Initial simulation
+    setTimeout(() => runSimulation(), 100);
+});
+</script>
+
+</body>
+</html>
