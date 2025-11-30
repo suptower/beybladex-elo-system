@@ -7841,23 +7841,25 @@ html {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Mobile table scrolling - wrap tables that need horizontal scroll */
+/* Mobile table scrolling - enable scroll on table containers */
 @media (max-width: 768px) {
-    /* Stats table (compare page) - allow horizontal scroll */
-    .stats-table {
-        display: block;
+    /* Stats table container (compare page) - use parent container for scroll */
+    .stats-table-container,
+    .synergy-heatmap-container,
+    .heatmap-container,
+    .balance-section,
+    .outlier-section {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        white-space: nowrap;
     }
     
-    /* Synergy heatmap tables */
+    /* Fallback: tables without wrapper get scroll directly */
+    .stats-table,
     .synergy-table,
-    .heatmap-container table,
-    .synergy-heatmap {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
+    .synergy-heatmap,
+    .outlier-table,
+    .balance-table {
+        min-width: max-content;
     }
     
     /* Generic table scroll wrapper */
@@ -7866,14 +7868,6 @@ html {
         -webkit-overflow-scrolling: touch;
         margin: 0 -0.5rem;
         padding: 0 0.5rem;
-    }
-    
-    /* Meta balance tables */
-    .outlier-table,
-    .balance-table {
-        display: block;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
     }
 }
 
