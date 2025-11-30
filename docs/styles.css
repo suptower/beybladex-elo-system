@@ -1385,6 +1385,49 @@ footer p {
     content: " ▲";
 }
 
+/* Card actions for compare page */
+.lb-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.lb-card-actions .lb-expand-btn {
+    flex: 1;
+}
+
+.lb-card-actions .add-compare-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    border: 2px solid var(--accent);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+}
+
+.lb-card-actions .add-compare-btn:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.lb-card-actions .add-compare-btn.selected {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
+/* Stats cards container for compare page */
+#statsCards {
+    display: none;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
 /* ============================================
    WIKI PAGE STYLES
 ============================================ */
