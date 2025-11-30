@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Balance Analyzer - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Meta Balance Analyzer</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link>Analysis ▼</a>
+                <div class="nav-dropdown-content">
+                    <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
+                    <a href="parts.html">Parts</a>
+                    <a href="synergy.html">Synergy</a>
+                    <a href="explorer.html">Explorer</a>
+                    <a href="meta-balance.html">Meta Balance</a>
+                    <a href="plots.html">Plots</a>
+                    <a href="simulator.html">Simulator</a>
+                    <a href="predictor.html">Predictor</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="meta-balance-page">
+    <section class="meta-balance-hero">
+        <h2>📊 Meta Balance Analyzer</h2>
+        <p class="meta-balance-description">
+            Evaluate the health, diversity, and fairness of the current competitive meta. 
+            Identify overcentralizing or underpowered options, track trends, and gain insights into competitive integrity.
+        </p>
+    </section>
+
+    <!-- Overall Health Gauge -->
+    <section class="health-gauge-section">
+        <div class="health-gauge-card">
+            <h3>🎯 Overall Meta Health</h3>
+            <div class="gauge-container">
+                <div class="gauge-background">
+                    <div class="gauge-fill" id="healthGaugeFill"></div>
+                </div>
+                <div class="gauge-score" id="healthScore">--</div>
+                <div class="gauge-status" id="healthStatus">Loading...</div>
+            </div>
+            <div class="gauge-labels">
+                <span class="label-critical">Critical</span>
+                <span class="label-warning">Imbalanced</span>
+                <span class="label-moderate">Moderate</span>
+                <span class="label-good">Balanced</span>
+                <span class="label-excellent">Healthy</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Alerts Section -->
+    <section class="alerts-section" id="alertsSection">
+        <!-- Populated by JavaScript -->
+    </section>
+
+    <!-- Metrics Cards Grid -->
+    <section class="metrics-grid">
+        <!-- Usage Diversity -->
+        <div class="metric-card" id="diversityCard">
+            <div class="metric-header">
+                <span class="metric-icon">🌈</span>
+                <h4>Usage Diversity</h4>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>Usage Diversity</strong>
+                        <p>Measures how evenly usage is spread across different parts. Higher score = more options are being used competitively.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-score">
+                <span class="score-value" id="diversityScore">--</span>
+                <span class="score-max">/100</span>
+            </div>
+            <div class="metric-details" id="diversityDetails">
+                <p class="metric-description">Shannon entropy across Blades, Ratchets, and Bits.</p>
+            </div>
+        </div>
+
+        <!-- Win Rate Balance -->
+        <div class="metric-card" id="winRateCard">
+            <div class="metric-header">
+                <span class="metric-icon">⚖️</span>
+                <h4>Win Rate Balance</h4>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>Win Rate Balance</strong>
+                        <p>Measures variance in win rates across all competitors. Lower variance means more balanced competitive options.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-score">
+                <span class="score-value" id="winRateScore">--</span>
+                <span class="score-max">/100</span>
+            </div>
+            <div class="metric-details" id="winRateDetails">
+                <p class="metric-description">Win rate deviation across top-used parts.</p>
+            </div>
+        </div>
+
+        <!-- ELO Spread -->
+        <div class="metric-card" id="eloCard">
+            <div class="metric-header">
+                <span class="metric-icon">📈</span>
+                <h4>ELO Spread</h4>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>ELO Spread</strong>
+                        <p>Measures the distribution of ELO ratings. Moderate spread indicates healthy skill differentiation without extreme gaps.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-score">
+                <span class="score-value" id="eloScore">--</span>
+                <span class="score-max">/100</span>
+            </div>
+            <div class="metric-details" id="eloDetails">
+                <p class="metric-description">ELO compression ratio and distribution health.</p>
+            </div>
+        </div>
+
+        <!-- Top Dominance -->
+        <div class="metric-card" id="dominanceCard">
+            <div class="metric-header">
+                <span class="metric-icon">👑</span>
+                <h4>Top Dominance</h4>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>Top Dominance</strong>
+                        <p>Measures how much top performers dominate matches. Lower dominance = healthier meta with more viable options.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-score">
+                <span class="score-value" id="dominanceScore">--</span>
+                <span class="score-max">/100</span>
+            </div>
+            <div class="metric-details" id="dominanceDetails">
+                <p class="metric-description">Match share of top 3/5/10 performers.</p>
+            </div>
+        </div>
+
+        <!-- Matchup Polarization -->
+        <div class="metric-card" id="polarizationCard">
+            <div class="metric-header">
+                <span class="metric-icon">🎭</span>
+                <h4>Matchup Balance</h4>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>Matchup Balance</strong>
+                        <p>Measures how one-sided matchups are. Fewer extreme matchups = better strategic variety and counterplay.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="metric-score">
+                <span class="score-value" id="polarizationScore">--</span>
+                <span class="score-max">/100</span>
+            </div>
+            <div class="metric-details" id="polarizationDetails">
+                <p class="metric-description">Frequency of highly one-sided matchups.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visualizations Section -->
+    <section class="visualizations-section">
+        <div class="viz-tabs">
+            <button class="viz-tab active" data-tab="usage-winrate">📊 Usage vs Win Rate</button>
+            <button class="viz-tab" data-tab="elo-distribution">📈 ELO Distribution</button>
+            <button class="viz-tab" data-tab="breakdown">🎯 Health Breakdown</button>
+        </div>
+
+        <!-- Usage vs Win Rate Scatterplot -->
+        <div class="viz-panel active" id="usage-winrate-panel">
+            <h3>Usage vs Win Rate</h3>
+            <p class="viz-description">Reveals power creep and outliers. Ideal position is high usage with moderate win rate (~50%).</p>
+            <div class="chart-container">
+                <canvas id="usageWinrateChart"></canvas>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item"><span class="legend-color overcentralizing"></span> Overcentralizing (High Usage + High WR)</div>
+                <div class="legend-item"><span class="legend-color underpowered"></span> Underpowered (Low WR)</div>
+                <div class="legend-item"><span class="legend-color balanced"></span> Balanced</div>
+            </div>
+        </div>
+
+        <!-- ELO Distribution -->
+        <div class="viz-panel" id="elo-distribution-panel">
+            <h3>ELO Distribution</h3>
+            <p class="viz-description">Shows how ELO ratings are spread across the field. Healthy metas have moderate spread.</p>
+            <div class="chart-container">
+                <canvas id="eloDistributionChart"></canvas>
+            </div>
+            <div class="elo-stats" id="eloStatsDisplay">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Health Breakdown -->
+        <div class="viz-panel" id="breakdown-panel">
+            <h3>Meta Health Breakdown</h3>
+            <p class="viz-description">Contribution of each metric to the overall health score.</p>
+            <div class="chart-container">
+                <canvas id="breakdownChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Outliers Section -->
+    <section class="outliers-section">
+        <h3>🔍 Outlier Detection</h3>
+        <p class="section-description">Parts and combinations that may need attention based on performance data.</p>
+
+        <div class="outliers-grid">
+            <!-- Overcentralizing -->
+            <div class="outlier-card overcentralizing">
+                <div class="outlier-header">
+                    <span class="outlier-icon">⚠️</span>
+                    <h4>Overcentralizing</h4>
+                </div>
+                <p class="outlier-description">High usage combined with above-average win rates.</p>
+                <div class="outlier-list" id="overcentralizingList">
+                    <p class="no-data">Loading...</p>
+                </div>
+            </div>
+
+            <!-- Underpowered -->
+            <div class="outlier-card underpowered">
+                <div class="outlier-header">
+                    <span class="outlier-icon">📉</span>
+                    <h4>Underpowered</h4>
+                </div>
+                <p class="outlier-description">Below-average performance across multiple metrics.</p>
+                <div class="outlier-list" id="underpoweredList">
+                    <p class="no-data">Loading...</p>
+                </div>
+            </div>
+
+            <!-- Emerging Threats -->
+            <div class="outlier-card emerging">
+                <div class="outlier-header">
+                    <span class="outlier-icon">👀</span>
+                    <h4>Emerging Threats</h4>
+                </div>
+                <p class="outlier-description">High win rate but limited data - worth monitoring.</p>
+                <div class="outlier-list" id="emergingList">
+                    <p class="no-data">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Polarized Matchups -->
+    <section class="polarized-matchups-section">
+        <h3>🎭 Most Polarized Matchups</h3>
+        <p class="section-description">Matchups with highly one-sided win rates (&gt;70% or &lt;30%).</p>
+        <div class="matchups-table-container">
+            <table class="matchups-table" id="polarizedMatchupsTable">
+                <thead>
+                    <tr>
+                        <th>Bey 1</th>
+                        <th>Bey 2</th>
+                        <th>Win Rate</th>
+                        <th>Games</th>
+                        <th>Severity</th>
+                    </tr>
+                </thead>
+                <tbody id="polarizedMatchupsBody">
+                    <tr><td colspan="5" class="no-data">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Methodology Section -->
+    <section class="methodology-section">
+        <h3>📐 Methodology</h3>
+        <div class="methodology-content">
+            <p>The Meta Health Score is calculated using a weighted formula combining five key metrics:</p>
+            <ul>
+                <li><strong>Usage Diversity (25%)</strong> — Shannon entropy measuring how evenly parts are used</li>
+                <li><strong>Win Rate Balance (25%)</strong> — Inverse of win rate variance (lower variance = healthier)</li>
+                <li><strong>ELO Spread (20%)</strong> — How well-distributed ELO ratings are (moderate spread is optimal)</li>
+                <li><strong>Top Dominance (15%)</strong> — Inverse of top-3 match share (less dominance = healthier)</li>
+                <li><strong>Matchup Balance (15%)</strong> — Inverse of polarized matchup frequency</li>
+            </ul>
+            <p class="methodology-note">Outlier detection uses statistical analysis with confidence bands based on available match volume. Results with limited data are marked accordingly.</p>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script>
+// Global data
+let metaBalanceData = null;
+let leaderboardData = null;
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Get color class based on score
+function getScoreClass(score) {
+    if (score >= 75) return 'excellent';
+    if (score >= 60) return 'good';
+    if (score >= 45) return 'moderate';
+    if (score >= 30) return 'warning';
+    return 'critical';
+}
+
+// Format percentage
+function formatPercent(value) {
+    return `${value.toFixed(1)}%`;
+}
+
+// Load meta balance data
+async function loadMetaBalanceData() {
+    try {
+        // Fetch meta balance data first (required)
+        const metaResponse = await fetch('data/meta_balance.json');
+        if (!metaResponse.ok) {
+            throw new Error(`Failed to load meta_balance.json: ${metaResponse.status}`);
+        }
+        metaBalanceData = await metaResponse.json();
+        
+        // Try to fetch leaderboard data (optional for charts)
+        try {
+            const leaderboardResponse = await fetch('data/advanced_leaderboard.csv');
+            if (leaderboardResponse.ok) {
+                const csvText = await leaderboardResponse.text();
+                leaderboardData = parseCSV(csvText);
+            }
+        } catch (csvError) {
+            console.warn('Leaderboard CSV not available, charts will be limited:', csvError);
+        }
+        
+        renderDashboard();
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showError('Error loading meta balance data. Please try refreshing the page.');
+    }
+}
+
+// Parse CSV data
+// Note: This parser handles simple CSV files where fields don't contain commas.
+// The advanced_leaderboard.csv format is controlled by our backend and doesn't
+// include comma-containing fields, so this simple parser is sufficient.
+function parseCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+    if (lines.length === 0) return [];
+    
+    const headers = lines[0].split(',');
+    const data = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',');
+        if (values.length !== headers.length) {
+            console.warn(`Skipping malformed CSV row ${i}: expected ${headers.length} columns, got ${values.length}`);
+            continue;
+        }
+        const row = {};
+        headers.forEach((header, index) => {
+            row[header] = values[index];
+        });
+        data.push(row);
+    }
+    
+    return data;
+}
+
+// Show error message
+function showError(message) {
+    document.querySelector('.meta-balance-page').innerHTML = `
+        <div class="error-message">
+            <p>❌ ${escapeHtml(message)}</p>
+        </div>
+    `;
+}
+
+// Render the entire dashboard
+function renderDashboard() {
+    if (!metaBalanceData) return;
+    
+    renderHealthGauge();
+    renderAlerts();
+    renderMetricCards();
+    renderCharts();
+    renderOutliers();
+    renderPolarizedMatchups();
+    setupTabNavigation();
+}
+
+// Render the overall health gauge
+function renderHealthGauge() {
+    const health = metaBalanceData.meta_health;
+    const score = health.overall_score;
+    const status = health.status;
+    const statusClass = health.status_class;
+    
+    const gaugeFill = document.getElementById('healthGaugeFill');
+    const scoreEl = document.getElementById('healthScore');
+    const statusEl = document.getElementById('healthStatus');
+    
+    // Animate the gauge fill
+    gaugeFill.style.width = `${score}%`;
+    gaugeFill.className = `gauge-fill ${statusClass}`;
+    
+    scoreEl.textContent = score.toFixed(1);
+    statusEl.textContent = status;
+    statusEl.className = `gauge-status ${statusClass}`;
+}
+
+// Render alerts
+function renderAlerts() {
+    const alerts = metaBalanceData.meta_health.alerts;
+    const alertsSection = document.getElementById('alertsSection');
+    
+    if (!alerts || alerts.length === 0) {
+        alertsSection.innerHTML = '';
+        return;
+    }
+    
+    alertsSection.innerHTML = alerts.map(alert => `
+        <div class="alert-card ${alert.type}">
+            <span class="alert-icon">⚠️</span>
+            <div class="alert-content">
+                <strong>${escapeHtml(alert.metric)}</strong>
+                <p>${escapeHtml(alert.message)}</p>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render metric cards
+function renderMetricCards() {
+    const metrics = metaBalanceData.metrics;
+    
+    // Usage Diversity
+    renderMetricCard(
+        'diversity',
+        metrics.usage_diversity.overall_score,
+        `Blade: ${metrics.usage_diversity.blade.score.toFixed(1)} | 
+         Ratchet: ${metrics.usage_diversity.ratchet.score.toFixed(1)} | 
+         Bit: ${metrics.usage_diversity.bit.score.toFixed(1)}`
+    );
+    
+    // Win Rate Balance
+    renderMetricCard(
+        'winRate',
+        metrics.win_rate_deviation.score,
+        `Std Dev: ${(metrics.win_rate_deviation.std_deviation * 100).toFixed(1)}% | 
+         Range: ${(metrics.win_rate_deviation.range * 100).toFixed(1)}%`
+    );
+    
+    // ELO Spread
+    renderMetricCard(
+        'elo',
+        metrics.elo_compression.score,
+        `Range: ${metrics.elo_compression.range.toFixed(0)} | 
+         Std Dev: ${metrics.elo_compression.std_deviation.toFixed(1)}`
+    );
+    
+    // Top Dominance
+    renderMetricCard(
+        'dominance',
+        metrics.top_dominance.score,
+        `Top 3: ${metrics.top_dominance.top_3_share.toFixed(1)}% | 
+         Top 5: ${metrics.top_dominance.top_5_share.toFixed(1)}%`
+    );
+    
+    // Matchup Polarization
+    renderMetricCard(
+        'polarization',
+        metrics.matchup_polarization.score,
+        `Polarized: ${metrics.matchup_polarization.polarized_matchups_count} of ${metrics.matchup_polarization.total_matchups_analyzed} matchups`
+    );
+}
+
+function renderMetricCard(id, score, details) {
+    const scoreEl = document.getElementById(`${id}Score`);
+    const detailsEl = document.getElementById(`${id}Details`);
+    const card = document.getElementById(`${id}Card`);
+    
+    scoreEl.textContent = score.toFixed(1);
+    detailsEl.innerHTML = `<p class="metric-details-text">${details}</p>`;
+    
+    // Add score class for coloring
+    card.className = `metric-card ${getScoreClass(score)}`;
+}
+
+// Render charts
+function renderCharts() {
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not available - skipping chart rendering');
+        document.querySelectorAll('.chart-container').forEach(container => {
+            container.innerHTML = '<p class="chart-unavailable">Charts require Chart.js library to load</p>';
+        });
+        return;
+    }
+    renderUsageWinrateChart();
+    renderEloDistributionChart();
+    renderBreakdownChart();
+}
+
+// Usage vs Win Rate scatterplot
+function renderUsageWinrateChart() {
+    const ctx = document.getElementById('usageWinrateChart').getContext('2d');
+    
+    if (!leaderboardData || leaderboardData.length === 0) {
+        return;
+    }
+    
+    const data = leaderboardData.map(bey => ({
+        x: parseInt(bey.Matches),
+        y: parseFloat(bey.Winrate.replace('%', '')),
+        label: bey.Bey,
+        elo: parseInt(bey.ELO)
+    })).filter(d => d.x >= 3);  // Min 3 matches
+    
+    // Categorize points
+    const overcentralizing = data.filter(d => d.y >= 60 && d.x >= 5);
+    const underpowered = data.filter(d => d.y < 40);
+    const balanced = data.filter(d => d.y >= 40 && d.y < 60);
+    
+    new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [
+                {
+                    label: 'Overcentralizing',
+                    data: overcentralizing,
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                    borderColor: 'rgb(239, 68, 68)',
+                    pointRadius: 8,
+                    pointHoverRadius: 10
+                },
+                {
+                    label: 'Underpowered',
+                    data: underpowered,
+                    backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                    borderColor: 'rgb(245, 158, 11)',
+                    pointRadius: 8,
+                    pointHoverRadius: 10
+                },
+                {
+                    label: 'Balanced',
+                    data: balanced,
+                    backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                    borderColor: 'rgb(34, 197, 94)',
+                    pointRadius: 8,
+                    pointHoverRadius: 10
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const point = context.raw;
+                            return `${point.label}: ${point.y.toFixed(1)}% WR, ${point.x} matches, ${point.elo} ELO`;
+                        }
+                    }
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Matches Played'
+                    },
+                    beginAtZero: true
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Win Rate (%)'
+                    },
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        callback: value => value + '%'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// ELO Distribution chart
+function renderEloDistributionChart() {
+    const ctx = document.getElementById('eloDistributionChart').getContext('2d');
+    
+    if (!leaderboardData || leaderboardData.length === 0) {
+        return;
+    }
+    
+    const elos = leaderboardData
+        .filter(bey => parseInt(bey.Matches) >= 3)
+        .map(bey => parseInt(bey.ELO));
+    
+    // Create histogram bins
+    const minElo = Math.floor(Math.min(...elos) / 20) * 20;
+    const maxElo = Math.ceil(Math.max(...elos) / 20) * 20;
+    const binSize = 20;
+    const bins = [];
+    const labels = [];
+    
+    for (let i = minElo; i <= maxElo; i += binSize) {
+        bins.push(elos.filter(e => e >= i && e < i + binSize).length);
+        labels.push(`${i}-${i + binSize}`);
+    }
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Number of Beys',
+                data: bins,
+                backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                borderColor: 'rgb(99, 102, 241)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'ELO Range'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Count'
+                    },
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+    
+    // Update ELO stats display
+    const eloMetrics = metaBalanceData.metrics.elo_compression;
+    document.getElementById('eloStatsDisplay').innerHTML = `
+        <div class="stat-item">
+            <span class="stat-label">Mean ELO:</span>
+            <span class="stat-value">${eloMetrics.mean_elo.toFixed(0)}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Min ELO:</span>
+            <span class="stat-value">${eloMetrics.min_elo.toFixed(0)}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Max ELO:</span>
+            <span class="stat-value">${eloMetrics.max_elo.toFixed(0)}</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Range:</span>
+            <span class="stat-value">${eloMetrics.range.toFixed(0)}</span>
+        </div>
+    `;
+}
+
+// Health breakdown chart
+function renderBreakdownChart() {
+    const ctx = document.getElementById('breakdownChart').getContext('2d');
+    const breakdown = metaBalanceData.meta_health.breakdown;
+    
+    const labels = [
+        'Usage Diversity',
+        'Win Rate Balance',
+        'ELO Spread',
+        'Dominance Penalty',
+        'Polarization Penalty'
+    ];
+    
+    const contributions = [
+        breakdown.usage_diversity.contribution,
+        breakdown.win_rate_balance.contribution,
+        breakdown.elo_spread.contribution,
+        breakdown.dominance_penalty.contribution,
+        breakdown.polarization_penalty.contribution
+    ];
+    
+    const scores = [
+        breakdown.usage_diversity.score,
+        breakdown.win_rate_balance.score,
+        breakdown.elo_spread.score,
+        breakdown.dominance_penalty.score,
+        breakdown.polarization_penalty.score
+    ];
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Contribution to Health Score',
+                data: contributions,
+                backgroundColor: scores.map(s => {
+                    if (s >= 75) return 'rgba(34, 197, 94, 0.7)';
+                    if (s >= 60) return 'rgba(59, 130, 246, 0.7)';
+                    if (s >= 45) return 'rgba(245, 158, 11, 0.7)';
+                    return 'rgba(239, 68, 68, 0.7)';
+                }),
+                borderColor: scores.map(s => {
+                    if (s >= 75) return 'rgb(34, 197, 94)';
+                    if (s >= 60) return 'rgb(59, 130, 246)';
+                    if (s >= 45) return 'rgb(245, 158, 11)';
+                    return 'rgb(239, 68, 68)';
+                }),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const idx = context.dataIndex;
+                            return `Score: ${scores[idx].toFixed(1)}/100 → Contribution: ${contributions[idx].toFixed(1)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Contribution to Overall Score'
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Render outliers
+function renderOutliers() {
+    const outliers = metaBalanceData.outliers;
+    
+    renderOutlierList('overcentralizingList', outliers.overcentralizing, 'overcentralizing');
+    renderOutlierList('underpoweredList', outliers.underpowered, 'underpowered');
+    renderOutlierList('emergingList', outliers.emerging_threats, 'emerging');
+}
+
+function renderOutlierList(containerId, items, type) {
+    const container = document.getElementById(containerId);
+    
+    if (!items || items.length === 0) {
+        container.innerHTML = '<p class="no-outliers">No issues detected</p>';
+        return;
+    }
+    
+    container.innerHTML = items.slice(0, 5).map(item => `
+        <div class="outlier-item ${type}">
+            <span class="outlier-name">${escapeHtml(item.bey)}</span>
+            <div class="outlier-stats">
+                <span class="outlier-wr">${item.winrate}% WR</span>
+                <span class="outlier-matches">${item.matches} matches</span>
+                ${item.confidence ? `<span class="confidence-badge ${item.confidence}">${item.confidence}</span>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Render polarized matchups table
+function renderPolarizedMatchups() {
+    const polarization = metaBalanceData.metrics.matchup_polarization;
+    const tbody = document.getElementById('polarizedMatchupsBody');
+    
+    if (!polarization.worst_matchups || polarization.worst_matchups.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="no-data">No highly polarized matchups found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = polarization.worst_matchups.slice(0, 10).map(matchup => {
+        const severity = Math.abs(matchup.win_rate - 50);
+        let severityClass = 'moderate';
+        if (severity >= 40) severityClass = 'critical';
+        else if (severity >= 30) severityClass = 'warning';
+        
+        return `
+            <tr>
+                <td><strong>${escapeHtml(matchup.bey_1)}</strong></td>
+                <td>${escapeHtml(matchup.bey_2)}</td>
+                <td>${matchup.win_rate}% - ${(100 - matchup.win_rate).toFixed(1)}%</td>
+                <td>${matchup.games}</td>
+                <td><span class="severity-badge ${severityClass}">${severityClass}</span></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Setup tab navigation
+function setupTabNavigation() {
+    const tabs = document.querySelectorAll('.viz-tab');
+    const panels = document.querySelectorAll('.viz-panel');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetId = tab.dataset.tab + '-panel';
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            panels.forEach(p => p.classList.remove('active'));
+            
+            tab.classList.add('active');
+            document.getElementById(targetId).classList.add('active');
+        });
+    });
+}
+
+// Initialize
+loadMetaBalanceData();
+</script>
+
+<style>
+/* Meta Balance Page Styles */
+.meta-balance-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.meta-balance-hero {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.meta-balance-hero h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.meta-balance-description {
+    color: var(--text-light);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Health Gauge */
+.health-gauge-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.health-gauge-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    min-width: 400px;
+}
+
+.health-gauge-card h3 {
+    margin-bottom: 1.5rem;
+}
+
+.gauge-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.gauge-background {
+    height: 24px;
+    background: linear-gradient(to right, 
+        #ef4444 0%, 
+        #f59e0b 25%, 
+        #eab308 50%, 
+        #22c55e 75%, 
+        #3b82f6 100%
+    );
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.gauge-fill {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    transition: width 1s ease-out;
+}
+
+.gauge-score {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 1rem 0 0.5rem;
+}
+
+.gauge-status {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.gauge-status.excellent { color: #3b82f6; }
+.gauge-status.good { color: #22c55e; }
+.gauge-status.moderate { color: #eab308; }
+.gauge-status.warning { color: #f59e0b; }
+.gauge-status.critical { color: #ef4444; }
+
+.gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 0.5rem;
+}
+
+/* Alerts */
+.alerts-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.alert-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid #f59e0b;
+}
+
+.alert-card.warning {
+    background: rgba(245, 158, 11, 0.1);
+    border-left-color: #f59e0b;
+}
+
+.alert-icon {
+    font-size: 1.5rem;
+}
+
+.alert-content strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.alert-content p {
+    margin: 0;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* Metrics Grid */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--accent);
+    transition: var(--transition);
+}
+
+.metric-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.metric-card.excellent { border-left-color: #3b82f6; }
+.metric-card.good { border-left-color: #22c55e; }
+.metric-card.moderate { border-left-color: #eab308; }
+.metric-card.warning { border-left-color: #f59e0b; }
+.metric-card.critical { border-left-color: #ef4444; }
+
+.metric-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.metric-icon {
+    font-size: 1.25rem;
+}
+
+.metric-header h4 {
+    flex: 1;
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Info Tooltip Styles */
+.info-tooltip-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: help;
+    transition: var(--transition);
+}
+
+.info-icon:hover {
+    background: var(--accent-hover);
+    transform: scale(1.1);
+}
+
+.info-tooltip-content {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    min-width: 220px;
+    max-width: 280px;
+    z-index: 100;
+    box-shadow: var(--shadow-lg);
+}
+
+.info-tooltip-content::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border);
+}
+
+.info-tooltip-content::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--card);
+    z-index: 1;
+}
+
+.info-tooltip-wrapper:hover .info-tooltip-content,
+.info-tooltip-wrapper:focus-within .info-tooltip-content {
+    display: block;
+}
+
+.info-tooltip-content strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.info-tooltip-content p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    line-height: 1.4;
+}
+
+.metric-score {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.score-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.metric-card.excellent .score-value { color: #3b82f6; }
+.metric-card.good .score-value { color: #22c55e; }
+.metric-card.moderate .score-value { color: #eab308; }
+.metric-card.warning .score-value { color: #f59e0b; }
+.metric-card.critical .score-value { color: #ef4444; }
+
+.score-max {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.metric-details {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.metric-details-text {
+    margin: 0;
+}
+
+/* Visualizations */
+.visualizations-section {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.viz-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.viz-tab {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.viz-tab:hover {
+    background: var(--accent-hover-subtle);
+}
+
+.viz-tab.active {
+    background: var(--accent);
+    color: white;
+}
+
+.viz-panel {
+    display: none;
+}
+
+.viz-panel.active {
+    display: block;
+}
+
+.viz-panel h3 {
+    margin-bottom: 0.5rem;
+}
+
+.viz-description {
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.chart-container {
+    height: 350px;
+    position: relative;
+}
+
+.chart-unavailable {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-light);
+    font-style: italic;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.chart-legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.legend-color.overcentralizing { background: #ef4444; }
+.legend-color.underpowered { background: #f59e0b; }
+.legend-color.balanced { background: #22c55e; }
+
+.elo-stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.stat-label {
+    color: var(--text-light);
+}
+
+.stat-value {
+    font-weight: 600;
+}
+
+/* Outliers Section */
+.outliers-section {
+    margin-bottom: 2rem;
+}
+
+.outliers-section h3 {
+    margin-bottom: 0.5rem;
+}
+
+.section-description {
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+}
+
+.outliers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.outlier-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+}
+
+.outlier-card.overcentralizing {
+    border-top: 3px solid #ef4444;
+}
+
+.outlier-card.underpowered {
+    border-top: 3px solid #f59e0b;
+}
+
+.outlier-card.emerging {
+    border-top: 3px solid #3b82f6;
+}
+
+.outlier-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.outlier-header h4 {
+    margin: 0;
+}
+
+.outlier-description {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.outlier-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.outlier-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+}
+
+.outlier-name {
+    font-weight: 600;
+}
+
+.outlier-stats {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.confidence-badge {
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.confidence-badge.high {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.confidence-badge.medium {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.no-outliers {
+    color: var(--text-light);
+    font-style: italic;
+}
+
+/* Polarized Matchups */
+.polarized-matchups-section {
+    margin-bottom: 2rem;
+}
+
+.matchups-table-container {
+    overflow-x: auto;
+}
+
+.matchups-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.matchups-table th,
+.matchups-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.matchups-table th {
+    background: var(--bg);
+    font-weight: 600;
+}
+
+.matchups-table tr:hover {
+    background: var(--bg);
+}
+
+.severity-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.severity-badge.critical {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.severity-badge.warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.severity-badge.moderate {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+/* Methodology */
+.methodology-section {
+    border-top: 1px solid var(--border);
+    padding-top: 2rem;
+}
+
+.methodology-content {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+
+.methodology-content ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+}
+
+.methodology-content li {
+    margin-bottom: 0.5rem;
+}
+
+.methodology-note {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 3px solid #f59e0b;
+    border-radius: 0 4px 4px 0;
+    font-size: 0.9rem;
+}
+
+.no-data {
+    text-align: center;
+    color: var(--text-light);
+    padding: 1rem;
+}
+
+.error-message {
+    text-align: center;
+    color: #ef4444;
+    padding: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .meta-balance-page {
+        padding: 1rem;
+    }
+    
+    .health-gauge-card {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .gauge-labels {
+        font-size: 0.65rem;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .outliers-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .viz-tabs {
+        flex-direction: column;
+    }
+    
+    .viz-tab {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+}
+
+/* Dark mode adjustments */
+body.dark .gauge-fill {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+body.dark .health-gauge-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .metric-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .visualizations-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .outlier-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .outlier-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+body.dark .matchups-table {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .matchups-table th {
+    background: var(--bg-alt);
+}
+
+body.dark .matchups-table tr:hover {
+    background: var(--bg-alt);
+}
+
+body.dark .methodology-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .methodology-note {
+    background: rgba(245, 158, 11, 0.15);
+    border-left-color: #f59e0b;
+}
+
+body.dark .alert-card {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+body.dark .viz-tab {
+    background: var(--bg-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+body.dark .viz-tab:hover {
+    background: var(--accent-hover-subtle);
+    border-color: var(--accent);
+}
+
+body.dark .viz-tab.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+body.dark .chart-unavailable {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+}
+
+body.dark .info-tooltip-content {
+    background: var(--bg-alt);
+    border-color: var(--border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark .info-tooltip-content::after {
+    border-top-color: var(--border);
+}
+
+body.dark .info-tooltip-content::before {
+    border-top-color: var(--bg-alt);
+}
+
+body.dark .info-icon {
+    background: var(--accent);
+}
+
+body.dark .info-icon:hover {
+    background: var(--accent-hover);
+}
+
+body.dark .confidence-badge.high {
+    background: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+body.dark .confidence-badge.medium {
+    background: rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+
+body.dark .severity-badge.critical {
+    background: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+body.dark .severity-badge.warning {
+    background: rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+
+body.dark .severity-badge.moderate {
+    background: rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+
+body.dark .gauge-status.excellent { color: #60a5fa; }
+body.dark .gauge-status.good { color: #4ade80; }
+body.dark .gauge-status.moderate { color: #facc15; }
+body.dark .gauge-status.warning { color: #fbbf24; }
+body.dark .gauge-status.critical { color: #f87171; }
+
+body.dark .metric-card.excellent .score-value { color: #60a5fa; }
+body.dark .metric-card.good .score-value { color: #4ade80; }
+body.dark .metric-card.moderate .score-value { color: #facc15; }
+body.dark .metric-card.warning .score-value { color: #fbbf24; }
+body.dark .metric-card.critical .score-value { color: #f87171; }
+
+body.dark .outlier-card.overcentralizing {
+    border-top-color: #f87171;
+}
+
+body.dark .outlier-card.underpowered {
+    border-top-color: #fbbf24;
+}
+
+body.dark .outlier-card.emerging {
+    border-top-color: #60a5fa;
+}
+
+body.dark .legend-color.overcentralizing { background: #f87171; }
+body.dark .legend-color.underpowered { background: #fbbf24; }
+body.dark .legend-color.balanced { background: #4ade80; }
+</style>
+
+</body>
+</html>
