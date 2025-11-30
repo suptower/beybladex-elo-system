@@ -569,6 +569,18 @@ def generate_all_plots(mode):
     else:
         print("ELO Density Map plots generated successfully.")
 
+    # Tier Flow Diagram
+    result = subprocess.run(
+        ["python", "scripts/visualization/tier_flow.py"],
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print("Error running tier_flow.py:")
+        print(result.stderr)
+    else:
+        print("Tier Flow Diagram plots generated successfully.")
+
     print(f"All plots saved to: {files['outdir']}")
 
 

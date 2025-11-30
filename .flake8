@@ -17,5 +17,7 @@ per-file-ignores =
     scripts/advanced_stats.py:E501
     # Allow long lines in embedded JavaScript/HTML code
     scripts/visualization/meta_landscape.py:E501
+    # Allow whitespace in embedded HTML templates
+    scripts/visualization/tier_flow.py:E501,W291,W293
     # Allow imports after sys.path modification in test files
     tests/*.py:E402

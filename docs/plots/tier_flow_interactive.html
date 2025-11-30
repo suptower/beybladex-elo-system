@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tier Flow Diagram - Beyblade X</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.light {
+            background-color: #f8f9fa;
+            color: #1a1a1a;
+        }
+        body.dark {
+            background-color: #0f172a;
+            color: #f1f5f9;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .theme-toggle label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+        body.light .theme-toggle label {
+            background-color: #e5e7eb;
+        }
+        body.dark .theme-toggle label {
+            background-color: #334155;
+        }
+        .theme-toggle input {
+            display: none;
+        }
+        .theme-icon {
+            font-size: 1.2em;
+        }
+        .back-link {
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        body.light .back-link {
+            color: #1a1a1a;
+            background-color: #e5e7eb;
+        }
+        body.dark .back-link {
+            color: #f1f5f9;
+            background-color: #334155;
+        }
+        .back-link:hover {
+            opacity: 0.8;
+        }
+        #plotDiv {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .info-section {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 12px;
+            transition: background-color 0.3s;
+        }
+        body.light .info-section {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+        }
+        body.dark .info-section {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+        }
+        .info-section h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        .tier-legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        .tier-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tier-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .tier-label {
+            font-weight: 600;
+        }
+        .tier-desc {
+            font-size: 0.85em;
+            opacity: 0.7;
+        }
+        ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .header h1 {
+                font-size: 1.2em;
+                order: -1;
+                width: 100%;
+                text-align: center;
+            }
+            .back-link {
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+            .controls {
+                width: 100%;
+                justify-content: center;
+            }
+            .theme-toggle label {
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+            #plotDiv {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .info-section {
+                padding: 15px;
+                margin: 10px auto;
+            }
+            .info-section h2 {
+                font-size: 1.1em;
+            }
+            .info-section h3 {
+                font-size: 1em;
+            }
+            .tier-legend {
+                gap: 10px;
+            }
+            .tier-item {
+                flex: 1 1 calc(50% - 10px);
+                min-width: 140px;
+            }
+            .tier-desc {
+                font-size: 0.75em;
+            }
+        }
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1em;
+            }
+            .tier-item {
+                flex: 1 1 100%;
+            }
+            .info-section {
+                padding: 10px;
+            }
+            ul {
+                padding-left: 15px;
+            }
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="header">
+        <a href="../plots.html" class="back-link">← Back to Plots</a>
+        <h1>📊 Tier Flow Diagram</h1>
+        <div class="controls">
+            <div class="theme-toggle">
+                <label>
+                    <input type="checkbox" id="themeToggle">
+                    <span class="theme-icon" id="themeIcon">🌙</span>
+                    <span id="themeLabel">Dark Mode</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div id="plotDiv"></div>
+    
+    <div class="info-section">
+        <h2>📖 How to Read This Diagram</h2>
+        <p>
+            The <strong>Tier Flow Diagram</strong> shows how Beys move between competitive tiers over time.
+            Each vertical column represents a time slice (based on match count), and the flowing bands
+            connect each Bey's tier position across time.
+        </p>
+        
+        <h3>Tier Definitions (ELO Quantiles)</h3>
+        <div class="tier-legend" id="tierLegend"></div>
+        
+        <h3>Reading the Flows</h3>
+        <ul>
+            <li><strong>Rising flows (upward)</strong> — Bey moved to a higher tier</li>
+            <li><strong>Falling flows (downward)</strong> — Bey dropped to a lower tier</li>
+            <li><strong>Horizontal flows</strong> — Bey maintained their tier</li>
+            <li><strong>Appearing/disappearing bands</strong> — New entries or exits from the meta</li>
+        </ul>
+        
+        <h3>Insights</h3>
+        <ul>
+            <li>Consistent S-tier presence indicates meta dominance</li>
+            <li>Rapid tier changes suggest volatile or shifting meta</li>
+            <li>Clustered flows reveal stable tier hierarchies</li>
+            <li>Dispersed flows indicate competitive diversity</li>
+        </ul>
+    </div>
+    
+    <script>
+        // Data from Python
+        const labels = ["BlackShell", "CerberusFlame", "CobaltDragoon", "CrimsonGaruda", "DranBrave", "DranBuster", "DranDagger", "DranSword", "FoxBrush", "GolemRock", "HellsChain", "HellsHammer", "HellsReaper", "ImpactDrake", "KnightMail", "LeonClaw", "LeonCrest", "PegasusBlast", "PerseusDark", "PhoenixRudder", "PhoenixWing", "RhinoReaper", "SamuraiSaber", "ScorpioSpear", "SharkEdge", "SilverWolf", "TuskMammoth", "TyrannoBeat", "UnicornSting", "ViperTail", "WeissTiger", "WhaleFlame", "WhaleWave", "WizardArc", "WizardArrow", "WizardRod", "BlackShell", "CerberusFlame", "CobaltDragoon", "CrimsonGaruda", "DranBrave", "DranBuster", "DranDagger", "DranSword", "FoxBrush", "GolemRock", "HellsChain", "HellsHammer", "HellsReaper", "ImpactDrake", "KnightMail", "LeonClaw", "LeonCrest", "PegasusBlast", "PerseusDark", "PhoenixRudder", "PhoenixWing", "RhinoReaper", "SamuraiSaber", "ScorpioSpear", "SharkEdge", "SilverWolf", "TuskMammoth", "TyrannoBeat", "UnicornSting", "ViperTail", "WeissTiger", "WhaleFlame", "WhaleWave", "WizardArc", "WizardArrow", "WizardRod", "BlackShell", "CerberusFlame", "CobaltDragoon", "CrimsonGaruda", "DranBrave", "DranBuster", "DranDagger", "DranSword", "FoxBrush", "GolemRock", "HellsChain", "HellsHammer", "HellsReaper", "ImpactDrake", "KnightMail", "LeonClaw", "LeonCrest", "PegasusBlast", "PerseusDark", "PhoenixRudder", "PhoenixWing", "RhinoReaper", "SamuraiSaber", "ScorpioSpear", "SharkEdge", "SilverWolf", "TuskMammoth", "TyrannoBeat", "UnicornSting", "ViperTail", "WeissTiger", "WhaleFlame", "WhaleWave", "WizardArc", "WizardArrow", "WizardRod", "BlackShell", "CerberusFlame", "CobaltDragoon", "CrimsonGaruda", "DranBrave", "DranBuster", "DranDagger", "DranSword", "FoxBrush", "GolemRock", "HellsChain", "HellsHammer", "HellsReaper", "ImpactDrake", "KnightMail", "LeonClaw", "LeonCrest", "PegasusBlast", "PerseusDark", "PhoenixRudder", "PhoenixWing", "RhinoReaper", "SamuraiSaber", "ScorpioSpear", "SharkEdge", "SilverWolf", "TuskMammoth", "TyrannoBeat", "UnicornSting", "ViperTail", "WeissTiger", "WhaleFlame", "WhaleWave", "WizardArc", "WizardArrow", "WizardRod", "BlackShell", "CerberusFlame", "CobaltDragoon", "CrimsonGaruda", "DranBrave", "DranBuster", "DranDagger", "DranSword", "FoxBrush", "GolemRock", "HellsChain", "HellsHammer", "HellsReaper", "ImpactDrake", "KnightMail", "LeonClaw", "LeonCrest", "PegasusBlast", "PerseusDark", "PhoenixRudder", "PhoenixWing", "RhinoReaper", "SamuraiSaber", "ScorpioSpear", "SharkEdge", "SilverWolf", "TuskMammoth", "TyrannoBeat", "UnicornSting", "ViperTail", "WeissTiger", "WhaleFlame", "WhaleWave", "WizardArc", "WizardArrow", "WizardRod"];
+        const nodeColors = ["#96CEB4", "#4ECDC4", "#4ECDC4", "#DDA0DD", "#45B7D1", "#45B7D1", "#45B7D1", "#45B7D1", "#FF6B6B", "#45B7D1", "#45B7D1", "#DDA0DD", "#96CEB4", "#FF6B6B", "#FF6B6B", "#DDA0DD", "#96CEB4", "#DDA0DD", "#4ECDC4", "#45B7D1", "#4ECDC4", "#96CEB4", "#DDA0DD", "#45B7D1", "#96CEB4", "#45B7D1", "#4ECDC4", "#45B7D1", "#FF6B6B", "#45B7D1", "#4ECDC4", "#96CEB4", "#96CEB4", "#96CEB4", "#96CEB4", "#4ECDC4", "#DDA0DD", "#4ECDC4", "#FF6B6B", "#DDA0DD", "#96CEB4", "#45B7D1", "#FF6B6B", "#4ECDC4", "#FF6B6B", "#45B7D1", "#45B7D1", "#DDA0DD", "#96CEB4", "#FF6B6B", "#4ECDC4", "#96CEB4", "#96CEB4", "#96CEB4", "#45B7D1", "#45B7D1", "#96CEB4", "#45B7D1", "#DDA0DD", "#45B7D1", "#96CEB4", "#45B7D1", "#45B7D1", "#96CEB4", "#4ECDC4", "#4ECDC4", "#4ECDC4", "#45B7D1", "#DDA0DD", "#96CEB4", "#45B7D1", "#4ECDC4", "#DDA0DD", "#FF6B6B", "#4ECDC4", "#DDA0DD", "#96CEB4", "#45B7D1", "#4ECDC4", "#45B7D1", "#FF6B6B", "#45B7D1", "#45B7D1", "#DDA0DD", "#96CEB4", "#FF6B6B", "#4ECDC4", "#96CEB4", "#96CEB4", "#96CEB4", "#45B7D1", "#45B7D1", "#96CEB4", "#4ECDC4", "#DDA0DD", "#45B7D1", "#96CEB4", "#45B7D1", "#FF6B6B", "#96CEB4", "#4ECDC4", "#4ECDC4", "#4ECDC4", "#45B7D1", "#DDA0DD", "#96CEB4", "#45B7D1", "#45B7D1", "#DDA0DD", "#FF6B6B", "#FF6B6B", "#DDA0DD", "#96CEB4", "#45B7D1", "#4ECDC4", "#45B7D1", "#FF6B6B", "#45B7D1", "#45B7D1", "#DDA0DD", "#96CEB4", "#FF6B6B", "#4ECDC4", "#96CEB4", "#96CEB4", "#96CEB4", "#45B7D1", "#45B7D1", "#96CEB4", "#4ECDC4", "#DDA0DD", "#45B7D1", "#96CEB4", "#45B7D1", "#4ECDC4", "#96CEB4", "#4ECDC4", "#4ECDC4", "#4ECDC4", "#45B7D1", "#DDA0DD", "#96CEB4", "#45B7D1", "#45B7D1", "#DDA0DD", "#FF6B6B", "#FF6B6B", "#DDA0DD", "#96CEB4", "#45B7D1", "#4ECDC4", "#45B7D1", "#FF6B6B", "#45B7D1", "#45B7D1", "#DDA0DD", "#96CEB4", "#FF6B6B", "#4ECDC4", "#96CEB4", "#96CEB4", "#96CEB4", "#45B7D1", "#45B7D1", "#96CEB4", "#4ECDC4", "#DDA0DD", "#45B7D1", "#96CEB4", "#45B7D1", "#4ECDC4", "#96CEB4", "#4ECDC4", "#4ECDC4", "#4ECDC4", "#45B7D1", "#DDA0DD", "#96CEB4", "#45B7D1", "#45B7D1"];
+        const linkSources = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143];
+        const linkTargets = [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179];
+        const linkValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+        const linkColors = ["#96CEB480", "#4ECDC480", "#4ECDC480", "#DDA0DD80", "#45B7D180", "#45B7D180", "#45B7D180", "#45B7D180", "#FF6B6B80", "#45B7D180", "#45B7D180", "#DDA0DD80", "#96CEB480", "#FF6B6B80", "#FF6B6B80", "#DDA0DD80", "#96CEB480", "#DDA0DD80", "#4ECDC480", "#45B7D180", "#4ECDC480", "#96CEB480", "#DDA0DD80", "#45B7D180", "#96CEB480", "#45B7D180", "#4ECDC480", "#45B7D180", "#FF6B6B80", "#45B7D180", "#4ECDC480", "#96CEB480", "#96CEB480", "#96CEB480", "#96CEB480", "#4ECDC480", "#DDA0DD80", "#4ECDC480", "#FF6B6B80", "#DDA0DD80", "#96CEB480", "#45B7D180", "#FF6B6B80", "#4ECDC480", "#FF6B6B80", "#45B7D180", "#45B7D180", "#DDA0DD80", "#96CEB480", "#FF6B6B80", "#4ECDC480", "#96CEB480", "#96CEB480", "#96CEB480", "#45B7D180", "#45B7D180", "#96CEB480", "#45B7D180", "#DDA0DD80", "#45B7D180", "#96CEB480", "#45B7D180", "#45B7D180", "#96CEB480", "#4ECDC480", "#4ECDC480", "#4ECDC480", "#45B7D180", "#DDA0DD80", "#96CEB480", "#45B7D180", "#4ECDC480", "#DDA0DD80", "#FF6B6B80", "#4ECDC480", "#DDA0DD80", "#96CEB480", "#45B7D180", "#4ECDC480", "#45B7D180", "#FF6B6B80", "#45B7D180", "#45B7D180", "#DDA0DD80", "#96CEB480", "#FF6B6B80", "#4ECDC480", "#96CEB480", "#96CEB480", "#96CEB480", "#45B7D180", "#45B7D180", "#96CEB480", "#4ECDC480", "#DDA0DD80", "#45B7D180", "#96CEB480", "#45B7D180", "#FF6B6B80", "#96CEB480", "#4ECDC480", "#4ECDC480", "#4ECDC480", "#45B7D180", "#DDA0DD80", "#96CEB480", "#45B7D180", "#45B7D180", "#DDA0DD80", "#FF6B6B80", "#FF6B6B80", "#DDA0DD80", "#96CEB480", "#45B7D180", "#4ECDC480", "#45B7D180", "#FF6B6B80", "#45B7D180", "#45B7D180", "#DDA0DD80", "#96CEB480", "#FF6B6B80", "#4ECDC480", "#96CEB480", "#96CEB480", "#96CEB480", "#45B7D180", "#45B7D180", "#96CEB480", "#4ECDC480", "#DDA0DD80", "#45B7D180", "#96CEB480", "#45B7D180", "#4ECDC480", "#96CEB480", "#4ECDC480", "#4ECDC480", "#4ECDC480", "#45B7D180", "#DDA0DD80", "#96CEB480", "#45B7D180", "#45B7D180"];
+        const linkLabels = ["BlackShell: C \u2192 D (falling)", "CerberusFlame: A \u2192 A (stable)", "CobaltDragoon: A \u2192 S (rising)", "CrimsonGaruda: D \u2192 D (stable)", "DranBrave: B \u2192 C (falling)", "DranBuster: B \u2192 B (stable)", "DranDagger: B \u2192 S (rising)", "DranSword: B \u2192 A (rising)", "FoxBrush: S \u2192 S (stable)", "GolemRock: B \u2192 B (stable)", "HellsChain: B \u2192 B (stable)", "HellsHammer: D \u2192 D (stable)", "HellsReaper: C \u2192 C (stable)", "ImpactDrake: S \u2192 S (stable)", "KnightMail: S \u2192 A (falling)", "LeonClaw: D \u2192 C (rising)", "LeonCrest: C \u2192 C (stable)", "PegasusBlast: D \u2192 C (rising)", "PerseusDark: A \u2192 B (falling)", "PhoenixRudder: B \u2192 B (stable)", "PhoenixWing: A \u2192 C (falling)", "RhinoReaper: C \u2192 B (rising)", "SamuraiSaber: D \u2192 D (stable)", "ScorpioSpear: B \u2192 B (stable)", "SharkEdge: C \u2192 C (stable)", "SilverWolf: B \u2192 B (stable)", "TuskMammoth: A \u2192 B (falling)", "TyrannoBeat: B \u2192 C (falling)", "UnicornSting: S \u2192 A (falling)", "ViperTail: B \u2192 A (rising)", "WeissTiger: A \u2192 A (stable)", "WhaleFlame: C \u2192 B (rising)", "WhaleWave: C \u2192 D (falling)", "WizardArc: C \u2192 C (stable)", "WizardArrow: C \u2192 B (rising)", "WizardRod: A \u2192 A (stable)", "BlackShell: D \u2192 D (stable)", "CerberusFlame: A \u2192 S (rising)", "CobaltDragoon: S \u2192 A (falling)", "CrimsonGaruda: D \u2192 D (stable)", "DranBrave: C \u2192 C (stable)", "DranBuster: B \u2192 B (stable)", "DranDagger: S \u2192 A (falling)", "DranSword: A \u2192 B (falling)", "FoxBrush: S \u2192 S (stable)", "GolemRock: B \u2192 B (stable)", "HellsChain: B \u2192 B (stable)", "HellsHammer: D \u2192 D (stable)", "HellsReaper: C \u2192 C (stable)", "ImpactDrake: S \u2192 S (stable)", "KnightMail: A \u2192 A (stable)", "LeonClaw: C \u2192 C (stable)", "LeonCrest: C \u2192 C (stable)", "PegasusBlast: C \u2192 C (stable)", "PerseusDark: B \u2192 B (stable)", "PhoenixRudder: B \u2192 B (stable)", "PhoenixWing: C \u2192 C (stable)", "RhinoReaper: B \u2192 A (rising)", "SamuraiSaber: D \u2192 D (stable)", "ScorpioSpear: B \u2192 B (stable)", "SharkEdge: C \u2192 C (stable)", "SilverWolf: B \u2192 B (stable)", "TuskMammoth: B \u2192 S (rising)", "TyrannoBeat: C \u2192 C (stable)", "UnicornSting: A \u2192 A (stable)", "ViperTail: A \u2192 A (stable)", "WeissTiger: A \u2192 A (stable)", "WhaleFlame: B \u2192 B (stable)", "WhaleWave: D \u2192 D (stable)", "WizardArc: C \u2192 C (stable)", "WizardArrow: B \u2192 B (stable)", "WizardRod: A \u2192 B (falling)", "BlackShell: D \u2192 D (stable)", "CerberusFlame: S \u2192 S (stable)", "CobaltDragoon: A \u2192 S (rising)", "CrimsonGaruda: D \u2192 D (stable)", "DranBrave: C \u2192 C (stable)", "DranBuster: B \u2192 B (stable)", "DranDagger: A \u2192 A (stable)", "DranSword: B \u2192 B (stable)", "FoxBrush: S \u2192 S (stable)", "GolemRock: B \u2192 B (stable)", "HellsChain: B \u2192 B (stable)", "HellsHammer: D \u2192 D (stable)", "HellsReaper: C \u2192 C (stable)", "ImpactDrake: S \u2192 S (stable)", "KnightMail: A \u2192 A (stable)", "LeonClaw: C \u2192 C (stable)", "LeonCrest: C \u2192 C (stable)", "PegasusBlast: C \u2192 C (stable)", "PerseusDark: B \u2192 B (stable)", "PhoenixRudder: B \u2192 B (stable)", "PhoenixWing: C \u2192 C (stable)", "RhinoReaper: A \u2192 A (stable)", "SamuraiSaber: D \u2192 D (stable)", "ScorpioSpear: B \u2192 B (stable)", "SharkEdge: C \u2192 C (stable)", "SilverWolf: B \u2192 B (stable)", "TuskMammoth: S \u2192 A (falling)", "TyrannoBeat: C \u2192 C (stable)", "UnicornSting: A \u2192 A (stable)", "ViperTail: A \u2192 A (stable)", "WeissTiger: A \u2192 A (stable)", "WhaleFlame: B \u2192 B (stable)", "WhaleWave: D \u2192 D (stable)", "WizardArc: C \u2192 C (stable)", "WizardArrow: B \u2192 B (stable)", "WizardRod: B \u2192 B (stable)", "BlackShell: D \u2192 D (stable)", "CerberusFlame: S \u2192 S (stable)", "CobaltDragoon: S \u2192 S (stable)", "CrimsonGaruda: D \u2192 D (stable)", "DranBrave: C \u2192 C (stable)", "DranBuster: B \u2192 B (stable)", "DranDagger: A \u2192 A (stable)", "DranSword: B \u2192 B (stable)", "FoxBrush: S \u2192 S (stable)", "GolemRock: B \u2192 B (stable)", "HellsChain: B \u2192 B (stable)", "HellsHammer: D \u2192 D (stable)", "HellsReaper: C \u2192 C (stable)", "ImpactDrake: S \u2192 S (stable)", "KnightMail: A \u2192 A (stable)", "LeonClaw: C \u2192 C (stable)", "LeonCrest: C \u2192 C (stable)", "PegasusBlast: C \u2192 C (stable)", "PerseusDark: B \u2192 B (stable)", "PhoenixRudder: B \u2192 B (stable)", "PhoenixWing: C \u2192 C (stable)", "RhinoReaper: A \u2192 A (stable)", "SamuraiSaber: D \u2192 D (stable)", "ScorpioSpear: B \u2192 B (stable)", "SharkEdge: C \u2192 C (stable)", "SilverWolf: B \u2192 B (stable)", "TuskMammoth: A \u2192 A (stable)", "TyrannoBeat: C \u2192 C (stable)", "UnicornSting: A \u2192 A (stable)", "ViperTail: A \u2192 A (stable)", "WeissTiger: A \u2192 A (stable)", "WhaleFlame: B \u2192 B (stable)", "WhaleWave: D \u2192 D (stable)", "WizardArc: C \u2192 C (stable)", "WizardArrow: B \u2192 B (stable)", "WizardRod: B \u2192 B (stable)"];
+        const nodeHover = ["<b>BlackShell</b><br>Tier: C<br>ELO: 994<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>CerberusFlame</b><br>Tier: A<br>ELO: 1024<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>CobaltDragoon</b><br>Tier: A<br>ELO: 1012<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>DranBrave</b><br>Tier: B<br>ELO: 1001<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 1001<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>DranDagger</b><br>Tier: B<br>ELO: 1008<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>DranSword</b><br>Tier: B<br>ELO: 1008<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1028<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 2</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 999<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 1000<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1024<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 2</i>", "<b>KnightMail</b><br>Tier: S<br>ELO: 1027<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 2</i>", "<b>LeonClaw</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>PegasusBlast</b><br>Tier: D<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 2</i>", "<b>PerseusDark</b><br>Tier: A<br>ELO: 1012<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 1010<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>PhoenixWing</b><br>Tier: A<br>ELO: 1011<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>RhinoReaper</b><br>Tier: C<br>ELO: 984<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 2</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1010<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>TuskMammoth</b><br>Tier: A<br>ELO: 1015<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 2</i>", "<b>TyrannoBeat</b><br>Tier: B<br>ELO: 999<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>UnicornSting</b><br>Tier: S<br>ELO: 1032<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>ViperTail</b><br>Tier: B<br>ELO: 998<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1016<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>WhaleFlame</b><br>Tier: C<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 2</i>", "<b>WhaleWave</b><br>Tier: C<br>ELO: 988<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>WizardArrow</b><br>Tier: C<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>WizardRod</b><br>Tier: A<br>ELO: 1011<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>BlackShell</b><br>Tier: D<br>ELO: 978<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>CerberusFlame</b><br>Tier: A<br>ELO: 1033<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>CobaltDragoon</b><br>Tier: S<br>ELO: 1035<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>DranBrave</b><br>Tier: C<br>ELO: 981<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 996<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>DranDagger</b><br>Tier: S<br>ELO: 1034<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>DranSword</b><br>Tier: A<br>ELO: 1016<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1057<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 4</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 994<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 995<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1049<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 4</i>", "<b>KnightMail</b><br>Tier: A<br>ELO: 1022<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 4</i>", "<b>LeonClaw</b><br>Tier: C<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>PegasusBlast</b><br>Tier: C<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 4</i>", "<b>PerseusDark</b><br>Tier: B<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 991<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>PhoenixWing</b><br>Tier: C<br>ELO: 985<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>RhinoReaper</b><br>Tier: B<br>ELO: 1003<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 4</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 992<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 985<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>TuskMammoth</b><br>Tier: B<br>ELO: 1001<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 4</i>", "<b>TyrannoBeat</b><br>Tier: C<br>ELO: 987<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>UnicornSting</b><br>Tier: A<br>ELO: 1027<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>ViperTail</b><br>Tier: A<br>ELO: 1004<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1017<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>WhaleFlame</b><br>Tier: B<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 4</i>", "<b>WhaleWave</b><br>Tier: D<br>ELO: 977<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>WizardArrow</b><br>Tier: B<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>WizardRod</b><br>Tier: A<br>ELO: 1007<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>BlackShell</b><br>Tier: D<br>ELO: 978<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>CerberusFlame</b><br>Tier: S<br>ELO: 1033<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>CobaltDragoon</b><br>Tier: A<br>ELO: 1029<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>DranBrave</b><br>Tier: C<br>ELO: 981<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 996<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>DranDagger</b><br>Tier: A<br>ELO: 1022<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>DranSword</b><br>Tier: B<br>ELO: 1002<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1055<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 6</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 994<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 995<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1069<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 6</i>", "<b>KnightMail</b><br>Tier: A<br>ELO: 1022<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 6</i>", "<b>LeonClaw</b><br>Tier: C<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>PegasusBlast</b><br>Tier: C<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 6</i>", "<b>PerseusDark</b><br>Tier: B<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 991<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>PhoenixWing</b><br>Tier: C<br>ELO: 985<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>RhinoReaper</b><br>Tier: A<br>ELO: 1021<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 6</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 992<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 985<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>TuskMammoth</b><br>Tier: S<br>ELO: 1035<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 6</i>", "<b>TyrannoBeat</b><br>Tier: C<br>ELO: 987<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>UnicornSting</b><br>Tier: A<br>ELO: 1005<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>ViperTail</b><br>Tier: A<br>ELO: 1004<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1017<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>WhaleFlame</b><br>Tier: B<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 6</i>", "<b>WhaleWave</b><br>Tier: D<br>ELO: 977<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>WizardArrow</b><br>Tier: B<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>WizardRod</b><br>Tier: B<br>ELO: 999<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>BlackShell</b><br>Tier: D<br>ELO: 978<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>CerberusFlame</b><br>Tier: S<br>ELO: 1033<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>CobaltDragoon</b><br>Tier: S<br>ELO: 1029<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>DranBrave</b><br>Tier: C<br>ELO: 981<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 996<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>DranDagger</b><br>Tier: A<br>ELO: 1022<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>DranSword</b><br>Tier: B<br>ELO: 1002<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1067<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 8</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 994<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 995<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1064<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 8</i>", "<b>KnightMail</b><br>Tier: A<br>ELO: 1022<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 8</i>", "<b>LeonClaw</b><br>Tier: C<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>PegasusBlast</b><br>Tier: C<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 8</i>", "<b>PerseusDark</b><br>Tier: B<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 991<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>PhoenixWing</b><br>Tier: C<br>ELO: 985<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>RhinoReaper</b><br>Tier: A<br>ELO: 1021<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 8</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 992<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 985<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>TuskMammoth</b><br>Tier: A<br>ELO: 1022<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 8</i>", "<b>TyrannoBeat</b><br>Tier: C<br>ELO: 987<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>UnicornSting</b><br>Tier: A<br>ELO: 1005<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>ViperTail</b><br>Tier: A<br>ELO: 1004<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1017<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>WhaleFlame</b><br>Tier: B<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 8</i>", "<b>WhaleWave</b><br>Tier: D<br>ELO: 977<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>WizardArrow</b><br>Tier: B<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>WizardRod</b><br>Tier: B<br>ELO: 999<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>BlackShell</b><br>Tier: D<br>ELO: 978<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>CerberusFlame</b><br>Tier: S<br>ELO: 1033<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>CobaltDragoon</b><br>Tier: S<br>ELO: 1029<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>DranBrave</b><br>Tier: C<br>ELO: 981<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 996<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>DranDagger</b><br>Tier: A<br>ELO: 1022<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>", "<b>DranSword</b><br>Tier: B<br>ELO: 1002<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1076<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 10</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 994<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 995<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1064<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 10</i>", "<b>KnightMail</b><br>Tier: A<br>ELO: 1022<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 10</i>", "<b>LeonClaw</b><br>Tier: C<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>PegasusBlast</b><br>Tier: C<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 10</i>", "<b>PerseusDark</b><br>Tier: B<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 991<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>PhoenixWing</b><br>Tier: C<br>ELO: 985<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>RhinoReaper</b><br>Tier: A<br>ELO: 1021<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 10</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 992<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 985<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>TuskMammoth</b><br>Tier: A<br>ELO: 1022<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 10</i>", "<b>TyrannoBeat</b><br>Tier: C<br>ELO: 987<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>UnicornSting</b><br>Tier: A<br>ELO: 1005<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>", "<b>ViperTail</b><br>Tier: A<br>ELO: 1004<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1017<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>WhaleFlame</b><br>Tier: B<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 10</i>", "<b>WhaleWave</b><br>Tier: D<br>ELO: 977<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>WizardArrow</b><br>Tier: B<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>WizardRod</b><br>Tier: B<br>ELO: 999<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>"];
+        const nodeX = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
+        const nodeY = [0.7, 0.3, 0.3, 0.9, 0.5, 0.5, 0.5, 0.5, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.1, 0.9, 0.7, 0.9, 0.3, 0.5, 0.3, 0.7, 0.9, 0.5, 0.7, 0.5, 0.3, 0.5, 0.1, 0.5, 0.3, 0.7, 0.7, 0.7, 0.7, 0.3, 0.9, 0.3, 0.1, 0.9, 0.7, 0.5, 0.1, 0.3, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.3, 0.7, 0.7, 0.7, 0.5, 0.5, 0.7, 0.5, 0.9, 0.5, 0.7, 0.5, 0.5, 0.7, 0.3, 0.3, 0.3, 0.5, 0.9, 0.7, 0.5, 0.3, 0.9, 0.1, 0.3, 0.9, 0.7, 0.5, 0.3, 0.5, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.3, 0.7, 0.7, 0.7, 0.5, 0.5, 0.7, 0.3, 0.9, 0.5, 0.7, 0.5, 0.1, 0.7, 0.3, 0.3, 0.3, 0.5, 0.9, 0.7, 0.5, 0.5, 0.9, 0.1, 0.1, 0.9, 0.7, 0.5, 0.3, 0.5, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.3, 0.7, 0.7, 0.7, 0.5, 0.5, 0.7, 0.3, 0.9, 0.5, 0.7, 0.5, 0.3, 0.7, 0.3, 0.3, 0.3, 0.5, 0.9, 0.7, 0.5, 0.5, 0.9, 0.1, 0.1, 0.9, 0.7, 0.5, 0.3, 0.5, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.3, 0.7, 0.7, 0.7, 0.5, 0.5, 0.7, 0.3, 0.9, 0.5, 0.7, 0.5, 0.3, 0.7, 0.3, 0.3, 0.3, 0.5, 0.9, 0.7, 0.5, 0.5];
+        const snapshotLabels = ["Match 2", "Match 4", "Match 6", "Match 8", "Match 10"];
+        const tierInfo = {"S": {"color": "#FF6B6B", "quantile": "90%+"}, "A": {"color": "#4ECDC4", "quantile": "70%+"}, "B": {"color": "#45B7D1", "quantile": "40%+"}, "C": {"color": "#96CEB4", "quantile": "15%+"}, "D": {"color": "#DDA0DD", "quantile": "0%+"}};
+        
+        // Populate tier legend
+        const tierOrder = ['S', 'A', 'B', 'C', 'D'];
+        const tierDescriptions = {
+            'S': 'Top 10% ELO',
+            'A': 'Next 20% ELO',
+            'B': 'Next 30% ELO',
+            'C': 'Next 25% ELO',
+            'D': 'Bottom 15% ELO'
+        };
+        
+        const legendContainer = document.getElementById('tierLegend');
+        tierOrder.forEach(tier => {
+            const item = document.createElement('div');
+            item.className = 'tier-item';
+            item.innerHTML = `
+                <div class="tier-color" style="background-color: ${tierInfo[tier].color}"></div>
+                <span class="tier-label">Tier ${tier}</span>
+                <span class="tier-desc">(${tierDescriptions[tier]})</span>
+            `;
+            legendContainer.appendChild(item);
+        });
+        
+        // Layout configurations
+        function getLayout(isDark) {
+            return {
+                title: {
+                    text: 'Meta-Tier Evolution Over Time',
+                    font: { 
+                        size: 18, 
+                        color: isDark ? '#f1f5f9' : '#1a1a1a'
+                    }
+                },
+                font: {
+                    color: isDark ? '#f1f5f9' : '#1a1a1a'
+                },
+                paper_bgcolor: isDark ? '#0f172a' : '#f8f9fa',
+                plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
+                width: 1100,
+                height: 700,
+                margin: { l: 50, r: 50, t: 80, b: 50 }
+            };
+        }
+        
+        // Create Sankey trace
+        function createTrace() {
+            return {
+                type: 'sankey',
+                orientation: 'h',
+                arrangement: 'snap',
+                node: {
+                    pad: 15,
+                    thickness: 20,
+                    line: {
+                        color: 'rgba(128,128,128,0.5)',
+                        width: 0.5
+                    },
+                    label: labels,
+                    color: nodeColors,
+                    customdata: nodeHover,
+                    hovertemplate: '%{customdata}<extra></extra>',
+                    x: nodeX,
+                    y: nodeY
+                },
+                link: {
+                    source: linkSources,
+                    target: linkTargets,
+                    value: linkValues,
+                    color: linkColors,
+                    customdata: linkLabels,
+                    hovertemplate: '%{customdata}<extra></extra>'
+                }
+            };
+        }
+        
+        const config = {
+            displayModeBar: true,
+            modeBarButtonsToAdd: ['pan2d', 'zoomIn2d', 'zoomOut2d', 'resetScale2d'],
+            responsive: true
+        };
+        
+        // Theme handling
+        let isDarkMode = localStorage.getItem('theme') === 'dark';
+        const toggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeLabel = document.getElementById('themeLabel');
+        
+        function updateTheme(isDark) {
+            document.body.className = isDark ? 'dark' : 'light';
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+            themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+            toggle.checked = isDark;
+            
+            const layout = getLayout(isDark);
+            const trace = createTrace();
+            
+            Plotly.react('plotDiv', [trace], layout, config);
+        }
+        
+        // Initialize
+        updateTheme(isDarkMode);
+        
+        // Handle toggle
+        toggle.addEventListener('change', function() {
+            isDarkMode = this.checked;
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            updateTheme(isDarkMode);
+        });
+        
+        // Listen for theme changes from other pages
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                isDarkMode = e.newValue === 'dark';
+                updateTheme(isDarkMode);
+            }
+        });
+    </script>
+</body>
+</html>
