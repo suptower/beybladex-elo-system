@@ -560,6 +560,45 @@ def create_meta_landscape_interactive_with_toggle(df: pd.DataFrame, output_file:
             max-width: 1000px;
             margin: 0 auto;
         }}
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {{
+            body {{
+                padding: 10px;
+            }}
+            .header {{
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                flex-wrap: wrap;
+            }}
+            .header h1 {{
+                font-size: 1.2em;
+                order: -1;
+                width: 100%;
+                text-align: center;
+            }}
+            .back-link {{
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }}
+            .theme-toggle {{
+                width: 100%;
+                justify-content: center;
+            }}
+            .theme-toggle label {{
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }}
+            #plotDiv {{
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }}
+        }}
+        @media (max-width: 480px) {{
+            .header h1 {{
+                font-size: 1em;
+            }}
+        }}
     </style>
 </head>
 <body class="light">

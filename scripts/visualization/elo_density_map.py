@@ -904,6 +904,88 @@ def create_elo_density_interactive(
             background-color: #1e3a5f;
             border: 1px solid #0ea5e9;
         }}
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {{
+            body {{
+                padding: 10px;
+            }}
+            .header {{
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }}
+            .header h1 {{
+                font-size: 1.2em;
+                text-align: center;
+                order: -1;
+            }}
+            .back-link {{
+                padding: 6px 12px;
+                font-size: 0.9em;
+                text-align: center;
+            }}
+            .controls {{
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }}
+            .view-selector {{
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+            }}
+            .view-btn {{
+                padding: 10px 8px;
+                font-size: 12px;
+                text-align: center;
+            }}
+            .theme-toggle {{
+                width: 100%;
+                justify-content: center;
+            }}
+            .theme-toggle label {{
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }}
+            #plotDiv {{
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }}
+            .stats-panel {{
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 10px;
+            }}
+            .stat-value {{
+                font-size: 1.2em;
+            }}
+            .stat-label {{
+                font-size: 0.75em;
+            }}
+            .info-panel {{
+                padding: 10px;
+                font-size: 0.85em;
+            }}
+            .slider-container {{
+                padding: 10px;
+            }}
+        }}
+        @media (max-width: 480px) {{
+            .header h1 {{
+                font-size: 1em;
+            }}
+            .view-selector {{
+                grid-template-columns: repeat(2, 1fr);
+            }}
+            .view-btn {{
+                font-size: 11px;
+                padding: 8px 5px;
+            }}
+            .stats-panel {{
+                grid-template-columns: repeat(2, 1fr);
+            }}
+        }}
     </style>
 </head>
 <body class="light">
