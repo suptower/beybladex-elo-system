@@ -64,7 +64,7 @@
                 
                 <!-- Player A Selection -->
                 <div class="player-input-group">
-                    <label class="player-label player-a-label">Player A</label>
+                    <label class="player-label player-a-label" id="playerALabel">Player A</label>
                     <div class="player-controls">
                         <select id="playerASelect" class="player-select">
                             <option value="">Select a Beyblade...</option>
@@ -89,7 +89,7 @@
 
                 <!-- Player B Selection -->
                 <div class="player-input-group">
-                    <label class="player-label player-b-label">Player B</label>
+                    <label class="player-label player-b-label" id="playerBLabel">Player B</label>
                     <div class="player-controls">
                         <select id="playerBSelect" class="player-select">
                             <option value="">Select a Beyblade...</option>
@@ -151,43 +151,43 @@
 
                 <div class="outcome-grid">
                     <div class="outcome-section">
-                        <h4 class="outcome-title-a">If A Wins</h4>
+                        <h4 class="outcome-title-a" id="outcomeIfAWins">If A Wins</h4>
                         <div class="outcome-details">
                             <div class="outcome-row">
-                                <span>A's ELO Change:</span>
+                                <span id="labelAEloChangeWin">A's ELO Change:</span>
                                 <span class="outcome-value positive" id="eloChangeAWin">+20</span>
                             </div>
                             <div class="outcome-row">
-                                <span>B's ELO Change:</span>
+                                <span id="labelBEloChangeLoss">B's ELO Change:</span>
                                 <span class="outcome-value negative" id="eloChangeBLoss">-20</span>
                             </div>
                             <div class="outcome-row">
-                                <span>A's New ELO:</span>
+                                <span id="labelANewEloWin">A's New ELO:</span>
                                 <span class="outcome-value" id="newEloAWin">1020</span>
                             </div>
                             <div class="outcome-row">
-                                <span>B's New ELO:</span>
+                                <span id="labelBNewEloLoss">B's New ELO:</span>
                                 <span class="outcome-value" id="newEloBLoss">980</span>
                             </div>
                         </div>
                     </div>
                     <div class="outcome-section">
-                        <h4 class="outcome-title-b">If B Wins</h4>
+                        <h4 class="outcome-title-b" id="outcomeIfBWins">If B Wins</h4>
                         <div class="outcome-details">
                             <div class="outcome-row">
-                                <span>A's ELO Change:</span>
+                                <span id="labelAEloChangeLoss">A's ELO Change:</span>
                                 <span class="outcome-value negative" id="eloChangeALoss">-20</span>
                             </div>
                             <div class="outcome-row">
-                                <span>B's ELO Change:</span>
+                                <span id="labelBEloChangeWin">B's ELO Change:</span>
                                 <span class="outcome-value positive" id="eloChangeBWin">+20</span>
                             </div>
                             <div class="outcome-row">
-                                <span>A's New ELO:</span>
+                                <span id="labelANewEloLoss">A's New ELO:</span>
                                 <span class="outcome-value" id="newEloALoss">980</span>
                             </div>
                             <div class="outcome-row">
-                                <span>B's New ELO:</span>
+                                <span id="labelBNewEloWin">B's New ELO:</span>
                                 <span class="outcome-value" id="newEloBWin">1020</span>
                             </div>
                         </div>
@@ -195,8 +195,8 @@
                 </div>
 
                 <div class="k-factor-info">
-                    <span>K-Factor A: <strong id="kFactorA">40</strong></span>
-                    <span>K-Factor B: <strong id="kFactorB">40</strong></span>
+                    <span><span id="kFactorALabel">K-Factor A</span>: <strong id="kFactorA">40</strong></span>
+                    <span><span id="kFactorBLabel">K-Factor B</span>: <strong id="kFactorB">40</strong></span>
                 </div>
             </div>
 
@@ -206,25 +206,25 @@
                 
                 <div class="sim-summary">
                     <div class="sim-stat">
-                        <span class="sim-stat-label">Expected Wins A</span>
+                        <span class="sim-stat-label" id="expectedWinsALabel">Expected Wins A</span>
                         <span class="sim-stat-value" id="avgWinsA">5.0</span>
                     </div>
                     <div class="sim-stat">
-                        <span class="sim-stat-label">Expected Wins B</span>
+                        <span class="sim-stat-label" id="expectedWinsBLabel">Expected Wins B</span>
                         <span class="sim-stat-value" id="avgWinsB">5.0</span>
                     </div>
                     <div class="sim-stat">
-                        <span class="sim-stat-label">Avg Final ELO A</span>
+                        <span class="sim-stat-label" id="avgFinalEloALabel">Avg Final ELO A</span>
                         <span class="sim-stat-value" id="avgFinalEloA">1000</span>
                     </div>
                     <div class="sim-stat">
-                        <span class="sim-stat-label">Avg Final ELO B</span>
+                        <span class="sim-stat-label" id="avgFinalEloBLabel">Avg Final ELO B</span>
                         <span class="sim-stat-value" id="avgFinalEloB">1000</span>
                     </div>
                 </div>
 
                 <div class="percentile-ranges">
-                    <h4>📊 ELO Outcome Ranges (Player A)</h4>
+                    <h4 id="percentileRangesTitle">📊 ELO Outcome Ranges (Player A)</h4>
                     <div class="percentile-bar-container">
                         <div class="percentile-bar" id="percentileBarA">
                             <div class="percentile-range p5-p95" id="rangeA5_95"></div>
@@ -249,7 +249,7 @@
                 </div>
 
                 <div class="chart-container">
-                    <h4>Final ELO Distribution (Player A)</h4>
+                    <h4 id="distributionChartTitle">Final ELO Distribution (Player A)</h4>
                     <canvas id="eloDistributionChart"></canvas>
                 </div>
             </div>
@@ -468,6 +468,7 @@ function updatePlayerStats(player) {
         statsDiv.innerHTML = '<em>Manual mode - enter values above</em>';
         eloInput.disabled = false;
         matchesInput.disabled = false;
+        updatePlayerLabels();
         return;
     }
     
@@ -489,7 +490,55 @@ function updatePlayerStats(player) {
         statsDiv.innerHTML = '';
     }
     
+    updatePlayerLabels();
     updateSingleMatch();
+}
+
+function getPlayerName(player) {
+    const select = document.getElementById(`player${player}Select`);
+    const manualCheckbox = document.getElementById(`player${player}Manual`);
+    
+    if (manualCheckbox.checked || !select.value) {
+        return `Player ${player}`;
+    }
+    return select.value;
+}
+
+function updatePlayerLabels() {
+    const nameA = getPlayerName('A');
+    const nameB = getPlayerName('B');
+    
+    // Update setup section labels
+    document.getElementById('playerALabel').textContent = nameA;
+    document.getElementById('playerBLabel').textContent = nameB;
+    
+    // Update outcome section headers
+    document.getElementById('outcomeIfAWins').textContent = `If ${nameA} Wins`;
+    document.getElementById('outcomeIfBWins').textContent = `If ${nameB} Wins`;
+    
+    // Update outcome row labels
+    document.getElementById('labelAEloChangeWin').textContent = `${nameA}'s ELO Change:`;
+    document.getElementById('labelBEloChangeLoss').textContent = `${nameB}'s ELO Change:`;
+    document.getElementById('labelANewEloWin').textContent = `${nameA}'s New ELO:`;
+    document.getElementById('labelBNewEloLoss').textContent = `${nameB}'s New ELO:`;
+    document.getElementById('labelAEloChangeLoss').textContent = `${nameA}'s ELO Change:`;
+    document.getElementById('labelBEloChangeWin').textContent = `${nameB}'s ELO Change:`;
+    document.getElementById('labelANewEloLoss').textContent = `${nameA}'s New ELO:`;
+    document.getElementById('labelBNewEloWin').textContent = `${nameB}'s New ELO:`;
+    
+    // Update K-factor labels
+    document.getElementById('kFactorALabel').textContent = `K-Factor ${nameA}`;
+    document.getElementById('kFactorBLabel').textContent = `K-Factor ${nameB}`;
+    
+    // Update multi-match simulation labels
+    document.getElementById('expectedWinsALabel').textContent = `Expected Wins ${nameA}`;
+    document.getElementById('expectedWinsBLabel').textContent = `Expected Wins ${nameB}`;
+    document.getElementById('avgFinalEloALabel').textContent = `Avg Final ELO ${nameA}`;
+    document.getElementById('avgFinalEloBLabel').textContent = `Avg Final ELO ${nameB}`;
+    
+    // Update percentile and chart titles
+    document.getElementById('percentileRangesTitle').textContent = `📊 ELO Outcome Ranges (${nameA})`;
+    document.getElementById('distributionChartTitle').textContent = `Final ELO Distribution (${nameA})`;
 }
 
 function updateSingleMatch() {
@@ -594,13 +643,16 @@ function updateProgressionChart(eloA, eloB, matchesA, matchesB, numMatches) {
     
     if (progressionChart) progressionChart.destroy();
     
+    const nameA = getPlayerName('A');
+    const nameB = getPlayerName('B');
+    
     progressionChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: Array.from({length: numMatches + 1}, (_, i) => i),
             datasets: [
                 {
-                    label: 'Player A ELO',
+                    label: `${nameA} ELO`,
                     data: result.eloProgressionA,
                     borderColor: '#ef4444',
                     backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -608,7 +660,7 @@ function updateProgressionChart(eloA, eloB, matchesA, matchesB, numMatches) {
                     tension: 0.3
                 },
                 {
-                    label: 'Player B ELO',
+                    label: `${nameB} ELO`,
                     data: result.eloProgressionB,
                     borderColor: '#3b82f6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
