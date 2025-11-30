@@ -112,13 +112,21 @@
                 </div>
             </details>
             
-            <!-- Individual Plot Section -->
-            <div class="profile-section" id="plotSection">
-                <h3 class="section-title">📈 ELO History</h3>
+            <!-- ELO History Section (collapsible, hidden by default) -->
+            <details class="profile-section-details" id="plotSection" style="display: none;">
+                <summary class="section-summary">📈 ELO History</summary>
                 <div class="profile-plot-container">
                     <img id="eloPlot" src="" alt="ELO History" class="profile-plot">
                 </div>
-            </div>
+            </details>
+            
+            <!-- Position History Section (collapsible, hidden by default) -->
+            <details class="profile-section-details" id="positionPlotSection" style="display: none;">
+                <summary class="section-summary">📊 Position History</summary>
+                <div class="profile-plot-container">
+                    <img id="positionPlot" src="" alt="Position History" class="profile-plot">
+                </div>
+            </details>
             
             <!-- History/Timeline Section -->
             <div class="profile-section" id="historySection" style="display: none;">
@@ -473,6 +481,12 @@ function renderProfile() {
     
     // Try to load ELO plot
     loadEloPlot();
+    
+    // Try to load Position plot
+    loadPositionPlot();
+    
+    // Setup dark mode observer for plots
+    setupPlotDarkModeObserver();
     
     // Render history and timeline section
     renderHistorySection();
@@ -989,13 +1003,17 @@ function renderAdvancedStats() {
     });
 }
 
+// Helper function to get the display blade name
+function getBladeName() {
+    return beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName);
+}
+
 // Try to load ELO plot
 function loadEloPlot() {
     const plotSection = document.getElementById('plotSection');
     const plotImg = document.getElementById('eloPlot');
     
-    // Try to find the plot for this bey
-    const bladeName = beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName);
+    const bladeName = getBladeName();
     
     // Check for dark mode
     const isDark = document.body.classList.contains('dark');
@@ -1013,13 +1031,55 @@ function loadEloPlot() {
     plotImg.onload = () => {
         plotSection.style.display = 'block';
     };
+}
+
+// Try to load Position plot
+function loadPositionPlot() {
+    const plotSection = document.getElementById('positionPlotSection');
+    const plotImg = document.getElementById('positionPlot');
     
-    // Update plot when dark mode changes
+    const bladeName = getBladeName();
+    
+    // Check for dark mode
+    const isDark = document.body.classList.contains('dark');
+    const basePath = isDark ? './plots/positions/dark/' : './plots/positions/';
+    const filename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
+    
+    plotImg.src = basePath + filename;
+    plotImg.alt = `${bladeName} Position History`;
+    
+    // Hide section if image fails to load
+    plotImg.onerror = () => {
+        plotSection.style.display = 'none';
+    };
+    
+    plotImg.onload = () => {
+        plotSection.style.display = 'block';
+    };
+}
+
+// Setup dark mode observer for plot images
+function setupPlotDarkModeObserver() {
+    const eloPlot = document.getElementById('eloPlot');
+    const positionPlot = document.getElementById('positionPlot');
+    const bladeName = getBladeName();
+    
     const observer = new MutationObserver(() => {
         const isDark = document.body.classList.contains('dark');
-        const basePath = isDark ? './plots/elo/dark/' : './plots/elo/';
-        const filename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
-        plotImg.src = basePath + filename;
+        
+        // Update ELO plot
+        if (eloPlot && eloPlot.src) {
+            const eloBasePath = isDark ? './plots/elo/dark/' : './plots/elo/';
+            const eloFilename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
+            eloPlot.src = eloBasePath + eloFilename;
+        }
+        
+        // Update Position plot
+        if (positionPlot && positionPlot.src) {
+            const posBasePath = isDark ? './plots/positions/dark/' : './plots/positions/';
+            const posFilename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
+            positionPlot.src = posBasePath + posFilename;
+        }
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 }
