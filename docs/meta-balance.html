@@ -91,7 +91,13 @@
             <div class="metric-header">
                 <span class="metric-icon">🌈</span>
                 <h4>Usage Diversity</h4>
-                <div class="info-tooltip" title="Measures how evenly usage is spread across different parts. Higher = more options are being used competitively.">ℹ️</div>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>Usage Diversity</strong>
+                        <p>Measures how evenly usage is spread across different parts. Higher score = more options are being used competitively.</p>
+                    </div>
+                </div>
             </div>
             <div class="metric-score">
                 <span class="score-value" id="diversityScore">--</span>
@@ -107,7 +113,13 @@
             <div class="metric-header">
                 <span class="metric-icon">⚖️</span>
                 <h4>Win Rate Balance</h4>
-                <div class="info-tooltip" title="Measures variance in win rates. Lower variance means more balanced competitive options.">ℹ️</div>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>Win Rate Balance</strong>
+                        <p>Measures variance in win rates across all competitors. Lower variance means more balanced competitive options.</p>
+                    </div>
+                </div>
             </div>
             <div class="metric-score">
                 <span class="score-value" id="winRateScore">--</span>
@@ -123,7 +135,13 @@
             <div class="metric-header">
                 <span class="metric-icon">📈</span>
                 <h4>ELO Spread</h4>
-                <div class="info-tooltip" title="Measures the distribution of ELO ratings. Moderate spread indicates healthy differentiation.">ℹ️</div>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>ELO Spread</strong>
+                        <p>Measures the distribution of ELO ratings. Moderate spread indicates healthy skill differentiation without extreme gaps.</p>
+                    </div>
+                </div>
             </div>
             <div class="metric-score">
                 <span class="score-value" id="eloScore">--</span>
@@ -139,7 +157,13 @@
             <div class="metric-header">
                 <span class="metric-icon">👑</span>
                 <h4>Top Dominance</h4>
-                <div class="info-tooltip" title="Measures how much top performers dominate matches. Lower dominance = healthier meta.">ℹ️</div>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>Top Dominance</strong>
+                        <p>Measures how much top performers dominate matches. Lower dominance = healthier meta with more viable options.</p>
+                    </div>
+                </div>
             </div>
             <div class="metric-score">
                 <span class="score-value" id="dominanceScore">--</span>
@@ -155,7 +179,13 @@
             <div class="metric-header">
                 <span class="metric-icon">🎭</span>
                 <h4>Matchup Balance</h4>
-                <div class="info-tooltip" title="Measures how one-sided matchups are. Fewer extreme matchups = better strategic variety.">ℹ️</div>
+                <div class="info-tooltip-wrapper">
+                    <span class="info-icon">?</span>
+                    <div class="info-tooltip-content">
+                        <strong>Matchup Balance</strong>
+                        <p>Measures how one-sided matchups are. Fewer extreme matchups = better strategic variety and counterplay.</p>
+                    </div>
+                </div>
             </div>
             <div class="metric-score">
                 <span class="score-value" id="polarizationScore">--</span>
@@ -1032,9 +1062,87 @@ loadMetaBalanceData();
     font-size: 1rem;
 }
 
-.info-tooltip {
+/* Info Tooltip Styles */
+.info-tooltip-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.info-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
     cursor: help;
-    opacity: 0.6;
+    transition: var(--transition);
+}
+
+.info-icon:hover {
+    background: var(--accent-hover);
+    transform: scale(1.1);
+}
+
+.info-tooltip-content {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    min-width: 220px;
+    max-width: 280px;
+    z-index: 100;
+    box-shadow: var(--shadow-lg);
+}
+
+.info-tooltip-content::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border);
+}
+
+.info-tooltip-content::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--card);
+    z-index: 1;
+}
+
+.info-tooltip-wrapper:hover .info-tooltip-content,
+.info-tooltip-wrapper:focus-within .info-tooltip-content {
+    display: block;
+}
+
+.info-tooltip-content strong {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.info-tooltip-content p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    line-height: 1.4;
 }
 
 .metric-score {
@@ -1425,6 +1533,156 @@ loadMetaBalanceData();
 body.dark .gauge-fill {
     background: rgba(255, 255, 255, 0.4);
 }
+
+body.dark .health-gauge-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .metric-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .visualizations-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .outlier-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .outlier-item {
+    background: var(--bg);
+    border: 1px solid var(--border);
+}
+
+body.dark .matchups-table {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .matchups-table th {
+    background: var(--bg-alt);
+}
+
+body.dark .matchups-table tr:hover {
+    background: var(--bg-alt);
+}
+
+body.dark .methodology-content {
+    background: var(--card);
+    border: 1px solid var(--border);
+}
+
+body.dark .methodology-note {
+    background: rgba(245, 158, 11, 0.15);
+    border-left-color: #f59e0b;
+}
+
+body.dark .alert-card {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+body.dark .viz-tab {
+    background: var(--bg-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+body.dark .viz-tab:hover {
+    background: var(--accent-hover-subtle);
+    border-color: var(--accent);
+}
+
+body.dark .viz-tab.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+body.dark .chart-unavailable {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+}
+
+body.dark .info-tooltip-content {
+    background: var(--bg-alt);
+    border-color: var(--border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+body.dark .info-tooltip-content::after {
+    border-top-color: var(--border);
+}
+
+body.dark .info-tooltip-content::before {
+    border-top-color: var(--bg-alt);
+}
+
+body.dark .info-icon {
+    background: var(--accent);
+}
+
+body.dark .info-icon:hover {
+    background: var(--accent-hover);
+}
+
+body.dark .confidence-badge.high {
+    background: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+body.dark .confidence-badge.medium {
+    background: rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+
+body.dark .severity-badge.critical {
+    background: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+body.dark .severity-badge.warning {
+    background: rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+
+body.dark .severity-badge.moderate {
+    background: rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+
+body.dark .gauge-status.excellent { color: #60a5fa; }
+body.dark .gauge-status.good { color: #4ade80; }
+body.dark .gauge-status.moderate { color: #facc15; }
+body.dark .gauge-status.warning { color: #fbbf24; }
+body.dark .gauge-status.critical { color: #f87171; }
+
+body.dark .metric-card.excellent .score-value { color: #60a5fa; }
+body.dark .metric-card.good .score-value { color: #4ade80; }
+body.dark .metric-card.moderate .score-value { color: #facc15; }
+body.dark .metric-card.warning .score-value { color: #fbbf24; }
+body.dark .metric-card.critical .score-value { color: #f87171; }
+
+body.dark .outlier-card.overcentralizing {
+    border-top-color: #f87171;
+}
+
+body.dark .outlier-card.underpowered {
+    border-top-color: #fbbf24;
+}
+
+body.dark .outlier-card.emerging {
+    border-top-color: #60a5fa;
+}
+
+body.dark .legend-color.overcentralizing { background: #f87171; }
+body.dark .legend-color.underpowered { background: #fbbf24; }
+body.dark .legend-color.balanced { background: #4ade80; }
 </style>
 
 </body>
