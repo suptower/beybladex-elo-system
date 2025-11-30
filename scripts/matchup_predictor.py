@@ -482,36 +482,25 @@ def predict_matchup(
     # Calculate upset likelihood
     upset = calculate_upset_likelihood(stats_a, stats_b, win_probs)
 
-    # Get stat comparison
+    # Get stat comparison using helper function
     rpg_a = stats_a.get("stats", {})
     rpg_b = stats_b.get("stats", {})
 
+    def get_stat_comparison(stat_name: str) -> dict[str, Any]:
+        """Helper to build stat comparison for a single stat."""
+        val_a = rpg_a.get(stat_name, 2.5)
+        val_b = rpg_b.get(stat_name, 2.5)
+        if val_a > val_b:
+            advantage = "bey_a"
+        elif val_b > val_a:
+            advantage = "bey_b"
+        else:
+            advantage = "tie"
+        return {"bey_a": val_a, "bey_b": val_b, "advantage": advantage}
+
     stat_comparison = {
-        "attack": {
-            "bey_a": rpg_a.get("attack", 2.5),
-            "bey_b": rpg_b.get("attack", 2.5),
-            "advantage": "bey_a" if rpg_a.get("attack", 2.5) > rpg_b.get("attack", 2.5) else "bey_b"
-        },
-        "defense": {
-            "bey_a": rpg_a.get("defense", 2.5),
-            "bey_b": rpg_b.get("defense", 2.5),
-            "advantage": "bey_a" if rpg_a.get("defense", 2.5) > rpg_b.get("defense", 2.5) else "bey_b"
-        },
-        "stamina": {
-            "bey_a": rpg_a.get("stamina", 2.5),
-            "bey_b": rpg_b.get("stamina", 2.5),
-            "advantage": "bey_a" if rpg_a.get("stamina", 2.5) > rpg_b.get("stamina", 2.5) else "bey_b"
-        },
-        "control": {
-            "bey_a": rpg_a.get("control", 2.5),
-            "bey_b": rpg_b.get("control", 2.5),
-            "advantage": "bey_a" if rpg_a.get("control", 2.5) > rpg_b.get("control", 2.5) else "bey_b"
-        },
-        "meta_impact": {
-            "bey_a": rpg_a.get("meta_impact", 2.5),
-            "bey_b": rpg_b.get("meta_impact", 2.5),
-            "advantage": "bey_a" if rpg_a.get("meta_impact", 2.5) > rpg_b.get("meta_impact", 2.5) else "bey_b"
-        }
+        stat: get_stat_comparison(stat)
+        for stat in ["attack", "defense", "stamina", "control", "meta_impact"]
     }
 
     return {

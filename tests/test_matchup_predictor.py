@@ -18,8 +18,6 @@ from matchup_predictor import (
     calculate_upset_likelihood,
     predict_matchup,
     PREDICTION_WEIGHTS,
-    MIN_MATCHES_HIGH_CONFIDENCE,
-    MIN_MATCHES_MEDIUM_CONFIDENCE,
 )
 
 
@@ -356,6 +354,8 @@ class TestPredictMatchup:
 
         assert result["stat_comparison"]["attack"]["advantage"] == "bey_a"
         assert result["stat_comparison"]["defense"]["advantage"] == "bey_b"
+        # Equal stats should show as tie
+        assert result["stat_comparison"]["stamina"]["advantage"] == "tie"
 
     def test_handles_empty_stats(self):
         """Should handle Beys with minimal stats."""
