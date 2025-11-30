@@ -25,10 +25,10 @@ class TestTierQuantiles:
 
     def test_quantiles_are_decreasing(self):
         """Tier quantiles should be in decreasing order (S highest)."""
-        prev_quantile = 1.0
-        for tier in TIER_ORDER:
-            assert TIER_QUANTILES[tier] < prev_quantile or tier == "S"
-            prev_quantile = TIER_QUANTILES[tier]
+        quantile_values = [TIER_QUANTILES[tier] for tier in TIER_ORDER]
+        for i in range(len(quantile_values) - 1):
+            assert quantile_values[i] > quantile_values[i + 1], \
+                f"Quantile for {TIER_ORDER[i]} should be > {TIER_ORDER[i + 1]}"
 
     def test_all_tiers_have_quantiles(self):
         """All tiers should have quantile definitions."""

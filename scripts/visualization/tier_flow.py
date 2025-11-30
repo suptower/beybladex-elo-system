@@ -663,9 +663,9 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
         const tierOrder = ['S', 'A', 'B', 'C', 'D'];
         const tierDescriptions = {{
             'S': 'Top 10% ELO',
-            'A': 'Top 10-30% ELO', 
-            'B': 'Top 30-60% ELO',
-            'C': 'Top 60-85% ELO',
+            'A': 'Next 20% ELO',
+            'B': 'Next 30% ELO',
+            'C': 'Next 25% ELO',
             'D': 'Bottom 15% ELO'
         }};
         
