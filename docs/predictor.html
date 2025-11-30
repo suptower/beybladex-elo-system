@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchup Predictor - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Matchup Predictor</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link>Analysis ▼</a>
+                <div class="nav-dropdown-content">
+                    <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
+                    <a href="parts.html">Parts</a>
+                    <a href="synergy.html">Synergy</a>
+                    <a href="explorer.html">Explorer</a>
+                    <a href="plots.html">Plots</a>
+                    <a href="simulator.html">Simulator</a>
+                    <a href="predictor.html">Predictor</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="predictor-page">
+    <section class="predictor-hero">
+        <h2>🎯 Matchup Predictor</h2>
+        <p class="predictor-description">
+            Predict the outcome of any Beyblade matchup using our probabilistic model. 
+            Select two Beys to see win probabilities, outcome breakdowns, and upset potential.
+        </p>
+    </section>
+
+    <div class="predictor-layout">
+        <!-- Left Panel: Inputs -->
+        <section class="predictor-inputs">
+            <div class="input-panel">
+                <h3>⚙️ Select Matchup</h3>
+                
+                <!-- Bey A Selection -->
+                <div class="bey-input-group bey-a-group">
+                    <label class="bey-label bey-a-label" id="beyALabel">Bey A</label>
+                    <select id="beyASelect" class="bey-select">
+                        <option value="">Select a Beyblade...</option>
+                    </select>
+                    <div class="bey-stats-preview" id="beyAPreview">
+                        <div class="preview-placeholder">Select a Bey to see stats</div>
+                    </div>
+                </div>
+
+                <div class="vs-divider">
+                    <span>VS</span>
+                </div>
+
+                <!-- Bey B Selection -->
+                <div class="bey-input-group bey-b-group">
+                    <label class="bey-label bey-b-label" id="beyBLabel">Bey B</label>
+                    <select id="beyBSelect" class="bey-select">
+                        <option value="">Select a Beyblade...</option>
+                    </select>
+                    <div class="bey-stats-preview" id="beyBPreview">
+                        <div class="preview-placeholder">Select a Bey to see stats</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="swap-btn" id="swapBtn" title="Swap Beys">
+                        🔄 Swap
+                    </button>
+                    <button class="random-btn" id="randomBtn" title="Random Matchup">
+                        🎲 Random
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Results -->
+        <section class="predictor-results">
+            <!-- Win Probability Card -->
+            <div class="result-card win-probability-card">
+                <h3>🏆 Win Probability</h3>
+                <div class="win-prob-display">
+                    <div class="win-prob-bar-container">
+                        <div class="win-prob-bar win-prob-bar-a" id="winProbBarA" style="width: 50%">
+                            <span class="win-prob-percent" id="winProbPercentA">50%</span>
+                        </div>
+                        <div class="win-prob-bar win-prob-bar-b" id="winProbBarB" style="width: 50%">
+                            <span class="win-prob-percent" id="winProbPercentB">50%</span>
+                        </div>
+                    </div>
+                    <div class="win-prob-labels">
+                        <span class="win-prob-name" id="winProbNameA">Bey A</span>
+                        <span class="win-prob-name" id="winProbNameB">Bey B</span>
+                    </div>
+                </div>
+                
+                <!-- Confidence Indicator -->
+                <div class="confidence-indicator" id="confidenceIndicator">
+                    <span class="confidence-label">Prediction Confidence:</span>
+                    <span class="confidence-badge" id="confidenceBadge">--</span>
+                </div>
+            </div>
+
+            <!-- Outcome Breakdown Card -->
+            <div class="result-card outcome-breakdown-card">
+                <h3>📊 Outcome Breakdown</h3>
+                <p class="outcome-description">Probability of each finish type for the winner</p>
+                
+                <div class="outcome-chart-container">
+                    <canvas id="outcomeChart"></canvas>
+                </div>
+                
+                <div class="outcome-legend" id="outcomeLegend">
+                    <div class="outcome-legend-item">
+                        <span class="outcome-dot burst"></span>
+                        <span>Burst Finish</span>
+                    </div>
+                    <div class="outcome-legend-item">
+                        <span class="outcome-dot pocket"></span>
+                        <span>Pocket Finish</span>
+                    </div>
+                    <div class="outcome-legend-item">
+                        <span class="outcome-dot extreme"></span>
+                        <span>Extreme Finish</span>
+                    </div>
+                    <div class="outcome-legend-item">
+                        <span class="outcome-dot spin"></span>
+                        <span>Spin Finish</span>
+                    </div>
+                    <div class="outcome-legend-item">
+                        <span class="outcome-dot decision"></span>
+                        <span>Judge Decision</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat Comparison Card -->
+            <div class="result-card stat-comparison-card">
+                <h3>⚔️ Stat Comparison</h3>
+                <div class="stat-bars-container" id="statBarsContainer">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Upset Likelihood Card -->
+            <div class="result-card upset-card">
+                <h3>🎲 Upset Potential</h3>
+                <div class="upset-display" id="upsetDisplay">
+                    <div class="upset-indicator" id="upsetIndicator">
+                        <span class="upset-icon">⚠️</span>
+                        <span class="upset-text" id="upsetText">Select Beys to analyze</span>
+                    </div>
+                    <div class="upset-details" id="upsetDetails">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Model Details Toggle -->
+            <details class="model-details">
+                <summary>📖 Model Assumptions & Details</summary>
+                <div class="model-details-content">
+                    <p><strong>Prediction Model:</strong> Combines ELO-based probability (50%) with stat-based adjustments (50%).</p>
+                    <p><strong>Stat Weights:</strong></p>
+                    <ul>
+                        <li>Attack: 15%</li>
+                        <li>Defense: 10%</li>
+                        <li>Stamina: 10%</li>
+                        <li>Control: 8%</li>
+                        <li>Meta Impact: 7%</li>
+                    </ul>
+                    <p><strong>Outcome Predictions:</strong> Based on historical finish type rates and defensive resistances.</p>
+                    <p><strong>Confidence Levels:</strong></p>
+                    <ul>
+                        <li>High: 8+ matches for both Beys, complete stats</li>
+                        <li>Medium: 4+ matches, partial stats</li>
+                        <li>Low: Limited match data</li>
+                    </ul>
+                </div>
+            </details>
+        </section>
+    </div>
+
+    <!-- Share Section -->
+    <section class="share-section">
+        <button class="share-btn" id="shareBtn">🔗 Copy Shareable Link</button>
+        <span class="share-status" id="shareStatus"></span>
+    </section>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script>
+// ============================================
+// PREDICTION ENGINE (JavaScript port)
+// ============================================
+
+const PREDICTION_WEIGHTS = {
+    elo_weight: 0.50,
+    attack_weight: 0.15,
+    defense_weight: 0.10,
+    stamina_weight: 0.10,
+    control_weight: 0.08,
+    meta_impact_weight: 0.07
+};
+
+function calculateExpectedScore(eloA, eloB) {
+    return 1.0 / (1.0 + Math.pow(10, (eloB - eloA) / 400.0));
+}
+
+function calculateStatAdvantage(statA, statB) {
+    const diff = statA - statB;
+    const normalized = diff / 10.0;
+    return Math.max(-0.5, Math.min(0.5, normalized));
+}
+
+function calculateWinProbability(statsA, statsB) {
+    const eloA = statsA?.leaderboard?.elo || 1000;
+    const eloB = statsB?.leaderboard?.elo || 1000;
+    const eloProbA = calculateExpectedScore(eloA, eloB);
+
+    const rpgA = statsA?.stats || {};
+    const rpgB = statsB?.stats || {};
+
+    const attackAdv = calculateStatAdvantage(rpgA.attack || 2.5, rpgB.attack || 2.5);
+    const defenseAdv = calculateStatAdvantage(rpgA.defense || 2.5, rpgB.defense || 2.5);
+    const staminaAdv = calculateStatAdvantage(rpgA.stamina || 2.5, rpgB.stamina || 2.5);
+    const controlAdv = calculateStatAdvantage(rpgA.control || 2.5, rpgB.control || 2.5);
+    const metaAdv = calculateStatAdvantage(rpgA.meta_impact || 2.5, rpgB.meta_impact || 2.5);
+
+    const statsAdjustment = (
+        PREDICTION_WEIGHTS.attack_weight * attackAdv +
+        PREDICTION_WEIGHTS.defense_weight * defenseAdv +
+        PREDICTION_WEIGHTS.stamina_weight * staminaAdv +
+        PREDICTION_WEIGHTS.control_weight * controlAdv +
+        PREDICTION_WEIGHTS.meta_impact_weight * metaAdv
+    );
+
+    const combinedProbA = (
+        PREDICTION_WEIGHTS.elo_weight * eloProbA +
+        (1 - PREDICTION_WEIGHTS.elo_weight) * (0.5 + statsAdjustment)
+    );
+
+    const probA = Math.max(0.01, Math.min(0.99, combinedProbA));
+    return { probA, probB: 1.0 - probA };
+}
+
+function calculateOutcomeProbabilities(statsA, statsB, winProbs) {
+    const subA = statsA?.sub_metrics || {};
+    const subB = statsB?.sub_metrics || {};
+
+    const attackA = subA.attack || {};
+    const attackB = subB.attack || {};
+    const defenseA = subA.defense || {};
+    const defenseB = subB.defense || {};
+    const staminaA = subA.stamina || {};
+    const staminaB = subB.stamina || {};
+
+    // A's finish rates
+    let burstA = (attackA.burst_finish_rate || 0.15) * (1.0 - (defenseB.burst_resistance || 0.7)) * 3.0;
+    let pocketA = (attackA.pocket_finish_rate || 0.15) * (1.0 - (defenseB.pocket_resistance || 0.7)) * 3.0;
+    let extremeA = (attackA.extreme_finish_rate || 0.10) * (1.0 - (defenseB.extreme_resistance || 0.85)) * 5.0;
+    let spinA = staminaA.spin_finish_win_rate || 0.40;
+
+    // B's finish rates
+    let burstB = (attackB.burst_finish_rate || 0.15) * (1.0 - (defenseA.burst_resistance || 0.7)) * 3.0;
+    let pocketB = (attackB.pocket_finish_rate || 0.15) * (1.0 - (defenseA.pocket_resistance || 0.7)) * 3.0;
+    let extremeB = (attackB.extreme_finish_rate || 0.10) * (1.0 - (defenseA.extreme_resistance || 0.85)) * 5.0;
+    let spinB = staminaB.spin_finish_win_rate || 0.40;
+
+    // Normalize A
+    const totalA = burstA + pocketA + extremeA + spinA + 0.05;
+    burstA /= totalA; pocketA /= totalA; extremeA /= totalA; spinA /= totalA;
+    const decisionA = 0.05 / totalA;
+
+    // Normalize B
+    const totalB = burstB + pocketB + extremeB + spinB + 0.05;
+    burstB /= totalB; pocketB /= totalB; extremeB /= totalB; spinB /= totalB;
+    const decisionB = 0.05 / totalB;
+
+    return {
+        beyA: {
+            burst: burstA * winProbs.probA,
+            pocket: pocketA * winProbs.probA,
+            extreme: extremeA * winProbs.probA,
+            spin: spinA * winProbs.probA,
+            decision: decisionA * winProbs.probA
+        },
+        beyB: {
+            burst: burstB * winProbs.probB,
+            pocket: pocketB * winProbs.probB,
+            extreme: extremeB * winProbs.probB,
+            spin: spinB * winProbs.probB,
+            decision: decisionB * winProbs.probB
+        }
+    };
+}
+
+function calculateConfidence(statsA, statsB) {
+    const matchesA = statsA?.leaderboard?.matches || 0;
+    const matchesB = statsB?.leaderboard?.matches || 0;
+    const hasRpgA = !!statsA?.stats;
+    const hasRpgB = !!statsB?.stats;
+    const hasSubA = !!statsA?.sub_metrics;
+    const hasSubB = !!statsB?.sub_metrics;
+
+    let score = 0;
+    const minMatches = Math.min(matchesA, matchesB);
+    
+    if (minMatches >= 8) score += 40;
+    else if (minMatches >= 4) score += 25;
+    else if (minMatches >= 1) score += 10;
+
+    if (hasRpgA && hasRpgB) score += 30;
+    else if (hasRpgA || hasRpgB) score += 15;
+
+    if (hasSubA && hasSubB) score += 30;
+    else if (hasSubA || hasSubB) score += 15;
+
+    let level = score >= 80 ? 'high' : score >= 50 ? 'medium' : 'low';
+    return { level, score };
+}
+
+function calculateUpsetLikelihood(statsA, statsB, winProbs) {
+    const eloA = statsA?.leaderboard?.elo || 1000;
+    const eloB = statsB?.leaderboard?.elo || 1000;
+
+    let favorite, underdog, underdogWinProb, eloDiff;
+    if (eloA >= eloB) {
+        favorite = 'A'; underdog = 'B';
+        underdogWinProb = winProbs.probB;
+        eloDiff = eloA - eloB;
+    } else {
+        favorite = 'B'; underdog = 'A';
+        underdogWinProb = winProbs.probA;
+        eloDiff = eloB - eloA;
+    }
+
+    let likelihood, description;
+    if (eloDiff < 20) {
+        likelihood = 'none';
+        description = 'Match is too close to call an upset';
+    } else if (underdogWinProb >= 0.40) {
+        likelihood = 'high';
+        description = 'High upset potential - underdog has strong chances';
+    } else if (underdogWinProb >= 0.30) {
+        likelihood = 'moderate';
+        description = 'Moderate upset potential';
+    } else if (underdogWinProb >= 0.20) {
+        likelihood = 'low';
+        description = 'Low upset potential - favorite is clearly stronger';
+    } else {
+        likelihood = 'very_low';
+        description = 'Very low upset potential - heavily one-sided matchup';
+    }
+
+    return { likelihood, description, eloDiff, favorite, underdog, underdogWinProb };
+}
+
+// ============================================
+// UI FUNCTIONS
+// ============================================
+
+let rpgStatsData = {};
+let allBeys = [];
+let outcomeChart = null;
+
+async function loadData() {
+    try {
+        const response = await fetch('data/rpg_stats.json');
+        rpgStatsData = await response.json();
+        allBeys = Object.keys(rpgStatsData).sort((a, b) => {
+            const rankA = rpgStatsData[a]?.leaderboard?.rank || 999;
+            const rankB = rpgStatsData[b]?.leaderboard?.rank || 999;
+            return rankA - rankB;
+        });
+        populateSelectors();
+        loadFromURL();
+    } catch (error) {
+        console.error('Error loading data:', error);
+    }
+}
+
+function populateSelectors() {
+    const selectA = document.getElementById('beyASelect');
+    const selectB = document.getElementById('beyBSelect');
+    
+    allBeys.forEach(bey => {
+        const data = rpgStatsData[bey];
+        const rank = data?.leaderboard?.rank || '-';
+        const elo = data?.leaderboard?.elo || '-';
+        
+        const optionA = document.createElement('option');
+        optionA.value = bey;
+        optionA.textContent = `#${rank} ${bey} (${elo} ELO)`;
+        selectA.appendChild(optionA);
+        
+        const optionB = document.createElement('option');
+        optionB.value = bey;
+        optionB.textContent = `#${rank} ${bey} (${elo} ELO)`;
+        selectB.appendChild(optionB);
+    });
+}
+
+function updateBeyPreview(player) {
+    const select = document.getElementById(`bey${player}Select`);
+    const preview = document.getElementById(`bey${player}Preview`);
+    const label = document.getElementById(`bey${player}Label`);
+    const bey = rpgStatsData[select.value];
+
+    if (bey) {
+        label.textContent = select.value;
+        const stats = bey.stats || {};
+        preview.innerHTML = `
+            <div class="preview-stats">
+                <div class="preview-stat">
+                    <span class="preview-stat-label">ELO</span>
+                    <span class="preview-stat-value">${bey.leaderboard?.elo || '-'}</span>
+                </div>
+                <div class="preview-stat">
+                    <span class="preview-stat-label">⚔️ ATK</span>
+                    <span class="preview-stat-value">${(stats.attack || 0).toFixed(1)}</span>
+                </div>
+                <div class="preview-stat">
+                    <span class="preview-stat-label">🛡️ DEF</span>
+                    <span class="preview-stat-value">${(stats.defense || 0).toFixed(1)}</span>
+                </div>
+                <div class="preview-stat">
+                    <span class="preview-stat-label">💪 STA</span>
+                    <span class="preview-stat-value">${(stats.stamina || 0).toFixed(1)}</span>
+                </div>
+                <div class="preview-stat">
+                    <span class="preview-stat-label">🎯 CTR</span>
+                    <span class="preview-stat-value">${(stats.control || 0).toFixed(1)}</span>
+                </div>
+            </div>
+        `;
+    } else {
+        label.textContent = `Bey ${player}`;
+        preview.innerHTML = '<div class="preview-placeholder">Select a Bey to see stats</div>';
+    }
+    
+    updatePrediction();
+}
+
+function updatePrediction() {
+    const beyAName = document.getElementById('beyASelect').value;
+    const beyBName = document.getElementById('beyBSelect').value;
+
+    if (!beyAName || !beyBName) {
+        resetPredictionDisplay();
+        return;
+    }
+
+    const statsA = rpgStatsData[beyAName];
+    const statsB = rpgStatsData[beyBName];
+
+    // Calculate predictions
+    const winProbs = calculateWinProbability(statsA, statsB);
+    const outcomes = calculateOutcomeProbabilities(statsA, statsB, winProbs);
+    const confidence = calculateConfidence(statsA, statsB);
+    const upset = calculateUpsetLikelihood(statsA, statsB, winProbs);
+
+    // Update win probability display
+    updateWinProbabilityDisplay(winProbs, beyAName, beyBName);
+    
+    // Update confidence indicator
+    updateConfidenceDisplay(confidence);
+    
+    // Update outcome chart (wrapped in try-catch in case Chart.js fails to load)
+    try {
+        updateOutcomeChart(outcomes, beyAName, beyBName);
+    } catch (e) {
+        console.warn('Chart rendering failed:', e.message);
+    }
+    
+    // Update stat comparison
+    updateStatComparison(statsA, statsB, beyAName, beyBName);
+    
+    // Update upset display
+    updateUpsetDisplay(upset, beyAName, beyBName);
+}
+
+function updateWinProbabilityDisplay(winProbs, nameA, nameB) {
+    const probA = (winProbs.probA * 100).toFixed(1);
+    const probB = (winProbs.probB * 100).toFixed(1);
+
+    document.getElementById('winProbBarA').style.width = `${probA}%`;
+    document.getElementById('winProbBarB').style.width = `${probB}%`;
+    document.getElementById('winProbPercentA').textContent = `${probA}%`;
+    document.getElementById('winProbPercentB').textContent = `${probB}%`;
+    document.getElementById('winProbNameA').textContent = nameA;
+    document.getElementById('winProbNameB').textContent = nameB;
+}
+
+function updateConfidenceDisplay(confidence) {
+    const badge = document.getElementById('confidenceBadge');
+    badge.textContent = confidence.level.charAt(0).toUpperCase() + confidence.level.slice(1);
+    badge.className = `confidence-badge confidence-${confidence.level}`;
+}
+
+function updateOutcomeChart(outcomes, nameA, nameB) {
+    const ctx = document.getElementById('outcomeChart').getContext('2d');
+    
+    if (outcomeChart) {
+        outcomeChart.destroy();
+    }
+
+    const labels = ['Burst', 'Pocket', 'Extreme', 'Spin', 'Decision'];
+    const dataA = [
+        outcomes.beyA.burst * 100,
+        outcomes.beyA.pocket * 100,
+        outcomes.beyA.extreme * 100,
+        outcomes.beyA.spin * 100,
+        outcomes.beyA.decision * 100
+    ];
+    const dataB = [
+        outcomes.beyB.burst * 100,
+        outcomes.beyB.pocket * 100,
+        outcomes.beyB.extreme * 100,
+        outcomes.beyB.spin * 100,
+        outcomes.beyB.decision * 100
+    ];
+
+    outcomeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: nameA,
+                    data: dataA,
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                    borderColor: 'rgb(239, 68, 68)',
+                    borderWidth: 1
+                },
+                {
+                    label: nameB,
+                    data: dataB,
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text')
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.raw.toFixed(1)}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-light') },
+                    grid: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 50,
+                    title: {
+                        display: true,
+                        text: 'Probability (%)',
+                        color: getComputedStyle(document.body).getPropertyValue('--text')
+                    },
+                    ticks: { color: getComputedStyle(document.body).getPropertyValue('--text-light') },
+                    grid: { color: getComputedStyle(document.body).getPropertyValue('--border') }
+                }
+            }
+        }
+    });
+}
+
+function updateStatComparison(statsA, statsB, nameA, nameB) {
+    const container = document.getElementById('statBarsContainer');
+    const rpgA = statsA?.stats || {};
+    const rpgB = statsB?.stats || {};
+
+    const stats = [
+        { key: 'attack', label: '⚔️ Attack', color: '#ef4444' },
+        { key: 'defense', label: '🛡️ Defense', color: '#3b82f6' },
+        { key: 'stamina', label: '💪 Stamina', color: '#10b981' },
+        { key: 'control', label: '🎯 Control', color: '#f59e0b' },
+        { key: 'meta_impact', label: '⭐ Meta', color: '#8b5cf6' }
+    ];
+
+    container.innerHTML = stats.map(stat => {
+        const valA = rpgA[stat.key] || 2.5;
+        const valB = rpgB[stat.key] || 2.5;
+        const percentA = (valA / 5) * 100;
+        const percentB = (valB / 5) * 100;
+        const advantage = valA > valB ? 'A' : valA < valB ? 'B' : 'tie';
+
+        return `
+            <div class="stat-comparison-row">
+                <div class="stat-comparison-label">${stat.label}</div>
+                <div class="stat-comparison-bars">
+                    <div class="stat-bar-wrapper stat-bar-a">
+                        <span class="stat-value ${advantage === 'A' ? 'winner' : ''}">${valA.toFixed(1)}</span>
+                        <div class="stat-bar-bg">
+                            <div class="stat-bar-fill" style="width: ${percentA}%; background: ${stat.color}"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar-wrapper stat-bar-b">
+                        <div class="stat-bar-bg reverse">
+                            <div class="stat-bar-fill" style="width: ${percentB}%; background: ${stat.color}"></div>
+                        </div>
+                        <span class="stat-value ${advantage === 'B' ? 'winner' : ''}">${valB.toFixed(1)}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function updateUpsetDisplay(upset, nameA, nameB) {
+    const indicator = document.getElementById('upsetIndicator');
+    const details = document.getElementById('upsetDetails');
+    const textEl = document.getElementById('upsetText');
+
+    const icons = {
+        none: '⚖️',
+        very_low: '🟢',
+        low: '🟡',
+        moderate: '🟠',
+        high: '🔴'
+    };
+
+    indicator.className = `upset-indicator upset-${upset.likelihood}`;
+    indicator.querySelector('.upset-icon').textContent = icons[upset.likelihood] || '⚠️';
+    textEl.textContent = upset.description;
+
+    if (upset.likelihood !== 'none') {
+        const favoriteName = upset.favorite === 'A' ? nameA : nameB;
+        const underdogName = upset.underdog === 'A' ? nameA : nameB;
+        details.innerHTML = `
+            <div class="upset-stat">
+                <span>Favorite:</span>
+                <strong>${favoriteName}</strong>
+            </div>
+            <div class="upset-stat">
+                <span>Underdog:</span>
+                <strong>${underdogName}</strong>
+            </div>
+            <div class="upset-stat">
+                <span>ELO Gap:</span>
+                <strong>${upset.eloDiff} pts</strong>
+            </div>
+            <div class="upset-stat">
+                <span>Upset Chance:</span>
+                <strong>${(upset.underdogWinProb * 100).toFixed(1)}%</strong>
+            </div>
+        `;
+    } else {
+        details.innerHTML = '';
+    }
+}
+
+function resetPredictionDisplay() {
+    document.getElementById('winProbBarA').style.width = '50%';
+    document.getElementById('winProbBarB').style.width = '50%';
+    document.getElementById('winProbPercentA').textContent = '50%';
+    document.getElementById('winProbPercentB').textContent = '50%';
+    document.getElementById('winProbNameA').textContent = 'Bey A';
+    document.getElementById('winProbNameB').textContent = 'Bey B';
+    document.getElementById('confidenceBadge').textContent = '--';
+    document.getElementById('confidenceBadge').className = 'confidence-badge';
+    document.getElementById('statBarsContainer').innerHTML = '<div class="preview-placeholder">Select both Beys to see comparison</div>';
+    document.getElementById('upsetText').textContent = 'Select Beys to analyze';
+    document.getElementById('upsetDetails').innerHTML = '';
+    
+    if (outcomeChart) {
+        outcomeChart.destroy();
+        outcomeChart = null;
+    }
+}
+
+function swapBeys() {
+    const selectA = document.getElementById('beyASelect');
+    const selectB = document.getElementById('beyBSelect');
+    const tempValue = selectA.value;
+    selectA.value = selectB.value;
+    selectB.value = tempValue;
+    updateBeyPreview('A');
+    updateBeyPreview('B');
+}
+
+function randomMatchup() {
+    if (allBeys.length < 2) return;
+    
+    const idx1 = Math.floor(Math.random() * allBeys.length);
+    let idx2 = Math.floor(Math.random() * allBeys.length);
+    while (idx2 === idx1) {
+        idx2 = Math.floor(Math.random() * allBeys.length);
+    }
+    
+    document.getElementById('beyASelect').value = allBeys[idx1];
+    document.getElementById('beyBSelect').value = allBeys[idx2];
+    updateBeyPreview('A');
+    updateBeyPreview('B');
+}
+
+function updateURL() {
+    const params = new URLSearchParams();
+    const beyA = document.getElementById('beyASelect').value;
+    const beyB = document.getElementById('beyBSelect').value;
+    
+    if (beyA) params.set('beyA', beyA);
+    if (beyB) params.set('beyB', beyB);
+    
+    window.history.replaceState({}, '', `?${params.toString()}`);
+}
+
+function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (params.has('beyA')) {
+        document.getElementById('beyASelect').value = params.get('beyA');
+        updateBeyPreview('A');
+    }
+    if (params.has('beyB')) {
+        document.getElementById('beyBSelect').value = params.get('beyB');
+        updateBeyPreview('B');
+    }
+}
+
+function copyShareLink() {
+    updateURL();
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        const status = document.getElementById('shareStatus');
+        status.textContent = '✓ Link copied!';
+        setTimeout(() => status.textContent = '', 2000);
+    });
+}
+
+// ============================================
+// EVENT LISTENERS
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    
+    document.getElementById('beyASelect').addEventListener('change', () => {
+        updateBeyPreview('A');
+        updateURL();
+    });
+    document.getElementById('beyBSelect').addEventListener('change', () => {
+        updateBeyPreview('B');
+        updateURL();
+    });
+    
+    document.getElementById('swapBtn').addEventListener('click', () => {
+        swapBeys();
+        updateURL();
+    });
+    document.getElementById('randomBtn').addEventListener('click', () => {
+        randomMatchup();
+        updateURL();
+    });
+    document.getElementById('shareBtn').addEventListener('click', copyShareLink);
+});
+</script>
+
+</body>
+</html>
