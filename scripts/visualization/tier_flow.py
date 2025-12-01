@@ -1,8 +1,8 @@
 # tier_flow.py
 """
-Tier Flow Diagram — Alluvial/Sankey Plot for Meta-Tier Evolution
+Tier Flow Diagram — Alluvial Plot for Meta-Tier Evolution
 
-This module creates an alluvial (Sankey-style) visualization showing how Beys
+This module creates an alluvial visualization showing how Beys
 move between tiers over time. It helps reveal:
 
 - Which Beys rise into higher tiers
@@ -12,10 +12,16 @@ move between tiers over time. It helps reveal:
 - Decline of formerly dominant picks
 
 The diagram displays:
-- Vertical columns = time slices (tournaments or match indices)
-- Bands/flows = individual Beys
-- Lanes = tier categories (S, A, B, C, D)
-- Color coding by tier
+- Vertical columns = time slices (seasons/match indices)
+- Horizontal strata = tier categories (S, A, B, C, D)
+- Flowing bands = individual Beys moving between tiers
+- Color coding by current tier
+
+This uses an Alluvial-style layout which is optimized for:
+- Categorical transitions over time
+- Vertical alignment of tier strata
+- Clean visual grouping of flows
+- Better scalability with many beys
 """
 
 import json
@@ -261,25 +267,35 @@ def load_leaderboard_data() -> dict:
 
 
 # ============================================
-# SANKEY DIAGRAM DATA PREPARATION
+# ALLUVIAL DIAGRAM DATA PREPARATION
 # ============================================
 
-def build_sankey_data(snapshots: list, leaderboard: dict) -> dict:
+def build_alluvial_data(snapshots: list, leaderboard: dict) -> dict:
     """
-    Build Sankey diagram data from tier snapshots.
+    Build Alluvial diagram data from tier snapshots.
 
-    Creates nodes for each (time_slice, tier, bey) combination and
-    links connecting beys across time slices.
+    Creates nodes grouped by tier at each time slice, with flows
+    connecting beys across time. The alluvial layout groups nodes
+    by tier (strata) for cleaner visualization.
 
     Args:
         snapshots: List of tier snapshot dictionaries
         leaderboard: Dictionary of current leaderboard stats
 
     Returns:
-        Dictionary with 'nodes' and 'links' for Sankey diagram
+        Dictionary with 'nodes' and 'links' for Alluvial diagram
     """
     if not snapshots or len(snapshots) < 2:
         return {"nodes": [], "links": [], "labels": [], "colors": []}
+
+    def group_beys_by_tier(beys_list):
+        """Helper to group beys by tier and sort by ELO within each tier."""
+        tier_groups = {tier: [] for tier in TIER_ORDER}
+        for bey_data in beys_list:
+            tier_groups[bey_data["tier"]].append(bey_data)
+        for tier in TIER_ORDER:
+            tier_groups[tier].sort(key=lambda x: -x["elo"])
+        return tier_groups
 
     # Build node and link structures
     nodes = []
@@ -290,6 +306,7 @@ def build_sankey_data(snapshots: list, leaderboard: dict) -> dict:
     # Create nodes for each bey at each time slice
     for snapshot in snapshots:
         slice_idx = snapshot["slice_index"]
+        
         for bey_data in snapshot["beys"]:
             bey = bey_data["bey"]
             tier = bey_data["tier"]
@@ -315,6 +332,54 @@ def build_sankey_data(snapshots: list, leaderboard: dict) -> dict:
                 })
                 node_labels.append(f"{bey}")
                 node_colors.append(TIER_COLORS.get(tier, "#808080"))
+
+    # Calculate alluvial-style Y positions
+    # Nodes are grouped by tier, creating horizontal strata
+    num_slices = len(snapshots)
+    node_x = []
+    node_y = []
+    
+    for snapshot in snapshots:
+        slice_idx = snapshot["slice_index"]
+        
+        # Group beys by tier and sort by ELO
+        tier_groups = group_beys_by_tier(snapshot["beys"])
+        
+        # Calculate y positions for each tier stratum
+        # Each tier gets an equal band, beys distributed within
+        tier_height = 1.0 / len(TIER_ORDER)
+        
+        for tier_idx, tier in enumerate(TIER_ORDER):
+            tier_beys = tier_groups[tier]
+            n_beys = len(tier_beys)
+            
+            # Calculate base y for this tier (from top)
+            tier_base = tier_idx * tier_height
+            
+            for bey_idx, bey_data in enumerate(tier_beys):
+                bey = bey_data["bey"]
+                node_key = (slice_idx, bey)
+                
+                if node_key in node_map:
+                    # X position based on slice
+                    x_pos = slice_idx / (num_slices - 1) if num_slices > 1 else 0.5
+                    
+                    # Y position within tier band
+                    # Distribute beys evenly within tier band with padding
+                    if n_beys > 1:
+                        y_within_tier = (bey_idx + 0.5) / n_beys
+                    else:
+                        y_within_tier = 0.5
+                    
+                    y_pos = tier_base + (y_within_tier * tier_height * 0.9) + (tier_height * 0.05)
+                    
+                    # Store position indexed by node
+                    node_idx = node_map[node_key]
+                    while len(node_x) <= node_idx:
+                        node_x.append(0)
+                        node_y.append(0)
+                    node_x[node_idx] = x_pos
+                    node_y[node_idx] = y_pos
 
     # Create links between consecutive time slices
     links = []
@@ -386,6 +451,8 @@ def build_sankey_data(snapshots: list, leaderboard: dict) -> dict:
         "link_labels": link_labels,
         "links": links,
         "snapshots": snapshots,
+        "node_x": node_x,
+        "node_y": node_y,
     }
 
 
@@ -393,20 +460,23 @@ def build_sankey_data(snapshots: list, leaderboard: dict) -> dict:
 # INTERACTIVE PLOTLY VISUALIZATION
 # ============================================
 
-def create_tier_flow_interactive(sankey_data: dict, output_file: str):
+def create_tier_flow_interactive(alluvial_data: dict, output_file: str):
     """
-    Create an interactive Tier Flow Sankey diagram with theme toggle.
+    Create an interactive Tier Flow Alluvial diagram with theme toggle.
+
+    The alluvial layout groups nodes by tier (strata) at each time slice,
+    creating cleaner visual flow paths compared to standard Sankey diagrams.
 
     Args:
-        sankey_data: Dictionary with Sankey diagram data
+        alluvial_data: Dictionary with Alluvial diagram data
         output_file: Path to save the HTML file
     """
-    if not sankey_data["nodes"] or not sankey_data["link_sources"]:
+    if not alluvial_data["nodes"] or not alluvial_data["link_sources"]:
         print("Warning: No data available for Tier Flow diagram")
         return
 
-    nodes = sankey_data["nodes"]
-    snapshots = sankey_data["snapshots"]
+    nodes = alluvial_data["nodes"]
+    snapshots = alluvial_data["snapshots"]
 
     # Prepare hover text for nodes
     node_hover = []
@@ -423,35 +493,22 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
         node_hover.append(hover)
 
     # Prepare data for JavaScript
-    labels = json.dumps(sankey_data["labels"])
-    colors = json.dumps(sankey_data["colors"])
-    link_sources = json.dumps(sankey_data["link_sources"])
-    link_targets = json.dumps(sankey_data["link_targets"])
-    link_values = json.dumps(sankey_data["link_values"])
-    link_colors = json.dumps(sankey_data["link_colors"])
-    link_labels = json.dumps(sankey_data["link_labels"])
+    labels = json.dumps(alluvial_data["labels"])
+    colors = json.dumps(alluvial_data["colors"])
+    link_sources = json.dumps(alluvial_data["link_sources"])
+    link_targets = json.dumps(alluvial_data["link_targets"])
+    link_values = json.dumps(alluvial_data["link_values"])
+    link_colors = json.dumps(alluvial_data["link_colors"])
+    link_labels = json.dumps(alluvial_data["link_labels"])
     node_hover_json = json.dumps(node_hover)
 
     # Create snapshot labels for x-axis
     snapshot_labels = [s["label"] for s in snapshots]
     snapshot_labels_json = json.dumps(snapshot_labels)
 
-    # Calculate node x positions based on slice index
-    num_slices = len(snapshots)
-    node_x = []
-    for node in nodes:
-        x_pos = node["slice_idx"] / (num_slices - 1) if num_slices > 1 else 0.5
-        node_x.append(x_pos)
-    node_x_json = json.dumps(node_x)
-
-    # Calculate node y positions based on tier
-    node_y = []
-    for node in nodes:
-        tier_idx = TIER_ORDER.index(node["tier"])
-        # Distribute within tier band
-        y_pos = (tier_idx + 0.5) / len(TIER_ORDER)
-        node_y.append(y_pos)
-    node_y_json = json.dumps(node_y)
+    # Use pre-calculated alluvial positions (nodes grouped by tier)
+    node_x_json = json.dumps(alluvial_data["node_x"])
+    node_y_json = json.dumps(alluvial_data["node_y"])
 
     # Tier info for legend
     tier_info = json.dumps({
@@ -500,6 +557,36 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             gap: 15px;
             flex-wrap: wrap;
         }}
+        .zoom-controls {{
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }}
+        .zoom-btn {{
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }}
+        body.light .zoom-btn {{
+            color: #1a1a1a;
+            background-color: #e5e7eb;
+        }}
+        body.dark .zoom-btn {{
+            color: #f1f5f9;
+            background-color: #334155;
+        }}
+        .zoom-btn:hover {{
+            opacity: 0.8;
+        }}
+        .zoom-label {{
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-right: 5px;
+        }}
         .theme-toggle {{
             display: flex;
             align-items: center;
@@ -543,10 +630,37 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
         .back-link:hover {{
             opacity: 0.8;
         }}
-        #plotDiv {{
-            width: 100%;
+        .chart-container {{
+            display: flex;
             max-width: 1200px;
             margin: 0 auto;
+            position: relative;
+        }}
+        .tier-labels {{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 80px 10px 80px 0;
+            min-width: 50px;
+        }}
+        .tier-label-item {{
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }}
+        .tier-label-dot {{
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }}
+        #plotDiv {{
+            flex: 1;
+            width: 100%;
+            overflow: visible;
+            position: relative;
         }}
         .info-section {{
             max-width: 1200px;
@@ -554,6 +668,8 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             padding: 20px;
             border-radius: 12px;
             transition: background-color 0.3s;
+            position: relative;
+            clear: both;
         }}
         body.light .info-section {{
             background-color: #ffffff;
@@ -671,6 +787,12 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
         <a href="../plots.html" class="back-link">← Back to Plots</a>
         <h1>📊 Tier Flow Diagram</h1>
         <div class="controls">
+            <div class="zoom-controls">
+                <span class="zoom-label">Zoom:</span>
+                <button class="zoom-btn" id="zoomOut" title="Zoom Out">−</button>
+                <button class="zoom-btn" id="zoomReset" title="Reset Zoom">⟳</button>
+                <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+            </div>
             <div class="theme-toggle">
                 <label>
                     <input type="checkbox" id="themeToggle">
@@ -681,14 +803,18 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
         </div>
     </div>
     
-    <div id="plotDiv"></div>
+    <div class="chart-container">
+        <div class="tier-labels" id="tierLabels"></div>
+        <div id="plotDiv"></div>
+    </div>
     
     <div class="info-section">
         <h2>📖 How to Read This Diagram</h2>
         <p>
-            The <strong>Tier Flow Diagram</strong> shows how Beys move between competitive tiers over time.
+            This <strong>Alluvial Diagram</strong> shows how Beys flow between competitive tiers over time.
             Each vertical column represents a time slice (based on match count), and the flowing bands
-            connect each Bey's tier position across time.
+            connect each Bey's tier position across time. Tiers are grouped into horizontal strata for
+            cleaner visualization of tier transitions.
         </p>
         
         <h3>Tier Definitions (ELO Quantiles)</h3>
@@ -748,41 +874,79 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             legendContainer.appendChild(item);
         }});
         
-        // Layout configurations
+        // Populate tier labels on the left side of the chart
+        const tierLabelsContainer = document.getElementById('tierLabels');
+        tierOrder.forEach(tier => {{
+            const item = document.createElement('div');
+            item.className = 'tier-label-item';
+            item.innerHTML = `
+                <span>Tier ${{tier}}</span>
+                <div class="tier-label-dot" style="background-color: ${{tierInfo[tier].color}}"></div>
+            `;
+            tierLabelsContainer.appendChild(item);
+        }});
+        
+        // Zoom level (1.0 = default)
+        let zoomLevel = 1.0;
+        const ZOOM_MIN = 0.5;
+        const ZOOM_MAX = 2.0;
+        const ZOOM_STEP = 0.25;
+        
+        // Responsive dimensions for alluvial diagram
+        function getResponsiveDimensions() {{
+            const width = Math.min(window.innerWidth - 100, 1050);  // Account for tier labels
+            // Calculate height based on number of unique beys to ensure all tiers are visible
+            // Each time slice has beys across 5 tiers, need enough vertical space
+            const numSlices = snapshotLabels.length;
+            const numBeysPerSlice = numSlices > 0 ? labels.length / numSlices : labels.length;
+            const minHeightPerBey = 45; // Minimum pixels per bey for readability (increased for better spacing)
+            const calculatedHeight = Math.max(1000, numBeysPerSlice * minHeightPerBey);
+            // Use taller height on desktop to show all tiers (S, A, B, C, D)
+            // Apply zoom level to height - no max cap to ensure all nodes fit
+            const baseHeight = window.innerWidth < 480 ? Math.min(width * 1.5, 800) : calculatedHeight;
+            const height = baseHeight * zoomLevel;
+            return {{ width, height }};
+        }}
+
+        // Layout configurations for alluvial diagram
         function getLayout(isDark) {{
+            const dims = getResponsiveDimensions();
+            const isMobile = window.innerWidth < 480;
             return {{
                 title: {{
-                    text: 'Meta-Tier Evolution Over Time',
+                    text: isMobile ? 'Tier Evolution' : 'Tier Flow - Alluvial Diagram',
                     font: {{ 
-                        size: 18, 
+                        size: isMobile ? 14 : 18, 
                         color: isDark ? '#f1f5f9' : '#1a1a1a'
                     }}
                 }},
                 font: {{
-                    color: isDark ? '#f1f5f9' : '#1a1a1a'
+                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    size: isMobile ? 10 : 12
                 }},
                 paper_bgcolor: isDark ? '#0f172a' : '#f8f9fa',
                 plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                width: 1100,
-                height: 800,
-                margin: {{ l: 50, r: 50, t: 80, b: 80 }}
+                width: dims.width,
+                height: dims.height,
+                margin: isMobile ? {{ l: 10, r: 10, t: 60, b: 30 }} : {{ l: 50, r: 50, t: 80, b: 80 }}
             }};
         }}
         
-        // Create Sankey trace
+        // Create alluvial trace (uses Sankey type with tier-grouped positions)
         function createTrace() {{
+            const isMobile = window.innerWidth < 480;
             return {{
                 type: 'sankey',
                 orientation: 'h',
                 arrangement: 'snap',
                 node: {{
-                    pad: 15,
-                    thickness: 20,
+                    pad: isMobile ? 5 : 10,  // Reduced padding for alluvial layout
+                    thickness: isMobile ? 10 : 15,  // Thinner nodes for cleaner look
                     line: {{
-                        color: 'rgba(128,128,128,0.5)',
+                        color: 'rgba(128,128,128,0.3)',
                         width: 0.5
                     }},
-                    label: labels,
+                    label: isMobile ? labels.map(() => '') : labels,
                     color: nodeColors,
                     customdata: nodeHover,
                     hovertemplate: '%{{customdata}}<extra></extra>',
@@ -803,7 +967,8 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
         const config = {{
             displayModeBar: true,
             modeBarButtonsToAdd: ['pan2d', 'zoomIn2d', 'zoomOut2d', 'resetScale2d'],
-            responsive: true
+            responsive: true,
+            scrollZoom: true
         }};
         
         // Theme handling
@@ -821,11 +986,23 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             const layout = getLayout(isDark);
             const trace = createTrace();
             
+            // Update plotDiv min-height to match chart height to prevent overlap
+            document.getElementById('plotDiv').style.minHeight = layout.height + 'px';
+            
             Plotly.react('plotDiv', [trace], layout, config);
         }}
         
         // Initialize
         updateTheme(isDarkMode);
+
+        // Handle window resize for responsive plots
+        let resizeTimeout;
+        window.addEventListener('resize', function() {{
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {{
+                updateTheme(isDarkMode);
+            }}, 250);
+        }});
         
         // Handle toggle
         toggle.addEventListener('change', function() {{
@@ -840,6 +1017,26 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
                 isDarkMode = e.newValue === 'dark';
                 updateTheme(isDarkMode);
             }}
+        }});
+        
+        // Zoom controls
+        document.getElementById('zoomIn').addEventListener('click', function() {{
+            if (zoomLevel < ZOOM_MAX) {{
+                zoomLevel = Math.min(ZOOM_MAX, zoomLevel + ZOOM_STEP);
+                updateTheme(isDarkMode);
+            }}
+        }});
+        
+        document.getElementById('zoomOut').addEventListener('click', function() {{
+            if (zoomLevel > ZOOM_MIN) {{
+                zoomLevel = Math.max(ZOOM_MIN, zoomLevel - ZOOM_STEP);
+                updateTheme(isDarkMode);
+            }}
+        }});
+        
+        document.getElementById('zoomReset').addEventListener('click', function() {{
+            zoomLevel = 1.0;
+            updateTheme(isDarkMode);
         }});
     </script>
 </body>
@@ -878,12 +1075,12 @@ def generate_tier_flow_plots(num_slices: int = 5):
         print("Warning: Not enough data points for Tier Flow diagram")
         return
 
-    # Build Sankey data
-    sankey_data = build_sankey_data(snapshots, leaderboard)
+    # Build alluvial data (tier-grouped layout)
+    alluvial_data = build_alluvial_data(snapshots, leaderboard)
 
     # Generate interactive plot
     create_tier_flow_interactive(
-        sankey_data,
+        alluvial_data,
         os.path.join(OUTPUT_DIR, "tier_flow_interactive.html")
     )
 
