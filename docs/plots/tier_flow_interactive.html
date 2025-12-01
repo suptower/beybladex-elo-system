@@ -39,6 +39,36 @@
             gap: 15px;
             flex-wrap: wrap;
         }
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .zoom-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+        body.light .zoom-btn {
+            color: #1a1a1a;
+            background-color: #e5e7eb;
+        }
+        body.dark .zoom-btn {
+            color: #f1f5f9;
+            background-color: #334155;
+        }
+        .zoom-btn:hover {
+            opacity: 0.8;
+        }
+        .zoom-label {
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-right: 5px;
+        }
         .theme-toggle {
             display: flex;
             align-items: center;
@@ -82,10 +112,37 @@
         .back-link:hover {
             opacity: 0.8;
         }
-        #plotDiv {
-            width: 100%;
+        .chart-container {
+            display: flex;
             max-width: 1200px;
             margin: 0 auto;
+            position: relative;
+        }
+        .tier-labels {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 80px 10px 80px 0;
+            min-width: 50px;
+        }
+        .tier-label-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .tier-label-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        #plotDiv {
+            flex: 1;
+            width: 100%;
+            overflow: visible;
+            position: relative;
         }
         .info-section {
             max-width: 1200px;
@@ -93,6 +150,8 @@
             padding: 20px;
             border-radius: 12px;
             transition: background-color 0.3s;
+            position: relative;
+            clear: both;
         }
         body.light .info-section {
             background-color: #ffffff;
@@ -210,6 +269,12 @@
         <a href="../plots.html" class="back-link">← Back to Plots</a>
         <h1>📊 Tier Flow Diagram</h1>
         <div class="controls">
+            <div class="zoom-controls">
+                <span class="zoom-label">Zoom:</span>
+                <button class="zoom-btn" id="zoomOut" title="Zoom Out">−</button>
+                <button class="zoom-btn" id="zoomReset" title="Reset Zoom">⟳</button>
+                <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+            </div>
             <div class="theme-toggle">
                 <label>
                     <input type="checkbox" id="themeToggle">
@@ -220,14 +285,18 @@
         </div>
     </div>
     
-    <div id="plotDiv"></div>
+    <div class="chart-container">
+        <div class="tier-labels" id="tierLabels"></div>
+        <div id="plotDiv"></div>
+    </div>
     
     <div class="info-section">
         <h2>📖 How to Read This Diagram</h2>
         <p>
-            The <strong>Tier Flow Diagram</strong> shows how Beys move between competitive tiers over time.
+            This <strong>Alluvial Diagram</strong> shows how Beys flow between competitive tiers over time.
             Each vertical column represents a time slice (based on match count), and the flowing bands
-            connect each Bey's tier position across time.
+            connect each Bey's tier position across time. Tiers are grouped into horizontal strata for
+            cleaner visualization of tier transitions.
         </p>
         
         <h3>Tier Definitions (ELO Quantiles)</h3>
@@ -261,7 +330,7 @@
         const linkLabels = ["BlackShell: C \u2192 D (falling)", "CerberusFlame: A \u2192 A (stable)", "CobaltDragoon: A \u2192 S (rising)", "CrimsonGaruda: D \u2192 D (stable)", "DranBrave: B \u2192 C (falling)", "DranBuster: B \u2192 B (stable)", "DranDagger: B \u2192 S (rising)", "DranSword: B \u2192 A (rising)", "FoxBrush: S \u2192 S (stable)", "GolemRock: B \u2192 B (stable)", "HellsChain: B \u2192 B (stable)", "HellsHammer: D \u2192 D (stable)", "HellsReaper: C \u2192 C (stable)", "ImpactDrake: S \u2192 S (stable)", "KnightMail: S \u2192 A (falling)", "LeonClaw: D \u2192 C (rising)", "LeonCrest: C \u2192 C (stable)", "PegasusBlast: D \u2192 C (rising)", "PerseusDark: A \u2192 B (falling)", "PhoenixRudder: B \u2192 B (stable)", "PhoenixWing: A \u2192 C (falling)", "RhinoReaper: C \u2192 B (rising)", "SamuraiSaber: D \u2192 D (stable)", "ScorpioSpear: B \u2192 B (stable)", "SharkEdge: C \u2192 C (stable)", "SilverWolf: B \u2192 B (stable)", "TuskMammoth: A \u2192 B (falling)", "TyrannoBeat: B \u2192 C (falling)", "UnicornSting: S \u2192 A (falling)", "ViperTail: B \u2192 A (rising)", "WeissTiger: A \u2192 A (stable)", "WhaleFlame: C \u2192 B (rising)", "WhaleWave: C \u2192 D (falling)", "WizardArc: C \u2192 C (stable)", "WizardArrow: C \u2192 B (rising)", "WizardRod: A \u2192 A (stable)", "BlackShell: D \u2192 D (stable)", "CerberusFlame: A \u2192 S (rising)", "CobaltDragoon: S \u2192 A (falling)", "CrimsonGaruda: D \u2192 D (stable)", "DranBrave: C \u2192 C (stable)", "DranBuster: B \u2192 B (stable)", "DranDagger: S \u2192 A (falling)", "DranSword: A \u2192 B (falling)", "FoxBrush: S \u2192 S (stable)", "GolemRock: B \u2192 B (stable)", "HellsChain: B \u2192 B (stable)", "HellsHammer: D \u2192 D (stable)", "HellsReaper: C \u2192 C (stable)", "ImpactDrake: S \u2192 S (stable)", "KnightMail: A \u2192 A (stable)", "LeonClaw: C \u2192 C (stable)", "LeonCrest: C \u2192 C (stable)", "PegasusBlast: C \u2192 C (stable)", "PerseusDark: B \u2192 B (stable)", "PhoenixRudder: B \u2192 B (stable)", "PhoenixWing: C \u2192 C (stable)", "RhinoReaper: B \u2192 A (rising)", "SamuraiSaber: D \u2192 D (stable)", "ScorpioSpear: B \u2192 B (stable)", "SharkEdge: C \u2192 C (stable)", "SilverWolf: B \u2192 B (stable)", "TuskMammoth: B \u2192 S (rising)", "TyrannoBeat: C \u2192 C (stable)", "UnicornSting: A \u2192 A (stable)", "ViperTail: A \u2192 A (stable)", "WeissTiger: A \u2192 A (stable)", "WhaleFlame: B \u2192 B (stable)", "WhaleWave: D \u2192 D (stable)", "WizardArc: C \u2192 C (stable)", "WizardArrow: B \u2192 B (stable)", "WizardRod: A \u2192 B (falling)", "BlackShell: D \u2192 D (stable)", "CerberusFlame: S \u2192 S (stable)", "CobaltDragoon: A \u2192 S (rising)", "CrimsonGaruda: D \u2192 D (stable)", "DranBrave: C \u2192 C (stable)", "DranBuster: B \u2192 B (stable)", "DranDagger: A \u2192 A (stable)", "DranSword: B \u2192 B (stable)", "FoxBrush: S \u2192 S (stable)", "GolemRock: B \u2192 B (stable)", "HellsChain: B \u2192 B (stable)", "HellsHammer: D \u2192 D (stable)", "HellsReaper: C \u2192 C (stable)", "ImpactDrake: S \u2192 S (stable)", "KnightMail: A \u2192 A (stable)", "LeonClaw: C \u2192 C (stable)", "LeonCrest: C \u2192 C (stable)", "PegasusBlast: C \u2192 C (stable)", "PerseusDark: B \u2192 B (stable)", "PhoenixRudder: B \u2192 B (stable)", "PhoenixWing: C \u2192 C (stable)", "RhinoReaper: A \u2192 A (stable)", "SamuraiSaber: D \u2192 D (stable)", "ScorpioSpear: B \u2192 B (stable)", "SharkEdge: C \u2192 C (stable)", "SilverWolf: B \u2192 B (stable)", "TuskMammoth: S \u2192 A (falling)", "TyrannoBeat: C \u2192 C (stable)", "UnicornSting: A \u2192 A (stable)", "ViperTail: A \u2192 A (stable)", "WeissTiger: A \u2192 A (stable)", "WhaleFlame: B \u2192 B (stable)", "WhaleWave: D \u2192 D (stable)", "WizardArc: C \u2192 C (stable)", "WizardArrow: B \u2192 B (stable)", "WizardRod: B \u2192 B (stable)", "BlackShell: D \u2192 D (stable)", "CerberusFlame: S \u2192 S (stable)", "CobaltDragoon: S \u2192 S (stable)", "CrimsonGaruda: D \u2192 D (stable)", "DranBrave: C \u2192 C (stable)", "DranBuster: B \u2192 B (stable)", "DranDagger: A \u2192 A (stable)", "DranSword: B \u2192 B (stable)", "FoxBrush: S \u2192 S (stable)", "GolemRock: B \u2192 B (stable)", "HellsChain: B \u2192 B (stable)", "HellsHammer: D \u2192 D (stable)", "HellsReaper: C \u2192 C (stable)", "ImpactDrake: S \u2192 S (stable)", "KnightMail: A \u2192 A (stable)", "LeonClaw: C \u2192 C (stable)", "LeonCrest: C \u2192 C (stable)", "PegasusBlast: C \u2192 C (stable)", "PerseusDark: B \u2192 B (stable)", "PhoenixRudder: B \u2192 B (stable)", "PhoenixWing: C \u2192 C (stable)", "RhinoReaper: A \u2192 A (stable)", "SamuraiSaber: D \u2192 D (stable)", "ScorpioSpear: B \u2192 B (stable)", "SharkEdge: C \u2192 C (stable)", "SilverWolf: B \u2192 B (stable)", "TuskMammoth: A \u2192 A (stable)", "TyrannoBeat: C \u2192 C (stable)", "UnicornSting: A \u2192 A (stable)", "ViperTail: A \u2192 A (stable)", "WeissTiger: A \u2192 A (stable)", "WhaleFlame: B \u2192 B (stable)", "WhaleWave: D \u2192 D (stable)", "WizardArc: C \u2192 C (stable)", "WizardArrow: B \u2192 B (stable)", "WizardRod: B \u2192 B (stable)"];
         const nodeHover = ["<b>BlackShell</b><br>Tier: C<br>ELO: 994<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>CerberusFlame</b><br>Tier: A<br>ELO: 1024<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>CobaltDragoon</b><br>Tier: A<br>ELO: 1012<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>DranBrave</b><br>Tier: B<br>ELO: 1001<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 1001<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>DranDagger</b><br>Tier: B<br>ELO: 1008<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>DranSword</b><br>Tier: B<br>ELO: 1008<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1028<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 2</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 999<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 1000<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1024<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 2</i>", "<b>KnightMail</b><br>Tier: S<br>ELO: 1027<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 2</i>", "<b>LeonClaw</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>PegasusBlast</b><br>Tier: D<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 2</i>", "<b>PerseusDark</b><br>Tier: A<br>ELO: 1012<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 1010<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>PhoenixWing</b><br>Tier: A<br>ELO: 1011<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>RhinoReaper</b><br>Tier: C<br>ELO: 984<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 2</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1010<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>TuskMammoth</b><br>Tier: A<br>ELO: 1015<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 2</i>", "<b>TyrannoBeat</b><br>Tier: B<br>ELO: 999<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>UnicornSting</b><br>Tier: S<br>ELO: 1032<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>ViperTail</b><br>Tier: B<br>ELO: 998<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 2</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1016<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>WhaleFlame</b><br>Tier: C<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 2</i>", "<b>WhaleWave</b><br>Tier: C<br>ELO: 988<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 2</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>WizardArrow</b><br>Tier: C<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 2</i>", "<b>WizardRod</b><br>Tier: A<br>ELO: 1011<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 2</i>", "<b>BlackShell</b><br>Tier: D<br>ELO: 978<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>CerberusFlame</b><br>Tier: A<br>ELO: 1033<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>CobaltDragoon</b><br>Tier: S<br>ELO: 1035<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>DranBrave</b><br>Tier: C<br>ELO: 981<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 996<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>DranDagger</b><br>Tier: S<br>ELO: 1034<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>DranSword</b><br>Tier: A<br>ELO: 1016<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1057<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 4</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 994<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 995<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1049<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 4</i>", "<b>KnightMail</b><br>Tier: A<br>ELO: 1022<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 4</i>", "<b>LeonClaw</b><br>Tier: C<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>PegasusBlast</b><br>Tier: C<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 4</i>", "<b>PerseusDark</b><br>Tier: B<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 991<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>PhoenixWing</b><br>Tier: C<br>ELO: 985<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>RhinoReaper</b><br>Tier: B<br>ELO: 1003<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 4</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 992<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 985<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>TuskMammoth</b><br>Tier: B<br>ELO: 1001<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 4</i>", "<b>TyrannoBeat</b><br>Tier: C<br>ELO: 987<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>UnicornSting</b><br>Tier: A<br>ELO: 1027<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>ViperTail</b><br>Tier: A<br>ELO: 1004<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 4</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1017<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>WhaleFlame</b><br>Tier: B<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 4</i>", "<b>WhaleWave</b><br>Tier: D<br>ELO: 977<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 4</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>WizardArrow</b><br>Tier: B<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 4</i>", "<b>WizardRod</b><br>Tier: A<br>ELO: 1007<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 4</i>", "<b>BlackShell</b><br>Tier: D<br>ELO: 978<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>CerberusFlame</b><br>Tier: S<br>ELO: 1033<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>CobaltDragoon</b><br>Tier: A<br>ELO: 1029<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>DranBrave</b><br>Tier: C<br>ELO: 981<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 996<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>DranDagger</b><br>Tier: A<br>ELO: 1022<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>DranSword</b><br>Tier: B<br>ELO: 1002<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1055<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 6</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 994<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 995<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1069<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 6</i>", "<b>KnightMail</b><br>Tier: A<br>ELO: 1022<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 6</i>", "<b>LeonClaw</b><br>Tier: C<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>PegasusBlast</b><br>Tier: C<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 6</i>", "<b>PerseusDark</b><br>Tier: B<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 991<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>PhoenixWing</b><br>Tier: C<br>ELO: 985<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>RhinoReaper</b><br>Tier: A<br>ELO: 1021<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 6</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 992<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 985<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>TuskMammoth</b><br>Tier: S<br>ELO: 1035<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 6</i>", "<b>TyrannoBeat</b><br>Tier: C<br>ELO: 987<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>UnicornSting</b><br>Tier: A<br>ELO: 1005<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>ViperTail</b><br>Tier: A<br>ELO: 1004<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 6</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1017<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>WhaleFlame</b><br>Tier: B<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 6</i>", "<b>WhaleWave</b><br>Tier: D<br>ELO: 977<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 6</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>WizardArrow</b><br>Tier: B<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 6</i>", "<b>WizardRod</b><br>Tier: B<br>ELO: 999<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 6</i>", "<b>BlackShell</b><br>Tier: D<br>ELO: 978<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>CerberusFlame</b><br>Tier: S<br>ELO: 1033<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>CobaltDragoon</b><br>Tier: S<br>ELO: 1029<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>DranBrave</b><br>Tier: C<br>ELO: 981<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 996<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>DranDagger</b><br>Tier: A<br>ELO: 1022<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>DranSword</b><br>Tier: B<br>ELO: 1002<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1067<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 8</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 994<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 995<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1064<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 8</i>", "<b>KnightMail</b><br>Tier: A<br>ELO: 1022<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 8</i>", "<b>LeonClaw</b><br>Tier: C<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>PegasusBlast</b><br>Tier: C<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 8</i>", "<b>PerseusDark</b><br>Tier: B<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 991<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>PhoenixWing</b><br>Tier: C<br>ELO: 985<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>RhinoReaper</b><br>Tier: A<br>ELO: 1021<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 8</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 992<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 985<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>TuskMammoth</b><br>Tier: A<br>ELO: 1022<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 8</i>", "<b>TyrannoBeat</b><br>Tier: C<br>ELO: 987<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>UnicornSting</b><br>Tier: A<br>ELO: 1005<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>ViperTail</b><br>Tier: A<br>ELO: 1004<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 8</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1017<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>WhaleFlame</b><br>Tier: B<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 8</i>", "<b>WhaleWave</b><br>Tier: D<br>ELO: 977<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 8</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>WizardArrow</b><br>Tier: B<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 8</i>", "<b>WizardRod</b><br>Tier: B<br>ELO: 999<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 8</i>", "<b>BlackShell</b><br>Tier: D<br>ELO: 978<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>CerberusFlame</b><br>Tier: S<br>ELO: 1033<br>Winrate: 75.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>CobaltDragoon</b><br>Tier: S<br>ELO: 1029<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>", "<b>CrimsonGaruda</b><br>Tier: D<br>ELO: 968<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>DranBrave</b><br>Tier: C<br>ELO: 981<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>DranBuster</b><br>Tier: B<br>ELO: 996<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>DranDagger</b><br>Tier: A<br>ELO: 1022<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>", "<b>DranSword</b><br>Tier: B<br>ELO: 1002<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>", "<b>FoxBrush</b><br>Tier: S<br>ELO: 1076<br>Winrate: 90.0%<br>Matches: 10<br><br><i>Match 10</i>", "<b>GolemRock</b><br>Tier: B<br>ELO: 994<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>HellsChain</b><br>Tier: B<br>ELO: 995<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>HellsHammer</b><br>Tier: D<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>HellsReaper</b><br>Tier: C<br>ELO: 987<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>ImpactDrake</b><br>Tier: S<br>ELO: 1064<br>Winrate: 87.5%<br>Matches: 8<br><br><i>Match 10</i>", "<b>KnightMail</b><br>Tier: A<br>ELO: 1022<br>Winrate: 66.7%<br>Matches: 3<br><br><i>Match 10</i>", "<b>LeonClaw</b><br>Tier: C<br>ELO: 978<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>LeonCrest</b><br>Tier: C<br>ELO: 991<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>PegasusBlast</b><br>Tier: C<br>ELO: 982<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 10</i>", "<b>PerseusDark</b><br>Tier: B<br>ELO: 992<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>PhoenixRudder</b><br>Tier: B<br>ELO: 991<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>PhoenixWing</b><br>Tier: C<br>ELO: 985<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>RhinoReaper</b><br>Tier: A<br>ELO: 1021<br>Winrate: 66.7%<br>Matches: 6<br><br><i>Match 10</i>", "<b>SamuraiSaber</b><br>Tier: D<br>ELO: 973<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>ScorpioSpear</b><br>Tier: B<br>ELO: 992<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>SharkEdge</b><br>Tier: C<br>ELO: 985<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>SilverWolf</b><br>Tier: B<br>ELO: 1000<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>TuskMammoth</b><br>Tier: A<br>ELO: 1022<br>Winrate: 71.4%<br>Matches: 7<br><br><i>Match 10</i>", "<b>TyrannoBeat</b><br>Tier: C<br>ELO: 987<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>UnicornSting</b><br>Tier: A<br>ELO: 1005<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>", "<b>ViperTail</b><br>Tier: A<br>ELO: 1004<br>Winrate: 50.0%<br>Matches: 4<br><br><i>Match 10</i>", "<b>WeissTiger</b><br>Tier: A<br>ELO: 1017<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>WhaleFlame</b><br>Tier: B<br>ELO: 992<br>Winrate: 0.0%<br>Matches: 1<br><br><i>Match 10</i>", "<b>WhaleWave</b><br>Tier: D<br>ELO: 977<br>Winrate: 33.3%<br>Matches: 3<br><br><i>Match 10</i>", "<b>WizardArc</b><br>Tier: C<br>ELO: 989<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>WizardArrow</b><br>Tier: B<br>ELO: 993<br>Winrate: 0.0%<br>Matches: 2<br><br><i>Match 10</i>", "<b>WizardRod</b><br>Tier: B<br>ELO: 999<br>Winrate: 60.0%<br>Matches: 5<br><br><i>Match 10</i>"];
         const nodeX = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 0.75, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0];
-        const nodeY = [0.7, 0.3, 0.3, 0.9, 0.5, 0.5, 0.5, 0.5, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.1, 0.9, 0.7, 0.9, 0.3, 0.5, 0.3, 0.7, 0.9, 0.5, 0.7, 0.5, 0.3, 0.5, 0.1, 0.5, 0.3, 0.7, 0.7, 0.7, 0.7, 0.3, 0.9, 0.3, 0.1, 0.9, 0.7, 0.5, 0.1, 0.3, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.3, 0.7, 0.7, 0.7, 0.5, 0.5, 0.7, 0.5, 0.9, 0.5, 0.7, 0.5, 0.5, 0.7, 0.3, 0.3, 0.3, 0.5, 0.9, 0.7, 0.5, 0.3, 0.9, 0.1, 0.3, 0.9, 0.7, 0.5, 0.3, 0.5, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.3, 0.7, 0.7, 0.7, 0.5, 0.5, 0.7, 0.3, 0.9, 0.5, 0.7, 0.5, 0.1, 0.7, 0.3, 0.3, 0.3, 0.5, 0.9, 0.7, 0.5, 0.5, 0.9, 0.1, 0.1, 0.9, 0.7, 0.5, 0.3, 0.5, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.3, 0.7, 0.7, 0.7, 0.5, 0.5, 0.7, 0.3, 0.9, 0.5, 0.7, 0.5, 0.3, 0.7, 0.3, 0.3, 0.3, 0.5, 0.9, 0.7, 0.5, 0.5, 0.9, 0.1, 0.1, 0.9, 0.7, 0.5, 0.3, 0.5, 0.1, 0.5, 0.5, 0.9, 0.7, 0.1, 0.3, 0.7, 0.7, 0.7, 0.5, 0.5, 0.7, 0.3, 0.9, 0.5, 0.7, 0.5, 0.3, 0.7, 0.3, 0.3, 0.3, 0.5, 0.9, 0.7, 0.5, 0.5];
+        const nodeY = [0.6200000000000001, 0.22285714285714286, 0.30000000000000004, 0.9720000000000001, 0.4836363636363637, 0.5, 0.4672727272727273, 0.4509090909090909, 0.07750000000000001, 0.5490909090909091, 0.5327272727272727, 0.9, 0.7600000000000001, 0.16750000000000004, 0.1225, 0.8640000000000001, 0.7000000000000001, 0.8280000000000001, 0.32571428571428573, 0.4181818181818182, 0.3514285714285714, 0.7800000000000001, 0.936, 0.5163636363636364, 0.6800000000000002, 0.43454545454545457, 0.2742857142857143, 0.5654545454545454, 0.0325, 0.5818181818181819, 0.2485714285714286, 0.6600000000000001, 0.7400000000000001, 0.7200000000000001, 0.6400000000000001, 0.37714285714285717, 0.8640000000000001, 0.22285714285714286, 0.1225, 0.9720000000000001, 0.7600000000000001, 0.4672727272727273, 0.16750000000000004, 0.32571428571428573, 0.0325, 0.5, 0.4836363636363637, 0.8280000000000001, 0.6800000000000002, 0.07750000000000001, 0.2742857142857143, 0.7800000000000001, 0.6200000000000001, 0.7400000000000001, 0.5490909090909091, 0.5818181818181819, 0.7000000000000001, 0.4181818181818182, 0.936, 0.5654545454545454, 0.7200000000000001, 0.4509090909090909, 0.43454545454545457, 0.6600000000000001, 0.2485714285714286, 0.37714285714285717, 0.30000000000000004, 0.5327272727272727, 0.9, 0.6400000000000001, 0.5163636363636364, 0.3514285714285714, 0.8640000000000001, 0.16750000000000004, 0.22285714285714286, 0.9720000000000001, 0.7600000000000001, 0.4672727272727273, 0.2742857142857143, 0.4181818181818182, 0.07750000000000001, 0.5, 0.4836363636363637, 0.8280000000000001, 0.6800000000000002, 0.0325, 0.2485714285714286, 0.7800000000000001, 0.6200000000000001, 0.7400000000000001, 0.5490909090909091, 0.5818181818181819, 0.7000000000000001, 0.30000000000000004, 0.936, 0.5654545454545454, 0.7200000000000001, 0.43454545454545457, 0.1225, 0.6600000000000001, 0.3514285714285714, 0.37714285714285717, 0.32571428571428573, 0.5327272727272727, 0.9, 0.6400000000000001, 0.5163636363636364, 0.4509090909090909, 0.8640000000000001, 0.1225, 0.16750000000000004, 0.9720000000000001, 0.7600000000000001, 0.4672727272727273, 0.2742857142857143, 0.4181818181818182, 0.0325, 0.5, 0.4836363636363637, 0.8280000000000001, 0.6800000000000002, 0.07750000000000001, 0.22285714285714286, 0.7800000000000001, 0.6200000000000001, 0.7400000000000001, 0.5490909090909091, 0.5818181818181819, 0.7000000000000001, 0.30000000000000004, 0.936, 0.5654545454545454, 0.7200000000000001, 0.43454545454545457, 0.2485714285714286, 0.6600000000000001, 0.3514285714285714, 0.37714285714285717, 0.32571428571428573, 0.5327272727272727, 0.9, 0.6400000000000001, 0.5163636363636364, 0.4509090909090909, 0.8640000000000001, 0.1225, 0.16750000000000004, 0.9720000000000001, 0.7600000000000001, 0.4672727272727273, 0.2742857142857143, 0.4181818181818182, 0.0325, 0.5, 0.4836363636363637, 0.8280000000000001, 0.6800000000000002, 0.07750000000000001, 0.22285714285714286, 0.7800000000000001, 0.6200000000000001, 0.7400000000000001, 0.5490909090909091, 0.5818181818181819, 0.7000000000000001, 0.30000000000000004, 0.936, 0.5654545454545454, 0.7200000000000001, 0.43454545454545457, 0.2485714285714286, 0.6600000000000001, 0.3514285714285714, 0.37714285714285717, 0.32571428571428573, 0.5327272727272727, 0.9, 0.6400000000000001, 0.5163636363636364, 0.4509090909090909];
         const snapshotLabels = ["Match 2", "Match 4", "Match 6", "Match 8", "Match 10"];
         const tierInfo = {"S": {"color": "#FF6B6B", "quantile": "90%+"}, "A": {"color": "#4ECDC4", "quantile": "70%+"}, "B": {"color": "#45B7D1", "quantile": "40%+"}, "C": {"color": "#96CEB4", "quantile": "15%+"}, "D": {"color": "#DDA0DD", "quantile": "0%+"}};
         
@@ -287,21 +356,47 @@
             legendContainer.appendChild(item);
         });
         
-        // Responsive dimensions
+        // Populate tier labels on the left side of the chart
+        const tierLabelsContainer = document.getElementById('tierLabels');
+        tierOrder.forEach(tier => {
+            const item = document.createElement('div');
+            item.className = 'tier-label-item';
+            item.innerHTML = `
+                <span>Tier ${tier}</span>
+                <div class="tier-label-dot" style="background-color: ${tierInfo[tier].color}"></div>
+            `;
+            tierLabelsContainer.appendChild(item);
+        });
+        
+        // Zoom level (1.0 = default)
+        let zoomLevel = 1.0;
+        const ZOOM_MIN = 0.5;
+        const ZOOM_MAX = 2.0;
+        const ZOOM_STEP = 0.25;
+        
+        // Responsive dimensions for alluvial diagram
         function getResponsiveDimensions() {
-            const width = Math.min(window.innerWidth - 40, 1100);
+            const width = Math.min(window.innerWidth - 100, 1050);  // Account for tier labels
+            // Calculate height based on number of unique beys to ensure all tiers are visible
+            // Each time slice has beys across 5 tiers, need enough vertical space
+            const numSlices = snapshotLabels.length;
+            const numBeysPerSlice = numSlices > 0 ? labels.length / numSlices : labels.length;
+            const minHeightPerBey = 45; // Minimum pixels per bey for readability (increased for better spacing)
+            const calculatedHeight = Math.max(1000, numBeysPerSlice * minHeightPerBey);
             // Use taller height on desktop to show all tiers (S, A, B, C, D)
-            const height = window.innerWidth < 480 ? Math.min(width * 1.5, 600) : Math.max(700, Math.min(width * 0.9, 900));
+            // Apply zoom level to height - no max cap to ensure all nodes fit
+            const baseHeight = window.innerWidth < 480 ? Math.min(width * 1.5, 800) : calculatedHeight;
+            const height = baseHeight * zoomLevel;
             return { width, height };
         }
 
-        // Layout configurations
+        // Layout configurations for alluvial diagram
         function getLayout(isDark) {
             const dims = getResponsiveDimensions();
             const isMobile = window.innerWidth < 480;
             return {
                 title: {
-                    text: isMobile ? 'Tier Evolution' : 'Meta-Tier Evolution Over Time',
+                    text: isMobile ? 'Tier Evolution' : 'Tier Flow - Alluvial Diagram',
                     font: { 
                         size: isMobile ? 14 : 18, 
                         color: isDark ? '#f1f5f9' : '#1a1a1a'
@@ -319,7 +414,7 @@
             };
         }
         
-        // Create Sankey trace
+        // Create alluvial trace (uses Sankey type with tier-grouped positions)
         function createTrace() {
             const isMobile = window.innerWidth < 480;
             return {
@@ -327,10 +422,10 @@
                 orientation: 'h',
                 arrangement: 'snap',
                 node: {
-                    pad: isMobile ? 8 : 15,
-                    thickness: isMobile ? 12 : 20,
+                    pad: isMobile ? 5 : 10,  // Reduced padding for alluvial layout
+                    thickness: isMobile ? 10 : 15,  // Thinner nodes for cleaner look
                     line: {
-                        color: 'rgba(128,128,128,0.5)',
+                        color: 'rgba(128,128,128,0.3)',
                         width: 0.5
                     },
                     label: isMobile ? labels.map(() => '') : labels,
@@ -373,6 +468,9 @@
             const layout = getLayout(isDark);
             const trace = createTrace();
             
+            // Update plotDiv min-height to match chart height to prevent overlap
+            document.getElementById('plotDiv').style.minHeight = layout.height + 'px';
+            
             Plotly.react('plotDiv', [trace], layout, config);
         }
         
@@ -401,6 +499,26 @@
                 isDarkMode = e.newValue === 'dark';
                 updateTheme(isDarkMode);
             }
+        });
+        
+        // Zoom controls
+        document.getElementById('zoomIn').addEventListener('click', function() {
+            if (zoomLevel < ZOOM_MAX) {
+                zoomLevel = Math.min(ZOOM_MAX, zoomLevel + ZOOM_STEP);
+                updateTheme(isDarkMode);
+            }
+        });
+        
+        document.getElementById('zoomOut').addEventListener('click', function() {
+            if (zoomLevel > ZOOM_MIN) {
+                zoomLevel = Math.max(ZOOM_MIN, zoomLevel - ZOOM_STEP);
+                updateTheme(isDarkMode);
+            }
+        });
+        
+        document.getElementById('zoomReset').addEventListener('click', function() {
+            zoomLevel = 1.0;
+            updateTheme(isDarkMode);
         });
     </script>
 </body>
