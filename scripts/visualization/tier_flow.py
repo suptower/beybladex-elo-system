@@ -748,41 +748,59 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             legendContainer.appendChild(item);
         }});
         
+        // Responsive dimensions
+        function getResponsiveDimensions() {{
+            const width = Math.min(window.innerWidth - 40, 1100);
+            // Calculate height based on number of unique beys to ensure all tiers are visible
+            // Each time slice has beys across 5 tiers, need enough vertical space
+            const numSlices = snapshotLabels.length;
+            const numBeysPerSlice = numSlices > 0 ? labels.length / numSlices : labels.length;
+            const minHeightPerBey = 30; // Minimum pixels per bey for readability
+            const calculatedHeight = Math.max(900, numBeysPerSlice * minHeightPerBey);
+            // Use taller height on desktop to show all tiers (S, A, B, C, D)
+            const height = window.innerWidth < 480 ? Math.min(width * 1.5, 800) : Math.min(calculatedHeight, 1400);
+            return {{ width, height }};
+        }}
+
         // Layout configurations
         function getLayout(isDark) {{
+            const dims = getResponsiveDimensions();
+            const isMobile = window.innerWidth < 480;
             return {{
                 title: {{
-                    text: 'Meta-Tier Evolution Over Time',
+                    text: isMobile ? 'Tier Evolution' : 'Meta-Tier Evolution Over Time',
                     font: {{ 
-                        size: 18, 
+                        size: isMobile ? 14 : 18, 
                         color: isDark ? '#f1f5f9' : '#1a1a1a'
                     }}
                 }},
                 font: {{
-                    color: isDark ? '#f1f5f9' : '#1a1a1a'
+                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    size: isMobile ? 10 : 12
                 }},
                 paper_bgcolor: isDark ? '#0f172a' : '#f8f9fa',
                 plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                width: 1100,
-                height: 800,
-                margin: {{ l: 50, r: 50, t: 80, b: 80 }}
+                width: dims.width,
+                height: dims.height,
+                margin: isMobile ? {{ l: 10, r: 10, t: 60, b: 30 }} : {{ l: 50, r: 50, t: 80, b: 80 }}
             }};
         }}
         
         // Create Sankey trace
         function createTrace() {{
+            const isMobile = window.innerWidth < 480;
             return {{
                 type: 'sankey',
                 orientation: 'h',
                 arrangement: 'snap',
                 node: {{
-                    pad: 15,
-                    thickness: 20,
+                    pad: isMobile ? 8 : 15,
+                    thickness: isMobile ? 12 : 20,
                     line: {{
                         color: 'rgba(128,128,128,0.5)',
                         width: 0.5
                     }},
-                    label: labels,
+                    label: isMobile ? labels.map(() => '') : labels,
                     color: nodeColors,
                     customdata: nodeHover,
                     hovertemplate: '%{{customdata}}<extra></extra>',
@@ -803,7 +821,8 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
         const config = {{
             displayModeBar: true,
             modeBarButtonsToAdd: ['pan2d', 'zoomIn2d', 'zoomOut2d', 'resetScale2d'],
-            responsive: true
+            responsive: true,
+            scrollZoom: true
         }};
         
         // Theme handling
@@ -826,6 +845,15 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
         
         // Initialize
         updateTheme(isDarkMode);
+
+        // Handle window resize for responsive plots
+        let resizeTimeout;
+        window.addEventListener('resize', function() {{
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {{
+                updateTheme(isDarkMode);
+            }}, 250);
+        }});
         
         // Handle toggle
         toggle.addEventListener('change', function() {{

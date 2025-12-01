@@ -290,8 +290,14 @@
         // Responsive dimensions
         function getResponsiveDimensions() {
             const width = Math.min(window.innerWidth - 40, 1100);
+            // Calculate height based on number of unique beys to ensure all tiers are visible
+            // Each time slice has beys across 5 tiers, need enough vertical space
+            const numSlices = snapshotLabels.length;
+            const numBeysPerSlice = numSlices > 0 ? labels.length / numSlices : labels.length;
+            const minHeightPerBey = 30; // Minimum pixels per bey for readability
+            const calculatedHeight = Math.max(900, numBeysPerSlice * minHeightPerBey);
             // Use taller height on desktop to show all tiers (S, A, B, C, D)
-            const height = window.innerWidth < 480 ? Math.min(width * 1.5, 600) : Math.max(700, Math.min(width * 0.9, 900));
+            const height = window.innerWidth < 480 ? Math.min(width * 1.5, 800) : Math.min(calculatedHeight, 1400);
             return { width, height };
         }
 
