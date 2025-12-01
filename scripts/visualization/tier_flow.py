@@ -899,11 +899,11 @@ def create_tier_flow_interactive(alluvial_data: dict, output_file: str):
             // Each time slice has beys across 5 tiers, need enough vertical space
             const numSlices = snapshotLabels.length;
             const numBeysPerSlice = numSlices > 0 ? labels.length / numSlices : labels.length;
-            const minHeightPerBey = 30; // Minimum pixels per bey for readability
-            const calculatedHeight = Math.max(900, numBeysPerSlice * minHeightPerBey);
+            const minHeightPerBey = 45; // Minimum pixels per bey for readability (increased for better spacing)
+            const calculatedHeight = Math.max(1000, numBeysPerSlice * minHeightPerBey);
             // Use taller height on desktop to show all tiers (S, A, B, C, D)
-            // Apply zoom level to height
-            const baseHeight = window.innerWidth < 480 ? Math.min(width * 1.5, 800) : Math.min(calculatedHeight, 1400);
+            // Apply zoom level to height - no max cap to ensure all nodes fit
+            const baseHeight = window.innerWidth < 480 ? Math.min(width * 1.5, 800) : calculatedHeight;
             const height = baseHeight * zoomLevel;
             return {{ width, height }};
         }}
