@@ -15,14 +15,19 @@ SCRIPT_SYNERGY_HEATMAPS = "./scripts/synergy_heatmaps.py"
 # --- Argumente parsen ---
 parser = argparse.ArgumentParser(description="Beyblade X Update Script")
 parser.add_argument(
-    "--create-diagrams", "-d",
+    "--skip-diagrams", "-s",
     action="store_true",
-    help="Optional: ELO-Diagramme erstellen"
+    help="Optional: ELO-Diagramme nicht erstellen"
 )
 parser.add_argument(
-    "--skip-upload", "-s",
+    "--upload", "-u",
     action="store_true",
-    help="Optional: Upload zu Google Sheets überspringen"
+    help="Optional: Upload zu Google Sheets"
+)
+parser.add_argument(
+    "--pdf", "-p",
+    action="store_true",
+    help="Optional: PDF-Rangliste erstellen"
 )
 args = parser.parse_args()
 
@@ -61,7 +66,7 @@ if result.stderr:
     print(result.stderr)
 
 # --- 2. Optional Diagramme erstellen ---
-if args.create_diagrams:
+if not args.skip_diagrams:
     print(f"{YELLOW}Generiere Diagramme...{RESET}")
     process = subprocess.Popen(
         [sys.executable, "-u", SCRIPT_GEN_PLOTS],
@@ -77,11 +82,14 @@ else:
 
 
 # PDF-Rangliste erstellen
-print(f"{YELLOW}Erstelle PDF-Rangliste...{RESET}")
-result = subprocess.run([sys.executable, SCRIPT_EXPORT_PDF], capture_output=True, text=True)
-print(result.stdout)
-if result.stderr:
-    print(result.stderr)
+if not args.pdf:
+    print(f"{YELLOW}PDF-Rangliste übersprungen (mit --pdf aktivieren){RESET}")
+else:
+    print(f"{YELLOW}Erstelle PDF-Rangliste...{RESET}")
+    result = subprocess.run([sys.executable, SCRIPT_EXPORT_PDF], capture_output=True, text=True)
+    print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
 
 # Bey-Counter aktualisieren
 print(f"{YELLOW}Aktualisiere Bey-Counter...{RESET}")
