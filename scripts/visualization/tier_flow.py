@@ -500,6 +500,36 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             gap: 15px;
             flex-wrap: wrap;
         }}
+        .zoom-controls {{
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }}
+        .zoom-btn {{
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }}
+        body.light .zoom-btn {{
+            color: #1a1a1a;
+            background-color: #e5e7eb;
+        }}
+        body.dark .zoom-btn {{
+            color: #f1f5f9;
+            background-color: #334155;
+        }}
+        .zoom-btn:hover {{
+            opacity: 0.8;
+        }}
+        .zoom-label {{
+            font-size: 0.85em;
+            opacity: 0.7;
+            margin-right: 5px;
+        }}
         .theme-toggle {{
             display: flex;
             align-items: center;
@@ -671,6 +701,12 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
         <a href="../plots.html" class="back-link">← Back to Plots</a>
         <h1>📊 Tier Flow Diagram</h1>
         <div class="controls">
+            <div class="zoom-controls">
+                <span class="zoom-label">Zoom:</span>
+                <button class="zoom-btn" id="zoomOut" title="Zoom Out">−</button>
+                <button class="zoom-btn" id="zoomReset" title="Reset Zoom">⟳</button>
+                <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+            </div>
             <div class="theme-toggle">
                 <label>
                     <input type="checkbox" id="themeToggle">
@@ -748,6 +784,12 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             legendContainer.appendChild(item);
         }});
         
+        // Zoom level (1.0 = default)
+        let zoomLevel = 1.0;
+        const ZOOM_MIN = 0.5;
+        const ZOOM_MAX = 2.0;
+        const ZOOM_STEP = 0.25;
+        
         // Responsive dimensions
         function getResponsiveDimensions() {{
             const width = Math.min(window.innerWidth - 40, 1100);
@@ -758,7 +800,9 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             const minHeightPerBey = 30; // Minimum pixels per bey for readability
             const calculatedHeight = Math.max(900, numBeysPerSlice * minHeightPerBey);
             // Use taller height on desktop to show all tiers (S, A, B, C, D)
-            const height = window.innerWidth < 480 ? Math.min(width * 1.5, 800) : Math.min(calculatedHeight, 1400);
+            // Apply zoom level to height
+            const baseHeight = window.innerWidth < 480 ? Math.min(width * 1.5, 800) : Math.min(calculatedHeight, 1400);
+            const height = baseHeight * zoomLevel;
             return {{ width, height }};
         }}
 
@@ -868,6 +912,26 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
                 isDarkMode = e.newValue === 'dark';
                 updateTheme(isDarkMode);
             }}
+        }});
+        
+        // Zoom controls
+        document.getElementById('zoomIn').addEventListener('click', function() {{
+            if (zoomLevel < ZOOM_MAX) {{
+                zoomLevel = Math.min(ZOOM_MAX, zoomLevel + ZOOM_STEP);
+                updateTheme(isDarkMode);
+            }}
+        }});
+        
+        document.getElementById('zoomOut').addEventListener('click', function() {{
+            if (zoomLevel > ZOOM_MIN) {{
+                zoomLevel = Math.max(ZOOM_MIN, zoomLevel - ZOOM_STEP);
+                updateTheme(isDarkMode);
+            }}
+        }});
+        
+        document.getElementById('zoomReset').addEventListener('click', function() {{
+            zoomLevel = 1.0;
+            updateTheme(isDarkMode);
         }});
     </script>
 </body>
