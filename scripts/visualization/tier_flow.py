@@ -288,27 +288,25 @@ def build_alluvial_data(snapshots: list, leaderboard: dict) -> dict:
     if not snapshots or len(snapshots) < 2:
         return {"nodes": [], "links": [], "labels": [], "colors": []}
 
+    def group_beys_by_tier(beys_list):
+        """Helper to group beys by tier and sort by ELO within each tier."""
+        tier_groups = {tier: [] for tier in TIER_ORDER}
+        for bey_data in beys_list:
+            tier_groups[bey_data["tier"]].append(bey_data)
+        for tier in TIER_ORDER:
+            tier_groups[tier].sort(key=lambda x: -x["elo"])
+        return tier_groups
+
     # Build node and link structures
     nodes = []
     node_labels = []
     node_colors = []
     node_map = {}  # (slice_idx, bey) -> node_index
 
-    # Group beys by tier at each time slice for proper alluvial layout
-    # This creates the characteristic "strata" of alluvial diagrams
+    # Create nodes for each bey at each time slice
     for snapshot in snapshots:
         slice_idx = snapshot["slice_index"]
         
-        # Group beys by tier
-        tier_groups = {tier: [] for tier in TIER_ORDER}
-        for bey_data in snapshot["beys"]:
-            tier_groups[bey_data["tier"]].append(bey_data)
-        
-        # Sort beys within each tier by ELO for consistent ordering
-        for tier in TIER_ORDER:
-            tier_groups[tier].sort(key=lambda x: -x["elo"])
-        
-        # Create nodes in tier order (top to bottom: S, A, B, C, D)
         for bey_data in snapshot["beys"]:
             bey = bey_data["bey"]
             tier = bey_data["tier"]
@@ -344,13 +342,8 @@ def build_alluvial_data(snapshots: list, leaderboard: dict) -> dict:
     for snapshot in snapshots:
         slice_idx = snapshot["slice_index"]
         
-        # Group beys by tier and sort
-        tier_groups = {tier: [] for tier in TIER_ORDER}
-        for bey_data in snapshot["beys"]:
-            tier_groups[bey_data["tier"]].append(bey_data)
-        
-        for tier in TIER_ORDER:
-            tier_groups[tier].sort(key=lambda x: -x["elo"])
+        # Group beys by tier and sort by ELO
+        tier_groups = group_beys_by_tier(snapshot["beys"])
         
         # Calculate y positions for each tier stratum
         # Each tier gets an equal band, beys distributed within
