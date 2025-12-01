@@ -290,7 +290,8 @@
         // Responsive dimensions
         function getResponsiveDimensions() {
             const width = Math.min(window.innerWidth - 40, 1100);
-            const height = window.innerWidth < 480 ? Math.min(width * 1.5, 600) : Math.min(width * 0.73, 800);
+            // Use taller height on desktop to show all tiers (S, A, B, C, D)
+            const height = window.innerWidth < 480 ? Math.min(width * 1.5, 600) : Math.max(700, Math.min(width * 0.9, 900));
             return { width, height };
         }
 
@@ -353,7 +354,8 @@
         const config = {
             displayModeBar: true,
             modeBarButtonsToAdd: ['pan2d', 'zoomIn2d', 'zoomOut2d', 'resetScale2d'],
-            responsive: true
+            responsive: true,
+            scrollZoom: true
         };
         
         // Theme handling
