@@ -332,6 +332,18 @@
             responsive: true
         };
 
+        // Responsive dimensions
+        function getResponsiveDimensions() {
+            const width = Math.min(window.innerWidth - 40, 1200);
+            const height = window.innerWidth < 480 ? Math.min(width * 0.9, 400) : Math.min(width * 0.5, 500);
+            return { width, height };
+        }
+
+        function getResponsiveMargins() {
+            const isMobile = window.innerWidth < 480;
+            return isMobile ? { l: 40, r: 20, t: 50, b: 40 } : { l: 60, r: 30, t: 60, b: 50 };
+        }
+
         // Update statistics panel
         function updateStatsPanel(snap) {
             document.getElementById('statMean').textContent = snap.mean.toFixed(1);
@@ -345,6 +357,8 @@
         function plotHistogram(snapIdx) {
             const snap = snapshotData[snapIdx];
             const isDark = document.body.classList.contains('dark');
+            const dims = getResponsiveDimensions();
+            const isMobile = window.innerWidth < 480;
 
             const trace1 = {
                 x: snap.histogram.bin_centers,
@@ -370,9 +384,9 @@
             };
 
             const layout = {
-                title: `ELO Distribution at Match ${snap.match_index}`,
+                title: isMobile ? `ELO at Match ${snap.match_index}` : `ELO Distribution at Match ${snap.match_index}`,
                 xaxis: {
-                    title: 'ELO Rating',
+                    title: isMobile ? 'ELO' : 'ELO Rating',
                     color: isDark ? '#f1f5f9' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 },
@@ -383,9 +397,12 @@
                 },
                 paper_bgcolor: isDark ? '#0f172a' : '#ffffff',
                 plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                font: { color: isDark ? '#f1f5f9' : '#1a1a1a' },
-                showlegend: true,
+                font: { color: isDark ? '#f1f5f9' : '#1a1a1a', size: isMobile ? 10 : 12 },
+                showlegend: !isMobile,
                 legend: { x: 0.8, y: 0.95 },
+                width: dims.width,
+                height: dims.height,
+                margin: getResponsiveMargins(),
                 shapes: [
                     {
                         type: 'line',
@@ -400,7 +417,7 @@
                         line: { color: '#f59e0b', dash: 'dot', width: 2 }
                     }
                 ],
-                annotations: [
+                annotations: isMobile ? [] : [
                     {
                         x: snap.mean, y: Math.max(...snap.kde.density) * 1.05,
                         text: `Mean: ${snap.mean.toFixed(0)}`,
@@ -423,6 +440,8 @@
         // Plot KDE evolution view
         function plotKDEEvolution() {
             const isDark = document.body.classList.contains('dark');
+            const dims = getResponsiveDimensions();
+            const isMobile = window.innerWidth < 480;
             const traces = [];
 
             // Select evenly spaced snapshots (max 10)
@@ -463,9 +482,9 @@
             });
 
             const layout = {
-                title: 'ELO Distribution Evolution Over Time',
+                title: isMobile ? 'ELO Evolution' : 'ELO Distribution Evolution Over Time',
                 xaxis: {
-                    title: 'ELO Rating',
+                    title: isMobile ? 'ELO' : 'ELO Rating',
                     color: isDark ? '#f1f5f9' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 },
@@ -476,9 +495,12 @@
                 },
                 paper_bgcolor: isDark ? '#0f172a' : '#ffffff',
                 plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                font: { color: isDark ? '#f1f5f9' : '#1a1a1a' },
-                showlegend: true,
-                legend: { x: 1.02, y: 1 }
+                font: { color: isDark ? '#f1f5f9' : '#1a1a1a', size: isMobile ? 10 : 12 },
+                showlegend: !isMobile,
+                legend: { x: 1.02, y: 1 },
+                width: dims.width,
+                height: dims.height,
+                margin: getResponsiveMargins()
             };
 
             Plotly.react('plotDiv', traces, layout, config);
@@ -487,6 +509,8 @@
         // Plot density heatmap view
         function plotDensityHeatmap() {
             const isDark = document.body.classList.contains('dark');
+            const dims = getResponsiveDimensions();
+            const isMobile = window.innerWidth < 480;
 
             const trace = {
                 z: densityMatrix.matrix,
@@ -496,26 +520,31 @@
                 colorscale: 'Viridis',
                 colorbar: {
                     title: 'Density',
-                    tickfont: { color: isDark ? '#f1f5f9' : '#1a1a1a' },
-                    titlefont: { color: isDark ? '#f1f5f9' : '#1a1a1a' }
+                    tickfont: { color: isDark ? '#f1f5f9' : '#1a1a1a', size: isMobile ? 10 : 12 },
+                    titlefont: { color: isDark ? '#f1f5f9' : '#1a1a1a', size: isMobile ? 10 : 12 },
+                    thickness: isMobile ? 10 : 15,
+                    len: isMobile ? 0.5 : 0.7
                 }
             };
 
             const layout = {
-                title: 'ELO Density Heatmap Over Time',
+                title: isMobile ? 'ELO Heatmap' : 'ELO Density Heatmap Over Time',
                 xaxis: {
-                    title: 'Match Index (Time)',
+                    title: isMobile ? 'Match' : 'Match Index (Time)',
                     color: isDark ? '#f1f5f9' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 },
                 yaxis: {
-                    title: 'ELO Rating',
+                    title: isMobile ? 'ELO' : 'ELO Rating',
                     color: isDark ? '#f1f5f9' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 },
                 paper_bgcolor: isDark ? '#0f172a' : '#ffffff',
                 plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                font: { color: isDark ? '#f1f5f9' : '#1a1a1a' }
+                font: { color: isDark ? '#f1f5f9' : '#1a1a1a', size: isMobile ? 10 : 12 },
+                width: dims.width,
+                height: dims.height,
+                margin: getResponsiveMargins()
             };
 
             Plotly.react('plotDiv', [trace], layout, config);
@@ -524,6 +553,8 @@
         // Plot statistics view
         function plotStatistics() {
             const isDark = document.body.classList.contains('dark');
+            const dims = getResponsiveDimensions();
+            const isMobile = window.innerWidth < 480;
 
             const trace1 = {
                 x: summaryStats.match_indices,
@@ -554,9 +585,9 @@
             };
 
             const layout = {
-                title: 'Meta Evolution Statistics',
+                title: isMobile ? 'Meta Statistics' : 'Meta Evolution Statistics',
                 xaxis: {
-                    title: 'Match Index',
+                    title: isMobile ? 'Match' : 'Match Index',
                     color: isDark ? '#f1f5f9' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 },
@@ -566,7 +597,7 @@
                     gridcolor: 'rgba(128,128,128,0.2)'
                 },
                 yaxis2: {
-                    title: 'Standard Deviation',
+                    title: isMobile ? 'Std Dev' : 'Standard Deviation',
                     overlaying: 'y',
                     side: 'right',
                     color: '#8b5cf6',
@@ -574,9 +605,12 @@
                 },
                 paper_bgcolor: isDark ? '#0f172a' : '#ffffff',
                 plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                font: { color: isDark ? '#f1f5f9' : '#1a1a1a' },
-                showlegend: true,
+                font: { color: isDark ? '#f1f5f9' : '#1a1a1a', size: isMobile ? 10 : 12 },
+                showlegend: !isMobile,
                 legend: { x: 0.02, y: 0.98 },
+                width: dims.width,
+                height: dims.height,
+                margin: getResponsiveMargins(),
                 shapes: [{
                     type: 'line',
                     x0: summaryStats.match_indices[0],
@@ -622,6 +656,15 @@
 
         // Initialize
         updateTheme(isDarkMode);
+
+        // Handle window resize for responsive plots
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                updatePlot();
+            }, 250);
+        });
 
         // Event listeners
         toggle.addEventListener('change', function() {
