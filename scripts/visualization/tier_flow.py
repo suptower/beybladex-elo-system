@@ -577,6 +577,8 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
+            overflow: visible;
+            position: relative;
         }}
         .info-section {{
             max-width: 1200px;
@@ -584,6 +586,8 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             padding: 20px;
             border-radius: 12px;
             transition: background-color 0.3s;
+            position: relative;
+            clear: both;
         }}
         body.light .info-section {{
             background-color: #ffffff;
@@ -883,6 +887,9 @@ def create_tier_flow_interactive(sankey_data: dict, output_file: str):
             
             const layout = getLayout(isDark);
             const trace = createTrace();
+            
+            // Update plotDiv min-height to match chart height to prevent overlap
+            document.getElementById('plotDiv').style.minHeight = layout.height + 'px';
             
             Plotly.react('plotDiv', [trace], layout, config);
         }}
