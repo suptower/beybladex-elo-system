@@ -13,7 +13,7 @@ from tier_flow import (
     assign_tier_by_quantile,
     assign_tier_by_threshold,
     compute_tier_snapshots,
-    build_sankey_data,
+    build_alluvial_data,
     TIER_QUANTILES,
     TIER_ORDER,
     TIER_COLORS,
@@ -170,12 +170,12 @@ class TestComputeTierSnapshots:
             assert bey_data["tier"] in TIER_ORDER
 
 
-class TestBuildSankeyData:
-    """Tests for the build_sankey_data function."""
+class TestBuildAlluvialData:
+    """Tests for the build_alluvial_data function."""
 
     def test_empty_snapshots_returns_empty(self):
         """Empty snapshots should return empty data."""
-        result = build_sankey_data([], {})
+        result = build_alluvial_data([], {})
         assert result["nodes"] == []
         assert result["links"] == []
 
@@ -188,7 +188,7 @@ class TestBuildSankeyData:
             "beys": [{"bey": "BeyA", "elo": 1000, "tier": "B"}],
             "elo_range": (1000, 1000)
         }]
-        result = build_sankey_data(snapshots, {})
+        result = build_alluvial_data(snapshots, {})
         # With only one snapshot, we get minimal return with empty links list
         assert result["links"] == []
 
@@ -210,7 +210,7 @@ class TestBuildSankeyData:
                 "elo_range": (1050, 1050)
             }
         ]
-        result = build_sankey_data(snapshots, {})
+        result = build_alluvial_data(snapshots, {})
         assert len(result["nodes"]) == 2
         assert len(result["link_sources"]) == 1
 
@@ -232,9 +232,33 @@ class TestBuildSankeyData:
                 "elo_range": (1100, 1100)
             }
         ]
-        result = build_sankey_data(snapshots, {})
+        result = build_alluvial_data(snapshots, {})
         assert len(result["links"]) == 1
         assert result["links"][0]["flow_type"] == "rising"
+
+    def test_alluvial_includes_node_positions(self):
+        """Alluvial data should include pre-calculated x and y positions."""
+        snapshots = [
+            {
+                "slice_index": 0,
+                "match_index": 1,
+                "label": "Match 1",
+                "beys": [{"bey": "BeyA", "elo": 1000, "tier": "B"}],
+                "elo_range": (1000, 1000)
+            },
+            {
+                "slice_index": 1,
+                "match_index": 2,
+                "label": "Match 2",
+                "beys": [{"bey": "BeyA", "elo": 1050, "tier": "A"}],
+                "elo_range": (1050, 1050)
+            }
+        ]
+        result = build_alluvial_data(snapshots, {})
+        assert "node_x" in result
+        assert "node_y" in result
+        assert len(result["node_x"]) == len(result["nodes"])
+        assert len(result["node_y"]) == len(result["nodes"])
 
 
 class TestTierFlowIntegration:
@@ -259,7 +283,7 @@ class TestTierFlowIntegration:
         snapshots = compute_tier_snapshots(df, num_slices=3)
         assert len(snapshots) >= 2
 
-        # Build Sankey data
-        sankey_data = build_sankey_data(snapshots, {})
-        assert len(sankey_data["nodes"]) > 0
-        assert len(sankey_data["link_sources"]) > 0
+        # Build alluvial data
+        alluvial_data = build_alluvial_data(snapshots, {})
+        assert len(alluvial_data["nodes"]) > 0
+        assert len(alluvial_data["link_sources"]) > 0
