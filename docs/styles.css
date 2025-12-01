@@ -1421,6 +1421,82 @@ footer p {
     color: white;
 }
 
+/* Compare page specific card styles */
+.compare-card .compare-stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.25rem;
+}
+
+.compare-card .lb-stat {
+    text-align: center;
+    padding: 0.25rem;
+}
+
+.compare-card .lb-stat-label {
+    font-size: 0.625rem;
+    margin-bottom: 0.125rem;
+}
+
+.compare-card .lb-stat-value {
+    font-size: 0.875rem;
+}
+
+.compare-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.compare-total {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.compare-total-label {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.compare-total-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.compare-add-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    font-size: 1.25rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.compare-add-btn:hover {
+    background: var(--accent);
+    color: white;
+}
+
+.compare-add-btn.selected {
+    background: var(--success);
+    border-color: var(--success);
+    color: white;
+}
+
 /* Stats cards container for compare page */
 #statsCards {
     display: none;

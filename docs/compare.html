@@ -665,7 +665,7 @@ function renderStatsCards() {
     container.innerHTML = filteredBeys.map(bey => {
         const isSelected = selectedBeys.includes(bey.name);
         return `
-            <div class="lb-card">
+            <div class="lb-card compare-card">
                 <div class="lb-card-header">
                     <div class="lb-card-rank">${bey.leaderboard.rank || '-'}</div>
                     <a href="bey.html?name=${encodeURIComponent(bey.name)}" class="lb-card-name bey-link">${escapeHtml(bey.name)}</a>
@@ -674,7 +674,7 @@ function renderStatsCards() {
                         <div class="lb-card-elo-label">ELO</div>
                     </div>
                 </div>
-                <div class="lb-card-stats">
+                <div class="lb-card-stats compare-stats">
                     <div class="lb-stat">
                         <div class="lb-stat-label">⚔️ ATK</div>
                         <div class="lb-stat-value">${bey.attack.toFixed(1)}</div>
@@ -687,29 +687,24 @@ function renderStatsCards() {
                         <div class="lb-stat-label">💪 STA</div>
                         <div class="lb-stat-value">${bey.stamina.toFixed(1)}</div>
                     </div>
-                </div>
-                <div class="lb-card-expand">
-                    <div class="lb-card-details">
-                        <div class="lb-detail">
-                            <span class="lb-detail-label">🎯 Control</span>
-                            <span class="lb-detail-value">${bey.control.toFixed(1)}</span>
-                        </div>
-                        <div class="lb-detail">
-                            <span class="lb-detail-label">⭐ Meta</span>
-                            <span class="lb-detail-value">${bey.meta_impact.toFixed(1)}</span>
-                        </div>
-                        <div class="lb-detail">
-                            <span class="lb-detail-label">Total</span>
-                            <span class="lb-detail-value">${bey.total.toFixed(1)}</span>
-                        </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">🎯 CTR</div>
+                        <div class="lb-stat-value">${bey.control.toFixed(1)}</div>
+                    </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">⭐ META</div>
+                        <div class="lb-stat-value">${bey.meta_impact.toFixed(1)}</div>
                     </div>
                 </div>
-                <div class="lb-card-actions">
-                    <button class="lb-expand-btn" onclick="const expandSection = this.parentElement.previousElementSibling; expandSection.classList.toggle('expanded'); this.textContent = expandSection.classList.contains('expanded') ? 'Hide Details' : 'Show Details'">Show Details</button>
-                    <button class="add-compare-btn ${isSelected ? 'selected' : ''}" 
+                <div class="compare-card-footer">
+                    <div class="compare-total">
+                        <span class="compare-total-label">Total:</span>
+                        <span class="compare-total-value">${bey.total.toFixed(1)}</span>
+                    </div>
+                    <button class="compare-add-btn ${isSelected ? 'selected' : ''}" 
                             onclick="toggleComparison('${escapeHtml(bey.name)}'); updateView();"
                             title="${isSelected ? 'Remove from comparison' : 'Add to comparison'}">
-                        ${isSelected ? '✓ Added' : '+ Compare'}
+                        ${isSelected ? '✓' : '+'}
                     </button>
                 </div>
             </div>
