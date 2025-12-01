@@ -705,7 +705,7 @@ function renderStatsCards() {
                     </div>
                 </div>
                 <div class="lb-card-actions">
-                    <button class="lb-expand-btn" onclick="this.previousElementSibling.classList.toggle('expanded'); this.textContent = this.previousElementSibling.classList.contains('expanded') ? 'Hide Details' : 'Show Details'">Show Details</button>
+                    <button class="lb-expand-btn" onclick="const expandSection = this.parentElement.previousElementSibling; expandSection.classList.toggle('expanded'); this.textContent = expandSection.classList.contains('expanded') ? 'Hide Details' : 'Show Details'">Show Details</button>
                     <button class="add-compare-btn ${isSelected ? 'selected' : ''}" 
                             onclick="toggleComparison('${escapeHtml(bey.name)}'); updateView();"
                             title="${isSelected ? 'Remove from comparison' : 'Add to comparison'}">

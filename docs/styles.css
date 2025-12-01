@@ -6764,6 +6764,33 @@ body.dark .win-probability {
         align-items: center;
         gap: 0.5rem;
     }
+    
+    /* Ensure simulator page is properly centered on mobile */
+    .simulator-page {
+        padding: 0.75rem;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+    
+    .simulator-layout {
+        width: 100%;
+    }
+    
+    .input-panel,
+    .result-card {
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+    
+    .player-controls {
+        flex-wrap: wrap;
+    }
+    
+    .player-select {
+        min-width: 0;
+        width: 100%;
+        flex: 1 1 auto;
+    }
 }
 
 /* ============================================
