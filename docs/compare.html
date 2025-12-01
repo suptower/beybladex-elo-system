@@ -72,7 +72,16 @@
             </div>
         </div>
         
-        <div class="table-wrapper">
+        <!-- Mobile sort controls -->
+        <div class="mobile-sort-controls" id="mobileSortControls">
+            <button class="sort-button" id="mobileSortButton">
+                <span class="sort-icon">⇅</span>
+                <span class="sort-label">Sort by: <span id="currentSortLabel">Rank</span></span>
+            </button>
+        </div>
+        
+        <!-- Desktop table view -->
+        <div class="table-wrapper" id="statsTableWrapper">
             <table id="statsTable" class="stats-table">
                 <thead>
                     <tr>
@@ -92,6 +101,22 @@
                     <!-- Populated by JavaScript -->
                 </tbody>
             </table>
+        </div>
+        
+        <!-- Mobile card view -->
+        <div id="statsCards" class="cards"></div>
+        
+        <!-- Sort modal for mobile -->
+        <div class="sort-modal" id="sortModal">
+            <div class="sort-modal-content">
+                <div class="sort-modal-header">
+                    <h3>Sort Options</h3>
+                    <button class="sort-modal-close" id="sortModalClose">&times;</button>
+                </div>
+                <div class="sort-modal-body" id="sortModalBody">
+                    <!-- Populated dynamically by JavaScript -->
+                </div>
+            </div>
         </div>
     </section>
 
@@ -570,17 +595,208 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
+// Sort column labels for display
+const SORT_LABELS = {
+    rank: 'Rank',
+    name: 'Name',
+    elo: 'ELO',
+    attack: 'Attack',
+    defense: 'Defense',
+    stamina: 'Stamina',
+    control: 'Control',
+    meta_impact: 'Meta',
+    total: 'Total'
+};
+
+// Update the view based on screen width
+function updateView() {
+    const isMobile = window.innerWidth < 768;
+    const tableWrapper = document.getElementById('statsTableWrapper');
+    const cardWrapper = document.getElementById('statsCards');
+    const mobileSortControls = document.getElementById('mobileSortControls');
+
+    if (isMobile) {
+        if (tableWrapper) tableWrapper.style.display = 'none';
+        if (cardWrapper) cardWrapper.style.display = 'grid';
+        if (mobileSortControls) mobileSortControls.style.display = 'block';
+        renderStatsCards();
+    } else {
+        if (tableWrapper) tableWrapper.style.display = 'block';
+        if (cardWrapper) cardWrapper.style.display = 'none';
+        if (mobileSortControls) mobileSortControls.style.display = 'none';
+        renderStatsTable();
+    }
+}
+
+// Render stats cards for mobile
+function renderStatsCards() {
+    const container = document.getElementById('statsCards');
+    if (!container) return;
+    
+    const searchQuery = document.getElementById('tableSearch').value.toLowerCase();
+    
+    let filteredBeys = allBeys.filter(bey => 
+        bey.name.toLowerCase().includes(searchQuery)
+    );
+    
+    // Sort
+    filteredBeys.sort((a, b) => {
+        let aVal, bVal;
+        if (currentSort.column === 'name') {
+            aVal = a.name;
+            bVal = b.name;
+        } else if (currentSort.column === 'rank') {
+            aVal = a.leaderboard.rank || 999;
+            bVal = b.leaderboard.rank || 999;
+        } else if (currentSort.column === 'elo') {
+            aVal = a.leaderboard.elo || 0;
+            bVal = b.leaderboard.elo || 0;
+        } else {
+            aVal = a[currentSort.column] || 0;
+            bVal = b[currentSort.column] || 0;
+        }
+        
+        if (typeof aVal === 'string') {
+            return currentSort.asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        }
+        return currentSort.asc ? aVal - bVal : bVal - aVal;
+    });
+    
+    container.innerHTML = filteredBeys.map(bey => {
+        const isSelected = selectedBeys.includes(bey.name);
+        return `
+            <div class="lb-card compare-card">
+                <div class="lb-card-header">
+                    <div class="lb-card-rank">${bey.leaderboard.rank || '-'}</div>
+                    <a href="bey.html?name=${encodeURIComponent(bey.name)}" class="lb-card-name bey-link">${escapeHtml(bey.name)}</a>
+                    <div class="lb-card-elo">
+                        ${bey.leaderboard.elo || '-'}
+                        <div class="lb-card-elo-label">ELO</div>
+                    </div>
+                </div>
+                <div class="lb-card-stats compare-stats">
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">⚔️ ATK</div>
+                        <div class="lb-stat-value">${bey.attack.toFixed(1)}</div>
+                    </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">🛡️ DEF</div>
+                        <div class="lb-stat-value">${bey.defense.toFixed(1)}</div>
+                    </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">💪 STA</div>
+                        <div class="lb-stat-value">${bey.stamina.toFixed(1)}</div>
+                    </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">🎯 CTR</div>
+                        <div class="lb-stat-value">${bey.control.toFixed(1)}</div>
+                    </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">⭐ META</div>
+                        <div class="lb-stat-value">${bey.meta_impact.toFixed(1)}</div>
+                    </div>
+                </div>
+                <div class="compare-card-footer">
+                    <div class="compare-total">
+                        <span class="compare-total-label">Total:</span>
+                        <span class="compare-total-value">${bey.total.toFixed(1)}</span>
+                    </div>
+                    <button class="compare-add-btn ${isSelected ? 'selected' : ''}" 
+                            onclick="toggleComparison('${escapeHtml(bey.name)}'); updateView();"
+                            title="${isSelected ? 'Remove from comparison' : 'Add to comparison'}">
+                        ${isSelected ? '✓' : '+'}
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Mobile sorting functions
+function setupMobileSorting() {
+    const sortButton = document.getElementById('mobileSortButton');
+    const sortModal = document.getElementById('sortModal');
+    const sortModalClose = document.getElementById('sortModalClose');
+    
+    if (!sortButton || !sortModal || !sortModalClose) return;
+    
+    sortButton.addEventListener('click', openSortModal);
+    sortModalClose.addEventListener('click', closeSortModal);
+    sortModal.addEventListener('click', (e) => {
+        if (e.target === sortModal) closeSortModal();
+    });
+}
+
+function openSortModal() {
+    const sortModal = document.getElementById('sortModal');
+    const sortModalBody = document.getElementById('sortModalBody');
+    
+    if (!sortModal || !sortModalBody) return;
+    
+    const sortColumns = ['rank', 'name', 'elo', 'attack', 'defense', 'stamina', 'control', 'meta_impact', 'total'];
+    
+    sortModalBody.innerHTML = sortColumns.map(col => {
+        const isActive = currentSort.column === col;
+        return `
+            <div class="sort-option ${isActive ? 'active' : ''}" onclick="sortByColumnMobile('${col}')">
+                <div class="sort-option-label">${SORT_LABELS[col]}</div>
+                <div class="sort-option-direction">
+                    <button class="direction-btn ${isActive && currentSort.asc ? 'active' : ''}" onclick="event.stopPropagation(); sortByColumnMobile('${col}', true)">↑</button>
+                    <button class="direction-btn ${isActive && !currentSort.asc ? 'active' : ''}" onclick="event.stopPropagation(); sortByColumnMobile('${col}', false)">↓</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    sortModal.classList.add('active');
+}
+
+function closeSortModal() {
+    const sortModal = document.getElementById('sortModal');
+    if (sortModal) sortModal.classList.remove('active');
+}
+
+function sortByColumnMobile(column, asc = null) {
+    if (asc === null) {
+        asc = currentSort.column === column ? !currentSort.asc : (column === 'name' ? true : false);
+    }
+    currentSort = { column, asc };
+    updateCurrentSortLabel();
+    updateView();
+    closeSortModal();
+}
+
+function updateCurrentSortLabel() {
+    const label = document.getElementById('currentSortLabel');
+    if (label) {
+        const direction = currentSort.asc ? '↑' : '↓';
+        label.textContent = `${SORT_LABELS[currentSort.column]} ${direction}`;
+    }
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
     
-    // Search
-    document.getElementById('tableSearch').addEventListener('input', renderStatsTable);
+    // Search - update both table and cards
+    document.getElementById('tableSearch').addEventListener('input', updateView);
     
-    // Sort headers
+    // Sort headers for table
     document.querySelectorAll('.stats-table th.sortable').forEach(th => {
-        th.addEventListener('click', () => sortTable(th.dataset.sort));
+        th.addEventListener('click', () => {
+            sortTable(th.dataset.sort);
+            updateView();
+        });
     });
+    
+    // Setup mobile sorting
+    setupMobileSorting();
+    
+    // Handle window resize
+    window.addEventListener('resize', updateView);
+    
+    // Initial view update
+    setTimeout(updateView, 100);
 });
 </script>
 
