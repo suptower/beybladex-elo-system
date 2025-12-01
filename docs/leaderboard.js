@@ -122,7 +122,7 @@ function applyValueStyling(element, value, columnName) {
 function parseCSV(text) {
     const lines = text.trim().split(/\r?\n/);  // Handle both \n and \r\n
     const headers = lines[0].split(",").map(h => h.trim());
-    console.log("Parsed Headers:", headers);
+    // console.log("Parsed Headers:", headers);
 
     const rows = lines.slice(1).map(line => {
         const values = line.split(",").map(v => v.trim());
