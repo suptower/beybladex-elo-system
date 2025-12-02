@@ -141,6 +141,17 @@ let filteredCounters = [];
 let currentSort = 'bey';
 let minGames = 1;
 
+// Counter effectiveness thresholds
+// These define how we categorize counter effectiveness based on performance
+const EFFECTIVENESS_THRESHOLDS = {
+    // Win rate thresholds (lower = better counter, since the target Bey loses more)
+    DOMINANT_WINRATE: 0,      // Target never wins against counter
+    GOOD_WINRATE: 0.3,        // Target wins 30% or less
+    SLIGHT_WINRATE: 0.5,      // Target wins 50% or less
+    // Score differential threshold (negative = counter wins by more points)
+    DOMINANT_SCORE_DIFF: -4   // Counter wins by 4+ points total
+};
+
 // Helper function to normalize bey names for comparison
 function normalizeBeyName(name) {
     if (!name) return '';
@@ -166,10 +177,12 @@ function getEffectivenessClass(winrate, scoreDiff) {
     const sd = parseInt(scoreDiff);
     
     // Counter effectiveness is based on how badly they beat the target
-    if (wr === 0 && sd <= -4) return 'effectiveness-very-high';
-    if (wr === 0) return 'effectiveness-high';
-    if (wr <= 0.3) return 'effectiveness-medium';
-    if (wr <= 0.5) return 'effectiveness-low';
+    if (wr === EFFECTIVENESS_THRESHOLDS.DOMINANT_WINRATE && sd <= EFFECTIVENESS_THRESHOLDS.DOMINANT_SCORE_DIFF) {
+        return 'effectiveness-very-high';
+    }
+    if (wr === EFFECTIVENESS_THRESHOLDS.DOMINANT_WINRATE) return 'effectiveness-high';
+    if (wr <= EFFECTIVENESS_THRESHOLDS.GOOD_WINRATE) return 'effectiveness-medium';
+    if (wr <= EFFECTIVENESS_THRESHOLDS.SLIGHT_WINRATE) return 'effectiveness-low';
     return 'effectiveness-neutral';
 }
 
@@ -178,10 +191,12 @@ function getEffectivenessIcon(winrate, scoreDiff) {
     const wr = parseFloat(winrate);
     const sd = parseInt(scoreDiff);
     
-    if (wr === 0 && sd <= -4) return '🔥🔥🔥';
-    if (wr === 0) return '🔥🔥';
-    if (wr <= 0.3) return '🔥';
-    if (wr <= 0.5) return '⚡';
+    if (wr === EFFECTIVENESS_THRESHOLDS.DOMINANT_WINRATE && sd <= EFFECTIVENESS_THRESHOLDS.DOMINANT_SCORE_DIFF) {
+        return '🔥🔥🔥';
+    }
+    if (wr === EFFECTIVENESS_THRESHOLDS.DOMINANT_WINRATE) return '🔥🔥';
+    if (wr <= EFFECTIVENESS_THRESHOLDS.GOOD_WINRATE) return '🔥';
+    if (wr <= EFFECTIVENESS_THRESHOLDS.SLIGHT_WINRATE) return '⚡';
     return '➖';
 }
 
@@ -190,10 +205,12 @@ function getEffectivenessText(winrate, scoreDiff) {
     const wr = parseFloat(winrate);
     const sd = parseInt(scoreDiff);
     
-    if (wr === 0 && sd <= -4) return 'Dominant Counter';
-    if (wr === 0) return 'Strong Counter';
-    if (wr <= 0.3) return 'Good Counter';
-    if (wr <= 0.5) return 'Slight Counter';
+    if (wr === EFFECTIVENESS_THRESHOLDS.DOMINANT_WINRATE && sd <= EFFECTIVENESS_THRESHOLDS.DOMINANT_SCORE_DIFF) {
+        return 'Dominant Counter';
+    }
+    if (wr === EFFECTIVENESS_THRESHOLDS.DOMINANT_WINRATE) return 'Strong Counter';
+    if (wr <= EFFECTIVENESS_THRESHOLDS.GOOD_WINRATE) return 'Good Counter';
+    if (wr <= EFFECTIVENESS_THRESHOLDS.SLIGHT_WINRATE) return 'Slight Counter';
     return 'Even Matchup';
 }
 
