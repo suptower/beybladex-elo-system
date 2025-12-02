@@ -5307,6 +5307,601 @@ body.dark .win-probability {
 }
 
 /* ============================================
+   ENHANCED COMPARE TOOL STYLES
+============================================ */
+
+/* Type Badge in Compare Cards */
+.compare-card-type {
+    margin-top: 0.5rem;
+}
+
+.type-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.type-badge.type-attack { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+.type-badge.type-defense { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.type-badge.type-stamina { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+.type-badge.type-balance { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+.type-badge.type-unknown { background: rgba(107, 114, 128, 0.15); color: #6b7280; }
+
+/* Stat Battle Section */
+.compare-battle-section,
+.compare-leaderboard-section,
+.compare-advanced-section,
+.compare-finish-section,
+.compare-parts-section,
+.compare-archetype-section,
+.compare-h2h-section {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.compare-battle-section h3,
+.compare-leaderboard-section h3,
+.compare-advanced-section h3,
+.compare-finish-section h3,
+.compare-parts-section h3,
+.compare-archetype-section h3,
+.compare-h2h-section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.125rem;
+    color: var(--text);
+}
+
+/* Stat Battle Grid */
+.stat-battle-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.stat-battle-row {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.stat-battle-label {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+}
+
+.stat-battle-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stat-battle-item {
+    display: grid;
+    grid-template-columns: 100px 1fr 50px;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.stat-battle-item.winner {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.stat-battle-item.loser {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.stat-battle-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stat-battle-bar-container {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.stat-battle-bar {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.stat-battle-value {
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-align: right;
+}
+
+.stat-battle-value.advantage {
+    color: #10b981;
+}
+
+.stat-battle-value.disadvantage {
+    color: #ef4444;
+}
+
+/* Leaderboard Stats Comparison */
+.leaderboard-stats-grid,
+.advanced-stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.leaderboard-stat-row,
+.advanced-stat-row {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.leaderboard-stat-label,
+.advanced-stat-label {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stat-desc {
+    font-weight: 400;
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.leaderboard-stat-values,
+.advanced-stat-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.leaderboard-stat-item,
+.advanced-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid;
+}
+
+.stat-bey-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.stat-value.advantage {
+    color: #10b981;
+}
+
+.stat-value.disadvantage {
+    color: #ef4444;
+}
+
+/* Finish Type Comparison */
+.finish-comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.finish-type-card {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.finish-type-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.finish-icon {
+    font-size: 1.25rem;
+}
+
+.finish-label {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text);
+}
+
+.finish-type-values {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.finish-value-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.375rem 0.5rem;
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.finish-value-item.winner {
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.finish-bey-name {
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+.finish-rate {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--text);
+}
+
+.finish-rate.advantage {
+    color: #10b981;
+}
+
+/* Parts Comparison */
+.parts-comparison-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.parts-category {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.parts-category h4 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: var(--text);
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.parts-info-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.part-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid;
+}
+
+.part-name {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.part-value {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text);
+}
+
+.part-category {
+    margin-top: 0.25rem;
+    font-size: 0.6875rem;
+}
+
+.parts-stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.part-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+}
+
+.part-stat-label {
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    flex: 1;
+}
+
+.part-stat-values {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.part-stat-value {
+    font-weight: 700;
+    font-size: 0.875rem;
+    min-width: 40px;
+    text-align: center;
+}
+
+.part-stat-value.advantage {
+    color: #10b981;
+}
+
+.part-stat-value.disadvantage {
+    color: #ef4444;
+}
+
+/* Archetype Comparison */
+.archetype-comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.archetype-card {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    border-top: 3px solid;
+}
+
+.archetype-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.archetype-emoji {
+    font-size: 1.5rem;
+}
+
+.archetype-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.archetype-bey-name {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.archetype-type {
+    display: inline-block;
+    width: fit-content;
+}
+
+.archetype-desc {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    margin: 0 0 0.75rem 0;
+    line-height: 1.5;
+}
+
+.archetype-traits {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.archetype-strengths,
+.archetype-weaknesses {
+    font-size: 0.8125rem;
+}
+
+.traits-label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.375rem;
+    color: var(--text);
+}
+
+.archetype-strengths .traits-label { color: #10b981; }
+.archetype-weaknesses .traits-label { color: #f59e0b; }
+
+.archetype-traits ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: var(--text-light);
+}
+
+.archetype-traits li {
+    margin-bottom: 0.25rem;
+}
+
+/* Head-to-Head Section */
+.h2h-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.h2h-card {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.h2h-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.h2h-bey {
+    font-weight: 700;
+    font-size: 0.9375rem;
+}
+
+.h2h-vs {
+    font-weight: 800;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    background: var(--card);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.h2h-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.h2h-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.h2h-label {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+}
+
+.h2h-value {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text);
+}
+
+.h2h-value .advantage {
+    color: #10b981;
+}
+
+.h2h-value .disadvantage {
+    color: #ef4444;
+}
+
+.h2h-win-bar {
+    display: flex;
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.h2h-bar-a,
+.h2h-bar-b {
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+.h2h-win-labels {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 0.8125rem;
+}
+
+.h2h-empty {
+    text-align: center;
+    color: var(--text-light);
+    padding: 2rem;
+    font-style: italic;
+}
+
+/* Responsive for Compare Sections */
+@media (max-width: 768px) {
+    .stat-battle-item {
+        grid-template-columns: 80px 1fr 40px;
+        gap: 0.5rem;
+    }
+    
+    .finish-comparison-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .archetype-comparison-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .archetype-traits {
+        grid-template-columns: 1fr;
+    }
+    
+    .parts-info-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .part-stat-values {
+        gap: 0.75rem;
+    }
+    
+    .h2h-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .finish-comparison-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-battle-name {
+        font-size: 0.75rem;
+    }
+    
+    .compare-battle-section,
+    .compare-leaderboard-section,
+    .compare-advanced-section,
+    .compare-finish-section,
+    .compare-parts-section,
+    .compare-archetype-section,
+    .compare-h2h-section {
+        padding: 1rem;
+    }
+    
+    .leaderboard-stat-values,
+    .advanced-stat-values {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
    PARTS PERFORMANCE PAGE STYLES
 ============================================ */
 

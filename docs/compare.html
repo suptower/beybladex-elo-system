@@ -145,6 +145,62 @@
                 <canvas id="compareRadarChart"></canvas>
             </div>
         </div>
+        
+        <!-- Stat Battle Summary -->
+        <div class="compare-battle-section" id="compareBattleSection" style="display: none;">
+            <h3>⚔️ Stat Battle Summary</h3>
+            <div class="stat-battle-grid" id="statBattleGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Leaderboard Stats Comparison -->
+        <div class="compare-leaderboard-section" id="compareLeaderboardSection" style="display: none;">
+            <h3>🏆 Leaderboard Stats</h3>
+            <div class="leaderboard-stats-grid" id="leaderboardStatsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Advanced Stats Comparison -->
+        <div class="compare-advanced-section" id="compareAdvancedSection" style="display: none;">
+            <h3>📊 Advanced Stats</h3>
+            <div class="advanced-stats-grid" id="advancedStatsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Finish Type Distribution -->
+        <div class="compare-finish-section" id="compareFinishSection" style="display: none;">
+            <h3>💥 Finish Type Distribution</h3>
+            <div class="finish-comparison-grid" id="finishComparisonGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Part-Level Comparison -->
+        <div class="compare-parts-section" id="comparePartsSection" style="display: none;">
+            <h3>🔧 Part-Level Comparison</h3>
+            <div class="parts-comparison-grid" id="partsComparisonGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Archetype Comparison -->
+        <div class="compare-archetype-section" id="compareArchetypeSection" style="display: none;">
+            <h3>🎭 Archetype Comparison</h3>
+            <div class="archetype-comparison-grid" id="archetypeComparisonGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Head-to-Head Matchup History -->
+        <div class="compare-h2h-section" id="compareH2HSection" style="display: none;">
+            <h3>📊 Head-to-Head History</h3>
+            <div class="h2h-grid" id="h2hGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
     </section>
 </main>
 
@@ -159,6 +215,11 @@ let allBeys = [];
 let selectedBeys = [];
 let currentSort = { column: 'rank', asc: true };
 let radarChart = null;
+let beysData = [];
+let partsStatsData = {};
+let beyCountersData = [];
+let eloHistoryData = [];
+let advancedLeaderboardData = [];
 
 // Stat colors
 const statColors = {
@@ -214,8 +275,29 @@ const subMetricNames = {
 // Load data
 async function loadData() {
     try {
-        const response = await fetch('data/rpg_stats.json');
-        rpgStatsData = await response.json();
+        // Load all data in parallel
+        const [rpgResponse, beysResponse, partsResponse, countersResponse, historyResponse, advancedResponse] = await Promise.all([
+            fetch('data/rpg_stats.json'),
+            fetch('data/beys_data.json'),
+            fetch('data/parts_stats.json'),
+            fetch('data/bey_counters.csv'),
+            fetch('data/elo_history.csv'),
+            fetch('data/advanced_leaderboard.csv')
+        ]);
+        
+        rpgStatsData = await rpgResponse.json();
+        beysData = await beysResponse.json();
+        partsStatsData = await partsResponse.json();
+        
+        // Parse CSV data
+        const countersText = await countersResponse.text();
+        beyCountersData = parseCSV(countersText);
+        
+        const historyText = await historyResponse.text();
+        eloHistoryData = parseCSV(historyText);
+        
+        const advancedText = await advancedResponse.text();
+        advancedLeaderboardData = parseCSV(advancedText);
         
         // Convert to array with names
         allBeys = Object.entries(rpgStatsData).map(([name, data]) => ({
@@ -247,6 +329,26 @@ async function loadData() {
     } catch (error) {
         console.error('Error loading data:', error);
     }
+}
+
+// Parse CSV text to array of objects
+// Parse CSV text to array of objects
+// Note: This is a simple CSV parser that handles basic CSV files.
+// It does not handle quoted values containing commas or newlines.
+// The data files in this project use simple CSV without such edge cases.
+function parseCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) return [];
+    
+    const headers = lines[0].split(',');
+    return lines.slice(1).map(line => {
+        const values = line.split(',');
+        const obj = {};
+        headers.forEach((header, i) => {
+            obj[header.trim()] = values[i] ? values[i].trim() : '';
+        });
+        return obj;
+    });
 }
 
 // Show view
@@ -429,16 +531,33 @@ function updateURL() {
 function renderCompareCards() {
     const container = document.getElementById('compareCards');
     const chartSection = document.getElementById('compareChartSection');
+    const battleSection = document.getElementById('compareBattleSection');
+    const leaderboardSection = document.getElementById('compareLeaderboardSection');
+    const advancedSection = document.getElementById('compareAdvancedSection');
+    const finishSection = document.getElementById('compareFinishSection');
+    const partsSection = document.getElementById('comparePartsSection');
+    const archetypeSection = document.getElementById('compareArchetypeSection');
+    const h2hSection = document.getElementById('compareH2HSection');
     
     if (selectedBeys.length === 0) {
         container.innerHTML = '<div class="compare-empty">Select beys from the table or dropdowns above to compare them.</div>';
         chartSection.style.display = 'none';
+        battleSection.style.display = 'none';
+        leaderboardSection.style.display = 'none';
+        advancedSection.style.display = 'none';
+        finishSection.style.display = 'none';
+        partsSection.style.display = 'none';
+        archetypeSection.style.display = 'none';
+        h2hSection.style.display = 'none';
         return;
     }
     
     container.innerHTML = selectedBeys.map((name, idx) => {
         const bey = rpgStatsData[name];
         const color = beyColors[idx];
+        const beyInfo = beysData.find(b => b.blade === name);
+        const beyType = beyInfo?.type || partsStatsData.blades?.[name]?.type || 'Unknown';
+        const safeType = sanitizeClassName(beyType);
         
         return `
             <div class="compare-card" style="border-top-color: ${color.border}">
@@ -449,6 +568,9 @@ function renderCompareCards() {
                     <div class="compare-card-rank">
                         <span class="rank-badge">#${bey.leaderboard?.rank || '-'}</span>
                         <span class="elo-badge">ELO: ${bey.leaderboard?.elo || '-'}</span>
+                    </div>
+                    <div class="compare-card-type">
+                        <span class="type-badge type-${safeType}">${escapeHtml(beyType)}</span>
                     </div>
                 </div>
                 
@@ -472,8 +594,36 @@ function renderCompareCards() {
     if (selectedBeys.length >= 2) {
         chartSection.style.display = 'block';
         renderRadarChart();
+        
+        battleSection.style.display = 'block';
+        renderStatBattle();
+        
+        leaderboardSection.style.display = 'block';
+        renderLeaderboardStats();
+        
+        advancedSection.style.display = 'block';
+        renderAdvancedStats();
+        
+        finishSection.style.display = 'block';
+        renderFinishComparison();
+        
+        partsSection.style.display = 'block';
+        renderPartsComparison();
+        
+        archetypeSection.style.display = 'block';
+        renderArchetypeComparison();
+        
+        h2hSection.style.display = 'block';
+        renderH2HComparison();
     } else {
         chartSection.style.display = 'none';
+        battleSection.style.display = 'none';
+        leaderboardSection.style.display = 'none';
+        advancedSection.style.display = 'none';
+        finishSection.style.display = 'none';
+        partsSection.style.display = 'none';
+        archetypeSection.style.display = 'none';
+        h2hSection.style.display = 'none';
     }
 }
 
@@ -589,11 +739,539 @@ function renderRadarChart() {
     });
 }
 
-// Escape HTML
+// Escape HTML - handles null/undefined inputs
 function escapeHtml(text) {
+    if (text == null) return '';
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = String(text);
     return div.innerHTML;
+}
+
+// Sanitize class name - only allow alphanumeric and hyphens
+function sanitizeClassName(name) {
+    if (name == null) return 'unknown';
+    return String(name).toLowerCase().replace(/[^a-z0-9-]/g, '');
+}
+
+// Render Stat Battle Summary
+function renderStatBattle() {
+    const container = document.getElementById('statBattleGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const stats = ['attack', 'defense', 'stamina', 'control', 'meta_impact'];
+    const statLabels = {
+        attack: '⚔️ Attack',
+        defense: '🛡️ Defense',
+        stamina: '💪 Stamina',
+        control: '🎯 Control',
+        meta_impact: '⭐ Meta Impact'
+    };
+    
+    container.innerHTML = stats.map(stat => {
+        const values = selectedBeys.map(name => ({
+            name,
+            value: rpgStatsData[name]?.stats[stat] || 0,
+            color: beyColors[selectedBeys.indexOf(name)]
+        }));
+        
+        const maxValue = Math.max(...values.map(v => v.value));
+        const minValue = Math.min(...values.map(v => v.value));
+        const difference = maxValue - minValue;
+        
+        return `
+            <div class="stat-battle-row">
+                <div class="stat-battle-label">${statLabels[stat]}</div>
+                <div class="stat-battle-bars">
+                    ${values.map(v => {
+                        const isWinner = v.value === maxValue && difference > 0.2;
+                        const isLoser = v.value === minValue && difference > 0.2;
+                        const percentage = (v.value / 5) * 100;
+                        return `
+                            <div class="stat-battle-item ${isWinner ? 'winner' : ''} ${isLoser ? 'loser' : ''}">
+                                <span class="stat-battle-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <div class="stat-battle-bar-container">
+                                    <div class="stat-battle-bar" style="width: ${percentage}%; background: ${v.color.border}"></div>
+                                </div>
+                                <span class="stat-battle-value ${isWinner ? 'advantage' : ''} ${isLoser ? 'disadvantage' : ''}">${v.value.toFixed(1)}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Get advanced leaderboard data for a bey
+function getAdvancedStats(beyName) {
+    return advancedLeaderboardData.find(row => row.Bey === beyName) || null;
+}
+
+// Render Leaderboard Stats Comparison
+function renderLeaderboardStats() {
+    const container = document.getElementById('leaderboardStatsGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const statsToCompare = [
+        { key: 'Winrate', label: '🏆 Winrate', format: 'string', higherBetter: true },
+        { key: 'Matches', label: '🎮 Matches', format: 'number', higherBetter: true },
+        { key: 'Wins', label: '✅ Wins', format: 'number', higherBetter: true },
+        { key: 'Losses', label: '❌ Losses', format: 'number', higherBetter: false },
+        { key: 'PointsFor', label: '📈 Points Scored', format: 'number', higherBetter: true },
+        { key: 'PointsAgainst', label: '📉 Points Against', format: 'number', higherBetter: false },
+        { key: 'AvgPointDiff', label: '⚖️ Avg Point Diff', format: 'decimal', higherBetter: true },
+        { key: 'PowerIndex', label: '💪 Power Index', format: 'decimal', higherBetter: true }
+    ];
+    
+    container.innerHTML = statsToCompare.map(stat => {
+        const values = selectedBeys.map((name, idx) => {
+            const advStats = getAdvancedStats(name);
+            let value = advStats ? advStats[stat.key] : null;
+            
+            // Parse value based on format
+            if (value !== null && stat.format === 'number') {
+                value = parseInt(value) || 0;
+            } else if (value !== null && stat.format === 'decimal') {
+                value = parseFloat(value) || 0;
+            }
+            
+            return {
+                name,
+                value,
+                displayValue: advStats ? advStats[stat.key] : '-',
+                color: beyColors[idx]
+            };
+        });
+        
+        // Determine winner/loser for numeric values
+        const numericValues = values.filter(v => typeof v.value === 'number').map(v => v.value);
+        const maxValue = numericValues.length > 0 ? Math.max(...numericValues) : null;
+        const minValue = numericValues.length > 0 ? Math.min(...numericValues) : null;
+        
+        return `
+            <div class="leaderboard-stat-row">
+                <div class="leaderboard-stat-label">${stat.label}</div>
+                <div class="leaderboard-stat-values">
+                    ${values.map(v => {
+                        let className = '';
+                        if (typeof v.value === 'number' && maxValue !== minValue) {
+                            if (stat.higherBetter) {
+                                if (v.value === maxValue) className = 'advantage';
+                                else if (v.value === minValue) className = 'disadvantage';
+                            } else {
+                                if (v.value === minValue) className = 'advantage';
+                                else if (v.value === maxValue) className = 'disadvantage';
+                            }
+                        }
+                        return `
+                            <div class="leaderboard-stat-item" style="border-color: ${v.color.border}">
+                                <span class="stat-bey-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <span class="stat-value ${className}">${escapeHtml(String(v.displayValue))}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render Advanced Stats Comparison
+function renderAdvancedStats() {
+    const container = document.getElementById('advancedStatsGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const advancedStatsToCompare = [
+        { key: 'Volatility', label: '📊 Volatility', format: 'decimal', higherBetter: false, desc: 'Lower is more consistent' },
+        { key: 'AvgΔELO', label: '📈 Avg ELO Change', format: 'decimal', higherBetter: true },
+        { key: 'MaxΔELO', label: '🔺 Max ELO Gain', format: 'decimal', higherBetter: true },
+        { key: 'MinΔELO', label: '🔻 Max ELO Loss', format: 'decimal', higherBetter: true },
+        { key: 'UpsetWins', label: '🎯 Upset Wins', format: 'number', higherBetter: true },
+        { key: 'UpsetLosses', label: '💥 Upset Losses', format: 'number', higherBetter: false },
+        { key: 'ELOTrend', label: '📉 ELO Trend', format: 'decimal', higherBetter: true }
+    ];
+    
+    container.innerHTML = advancedStatsToCompare.map(stat => {
+        const values = selectedBeys.map((name, idx) => {
+            const advStats = getAdvancedStats(name);
+            let value = advStats ? advStats[stat.key] : null;
+            
+            // Parse value based on format
+            if (value !== null && stat.format === 'number') {
+                value = parseInt(value) || 0;
+            } else if (value !== null && stat.format === 'decimal') {
+                value = parseFloat(value) || 0;
+            }
+            
+            return {
+                name,
+                value,
+                displayValue: advStats ? advStats[stat.key] : '-',
+                color: beyColors[idx]
+            };
+        });
+        
+        // Determine winner/loser for numeric values
+        const numericValues = values.filter(v => typeof v.value === 'number').map(v => v.value);
+        const maxValue = numericValues.length > 0 ? Math.max(...numericValues) : null;
+        const minValue = numericValues.length > 0 ? Math.min(...numericValues) : null;
+        
+        return `
+            <div class="advanced-stat-row">
+                <div class="advanced-stat-label">
+                    ${stat.label}
+                    ${stat.desc ? `<span class="stat-desc">${escapeHtml(stat.desc)}</span>` : ''}
+                </div>
+                <div class="advanced-stat-values">
+                    ${values.map(v => {
+                        let className = '';
+                        if (typeof v.value === 'number' && maxValue !== minValue) {
+                            if (stat.higherBetter) {
+                                if (v.value === maxValue) className = 'advantage';
+                                else if (v.value === minValue) className = 'disadvantage';
+                            } else {
+                                if (v.value === minValue) className = 'advantage';
+                                else if (v.value === maxValue) className = 'disadvantage';
+                            }
+                        }
+                        return `
+                            <div class="advanced-stat-item" style="border-color: ${v.color.border}">
+                                <span class="stat-bey-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <span class="stat-value ${className}">${escapeHtml(String(v.displayValue))}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render Finish Type Distribution
+function renderFinishComparison() {
+    const container = document.getElementById('finishComparisonGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const finishTypes = [
+        { key: 'burst_finish_rate', label: 'Burst', icon: '💥', attackKey: 'burst_finish_rate' },
+        { key: 'pocket_finish_rate', label: 'Pocket', icon: '🎯', attackKey: 'pocket_finish_rate' },
+        { key: 'extreme_finish_rate', label: 'Extreme', icon: '⚡', attackKey: 'extreme_finish_rate' },
+        { key: 'spin_finish_win_rate', label: 'Spin', icon: '🌀', staminaKey: 'spin_finish_win_rate' }
+    ];
+    
+    container.innerHTML = finishTypes.map(finish => {
+        const values = selectedBeys.map((name, idx) => {
+            const bey = rpgStatsData[name];
+            let value = 0;
+            if (finish.attackKey && bey?.sub_metrics?.attack) {
+                value = bey.sub_metrics.attack[finish.attackKey] || 0;
+            } else if (finish.staminaKey && bey?.sub_metrics?.stamina) {
+                value = bey.sub_metrics.stamina[finish.staminaKey] || 0;
+            }
+            return {
+                name,
+                value,
+                color: beyColors[idx]
+            };
+        });
+        
+        const maxValue = Math.max(...values.map(v => v.value));
+        
+        return `
+            <div class="finish-type-card">
+                <div class="finish-type-header">
+                    <span class="finish-icon">${finish.icon}</span>
+                    <span class="finish-label">${finish.label}</span>
+                </div>
+                <div class="finish-type-values">
+                    ${values.map(v => {
+                        const isWinner = v.value === maxValue && maxValue > 0;
+                        return `
+                            <div class="finish-value-item ${isWinner ? 'winner' : ''}">
+                                <span class="finish-bey-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <span class="finish-rate ${isWinner ? 'advantage' : ''}">${(v.value * 100).toFixed(1)}%</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Get bey info from beys_data.json
+function getBeyInfo(bladeName) {
+    return beysData.find(b => b.blade === bladeName) || null;
+}
+
+// Render Parts Comparison
+function renderPartsComparison() {
+    const container = document.getElementById('partsComparisonGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const partsData = selectedBeys.map((name, idx) => {
+        const beyInfo = getBeyInfo(name);
+        const bladeStats = partsStatsData.blades?.[name] || {};
+        const ratchetStats = beyInfo?.ratchet ? partsStatsData.ratchets?.[beyInfo.ratchet] : null;
+        const bitStats = beyInfo?.bit ? partsStatsData.bits?.[beyInfo.bit] : null;
+        
+        return {
+            name,
+            color: beyColors[idx],
+            blade: {
+                name: name,
+                type: bladeStats.type || 'Unknown',
+                stats: bladeStats.stats || {}
+            },
+            ratchet: beyInfo?.ratchet ? {
+                name: beyInfo.ratchet,
+                stats: ratchetStats?.stats || {}
+            } : null,
+            bit: beyInfo?.bit ? {
+                name: beyInfo.bit,
+                category: bitStats?.category || 'Unknown',
+                stats: bitStats?.stats || {}
+            } : null
+        };
+    });
+    
+    // Build the parts comparison HTML
+    container.innerHTML = `
+        <div class="parts-category">
+            <h4>🔘 Blade Stats</h4>
+            <div class="parts-stats-grid">
+                ${renderPartStatComparison(partsData, 'blade', ['contact_power', 'spin_control', 'deflection_ability'])}
+            </div>
+        </div>
+        <div class="parts-category">
+            <h4>⚙️ Ratchet</h4>
+            <div class="parts-info-row">
+                ${partsData.map(p => `
+                    <div class="part-info-item" style="border-color: ${p.color.border}">
+                        <span class="part-name">${escapeHtml(p.name)}</span>
+                        <span class="part-value">${escapeHtml(p.ratchet?.name || 'Unknown')}</span>
+                    </div>
+                `).join('')}
+            </div>
+            ${partsData.some(p => p.ratchet?.stats) ? `
+            <div class="parts-stats-grid">
+                ${renderPartStatComparison(partsData, 'ratchet', ['burst_resistance', 'lock_stability', 'weight_efficiency'])}
+            </div>
+            ` : ''}
+        </div>
+        <div class="parts-category">
+            <h4>🎱 Bit</h4>
+            <div class="parts-info-row">
+                ${partsData.map(p => `
+                    <div class="part-info-item" style="border-color: ${p.color.border}">
+                        <span class="part-name">${escapeHtml(p.name)}</span>
+                        <span class="part-value">${escapeHtml(p.bit?.name || 'Unknown')}</span>
+                        ${p.bit?.category ? `<span class="part-category type-${sanitizeClassName(p.bit.category)}">${escapeHtml(p.bit.category)}</span>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+            ${partsData.some(p => p.bit?.stats) ? `
+            <div class="parts-stats-grid">
+                ${renderPartStatComparison(partsData, 'bit', ['tip_control', 'speed_rating', 'stamina_output'])}
+            </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+// Helper function to render part stat comparisons
+function renderPartStatComparison(partsData, partType, statKeys) {
+    const statLabels = {
+        contact_power: 'Contact Power',
+        spin_control: 'Spin Control',
+        deflection_ability: 'Deflection',
+        burst_resistance: 'Burst Resist',
+        lock_stability: 'Lock Stability',
+        weight_efficiency: 'Weight Eff.',
+        tip_control: 'Tip Control',
+        speed_rating: 'Speed',
+        stamina_output: 'Stamina Output'
+    };
+    
+    return statKeys.map(statKey => {
+        const values = partsData.map(p => ({
+            name: p.name,
+            value: p[partType]?.stats?.[statKey] || 0,
+            color: p.color
+        }));
+        
+        const maxValue = Math.max(...values.map(v => v.value));
+        const minValue = Math.min(...values.map(v => v.value));
+        const difference = maxValue - minValue;
+        
+        return `
+            <div class="part-stat-row">
+                <span class="part-stat-label">${statLabels[statKey] || statKey}</span>
+                <div class="part-stat-values">
+                    ${values.map(v => {
+                        const isWinner = v.value === maxValue && difference > 0.2;
+                        const isLoser = v.value === minValue && difference > 0.2;
+                        return `
+                            <span class="part-stat-value ${isWinner ? 'advantage' : ''} ${isLoser ? 'disadvantage' : ''}" style="color: ${v.color.border}">
+                                ${v.value > 0 ? v.value.toFixed(1) : '-'}
+                            </span>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render Archetype Comparison
+function renderArchetypeComparison() {
+    const container = document.getElementById('archetypeComparisonGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const typeDescriptions = {
+        'Attack': { emoji: '⚔️', desc: 'High burst potential, aggressive playstyle', strengths: ['Burst finishes', 'Opening dominance'], weaknesses: ['Stamina', 'Consistency'] },
+        'Defense': { emoji: '🛡️', desc: 'High survival, defensive playstyle', strengths: ['Burst resistance', 'Pocket resistance'], weaknesses: ['Attack power', 'Speed'] },
+        'Stamina': { emoji: '🌀', desc: 'Long-lasting spin, outlast opponents', strengths: ['Spin finishes', 'Long rounds'], weaknesses: ['Burst potential', 'Early game'] },
+        'Balance': { emoji: '⚖️', desc: 'Versatile, no major weaknesses', strengths: ['Adaptability', 'Matchup flexibility'], weaknesses: ['No standout strength'] }
+    };
+    
+    container.innerHTML = selectedBeys.map((name, idx) => {
+        const beyInfo = getBeyInfo(name);
+        const bladeStats = partsStatsData.blades?.[name] || {};
+        const type = beyInfo?.type || bladeStats.type || 'Unknown';
+        const typeInfo = typeDescriptions[type] || { emoji: '❓', desc: 'Unknown type', strengths: [], weaknesses: [] };
+        const color = beyColors[idx];
+        const safeType = sanitizeClassName(type);
+        
+        return `
+            <div class="archetype-card" style="border-top-color: ${color.border}">
+                <div class="archetype-header">
+                    <span class="archetype-emoji">${typeInfo.emoji}</span>
+                    <div class="archetype-info">
+                        <span class="archetype-bey-name" style="color: ${color.border}">${escapeHtml(name)}</span>
+                        <span class="archetype-type type-badge type-${safeType}">${escapeHtml(type)}</span>
+                    </div>
+                </div>
+                <p class="archetype-desc">${escapeHtml(typeInfo.desc)}</p>
+                <div class="archetype-traits">
+                    <div class="archetype-strengths">
+                        <span class="traits-label">✅ Strengths</span>
+                        <ul>
+                            ${typeInfo.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="archetype-weaknesses">
+                        <span class="traits-label">⚠️ Weaknesses</span>
+                        <ul>
+                            ${typeInfo.weaknesses.map(w => `<li>${escapeHtml(w)}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render Head-to-Head Comparison
+function renderH2HComparison() {
+    const container = document.getElementById('h2hGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    // Find all matchups between selected beys in elo_history
+    const matchups = [];
+    
+    for (let i = 0; i < selectedBeys.length; i++) {
+        for (let j = i + 1; j < selectedBeys.length; j++) {
+            const beyA = selectedBeys[i];
+            const beyB = selectedBeys[j];
+            
+            // Find matches between these two beys
+            const matches = eloHistoryData.filter(m => 
+                (m.BeyA === beyA && m.BeyB === beyB) ||
+                (m.BeyA === beyB && m.BeyB === beyA)
+            );
+            
+            if (matches.length > 0) {
+                let winsA = 0, winsB = 0, scoreA = 0, scoreB = 0;
+                
+                matches.forEach(m => {
+                    const sA = parseInt(m.ScoreA) || 0;
+                    const sB = parseInt(m.ScoreB) || 0;
+                    
+                    if (m.BeyA === beyA) {
+                        scoreA += sA;
+                        scoreB += sB;
+                        if (sA > sB) winsA++;
+                        else if (sB > sA) winsB++;
+                    } else {
+                        scoreA += sB;
+                        scoreB += sA;
+                        if (sB > sA) winsA++;
+                        else if (sA > sB) winsB++;
+                    }
+                });
+                
+                matchups.push({
+                    beyA,
+                    beyB,
+                    colorA: beyColors[i],
+                    colorB: beyColors[j],
+                    matches: matches.length,
+                    winsA,
+                    winsB,
+                    scoreA,
+                    scoreB
+                });
+            }
+        }
+    }
+    
+    if (matchups.length === 0) {
+        container.innerHTML = '<div class="h2h-empty">No head-to-head matches found between selected Beys.</div>';
+        return;
+    }
+    
+    container.innerHTML = matchups.map(m => {
+        const totalWins = m.winsA + m.winsB;
+        const winRateA = totalWins > 0 ? (m.winsA / totalWins * 100) : 50;
+        const winRateB = totalWins > 0 ? (m.winsB / totalWins * 100) : 50;
+        
+        return `
+            <div class="h2h-card">
+                <div class="h2h-header">
+                    <span class="h2h-bey" style="color: ${m.colorA.border}">${escapeHtml(m.beyA)}</span>
+                    <span class="h2h-vs">VS</span>
+                    <span class="h2h-bey" style="color: ${m.colorB.border}">${escapeHtml(m.beyB)}</span>
+                </div>
+                <div class="h2h-stats">
+                    <div class="h2h-stat-row">
+                        <span class="h2h-label">Matches</span>
+                        <span class="h2h-value">${m.matches}</span>
+                    </div>
+                    <div class="h2h-stat-row">
+                        <span class="h2h-label">Record</span>
+                        <span class="h2h-value">
+                            <span style="color: ${m.colorA.border}" class="${m.winsA > m.winsB ? 'advantage' : m.winsA < m.winsB ? 'disadvantage' : ''}">${m.winsA}</span>
+                            -
+                            <span style="color: ${m.colorB.border}" class="${m.winsB > m.winsA ? 'advantage' : m.winsB < m.winsA ? 'disadvantage' : ''}">${m.winsB}</span>
+                        </span>
+                    </div>
+                    <div class="h2h-stat-row">
+                        <span class="h2h-label">Points</span>
+                        <span class="h2h-value">${m.scoreA} - ${m.scoreB}</span>
+                    </div>
+                </div>
+                <div class="h2h-win-bar">
+                    <div class="h2h-bar-a" style="width: ${winRateA}%; background: ${m.colorA.border}"></div>
+                    <div class="h2h-bar-b" style="width: ${winRateB}%; background: ${m.colorB.border}"></div>
+                </div>
+                <div class="h2h-win-labels">
+                    <span style="color: ${m.colorA.border}">${winRateA.toFixed(0)}%</span>
+                    <span style="color: ${m.colorB.border}">${winRateB.toFixed(0)}%</span>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 // Sort column labels for display
