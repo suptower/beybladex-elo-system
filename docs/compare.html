@@ -954,10 +954,10 @@ function renderFinishComparison() {
     if (!container || selectedBeys.length < 2) return;
     
     const finishTypes = [
-        { key: 'burst_finish_rate', label: '💥 Burst', icon: '💥', attackKey: 'burst_finish_rate' },
-        { key: 'pocket_finish_rate', label: '🎯 Pocket', icon: '🎯', attackKey: 'pocket_finish_rate' },
-        { key: 'extreme_finish_rate', label: '⚡ Extreme', icon: '⚡', attackKey: 'extreme_finish_rate' },
-        { key: 'spin_finish_win_rate', label: '🌀 Spin', icon: '🌀', staminaKey: 'spin_finish_win_rate' }
+        { key: 'burst_finish_rate', label: 'Burst', icon: '💥', attackKey: 'burst_finish_rate' },
+        { key: 'pocket_finish_rate', label: 'Pocket', icon: '🎯', attackKey: 'pocket_finish_rate' },
+        { key: 'extreme_finish_rate', label: 'Extreme', icon: '⚡', attackKey: 'extreme_finish_rate' },
+        { key: 'spin_finish_win_rate', label: 'Spin', icon: '🌀', staminaKey: 'spin_finish_win_rate' }
     ];
     
     container.innerHTML = finishTypes.map(finish => {
