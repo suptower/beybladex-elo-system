@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Brackets - Beyblade X ELO Analytics</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Tournament Brackets</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🏅</span>Tournaments</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="tournaments-page">
+    <!-- Hero Section -->
+    <section class="tournaments-hero">
+        <h2>🏅 Tournament Brackets</h2>
+        <p class="tournaments-description">
+            View past tournament brackets and results. Select a tournament to see its bracket embedded from Challonge.
+        </p>
+    </section>
+
+    <!-- Tournament Selection -->
+    <section class="tournaments-selection">
+        <div class="tournament-selector-container">
+            <label for="tournamentSelect" class="tournament-selector-label">Select Tournament</label>
+            <select id="tournamentSelect" class="tournament-selector">
+                <option value="">-- Select a tournament --</option>
+            </select>
+        </div>
+    </section>
+
+    <!-- Tournament Cards Grid -->
+    <section class="tournaments-grid-section">
+        <h3 class="section-subtitle">All Tournaments</h3>
+        <div class="tournaments-grid" id="tournamentsGrid">
+            <div class="loading-placeholder">Loading tournaments...</div>
+        </div>
+    </section>
+
+    <!-- Bracket Viewer -->
+    <section class="bracket-viewer-section" id="bracketViewerSection" style="display: none;">
+        <div class="bracket-header">
+            <h3 id="bracketTitle">Tournament Bracket</h3>
+            <div class="bracket-meta" id="bracketMeta"></div>
+        </div>
+        <div class="bracket-container" id="bracketContainer">
+            <!-- Challonge embed will be inserted here -->
+        </div>
+    </section>
+</main>
+
+<footer class="enhanced-footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h4>Beyblade X ELO System</h4>
+            <p>Comprehensive analytics platform for competitive Beyblade X.</p>
+        </div>
+        <div class="footer-section">
+            <h4>Data</h4>
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <a href="upsets.html">Upsets</a>
+            <a href="tournaments.html">Tournaments</a>
+        </div>
+        <div class="footer-section">
+            <h4>Tools</h4>
+            <a href="compare.html">Compare</a>
+            <a href="explorer.html">Parts Explorer</a>
+            <a href="counters.html">Counters</a>
+            <a href="simulator.html">Simulator</a>
+            <a href="predictor.html">Predictor</a>
+        </div>
+        <div class="footer-section">
+            <h4>Analytics</h4>
+            <a href="plots.html">Plots</a>
+            <a href="parts.html">Parts</a>
+            <a href="synergy.html">Synergy Heatmaps</a>
+            <a href="meta-balance.html">Meta Balance</a>
+            <a href="https://github.com/suptower/beybladex-elo-system" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2025 suptower • Built with 💜 for the Beyblade X community</p>
+    </div>
+</footer>
+
+<script>
+// Tournament data and viewer logic
+let tournamentsData = [];
+
+// Format date for display
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+}
+
+// Get format badge class
+function getFormatClass(format) {
+    const formatLower = format.toLowerCase();
+    if (formatLower.includes('swiss')) return 'format-swiss';
+    if (formatLower.includes('double')) return 'format-de';
+    if (formatLower.includes('single')) return 'format-se';
+    if (formatLower.includes('round robin') || formatLower === 'rr') return 'format-rr';
+    return 'format-other';
+}
+
+// Load tournament data
+async function loadTournaments() {
+    try {
+        const response = await fetch('data/tournaments.json');
+        const data = await response.json();
+        tournamentsData = data.tournaments || [];
+        
+        // Sort by date (newest first)
+        tournamentsData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        renderTournamentCards();
+        populateTournamentSelect();
+        
+        // Check URL for tournament parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const tournamentId = urlParams.get('tournament');
+        if (tournamentId) {
+            const tournament = tournamentsData.find(t => t.id === tournamentId || t.challonge === tournamentId);
+            if (tournament) {
+                loadBracket(tournament);
+                document.getElementById('tournamentSelect').value = tournament.id;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading tournaments:', error);
+        document.getElementById('tournamentsGrid').innerHTML = 
+            '<p class="error-text">Failed to load tournament data. Please try again later.</p>';
+    }
+}
+
+// Render tournament cards
+function renderTournamentCards() {
+    const grid = document.getElementById('tournamentsGrid');
+    
+    if (tournamentsData.length === 0) {
+        grid.innerHTML = '<p class="no-data-text">No tournaments available yet.</p>';
+        return;
+    }
+    
+    grid.innerHTML = tournamentsData.map(tournament => `
+        <div class="tournament-card" data-tournament-id="${tournament.id}" onclick="selectTournament('${tournament.id}')">
+            <div class="tournament-card-header">
+                <span class="tournament-format-badge ${getFormatClass(tournament.format || 'Other')}">${tournament.format || 'Tournament'}</span>
+                <span class="tournament-date">${formatDate(tournament.date)}</span>
+            </div>
+            <h4 class="tournament-name">${tournament.name}</h4>
+            <div class="tournament-card-details">
+                ${tournament.winner ? `<div class="tournament-winner"><span class="winner-label">🏆 Winner:</span> <span class="winner-name">${tournament.winner}</span></div>` : ''}
+                ${tournament.players ? `<div class="tournament-players"><span class="players-label">👥 Players:</span> ${tournament.players}</div>` : ''}
+            </div>
+            <button class="view-bracket-btn" onclick="event.stopPropagation(); selectTournament('${tournament.id}')">
+                View Bracket →
+            </button>
+        </div>
+    `).join('');
+}
+
+// Populate tournament select dropdown
+function populateTournamentSelect() {
+    const select = document.getElementById('tournamentSelect');
+    
+    tournamentsData.forEach(tournament => {
+        const option = document.createElement('option');
+        option.value = tournament.id;
+        option.textContent = `${tournament.name} (${formatDate(tournament.date)})`;
+        select.appendChild(option);
+    });
+    
+    select.addEventListener('change', (e) => {
+        const tournamentId = e.target.value;
+        if (tournamentId) {
+            const tournament = tournamentsData.find(t => t.id === tournamentId);
+            if (tournament) {
+                selectTournament(tournamentId);
+            }
+        } else {
+            hideBracket();
+        }
+    });
+}
+
+// Select and display a tournament
+function selectTournament(tournamentId) {
+    const tournament = tournamentsData.find(t => t.id === tournamentId);
+    if (!tournament) return;
+    
+    // Update select dropdown
+    document.getElementById('tournamentSelect').value = tournamentId;
+    
+    // Update URL without reload
+    const url = new URL(window.location);
+    url.searchParams.set('tournament', tournamentId);
+    window.history.pushState({}, '', url);
+    
+    // Highlight selected card
+    document.querySelectorAll('.tournament-card').forEach(card => {
+        card.classList.remove('selected');
+        if (card.dataset.tournamentId === tournamentId) {
+            card.classList.add('selected');
+        }
+    });
+    
+    // Load the bracket
+    loadBracket(tournament);
+}
+
+// Load and display bracket
+function loadBracket(tournament) {
+    const section = document.getElementById('bracketViewerSection');
+    const container = document.getElementById('bracketContainer');
+    const title = document.getElementById('bracketTitle');
+    const meta = document.getElementById('bracketMeta');
+    
+    // Update header
+    title.textContent = tournament.name;
+    
+    // Build meta info
+    let metaHtml = `<span class="bracket-date">${formatDate(tournament.date)}</span>`;
+    if (tournament.format) {
+        metaHtml += `<span class="bracket-format ${getFormatClass(tournament.format)}">${tournament.format}</span>`;
+    }
+    if (tournament.winner) {
+        metaHtml += `<span class="bracket-winner">🏆 ${tournament.winner}</span>`;
+    }
+    meta.innerHTML = metaHtml;
+    
+    // Generate Challonge embed
+    if (tournament.challonge) {
+        // Using Challonge's official embed method
+        container.innerHTML = `
+            <div class="challonge-embed-wrapper">
+                <iframe 
+                    src="https://challonge.com/${tournament.challonge}/module" 
+                    width="100%" 
+                    height="600" 
+                    frameborder="0" 
+                    scrolling="auto" 
+                    allowtransparency="true"
+                    title="Challonge bracket for ${tournament.name}"
+                ></iframe>
+            </div>
+            <div class="bracket-links">
+                <a href="https://challonge.com/${tournament.challonge}" target="_blank" rel="noopener noreferrer" class="bracket-external-link">
+                    View on Challonge ↗
+                </a>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="bracket-placeholder">
+                <p>No bracket available for this tournament.</p>
+            </div>
+        `;
+    }
+    
+    // Show the section and scroll to it
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Hide bracket viewer
+function hideBracket() {
+    document.getElementById('bracketViewerSection').style.display = 'none';
+    document.querySelectorAll('.tournament-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Remove tournament from URL
+    const url = new URL(window.location);
+    url.searchParams.delete('tournament');
+    window.history.pushState({}, '', url);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', loadTournaments);
+
+// Handle browser back/forward
+window.addEventListener('popstate', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tournamentId = urlParams.get('tournament');
+    if (tournamentId) {
+        const tournament = tournamentsData.find(t => t.id === tournamentId);
+        if (tournament) {
+            loadBracket(tournament);
+            document.getElementById('tournamentSelect').value = tournament.id;
+        }
+    } else {
+        hideBracket();
+        document.getElementById('tournamentSelect').value = '';
+    }
+});
+</script>
+
+</body>
+</html>
