@@ -6,7 +6,7 @@ import sys
 import os
 
 # Add scripts directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from advanced_stats import calculate_power_index, POWER_INDEX_WEIGHTS
 

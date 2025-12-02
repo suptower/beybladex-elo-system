@@ -15,7 +15,7 @@ Track match results, compute Elo ratings, generate charts, and export leaderboar
 
 ```
 beybladex-elo-system/
-├── scripts/                    # Core Python modules
+├── src/                    # Core Python modules
 │   ├── beyblade_elo.py         # Elo calculation logic
 │   ├── advanced_stats.py       # Power index and advanced metrics
 │   ├── simulation.py           # Tournament simulation
@@ -31,7 +31,7 @@ beybladex-elo-system/
 │       ├── meta_landscape.py
 │       ├── tier_flow.py
 │       └── heatmaps.py
-├── csv/                        # Source data and generated CSVs
+├── data/                       # Source data and generated CSVs
 │   ├── beys.csv                # Beyblade registry
 │   ├── matches.csv             # Match records
 │   ├── leaderboard.csv         # Current rankings
@@ -47,7 +47,6 @@ beybladex-elo-system/
 │   └── tournament-charts/      # Tournament standings
 ├── tests/                      # Pytest test suite
 ├── config/                     # Configuration files
-├── tools/                      # Utility scripts
 ├── templates/                  # CSV templates
 ├── archive/                    # Archived/backup data
 ├── .github/workflows/          # CI/CD workflows
@@ -84,18 +83,18 @@ python update.py --upload           # Upload to Google Sheets
 
 ```bash
 # Single elimination tournament with 8 random participants
-python scripts/simulation.py -n 8 -f single-elimination
+python src/simulation.py -n 8 -f single-elimination
 
 # Round-robin tournament with specific Beyblades
-python scripts/simulation.py -f round-robin -b FoxBrush ImpactDrake DranSword
+python src/simulation.py -f round-robin -b FoxBrush ImpactDrake DranSword
 
 # Append simulated matches to matches.csv
-python scripts/simulation.py -n 16 -f single-elimination --append
+python src/simulation.py -n 16 -f single-elimination --append
 ```
 
 ## Data Files
 
-### Input Data (csv/)
+### Input Data (data/)
 
 | File | Description |
 |------|-------------|
@@ -103,7 +102,7 @@ python scripts/simulation.py -n 16 -f single-elimination --append
 | `matches.csv` | Match records (winner, loser, scores, timestamp) |
 | `rounds.csv` | Round-level match data |
 
-### Generated Data (csv/)
+### Generated Data (data/)
 
 | File | Description |
 |------|-------------|

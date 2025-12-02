@@ -4,13 +4,13 @@ import sys
 import os
 import argparse
 
-SCRIPT_ADVANCED_STATS = "./scripts/advanced_stats.py"
-SCRIPT_BLADE_ELO = "./scripts/beyblade_elo.py"
-SCRIPT_COUNTER_CHECKER = "./scripts/counter_checker.py"
-SCRIPT_SHEETS_UPLOAD = "./scripts/sheets_upload.py"
-SCRIPT_EXPORT_PDF = "./scripts/export_leaderboard_pdf.py"
-SCRIPT_GEN_PLOTS = "./scripts/gen_plots.py"
-SCRIPT_SYNERGY_HEATMAPS = "./scripts/synergy_heatmaps.py"
+SCRIPT_ADVANCED_STATS = "./src/advanced_stats.py"
+SCRIPT_BLADE_ELO = "./src/beyblade_elo.py"
+SCRIPT_COUNTER_CHECKER = "./src/counter_checker.py"
+SCRIPT_SHEETS_UPLOAD = "./src/sheets_upload.py"
+SCRIPT_EXPORT_PDF = "./src/export_leaderboard_pdf.py"
+SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
+SCRIPT_SYNERGY_HEATMAPS = "./src/synergy_heatmaps.py"
 
 # --- Argumente parsen ---
 parser = argparse.ArgumentParser(description="Beyblade X Update Script")

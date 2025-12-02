@@ -13,8 +13,8 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 
-HISTORY_FILE = "./csv/elo_history.csv"
-ADVANCED_FILE = "./csv/advanced_leaderboard.csv"
+HISTORY_FILE = "./data/elo_history.csv"
+ADVANCED_FILE = "./data/advanced_leaderboard.csv"
 
 # --- Power Index Weights ---
 POWER_INDEX_WEIGHTS = {

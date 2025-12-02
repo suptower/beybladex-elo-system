@@ -5,7 +5,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
 import csv
 
-input_file = "./csv/leaderboard.csv"
+input_file = "./data/leaderboard.csv"
 output_file = "./leaderboards/leaderboard.pdf"
 
 # === Dokumentlayout ===

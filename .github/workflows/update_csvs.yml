@@ -29,7 +29,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add csv/leaderboard.csv csv/elo_history.csv csv/elo_timeseries.csv
-          git add csv/private_leaderboard.csv csv/private_elo_history.csv csv/private_elo_timeseries.csv
+          git add data/leaderboard.csv data/elo_history.csv data/elo_timeseries.csv
+          git add data/private_leaderboard.csv data/private_elo_history.csv data/private_elo_timeseries.csv
           git commit -m "Auto-update CSVs via GitHub Actions" || echo "No changes to commit"
           git push

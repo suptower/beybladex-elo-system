@@ -6,7 +6,7 @@ import sys
 import os
 
 # Add scripts directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts', 'visualization'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'visualization'))
 
 from meta_landscape import (
     calculate_offense_score,

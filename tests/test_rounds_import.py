@@ -11,7 +11,7 @@ import tempfile
 
 # Add tools and scripts directories to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from merge_rounds import (
     VALID_FINISH_TYPES,

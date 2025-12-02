@@ -29,12 +29,12 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # File paths
-MATCHES_FILE = "./csv/matches.csv"
-ROUNDS_FILE = "./csv/rounds.csv"
-ELO_HISTORY_FILE = "./csv/elo_history.csv"
-ADVANCED_LEADERBOARD_FILE = "./csv/advanced_leaderboard.csv"
-RPG_STATS_JSON = "./csv/rpg_stats.json"
-RPG_STATS_CSV = "./csv/rpg_stats.csv"
+MATCHES_FILE = "./data/matches.csv"
+ROUNDS_FILE = "./data/rounds.csv"
+ELO_HISTORY_FILE = "./data/elo_history.csv"
+ADVANCED_LEADERBOARD_FILE = "./data/advanced_leaderboard.csv"
+RPG_STATS_JSON = "./data/rpg_stats.json"
+RPG_STATS_CSV = "./data/rpg_stats.csv"
 DOCS_RPG_STATS_JSON = "./docs/data/rpg_stats.json"
 
 # Minimum matches threshold to compute reliable stats

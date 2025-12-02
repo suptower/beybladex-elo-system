@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import os
 
 
-def plot_position_timeseries_clean(csv_path="./csv/position_timeseries.csv", output_dir="./docs/plots/positions"):
+def plot_position_timeseries_clean(csv_path="./data/position_timeseries.csv", output_dir="./docs/plots/positions"):
     """
     Plot position timeseries with a clean, simple approach:
     - Only plot entries when bey actually played (active position changes)

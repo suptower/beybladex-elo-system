@@ -32,10 +32,10 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 
 # File paths
-ELO_HISTORY_CSV = "./csv/elo_history.csv"
+ELO_HISTORY_CSV = "./data/elo_history.csv"
 BEYS_DATA_JSON = "./docs/data/beys_data.json"
-PARTS_STATS_JSON = "./csv/parts_stats.json"
-ADVANCED_LEADERBOARD_CSV = "./csv/advanced_leaderboard.csv"
+PARTS_STATS_JSON = "./data/parts_stats.json"
+ADVANCED_LEADERBOARD_CSV = "./data/advanced_leaderboard.csv"
 META_BALANCE_OUTPUT_JSON = "./docs/data/meta_balance.json"
 
 # Metric weights for overall meta health score
