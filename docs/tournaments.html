@@ -139,6 +139,20 @@
 // Tournament data and viewer logic
 let tournamentsData = [];
 
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (text == null) return '';
+    const div = document.createElement('div');
+    div.textContent = String(text);
+    return div.innerHTML;
+}
+
+// Validate Challonge ID (alphanumeric, hyphens, underscores only)
+function isValidChallongeId(id) {
+    if (!id || typeof id !== 'string') return false;
+    return /^[a-zA-Z0-9_-]+$/.test(id);
+}
+
 // Format date for display
 function formatDate(dateStr) {
     const date = new Date(dateStr);
@@ -198,22 +212,29 @@ function renderTournamentCards() {
         return;
     }
     
-    grid.innerHTML = tournamentsData.map(tournament => `
-        <div class="tournament-card" data-tournament-id="${tournament.id}" onclick="selectTournament('${tournament.id}')">
+    grid.innerHTML = tournamentsData.map(tournament => {
+        const escapedId = escapeHtml(tournament.id);
+        const escapedName = escapeHtml(tournament.name);
+        const escapedFormat = escapeHtml(tournament.format || 'Tournament');
+        const escapedWinner = escapeHtml(tournament.winner);
+        const escapedPlayers = escapeHtml(tournament.players);
+        
+        return `
+        <div class="tournament-card" data-tournament-id="${escapedId}" onclick="selectTournament('${escapedId}')">
             <div class="tournament-card-header">
-                <span class="tournament-format-badge ${getFormatClass(tournament.format || 'Other')}">${tournament.format || 'Tournament'}</span>
+                <span class="tournament-format-badge ${getFormatClass(tournament.format || 'Other')}">${escapedFormat}</span>
                 <span class="tournament-date">${formatDate(tournament.date)}</span>
             </div>
-            <h4 class="tournament-name">${tournament.name}</h4>
+            <h4 class="tournament-name">${escapedName}</h4>
             <div class="tournament-card-details">
-                ${tournament.winner ? `<div class="tournament-winner"><span class="winner-label">🏆 Winner:</span> <span class="winner-name">${tournament.winner}</span></div>` : ''}
-                ${tournament.players ? `<div class="tournament-players"><span class="players-label">👥 Players:</span> ${tournament.players}</div>` : ''}
+                ${tournament.winner ? `<div class="tournament-winner"><span class="winner-label">🏆 Winner:</span> <span class="winner-name">${escapedWinner}</span></div>` : ''}
+                ${tournament.players ? `<div class="tournament-players"><span class="players-label">👥 Players:</span> ${escapedPlayers}</div>` : ''}
             </div>
-            <button class="view-bracket-btn" onclick="event.stopPropagation(); selectTournament('${tournament.id}')">
+            <button class="view-bracket-btn" onclick="event.stopPropagation(); selectTournament('${escapedId}')">
                 View Bracket →
             </button>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // Populate tournament select dropdown
@@ -272,36 +293,42 @@ function loadBracket(tournament) {
     const title = document.getElementById('bracketTitle');
     const meta = document.getElementById('bracketMeta');
     
-    // Update header
+    // Update header (using textContent for safety)
     title.textContent = tournament.name;
     
-    // Build meta info
+    // Build meta info with escaped values
+    const escapedFormat = escapeHtml(tournament.format);
+    const escapedWinner = escapeHtml(tournament.winner);
+    
     let metaHtml = `<span class="bracket-date">${formatDate(tournament.date)}</span>`;
     if (tournament.format) {
-        metaHtml += `<span class="bracket-format ${getFormatClass(tournament.format)}">${tournament.format}</span>`;
+        metaHtml += `<span class="bracket-format ${getFormatClass(tournament.format)}">${escapedFormat}</span>`;
     }
     if (tournament.winner) {
-        metaHtml += `<span class="bracket-winner">🏆 ${tournament.winner}</span>`;
+        metaHtml += `<span class="bracket-winner">🏆 ${escapedWinner}</span>`;
     }
     meta.innerHTML = metaHtml;
     
-    // Generate Challonge embed
-    if (tournament.challonge) {
+    // Generate Challonge embed with validation
+    if (tournament.challonge && isValidChallongeId(tournament.challonge)) {
+        const escapedName = escapeHtml(tournament.name);
+        const challongeId = tournament.challonge; // Already validated
+        
         // Using Challonge's official embed method
         container.innerHTML = `
             <div class="challonge-embed-wrapper">
                 <iframe 
-                    src="https://challonge.com/${tournament.challonge}/module" 
+                    src="https://challonge.com/${challongeId}/module" 
                     width="100%" 
                     height="600" 
                     frameborder="0" 
                     scrolling="auto" 
                     allowtransparency="true"
-                    title="Challonge bracket for ${tournament.name}"
+                    title="Challonge bracket for ${escapedName}"
                 ></iframe>
             </div>
             <div class="bracket-links">
-                <a href="https://challonge.com/${tournament.challonge}" target="_blank" rel="noopener noreferrer" class="bracket-external-link">
+                <a href="https://challonge.com/${challongeId}" target="_blank" rel="noopener noreferrer" class="bracket-external-link">
                     View on Challonge ↗
                 </a>
             </div>
