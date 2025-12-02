@@ -4,9 +4,14 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
 import csv
+import os
 
 input_file = "./data/leaderboard.csv"
-output_file = "./leaderboards/leaderboard.pdf"
+output_dir = "./docs/tournament-charts"
+output_file = os.path.join(output_dir, "leaderboard.pdf")
+
+# Ensure output directory exists
+os.makedirs(output_dir, exist_ok=True)
 
 # === Dokumentlayout ===
 doc = SimpleDocTemplate(
