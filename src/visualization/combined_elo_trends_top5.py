@@ -16,8 +16,8 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 
 # --- CSV einlesen ---
-df_ts = pd.read_csv("./csv/elo_timeseries.csv")
-df_adv = pd.read_csv("./csv/advanced_leaderboard.csv")
+df_ts = pd.read_csv("./data/elo_timeseries.csv")
+df_adv = pd.read_csv("./data/advanced_leaderboard.csv")
 
 # --- Top 5 nach ELO ---
 top5_beys = df_adv.sort_values(by='ELO', ascending=False).head(5)['Bey'].tolist()

@@ -233,7 +233,7 @@ def run_elo_pipeline(pipeline_config):
                 "ELOdelta": elo_delta_str
             })
 
-        out_file = f"./csv/leaderboards/leaderboard_{t_idx}.csv"
+        out_file = f"./data/leaderboards/leaderboard_{t_idx}.csv"
         pd.DataFrame(tour_rows).to_csv(out_file, index=False)
 
         # Update für nächstes Turnier
@@ -414,23 +414,23 @@ if __name__ == "__main__":
     if mode == "official":
         config = {
             "mode": "official",
-            "input_file": "./csv/matches.csv",
-            "leaderboard": "./csv/leaderboard.csv",
-            "history": "./csv/elo_history.csv",
-            "timeseries": "./csv/elo_timeseries.csv",
-            "positions": "./csv/position_timeseries.csv",
+            "input_file": "./data/matches.csv",
+            "leaderboard": "./data/leaderboard.csv",
+            "history": "./data/elo_history.csv",
+            "timeseries": "./data/elo_timeseries.csv",
+            "positions": "./data/position_timeseries.csv",
             "start_elos": None
         }
     else:
-        df = pd.read_csv("./csv/leaderboard.csv")
+        df = pd.read_csv("./data/leaderboard.csv")
         start_elos = dict(zip(df["Name"], df["ELO"]))
         config = {
             "mode": "private",
-            "input_file": "./csv/private_matches.csv",
-            "leaderboard": "./csv/private_leaderboard.csv",
-            "history": "./csv/private_elo_history.csv",
-            "timeseries": "./csv/private_elo_timeseries.csv",
-            "positions": "./csv/private_position_timeseries.csv",
+            "input_file": "./data/private_matches.csv",
+            "leaderboard": "./data/private_leaderboard.csv",
+            "history": "./data/private_elo_history.csv",
+            "timeseries": "./data/private_elo_timeseries.csv",
+            "positions": "./data/private_position_timeseries.csv",
             "start_elos": start_elos
         }
 

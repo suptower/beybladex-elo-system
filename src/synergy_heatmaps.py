@@ -18,9 +18,9 @@ import numpy as np
 
 # File paths
 BEYS_DATA_JSON = "./docs/data/beys_data.json"
-PARTS_STATS_JSON = "./csv/parts_stats.json"
-ELO_HISTORY_CSV = "./csv/elo_history.csv"
-ROUNDS_CSV = "./csv/rounds.csv"
+PARTS_STATS_JSON = "./data/parts_stats.json"
+ELO_HISTORY_CSV = "./data/elo_history.csv"
+ROUNDS_CSV = "./data/rounds.csv"
 SYNERGY_OUTPUT_JSON = "./docs/data/synergy_data.json"
 SYNERGY_CSV_DIR = "./csv"
 

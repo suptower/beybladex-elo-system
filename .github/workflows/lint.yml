@@ -31,4 +31,4 @@ jobs:
       - name: Run flake8
         run: |
           # Check all Python files for linting issues
-          python -m flake8 --count --statistics *.py scripts/*.py scripts/visualization/*.py
+          python -m flake8 --count --statistics *.py src/*.py src/visualization/*.py

@@ -29,9 +29,9 @@ GREEN = "\033[32m"
 YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
-HISTORY_FILE = "./csv/elo_history.csv"
-UPSET_ANALYSIS_FILE = "./csv/upset_analysis.csv"
-UPSET_MATCHES_FILE = "./csv/upset_matches.csv"
+HISTORY_FILE = "./data/elo_history.csv"
+UPSET_ANALYSIS_FILE = "./data/upset_analysis.csv"
+UPSET_MATCHES_FILE = "./data/upset_matches.csv"
 
 # --- Giant Killer Score Weights ---
 GIANT_KILLER_WEIGHTS = {

@@ -32,8 +32,8 @@ sys.path.insert(0, parent_dir)
 from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
 
 # --- File paths ---
-ELO_TIMESERIES_FILE = "./csv/elo_timeseries.csv"
-LEADERBOARD_FILE = "./csv/leaderboard.csv"
+ELO_TIMESERIES_FILE = "./data/elo_timeseries.csv"
+LEADERBOARD_FILE = "./data/leaderboard.csv"
 OUTPUT_DIR = "./docs/plots"
 
 # Ensure output directories exist

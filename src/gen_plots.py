@@ -28,18 +28,18 @@ plt.rcParams["axes.grid"] = True
 def load_files(mode):
     if mode == "official":
         return {
-            "leaderboard": "./csv/leaderboard.csv",
-            "history": "./csv/elo_history.csv",
-            "timeseries": "./csv/elo_timeseries.csv",
-            "positions": "./csv/position_timeseries.csv",
+            "leaderboard": "./data/leaderboard.csv",
+            "history": "./data/elo_history.csv",
+            "timeseries": "./data/elo_timeseries.csv",
+            "positions": "./data/position_timeseries.csv",
             "outdir": "./docs/plots/"
         }
     else:
         return {
-            "leaderboard": "./csv/private_leaderboard.csv",
-            "history": "./csv/private_elo_history.csv",
-            "timeseries": "./csv/private_elo_timeseries.csv",
-            "positions": "./csv/private_position_timeseries.csv",
+            "leaderboard": "./data/private_leaderboard.csv",
+            "history": "./data/private_elo_history.csv",
+            "timeseries": "./data/private_elo_timeseries.csv",
+            "positions": "./data/private_position_timeseries.csv",
             "outdir": "./plots/private/"
         }
 
@@ -499,7 +499,7 @@ def generate_all_plots(mode):
 
     # Advanced Visualizations
     result = subprocess.run(
-        ["python", "scripts/visualization/advanced_visualizations.py"],
+        ["python", "src/visualization/advanced_visualizations.py"],
         capture_output=True,
         text=True
     )
@@ -511,7 +511,7 @@ def generate_all_plots(mode):
 
     # Combined ELO Trends Top 5
     result = subprocess.run(
-        ["python", "scripts/visualization/combined_elo_trends_top5.py"],
+        ["python", "src/visualization/combined_elo_trends_top5.py"],
         capture_output=True,
         text=True
     )
@@ -523,7 +523,7 @@ def generate_all_plots(mode):
 
     # Heatmaps
     result = subprocess.run(
-        ["python", "scripts/visualization/heatmaps.py"],
+        ["python", "src/visualization/heatmaps.py"],
         capture_output=True,
         text=True
     )
@@ -535,7 +535,7 @@ def generate_all_plots(mode):
 
     # Interactive ELO Trends
     result = subprocess.run(
-        ["python", "scripts/visualization/interactive_elo_trends.py"],
+        ["python", "src/visualization/interactive_elo_trends.py"],
         capture_output=True,
         text=True
     )
@@ -547,7 +547,7 @@ def generate_all_plots(mode):
 
     # Meta Landscape Plot
     result = subprocess.run(
-        ["python", "scripts/visualization/meta_landscape.py"],
+        ["python", "src/visualization/meta_landscape.py"],
         capture_output=True,
         text=True
     )
@@ -559,7 +559,7 @@ def generate_all_plots(mode):
 
     # ELO Density Map
     result = subprocess.run(
-        ["python", "scripts/visualization/elo_density_map.py"],
+        ["python", "src/visualization/elo_density_map.py"],
         capture_output=True,
         text=True
     )
@@ -571,7 +571,7 @@ def generate_all_plots(mode):
 
     # Tier Flow Diagram
     result = subprocess.run(
-        ["python", "scripts/visualization/tier_flow.py"],
+        ["python", "src/visualization/tier_flow.py"],
         capture_output=True,
         text=True
     )

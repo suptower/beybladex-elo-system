@@ -36,25 +36,25 @@ def upload_csv_to_sheet(csv_file, sheet_name, percent_cols=[]):
 
 # --- Tabellen hochladen ---
 print(f"{BOLD}Lade Leaderboards zu Google Sheets hoch...{RESET}", flush=True)
-upload_csv_to_sheet("./csv/leaderboard.csv", "Leaderboard")
+upload_csv_to_sheet("./data/leaderboard.csv", "Leaderboard")
 print(f"{GREEN}Haupt-Rangliste hochgeladen.{RESET}")
 print(f"{BOLD}Lade erweiterte Daten zu Google Sheets hoch...{RESET}", flush=True)
-upload_csv_to_sheet("./csv/advanced_leaderboard.csv", "Advanced_Leaderboard")
+upload_csv_to_sheet("./data/advanced_leaderboard.csv", "Advanced_Leaderboard")
 print(f"{GREEN}Erweiterte Daten hochgeladen.{RESET}", flush=True)
-upload_csv_to_sheet("./csv/elo_history.csv", "ELO_History")
+upload_csv_to_sheet("./data/elo_history.csv", "ELO_History")
 print(f"{GREEN}ELO-Verlauf hochgeladen.{RESET}", flush=True)
-upload_csv_to_sheet("./csv/elo_timeseries.csv", "ELO_Timeseries")
+upload_csv_to_sheet("./data/elo_timeseries.csv", "ELO_Timeseries")
 print(f"{GREEN}ELO-Zeitreihe hochgeladen.{RESET}", flush=True)
-upload_csv_to_sheet("./csv/bey_counters.csv", "Bey_Counters")
+upload_csv_to_sheet("./data/bey_counters.csv", "Bey_Counters")
 print(f"{GREEN}Bey-Counter-Daten hochgeladen.{RESET}", flush=True)
 
 # Alle leaderboard csvs hochladen
 print(f"{BOLD}Lade einzelne Turnier-Ranglisten zu Google Sheets hoch...{RESET}", flush=True)
-for file in os.listdir("./csv/leaderboards/"):
+for file in os.listdir("./data/leaderboards/"):
     if file.startswith("leaderboard_") and file.endswith(".csv"):
         print(f"{GREEN}Lade {file} hoch...{RESET}", flush=True)
         t_idx = file[len("leaderboard_"):-len(".csv")]
-        upload_csv_to_sheet(f"./csv/leaderboards/{file}", f"Single_Leaderboard_{t_idx}")
+        upload_csv_to_sheet(f"./data/leaderboards/{file}", f"Single_Leaderboard_{t_idx}")
 
 
 print(f"{GREEN}Alle Daten erfolgreich zu Google Sheets hochgeladen!{RESET}")

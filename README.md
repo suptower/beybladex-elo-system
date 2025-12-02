@@ -1,4 +1,5 @@
 # BeybladeX Elo System
+
 [![Python Tests](https://github.com/suptower/beybladex-elo-system/actions/workflows/test.yml/badge.svg)](https://github.com/suptower/beybladex-elo-system/actions/workflows/test.yml)
 [![Python Linting](https://github.com/suptower/beybladex-elo-system/actions/workflows/lint.yml/badge.svg)](https://github.com/suptower/beybladex-elo-system/actions/workflows/lint.yml)
 [![Copilot code review](https://github.com/suptower/beybladex-elo-system/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer/badge.svg)](https://github.com/suptower/beybladex-elo-system/actions/workflows/copilot-pull-request-reviewer/copilot-pull-request-reviewer)
@@ -6,58 +7,133 @@
 
 Lightweight tools for computing and publishing Elo ratings and charts for Beyblade tournaments.
 
-**Purpose**
-- Track match results, compute Elo ratings, generate charts, and export leaderboards.
+## Purpose
 
-**Quick Overview**
-- Input data: CSV files in `csv/` (e.g. `matches.csv`, `beys.csv`).
-- Main scripts:
-  - `update.py` — runs the full update pipeline (compute Elo, update CSVs, produce artifacts).
-  - `generate_elo_charts.py` — creates time-series and leaderboard charts in `elo_charts/` and `tournament-charts/`.
-  - `export_leaderboard_pdf.py` — exports a printable leaderboard PDF from `csv/leaderboard.csv`.
-  - `scripts/beyblade_elo.py` — helper functions and Elo logic.
-  - `scripts/sheets_upload.py` — uploads CSV or leaderboard data to Google Sheets (uses `service_account.json`).
-  - `scripts/simulation.py` — simulates tournaments using Elo-based match predictions.
+Track match results, compute Elo ratings, generate charts, and export leaderboards.
 
-**Repository Structure**
-- `*.py` — top-level runner scripts for updates, charts and exports.
-- `csv/` — source and generated CSV data (matches, leaderboard, elo history, timeseries).
-- `elo_charts/`, `tournament-charts/` — generated charts and visual assets.
-- `scripts/` — library-like helpers (Elo logic, Sheets upload).
-- `service_account.json` — (optional) Google service account credentials for Sheets API.
+## Repository Structure
 
-**Usage examples**
-- Run the full pipeline:
+```
+beybladex-elo-system/
+├── src/                    # Core Python modules
+│   ├── beyblade_elo.py         # Elo calculation logic
+│   ├── advanced_stats.py       # Power index and advanced metrics
+│   ├── simulation.py           # Tournament simulation
+│   ├── matchup_predictor.py    # Match prediction tools
+│   ├── meta_balance.py         # Meta analysis tools
+│   ├── synergy_heatmaps.py     # Part synergy analysis
+│   ├── upset_analysis.py       # Upset detection and analysis
+│   ├── gen_plots.py            # Plot generation orchestrator
+│   ├── sheets_upload.py        # Google Sheets integration
+│   ├── export_leaderboard_pdf.py # PDF export
+│   └── visualization/          # Visualization modules
+│       ├── elo_density_map.py
+│       ├── meta_landscape.py
+│       ├── tier_flow.py
+│       └── heatmaps.py
+├── data/                       # Source data and generated CSVs
+│   ├── beys.csv                # Beyblade registry
+│   ├── matches.csv             # Match records
+│   ├── leaderboard.csv         # Current rankings
+│   ├── elo_history.csv         # Historical Elo changes
+│   └── leaderboards/           # Tournament snapshots
+├── docs/                       # GitHub Pages frontend
+│   ├── index.html              # Main page
+│   ├── styles.css              # Stylesheet
+│   ├── *.js                    # JavaScript modules
+│   ├── data/                   # Frontend data (CSV/JSON)
+│   ├── plots/                  # Generated visualizations
+│   ├── schema/                 # Data schemas
+│   └── tournament-charts/      # Tournament standings
+├── tests/                      # Pytest test suite
+├── config/                     # Configuration files
+├── templates/                  # CSV templates
+├── archive/                    # Archived/backup data
+├── .github/workflows/          # CI/CD workflows
+├── update.py                   # Main update pipeline
+├── requirements.txt            # Python dependencies
+├── roadmap.md                  # Project roadmap
+└── README.md                   # This file
+```
 
-```powershell
+## Quick Start
+
+### Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+### Run the Full Pipeline
+
+```bash
 python update.py
 ```
 
-- Simulate a tournament:
+### Command Line Options
 
-```powershell
-# Single elimination tournament with 8 random participants
-python scripts/simulation.py -n 8 -f single-elimination
-
-# Round-robin tournament with specific Beyblades
-python scripts/simulation.py -f round-robin -b FoxBrush ImpactDrake DranSword
-
-# Append simulated matches to matches.csv (then run update.py to recalculate Elo)
-python scripts/simulation.py -n 16 -f single-elimination --append
+```bash
+python update.py                    # Run full pipeline (Elo, stats, plots)
+python update.py --skip-diagrams    # Skip plot generation
+python update.py --pdf              # Generate PDF leaderboard
+python update.py --upload           # Upload to Google Sheets
 ```
 
+### Simulate Tournaments
 
+```bash
+# Single elimination tournament with 8 random participants
+python src/simulation.py -n 8 -f single-elimination
 
-**CSV files**
-- `csv/bey_counters.csv` - counter tables.
-- `csv/beys.csv` — competitor names.
-- `csv/elo_history.csv` — chronological Elo changes.
-- `csv/leaderboard.csv` — latest calculated leaderboard (used by export and uploads).
-- `csv/matches.csv` — recorded matches (winner, loser, timestamp, etc.).
-- `csv/simulated_matches.csv` — output from simulation script (can be appended to matches.csv).
+# Round-robin tournament with specific Beyblades
+python src/simulation.py -f round-robin -b FoxBrush ImpactDrake DranSword
 
-**Google Sheets**
-- Place a service account JSON in the repository or secure path and update `scripts/sheets_upload.py` to point to it.
-- Share the target Google Sheet with the service account email.
+# Append simulated matches to matches.csv
+python src/simulation.py -n 16 -f single-elimination --append
+```
 
+## Data Files
+
+### Input Data (data/)
+
+| File | Description |
+|------|-------------|
+| `beys.csv` | Registry of all Beyblades |
+| `matches.csv` | Match records (winner, loser, scores, timestamp) |
+| `rounds.csv` | Round-level match data |
+
+### Generated Data (data/)
+
+| File | Description |
+|------|-------------|
+| `leaderboard.csv` | Current rankings with stats |
+| `advanced_leaderboard.csv` | Extended metrics |
+| `elo_history.csv` | Chronological Elo changes |
+| `elo_timeseries.csv` | Elo over time per Beyblade |
+| `bey_counters.csv` | Counter matchup data |
+
+## Google Sheets Integration
+
+1. Create a service account in Google Cloud Console
+2. Save credentials as `service_account.json` in the repository root
+3. Share the target Google Sheet with the service account email
+4. Run `python update.py --upload`
+
+## Development
+
+### Running Tests
+
+```bash
+python -m pytest tests/ -v
+```
+
+### Linting
+
+```bash
+python -m flake8 .
+```
+
+## Contributing
+
+See [roadmap.md](roadmap.md) for planned features and improvements.
 

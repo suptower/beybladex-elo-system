@@ -7,7 +7,7 @@ import os
 
 # Add scripts directory to path for imports
 sys.path.insert(
-    0, os.path.join(os.path.dirname(__file__), '..', 'scripts', 'visualization')
+    0, os.path.join(os.path.dirname(__file__), '..', 'src', 'visualization')
 )
 
 import pandas as pd

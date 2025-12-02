@@ -34,7 +34,7 @@ grep "2025-09-07" csv/matches.csv
 Or use the filter tool:
 
 ```bash
-python scripts/filter_csv.py --date 2025-09-07 --output backfill_work/original_matches.csv
+python src/filter_csv.py --date 2025-09-07 --output backfill_work/original_matches.csv
 ```
 
 ### Step 2: Create Rounds CSV

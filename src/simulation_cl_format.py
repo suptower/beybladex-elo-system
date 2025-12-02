@@ -3,7 +3,7 @@
 Simuliere: 36 Spieler -> 6 Runden Swiss -> Top24 Single-Elim mit Top8-Byes.
 Live-ELO: ELOs werden innerhalb jeder Simulation nach jedem Match aktualisiert
             (temporär, werden nicht in leaderboard.csv zurückgeschrieben).
-Input: ./csv/leaderboard.csv mit mindestens Spalten: Name (oder Bey) und ELO
+Input: ./data/leaderboard.csv mit mindestens Spalten: Name (oder Bey) und ELO
 Output: ./sim_output/sim_results_summary.csv
 """
 
@@ -14,7 +14,7 @@ import os
 from collections import defaultdict, Counter
 
 # ---------- Konfiguration ----------
-LEADERBOARD_CSV = "./csv/leaderboard.csv"
+LEADERBOARD_CSV = "./data/leaderboard.csv"
 OUT_DIR = "./sim_output"
 N_SIMULATIONS = 1000    # Anzahl Simulationen (anpassen)
 RANDOM_SEED = 42        # für Reproduzierbarkeit (setze None für Zufall)

@@ -19,9 +19,9 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 
 # --- CSV einlesen ---
-df_hist = pd.read_csv("./csv/elo_history.csv")  # Date,BeyA,BeyB,ScoreA,ScoreB,...
+df_hist = pd.read_csv("./data/elo_history.csv")  # Date,BeyA,BeyB,ScoreA,ScoreB,...
 
-df_adv = pd.read_csv("./csv/advanced_leaderboard.csv")  # enthält ELO
+df_adv = pd.read_csv("./data/advanced_leaderboard.csv")  # enthält ELO
 
 # --- Gewinner-Spalte ---
 df_hist['winner'] = df_hist.apply(lambda r: r['BeyA'] if r['ScoreA'] > r['ScoreB'] else r['BeyB'], axis=1)

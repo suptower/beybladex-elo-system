@@ -25,9 +25,9 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 
 # File paths
-BEYS_FILE = "./csv/beys.csv"
-LEADERBOARD_FILE = "./csv/leaderboard.csv"
-MATCHES_FILE = "./csv/matches.csv"
+BEYS_FILE = "./data/beys.csv"
+LEADERBOARD_FILE = "./data/leaderboard.csv"
+MATCHES_FILE = "./data/matches.csv"
 
 # Default Elo values
 DEFAULT_ELO = 1000
@@ -227,16 +227,16 @@ def main():
         epilog="""
 Examples:
   # Single elimination tournament with 8 random participants
-  python scripts/simulation.py -n 8 -f single-elimination
+  python src/simulation.py -n 8 -f single-elimination
 
   # Round-robin tournament with specific participants
-  python scripts/simulation.py -f round-robin -b FoxBrush ImpactDrake DranSword
+  python src/simulation.py -f round-robin -b FoxBrush ImpactDrake DranSword
 
   # Append simulated matches to matches.csv
-  python scripts/simulation.py -n 16 -f single-elimination --append
+  python src/simulation.py -n 16 -f single-elimination --append
 
   # Save to custom file with custom start date
-  python scripts/simulation.py -n 8 -o simulated_matches.csv --date 2025-12-01
+  python src/simulation.py -n 8 -o simulated_matches.csv --date 2025-12-01
         """
     )
 
@@ -262,7 +262,7 @@ Examples:
     parser.add_argument(
         "-o", "--output",
         default="./sim_output/simulated_matches.csv",
-        help="Output file for simulated matches (default: ./csv/simulated_matches.csv)"
+        help="Output file for simulated matches (default: ./data/simulated_matches.csv)"
     )
 
     parser.add_argument(
