@@ -42,6 +42,7 @@
                     <a href="plots.html">Plots</a>
                     <a href="simulator.html">Simulator</a>
                     <a href="predictor.html">Predictor</a>
+                    <a href="counters.html">Counters</a>
                 </div>
             </div>
         </div>
@@ -191,6 +192,35 @@
                 </details>
             </div>
             
+            <!-- Counters & Matchups Section (collapsible, hidden by default) -->
+            <details class="profile-section-details" id="countersSection" style="display: none;">
+                <summary class="section-summary">🛡️ Counters & Matchups</summary>
+                
+                <div class="counters-matchups-container">
+                    <!-- Best Counter (who beats this bey) -->
+                    <div class="matchup-category" id="bestCounterSection">
+                        <h4 class="matchup-category-title">⚠️ Hardest Matchup</h4>
+                        <p class="matchup-description">This bey struggles against:</p>
+                        <div id="bestCounterCard" class="matchup-card-container">
+                            <!-- Best counter card -->
+                        </div>
+                    </div>
+                    
+                    <!-- Easiest Matchups (beys this one counters) -->
+                    <div class="matchup-category" id="easiestMatchupsSection">
+                        <h4 class="matchup-category-title">✅ Easiest Matchups</h4>
+                        <p class="matchup-description">This bey performs well against:</p>
+                        <div id="easiestMatchupsList" class="matchup-cards-grid">
+                            <!-- Easiest matchup cards -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="counters-page-link">
+                    <a href="counters.html" class="view-all-counters-btn">View All Counters →</a>
+                </div>
+            </details>
+            
             <!-- Related Beys Section -->
             <div class="profile-section" id="relatedBeysSection" style="display: none;">
                 <h3 class="section-title">🔗 Related Beys</h3>
@@ -245,6 +275,7 @@ let allBeysData = [];
 let allLeaderboardData = [];
 let allEloHistoryData = [];
 let rpgStatsData = null;
+let countersData = [];
 
 // Helper function to normalize bey names for comparison
 function normalizeBeyName(name) {
@@ -413,6 +444,16 @@ async function loadData() {
             rpgStatsData = null;
         }
         
+        // Load counters data
+        try {
+            const countersResponse = await fetch('data/bey_counters.csv');
+            const countersText = await countersResponse.text();
+            countersData = parseCSV(countersText);
+        } catch (e) {
+            console.warn('Could not load counters data:', e);
+            countersData = [];
+        }
+        
         // Render the profile
         renderProfile();
     } catch (error) {
@@ -493,6 +534,9 @@ function renderProfile() {
     
     // Render history and timeline section
     renderHistorySection();
+    
+    // Render counters and matchups section
+    renderCountersSection();
     
     // Render related beys section
     renderRelatedBeys();
@@ -1465,6 +1509,114 @@ function renderTimeline() {
         }).join('');
     
     timelineContainer.innerHTML = timelineHtml;
+}
+
+// Render counters and matchups section
+function renderCountersSection() {
+    const countersSection = document.getElementById('countersSection');
+    const normalizedName = normalizeBeyName(beyName);
+    
+    if (!countersData || countersData.length === 0) {
+        countersSection.style.display = 'none';
+        return;
+    }
+    
+    let hasCountersContent = false;
+    
+    // Find best counter for this bey (who beats this bey)
+    const beyCounterEntry = countersData.find(entry => 
+        normalizeBeyName(entry.Bey) === normalizedName
+    );
+    
+    // Find easiest matchups (beys that this bey counters)
+    const easiestMatchups = countersData.filter(entry => 
+        normalizeBeyName(entry.Top_Counter) === normalizedName
+    );
+    
+    // Render best counter (hardest matchup for this bey)
+    const bestCounterCard = document.getElementById('bestCounterCard');
+    const bestCounterSection = document.getElementById('bestCounterSection');
+    
+    if (beyCounterEntry) {
+        const counterName = beyCounterEntry.Top_Counter;
+        const gamesVs = parseInt(beyCounterEntry.Games_vs_Counter);
+        const winsVs = parseInt(beyCounterEntry.Wins_vs_Counter);
+        const lossesVs = parseInt(beyCounterEntry.Losses_vs_Counter);
+        const scoreFor = parseInt(beyCounterEntry.Score_for_vs_Counter);
+        const scoreAgainst = parseInt(beyCounterEntry.Score_against_vs_Counter);
+        const winrateVs = parseFloat(beyCounterEntry.Winrate_vs_Counter);
+        
+        bestCounterCard.innerHTML = `
+            <a href="bey.html?name=${encodeURIComponent(counterName)}" class="matchup-card matchup-hard">
+                <div class="matchup-card-header">
+                    <span class="matchup-bey-name">🎯 ${escapeHtml(counterName)}</span>
+                    <span class="matchup-effectiveness">⚠️</span>
+                </div>
+                <div class="matchup-card-stats">
+                    <div class="matchup-stat">
+                        <span class="matchup-stat-label">Record</span>
+                        <span class="matchup-stat-value trend-negative">${winsVs}W - ${lossesVs}L</span>
+                    </div>
+                    <div class="matchup-stat">
+                        <span class="matchup-stat-label">Score</span>
+                        <span class="matchup-stat-value">${scoreFor} - ${scoreAgainst}</span>
+                    </div>
+                    <div class="matchup-stat">
+                        <span class="matchup-stat-label">Winrate</span>
+                        <span class="matchup-stat-value trend-negative">${Math.round(winrateVs * 100)}%</span>
+                    </div>
+                </div>
+            </a>
+        `;
+        hasCountersContent = true;
+    } else {
+        bestCounterSection.style.display = 'none';
+    }
+    
+    // Render easiest matchups (beys this one counters)
+    const easiestMatchupsList = document.getElementById('easiestMatchupsList');
+    const easiestMatchupsSection = document.getElementById('easiestMatchupsSection');
+    
+    if (easiestMatchups.length > 0) {
+        // Sort by how badly this bey beats them (lower winrate for opponent = easier matchup)
+        const sortedMatchups = easiestMatchups.sort((a, b) => 
+            parseFloat(a.Winrate_vs_Counter) - parseFloat(b.Winrate_vs_Counter)
+        ).slice(0, 4); // Limit to 4 easiest matchups
+        
+        easiestMatchupsList.innerHTML = sortedMatchups.map(entry => {
+            const opponentName = entry.Bey;
+            const gamesVs = parseInt(entry.Games_vs_Counter);
+            const oppWins = parseInt(entry.Wins_vs_Counter);
+            const oppLosses = parseInt(entry.Losses_vs_Counter);
+            const oppWinrate = parseFloat(entry.Winrate_vs_Counter);
+            // Our winrate is the inverse - we won what they lost
+            const ourWinrate = 1 - oppWinrate;
+            
+            return `
+                <a href="bey.html?name=${encodeURIComponent(opponentName)}" class="matchup-card matchup-easy">
+                    <div class="matchup-card-header">
+                        <span class="matchup-bey-name">✅ ${escapeHtml(opponentName)}</span>
+                        <span class="matchup-effectiveness">🔥</span>
+                    </div>
+                    <div class="matchup-card-stats">
+                        <div class="matchup-stat">
+                            <span class="matchup-stat-label">Record</span>
+                            <span class="matchup-stat-value trend-positive">${oppLosses}W - ${oppWins}L</span>
+                        </div>
+                        <div class="matchup-stat">
+                            <span class="matchup-stat-label">Winrate</span>
+                            <span class="matchup-stat-value trend-positive">${Math.round(ourWinrate * 100)}%</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
+        hasCountersContent = true;
+    } else {
+        easiestMatchupsSection.style.display = 'none';
+    }
+    
+    countersSection.style.display = hasCountersContent ? 'block' : 'none';
 }
 
 // Render related beys section
