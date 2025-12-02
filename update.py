@@ -99,8 +99,8 @@ if result.stderr:
     print(result.stderr)
 
 # Daten hochladen
-if args.skip_upload:
-    print(f"{YELLOW}Upload zu Google Sheets übersprungen (mit --skip-upload deaktivieren){RESET}")
+if not args.upload:
+    print(f"{YELLOW}Upload zu Google Sheets übersprungen (mit --upload aktivieren){RESET}")
 else:
     print(f"{YELLOW}Lade Daten nach Google Sheets...{RESET}")
     process = subprocess.Popen(
