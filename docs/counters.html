@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X - Best Counters</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Best Counters</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link>Analysis ▼</a>
+                <div class="nav-dropdown-content">
+                    <a href="upsets.html">Upsets</a>
+                    <a href="compare.html">Compare</a>
+                    <a href="parts.html">Parts</a>
+                    <a href="synergy.html">Synergy</a>
+                    <a href="explorer.html">Explorer</a>
+                    <a href="meta-balance.html">Meta Balance</a>
+                    <a href="plots.html">Plots</a>
+                    <a href="simulator.html">Simulator</a>
+                    <a href="predictor.html">Predictor</a>
+                    <a href="counters.html">Counters</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h2>🛡️ Best Beyblade Counters</h2>
+    
+    <p class="page-description">
+        Discover the most effective counters for each Beyblade. This page shows which Beys perform well against others 
+        based on match data, including win rates and score differentials.
+    </p>
+
+    <div class="counters-controls">
+        <div class="search-container">
+            <input type="text" id="counterSearch" placeholder="Search beyblades...">
+        </div>
+        
+        <div class="filters-row">
+            <div class="filter-group">
+                <label class="filter-label">Sort By</label>
+                <select id="sortFilter" class="filter-select">
+                    <option value="bey">Bey Name (A-Z)</option>
+                    <option value="counter">Counter Name (A-Z)</option>
+                    <option value="effectiveness">Counter Effectiveness</option>
+                    <option value="games">Games Played</option>
+                    <option value="overall">Overall Winrate</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Min Games vs Counter</label>
+                <select id="gamesFilter" class="filter-select">
+                    <option value="1">1+ games</option>
+                    <option value="2">2+ games</option>
+                    <option value="3">3+ games</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="counterCount" class="bey-count"></div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-header">
+            <span class="legend-title">📖 Understanding Counter Data</span>
+            <button class="legend-toggle" id="legendToggle">▼</button>
+        </div>
+        <div class="legend-content expanded" id="legendContent">
+            <div class="legend-item">
+                <span class="legend-abbr">🎯 Counter</span>
+                <div class="legend-desc">
+                    <span class="legend-short">Best Counter</span>
+                    <span class="legend-long">The Beyblade that has the best record against the target Bey</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <span class="legend-abbr">⚔️ Games</span>
+                <div class="legend-desc">
+                    <span class="legend-short">Games vs Counter</span>
+                    <span class="legend-long">Number of matches between the Bey and its counter</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <span class="legend-abbr">📊 Score</span>
+                <div class="legend-desc">
+                    <span class="legend-short">Score Differential</span>
+                    <span class="legend-long">Points scored for vs against when facing the counter</span>
+                </div>
+            </div>
+            <div class="legend-item">
+                <span class="legend-abbr">🔥 Effectiveness</span>
+                <div class="legend-desc">
+                    <span class="legend-short">Counter Effectiveness</span>
+                    <span class="legend-long">Visual indicator based on win rate and score differential</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="countersGrid" class="counters-grid">
+        <!-- Counter cards will be dynamically loaded here -->
+    </div>
+</main>
+
+<footer>
+    <p>© 2025 suptower</p>
+</footer>
+
+<script>
+let countersData = [];
+let beysData = [];
+let filteredCounters = [];
+let currentSort = 'bey';
+let minGames = 1;
+
+// Helper function to normalize bey names for comparison
+function normalizeBeyName(name) {
+    if (!name) return '';
+    return name.toLowerCase().replace(/[\s\-_]/g, '');
+}
+
+// Parse CSV text to array of objects
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i]);
+        return obj;
+    });
+}
+
+// Get effectiveness class based on counter performance
+function getEffectivenessClass(winrate, scoreDiff) {
+    const wr = parseFloat(winrate);
+    const sd = parseInt(scoreDiff);
+    
+    // Counter effectiveness is based on how badly they beat the target
+    if (wr === 0 && sd <= -4) return 'effectiveness-very-high';
+    if (wr === 0) return 'effectiveness-high';
+    if (wr <= 0.3) return 'effectiveness-medium';
+    if (wr <= 0.5) return 'effectiveness-low';
+    return 'effectiveness-neutral';
+}
+
+// Get effectiveness icon
+function getEffectivenessIcon(winrate, scoreDiff) {
+    const wr = parseFloat(winrate);
+    const sd = parseInt(scoreDiff);
+    
+    if (wr === 0 && sd <= -4) return '🔥🔥🔥';
+    if (wr === 0) return '🔥🔥';
+    if (wr <= 0.3) return '🔥';
+    if (wr <= 0.5) return '⚡';
+    return '➖';
+}
+
+// Get effectiveness text
+function getEffectivenessText(winrate, scoreDiff) {
+    const wr = parseFloat(winrate);
+    const sd = parseInt(scoreDiff);
+    
+    if (wr === 0 && sd <= -4) return 'Dominant Counter';
+    if (wr === 0) return 'Strong Counter';
+    if (wr <= 0.3) return 'Good Counter';
+    if (wr <= 0.5) return 'Slight Counter';
+    return 'Even Matchup';
+}
+
+// Load all data
+async function loadAllData() {
+    try {
+        // Load counters data
+        const countersResponse = await fetch('data/bey_counters.csv');
+        const countersText = await countersResponse.text();
+        countersData = parseCSV(countersText);
+        
+        // Load beyblade data for images
+        try {
+            const beyResponse = await fetch('data/beys_data.json');
+            beysData = await beyResponse.json();
+        } catch (e) {
+            console.warn('Could not load beys data:', e);
+            beysData = [];
+        }
+        
+        filteredCounters = [...countersData];
+        applyFilters();
+    } catch (error) {
+        console.error('Error loading counters data:', error);
+        document.getElementById('countersGrid').innerHTML = 
+            '<p style="text-align: center; color: var(--text-light);">Failed to load counters data.</p>';
+    }
+}
+
+// Get bey image URL
+function getBeyImage(beyName) {
+    const normalizedName = normalizeBeyName(beyName);
+    const bey = beysData.find(b => normalizeBeyName(b.blade) === normalizedName);
+    return bey ? bey.image : './data/beys/default.png';
+}
+
+// Get bey type
+function getBeyType(beyName) {
+    const normalizedName = normalizeBeyName(beyName);
+    const bey = beysData.find(b => normalizeBeyName(b.blade) === normalizedName);
+    return bey ? bey.type : 'Unknown';
+}
+
+// Render counter cards
+function renderCounters() {
+    const grid = document.getElementById('countersGrid');
+    
+    if (filteredCounters.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: var(--text-light); grid-column: 1 / -1;">No counters found.</p>';
+        return;
+    }
+    
+    grid.innerHTML = filteredCounters.map(counter => {
+        const beyName = counter.Bey;
+        const counterName = counter.Top_Counter;
+        const gamesVsCounter = parseInt(counter.Games_vs_Counter);
+        const winsVsCounter = parseInt(counter.Wins_vs_Counter);
+        const lossesVsCounter = parseInt(counter.Losses_vs_Counter);
+        const scoreFor = parseInt(counter.Score_for_vs_Counter);
+        const scoreAgainst = parseInt(counter.Score_against_vs_Counter);
+        const winrateVsCounter = parseFloat(counter.Winrate_vs_Counter);
+        const totalGames = parseInt(counter.Total_Games);
+        const overallWinrate = parseFloat(counter.Overall_Winrate);
+        
+        const scoreDiff = scoreFor - scoreAgainst;
+        const effectivenessClass = getEffectivenessClass(winrateVsCounter, scoreDiff);
+        const effectivenessIcon = getEffectivenessIcon(winrateVsCounter, scoreDiff);
+        const effectivenessText = getEffectivenessText(winrateVsCounter, scoreDiff);
+        
+        const beyType = getBeyType(beyName);
+        const counterType = getBeyType(counterName);
+        
+        return `
+        <div class="counter-card ${effectivenessClass}">
+            <div class="counter-card-header">
+                <div class="counter-bey-info">
+                    <a href="bey.html?name=${encodeURIComponent(beyName)}" class="counter-bey-link">
+                        <span class="counter-bey-name">${beyName}</span>
+                    </a>
+                    <span class="counter-bey-type ${beyType.toLowerCase()}">${beyType}</span>
+                </div>
+                <div class="counter-effectiveness">
+                    <span class="effectiveness-icon">${effectivenessIcon}</span>
+                </div>
+            </div>
+            
+            <div class="counter-matchup">
+                <div class="counter-vs-label">countered by</div>
+                <div class="counter-target-info">
+                    <a href="bey.html?name=${encodeURIComponent(counterName)}" class="counter-target-link">
+                        <span class="counter-target-name">🎯 ${counterName}</span>
+                    </a>
+                    <span class="counter-target-type ${counterType.toLowerCase()}">${counterType}</span>
+                </div>
+            </div>
+            
+            <div class="counter-stats">
+                <div class="counter-stat">
+                    <span class="counter-stat-label">Games vs Counter</span>
+                    <span class="counter-stat-value">${gamesVsCounter}</span>
+                </div>
+                <div class="counter-stat">
+                    <span class="counter-stat-label">Record</span>
+                    <span class="counter-stat-value ${winsVsCounter > lossesVsCounter ? 'trend-positive' : winsVsCounter < lossesVsCounter ? 'trend-negative' : ''}">${winsVsCounter}W - ${lossesVsCounter}L</span>
+                </div>
+                <div class="counter-stat">
+                    <span class="counter-stat-label">Score</span>
+                    <span class="counter-stat-value ${scoreDiff > 0 ? 'trend-positive' : scoreDiff < 0 ? 'trend-negative' : ''}">${scoreFor} - ${scoreAgainst}</span>
+                </div>
+                <div class="counter-stat">
+                    <span class="counter-stat-label">Winrate vs Counter</span>
+                    <span class="counter-stat-value ${winrateVsCounter >= 0.5 ? 'trend-positive' : 'trend-negative'}">${(winrateVsCounter * 100).toFixed(0)}%</span>
+                </div>
+            </div>
+            
+            <div class="counter-footer">
+                <div class="counter-effectiveness-text">${effectivenessText}</div>
+                <div class="counter-overall">
+                    <span class="counter-overall-label">Overall:</span>
+                    <span class="counter-overall-value">${totalGames} games, ${(overallWinrate * 100).toFixed(0)}% WR</span>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+// Update count display
+function updateCount() {
+    const countEl = document.getElementById('counterCount');
+    countEl.textContent = `Showing ${filteredCounters.length} counter matchups`;
+}
+
+// Apply filters and sorting
+function applyFilters() {
+    const searchTerm = document.getElementById('counterSearch').value.toLowerCase();
+    
+    filteredCounters = countersData.filter(counter => {
+        // Search filter
+        const matchesSearch = counter.Bey.toLowerCase().includes(searchTerm) ||
+                            counter.Top_Counter.toLowerCase().includes(searchTerm);
+        
+        // Games filter
+        const games = parseInt(counter.Games_vs_Counter);
+        const matchesGames = games >= minGames;
+        
+        return matchesSearch && matchesGames;
+    });
+    
+    // Sort
+    filteredCounters.sort((a, b) => {
+        switch (currentSort) {
+            case 'bey':
+                return a.Bey.localeCompare(b.Bey);
+            case 'counter':
+                return a.Top_Counter.localeCompare(b.Top_Counter);
+            case 'effectiveness':
+                // Sort by winrate ascending (lower is better counter)
+                const wrA = parseFloat(a.Winrate_vs_Counter);
+                const wrB = parseFloat(b.Winrate_vs_Counter);
+                if (wrA !== wrB) return wrA - wrB;
+                // Then by score differential
+                const sdA = parseInt(a.Score_for_vs_Counter) - parseInt(a.Score_against_vs_Counter);
+                const sdB = parseInt(b.Score_for_vs_Counter) - parseInt(b.Score_against_vs_Counter);
+                return sdA - sdB;
+            case 'games':
+                return parseInt(b.Games_vs_Counter) - parseInt(a.Games_vs_Counter);
+            case 'overall':
+                return parseFloat(b.Overall_Winrate) - parseFloat(a.Overall_Winrate);
+            default:
+                return 0;
+        }
+    });
+    
+    renderCounters();
+    updateCount();
+}
+
+// Event listeners
+document.getElementById('counterSearch').addEventListener('input', applyFilters);
+
+document.getElementById('sortFilter').addEventListener('change', (e) => {
+    currentSort = e.target.value;
+    applyFilters();
+});
+
+document.getElementById('gamesFilter').addEventListener('change', (e) => {
+    minGames = parseInt(e.target.value);
+    applyFilters();
+});
+
+// Legend toggle
+const legendToggle = document.getElementById('legendToggle');
+const legendContent = document.getElementById('legendContent');
+
+legendToggle.addEventListener('click', () => {
+    legendContent.classList.toggle('expanded');
+    legendContent.classList.toggle('collapsed');
+    legendToggle.textContent = legendContent.classList.contains('expanded') ? '▼' : '▶';
+});
+
+// Initialize
+loadAllData();
+</script>
+
+<style>
+/* Counter page specific styles */
+.page-description {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 1rem;
+    max-width: 800px;
+    margin: 0 auto 2rem auto;
+    line-height: 1.6;
+}
+
+.counters-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.counters-controls .search-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0;
+    padding: 0;
+}
+
+#counterSearch {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--text);
+    transition: var(--transition);
+    font-family: 'Inter', sans-serif;
+    box-shadow: var(--shadow);
+}
+
+#counterSearch:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+#counterSearch::placeholder {
+    color: var(--text-light);
+}
+
+.counters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.counter-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.counter-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--border);
+    transition: var(--transition);
+}
+
+.counter-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Effectiveness indicator colors */
+.counter-card.effectiveness-very-high::before {
+    background: linear-gradient(90deg, #ef4444, #f97316);
+}
+
+.counter-card.effectiveness-high::before {
+    background: linear-gradient(90deg, #f97316, #eab308);
+}
+
+.counter-card.effectiveness-medium::before {
+    background: linear-gradient(90deg, #eab308, #22c55e);
+}
+
+.counter-card.effectiveness-low::before {
+    background: linear-gradient(90deg, #22c55e, #3b82f6);
+}
+
+.counter-card.effectiveness-neutral::before {
+    background: var(--border);
+}
+
+.counter-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.counter-bey-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.counter-bey-link {
+    text-decoration: none;
+}
+
+.counter-bey-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    transition: var(--transition);
+}
+
+.counter-bey-link:hover .counter-bey-name {
+    color: var(--accent);
+}
+
+.counter-bey-type,
+.counter-target-type {
+    display: inline-block;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+}
+
+.counter-bey-type.attack,
+.counter-target-type.attack {
+    background: #ef4444;
+}
+
+.counter-bey-type.defense,
+.counter-target-type.defense {
+    background: #3b82f6;
+}
+
+.counter-bey-type.stamina,
+.counter-target-type.stamina {
+    background: #22c55e;
+}
+
+.counter-bey-type.balance,
+.counter-target-type.balance {
+    background: #8b5cf6;
+}
+
+.counter-bey-type.unknown,
+.counter-target-type.unknown {
+    background: var(--text-light);
+}
+
+.counter-effectiveness {
+    font-size: 1.25rem;
+}
+
+.counter-matchup {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.counter-vs-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.375rem;
+}
+
+.counter-target-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.counter-target-link {
+    text-decoration: none;
+}
+
+.counter-target-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    transition: var(--transition);
+}
+
+.counter-target-link:hover .counter-target-name {
+    color: var(--accent-hover);
+}
+
+.counter-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.counter-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.counter-stat-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.counter-stat-value {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.counter-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.counter-effectiveness-text {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.counter-overall {
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.counter-overall-label {
+    font-weight: 600;
+}
+
+.counter-overall-value {
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .counters-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .counter-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .counter-card {
+        padding: 1rem;
+    }
+    
+    .counter-bey-name {
+        font-size: 1.125rem;
+    }
+    
+    .counter-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+</style>
+
+</body>
+</html>
