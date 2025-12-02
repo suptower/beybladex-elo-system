@@ -5333,6 +5333,8 @@ body.dark .win-probability {
 
 /* Stat Battle Section */
 .compare-battle-section,
+.compare-leaderboard-section,
+.compare-advanced-section,
 .compare-finish-section,
 .compare-parts-section,
 .compare-archetype-section,
@@ -5346,6 +5348,8 @@ body.dark .win-probability {
 }
 
 .compare-battle-section h3,
+.compare-leaderboard-section h3,
+.compare-advanced-section h3,
 .compare-finish-section h3,
 .compare-parts-section h3,
 .compare-archetype-section h3,
@@ -5431,6 +5435,75 @@ body.dark .win-probability {
 }
 
 .stat-battle-value.disadvantage {
+    color: #ef4444;
+}
+
+/* Leaderboard Stats Comparison */
+.leaderboard-stats-grid,
+.advanced-stats-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.leaderboard-stat-row,
+.advanced-stat-row {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+}
+
+.leaderboard-stat-label,
+.advanced-stat-label {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stat-desc {
+    font-weight: 400;
+    font-size: 0.75rem;
+    color: var(--text-light);
+}
+
+.leaderboard-stat-values,
+.advanced-stat-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+.leaderboard-stat-item,
+.advanced-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    background: var(--card);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid;
+}
+
+.stat-bey-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+.stat-value.advantage {
+    color: #10b981;
+}
+
+.stat-value.disadvantage {
     color: #ef4444;
 }
 
@@ -5813,11 +5886,18 @@ body.dark .win-probability {
     }
     
     .compare-battle-section,
+    .compare-leaderboard-section,
+    .compare-advanced-section,
     .compare-finish-section,
     .compare-parts-section,
     .compare-archetype-section,
     .compare-h2h-section {
         padding: 1rem;
+    }
+    
+    .leaderboard-stat-values,
+    .advanced-stat-values {
+        grid-template-columns: 1fr;
     }
 }
 

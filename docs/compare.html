@@ -154,6 +154,22 @@
             </div>
         </div>
         
+        <!-- Leaderboard Stats Comparison -->
+        <div class="compare-leaderboard-section" id="compareLeaderboardSection" style="display: none;">
+            <h3>🏆 Leaderboard Stats</h3>
+            <div class="leaderboard-stats-grid" id="leaderboardStatsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Advanced Stats Comparison -->
+        <div class="compare-advanced-section" id="compareAdvancedSection" style="display: none;">
+            <h3>📊 Advanced Stats</h3>
+            <div class="advanced-stats-grid" id="advancedStatsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
         <!-- Finish Type Distribution -->
         <div class="compare-finish-section" id="compareFinishSection" style="display: none;">
             <h3>💥 Finish Type Distribution</h3>
@@ -203,6 +219,7 @@ let beysData = [];
 let partsStatsData = {};
 let beyCountersData = [];
 let eloHistoryData = [];
+let advancedLeaderboardData = [];
 
 // Stat colors
 const statColors = {
@@ -259,12 +276,13 @@ const subMetricNames = {
 async function loadData() {
     try {
         // Load all data in parallel
-        const [rpgResponse, beysResponse, partsResponse, countersResponse, historyResponse] = await Promise.all([
+        const [rpgResponse, beysResponse, partsResponse, countersResponse, historyResponse, advancedResponse] = await Promise.all([
             fetch('data/rpg_stats.json'),
             fetch('data/beys_data.json'),
             fetch('data/parts_stats.json'),
             fetch('data/bey_counters.csv'),
-            fetch('data/elo_history.csv')
+            fetch('data/elo_history.csv'),
+            fetch('data/advanced_leaderboard.csv')
         ]);
         
         rpgStatsData = await rpgResponse.json();
@@ -277,6 +295,9 @@ async function loadData() {
         
         const historyText = await historyResponse.text();
         eloHistoryData = parseCSV(historyText);
+        
+        const advancedText = await advancedResponse.text();
+        advancedLeaderboardData = parseCSV(advancedText);
         
         // Convert to array with names
         allBeys = Object.entries(rpgStatsData).map(([name, data]) => ({
@@ -511,6 +532,8 @@ function renderCompareCards() {
     const container = document.getElementById('compareCards');
     const chartSection = document.getElementById('compareChartSection');
     const battleSection = document.getElementById('compareBattleSection');
+    const leaderboardSection = document.getElementById('compareLeaderboardSection');
+    const advancedSection = document.getElementById('compareAdvancedSection');
     const finishSection = document.getElementById('compareFinishSection');
     const partsSection = document.getElementById('comparePartsSection');
     const archetypeSection = document.getElementById('compareArchetypeSection');
@@ -520,6 +543,8 @@ function renderCompareCards() {
         container.innerHTML = '<div class="compare-empty">Select beys from the table or dropdowns above to compare them.</div>';
         chartSection.style.display = 'none';
         battleSection.style.display = 'none';
+        leaderboardSection.style.display = 'none';
+        advancedSection.style.display = 'none';
         finishSection.style.display = 'none';
         partsSection.style.display = 'none';
         archetypeSection.style.display = 'none';
@@ -574,6 +599,12 @@ function renderCompareCards() {
         battleSection.style.display = 'block';
         renderStatBattle();
         
+        leaderboardSection.style.display = 'block';
+        renderLeaderboardStats();
+        
+        advancedSection.style.display = 'block';
+        renderAdvancedStats();
+        
         finishSection.style.display = 'block';
         renderFinishComparison();
         
@@ -588,6 +619,8 @@ function renderCompareCards() {
     } else {
         chartSection.style.display = 'none';
         battleSection.style.display = 'none';
+        leaderboardSection.style.display = 'none';
+        advancedSection.style.display = 'none';
         finishSection.style.display = 'none';
         partsSection.style.display = 'none';
         archetypeSection.style.display = 'none';
@@ -761,6 +794,151 @@ function renderStatBattle() {
                                     <div class="stat-battle-bar" style="width: ${percentage}%; background: ${v.color.border}"></div>
                                 </div>
                                 <span class="stat-battle-value ${isWinner ? 'advantage' : ''} ${isLoser ? 'disadvantage' : ''}">${v.value.toFixed(1)}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Get advanced leaderboard data for a bey
+function getAdvancedStats(beyName) {
+    return advancedLeaderboardData.find(row => row.Bey === beyName) || null;
+}
+
+// Render Leaderboard Stats Comparison
+function renderLeaderboardStats() {
+    const container = document.getElementById('leaderboardStatsGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const statsToCompare = [
+        { key: 'Winrate', label: '🏆 Winrate', format: 'string', higherBetter: true },
+        { key: 'Matches', label: '🎮 Matches', format: 'number', higherBetter: true },
+        { key: 'Wins', label: '✅ Wins', format: 'number', higherBetter: true },
+        { key: 'Losses', label: '❌ Losses', format: 'number', higherBetter: false },
+        { key: 'PointsFor', label: '📈 Points Scored', format: 'number', higherBetter: true },
+        { key: 'PointsAgainst', label: '📉 Points Against', format: 'number', higherBetter: false },
+        { key: 'AvgPointDiff', label: '⚖️ Avg Point Diff', format: 'decimal', higherBetter: true },
+        { key: 'PowerIndex', label: '💪 Power Index', format: 'decimal', higherBetter: true }
+    ];
+    
+    container.innerHTML = statsToCompare.map(stat => {
+        const values = selectedBeys.map((name, idx) => {
+            const advStats = getAdvancedStats(name);
+            let value = advStats ? advStats[stat.key] : null;
+            
+            // Parse value based on format
+            if (value !== null && stat.format === 'number') {
+                value = parseInt(value) || 0;
+            } else if (value !== null && stat.format === 'decimal') {
+                value = parseFloat(value) || 0;
+            }
+            
+            return {
+                name,
+                value,
+                displayValue: advStats ? advStats[stat.key] : '-',
+                color: beyColors[idx]
+            };
+        });
+        
+        // Determine winner/loser for numeric values
+        const numericValues = values.filter(v => typeof v.value === 'number').map(v => v.value);
+        const maxValue = numericValues.length > 0 ? Math.max(...numericValues) : null;
+        const minValue = numericValues.length > 0 ? Math.min(...numericValues) : null;
+        
+        return `
+            <div class="leaderboard-stat-row">
+                <div class="leaderboard-stat-label">${stat.label}</div>
+                <div class="leaderboard-stat-values">
+                    ${values.map(v => {
+                        let className = '';
+                        if (typeof v.value === 'number' && maxValue !== minValue) {
+                            if (stat.higherBetter) {
+                                if (v.value === maxValue) className = 'advantage';
+                                else if (v.value === minValue) className = 'disadvantage';
+                            } else {
+                                if (v.value === minValue) className = 'advantage';
+                                else if (v.value === maxValue) className = 'disadvantage';
+                            }
+                        }
+                        return `
+                            <div class="leaderboard-stat-item" style="border-color: ${v.color.border}">
+                                <span class="stat-bey-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <span class="stat-value ${className}">${escapeHtml(String(v.displayValue))}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render Advanced Stats Comparison
+function renderAdvancedStats() {
+    const container = document.getElementById('advancedStatsGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const advancedStatsToCompare = [
+        { key: 'Volatility', label: '📊 Volatility', format: 'decimal', higherBetter: false, desc: 'Lower is more consistent' },
+        { key: 'AvgΔELO', label: '📈 Avg ELO Change', format: 'decimal', higherBetter: true },
+        { key: 'MaxΔELO', label: '🔺 Max ELO Gain', format: 'decimal', higherBetter: true },
+        { key: 'MinΔELO', label: '🔻 Max ELO Loss', format: 'decimal', higherBetter: true },
+        { key: 'UpsetWins', label: '🎯 Upset Wins', format: 'number', higherBetter: true },
+        { key: 'UpsetLosses', label: '💥 Upset Losses', format: 'number', higherBetter: false },
+        { key: 'ELOTrend', label: '📉 ELO Trend', format: 'decimal', higherBetter: true }
+    ];
+    
+    container.innerHTML = advancedStatsToCompare.map(stat => {
+        const values = selectedBeys.map((name, idx) => {
+            const advStats = getAdvancedStats(name);
+            let value = advStats ? advStats[stat.key] : null;
+            
+            // Parse value based on format
+            if (value !== null && stat.format === 'number') {
+                value = parseInt(value) || 0;
+            } else if (value !== null && stat.format === 'decimal') {
+                value = parseFloat(value) || 0;
+            }
+            
+            return {
+                name,
+                value,
+                displayValue: advStats ? advStats[stat.key] : '-',
+                color: beyColors[idx]
+            };
+        });
+        
+        // Determine winner/loser for numeric values
+        const numericValues = values.filter(v => typeof v.value === 'number').map(v => v.value);
+        const maxValue = numericValues.length > 0 ? Math.max(...numericValues) : null;
+        const minValue = numericValues.length > 0 ? Math.min(...numericValues) : null;
+        
+        return `
+            <div class="advanced-stat-row">
+                <div class="advanced-stat-label">
+                    ${stat.label}
+                    ${stat.desc ? `<span class="stat-desc">${escapeHtml(stat.desc)}</span>` : ''}
+                </div>
+                <div class="advanced-stat-values">
+                    ${values.map(v => {
+                        let className = '';
+                        if (typeof v.value === 'number' && maxValue !== minValue) {
+                            if (stat.higherBetter) {
+                                if (v.value === maxValue) className = 'advantage';
+                                else if (v.value === minValue) className = 'disadvantage';
+                            } else {
+                                if (v.value === minValue) className = 'advantage';
+                                else if (v.value === maxValue) className = 'disadvantage';
+                            }
+                        }
+                        return `
+                            <div class="advanced-stat-item" style="border-color: ${v.color.border}">
+                                <span class="stat-bey-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <span class="stat-value ${className}">${escapeHtml(String(v.displayValue))}</span>
                             </div>
                         `;
                     }).join('')}
