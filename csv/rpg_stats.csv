@@ -1,37 +1,37 @@
-Bey,Rank,ELO,Attack,Defense,Stamina,Control,Meta
-FoxBrush,1,1076,3.16,1.95,3.49,2.33,3.5
-ImpactDrake,2,1064,3.16,2.27,3.2,2.44,4.54
-CerberusFlame,3,1033,2.42,3.06,1.87,2.47,2.61
-CobaltDragoon,4,1029,3.11,2.06,2.5,1.76,3.2
-KnightMail,5,1022,1.58,1.9,3.77,2.36,3.54
-TuskMammoth,6,1022,2.74,1.84,2.46,2.18,3.22
-DranDagger,7,1022,3.39,2.78,1.2,1.67,3.51
-RhinoReaper,8,1021,3.0,1.92,3.63,1.57,3.89
-WeissTiger,9,1017,2.59,2.53,1.21,1.28,2.01
-UnicornSting,10,1005,2.85,2.22,2.83,1.61,2.66
-ViperTail,11,1004,1.34,2.49,3.87,2.07,2.56
-DranSword,12,1002,2.11,2.75,4.3,1.79,2.99
-SilverWolf,13,1000,2.4,1.46,3.6,2.04,3.33
-WizardRod,14,999,2.37,1.84,1.51,3.67,2.69
-DranBuster,15,996,2.85,1.78,0.23,1.51,2.42
-HellsChain,16,995,3.43,2.21,1.7,2.56,1.48
-GolemRock,17,994,0.87,1.41,4.01,1.87,1.69
-WizardArrow,18,993,1.83,2.21,2.27,2.54,1.68
-WhaleFlame,19,992,2.46,1.45,0.87,2.1,1.31
-PerseusDark,20,992,0.54,1.54,4.04,2.11,1.74
-ScorpioSpear,21,992,2.59,1.86,1.94,2.96,1.48
-PhoenixRudder,22,991,1.79,2.48,2.67,3.02,2.66
-LeonCrest,23,991,2.01,2.53,1.0,2.84,0.86
-WizardArc,24,989,0.29,2.77,3.5,2.49,0.77
-TyrannoBeat,25,987,1.61,1.64,3.37,2.41,0.92
-HellsReaper,26,987,2.91,2.88,0.23,3.46,1.19
-PhoenixWing,27,985,2.69,2.34,1.03,1.3,2.38
-SharkEdge,28,985,1.06,1.32,2.96,1.76,0.79
-PegasusBlast,29,982,0.0,2.28,0.23,2.1,0.3
-DranBrave,30,981,2.91,1.56,2.44,2.21,1.21
-LeonClaw,31,978,1.73,2.51,0.23,2.14,0.26
-HellsHammer,32,978,0.91,2.95,1.86,1.54,0.24
-BlackShell,33,978,1.73,2.54,0.23,1.91,1.35
-WhaleWave,34,977,2.17,2.31,1.17,2.66,1.81
-SamuraiSaber,35,973,2.71,1.99,0.23,1.46,0.13
-CrimsonGaruda,36,968,0.04,2.42,2.96,2.79,0.61
+Bey,Rank,ELO,Attack,Defense,Stamina,Control,Meta,Archetype,Archetype_Category,Archetype_Confidence
+FoxBrush,1,1076,3.16,1.95,3.49,2.33,3.5,Spin Tank,stamina,0.384
+ImpactDrake,2,1064,3.16,2.27,3.2,2.44,4.54,Meta Anchor,balance,0.839
+CerberusFlame,3,1033,2.42,3.06,1.87,2.47,2.61,Iron Wall,defense,0.459
+CobaltDragoon,4,1029,3.11,2.06,2.5,1.76,3.2,Glass Cannon,offense,0.359
+KnightMail,5,1022,1.58,1.9,3.77,2.36,3.54,Counter Shield,defense,0.46
+TuskMammoth,6,1022,2.74,1.84,2.46,2.18,3.22,Glass Cannon,offense,0.312
+DranDagger,7,1022,3.39,2.78,1.2,1.67,3.51,Berserker,offense,0.417
+RhinoReaper,8,1021,3.0,1.92,3.63,1.57,3.89,Meta Anchor,balance,0.361
+WeissTiger,9,1017,2.59,2.53,1.21,1.28,2.01,Iron Wall,defense,0.457
+UnicornSting,10,1005,2.85,2.22,2.83,1.61,2.66,Berserker,offense,0.312
+ViperTail,11,1004,1.34,2.49,3.87,2.07,2.56,Spin Tank,stamina,0.443
+DranSword,12,1002,2.11,2.75,4.3,1.79,2.99,Spin Tank,stamina,0.422
+SilverWolf,13,1000,2.4,1.46,3.6,2.04,3.33,Glass Cannon,offense,0.402
+WizardRod,14,999,2.37,1.84,1.51,3.67,2.69,Tempo Controller,control,0.822
+DranBuster,15,996,2.85,1.78,0.23,1.51,2.42,Berserker,offense,0.47
+HellsChain,16,995,3.43,2.21,1.7,2.56,1.48,Glass Cannon,offense,0.406
+GolemRock,17,994,0.87,1.41,4.01,1.87,1.69,Endurance Core,stamina,0.502
+WizardArrow,18,993,1.83,2.21,2.27,2.54,1.68,Unknown,unknown,0.0
+WhaleFlame,19,992,2.46,1.45,0.87,2.1,1.31,Unknown,unknown,0.0
+PerseusDark,20,992,0.54,1.54,4.04,2.11,1.74,Endurance Core,stamina,0.517
+ScorpioSpear,21,992,2.59,1.86,1.94,2.96,1.48,Tempo Controller,control,0.383
+PhoenixRudder,22,991,1.79,2.48,2.67,3.02,2.66,Tempo Controller,control,0.524
+LeonCrest,23,991,2.01,2.53,1.0,2.84,0.86,Unknown,unknown,0.0
+WizardArc,24,989,0.29,2.77,3.5,2.49,0.77,Unknown,unknown,0.0
+TyrannoBeat,25,987,1.61,1.64,3.37,2.41,0.92,Endurance Core,stamina,0.59
+HellsReaper,26,987,2.91,2.88,0.23,3.46,1.19,Unknown,unknown,0.0
+PhoenixWing,27,985,2.69,2.34,1.03,1.3,2.38,Iron Wall,defense,0.5
+SharkEdge,28,985,1.06,1.32,2.96,1.76,0.79,Endurance Core,stamina,0.318
+PegasusBlast,29,982,0.0,2.28,0.23,2.1,0.3,Unknown,unknown,0.0
+DranBrave,30,981,2.91,1.56,2.44,2.21,1.21,Glass Cannon,offense,0.371
+LeonClaw,31,978,1.73,2.51,0.23,2.14,0.26,Unknown,unknown,0.0
+HellsHammer,32,978,0.91,2.95,1.86,1.54,0.24,Unknown,unknown,0.0
+BlackShell,33,978,1.73,2.54,0.23,1.91,1.35,Iron Wall,defense,0.532
+WhaleWave,34,977,2.17,2.31,1.17,2.66,1.81,Iron Wall,defense,0.344
+SamuraiSaber,35,973,2.71,1.99,0.23,1.46,0.13,Unknown,unknown,0.0
+CrimsonGaruda,36,968,0.04,2.42,2.96,2.79,0.61,Unknown,unknown,0.0

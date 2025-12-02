@@ -17,6 +17,9 @@ from rpg_stats import (
     calculate_stamina_stat,
     calculate_control_stat,
     calculate_meta_impact_stat,
+    detect_archetype,
+    ARCHETYPE_DEFINITIONS,
+    MIN_MATCHES_FOR_ARCHETYPE,
     ATTACK_WEIGHTS,
     DEFENSE_WEIGHTS,
     STAMINA_WEIGHTS,
@@ -362,3 +365,179 @@ class TestCalculateMetaImpactStat:
         all_metrics = [metrics]
         result = calculate_meta_impact_stat(metrics, all_metrics)
         assert 0.0 <= result <= 5.0
+
+
+class TestArchetypeDefinitions:
+    """Tests for archetype definitions."""
+
+    def test_all_archetypes_have_required_fields(self):
+        """All archetypes should have required fields."""
+        required_fields = ["name", "description", "category", "icon", "color"]
+        for archetype_id, definition in ARCHETYPE_DEFINITIONS.items():
+            for field in required_fields:
+                assert field in definition, f"{archetype_id} missing {field}"
+
+    def test_unknown_archetype_exists(self):
+        """The 'unknown' fallback archetype should exist."""
+        assert "unknown" in ARCHETYPE_DEFINITIONS
+
+    def test_all_categories_valid(self):
+        """All archetype categories should be valid."""
+        valid_categories = {"offense", "defense", "stamina", "control", "balance", "unknown"}
+        for archetype_id, definition in ARCHETYPE_DEFINITIONS.items():
+            assert definition["category"] in valid_categories
+
+
+class TestDetectArchetype:
+    """Tests for the detect_archetype function."""
+
+    def _create_default_sub_metrics(self):
+        """Create default sub-metrics structure."""
+        return {
+            "attack": {
+                "burst_finish_rate": 0.2,
+                "pocket_finish_rate": 0.2,
+                "extreme_finish_rate": 0.1,
+                "offensive_point_efficiency": 1.5,
+                "opening_dominance": 0.5,
+            },
+            "defense": {
+                "burst_resistance": 0.7,
+                "pocket_resistance": 0.7,
+                "extreme_resistance": 0.8,
+                "defensive_conversion": 0.5,
+            },
+            "stamina": {
+                "spin_finish_win_rate": 0.3,
+                "spin_differential_index": 0.5,
+                "long_round_win_rate": 0.5,
+            },
+            "control": {
+                "volatility_inverse": 0.5,
+                "first_contact_advantage": 0.6,
+                "match_flow_stability": 0.7,
+            },
+            "meta_impact": {
+                "elo_normalized": 0.5,
+                "elo_per_match": 0.0,
+                "upset_rate": 0.2,
+                "matchup_spread": 0.5,
+                "anti_meta_score": 0.5,
+            },
+        }
+
+    def test_returns_unknown_for_insufficient_matches(self):
+        """Should return 'unknown' archetype for beys with insufficient matches."""
+        stats = {"attack": 3.0, "defense": 3.0, "stamina": 3.0, "control": 3.0, "meta_impact": 3.0}
+        sub_metrics = self._create_default_sub_metrics()
+        leaderboard_data = {"matches": MIN_MATCHES_FOR_ARCHETYPE - 1}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        assert result["archetype"] == "unknown"
+        assert result["confidence"] == 0.0
+
+    def test_returns_valid_archetype_for_sufficient_matches(self):
+        """Should return a valid archetype for beys with sufficient matches."""
+        stats = {"attack": 4.0, "defense": 2.0, "stamina": 2.5, "control": 2.0, "meta_impact": 3.0}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["attack"]["burst_finish_rate"] = 0.4
+        leaderboard_data = {"matches": MIN_MATCHES_FOR_ARCHETYPE + 5}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        assert result["archetype"] in ARCHETYPE_DEFINITIONS
+        assert result["archetype"] != "unknown"
+        assert result["confidence"] > 0
+
+    def test_result_structure(self):
+        """Should return result with required structure."""
+        stats = {"attack": 3.0, "defense": 3.0, "stamina": 3.0, "control": 3.0, "meta_impact": 3.0}
+        sub_metrics = self._create_default_sub_metrics()
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        assert "archetype" in result
+        assert "archetype_data" in result
+        assert "confidence" in result
+        assert "candidates" in result
+        assert isinstance(result["candidates"], list)
+        assert len(result["candidates"]) <= 3
+
+    def test_high_attack_suggests_offense_archetype(self):
+        """High attack stats should suggest an offense-category archetype."""
+        stats = {"attack": 4.5, "defense": 1.5, "stamina": 2.0, "control": 2.0, "meta_impact": 3.0}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["attack"]["burst_finish_rate"] = 0.5
+        sub_metrics["defense"]["burst_resistance"] = 0.4
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should suggest an offense-related archetype
+        assert result["archetype_data"]["category"] == "offense"
+
+    def test_high_defense_suggests_defense_archetype(self):
+        """High defense stats should suggest a defense-category archetype."""
+        stats = {"attack": 2.0, "defense": 4.5, "stamina": 2.5, "control": 3.0, "meta_impact": 2.5}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["defense"]["burst_resistance"] = 0.9
+        sub_metrics["defense"]["defensive_conversion"] = 0.7
+        sub_metrics["control"]["volatility_inverse"] = 0.8
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should suggest a defense-related archetype
+        assert result["archetype_data"]["category"] == "defense"
+
+    def test_high_stamina_suggests_stamina_archetype(self):
+        """High stamina stats should suggest a stamina-category archetype."""
+        stats = {"attack": 2.0, "defense": 2.5, "stamina": 4.5, "control": 3.0, "meta_impact": 2.5}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["stamina"]["spin_finish_win_rate"] = 0.7
+        sub_metrics["stamina"]["long_round_win_rate"] = 0.8
+        sub_metrics["control"]["volatility_inverse"] = 0.7
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should suggest a stamina-related archetype
+        assert result["archetype_data"]["category"] == "stamina"
+
+    def test_high_control_suggests_control_archetype(self):
+        """High control stats should suggest a control-category archetype."""
+        stats = {"attack": 2.5, "defense": 2.5, "stamina": 2.5, "control": 4.5, "meta_impact": 2.5}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["control"]["volatility_inverse"] = 0.9
+        sub_metrics["control"]["first_contact_advantage"] = 0.8
+        sub_metrics["control"]["match_flow_stability"] = 0.9
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should suggest control-related archetype
+        assert result["archetype_data"]["category"] == "control"
+
+    def test_confidence_between_zero_and_one(self):
+        """Confidence should be between 0 and 1."""
+        stats = {"attack": 3.0, "defense": 3.0, "stamina": 3.0, "control": 3.0, "meta_impact": 3.0}
+        sub_metrics = self._create_default_sub_metrics()
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        assert 0.0 <= result["confidence"] <= 1.0
+
+    def test_candidates_sorted_by_score(self):
+        """Candidates should be sorted by score descending."""
+        stats = {"attack": 3.0, "defense": 3.0, "stamina": 3.0, "control": 3.0, "meta_impact": 3.0}
+        sub_metrics = self._create_default_sub_metrics()
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        if len(result["candidates"]) > 1:
+            for i in range(len(result["candidates"]) - 1):
+                assert result["candidates"][i]["score"] >= result["candidates"][i + 1]["score"]

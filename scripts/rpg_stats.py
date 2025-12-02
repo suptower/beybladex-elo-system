@@ -84,6 +84,279 @@ META_IMPACT_WEIGHTS = {
 
 
 # ============================================
+# ARCHETYPE DEFINITIONS
+# ============================================
+
+ARCHETYPE_DEFINITIONS = {
+    # Offense-focused archetypes
+    "glass_cannon": {
+        "name": "Glass Cannon",
+        "description": "Very high Attack, low Defense & low Burst Resistance",
+        "category": "offense",
+        "icon": "💥",
+        "color": "#ef4444",  # Red
+    },
+    "berserker": {
+        "name": "Berserker",
+        "description": "High Attack + high volatility, KO-heavy style",
+        "category": "offense",
+        "icon": "⚔️",
+        "color": "#dc2626",  # Dark red
+    },
+    "chaser": {
+        "name": "Chaser",
+        "description": "Fast, Pocket/Extreme-focused finish bias",
+        "category": "offense",
+        "icon": "🎯",
+        "color": "#f97316",  # Orange
+    },
+    # Defense-focused archetypes
+    "iron_wall": {
+        "name": "Iron Wall",
+        "description": "Extremely high Defense, high Burst Resistance, low volatility",
+        "category": "defense",
+        "icon": "🛡️",
+        "color": "#3b82f6",  # Blue
+    },
+    "counter_shield": {
+        "name": "Counter Shield",
+        "description": "Defensive tendencies but with strong reversal potential",
+        "category": "defense",
+        "icon": "🔄",
+        "color": "#6366f1",  # Indigo
+    },
+    # Stamina-focused archetypes
+    "endurance_core": {
+        "name": "Endurance Core",
+        "description": "Stable, low volatility, high Spin Finish bias",
+        "category": "stamina",
+        "icon": "💪",
+        "color": "#10b981",  # Teal/Emerald
+    },
+    "spin_tank": {
+        "name": "Spin Tank",
+        "description": "High stamina + high defense, wins long rounds consistently",
+        "category": "stamina",
+        "icon": "🔋",
+        "color": "#14b8a6",  # Teal
+    },
+    # Balance/Control archetypes
+    "tempo_controller": {
+        "name": "Tempo Controller",
+        "description": "High Control, stable flow, consistency-focused",
+        "category": "control",
+        "icon": "🎼",
+        "color": "#f59e0b",  # Amber
+    },
+    "adaptive_fighter": {
+        "name": "Adaptive Fighter",
+        "description": "Moderate in all stats, excels in matchup spread",
+        "category": "balance",
+        "icon": "⚡",
+        "color": "#8b5cf6",  # Violet
+    },
+    "meta_anchor": {
+        "name": "Meta Anchor",
+        "description": "Above-average Meta Impact despite mixed stat profile",
+        "category": "balance",
+        "icon": "⭐",
+        "color": "#eab308",  # Yellow
+    },
+    # Fallback
+    "unknown": {
+        "name": "Unknown",
+        "description": "Insufficient data or no clear archetype match",
+        "category": "unknown",
+        "icon": "❓",
+        "color": "#6b7280",  # Gray
+    },
+}
+
+# Minimum matches required for reliable archetype classification
+MIN_MATCHES_FOR_ARCHETYPE = 3
+
+# Archetype confidence calculation constants
+# Max stat balance divisor: 3 stat differences × 5.0 max stat value
+MAX_STAT_BALANCE_DIVISOR = 15.0
+# Confidence score weights: base score weight and gap multiplier
+CONFIDENCE_BASE_WEIGHT = 0.6
+CONFIDENCE_GAP_MULTIPLIER = 2.0
+
+
+def detect_archetype(
+    stats: dict[str, float],
+    sub_metrics: dict[str, dict[str, float]],
+    leaderboard_data: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """
+    Detect the archetype of a Beyblade based on its statistical profile.
+
+    Uses weighted scoring based on stat values and sub-metric patterns to
+    classify a Bey into one of the defined archetypes.
+
+    Args:
+        stats: Dictionary of stat values (attack, defense, stamina, control, meta_impact)
+        sub_metrics: Dictionary of sub-metrics for each stat category
+        leaderboard_data: Optional leaderboard data for additional context
+
+    Returns:
+        Dictionary containing:
+        - archetype: string key of the detected archetype
+        - archetype_data: full archetype definition
+        - confidence: confidence score (0.0-1.0)
+        - candidates: list of candidate archetypes with scores
+    """
+    # Check for minimum data requirements
+    matches = leaderboard_data.get("matches", 0) if leaderboard_data else 0
+    if matches < MIN_MATCHES_FOR_ARCHETYPE:
+        return {
+            "archetype": "unknown",
+            "archetype_data": ARCHETYPE_DEFINITIONS["unknown"],
+            "confidence": 0.0,
+            "candidates": [],
+            "reason": "Insufficient match data",
+        }
+
+    # Extract stat values
+    attack = stats.get("attack", 2.5)
+    defense = stats.get("defense", 2.5)
+    stamina = stats.get("stamina", 2.5)
+    control = stats.get("control", 2.5)
+    meta_impact = stats.get("meta_impact", 2.5)
+
+    # Extract key sub-metrics
+    attack_metrics = sub_metrics.get("attack", {})
+    defense_metrics = sub_metrics.get("defense", {})
+    stamina_metrics = sub_metrics.get("stamina", {})
+    control_metrics = sub_metrics.get("control", {})
+    meta_metrics = sub_metrics.get("meta_impact", {})
+
+    burst_finish_rate = attack_metrics.get("burst_finish_rate", 0)
+    pocket_finish_rate = attack_metrics.get("pocket_finish_rate", 0)
+    extreme_finish_rate = attack_metrics.get("extreme_finish_rate", 0)
+    burst_resistance = defense_metrics.get("burst_resistance", 0.5)
+    defensive_conversion = defense_metrics.get("defensive_conversion", 0.5)
+    spin_finish_win_rate = stamina_metrics.get("spin_finish_win_rate", 0)
+    volatility_inverse = control_metrics.get("volatility_inverse", 0.5)
+    matchup_spread = meta_metrics.get("matchup_spread", 0.5)
+    anti_meta_score = meta_metrics.get("anti_meta_score", 0.5)
+
+    # Calculate archetype scores
+    archetype_scores: dict[str, float] = {}
+
+    # Glass Cannon: High attack, low defense & burst resistance
+    archetype_scores["glass_cannon"] = (
+        (attack / 5.0) * 0.5
+        + ((5.0 - defense) / 5.0) * 0.3
+        + ((1.0 - burst_resistance) * 0.2)
+    )
+
+    # Berserker: High attack + high volatility (low control)
+    archetype_scores["berserker"] = (
+        (attack / 5.0) * 0.4
+        + (burst_finish_rate * 0.3)
+        + ((1.0 - volatility_inverse) * 0.3)
+    )
+
+    # Chaser: Fast finisher, pocket/extreme focused
+    archetype_scores["chaser"] = (
+        (attack / 5.0) * 0.3
+        + (pocket_finish_rate * 0.35)
+        + (extreme_finish_rate * 0.35)
+    )
+
+    # Iron Wall: High defense, high burst resistance, low volatility
+    archetype_scores["iron_wall"] = (
+        (defense / 5.0) * 0.4
+        + (burst_resistance * 0.35)
+        + (volatility_inverse * 0.25)
+    )
+
+    # Counter Shield: Defensive but with reversal potential
+    archetype_scores["counter_shield"] = (
+        (defense / 5.0) * 0.35
+        + (defensive_conversion * 0.4)
+        + (burst_resistance * 0.25)
+    )
+
+    # Endurance Core: High stamina, stable, spin finish focused
+    archetype_scores["endurance_core"] = (
+        (stamina / 5.0) * 0.4
+        + (spin_finish_win_rate * 0.35)
+        + (volatility_inverse * 0.25)
+    )
+
+    # Spin Tank: High stamina + high defense, long match winner
+    archetype_scores["spin_tank"] = (
+        (stamina / 5.0) * 0.35
+        + (defense / 5.0) * 0.35
+        + (stamina_metrics.get("long_round_win_rate", 0.5) * 0.3)
+    )
+
+    # Tempo Controller: High control, stable performance
+    archetype_scores["tempo_controller"] = (
+        (control / 5.0) * 0.5
+        + (volatility_inverse * 0.3)
+        + (control_metrics.get("first_contact_advantage", 0.5) * 0.2)
+    )
+
+    # Adaptive Fighter: Balanced stats, good matchup spread
+    stat_balance = 1.0 - (
+        abs(attack - defense) + abs(defense - stamina) + abs(stamina - control)
+    ) / MAX_STAT_BALANCE_DIVISOR
+    archetype_scores["adaptive_fighter"] = (
+        stat_balance * 0.4
+        + (matchup_spread * 0.35)
+        + (min(attack, defense, stamina, control) / 5.0) * 0.25
+    )
+
+    # Meta Anchor: High meta impact despite balanced/mixed profile
+    archetype_scores["meta_anchor"] = (
+        (meta_impact / 5.0) * 0.5
+        + (anti_meta_score * 0.3)
+        + (matchup_spread * 0.2)
+    )
+
+    # Find top candidates
+    sorted_archetypes = sorted(
+        archetype_scores.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    top_archetype = sorted_archetypes[0][0]
+    top_score = sorted_archetypes[0][1]
+
+    # Calculate confidence based on score gap
+    # Confidence formula combines base score contribution with gap bonus
+    if len(sorted_archetypes) > 1:
+        score_gap = top_score - sorted_archetypes[1][1]
+        confidence = min(
+            1.0,
+            top_score * CONFIDENCE_BASE_WEIGHT + score_gap * CONFIDENCE_GAP_MULTIPLIER
+        )
+    else:
+        confidence = top_score
+
+    # Prepare candidates list (top 3)
+    candidates = [
+        {
+            "archetype": arch,
+            "score": round(score, 3),
+            "name": ARCHETYPE_DEFINITIONS[arch]["name"],
+        }
+        for arch, score in sorted_archetypes[:3]
+    ]
+
+    return {
+        "archetype": top_archetype,
+        "archetype_data": ARCHETYPE_DEFINITIONS[top_archetype],
+        "confidence": round(confidence, 3),
+        "candidates": candidates,
+    }
+
+
+# ============================================
 # NORMALIZATION FUNCTIONS
 # ============================================
 
@@ -835,37 +1108,63 @@ def calculate_rpg_stats() -> dict[str, dict]:
         control = calculate_control_stat(control_metrics[bey], all_control)
         meta_impact = calculate_meta_impact_stat(meta_impact_metrics[bey], all_meta)
 
-        results[bey] = {
-            "stats": {
-                "attack": round(attack, 2),
-                "defense": round(defense, 2),
-                "stamina": round(stamina, 2),
-                "control": round(control, 2),
-                "meta_impact": round(meta_impact, 2),
+        # Build stats and sub_metrics dictionaries
+        stats_dict = {
+            "attack": round(attack, 2),
+            "defense": round(defense, 2),
+            "stamina": round(stamina, 2),
+            "control": round(control, 2),
+            "meta_impact": round(meta_impact, 2),
+        }
+
+        sub_metrics_dict = {
+            "attack": {
+                k: round(v, 4) for k, v in attack_metrics[bey].items()
             },
-            "sub_metrics": {
-                "attack": {
-                    k: round(v, 4) for k, v in attack_metrics[bey].items()
-                },
-                "defense": {
-                    k: round(v, 4) for k, v in defense_metrics[bey].items()
-                },
-                "stamina": {
-                    k: round(v, 4) for k, v in stamina_metrics[bey].items()
-                },
-                "control": {
-                    k: round(v, 4) for k, v in control_metrics[bey].items()
-                },
-                "meta_impact": {
-                    k: round(v, 4) for k, v in meta_impact_metrics[bey].items()
-                },
+            "defense": {
+                k: round(v, 4) for k, v in defense_metrics[bey].items()
             },
-            "leaderboard": {
-                "rank": lb_data.get("rank", 0),
-                "elo": lb_data.get("elo", 1000),
-                "matches": lb_data.get("matches", 0),
+            "stamina": {
+                k: round(v, 4) for k, v in stamina_metrics[bey].items()
+            },
+            "control": {
+                k: round(v, 4) for k, v in control_metrics[bey].items()
+            },
+            "meta_impact": {
+                k: round(v, 4) for k, v in meta_impact_metrics[bey].items()
             },
         }
+
+        leaderboard_dict = {
+            "rank": lb_data.get("rank", 0),
+            "elo": lb_data.get("elo", 1000),
+            "matches": lb_data.get("matches", 0),
+        }
+
+        # Detect archetype
+        archetype_result = detect_archetype(
+            stats_dict,
+            sub_metrics_dict,
+            leaderboard_dict
+        )
+
+        results[bey] = {
+            "stats": stats_dict,
+            "sub_metrics": sub_metrics_dict,
+            "leaderboard": leaderboard_dict,
+            "archetype": {
+                "id": archetype_result["archetype"],
+                "name": archetype_result["archetype_data"]["name"],
+                "description": archetype_result["archetype_data"]["description"],
+                "category": archetype_result["archetype_data"]["category"],
+                "icon": archetype_result["archetype_data"]["icon"],
+                "color": archetype_result["archetype_data"]["color"],
+                "confidence": archetype_result["confidence"],
+                "candidates": archetype_result["candidates"],
+            },
+        }
+
+    print(f"{CYAN}Detecting archetypes...{RESET}")
 
     return results
 
@@ -884,7 +1183,10 @@ def save_rpg_stats(stats: dict[str, dict]) -> None:
     print(f"{GREEN}RPG stats copied to {DOCS_RPG_STATS_JSON}{RESET}")
 
     # Save CSV for easy viewing
-    header = ["Bey", "Rank", "ELO", "Attack", "Defense", "Stamina", "Control", "Meta"]
+    header = [
+        "Bey", "Rank", "ELO", "Attack", "Defense", "Stamina", "Control", "Meta",
+        "Archetype", "Archetype_Category", "Archetype_Confidence"
+    ]
     with open(RPG_STATS_CSV, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(header)
@@ -896,6 +1198,7 @@ def save_rpg_stats(stats: dict[str, dict]) -> None:
         )
 
         for bey, data in sorted_beys:
+            archetype_data = data.get("archetype", {})
             writer.writerow([
                 bey,
                 data["leaderboard"]["rank"],
@@ -905,6 +1208,9 @@ def save_rpg_stats(stats: dict[str, dict]) -> None:
                 data["stats"]["stamina"],
                 data["stats"]["control"],
                 data["stats"]["meta_impact"],
+                archetype_data.get("name", "Unknown"),
+                archetype_data.get("category", "unknown"),
+                archetype_data.get("confidence", 0.0),
             ])
 
     print(f"{GREEN}RPG stats CSV saved to {RPG_STATS_CSV}{RESET}")

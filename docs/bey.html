@@ -92,6 +92,13 @@
                 </div>
             </div>
             
+            <!-- Archetype Section -->
+            <div class="profile-section" id="archetypeSection" style="display: none;">
+                <div id="archetypeContainer" class="archetype-container">
+                    <!-- Archetype will be dynamically added -->
+                </div>
+            </div>
+            
             <!-- RPG Stats Section -->
             <details class="profile-section-details" id="rpgStatsSection" style="display: none;" open>
                 <summary class="section-summary">⚔️ Skill Bars</summary>
@@ -514,6 +521,9 @@ function renderProfile() {
     // Render key stats (ELO and Power Index)
     renderKeyStats();
     
+    // Render archetype
+    renderArchetype();
+    
     // Render RPG stats (skill bars)
     renderRpgStats();
     
@@ -661,6 +671,69 @@ function getPowerIndexClass(pwr) {
     if (pwr >= 40) return 'trend-neutral';
     if (pwr >= 20) return 'trend-negative';
     return 'trend-very-negative';
+}
+
+// Render Archetype Section
+function renderArchetype() {
+    const archetypeSection = document.getElementById('archetypeSection');
+    const archetypeContainer = document.getElementById('archetypeContainer');
+    archetypeContainer.innerHTML = '';
+    
+    if (!rpgStatsData || !rpgStatsData.archetype) {
+        archetypeSection.style.display = 'none';
+        return;
+    }
+    
+    const archetype = rpgStatsData.archetype;
+    
+    // Don't show if archetype is unknown
+    if (archetype.id === 'unknown') {
+        archetypeSection.style.display = 'none';
+        return;
+    }
+    
+    // Show the section
+    archetypeSection.style.display = 'block';
+    
+    // Build candidates HTML for tooltip/details
+    let candidatesHtml = '';
+    if (archetype.candidates && archetype.candidates.length > 1) {
+        candidatesHtml = `
+            <div class="archetype-candidates">
+                <div class="archetype-candidates-title">Alternative Classifications:</div>
+                ${archetype.candidates.slice(1).map(c => `
+                    <div class="archetype-candidate">
+                        <span class="archetype-candidate-name">${escapeHtml(c.name)}</span>
+                        <span class="archetype-candidate-score">${Math.round(c.score * 100)}%</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    // Get confidence class
+    const confidenceClass = archetype.confidence >= 0.6 ? 'high' : 
+                           archetype.confidence >= 0.3 ? 'medium' : 'low';
+    
+    archetypeContainer.innerHTML = `
+        <div class="archetype-card archetype-category-${archetype.category}" style="--archetype-color: ${archetype.color}">
+            <div class="archetype-header">
+                <span class="archetype-icon">${archetype.icon}</span>
+                <div class="archetype-info">
+                    <span class="archetype-name">${escapeHtml(archetype.name)}</span>
+                    <span class="archetype-category-badge archetype-category-${archetype.category}">${escapeHtml(archetype.category)}</span>
+                </div>
+            </div>
+            <p class="archetype-description">${escapeHtml(archetype.description)}</p>
+            <div class="archetype-confidence">
+                <div class="archetype-confidence-bar">
+                    <div class="archetype-confidence-fill confidence-${confidenceClass}" style="width: ${Math.round(archetype.confidence * 100)}%"></div>
+                </div>
+                <span class="archetype-confidence-label">${Math.round(archetype.confidence * 100)}% match</span>
+            </div>
+            ${candidatesHtml}
+        </div>
+    `;
 }
 
 // Render RPG Stats (Skill Bars)
