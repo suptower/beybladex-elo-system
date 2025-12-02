@@ -4942,6 +4942,9 @@ body.dark .win-probability {
 
 /* Dark mode archetype adjustments */
 .dark .archetype-card {
+    /* Fallback for older browsers */
+    border-color: rgba(107, 114, 128, 0.5);
+    /* Modern browsers with color-mix support */
     border-color: color-mix(in srgb, var(--archetype-color, var(--border)) 50%, transparent);
 }
 

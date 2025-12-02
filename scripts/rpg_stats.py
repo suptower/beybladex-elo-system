@@ -175,12 +175,19 @@ ARCHETYPE_DEFINITIONS = {
 # Minimum matches required for reliable archetype classification
 MIN_MATCHES_FOR_ARCHETYPE = 3
 
+# Archetype confidence calculation constants
+# Max stat balance divisor: 3 stat differences × 5.0 max stat value
+MAX_STAT_BALANCE_DIVISOR = 15.0
+# Confidence score weights: base score weight and gap multiplier
+CONFIDENCE_BASE_WEIGHT = 0.6
+CONFIDENCE_GAP_MULTIPLIER = 2.0
+
 
 def detect_archetype(
     stats: dict[str, float],
     sub_metrics: dict[str, dict[str, float]],
-    leaderboard_data: dict[str, any] | None = None
-) -> dict[str, any]:
+    leaderboard_data: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """
     Detect the archetype of a Beyblade based on its statistical profile.
 
@@ -296,7 +303,7 @@ def detect_archetype(
     # Adaptive Fighter: Balanced stats, good matchup spread
     stat_balance = 1.0 - (
         abs(attack - defense) + abs(defense - stamina) + abs(stamina - control)
-    ) / 15.0
+    ) / MAX_STAT_BALANCE_DIVISOR
     archetype_scores["adaptive_fighter"] = (
         stat_balance * 0.4
         + (matchup_spread * 0.35)
@@ -321,9 +328,13 @@ def detect_archetype(
     top_score = sorted_archetypes[0][1]
 
     # Calculate confidence based on score gap
+    # Confidence formula combines base score contribution with gap bonus
     if len(sorted_archetypes) > 1:
         score_gap = top_score - sorted_archetypes[1][1]
-        confidence = min(1.0, top_score * 0.6 + score_gap * 2.0)
+        confidence = min(
+            1.0,
+            top_score * CONFIDENCE_BASE_WEIGHT + score_gap * CONFIDENCE_GAP_MULTIPLIER
+        )
     else:
         confidence = top_score
 
