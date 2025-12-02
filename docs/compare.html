@@ -311,6 +311,10 @@ async function loadData() {
 }
 
 // Parse CSV text to array of objects
+// Parse CSV text to array of objects
+// Note: This is a simple CSV parser that handles basic CSV files.
+// It does not handle quoted values containing commas or newlines.
+// The data files in this project use simple CSV without such edge cases.
 function parseCSV(csvText) {
     const lines = csvText.trim().split('\n');
     if (lines.length < 2) return [];
@@ -528,6 +532,7 @@ function renderCompareCards() {
         const color = beyColors[idx];
         const beyInfo = beysData.find(b => b.blade === name);
         const beyType = beyInfo?.type || partsStatsData.blades?.[name]?.type || 'Unknown';
+        const safeType = sanitizeClassName(beyType);
         
         return `
             <div class="compare-card" style="border-top-color: ${color.border}">
@@ -542,7 +547,7 @@ function renderCompareCards() {
                 </div>
                 
                 <div class="compare-card-type">
-                    <span class="type-badge type-${beyType.toLowerCase()}">${beyType}</span>
+                    <span class="type-badge type-${safeType}">${escapeHtml(beyType)}</span>
                 </div>
                 
                 <div class="compare-stats-grid">
@@ -702,11 +707,18 @@ function renderRadarChart() {
     });
 }
 
-// Escape HTML
+// Escape HTML - handles null/undefined inputs
 function escapeHtml(text) {
+    if (text == null) return '';
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = String(text);
     return div.innerHTML;
+}
+
+// Sanitize class name - only allow alphanumeric and hyphens
+function sanitizeClassName(name) {
+    if (name == null) return 'unknown';
+    return String(name).toLowerCase().replace(/[^a-z0-9-]/g, '');
 }
 
 // Render Stat Battle Summary
@@ -860,7 +872,7 @@ function renderPartsComparison() {
                 ${partsData.map(p => `
                     <div class="part-info-item" style="border-color: ${p.color.border}">
                         <span class="part-name">${escapeHtml(p.name)}</span>
-                        <span class="part-value">${p.ratchet?.name || 'Unknown'}</span>
+                        <span class="part-value">${escapeHtml(p.ratchet?.name || 'Unknown')}</span>
                     </div>
                 `).join('')}
             </div>
@@ -876,8 +888,8 @@ function renderPartsComparison() {
                 ${partsData.map(p => `
                     <div class="part-info-item" style="border-color: ${p.color.border}">
                         <span class="part-name">${escapeHtml(p.name)}</span>
-                        <span class="part-value">${p.bit?.name || 'Unknown'}</span>
-                        ${p.bit?.category ? `<span class="part-category type-${p.bit.category.toLowerCase()}">${p.bit.category}</span>` : ''}
+                        <span class="part-value">${escapeHtml(p.bit?.name || 'Unknown')}</span>
+                        ${p.bit?.category ? `<span class="part-category type-${sanitizeClassName(p.bit.category)}">${escapeHtml(p.bit.category)}</span>` : ''}
                     </div>
                 `).join('')}
             </div>
@@ -952,6 +964,7 @@ function renderArchetypeComparison() {
         const type = beyInfo?.type || bladeStats.type || 'Unknown';
         const typeInfo = typeDescriptions[type] || { emoji: '❓', desc: 'Unknown type', strengths: [], weaknesses: [] };
         const color = beyColors[idx];
+        const safeType = sanitizeClassName(type);
         
         return `
             <div class="archetype-card" style="border-top-color: ${color.border}">
@@ -959,21 +972,21 @@ function renderArchetypeComparison() {
                     <span class="archetype-emoji">${typeInfo.emoji}</span>
                     <div class="archetype-info">
                         <span class="archetype-bey-name" style="color: ${color.border}">${escapeHtml(name)}</span>
-                        <span class="archetype-type type-badge type-${type.toLowerCase()}">${type}</span>
+                        <span class="archetype-type type-badge type-${safeType}">${escapeHtml(type)}</span>
                     </div>
                 </div>
-                <p class="archetype-desc">${typeInfo.desc}</p>
+                <p class="archetype-desc">${escapeHtml(typeInfo.desc)}</p>
                 <div class="archetype-traits">
                     <div class="archetype-strengths">
                         <span class="traits-label">✅ Strengths</span>
                         <ul>
-                            ${typeInfo.strengths.map(s => `<li>${s}</li>`).join('')}
+                            ${typeInfo.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
                         </ul>
                     </div>
                     <div class="archetype-weaknesses">
                         <span class="traits-label">⚠️ Weaknesses</span>
                         <ul>
-                            ${typeInfo.weaknesses.map(w => `<li>${w}</li>`).join('')}
+                            ${typeInfo.weaknesses.map(w => `<li>${escapeHtml(w)}</li>`).join('')}
                         </ul>
                     </div>
                 </div>
