@@ -12,8 +12,8 @@ sys.path.insert(0, parent_dir)
 from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
 
 # --- Dateien und Verzeichnisse ---
-LEADERBOARD_FILE = "./csv/leaderboard.csv"
-ADVANCED_FILE = "./csv/advanced_leaderboard.csv"
+LEADERBOARD_FILE = "./data/leaderboard.csv"
+ADVANCED_FILE = "./data/advanced_leaderboard.csv"
 OUTPUT_DIR = "./docs/plots"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
@@ -136,8 +136,8 @@ def plot_elo_trends_top5(output_file, dark_mode=False):
         configure_light_mode()
 
     # ELO Verlauf aus timeseries CSV
-    df_ts = pd.read_csv("./csv/elo_timeseries.csv")
-    df_adv = pd.read_csv("./csv/advanced_leaderboard.csv")
+    df_ts = pd.read_csv("./data/elo_timeseries.csv")
+    df_adv = pd.read_csv("./data/advanced_leaderboard.csv")
     df_trend = df_adv.sort_values(by='ELO', ascending=False).head(5)
 
     plt.figure(figsize=(12, 6))

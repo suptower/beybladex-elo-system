@@ -37,8 +37,8 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 # --- File paths ---
-ELO_TIMESERIES_FILE = "./csv/elo_timeseries.csv"
-LEADERBOARD_FILE = "./csv/leaderboard.csv"
+ELO_TIMESERIES_FILE = "./data/elo_timeseries.csv"
+LEADERBOARD_FILE = "./data/leaderboard.csv"
 OUTPUT_DIR = "./docs/plots"
 
 # Ensure output directories exist

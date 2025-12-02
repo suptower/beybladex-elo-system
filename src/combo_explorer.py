@@ -20,10 +20,10 @@ import os
 
 # File paths
 BEYS_DATA_JSON = "./docs/data/beys_data.json"
-PARTS_STATS_JSON = "./csv/parts_stats.json"
+PARTS_STATS_JSON = "./data/parts_stats.json"
 SYNERGY_DATA_JSON = "./docs/data/synergy_data.json"
 RPG_STATS_JSON = "./docs/data/rpg_stats.json"
-ADV_LEADERBOARD_CSV = "./csv/advanced_leaderboard.csv"
+ADV_LEADERBOARD_CSV = "./data/advanced_leaderboard.csv"
 COMBO_DATA_JSON = "./docs/data/combo_data.json"
 
 

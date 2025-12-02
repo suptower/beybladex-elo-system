@@ -23,8 +23,8 @@ jobs:
 
       - name: Generate plots
         run: |
-          python ./scripts/gen_plots.py --mode official
-          python ./scripts/gen_plots.py --mode private
+          python ./src/gen_plots.py --mode official
+          python ./src/gen_plots.py --mode private
 
       - name: Upload plots as artifact
         uses: actions/upload-artifact@v4

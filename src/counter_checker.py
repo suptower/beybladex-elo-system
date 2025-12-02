@@ -1,8 +1,8 @@
 import csv
 from collections import defaultdict
 
-matches_file = "csv/matches.csv"
-output_file = "csv/bey_counters.csv"
+matches_file = "./data/matches.csv"
+output_file = "./data/bey_counters.csv"
 
 results = defaultdict(lambda: defaultdict(lambda: {"wins": 0, "losses": 0, "score_for": 0, "score_against": 0}))
 totals = defaultdict(lambda: {"wins": 0, "losses": 0, "games": 0})
