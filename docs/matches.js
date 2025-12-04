@@ -2,9 +2,11 @@
 let allMatches = [];
 let filteredMatches = [];
 let beysData = [];
+let roundsData = {}; // Mapping of match_id to rounds array
 let currentSort = { column: 0, asc: false }; // Default: Date descending
 let currentPage = 1;
 let pageSize = 50;
+let expandedMatches = new Set(); // Track which matches are expanded
 
 // Column definitions for extended match history
 const COLUMN_DEFINITIONS = [
@@ -52,6 +54,35 @@ function getBeyInfo(bladeName) {
     return beysData.find(b => b.blade === bladeName) || null;
 }
 
+// Finish type styling configuration
+const FINISH_TYPE_STYLES = {
+    spin: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.15)', label: 'Spin', icon: '🔄', points: 1 },
+    burst: { color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.15)', label: 'Burst', icon: '💥', points: 2 },
+    pocket: { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', label: 'Pocket', icon: '🎯', points: 2 },
+    extreme: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Extreme', icon: '⚡', points: 3 }
+};
+
+// Load rounds data from matches_with_rounds.json
+async function loadRoundsData() {
+    try {
+        const response = await fetch('data/matches_with_rounds.json');
+        const data = await response.json();
+        
+        // Create a mapping of match_id to rounds
+        if (data.matches) {
+            data.matches.forEach(match => {
+                if (match.rounds && match.rounds.length > 0) {
+                    roundsData[match.match_id] = match.rounds;
+                }
+            });
+        }
+        console.log(`Loaded rounds data for ${Object.keys(roundsData).length} matches`);
+    } catch (error) {
+        console.error('Error loading rounds data:', error);
+        roundsData = {};
+    }
+}
+
 // Load extended match history from elo_history.csv
 async function loadMatches() {
     try {
@@ -64,6 +95,7 @@ async function loadMatches() {
         
         allMatches = lines.slice(1).map((line, index) => {
             const values = line.split(',');
+            const matchId = values[0]; // MatchID column
             const scoreA = parseInt(values[4]);
             const scoreB = parseInt(values[5]);
             const preA = parseFloat(values[6]);
@@ -73,6 +105,7 @@ async function loadMatches() {
             
             return {
                 id: index,
+                matchId: matchId,
                 date: values[1],
                 dateFormatted: formatDate(values[1]),
                 beyA: values[2],
@@ -86,7 +119,8 @@ async function loadMatches() {
                 eloChangeA: Math.round(postA - preA),
                 eloChangeB: Math.round(postB - preB),
                 eloDiff: Math.round(Math.abs(preA - preB)),
-                winner: scoreA > scoreB ? values[2] : values[3]
+                winner: scoreA > scoreB ? values[2] : values[3],
+                rounds: roundsData[matchId] || [] // Attach rounds data
             };
         });
         
@@ -101,7 +135,7 @@ async function loadMatches() {
     } catch (error) {
         console.error('Error loading matches:', error);
         document.getElementById('matchesBody').innerHTML = 
-            '<tr><td colspan="11">Error loading matches data</td></tr>';
+            '<tr><td colspan="12">Error loading matches data</td></tr>';
     }
 }
 
@@ -365,7 +399,7 @@ function displayMatches() {
     const matchesToShow = getCurrentPageMatches();
     
     if (filteredMatches.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11">No matches found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12">No matches found</td></tr>';
         cardsContainer.innerHTML = '<div class="no-results">No matches found</div>';
         return;
     }
@@ -397,9 +431,16 @@ function displayMatches() {
         headRow.appendChild(th);
     });
     
+    // Add Rounds column header
+    const thRounds = document.createElement('th');
+    thRounds.textContent = 'Rounds';
+    thRounds.classList.add('rounds-header');
+    headRow.appendChild(thRounds);
+    
     // Display table rows (desktop)
     matchesToShow.forEach(match => {
         const row = document.createElement('tr');
+        row.dataset.matchId = match.matchId;
         
         // Date
         const tdDate = document.createElement('td');
@@ -475,14 +516,47 @@ function displayMatches() {
         tdDiff.textContent = match.eloDiff;
         row.appendChild(tdDiff);
         
+        // Rounds expand button
+        const tdRounds = document.createElement('td');
+        tdRounds.className = 'rounds-cell';
+        if (match.rounds && match.rounds.length > 0) {
+            const expandBtn = document.createElement('button');
+            expandBtn.className = 'rounds-expand-btn';
+            expandBtn.dataset.matchId = match.matchId;
+            expandBtn.title = `Show ${match.rounds.length} rounds`;
+            const isExpanded = expandedMatches.has(match.matchId);
+            expandBtn.innerHTML = isExpanded ? '▲' : '▼';
+            expandBtn.setAttribute('aria-expanded', isExpanded);
+            expandBtn.onclick = (e) => {
+                e.stopPropagation();
+                toggleRoundsRow(match.matchId);
+            };
+            tdRounds.appendChild(expandBtn);
+        } else {
+            tdRounds.textContent = '—';
+            tdRounds.classList.add('no-rounds');
+        }
+        row.appendChild(tdRounds);
+        
         tbody.appendChild(row);
+        
+        // Add rounds detail row if expanded
+        if (match.rounds && match.rounds.length > 0 && expandedMatches.has(match.matchId)) {
+            const roundsRow = createRoundsDetailRow(match);
+            tbody.appendChild(roundsRow);
+        }
     });
     
     // Display cards (mobile) - show all filtered matches for scrolling
     const mobileMatches = isMobile ? filteredMatches : matchesToShow;
     mobileMatches.forEach(match => {
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card match-card';
+        card.dataset.matchId = match.matchId;
+        
+        const hasRounds = match.rounds && match.rounds.length > 0;
+        const roundsHtml = hasRounds ? createMobileRoundsHtml(match) : '';
+        const isExpanded = expandedMatches.has(match.matchId);
         
         card.innerHTML = `
             <div class="card-header">
@@ -507,6 +581,17 @@ function displayMatches() {
             <div class="card-footer">
                 Winner: <strong><a href="bey.html?name=${encodeURIComponent(match.winner)}" class="bey-link">${match.winner}</a></strong>
             </div>
+            ${hasRounds ? `
+            <div class="card-rounds-section">
+                <button class="card-rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMobileRounds('${match.matchId}')">
+                    <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
+                    Show Rounds (${match.rounds.length})
+                </button>
+                <div class="card-rounds-content ${isExpanded ? 'expanded' : ''}" id="mobile-rounds-${match.matchId}">
+                    ${roundsHtml}
+                </div>
+            </div>
+            ` : ''}
         `;
         
         cardsContainer.appendChild(card);
@@ -806,6 +891,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load beys data first for part filtering
     await loadBeysDataForFilters();
     
+    // Load rounds data before loading matches
+    await loadRoundsData();
+    
     // Load matches
     await loadMatches();
     
@@ -832,3 +920,203 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Handle resize
     window.addEventListener('resize', displayMatches);
 });
+
+// ============================================
+// ROUNDS DISPLAY FUNCTIONS
+// ============================================
+
+// Create a detailed rounds row for the table
+function createRoundsDetailRow(match) {
+    const row = document.createElement('tr');
+    row.className = 'rounds-detail-row';
+    row.dataset.matchId = match.matchId;
+    
+    const cell = document.createElement('td');
+    cell.colSpan = 12; // All columns + rounds column
+    cell.className = 'rounds-detail-cell';
+    
+    // Build rounds table HTML
+    let html = `
+        <div class="rounds-detail-container" id="rounds-${match.matchId}">
+            <div class="rounds-header-info">
+                <span class="rounds-title">Round-by-Round Details</span>
+                <span class="rounds-count">${match.rounds.length} rounds</span>
+            </div>
+            <table class="rounds-table">
+                <thead>
+                    <tr>
+                        <th>Round</th>
+                        <th>Winner</th>
+                        <th>Finish Type</th>
+                        <th>Points</th>
+                        <th>Running Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    let runningScoreA = 0;
+    let runningScoreB = 0;
+    
+    match.rounds.forEach((round, index) => {
+        const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
+        
+        // Update running score
+        if (round.winner === match.beyA) {
+            runningScoreA += round.points_awarded;
+        } else if (round.winner === match.beyB) {
+            runningScoreB += round.points_awarded;
+        }
+        
+        html += `
+            <tr class="round-row">
+                <td class="round-number">${round.round_number || index + 1}</td>
+                <td class="round-winner ${round.winner === match.winner ? 'match-winner-round' : ''}">${round.winner}</td>
+                <td class="round-finish">
+                    <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
+                        <span class="finish-icon">${finishStyle.icon}</span>
+                        ${finishStyle.label}
+                    </span>
+                </td>
+                <td class="round-points">+${round.points_awarded}</td>
+                <td class="round-score">${runningScoreA} - ${runningScoreB}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                </tbody>
+            </table>
+            <div class="rounds-summary">
+                <div class="finish-summary">
+                    ${createFinishTypeSummary(match.rounds)}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    cell.innerHTML = html;
+    row.appendChild(cell);
+    
+    return row;
+}
+
+// Create finish type summary badges
+function createFinishTypeSummary(rounds) {
+    const counts = {};
+    rounds.forEach(round => {
+        const type = round.finish_type || 'spin';
+        counts[type] = (counts[type] || 0) + 1;
+    });
+    
+    return Object.entries(counts).map(([type, count]) => {
+        const style = FINISH_TYPE_STYLES[type] || FINISH_TYPE_STYLES.spin;
+        return `
+            <span class="finish-summary-badge" style="background: ${style.bgColor}; color: ${style.color};">
+                ${style.icon} ${style.label}: ${count}
+            </span>
+        `;
+    }).join('');
+}
+
+// Create mobile rounds HTML
+function createMobileRoundsHtml(match) {
+    let html = '<div class="mobile-rounds-list">';
+    
+    let runningScoreA = 0;
+    let runningScoreB = 0;
+    
+    match.rounds.forEach((round, index) => {
+        const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
+        
+        // Update running score
+        if (round.winner === match.beyA) {
+            runningScoreA += round.points_awarded;
+        } else if (round.winner === match.beyB) {
+            runningScoreB += round.points_awarded;
+        }
+        
+        html += `
+            <div class="mobile-round-item">
+                <div class="mobile-round-header">
+                    <span class="mobile-round-number">R${round.round_number || index + 1}</span>
+                    <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
+                        ${finishStyle.icon} ${finishStyle.label}
+                    </span>
+                    <span class="mobile-round-points">+${round.points_awarded}</span>
+                </div>
+                <div class="mobile-round-details">
+                    <span class="mobile-round-winner">${round.winner}</span>
+                    <span class="mobile-round-score">${runningScoreA} - ${runningScoreB}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+        <div class="mobile-rounds-summary">
+            ${createFinishTypeSummary(match.rounds)}
+        </div>
+    </div>`;
+    
+    return html;
+}
+
+// Toggle rounds row visibility (desktop)
+function toggleRoundsRow(matchId) {
+    const btn = document.querySelector(`button[data-match-id="${matchId}"]`);
+    const existingRoundsRow = document.querySelector(`tr.rounds-detail-row[data-match-id="${matchId}"]`);
+    
+    if (expandedMatches.has(matchId)) {
+        // Collapse
+        expandedMatches.delete(matchId);
+        if (existingRoundsRow) {
+            existingRoundsRow.remove();
+        }
+        if (btn) {
+            btn.innerHTML = '▼';
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    } else {
+        // Expand
+        expandedMatches.add(matchId);
+        
+        // Find the match data
+        const match = filteredMatches.find(m => m.matchId === matchId);
+        if (match && match.rounds && match.rounds.length > 0) {
+            // Find the main row and insert rounds row after it
+            const mainRow = document.querySelector(`tr[data-match-id="${matchId}"]:not(.rounds-detail-row)`);
+            if (mainRow) {
+                const roundsRow = createRoundsDetailRow(match);
+                mainRow.after(roundsRow);
+            }
+        }
+        
+        if (btn) {
+            btn.innerHTML = '▲';
+            btn.setAttribute('aria-expanded', 'true');
+        }
+    }
+}
+
+// Toggle mobile rounds visibility
+function toggleMobileRounds(matchId) {
+    const content = document.getElementById(`mobile-rounds-${matchId}`);
+    const toggle = document.querySelector(`.match-card[data-match-id="${matchId}"] .card-rounds-toggle`);
+    
+    if (expandedMatches.has(matchId)) {
+        expandedMatches.delete(matchId);
+        if (content) content.classList.remove('expanded');
+        if (toggle) {
+            toggle.classList.remove('expanded');
+            toggle.querySelector('.toggle-icon').textContent = '▼';
+        }
+    } else {
+        expandedMatches.add(matchId);
+        if (content) content.classList.add('expanded');
+        if (toggle) {
+            toggle.classList.add('expanded');
+            toggle.querySelector('.toggle-icon').textContent = '▲';
+        }
+    }
+}
