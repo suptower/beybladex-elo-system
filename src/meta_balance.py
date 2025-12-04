@@ -832,7 +832,7 @@ def print_report_summary(report):
     if health["alerts"]:
         print(f"\n{BOLD}{YELLOW}Alerts:{RESET}")
         for alert in health["alerts"]:
-            print(f"  ⚠️  {alert['message']}")
+            print(f"{RED}{alert['message']}{RESET}")
 
     # Outliers
     if outliers["overcentralizing"]:
