@@ -535,6 +535,17 @@ function performSort(colIndex, asc) {
         const raw1 = a[key];
         const raw2 = b[key];
 
+        // Handle date sorting - convert to Date objects for comparison
+        if (key === 'Date') {
+            const d1 = new Date(raw1);
+            const d2 = new Date(raw2);
+            // Fall back to string comparison if dates are invalid
+            if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
+                return asc ? raw1.localeCompare(raw2) : raw2.localeCompare(raw1);
+            }
+            return asc ? d1 - d2 : d2 - d1;
+        }
+
         const n1 = parseFloat(raw1);
         const n2 = parseFloat(raw2);
 
