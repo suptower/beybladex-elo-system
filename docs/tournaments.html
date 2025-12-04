@@ -313,12 +313,13 @@ function loadBracket(tournament) {
     if (tournament.challonge && isValidChallongeId(tournament.challonge)) {
         const escapedName = escapeHtml(tournament.name);
         const challongeId = tournament.challonge; // Already validated
+        const parameter = tournament.parameter ? escapeHtml(tournament.parameter) : '';
         
         // Using Challonge's official embed method
         container.innerHTML = `
             <div class="challonge-embed-wrapper">
                 <iframe 
-                    src="https://challonge.com/${challongeId}/module?scale_to_fit=1" 
+                    src="https://challonge.com/${challongeId}/module?${parameter}" 
                     width="100%" 
                     height="600" 
                     frameborder="0" 
