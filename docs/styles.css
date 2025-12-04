@@ -2402,6 +2402,23 @@ body.dark .wiki-card-rank.rank-bronze {
     margin: 1.5rem 0;
 }
 
+/* Matches page card styling - ensures proper vertical layout */
+.matches-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 1rem 1.25rem;
+    transition: var(--transition);
+}
+
+.matches-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+}
+
 .card-match {
     display: flex;
     align-items: center;
@@ -2458,6 +2475,8 @@ body.dark .wiki-card-rank.rank-bronze {
 }
 
 .card-footer {
+    display: block;
+    width: 100%;
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border);
@@ -9648,6 +9667,9 @@ select:focus-visible {
 
 /* Mobile rounds section */
 .card-rounds-section {
+    display: block;
+    width: 100%;
+    clear: both;
     border-top: 1px solid var(--border);
     margin-top: 0.75rem;
     padding-top: 0.75rem;

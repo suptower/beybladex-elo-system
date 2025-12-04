@@ -551,7 +551,7 @@ function displayMatches() {
     const mobileMatches = isMobile ? filteredMatches : matchesToShow;
     mobileMatches.forEach(match => {
         const card = document.createElement('div');
-        card.className = 'card match-card';
+        card.className = 'card matches-card';
         card.dataset.matchId = match.matchId;
         
         const hasRounds = match.rounds && match.rounds.length > 0;
@@ -1102,7 +1102,7 @@ function toggleRoundsRow(matchId) {
 // Toggle mobile rounds visibility
 function toggleMobileRounds(matchId) {
     const content = document.getElementById(`mobile-rounds-${matchId}`);
-    const toggle = document.querySelector(`.match-card[data-match-id="${matchId}"] .card-rounds-toggle`);
+    const toggle = document.querySelector(`.matches-card[data-match-id="${matchId}"] .card-rounds-toggle`);
     
     if (expandedMatches.has(matchId)) {
         expandedMatches.delete(matchId);
