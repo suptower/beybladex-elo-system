@@ -9,14 +9,14 @@ The `update.py` script serves as the **single entry point** to regenerate all de
 ## Quick Start
 
 ```bash
-# Run the core pipeline (stats + analysis, no plots)
+# Run the full pipeline (stats + analysis + plots)
 python update.py
-
-# Run everything including visualizations
-python update.py --all
 
 # Fast update (skip plots)
 python update.py --skip-plots
+
+# Only regenerate plots
+python update.py --plots-only
 ```
 
 ## Pipeline Stages
@@ -41,7 +41,7 @@ The pipeline is organized into four main stages that run in order:
 | `counter_checker.py` | Bey counter matchup data | `bey_counters.csv` |
 | `combo_explorer.py` | Combo exploration data | `combo_data.json` |
 
-### Stage 3: Visualizations (Optional)
+### Stage 3: Visualizations (runs by default)
 
 | Script | Description | Output Files |
 |--------|-------------|--------------|
@@ -59,7 +59,7 @@ The pipeline is organized into four main stages that run in order:
 
 | Flag | Short | Description |
 |------|-------|-------------|
-| `--all` | `-a` | Run complete pipeline including all visualizations |
+| `--all` | `-a` | Run complete pipeline (same as default, for clarity) |
 | `--stats-only` | | Only run core statistics (ELO + Advanced Stats) |
 | `--plots-only` | | Only run visualization/plot generation |
 | `--skip-plots` | `-s` | Skip plot generation (faster updates) |
@@ -71,20 +71,20 @@ The pipeline is organized into four main stages that run in order:
 
 ### Standard Update (Recommended)
 
-For most use cases, run the full pipeline without plots:
+Run the full pipeline including plots:
 
 ```bash
 python update.py
 ```
 
-This runs all core statistics and analysis modules but skips the time-consuming plot generation.
+This runs all core statistics, analysis modules, and plot generation.
 
-### Full Update with Visualizations
+### Fast Update (Skip Plots)
 
-When you need fresh plots for the website:
+When you don't need fresh plots and want a faster update:
 
 ```bash
-python update.py --all
+python update.py --skip-plots
 ```
 
 ### Quick Stats Only

@@ -11,8 +11,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from unittest.mock import patch, MagicMock
 
-# Import the module under test - need to handle the module-level argument parsing
-# We'll test individual functions by importing them after setup
 import update
 
 
@@ -112,6 +110,55 @@ class TestParseArgs:
             assert args.upload is True
             assert args.verbose is True
             assert args.stats_only is False
+
+
+class TestDeterminePipelineStages:
+    """Tests for the determine_pipeline_stages function."""
+
+    def test_default_stages(self):
+        """Default arguments should run stats, analysis, and plots."""
+        with patch('sys.argv', ['update.py']):
+            args = update.parse_args()
+            stages = update.determine_pipeline_stages(args)
+            assert stages["run_stats"] is True
+            assert stages["run_analysis"] is True
+            assert stages["run_plots"] is True
+
+    def test_all_flag_enables_plots(self):
+        """--all flag should enable all stages including plots."""
+        with patch('sys.argv', ['update.py', '--all']):
+            args = update.parse_args()
+            stages = update.determine_pipeline_stages(args)
+            assert stages["run_stats"] is True
+            assert stages["run_analysis"] is True
+            assert stages["run_plots"] is True
+
+    def test_stats_only_disables_analysis_and_plots(self):
+        """--stats-only should only run stats."""
+        with patch('sys.argv', ['update.py', '--stats-only']):
+            args = update.parse_args()
+            stages = update.determine_pipeline_stages(args)
+            assert stages["run_stats"] is True
+            assert stages["run_analysis"] is False
+            assert stages["run_plots"] is False
+
+    def test_plots_only_disables_stats_and_analysis(self):
+        """--plots-only should only run plots."""
+        with patch('sys.argv', ['update.py', '--plots-only']):
+            args = update.parse_args()
+            stages = update.determine_pipeline_stages(args)
+            assert stages["run_stats"] is False
+            assert stages["run_analysis"] is False
+            assert stages["run_plots"] is True
+
+    def test_skip_plots_disables_plots(self):
+        """--skip-plots should disable plots but keep stats and analysis."""
+        with patch('sys.argv', ['update.py', '--skip-plots']):
+            args = update.parse_args()
+            stages = update.determine_pipeline_stages(args)
+            assert stages["run_stats"] is True
+            assert stages["run_analysis"] is True
+            assert stages["run_plots"] is False
 
 
 class TestRunScript:

@@ -19,20 +19,19 @@ Pipeline Stages:
    - Bey Counters (counter_checker.py)
    - Combo Explorer (combo_explorer.py)
 
-3. Visualization (optional)
+3. Visualization (runs by default, use --skip-plots to skip)
    - Plot Generation (gen_plots.py)
    - Position Plots (plot_positions.py)
 
-4. Export (optional)
+4. Export (optional, requires explicit flags)
    - PDF Leaderboard (export_leaderboard_pdf.py)
    - Google Sheets Upload (sheets_upload.py)
 
 Usage:
-    python update.py                    # Run full pipeline (without optional steps)
-    python update.py --all              # Run everything including plots
+    python update.py                    # Run full pipeline including plots
+    python update.py --skip-plots       # Skip plot generation (faster)
     python update.py --stats-only       # Only run stats calculations
     python update.py --plots-only       # Only run plot generation
-    python update.py --skip-plots       # Skip plot generation
     python update.py --upload           # Include Google Sheets upload
     python update.py --pdf              # Include PDF generation
 """
@@ -84,8 +83,8 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python update.py                    Run core pipeline (stats + analysis)
-  python update.py --all              Run everything including plots
+  python update.py                    Run full pipeline (stats + analysis + plots)
+  python update.py --skip-plots       Run without plot generation (faster)
   python update.py --stats-only       Only ELO and advanced stats
   python update.py --plots-only       Only generate plots
   python update.py --upload --pdf     Include upload and PDF export
@@ -94,7 +93,7 @@ Examples:
     parser.add_argument(
         "--all", "-a",
         action="store_true",
-        help="Run complete pipeline including all visualizations"
+        help="Run complete pipeline (same as default, included for clarity)"
     )
     parser.add_argument(
         "--stats-only",
@@ -130,7 +129,18 @@ Examples:
 
 
 def log_step(message, level="info"):
-    """Log a pipeline step with formatting."""
+    """
+    Log a pipeline step with formatting and timestamp.
+
+    Args:
+        message (str): The message to log
+        level (str): Log level, one of:
+            - "info": Standard progress message (yellow arrow)
+            - "success": Successful completion (green checkmark)
+            - "error": Error message (red X)
+            - "header": Pipeline header (cyan decorated box)
+            - "section": Section divider (yellow arrow prefix)
+    """
     timestamp = datetime.now().strftime("%H:%M:%S")
     if level == "info":
         print(f"{DIM}[{timestamp}]{RESET} {YELLOW}→{RESET} {message}")
@@ -151,13 +161,17 @@ def run_script(script_path, description, verbose=False, stream_output=False):
     Run a Python script and handle its output.
 
     Args:
-        script_path: Path to the script to run
-        description: Human-readable description of the script
-        verbose: Whether to show detailed output
-        stream_output: Whether to stream output in real-time
+        script_path (str): Path to the Python script to execute
+        description (str): Human-readable description of the script for logging
+        verbose (bool): If True, prints detailed output from the script.
+            Default is False.
+        stream_output (bool): If True, streams output line-by-line in real-time.
+            Use for long-running scripts like plot generation. Default is False.
 
     Returns:
-        tuple: (success: bool, duration: float)
+        tuple: A tuple containing:
+            - success (bool): True if script exited with code 0
+            - duration (float): Execution time in seconds
     """
     log_step(f"{description}...")
     start_time = time.time()
@@ -371,6 +385,36 @@ def print_summary(all_results, total_time):
         print(f"\n{RED}{BOLD}✗ Pipeline completed with {failures} failure(s){RESET}")
 
 
+def determine_pipeline_stages(args):
+    """
+    Determine which pipeline stages to run based on command line arguments.
+
+    Args:
+        args: Parsed command line arguments
+
+    Returns:
+        dict: Dictionary with boolean flags for each stage:
+            - run_stats: Whether to run core statistics
+            - run_analysis: Whether to run analysis modules
+            - run_plots: Whether to run visualizations
+    """
+    # --plots-only: skip stats and analysis, only run plots
+    # --stats-only: only run core stats, skip analysis and plots
+    # --all: run everything including plots
+    # --skip-plots: run stats and analysis, skip plots
+    # default: run stats and analysis, skip plots
+
+    run_stats = not args.plots_only
+    run_analysis = not args.plots_only and not args.stats_only
+    run_plots = args.all or args.plots_only or (not args.skip_plots and not args.stats_only)
+
+    return {
+        "run_stats": run_stats,
+        "run_analysis": run_analysis,
+        "run_plots": run_plots
+    }
+
+
 def main():
     """Main entry point for the update pipeline."""
     args = parse_args()
@@ -380,20 +424,18 @@ def main():
     log_step("Beyblade X Update Pipeline", "header")
 
     # Determine what to run based on arguments
-    run_stats = not args.plots_only
-    run_analysis = not args.plots_only and not args.stats_only
-    run_plots = args.all or args.plots_only or (not args.skip_plots and not args.stats_only)
+    stages = determine_pipeline_stages(args)
 
     # Execute pipeline stages
-    if run_stats:
+    if stages["run_stats"]:
         results = run_core_stats(verbose=args.verbose)
         all_results.extend(results)
 
-    if run_analysis:
+    if stages["run_analysis"]:
         results = run_analysis_modules(verbose=args.verbose)
         all_results.extend(results)
 
-    if run_plots:
+    if stages["run_plots"]:
         results = run_visualizations(verbose=args.verbose)
         all_results.extend(results)
 
