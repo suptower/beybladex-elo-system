@@ -342,6 +342,21 @@ nav button:hover {
     display: block;
 }
 
+/* Touch device dropdown support - show dropdown on .active class toggle */
+/* This ensures dropdowns work on tablets at desktop breakpoints */
+.nav-dropdown.active .nav-dropdown-content {
+    display: block;
+}
+
+/* On touch devices, disable hover-only dropdown to prevent flicker */
+body.touch-device .nav-dropdown:hover .nav-dropdown-content {
+    display: none;
+}
+
+body.touch-device .nav-dropdown.active .nav-dropdown-content {
+    display: block;
+}
+
 .nav-dropdown-content a {
     display: flex;
     align-items: center;
