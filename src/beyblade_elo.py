@@ -272,6 +272,16 @@ def run_elo_pipeline(pipeline_config):
     # copy elo_history to data folder for docs (extended match history)
     shutil.copy(history_file, "./docs/data/elo_history.csv")
 
+    # copy matches_with_rounds.json to docs/data for round-level details
+    rounds_json_path = "./data/matches_with_rounds.json"
+    if os.path.exists(rounds_json_path):
+        try:
+            shutil.copy(rounds_json_path, "./docs/data/matches_with_rounds.json")
+        except (shutil.Error, IOError) as e:
+            print(f"{YELLOW}Warning: Could not copy rounds data: {e}{RESET}")
+    else:
+        print(f"{YELLOW}Warning: Round data file not found at {rounds_json_path}{RESET}")
+
     print(f"{GREEN}Aktuelles Leaderboard geschrieben: {leaderboard_file}{RESET}")
 
     # --- Time series ---
