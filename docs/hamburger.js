@@ -2,9 +2,22 @@
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
 
-// Detect if we're on mobile
+// Detect if we're on mobile (based on screen width)
 function isMobile() {
     return window.innerWidth <= 768;
+}
+
+// Detect if the device is touch-capable
+// This detects tablets at desktop breakpoints that still use touch input
+function isTouchDevice() {
+    return (('ontouchstart' in window) ||
+            (navigator.maxTouchPoints > 0) ||
+            (navigator.msMaxTouchPoints > 0));
+}
+
+// Add touch device class to body for CSS targeting
+if (isTouchDevice()) {
+    document.body.classList.add('touch-device');
 }
 
 // Close all dropdowns
@@ -111,8 +124,9 @@ if (hamburger && navMenu) {
     // Handle link clicks
     navMenu.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', (e) => {
-            // On mobile, if this is a dropdown toggle, prevent navigation and toggle dropdown
-            if (link.hasAttribute('data-dropdown-link') && isMobile()) {
+            // On mobile OR touch devices, if this is a dropdown toggle, 
+            // prevent navigation and toggle dropdown
+            if (link.hasAttribute('data-dropdown-link') && (isMobile() || isTouchDevice())) {
                 e.preventDefault();
                 e.stopPropagation();
                 const dropdown = link.closest('.nav-dropdown');
@@ -166,13 +180,28 @@ if (hamburger && navMenu) {
             }
         }
         
-        // Enter or Space to toggle dropdown
+        // Enter or Space to toggle dropdown (on mobile or touch devices)
         if ((e.key === 'Enter' || e.key === ' ') && e.target.hasAttribute('data-dropdown-link')) {
-            if (isMobile()) {
+            if (isMobile() || isTouchDevice()) {
                 e.preventDefault();
                 const dropdown = e.target.closest('.nav-dropdown');
                 toggleDropdown(dropdown);
             }
         }
     });
+    
+    // For touch devices at desktop breakpoints: close dropdowns when clicking outside
+    if (isTouchDevice()) {
+        document.addEventListener('click', (e) => {
+            // Early return if no dropdowns are active
+            const activeDropdowns = document.querySelectorAll('.nav-dropdown.active');
+            if (activeDropdowns.length === 0) {
+                return;
+            }
+            // If not clicking inside a dropdown, close all dropdowns
+            if (!e.target.closest('.nav-dropdown')) {
+                closeAllDropdowns();
+            }
+        });
+    }
 }
