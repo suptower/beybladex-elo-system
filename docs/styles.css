@@ -2190,6 +2190,7 @@ body.dark .wiki-card-rank.rank-bronze {
     
     main {
         padding: 1.5rem 1rem;
+        overflow-x: hidden;
     }
     
     main h2 {
@@ -2313,6 +2314,7 @@ body.dark .wiki-card-rank.rank-bronze {
     
     main {
         padding: 1.25rem 0.875rem;
+        overflow-x: hidden;
     }
     
     main h2 {
@@ -2339,6 +2341,35 @@ body.dark .wiki-card-rank.rank-bronze {
     footer {
         padding: 1.5rem 1rem;
         font-size: 0.8125rem;
+    }
+    
+    #matchesCards {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        margin: 1rem 0;
+    }
+    
+    .matches-card {
+        padding: 0.75rem 0.625rem;
+        width: calc(100% - 2px);
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .card-bey {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .bey-name {
+        font-size: 0.8125rem;
+    }
+    
+    .bey-score {
+        font-size: 1.125rem;
     }
 }
 
@@ -2400,23 +2431,51 @@ body.dark .wiki-card-rank.rank-bronze {
     grid-template-columns: 1fr;
     gap: 1rem;
     margin: 1.5rem 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Matches page card styling - ensures proper vertical layout */
+.matches-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 1rem 1.25rem;
+    transition: var(--transition);
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.matches-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
 }
 
 .card-match {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 0.5rem;
     margin: 1rem 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .card-bey {
     flex: 1;
+    min-width: 0;
     text-align: center;
-    padding: 0.75rem;
+    padding: 0.75rem 0.5rem;
     background: var(--bg);
     border-radius: var(--radius-sm);
     transition: var(--transition);
+    overflow: hidden;
+    word-wrap: break-word;
 }
 
 .card-bey.winner {
@@ -2458,6 +2517,8 @@ body.dark .wiki-card-rank.rank-bronze {
 }
 
 .card-footer {
+    display: block;
+    width: 100%;
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border);
@@ -2479,6 +2540,11 @@ body.dark .wiki-card-rank.rank-bronze {
 }
 
 @media (max-width: 768px) {
+    main {
+        padding: 2rem 0.75rem;
+        overflow-x: hidden;
+    }
+    
     .filter-controls {
         flex-direction: column;
         align-items: stretch;
@@ -2492,6 +2558,47 @@ body.dark .wiki-card-rank.rank-bronze {
     .leaderboard-controls {
         flex-direction: column;
         gap: 1rem;
+    }
+    
+    #matchesCards {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+    
+    .matches-card {
+        padding: 0.875rem 0.75rem;
+        width: calc(100% - 2px);
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .card-match {
+        gap: 0.375rem;
+    }
+    
+    .card-bey {
+        padding: 0.625rem 0.375rem;
+    }
+    
+    .bey-name {
+        font-size: 0.875rem;
+    }
+    
+    .bey-score {
+        font-size: 1.25rem;
+    }
+    
+    .bey-elo,
+    .bey-elo-change {
+        font-size: 0.75rem;
     }
 }
 
@@ -8522,6 +8629,7 @@ html {
     /* Main content padding */
     main {
         padding: 1rem 0.75rem;
+        overflow-x: hidden;
     }
     
     main h2 {
@@ -8715,6 +8823,7 @@ html {
     /* Main content */
     main {
         padding: 1.25rem 1rem;
+        overflow-x: hidden;
     }
     
     /* Hero buttons stack properly */
@@ -9456,3 +9565,347 @@ select:focus-visible {
     }
 }
 
+
+/* ============================================
+   ROUNDS DETAIL STYLES (Match Page)
+============================================ */
+
+/* Rounds expand button in table */
+.rounds-cell {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.rounds-expand-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text);
+}
+
+.rounds-expand-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.rounds-cell.no-rounds {
+    color: var(--text-light);
+    font-size: 0.875rem;
+}
+
+.rounds-header {
+    font-size: 0.8125rem;
+    text-align: center;
+}
+
+/* Rounds detail row */
+.rounds-detail-row {
+    background: var(--bg);
+}
+
+.rounds-detail-cell {
+    padding: 0 !important;
+}
+
+.rounds-detail-container {
+    padding: 1rem 1.5rem;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+    }
+}
+
+.rounds-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.rounds-title {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--text);
+}
+
+.rounds-count {
+    font-size: 0.8125rem;
+    color: var(--text-light);
+    background: var(--card);
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+}
+
+/* Rounds table */
+.rounds-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+}
+
+.rounds-table th {
+    background: var(--card);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-light);
+    padding: 0.625rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.rounds-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.rounds-table tbody tr:hover {
+    background: var(--card);
+}
+
+.rounds-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.round-number {
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    min-width: 40px;
+}
+
+.round-winner {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.round-winner.match-winner-round {
+    color: var(--accent);
+}
+
+.round-points {
+    font-weight: 700;
+    color: #10b981;
+    text-align: center;
+}
+
+.round-score {
+    font-weight: 600;
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    text-align: center;
+}
+
+/* Finish type badges */
+.finish-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.finish-icon {
+    font-size: 0.875rem;
+}
+
+/* Rounds summary */
+.rounds-summary {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.finish-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: flex-start;
+}
+
+.finish-summary-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Mobile rounds section */
+.card-rounds-section {
+    display: block;
+    width: 100%;
+    clear: both;
+    border-top: 1px solid var(--border);
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+}
+
+.card-rounds-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.card-rounds-toggle:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.card-rounds-toggle.expanded {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.toggle-icon {
+    font-size: 0.75rem;
+}
+
+.card-rounds-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.card-rounds-content.expanded {
+    max-height: 1000px;
+    margin-top: 0.75rem;
+}
+
+/* Mobile rounds list */
+.mobile-rounds-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mobile-round-item {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--border);
+}
+
+.mobile-round-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.375rem;
+}
+
+.mobile-round-number {
+    font-weight: 800;
+    color: var(--accent);
+    font-size: 0.875rem;
+    min-width: 28px;
+}
+
+.mobile-round-points {
+    margin-left: auto;
+    font-weight: 700;
+    color: #10b981;
+    font-size: 0.875rem;
+}
+
+.mobile-round-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-round-winner {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.8125rem;
+}
+
+.mobile-round-score {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.8125rem;
+    font-family: 'Courier New', monospace;
+}
+
+.mobile-rounds-summary {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Responsive adjustments for rounds */
+@media (max-width: 768px) {
+    .rounds-detail-container {
+        padding: 0.75rem 1rem;
+    }
+    
+    .rounds-table th,
+    .rounds-table td {
+        padding: 0.375rem 0.5rem;
+        font-size: 0.8125rem;
+    }
+    
+    .rounds-header-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.375rem;
+    }
+    
+    .finish-summary {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .rounds-table {
+        font-size: 0.75rem;
+    }
+    
+    .finish-badge {
+        font-size: 0.6875rem;
+        padding: 0.1875rem 0.5rem;
+    }
+    
+    .mobile-round-item {
+        padding: 0.5rem;
+    }
+}
