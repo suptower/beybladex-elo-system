@@ -1032,14 +1032,20 @@ body.dark .elo-delta-badge.delta-down {
 
 /* Mobile card bey-name with delta badge */
 .card-bey .bey-name {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.25rem;
+    display: block;
+    text-align: center;
+    margin-bottom: 0.25rem;
 }
 
-.card-bey .bey-name .elo-delta-badge {
-    margin-left: 0.25rem;
+/* Mobile card ELO change badge row */
+.card-bey .bey-elo-change {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.375rem;
+}
+
+.card-bey .bey-elo-change .elo-delta-badge {
+    margin-left: 0;
 }
 
 /* ELO Trend Highlights - applies to both table cells and mobile card details */

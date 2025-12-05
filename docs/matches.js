@@ -604,13 +604,15 @@ function displayMatches() {
             </div>
             <div class="card-match">
                 <div class="card-bey ${match.winner === match.beyA ? 'winner' : ''}">
-                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyA)}" class="bey-link">${match.beyA}</a> ${deltaBadgeAHtml}</div>
+                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyA)}" class="bey-link">${match.beyA}</a></div>
+                    <div class="bey-elo-change">${deltaBadgeAHtml}</div>
                     <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${match.preEloA}</div>
                     <div class="bey-score ${match.winner === match.beyA ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.scoreA}</div>
                 </div>
                 <div class="card-vs">VS</div>
                 <div class="card-bey ${match.winner === match.beyB ? 'winner' : ''}">
-                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyB)}" class="bey-link">${match.beyB}</a> ${deltaBadgeBHtml}</div>
+                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyB)}" class="bey-link">${match.beyB}</a></div>
+                    <div class="bey-elo-change">${deltaBadgeBHtml}</div>
                     <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${match.preEloB}</div>
                     <div class="bey-score ${match.winner === match.beyB ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.scoreB}</div>
                 </div>
