@@ -166,6 +166,7 @@ def analyze_upsets(history_file=HISTORY_FILE):
             if elo_diff > 0:
                 # This is an upset! Winner had lower ELO
                 upset_matches.append({
+                    "match_id": row.get("MatchID", ""),
                     "date": date,
                     "winner": winner,
                     "loser": loser,
@@ -319,7 +320,7 @@ def save_upset_analysis(analysis_data, upset_matches, output_file=UPSET_ANALYSIS
     sorted_upsets = sorted(upset_matches, key=lambda x: -x["elo_difference"])
 
     matches_header = [
-        "Rank", "Date", "Winner", "Loser", "WinnerPreELO", "LoserPreELO",
+        "Rank", "MatchID", "Date", "Winner", "Loser", "WinnerPreELO", "LoserPreELO",
         "ELODifference", "Score"
     ]
 
@@ -329,6 +330,7 @@ def save_upset_analysis(analysis_data, upset_matches, output_file=UPSET_ANALYSIS
         for rank, m in enumerate(sorted_upsets, start=1):
             writer.writerow([
                 rank,
+                m["match_id"],
                 m["date"],
                 m["winner"],
                 m["loser"],
