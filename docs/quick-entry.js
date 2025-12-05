@@ -38,10 +38,10 @@ function shuffleArray(array) {
 // FINISH TYPES (for round-level data)
 // ============================================
 const FINISH_TYPES = {
-    BURST: { id: 'burst', label: 'Burst', points: 2 },
-    KO: { id: 'ko', label: 'KO', points: 1 },
-    OUTSPIN: { id: 'outspin', label: 'Outspin', points: 1 },
-    XTREME: { id: 'xtreme', label: 'Xtreme', points: 2 }
+    SPIN: { id: 'spin', label: 'Spin', points: 1, emoji: '🌀' },
+    BURST: { id: 'burst', label: 'Burst', points: 2, emoji: '💥' },
+    POCKET: { id: 'pocket', label: 'Pocket', points: 2, emoji: '🕳️' },
+    EXTREME: { id: 'extreme', label: 'Extreme', points: 3, emoji: '⚡' }
 };
 
 // ============================================
@@ -305,12 +305,12 @@ function addRound(matchIndex, winner, finishType) {
     match.rounds.push({
         roundIndex: roundIndex,
         winner: winner, // 'A' or 'B'
-        finishType: finishType || 'ko'
+        finishType: finishType || 'spin'
     });
     
     updateMatchFromRounds(matchIndex);
     saveToStorage();
-    renderMatches();
+    updateMatchRowOnly(matchIndex);
     updateStatusBar();
 }
 
@@ -327,7 +327,7 @@ function removeRound(matchIndex, roundIndex) {
     
     updateMatchFromRounds(matchIndex);
     saveToStorage();
-    renderMatches();
+    updateMatchRowOnly(matchIndex);
     updateStatusBar();
 }
 
@@ -342,8 +342,76 @@ function updateRound(matchIndex, roundIndex, winner, finishType) {
     
     updateMatchFromRounds(matchIndex);
     saveToStorage();
-    renderMatches();
+    updateMatchRowOnly(matchIndex);
     updateStatusBar();
+}
+
+// Update only a specific match row and its rounds panel (keeps panel open)
+function updateMatchRowOnly(matchIndex) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    // Update table row score display
+    const row = document.querySelector(`.match-row[data-index="${matchIndex}"]`);
+    if (row) {
+        const scoreADisplay = row.querySelector('.score-display');
+        const scoreBDisplay = row.querySelectorAll('.score-display')[1];
+        const winnerCell = row.querySelector('.col-winner');
+        const roundsBtn = row.querySelector('.rounds-btn');
+        
+        if (scoreADisplay) {
+            scoreADisplay.textContent = match.scoreA;
+            scoreADisplay.classList.toggle('score-winner', match.winner === 'A');
+        }
+        if (scoreBDisplay) {
+            scoreBDisplay.textContent = match.scoreB;
+            scoreBDisplay.classList.toggle('score-winner', match.winner === 'B');
+        }
+        if (winnerCell) {
+            winnerCell.innerHTML = renderWinnerIndicator(match);
+        }
+        if (roundsBtn) {
+            const hasRounds = match.rounds && match.rounds.length > 0;
+            roundsBtn.classList.toggle('has-rounds', hasRounds);
+            roundsBtn.querySelector('.rounds-count').textContent = match.rounds?.length || 0;
+        }
+        
+        // Update row class
+        const isComplete = match.winner && match.beyA && match.beyB;
+        const isIncomplete = !isComplete && (match.scoreA > 0 || match.scoreB > 0 || match.beyA || match.beyB);
+        row.classList.remove('complete', 'incomplete');
+        if (isComplete) row.classList.add('complete');
+        else if (isIncomplete) row.classList.add('incomplete');
+    }
+    
+    // Update rounds panel content (without closing it)
+    const panel = document.getElementById(`roundsPanel_${matchIndex}`);
+    if (panel) {
+        const roundsList = panel.querySelector('.rounds-list');
+        if (roundsList) {
+            roundsList.innerHTML = renderRoundsList(match, matchIndex);
+        }
+    }
+    
+    // Update card view too
+    const card = document.querySelector(`.match-card[data-index="${matchIndex}"]`);
+    if (card) {
+        const cardScoreA = card.querySelector('.player-a .score-value');
+        const cardScoreB = card.querySelector('.player-b .score-value');
+        const cardWinner = card.querySelector('.match-card-winner');
+        
+        if (cardScoreA) cardScoreA.textContent = match.scoreA;
+        if (cardScoreB) cardScoreB.textContent = match.scoreB;
+        if (cardWinner) cardWinner.innerHTML = renderWinnerIndicator(match);
+        
+        const cardRoundsPanel = document.getElementById(`cardRoundsPanel_${matchIndex}`);
+        if (cardRoundsPanel) {
+            const cardRoundsList = cardRoundsPanel.querySelector('.rounds-list');
+            if (cardRoundsList) {
+                cardRoundsList.innerHTML = renderRoundsList(match, matchIndex);
+            }
+        }
+    }
 }
 
 function generateMatches() {
@@ -526,17 +594,17 @@ function renderQuickAddButtons(matchIndex, match) {
         <div class="quick-add-rounds">
             <div class="quick-add-group">
                 <span class="quick-add-label">${beyAName} wins:</span>
-                <button class="quick-add-btn burst-a" onclick="addRound(${matchIndex}, 'A', 'burst')" title="Burst (+2)">💥</button>
-                <button class="quick-add-btn ko-a" onclick="addRound(${matchIndex}, 'A', 'ko')" title="KO (+1)">🎯</button>
-                <button class="quick-add-btn outspin-a" onclick="addRound(${matchIndex}, 'A', 'outspin')" title="Outspin (+1)">🌀</button>
-                <button class="quick-add-btn xtreme-a" onclick="addRound(${matchIndex}, 'A', 'xtreme')" title="Xtreme (+2)">⚡</button>
+                <button class="quick-add-btn spin-a" onclick="addRound(${matchIndex}, 'A', 'spin')" title="Spin Finish (+1)">🌀</button>
+                <button class="quick-add-btn burst-a" onclick="addRound(${matchIndex}, 'A', 'burst')" title="Burst Finish (+2)">💥</button>
+                <button class="quick-add-btn pocket-a" onclick="addRound(${matchIndex}, 'A', 'pocket')" title="Pocket Finish (+2)">🕳️</button>
+                <button class="quick-add-btn extreme-a" onclick="addRound(${matchIndex}, 'A', 'extreme')" title="Extreme Finish (+3)">⚡</button>
             </div>
             <div class="quick-add-group">
                 <span class="quick-add-label">${beyBName} wins:</span>
-                <button class="quick-add-btn burst-b" onclick="addRound(${matchIndex}, 'B', 'burst')" title="Burst (+2)">💥</button>
-                <button class="quick-add-btn ko-b" onclick="addRound(${matchIndex}, 'B', 'ko')" title="KO (+1)">🎯</button>
-                <button class="quick-add-btn outspin-b" onclick="addRound(${matchIndex}, 'B', 'outspin')" title="Outspin (+1)">🌀</button>
-                <button class="quick-add-btn xtreme-b" onclick="addRound(${matchIndex}, 'B', 'xtreme')" title="Xtreme (+2)">⚡</button>
+                <button class="quick-add-btn spin-b" onclick="addRound(${matchIndex}, 'B', 'spin')" title="Spin Finish (+1)">🌀</button>
+                <button class="quick-add-btn burst-b" onclick="addRound(${matchIndex}, 'B', 'burst')" title="Burst Finish (+2)">💥</button>
+                <button class="quick-add-btn pocket-b" onclick="addRound(${matchIndex}, 'B', 'pocket')" title="Pocket Finish (+2)">🕳️</button>
+                <button class="quick-add-btn extreme-b" onclick="addRound(${matchIndex}, 'B', 'extreme')" title="Extreme Finish (+3)">⚡</button>
             </div>
         </div>
     `;
@@ -590,10 +658,10 @@ function renderMatchTable() {
                         <div class="rounds-panel-header">
                             <h4>Rounds for Match ${match.matchNumber}</h4>
                             <div class="finish-legend">
+                                <span>🌀 Spin (+1)</span>
                                 <span>💥 Burst (+2)</span>
-                                <span>🎯 KO (+1)</span>
-                                <span>🌀 Outspin (+1)</span>
-                                <span>⚡ Xtreme (+2)</span>
+                                <span>🕳️ Pocket (+2)</span>
+                                <span>⚡ Extreme (+3)</span>
                             </div>
                         </div>
                         ${renderQuickAddButtons(index, match)}
