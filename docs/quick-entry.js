@@ -35,6 +35,16 @@ function shuffleArray(array) {
 }
 
 // ============================================
+// FINISH TYPES (for round-level data)
+// ============================================
+const FINISH_TYPES = {
+    BURST: { id: 'burst', label: 'Burst', points: 2 },
+    KO: { id: 'ko', label: 'KO', points: 1 },
+    OUTSPIN: { id: 'outspin', label: 'Outspin', points: 1 },
+    XTREME: { id: 'xtreme', label: 'Xtreme', points: 2 }
+};
+
+// ============================================
 // STORAGE KEYS
 // ============================================
 const STORAGE_KEYS = {
@@ -176,6 +186,7 @@ function setupEventListeners() {
     // Export/Import
     document.getElementById('exportJsonBtn')?.addEventListener('click', exportJSON);
     document.getElementById('exportCsvBtn')?.addEventListener('click', exportCSV);
+    document.getElementById('exportRoundsCsvBtn')?.addEventListener('click', exportRoundsCSV);
     document.getElementById('importFile')?.addEventListener('change', handleImport);
     
     // Swiss pairing
@@ -219,17 +230,120 @@ function handleGlobalKeydown(e) {
 // ============================================
 // MATCH MANAGEMENT
 // ============================================
+
+// Create an empty round object
+function createEmptyRound(index) {
+    return {
+        roundIndex: index,
+        winner: null, // 'A' or 'B'
+        finishType: null // burst, ko, outspin, xtreme
+    };
+}
+
+// Create an empty match with rounds support
 function createEmptyMatch(index) {
     return {
         id: generateUniqueId(),
         matchNumber: index + 1,
         beyA: '',
         beyB: '',
-        scoreA: 0,
-        scoreB: 0,
+        rounds: [], // Array of round objects
+        scoreA: 0,  // Computed from rounds
+        scoreB: 0,  // Computed from rounds
         winner: null,
         timestamp: null
     };
+}
+
+// Calculate scores from rounds
+function calculateScoresFromRounds(match) {
+    let scoreA = 0;
+    let scoreB = 0;
+    
+    match.rounds.forEach(round => {
+        if (round.winner === 'A') {
+            const finishType = FINISH_TYPES[round.finishType?.toUpperCase()];
+            scoreA += finishType ? finishType.points : 1;
+        } else if (round.winner === 'B') {
+            const finishType = FINISH_TYPES[round.finishType?.toUpperCase()];
+            scoreB += finishType ? finishType.points : 1;
+        }
+    });
+    
+    return { scoreA, scoreB };
+}
+
+// Update match scores from rounds and determine winner
+function updateMatchFromRounds(matchIndex) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    const { scoreA, scoreB } = calculateScoresFromRounds(match);
+    match.scoreA = scoreA;
+    match.scoreB = scoreB;
+    
+    // Determine winner based on computed scores
+    if (scoreA > scoreB && scoreA > 0) {
+        match.winner = 'A';
+    } else if (scoreB > scoreA && scoreB > 0) {
+        match.winner = 'B';
+    } else if (scoreA === scoreB && scoreA > 0) {
+        match.winner = 'draw';
+    } else {
+        match.winner = null;
+    }
+    
+    match.timestamp = new Date().toISOString();
+}
+
+// Add a round to a match
+function addRound(matchIndex, winner, finishType) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    const roundIndex = match.rounds.length;
+    match.rounds.push({
+        roundIndex: roundIndex,
+        winner: winner, // 'A' or 'B'
+        finishType: finishType || 'ko'
+    });
+    
+    updateMatchFromRounds(matchIndex);
+    saveToStorage();
+    renderMatches();
+    updateStatusBar();
+}
+
+// Remove a round from a match
+function removeRound(matchIndex, roundIndex) {
+    const match = state.matches[matchIndex];
+    if (!match || roundIndex < 0 || roundIndex >= match.rounds.length) return;
+    
+    match.rounds.splice(roundIndex, 1);
+    // Re-index remaining rounds
+    match.rounds.forEach((round, i) => {
+        round.roundIndex = i;
+    });
+    
+    updateMatchFromRounds(matchIndex);
+    saveToStorage();
+    renderMatches();
+    updateStatusBar();
+}
+
+// Update a round's winner or finish type
+function updateRound(matchIndex, roundIndex, winner, finishType) {
+    const match = state.matches[matchIndex];
+    if (!match || roundIndex < 0 || roundIndex >= match.rounds.length) return;
+    
+    const round = match.rounds[roundIndex];
+    if (winner !== undefined) round.winner = winner;
+    if (finishType !== undefined) round.finishType = finishType;
+    
+    updateMatchFromRounds(matchIndex);
+    saveToStorage();
+    renderMatches();
+    updateStatusBar();
 }
 
 function generateMatches() {
@@ -271,6 +385,7 @@ function resetRound() {
     }
     
     state.matches.forEach(match => {
+        match.rounds = []; // Clear all rounds
         match.scoreA = 0;
         match.scoreB = 0;
         match.winner = null;
@@ -381,6 +496,52 @@ function renderMatches() {
     renderMatchCards();
 }
 
+// Render rounds list for a match
+function renderRoundsList(match, matchIndex) {
+    if (!match.rounds || match.rounds.length === 0) {
+        return '<div class="rounds-empty">No rounds recorded</div>';
+    }
+    
+    return match.rounds.map((round, roundIndex) => {
+        const winnerLabel = round.winner === 'A' ? (match.beyA || 'A') : (match.beyB || 'B');
+        const finishType = FINISH_TYPES[round.finishType?.toUpperCase()] || { label: round.finishType || 'Win' };
+        
+        return `
+            <div class="round-item round-winner-${round.winner?.toLowerCase() || 'none'}">
+                <span class="round-number">R${round.roundIndex + 1}</span>
+                <span class="round-winner">${escapeHtml(winnerLabel)}</span>
+                <span class="round-finish">${escapeHtml(finishType.label)}</span>
+                <button class="round-remove-btn" onclick="removeRound(${matchIndex}, ${roundIndex})" title="Remove round">×</button>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render quick add buttons for rounds
+function renderQuickAddButtons(matchIndex, match) {
+    const beyAName = match.beyA ? escapeHtml(match.beyA.substring(0, 8)) : 'A';
+    const beyBName = match.beyB ? escapeHtml(match.beyB.substring(0, 8)) : 'B';
+    
+    return `
+        <div class="quick-add-rounds">
+            <div class="quick-add-group">
+                <span class="quick-add-label">${beyAName} wins:</span>
+                <button class="quick-add-btn burst-a" onclick="addRound(${matchIndex}, 'A', 'burst')" title="Burst (+2)">💥</button>
+                <button class="quick-add-btn ko-a" onclick="addRound(${matchIndex}, 'A', 'ko')" title="KO (+1)">🎯</button>
+                <button class="quick-add-btn outspin-a" onclick="addRound(${matchIndex}, 'A', 'outspin')" title="Outspin (+1)">🌀</button>
+                <button class="quick-add-btn xtreme-a" onclick="addRound(${matchIndex}, 'A', 'xtreme')" title="Xtreme (+2)">⚡</button>
+            </div>
+            <div class="quick-add-group">
+                <span class="quick-add-label">${beyBName} wins:</span>
+                <button class="quick-add-btn burst-b" onclick="addRound(${matchIndex}, 'B', 'burst')" title="Burst (+2)">💥</button>
+                <button class="quick-add-btn ko-b" onclick="addRound(${matchIndex}, 'B', 'ko')" title="KO (+1)">🎯</button>
+                <button class="quick-add-btn outspin-b" onclick="addRound(${matchIndex}, 'B', 'outspin')" title="Outspin (+1)">🌀</button>
+                <button class="quick-add-btn xtreme-b" onclick="addRound(${matchIndex}, 'B', 'xtreme')" title="Xtreme (+2)">⚡</button>
+            </div>
+        </div>
+    `;
+}
+
 function renderMatchTable() {
     const tbody = document.getElementById('matchEntryBody');
     if (!tbody) return;
@@ -389,6 +550,7 @@ function renderMatchTable() {
         const isComplete = match.winner && match.beyA && match.beyB;
         const isIncomplete = !isComplete && (match.scoreA > 0 || match.scoreB > 0 || match.beyA || match.beyB);
         const rowClass = isComplete ? 'complete' : (isIncomplete ? 'incomplete' : '');
+        const hasRounds = match.rounds && match.rounds.length > 0;
         
         return `
             <tr class="match-row ${rowClass}" data-index="${index}">
@@ -399,21 +561,13 @@ function renderMatchTable() {
                     ${renderBeySelect(match.beyA, index, 'A')}
                 </td>
                 <td class="col-score-a">
-                    <div class="score-control">
-                        <button class="score-btn score-btn-minus" onclick="updateScore(${index}, 'A', -1)" aria-label="Decrease score A">−</button>
-                        <span class="score-display" id="scoreA_${index}">${match.scoreA}</span>
-                        <button class="score-btn score-btn-plus" onclick="updateScore(${index}, 'A', 1)" aria-label="Increase score A">+</button>
-                    </div>
+                    <div class="score-display-large ${match.winner === 'A' ? 'score-winner' : ''}">${match.scoreA}</div>
                 </td>
                 <td class="col-vs">
                     <span class="vs-text">VS</span>
                 </td>
                 <td class="col-score-b">
-                    <div class="score-control">
-                        <button class="score-btn score-btn-minus" onclick="updateScore(${index}, 'B', -1)" aria-label="Decrease score B">−</button>
-                        <span class="score-display" id="scoreB_${index}">${match.scoreB}</span>
-                        <button class="score-btn score-btn-plus" onclick="updateScore(${index}, 'B', 1)" aria-label="Increase score B">+</button>
-                    </div>
+                    <div class="score-display-large ${match.winner === 'B' ? 'score-winner' : ''}">${match.scoreB}</div>
                 </td>
                 <td class="col-bey-b">
                     ${renderBeySelect(match.beyB, index, 'B')}
@@ -423,7 +577,29 @@ function renderMatchTable() {
                 </td>
                 <td class="col-actions">
                     <div class="row-actions">
+                        <button class="row-action-btn rounds-btn ${hasRounds ? 'has-rounds' : ''}" onclick="toggleRoundsPanel(${index})" title="Rounds (${match.rounds?.length || 0})">
+                            🎮 <span class="rounds-count">${match.rounds?.length || 0}</span>
+                        </button>
                         <button class="row-action-btn delete-btn" onclick="deleteMatch(${index})" aria-label="Delete match" title="Delete">🗑️</button>
+                    </div>
+                </td>
+            </tr>
+            <tr class="rounds-panel-row" id="roundsPanel_${index}" style="display: none;">
+                <td colspan="8">
+                    <div class="rounds-panel">
+                        <div class="rounds-panel-header">
+                            <h4>Rounds for Match ${match.matchNumber}</h4>
+                            <div class="finish-legend">
+                                <span>💥 Burst (+2)</span>
+                                <span>🎯 KO (+1)</span>
+                                <span>🌀 Outspin (+1)</span>
+                                <span>⚡ Xtreme (+2)</span>
+                            </div>
+                        </div>
+                        ${renderQuickAddButtons(index, match)}
+                        <div class="rounds-list">
+                            ${renderRoundsList(match, index)}
+                        </div>
                     </div>
                 </td>
             </tr>
@@ -439,6 +615,7 @@ function renderMatchCards() {
         const isComplete = match.winner && match.beyA && match.beyB;
         const isIncomplete = !isComplete && (match.scoreA > 0 || match.scoreB > 0 || match.beyA || match.beyB);
         const cardClass = isComplete ? 'complete' : (isIncomplete ? 'incomplete' : '');
+        const hasRounds = match.rounds && match.rounds.length > 0;
         
         return `
             <div class="match-card ${cardClass}" data-index="${index}">
@@ -449,19 +626,22 @@ function renderMatchCards() {
                 <div class="match-card-content">
                     <div class="match-card-player player-a">
                         ${renderBeySelect(match.beyA, index, 'A')}
-                        <div class="score-control">
-                            <button class="score-btn score-btn-minus" onclick="updateScore(${index}, 'A', -1)">−</button>
-                            <span class="score-display">${match.scoreA}</span>
-                            <button class="score-btn score-btn-plus" onclick="updateScore(${index}, 'A', 1)">+</button>
-                        </div>
+                        <div class="score-display-large ${match.winner === 'A' ? 'score-winner' : ''}">${match.scoreA}</div>
                     </div>
                     <div class="match-card-vs">VS</div>
                     <div class="match-card-player player-b">
                         ${renderBeySelect(match.beyB, index, 'B')}
-                        <div class="score-control">
-                            <button class="score-btn score-btn-minus" onclick="updateScore(${index}, 'B', -1)">−</button>
-                            <span class="score-display">${match.scoreB}</span>
-                            <button class="score-btn score-btn-plus" onclick="updateScore(${index}, 'B', 1)">+</button>
+                        <div class="score-display-large ${match.winner === 'B' ? 'score-winner' : ''}">${match.scoreB}</div>
+                    </div>
+                </div>
+                <div class="match-card-rounds">
+                    <div class="rounds-toggle" onclick="toggleCardRounds(${index})">
+                        🎮 Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>
+                    </div>
+                    <div class="card-rounds-panel" id="cardRoundsPanel_${index}" style="display: none;">
+                        ${renderQuickAddButtons(index, match)}
+                        <div class="rounds-list">
+                            ${renderRoundsList(match, index)}
                         </div>
                     </div>
                 </div>
@@ -471,6 +651,22 @@ function renderMatchCards() {
             </div>
         `;
     }).join('');
+}
+
+// Toggle rounds panel visibility (table view)
+function toggleRoundsPanel(matchIndex) {
+    const panel = document.getElementById(`roundsPanel_${matchIndex}`);
+    if (panel) {
+        panel.style.display = panel.style.display === 'none' ? 'table-row' : 'none';
+    }
+}
+
+// Toggle rounds panel visibility (card view)
+function toggleCardRounds(matchIndex) {
+    const panel = document.getElementById(`cardRoundsPanel_${matchIndex}`);
+    if (panel) {
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
 }
 
 function renderBeySelect(selectedBey, matchIndex, player) {
@@ -638,6 +834,7 @@ function generateSwissPairings() {
             matchNumber: state.matches.length + 1,
             beyA: sortedParticipants[i],
             beyB: sortedParticipants[i + 1],
+            rounds: [],
             scoreA: 0,
             scoreB: 0,
             winner: null,
@@ -673,6 +870,7 @@ function generateRandomPairings() {
             matchNumber: state.matches.length + 1,
             beyA: shuffled[i],
             beyB: shuffled[i + 1],
+            rounds: [],
             scoreA: 0,
             scoreB: 0,
             winner: null,
@@ -698,7 +896,7 @@ function exportJSON() {
         tournament: state.tournament,
         matches: state.matches,
         exportDate: new Date().toISOString(),
-        version: '1.0'
+        version: '2.0' // Updated version for rounds support
     };
     
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -711,7 +909,8 @@ function exportJSON() {
 }
 
 function exportCSV() {
-    const headers = ['MatchID', 'Date', 'BeyA', 'BeyB', 'ScoreA', 'ScoreB'];
+    // Export match-level CSV (summary)
+    const headers = ['MatchID', 'Date', 'BeyA', 'BeyB', 'ScoreA', 'ScoreB', 'RoundsCount'];
     const rows = state.matches.map((match, i) => {
         const date = match.timestamp ? new Date(match.timestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         return [
@@ -720,7 +919,8 @@ function exportCSV() {
             match.beyA || '',
             match.beyB || '',
             match.scoreA,
-            match.scoreB
+            match.scoreB,
+            match.rounds?.length || 0
         ];
     });
     
@@ -732,6 +932,38 @@ function exportCSV() {
     downloadFile(url, filename);
     
     showToast('Exported as CSV', 'success');
+}
+
+// Export detailed rounds CSV
+function exportRoundsCSV() {
+    const headers = ['MatchID', 'BeyA', 'BeyB', 'RoundIndex', 'Winner', 'FinishType'];
+    const rows = [];
+    
+    state.matches.forEach((match, i) => {
+        const matchId = `M${String(i + 1).padStart(4, '0')}`;
+        if (match.rounds && match.rounds.length > 0) {
+            match.rounds.forEach(round => {
+                const winnerName = round.winner === 'A' ? match.beyA : match.beyB;
+                rows.push([
+                    matchId,
+                    match.beyA || '',
+                    match.beyB || '',
+                    round.roundIndex + 1,
+                    winnerName || round.winner,
+                    round.finishType || ''
+                ]);
+            });
+        }
+    });
+    
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    
+    const filename = `${state.tournament.name || 'tournament'}_rounds_${new Date().toISOString().split('T')[0]}.csv`;
+    downloadFile(url, filename);
+    
+    showToast('Exported rounds as CSV', 'success');
 }
 
 function downloadFile(url, filename) {
@@ -782,16 +1014,39 @@ function importJSON(content) {
     }
     
     if (data.matches && Array.isArray(data.matches)) {
-        state.matches = data.matches.map((match, i) => ({
-            id: match.id || generateUniqueId(),
-            matchNumber: match.matchNumber || i + 1,
-            beyA: match.beyA || '',
-            beyB: match.beyB || '',
-            scoreA: match.scoreA || 0,
-            scoreB: match.scoreB || 0,
-            winner: match.winner || null,
-            timestamp: match.timestamp || null
-        }));
+        state.matches = data.matches.map((match, i) => {
+            const imported = {
+                id: match.id || generateUniqueId(),
+                matchNumber: match.matchNumber || i + 1,
+                beyA: match.beyA || '',
+                beyB: match.beyB || '',
+                rounds: Array.isArray(match.rounds) ? match.rounds : [],
+                scoreA: match.scoreA || 0,
+                scoreB: match.scoreB || 0,
+                winner: match.winner || null,
+                timestamp: match.timestamp || null
+            };
+            
+            // If rounds exist, recalculate scores from rounds
+            if (imported.rounds.length > 0) {
+                const { scoreA, scoreB } = calculateScoresFromRounds(imported);
+                imported.scoreA = scoreA;
+                imported.scoreB = scoreB;
+                
+                // Recalculate winner
+                if (scoreA > scoreB && scoreA > 0) {
+                    imported.winner = 'A';
+                } else if (scoreB > scoreA && scoreB > 0) {
+                    imported.winner = 'B';
+                } else if (scoreA === scoreB && scoreA > 0) {
+                    imported.winner = 'draw';
+                } else {
+                    imported.winner = null;
+                }
+            }
+            
+            return imported;
+        });
     }
     
     saveToStorage();
@@ -831,6 +1086,7 @@ function importCSV(content) {
             matchNumber: i + 1,
             beyA: values[beyAIndex] || '',
             beyB: values[beyBIndex] || '',
+            rounds: [], // Start with empty rounds for CSV imports
             scoreA,
             scoreB,
             winner,
