@@ -1004,7 +1004,8 @@ function exportCSV() {
 
 // Export detailed rounds CSV
 function exportRoundsCSV() {
-    const headers = ['MatchID', 'BeyA', 'BeyB', 'RoundIndex', 'Winner', 'FinishType'];
+    // Format compatible with ./data/rounds.csv
+    const headers = ['match_id', 'round_number', 'winner', 'finish_type', 'points_awarded', 'notes'];
     const rows = [];
     
     state.matches.forEach((match, i) => {
@@ -1012,13 +1013,17 @@ function exportRoundsCSV() {
         if (match.rounds && match.rounds.length > 0) {
             match.rounds.forEach(round => {
                 const winnerName = round.winner === 'A' ? match.beyA : match.beyB;
+                const finishType = round.finishType || '';
+                // Get points for the finish type
+                const finishTypeObj = Object.values(FINISH_TYPES).find(ft => ft.id === finishType);
+                const points = finishTypeObj ? finishTypeObj.points : '';
                 rows.push([
                     matchId,
-                    match.beyA || '',
-                    match.beyB || '',
                     round.roundIndex + 1,
                     winnerName || round.winner,
-                    round.finishType || ''
+                    finishType,
+                    points,
+                    '' // notes column (empty by default)
                 ]);
             });
         }
