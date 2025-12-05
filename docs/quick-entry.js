@@ -3,6 +3,38 @@
 // ============================================
 
 // ============================================
+// UTILITY FUNCTIONS
+// ============================================
+
+// HTML escape function to prevent XSS
+function escapeHtml(text) {
+    if (text == null) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Generate unique ID
+let idCounter = 0;
+function generateUniqueId() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+    // Fallback for older browsers
+    return `${Date.now()}-${++idCounter}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Fisher-Yates shuffle for proper randomization
+function shuffleArray(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+}
+
+// ============================================
 // STORAGE KEYS
 // ============================================
 const STORAGE_KEYS = {
@@ -69,13 +101,29 @@ function loadFromStorage() {
         const participantsData = localStorage.getItem(STORAGE_KEYS.PARTICIPANTS);
         
         if (matchesData) {
-            state.matches = JSON.parse(matchesData);
+            const parsed = JSON.parse(matchesData);
+            // Validate that parsed data is an array
+            if (Array.isArray(parsed)) {
+                state.matches = parsed;
+            }
         }
         if (tournamentData) {
-            state.tournament = JSON.parse(tournamentData);
+            const parsed = JSON.parse(tournamentData);
+            // Validate tournament data structure
+            if (parsed && typeof parsed === 'object') {
+                state.tournament = {
+                    name: String(parsed.name || ''),
+                    round: parseInt(parsed.round) || 1,
+                    format: String(parsed.format || 'swiss')
+                };
+            }
         }
         if (participantsData) {
-            state.participants = JSON.parse(participantsData);
+            const parsed = JSON.parse(participantsData);
+            // Validate that parsed data is an array of strings
+            if (Array.isArray(parsed)) {
+                state.participants = parsed.filter(p => typeof p === 'string');
+            }
         }
     } catch (error) {
         console.error('Error loading from storage:', error);
@@ -173,7 +221,7 @@ function handleGlobalKeydown(e) {
 // ============================================
 function createEmptyMatch(index) {
     return {
-        id: Date.now() + index,
+        id: generateUniqueId(),
         matchNumber: index + 1,
         beyA: '',
         beyB: '',
@@ -426,15 +474,17 @@ function renderMatchCards() {
 }
 
 function renderBeySelect(selectedBey, matchIndex, player) {
-    const options = state.beyblades.map(bey => 
-        `<option value="${bey.name}" ${bey.name === selectedBey ? 'selected' : ''}>${bey.name}</option>`
-    ).join('');
+    const escapedSelectedBey = escapeHtml(selectedBey);
+    const options = state.beyblades.map(bey => {
+        const escapedName = escapeHtml(bey.name);
+        return `<option value="${escapedName}" ${bey.name === selectedBey ? 'selected' : ''}>${escapedName}</option>`;
+    }).join('');
     
     return `
         <select class="bey-select ${selectedBey ? 'has-value' : ''}" 
-                onchange="updateBey(${matchIndex}, '${player}', this.value)"
+                onchange="updateBey(${matchIndex}, '${escapeHtml(player)}', this.value)"
                 data-match="${matchIndex}" 
-                data-player="${player}">
+                data-player="${escapeHtml(player)}">
             <option value="">Select Bey...</option>
             ${options}
         </select>
@@ -456,7 +506,7 @@ function renderWinnerIndicator(match) {
     // Truncate long names
     const displayName = winnerName.length > 12 ? winnerName.substring(0, 10) + '…' : winnerName;
     
-    return `<span class="winner-indicator ${winnerClass}" title="${winnerName}">${displayName}</span>`;
+    return `<span class="winner-indicator ${winnerClass}" title="${escapeHtml(winnerName)}">${escapeHtml(displayName)}</span>`;
 }
 
 // ============================================
@@ -516,12 +566,14 @@ function handleParticipantSearch(e) {
     if (filtered.length === 0) {
         dropdown.innerHTML = '<div class="participant-option" style="color: var(--text-light)">No matches found</div>';
     } else {
-        dropdown.innerHTML = filtered.map(bey => `
-            <div class="participant-option" onclick="addParticipant('${bey.name}')">
-                <span>${bey.name}</span>
+        dropdown.innerHTML = filtered.map(bey => {
+            const escapedName = escapeHtml(bey.name);
+            return `
+            <div class="participant-option" onclick="addParticipant('${escapedName}')">
+                <span>${escapedName}</span>
                 <span class="elo-badge">${bey.elo} ELO</span>
             </div>
-        `).join('');
+        `}).join('');
     }
     
     dropdown.classList.add('active');
@@ -555,12 +607,14 @@ function renderSelectedParticipants() {
         return;
     }
     
-    container.innerHTML = state.participants.map(name => `
+    container.innerHTML = state.participants.map(name => {
+        const escapedName = escapeHtml(name);
+        return `
         <div class="participant-chip">
-            <span>${name}</span>
-            <button class="remove-participant" onclick="removeParticipant('${name}')" aria-label="Remove ${name}">×</button>
+            <span>${escapedName}</span>
+            <button class="remove-participant" onclick="removeParticipant('${escapedName}')" aria-label="Remove ${escapedName}">×</button>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function generateSwissPairings() {
@@ -580,7 +634,7 @@ function generateSwissPairings() {
     state.matches = [];
     for (let i = 0; i < sortedParticipants.length - 1; i += 2) {
         state.matches.push({
-            id: Date.now() + i,
+            id: generateUniqueId(),
             matchNumber: state.matches.length + 1,
             beyA: sortedParticipants[i],
             beyB: sortedParticipants[i + 1],
@@ -593,7 +647,7 @@ function generateSwissPairings() {
     
     // Handle odd participant (bye)
     if (sortedParticipants.length % 2 === 1) {
-        showToast(`${sortedParticipants[sortedParticipants.length - 1]} gets a bye`, 'warning');
+        showToast(`${escapeHtml(sortedParticipants[sortedParticipants.length - 1])} gets a bye`, 'warning');
     }
     
     saveToStorage();
@@ -608,14 +662,14 @@ function generateRandomPairings() {
         return;
     }
     
-    // Shuffle participants
-    const shuffled = [...state.participants].sort(() => Math.random() - 0.5);
+    // Shuffle participants using Fisher-Yates algorithm
+    const shuffled = shuffleArray(state.participants);
     
     // Create pairings
     state.matches = [];
     for (let i = 0; i < shuffled.length - 1; i += 2) {
         state.matches.push({
-            id: Date.now() + i,
+            id: generateUniqueId(),
             matchNumber: state.matches.length + 1,
             beyA: shuffled[i],
             beyB: shuffled[i + 1],
@@ -627,7 +681,7 @@ function generateRandomPairings() {
     }
     
     if (shuffled.length % 2 === 1) {
-        showToast(`${shuffled[shuffled.length - 1]} gets a bye`, 'warning');
+        showToast(`${escapeHtml(shuffled[shuffled.length - 1])} gets a bye`, 'warning');
     }
     
     saveToStorage();
@@ -729,7 +783,7 @@ function importJSON(content) {
     
     if (data.matches && Array.isArray(data.matches)) {
         state.matches = data.matches.map((match, i) => ({
-            id: match.id || Date.now() + i,
+            id: match.id || generateUniqueId(),
             matchNumber: match.matchNumber || i + 1,
             beyA: match.beyA || '',
             beyB: match.beyB || '',
@@ -761,7 +815,8 @@ function importCSV(content) {
         return;
     }
     
-    state.matches = lines.slice(1).map((line, i) => {
+    state.matches = lines.slice(1).filter(line => line.trim()).map((line, i) => {
+        // Simple CSV parsing - handles basic cases
         const values = line.split(',').map(v => v.trim());
         const scoreA = scoreAIndex !== -1 ? parseInt(values[scoreAIndex]) || 0 : 0;
         const scoreB = scoreBIndex !== -1 ? parseInt(values[scoreBIndex]) || 0 : 0;
@@ -772,7 +827,7 @@ function importCSV(content) {
         else if (scoreA === scoreB && scoreA > 0) winner = 'draw';
         
         return {
-            id: Date.now() + i,
+            id: generateUniqueId(),
             matchNumber: i + 1,
             beyA: values[beyAIndex] || '',
             beyB: values[beyBIndex] || '',
