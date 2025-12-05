@@ -988,6 +988,60 @@ th.sorted-desc {
     opacity: 0.7;
 }
 
+/* ============================================
+   INLINE ELO DELTA BADGE (next to Bey names)
+============================================ */
+.bey-with-delta {
+    white-space: nowrap;
+}
+
+.elo-delta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.125rem;
+    margin-left: 0.5rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+.elo-delta-badge.delta-up {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+}
+
+.elo-delta-badge.delta-down {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.12);
+}
+
+.elo-delta-badge .delta-arrow {
+    font-size: 0.625rem;
+}
+
+/* Dark mode adjustments for delta badge */
+body.dark .elo-delta-badge.delta-up {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+body.dark .elo-delta-badge.delta-down {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+/* Mobile card bey-name with delta badge */
+.card-bey .bey-name {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.card-bey .bey-name .elo-delta-badge {
+    margin-left: 0.25rem;
+}
+
 /* ELO Trend Highlights - applies to both table cells and mobile card details */
 .trend-very-positive,
 .lb-detail-value.trend-very-positive {

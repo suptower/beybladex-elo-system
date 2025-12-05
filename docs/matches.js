@@ -19,8 +19,6 @@ const COLUMN_DEFINITIONS = [
     { key: 'preEloB', label: 'Pre ELO B', abbrev: 'Pre B', sortable: true },
     { key: 'beyB', label: 'Bey B', abbrev: 'Bey B', sortable: true },
     { key: 'winner', label: 'Winner', abbrev: 'Winner', sortable: true },
-    { key: 'eloChangeA', label: 'Δ ELO A', abbrev: 'Δ A', sortable: true },
-    { key: 'eloChangeB', label: 'Δ ELO B', abbrev: 'Δ B', sortable: true },
     { key: 'eloDiff', label: 'ELO Diff', abbrev: 'Diff', sortable: true }
 ];
 
@@ -28,17 +26,37 @@ const COLUMN_DEFINITIONS = [
 const COLUMN_DESCRIPTIONS = {
     'ID': { short: 'Match ID', long: 'Unique identifier for the match, used for referencing and debugging' },
     'Date': { short: 'Match Date', long: 'The date when the match was played' },
-    'Bey A': { short: 'Beyblade A', long: 'Name of the first Beyblade in the match' },
+    'Bey A': { short: 'Beyblade A', long: 'Name of the first Beyblade in the match (with ELO change shown inline)' },
     'Pre A': { short: 'Pre-Match ELO A', long: 'ELO rating of Bey A before the match' },
     'Sc A': { short: 'Score A', long: 'Points scored by Bey A in the match' },
     'Sc B': { short: 'Score B', long: 'Points scored by Bey B in the match' },
     'Pre B': { short: 'Pre-Match ELO B', long: 'ELO rating of Bey B before the match' },
-    'Bey B': { short: 'Beyblade B', long: 'Name of the second Beyblade in the match' },
+    'Bey B': { short: 'Beyblade B', long: 'Name of the second Beyblade in the match (with ELO change shown inline)' },
     'Winner': { short: 'Match Winner', long: 'The Beyblade that won the match' },
-    'Δ A': { short: 'ELO Change A', long: 'ELO rating change for Bey A (positive = gained, negative = lost)' },
-    'Δ B': { short: 'ELO Change B', long: 'ELO rating change for Bey B (positive = gained, negative = lost)' },
     'Diff': { short: 'ELO Difference', long: 'Absolute ELO difference between the two Beys before the match' }
 };
+
+// Create ELO delta badge HTML string
+// Used for both desktop table and mobile card views
+function createDeltaBadgeHtml(eloChange) {
+    const isPositive = eloChange >= 0;
+    const arrow = isPositive ? '▲' : '▼';
+    const sign = isPositive ? '+' : '';
+    const className = isPositive ? 'delta-up' : 'delta-down';
+    return `<span class="elo-delta-badge ${className}"><span class="delta-arrow">${arrow}</span>${sign}${eloChange}</span>`;
+}
+
+// Create ELO delta badge DOM element
+// Used for desktop table view
+function createDeltaBadgeElement(eloChange) {
+    const badge = document.createElement('span');
+    const isPositive = eloChange >= 0;
+    badge.className = isPositive ? 'elo-delta-badge delta-up' : 'elo-delta-badge delta-down';
+    const arrow = isPositive ? '▲' : '▼';
+    const sign = isPositive ? '+' : '';
+    badge.innerHTML = `<span class="delta-arrow">${arrow}</span>${sign}${eloChange}`;
+    return badge;
+}
 
 // Load beys data for part filtering
 async function loadBeysDataForFilters() {
@@ -138,7 +156,7 @@ async function loadMatches() {
     } catch (error) {
         console.error('Error loading matches:', error);
         document.getElementById('matchesBody').innerHTML = 
-            '<tr><td colspan="13">Error loading matches data</td></tr>';
+            '<tr><td colspan="11">Error loading matches data</td></tr>';
     }
 }
 
@@ -409,7 +427,7 @@ function displayMatches() {
     const matchesToShow = getCurrentPageMatches();
     
     if (filteredMatches.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="13">No matches found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11">No matches found</td></tr>';
         cardsContainer.innerHTML = '<div class="no-results">No matches found</div>';
         return;
     }
@@ -471,14 +489,16 @@ function displayMatches() {
         tdDate.textContent = match.dateFormatted;
         row.appendChild(tdDate);
         
-        // Bey A
+        // Bey A (with inline ELO delta badge)
         const tdBeyA = document.createElement('td');
-        tdBeyA.className = match.winner === match.beyA ? 'winner' : '';
+        tdBeyA.className = match.winner === match.beyA ? 'winner bey-with-delta' : 'bey-with-delta';
         const linkA = document.createElement('a');
         linkA.href = `bey.html?name=${encodeURIComponent(match.beyA)}`;
         linkA.className = 'bey-link';
         linkA.textContent = match.beyA;
         tdBeyA.appendChild(linkA);
+        // Add inline delta badge for Bey A
+        tdBeyA.appendChild(createDeltaBadgeElement(match.eloChangeA));
         row.appendChild(tdBeyA);
         
         // Pre ELO A
@@ -503,14 +523,16 @@ function displayMatches() {
         tdPreB.textContent = match.preEloB;
         row.appendChild(tdPreB);
         
-        // Bey B
+        // Bey B (with inline ELO delta badge)
         const tdBeyB = document.createElement('td');
-        tdBeyB.className = match.winner === match.beyB ? 'winner' : '';
+        tdBeyB.className = match.winner === match.beyB ? 'winner bey-with-delta' : 'bey-with-delta';
         const linkB = document.createElement('a');
         linkB.href = `bey.html?name=${encodeURIComponent(match.beyB)}`;
         linkB.className = 'bey-link';
         linkB.textContent = match.beyB;
         tdBeyB.appendChild(linkB);
+        // Add inline delta badge for Bey B
+        tdBeyB.appendChild(createDeltaBadgeElement(match.eloChangeB));
         row.appendChild(tdBeyB);
         
         // Winner
@@ -522,18 +544,6 @@ function displayMatches() {
         linkWinner.textContent = match.winner;
         tdWinner.appendChild(linkWinner);
         row.appendChild(tdWinner);
-        
-        // ELO Change A
-        const tdChangeA = document.createElement('td');
-        tdChangeA.textContent = (match.eloChangeA >= 0 ? '+' : '') + match.eloChangeA;
-        tdChangeA.className = match.eloChangeA >= 0 ? 'delta-elo-up' : 'delta-elo-down';
-        row.appendChild(tdChangeA);
-        
-        // ELO Change B
-        const tdChangeB = document.createElement('td');
-        tdChangeB.textContent = (match.eloChangeB >= 0 ? '+' : '') + match.eloChangeB;
-        tdChangeB.className = match.eloChangeB >= 0 ? 'delta-elo-up' : 'delta-elo-down';
-        row.appendChild(tdChangeB);
         
         // ELO Difference
         const tdDiff = document.createElement('td');
@@ -582,6 +592,10 @@ function displayMatches() {
         const roundsHtml = hasRounds ? createMobileRoundsHtml(match) : '';
         const isExpanded = expandedMatches.has(match.matchId);
         
+        // Create delta badge HTML for mobile using utility function
+        const deltaBadgeAHtml = createDeltaBadgeHtml(match.eloChangeA);
+        const deltaBadgeBHtml = createDeltaBadgeHtml(match.eloChangeB);
+        
         card.innerHTML = `
             <div class="card-header">
                 <span class="card-match-id match-id" title="Click to copy" onclick="copyMatchId('${match.matchId}')">${match.matchId}</span>
@@ -590,17 +604,15 @@ function displayMatches() {
             </div>
             <div class="card-match">
                 <div class="card-bey ${match.winner === match.beyA ? 'winner' : ''}">
-                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyA)}" class="bey-link">${match.beyA}</a></div>
+                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyA)}" class="bey-link">${match.beyA}</a> ${deltaBadgeAHtml}</div>
                     <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${match.preEloA}</div>
                     <div class="bey-score ${match.winner === match.beyA ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.scoreA}</div>
-                    <div class="bey-elo-change ${match.eloChangeA >= 0 ? 'delta-elo-up' : 'delta-elo-down'}"><span class="stat-label">ELO Δ:</span> ${match.eloChangeA >= 0 ? '+' : ''}${match.eloChangeA}</div>
                 </div>
                 <div class="card-vs">VS</div>
                 <div class="card-bey ${match.winner === match.beyB ? 'winner' : ''}">
-                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyB)}" class="bey-link">${match.beyB}</a></div>
+                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyB)}" class="bey-link">${match.beyB}</a> ${deltaBadgeBHtml}</div>
                     <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${match.preEloB}</div>
                     <div class="bey-score ${match.winner === match.beyB ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.scoreB}</div>
-                    <div class="bey-elo-change ${match.eloChangeB >= 0 ? 'delta-elo-up' : 'delta-elo-down'}"><span class="stat-label">ELO Δ:</span> ${match.eloChangeB >= 0 ? '+' : ''}${match.eloChangeB}</div>
                 </div>
             </div>
             <div class="card-footer">
@@ -957,7 +969,7 @@ function createRoundsDetailRow(match) {
     row.dataset.matchId = match.matchId;
     
     const cell = document.createElement('td');
-    cell.colSpan = 13; // All columns + rounds column (including Match ID column)
+    cell.colSpan = 11; // All columns + rounds column (including Match ID column)
     cell.className = 'rounds-detail-cell';
     
     // Build rounds table HTML
