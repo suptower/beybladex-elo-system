@@ -7,6 +7,12 @@ let currentSort = { column: null, asc: true };
 let currentSearchQuery = "";
 let isMatchesMode = false; // false = Giant Killers, true = Biggest Upsets
 
+// Format match ID as integer (remove M prefix and leading zeros)
+function formatMatchId(rawId) {
+    if (!rawId || typeof rawId !== 'string') return rawId;
+    return parseInt(rawId.slice(1).replace(/^0+/, ''), 10);
+}
+
 // Column abbreviations for Giant Killers view
 const COLUMN_ABBREVIATIONS = {
     'GiantKillerScore': 'GK',
@@ -266,8 +272,12 @@ function renderTable(headers, rows) {
             const td = document.createElement("td");
             const value = row[h] ?? "";
 
+            // Format MatchID as integer
+            if (h === "MatchID") {
+                td.textContent = value ? formatMatchId(value) : "";
+            }
             // Make bey names clickable
-            if (h === "Bey" || h === "Winner" || h === "Loser") {
+            else if (h === "Bey" || h === "Winner" || h === "Loser") {
                 const link = document.createElement("a");
                 link.href = `bey.html?name=${encodeURIComponent(value)}`;
                 link.className = "bey-link";
@@ -473,7 +483,8 @@ function renderCards(headers, rows) {
             const winnerELO = parseFloat(row["WinnerPreELO"]);
             const loserELO = parseFloat(row["LoserPreELO"]);
             const winProbability = calculateWinProbability(winnerELO, loserELO);
-            const matchId = row["MatchID"] || "";
+            const rawMatchId = row["MatchID"] || "";
+            const matchId = rawMatchId ? formatMatchId(rawMatchId) : "";
             
             card.innerHTML = `
                 <div class="card-header">

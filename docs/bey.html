@@ -393,7 +393,7 @@ async function loadData() {
         const matchesResponse = await fetch('data/matches.csv');
         const matchesText = await matchesResponse.text();
         const allMatches = parseCSV(matchesText).map(m => ({
-            matchId: m.MatchID,
+            matchId: parseInt(m.MatchID.slice(1).replace(/^0+/, ''), 10),
             date: m.Date,
             beyA: m.BeyA,
             beyB: m.BeyB,

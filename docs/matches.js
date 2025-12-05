@@ -97,7 +97,8 @@ async function loadMatches() {
         
         allMatches = lines.slice(1).map((line, index) => {
             const values = line.split(',');
-            const matchId = prepMatchId(values[0]);
+            const rawMatchId = values[0]; // Keep original for roundsData lookup
+            const matchId = prepMatchId(rawMatchId);
             const scoreA = parseInt(values[4]);
             const scoreB = parseInt(values[5]);
             const preA = parseFloat(values[6]);
@@ -122,7 +123,7 @@ async function loadMatches() {
                 eloChangeB: Math.round(postB - preB),
                 eloDiff: Math.round(Math.abs(preA - preB)),
                 winner: scoreA > scoreB ? values[2] : values[3],
-                rounds: roundsData[matchId] || [] // Attach rounds data
+                rounds: roundsData[rawMatchId] || [] // Use original ID for roundsData lookup
             };
         });
         
@@ -137,7 +138,7 @@ async function loadMatches() {
     } catch (error) {
         console.error('Error loading matches:', error);
         document.getElementById('matchesBody').innerHTML = 
-            '<tr><td colspan="12">Error loading matches data</td></tr>';
+            '<tr><td colspan="13">Error loading matches data</td></tr>';
     }
 }
 
@@ -408,7 +409,7 @@ function displayMatches() {
     const matchesToShow = getCurrentPageMatches();
     
     if (filteredMatches.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12">No matches found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="13">No matches found</td></tr>';
         cardsContainer.innerHTML = '<div class="no-results">No matches found</div>';
         return;
     }
