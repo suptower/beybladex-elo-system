@@ -393,16 +393,35 @@ function updateMatchRowOnly(matchIndex) {
         }
     }
     
-    // Update card view too
+    // Update card view too (mobile)
     const card = document.querySelector(`.match-card[data-index="${matchIndex}"]`);
     if (card) {
-        const cardScoreA = card.querySelector('.player-a .score-value');
-        const cardScoreB = card.querySelector('.player-b .score-value');
+        const cardScoreA = card.querySelector('.player-a .score-display-large');
+        const cardScoreB = card.querySelector('.player-b .score-display-large');
         const cardWinner = card.querySelector('.match-card-winner');
+        const roundsToggle = card.querySelector('.rounds-toggle');
         
-        if (cardScoreA) cardScoreA.textContent = match.scoreA;
-        if (cardScoreB) cardScoreB.textContent = match.scoreB;
-        if (cardWinner) cardWinner.innerHTML = renderWinnerIndicator(match);
+        if (cardScoreA) {
+            cardScoreA.textContent = match.scoreA;
+            cardScoreA.classList.toggle('score-winner', match.winner === 'A');
+        }
+        if (cardScoreB) {
+            cardScoreB.textContent = match.scoreB;
+            cardScoreB.classList.toggle('score-winner', match.winner === 'B');
+        }
+        if (cardWinner) {
+            cardWinner.innerHTML = renderWinnerIndicator(match);
+        }
+        if (roundsToggle) {
+            roundsToggle.innerHTML = `📋 Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>`;
+        }
+        
+        // Update card completion state
+        const isComplete = match.winner && match.beyA && match.beyB;
+        const isIncomplete = !isComplete && (match.scoreA > 0 || match.scoreB > 0 || match.beyA || match.beyB);
+        card.classList.remove('complete', 'incomplete');
+        if (isComplete) card.classList.add('complete');
+        else if (isIncomplete) card.classList.add('incomplete');
         
         const cardRoundsPanel = document.getElementById(`cardRoundsPanel_${matchIndex}`);
         if (cardRoundsPanel) {
@@ -704,7 +723,7 @@ function renderMatchCards() {
                 </div>
                 <div class="match-card-rounds">
                     <div class="rounds-toggle" onclick="toggleCardRounds(${index})">
-                        🎮 Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>
+                        📋 Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>
                     </div>
                     <div class="card-rounds-panel" id="cardRoundsPanel_${index}" style="display: none;">
                         ${renderQuickAddButtons(index, match)}

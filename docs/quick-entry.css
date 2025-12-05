@@ -555,7 +555,7 @@
 .match-card {
     background: var(--card);
     border-radius: var(--radius);
-    padding: 1rem;
+    padding: 1.25rem;
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
 }
@@ -567,37 +567,41 @@
 
 .match-card.complete {
     border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.03);
 }
 
 .match-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--border);
 }
 
 .match-card-number {
     font-weight: 800;
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     color: var(--accent);
 }
 
 .match-card-winner {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
 }
 
 .match-card-content {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .match-card-player {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
 }
 
 .match-card-player.player-a {
@@ -605,15 +609,19 @@
 }
 
 .match-card-player.player-b {
-    flex-direction: row-reverse;
+    flex-direction: row;
 }
 
 .match-card-player .bey-select {
     flex: 1;
+    min-width: 0;
 }
 
-.match-card-player .score-control {
+.match-card-player .score-display-large {
     flex-shrink: 0;
+    min-width: 60px;
+    font-size: 1.75rem;
+    padding: 0.5rem;
 }
 
 .match-card-vs {
@@ -1252,7 +1260,7 @@
 
 /* Card view rounds */
 .match-card-rounds {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
     padding-top: 0.75rem;
     border-top: 1px solid var(--border);
 }
@@ -1262,16 +1270,19 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.5rem;
-    font-size: 0.875rem;
+    padding: 0.75rem;
+    font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--text-light);
+    color: var(--text);
     cursor: pointer;
     transition: var(--transition);
+    background: var(--bg);
+    border-radius: var(--radius-sm);
 }
 
 .rounds-toggle:hover {
     color: var(--accent);
+    background: rgba(139, 92, 246, 0.1);
 }
 
 .toggle-arrow {
@@ -1281,6 +1292,19 @@
 
 .card-rounds-panel {
     padding: 1rem 0;
+}
+
+.card-rounds-panel .quick-add-rounds {
+    margin-bottom: 1rem;
+}
+
+.card-rounds-panel .quick-add-group {
+    flex-wrap: wrap;
+}
+
+.card-rounds-panel .quick-add-label {
+    width: 100%;
+    margin-bottom: 0.5rem;
 }
 
 /* Responsive adjustments for rounds */
@@ -1298,5 +1322,21 @@
     .rounds-panel-header {
         flex-direction: column;
         align-items: flex-start;
+    }
+    
+    .quick-add-group {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .quick-add-label {
+        grid-column: 1 / -1;
+        min-width: 100%;
+    }
+    
+    .quick-add-btn {
+        width: 100%;
+        height: 48px;
     }
 }
