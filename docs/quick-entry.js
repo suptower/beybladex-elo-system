@@ -354,8 +354,8 @@ function updateMatchRowOnly(matchIndex) {
     // Update table row score display
     const row = document.querySelector(`.match-row[data-index="${matchIndex}"]`);
     if (row) {
-        const scoreADisplay = row.querySelector('.score-display');
-        const scoreBDisplay = row.querySelectorAll('.score-display')[1];
+        const scoreADisplay = row.querySelector('.col-score-a .score-display-large');
+        const scoreBDisplay = row.querySelector('.col-score-b .score-display-large');
         const winnerCell = row.querySelector('.col-winner');
         const roundsBtn = row.querySelector('.rounds-btn');
         
