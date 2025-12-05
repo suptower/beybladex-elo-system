@@ -40,7 +40,7 @@ function shuffleArray(array) {
 const FINISH_TYPES = {
     SPIN: { id: 'spin', label: 'Spin', points: 1, emoji: '🌀' },
     BURST: { id: 'burst', label: 'Burst', points: 2, emoji: '💥' },
-    POCKET: { id: 'pocket', label: 'Pocket', points: 2, emoji: '🕳️' },
+    POCKET: { id: 'pocket', label: 'Pocket', points: 2, emoji: '🎯' },
     EXTREME: { id: 'extreme', label: 'Extreme', points: 3, emoji: '⚡' }
 };
 
@@ -596,14 +596,14 @@ function renderQuickAddButtons(matchIndex, match) {
                 <span class="quick-add-label">${beyAName} wins:</span>
                 <button class="quick-add-btn spin-a" onclick="addRound(${matchIndex}, 'A', 'spin')" title="Spin Finish (+1)">🌀</button>
                 <button class="quick-add-btn burst-a" onclick="addRound(${matchIndex}, 'A', 'burst')" title="Burst Finish (+2)">💥</button>
-                <button class="quick-add-btn pocket-a" onclick="addRound(${matchIndex}, 'A', 'pocket')" title="Pocket Finish (+2)">🕳️</button>
+                <button class="quick-add-btn pocket-a" onclick="addRound(${matchIndex}, 'A', 'pocket')" title="Pocket Finish (+2)">🎯</button>
                 <button class="quick-add-btn extreme-a" onclick="addRound(${matchIndex}, 'A', 'extreme')" title="Extreme Finish (+3)">⚡</button>
             </div>
             <div class="quick-add-group">
                 <span class="quick-add-label">${beyBName} wins:</span>
                 <button class="quick-add-btn spin-b" onclick="addRound(${matchIndex}, 'B', 'spin')" title="Spin Finish (+1)">🌀</button>
                 <button class="quick-add-btn burst-b" onclick="addRound(${matchIndex}, 'B', 'burst')" title="Burst Finish (+2)">💥</button>
-                <button class="quick-add-btn pocket-b" onclick="addRound(${matchIndex}, 'B', 'pocket')" title="Pocket Finish (+2)">🕳️</button>
+                <button class="quick-add-btn pocket-b" onclick="addRound(${matchIndex}, 'B', 'pocket')" title="Pocket Finish (+2)">🎯</button>
                 <button class="quick-add-btn extreme-b" onclick="addRound(${matchIndex}, 'B', 'extreme')" title="Extreme Finish (+3)">⚡</button>
             </div>
         </div>
@@ -646,7 +646,7 @@ function renderMatchTable() {
                 <td class="col-actions">
                     <div class="row-actions">
                         <button class="row-action-btn rounds-btn ${hasRounds ? 'has-rounds' : ''}" onclick="toggleRoundsPanel(${index})" title="Rounds (${match.rounds?.length || 0})">
-                            🎮 <span class="rounds-count">${match.rounds?.length || 0}</span>
+                            <span class="rounds-count">${match.rounds?.length || 0}</span>
                         </button>
                         <button class="row-action-btn delete-btn" onclick="deleteMatch(${index})" aria-label="Delete match" title="Delete">🗑️</button>
                     </div>
@@ -660,7 +660,7 @@ function renderMatchTable() {
                             <div class="finish-legend">
                                 <span>🌀 Spin (+1)</span>
                                 <span>💥 Burst (+2)</span>
-                                <span>🕳️ Pocket (+2)</span>
+                                <span>🎯 Pocket (+2)</span>
                                 <span>⚡ Extreme (+3)</span>
                             </div>
                         </div>
