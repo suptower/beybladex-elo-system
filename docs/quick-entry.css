@@ -591,45 +591,66 @@
 
 .match-card-content {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     gap: 0.5rem;
 }
 
-.match-card-player {
+/* Names row - shared line for both beys */
+.match-card-names {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.75rem;
-    background: var(--bg);
-    border-radius: var(--radius-sm);
+    gap: 0.5rem;
+    flex: 1;
 }
 
-.match-card-player.player-a {
-    flex-direction: row;
-}
-
-.match-card-player.player-b {
-    flex-direction: row;
-}
-
-.match-card-player .bey-select {
+.match-card-names .bey-select {
     flex: 1;
     min-width: 0;
-}
-
-.match-card-player .score-display-large {
-    flex-shrink: 0;
-    min-width: 60px;
-    font-size: 1.75rem;
+    font-size: 0.875rem;
     padding: 0.5rem;
 }
 
-.match-card-vs {
-    text-align: center;
+.match-card-names .vs-text {
     font-weight: 700;
     color: var(--text-light);
     font-size: 0.75rem;
-    padding: 0.25rem 0;
+    padding: 0 0.25rem;
+    flex-shrink: 0;
+}
+
+/* Scores row - shared line for both scores */
+.match-card-scores {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+    flex-shrink: 0;
+}
+
+.match-card-scores .score-display-large {
+    min-width: 36px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.match-card-scores .score-separator {
+    font-weight: 700;
+    color: var(--text-light);
+    font-size: 1.25rem;
+}
+
+/* Legacy support for old layout - hide these elements */
+.match-card-player {
+    display: none;
+}
+
+.match-card-vs {
+    display: none;
 }
 
 .match-card-actions {

@@ -396,8 +396,8 @@ function updateMatchRowOnly(matchIndex) {
     // Update card view too (mobile)
     const card = document.querySelector(`.match-card[data-index="${matchIndex}"]`);
     if (card) {
-        const cardScoreA = card.querySelector('.player-a .score-display-large');
-        const cardScoreB = card.querySelector('.player-b .score-display-large');
+        const cardScoreA = card.querySelector('.match-card-scores .score-a');
+        const cardScoreB = card.querySelector('.match-card-scores .score-b');
         const cardWinner = card.querySelector('.match-card-winner');
         const roundsToggle = card.querySelector('.rounds-toggle');
         
@@ -711,14 +711,15 @@ function renderMatchCards() {
                     <span class="match-card-winner">${renderWinnerIndicator(match)}</span>
                 </div>
                 <div class="match-card-content">
-                    <div class="match-card-player player-a">
+                    <div class="match-card-names">
                         ${renderBeySelect(match.beyA, index, 'A')}
-                        <div class="score-display-large ${match.winner === 'A' ? 'score-winner' : ''}">${match.scoreA}</div>
-                    </div>
-                    <div class="match-card-vs">VS</div>
-                    <div class="match-card-player player-b">
+                        <span class="vs-text">VS</span>
                         ${renderBeySelect(match.beyB, index, 'B')}
-                        <div class="score-display-large ${match.winner === 'B' ? 'score-winner' : ''}">${match.scoreB}</div>
+                    </div>
+                    <div class="match-card-scores">
+                        <div class="score-display-large score-a ${match.winner === 'A' ? 'score-winner' : ''}">${match.scoreA}</div>
+                        <span class="score-separator">:</span>
+                        <div class="score-display-large score-b ${match.winner === 'B' ? 'score-winner' : ''}">${match.scoreB}</div>
                     </div>
                 </div>
                 <div class="match-card-rounds">
