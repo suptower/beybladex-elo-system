@@ -3,13 +3,14 @@ let allMatches = [];
 let filteredMatches = [];
 let beysData = [];
 let roundsData = {}; // Mapping of match_id to rounds array
-let currentSort = { column: 0, asc: false }; // Default: Date descending
+let currentSort = { column: 1, asc: false }; // Default: Date descending (Date is now column index 1)
 let currentPage = 1;
 let pageSize = 50;
 let expandedMatches = new Set(); // Track which matches are expanded
 
 // Column definitions for extended match history
 const COLUMN_DEFINITIONS = [
+    { key: 'matchId', label: 'Match ID', abbrev: 'ID', sortable: true },
     { key: 'date', label: 'Date', abbrev: 'Date', sortable: true },
     { key: 'beyA', label: 'Bey A', abbrev: 'Bey A', sortable: true },
     { key: 'preEloA', label: 'Pre ELO A', abbrev: 'Pre A', sortable: true },
@@ -25,6 +26,7 @@ const COLUMN_DEFINITIONS = [
 
 // Column descriptions for legend
 const COLUMN_DESCRIPTIONS = {
+    'ID': { short: 'Match ID', long: 'Unique identifier for the match, used for referencing and debugging' },
     'Date': { short: 'Match Date', long: 'The date when the match was played' },
     'Bey A': { short: 'Beyblade A', long: 'Name of the first Beyblade in the match' },
     'Pre A': { short: 'Pre-Match ELO A', long: 'ELO rating of Bey A before the match' },
@@ -442,6 +444,20 @@ function displayMatches() {
         const row = document.createElement('tr');
         row.dataset.matchId = match.matchId;
         
+        // Match ID
+        const tdMatchId = document.createElement('td');
+        tdMatchId.className = 'match-id-cell';
+        const matchIdSpan = document.createElement('span');
+        matchIdSpan.className = 'match-id';
+        matchIdSpan.textContent = match.matchId;
+        matchIdSpan.title = 'Click to copy';
+        matchIdSpan.onclick = (e) => {
+            e.stopPropagation();
+            copyMatchId(match.matchId);
+        };
+        tdMatchId.appendChild(matchIdSpan);
+        row.appendChild(tdMatchId);
+        
         // Date
         const tdDate = document.createElement('td');
         tdDate.textContent = match.dateFormatted;
@@ -560,6 +576,7 @@ function displayMatches() {
         
         card.innerHTML = `
             <div class="card-header">
+                <span class="card-match-id match-id" title="Click to copy" onclick="copyMatchId('${match.matchId}')">${match.matchId}</span>
                 <span class="card-date">${match.dateFormatted}</span>
                 <span class="match-elo-diff" title="ELO Difference">Δ${match.eloDiff} ELO</span>
             </div>
@@ -932,7 +949,7 @@ function createRoundsDetailRow(match) {
     row.dataset.matchId = match.matchId;
     
     const cell = document.createElement('td');
-    cell.colSpan = 12; // All columns + rounds column
+    cell.colSpan = 13; // All columns + rounds column (including Match ID column)
     cell.className = 'rounds-detail-cell';
     
     // Build rounds table HTML
@@ -1119,4 +1136,20 @@ function toggleMobileRounds(matchId) {
             toggle.querySelector('.toggle-icon').textContent = '▲';
         }
     }
+}
+
+// Copy match ID to clipboard
+function copyMatchId(matchId) {
+    navigator.clipboard.writeText(matchId).then(() => {
+        // Show brief visual feedback
+        const elements = document.querySelectorAll(`.match-id`);
+        elements.forEach(el => {
+            if (el.textContent === matchId) {
+                el.classList.add('copied');
+                setTimeout(() => el.classList.remove('copied'), 1000);
+            }
+        });
+    }).catch(err => {
+        console.error('Failed to copy match ID:', err);
+    });
 }
