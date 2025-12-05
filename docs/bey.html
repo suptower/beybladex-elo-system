@@ -393,6 +393,7 @@ async function loadData() {
         const matchesResponse = await fetch('data/matches.csv');
         const matchesText = await matchesResponse.text();
         const allMatches = parseCSV(matchesText).map(m => ({
+            matchId: m.MatchID,
             date: m.Date,
             beyA: m.BeyA,
             beyB: m.BeyB,
@@ -1545,6 +1546,41 @@ function renderHistorySection() {
     renderTimeline();
 }
 
+// Copy match ID to clipboard
+function copyMatchId(matchId) {
+    const showCopiedFeedback = () => {
+        const elements = document.querySelectorAll(`.match-id`);
+        elements.forEach(el => {
+            if (el.textContent === matchId) {
+                el.classList.add('copied');
+                setTimeout(() => el.classList.remove('copied'), 1000);
+            }
+        });
+    };
+
+    // Use modern clipboard API if available, fallback to legacy method
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(matchId).then(showCopiedFeedback).catch(err => {
+            console.error('Failed to copy match ID:', err);
+        });
+    } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = matchId;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showCopiedFeedback();
+        } catch (err) {
+            console.error('Failed to copy match ID:', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
 // Render match timeline
 function renderTimeline() {
     const timelineContainer = document.getElementById('timelineContainer');
@@ -1574,9 +1610,11 @@ function renderTimeline() {
                 const opponent = isBeyA ? match.beyB : match.beyA;
                 const myScore = isBeyA ? match.scoreA : match.scoreB;
                 const oppScore = isBeyA ? match.scoreB : match.scoreA;
+                const matchId = match.matchId || '';
                 
                 return `
                     <div class="timeline-match ${isWinner ? 'win' : 'loss'}">
+                        ${matchId ? `<span class="match-id timeline-match-id" onclick="copyMatchId('${matchId}')" title="Click to copy">${matchId}</span>` : ''}
                         <span class="timeline-result">${isWinner ? 'W' : 'L'}</span>
                         <span class="timeline-opponent">vs <a href="bey.html?name=${encodeURIComponent(opponent)}" class="opponent-link">${escapeHtml(opponent)}</a></span>
                         <span class="timeline-score">${escapeHtml(myScore)}-${escapeHtml(oppScore)}</span>

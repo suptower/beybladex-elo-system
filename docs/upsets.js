@@ -38,6 +38,7 @@ const COLUMN_DESCRIPTIONS = {
     'MaxU+': { short: 'Biggest Upset Win', long: 'Largest ELO difference overcome in a single win' },
     'MaxU-': { short: 'Biggest Upset Loss', long: 'Largest ELO difference in a single upset loss' },
     // Match view columns
+    'MatchID': { short: 'ID', long: 'Unique match identifier for referencing and debugging' },
     'Date': { short: 'Date', long: 'Date of the match' },
     'Winner': { short: 'Winner', long: 'The Beyblade that won the upset match' },
     'Loser': { short: 'Loser', long: 'The Beyblade that lost the upset match' },
@@ -472,9 +473,11 @@ function renderCards(headers, rows) {
             const winnerELO = parseFloat(row["WinnerPreELO"]);
             const loserELO = parseFloat(row["LoserPreELO"]);
             const winProbability = calculateWinProbability(winnerELO, loserELO);
+            const matchId = row["MatchID"] || "";
             
             card.innerHTML = `
                 <div class="card-header">
+                    ${matchId ? `<span class="match-id" onclick="copyMatchId('${matchId}')" title="Click to copy">${matchId}</span>` : ""}
                     <span class="card-date">${row["Date"] || ""}</span>
                     <span class="upset-magnitude">+${row["ELODifference"]} ELO</span>
                 </div>
@@ -776,6 +779,41 @@ function updateCurrentSortLabel() {
 }
 
 window.addEventListener("resize", updateView);
+
+// Copy match ID to clipboard
+function copyMatchId(matchId) {
+    const showCopiedFeedback = () => {
+        const elements = document.querySelectorAll(`.match-id`);
+        elements.forEach(el => {
+            if (el.textContent === matchId) {
+                el.classList.add('copied');
+                setTimeout(() => el.classList.remove('copied'), 1000);
+            }
+        });
+    };
+
+    // Use modern clipboard API if available, fallback to legacy method
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(matchId).then(showCopiedFeedback).catch(err => {
+            console.error('Failed to copy match ID:', err);
+        });
+    } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = matchId;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showCopiedFeedback();
+        } catch (err) {
+            console.error('Failed to copy match ID:', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("searchInput");
