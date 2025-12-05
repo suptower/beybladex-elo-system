@@ -97,7 +97,7 @@ async function loadMatches() {
         
         allMatches = lines.slice(1).map((line, index) => {
             const values = line.split(',');
-            const matchId = values[0]; // MatchID column
+            const matchId = prepMatchId(values[0]);
             const scoreA = parseInt(values[4]);
             const scoreB = parseInt(values[5]);
             const preA = parseFloat(values[6]);
@@ -139,6 +139,13 @@ async function loadMatches() {
         document.getElementById('matchesBody').innerHTML = 
             '<tr><td colspan="12">Error loading matches data</td></tr>';
     }
+}
+
+// rawId is form "MXXXX"
+// return without the "M" prefix and leading zeros
+// convert to integer
+function prepMatchId(rawId) {
+    return parseInt(rawId.slice(1).replace(/^0+/, ''), 10);
 }
 
 function formatDate(dateStr) {
