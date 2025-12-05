@@ -1140,8 +1140,7 @@ function toggleMobileRounds(matchId) {
 
 // Copy match ID to clipboard
 function copyMatchId(matchId) {
-    navigator.clipboard.writeText(matchId).then(() => {
-        // Show brief visual feedback
+    const showCopiedFeedback = () => {
         const elements = document.querySelectorAll(`.match-id`);
         elements.forEach(el => {
             if (el.textContent === matchId) {
@@ -1149,7 +1148,27 @@ function copyMatchId(matchId) {
                 setTimeout(() => el.classList.remove('copied'), 1000);
             }
         });
-    }).catch(err => {
-        console.error('Failed to copy match ID:', err);
-    });
+    };
+
+    // Use modern clipboard API if available, fallback to legacy method
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(matchId).then(showCopiedFeedback).catch(err => {
+            console.error('Failed to copy match ID:', err);
+        });
+    } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = matchId;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showCopiedFeedback();
+        } catch (err) {
+            console.error('Failed to copy match ID:', err);
+        }
+        document.body.removeChild(textArea);
+    }
 }
