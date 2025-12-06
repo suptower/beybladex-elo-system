@@ -125,10 +125,11 @@ class BracketRenderer {
     groupByRound(matches) {
         const rounds = {};
         matches.forEach(match => {
-            if (!rounds[match.round]) {
-                rounds[match.round] = [];
+            const roundNum = match.round_num || match.round || 1;
+            if (!rounds[roundNum]) {
+                rounds[roundNum] = [];
             }
-            rounds[match.round].push(match);
+            rounds[roundNum].push(match);
         });
         return Object.keys(rounds).sort((a, b) => a - b).map(r => rounds[r]);
     }

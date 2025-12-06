@@ -162,7 +162,7 @@ def main():
     parser = argparse.ArgumentParser(description='Export tournament data for ELO integration')
     parser.add_argument('--tournament', '-t', help='Tournament ID to export')
     parser.add_argument('--all', '-a', action='store_true', help='Export all completed tournaments')
-    parser.add_argument('--output', '-o', default='data/tournament_export.csv', help='Output file path')
+    parser.add_argument('--output', '-o', default='data/matches.csv', help='Output file path')
     parser.add_argument('--append', action='store_true', help='Append to existing file')
     
     args = parser.parse_args()

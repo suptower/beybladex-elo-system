@@ -456,10 +456,11 @@ function renderMatches() {
     // Group by round
     const matchesByRound = {};
     matches.forEach(match => {
-        if (!matchesByRound[match.round]) {
-            matchesByRound[match.round] = [];
+        const roundNum = match.round_num || match.round || 1;
+        if (!matchesByRound[roundNum]) {
+            matchesByRound[roundNum] = [];
         }
-        matchesByRound[match.round].push(match);
+        matchesByRound[roundNum].push(match);
     });
     
     let html = '';
