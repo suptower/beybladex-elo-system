@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
     <script defer src="darkmode.js"></script>
     <script defer src="hamburger.js"></script>
+    <script src="bracket-renderer.js"></script>
     <style>
         .tournament-viewer {
             max-width: 1400px;
@@ -528,10 +529,20 @@ function renderMatches() {
 function renderBracket() {
     const container = document.getElementById('bracketContainer');
     
-    if (tournamentData.format === 'swiss') {
-        container.innerHTML = '<div class="no-data">Swiss format uses standings view. See the Standings tab for current rankings.</div>';
+    if (tournamentData.format === 'swiss' || tournamentData.format === 'round_robin') {
+        container.innerHTML = '<div class="no-data">Swiss and Round Robin formats use standings view. See the Standings tab for current rankings.</div>';
+        return;
+    }
+    
+    // Use custom bracket renderer for elimination formats
+    if (tournamentData.format === 'single_elimination') {
+        const renderer = new BracketRenderer('bracketContainer');
+        renderer.renderSingleElimination(tournamentData.matches, tournamentData.participants);
+    } else if (tournamentData.format === 'double_elimination') {
+        const renderer = new BracketRenderer('bracketContainer');
+        renderer.renderDoubleElimination(tournamentData.matches, tournamentData.participants);
     } else {
-        container.innerHTML = '<div class="no-data">Bracket visualization coming soon...</div>';
+        container.innerHTML = '<div class="no-data">Bracket visualization for this format is not yet available.</div>';
     }
 }
 
