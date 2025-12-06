@@ -373,7 +373,7 @@ function updateMatchRowOnly(matchIndex) {
         if (roundsBtn) {
             const hasRounds = match.rounds && match.rounds.length > 0;
             roundsBtn.classList.toggle('has-rounds', hasRounds);
-            roundsBtn.querySelector('.rounds-count').textContent = match.rounds?.length || 0;
+            roundsBtn.querySelector('.rounds-count').textContent = `⚔️${match.rounds?.length || 0}`;
         }
         
         // Update row class
@@ -413,7 +413,7 @@ function updateMatchRowOnly(matchIndex) {
             cardWinner.innerHTML = renderWinnerIndicator(match);
         }
         if (roundsToggle) {
-            roundsToggle.innerHTML = `📋 Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>`;
+            roundsToggle.innerHTML = `⚔️ Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>`;
         }
         
         // Update card completion state
@@ -665,7 +665,7 @@ function renderMatchTable() {
                 <td class="col-actions">
                     <div class="row-actions">
                         <button class="row-action-btn rounds-btn ${hasRounds ? 'has-rounds' : ''}" onclick="toggleRoundsPanel(${index})" title="Rounds (${match.rounds?.length || 0})">
-                            <span class="rounds-count">${match.rounds?.length || 0}</span>
+                            <span class="rounds-count">⚔️${match.rounds?.length || 0}</span>
                         </button>
                         <button class="row-action-btn delete-btn" onclick="deleteMatch(${index})" aria-label="Delete match" title="Delete">🗑️</button>
                     </div>
@@ -724,7 +724,7 @@ function renderMatchCards() {
                 </div>
                 <div class="match-card-rounds">
                     <div class="rounds-toggle" onclick="toggleCardRounds(${index})">
-                        📋 Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>
+                        ⚔️ Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>
                     </div>
                     <div class="card-rounds-panel" id="cardRoundsPanel_${index}" style="display: none;">
                         ${renderQuickAddButtons(index, match)}
