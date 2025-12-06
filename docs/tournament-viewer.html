@@ -307,6 +307,11 @@ if (!tournamentId) {
 
 let tournamentData = null;
 
+// Utility function for formatting tournament types
+function formatTournamentType(format) {
+    return format.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
 // Tab switching
 document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -371,7 +376,7 @@ function renderCustomTournament() {
         </div>
         <div class="meta-item">
             <span class="meta-label">Format</span>
-            <span class="meta-value">${tournamentData.format.replace('_', ' ')}</span>
+            <span class="meta-value">${formatTournamentType(tournamentData.format)}</span>
         </div>
         <div class="meta-item">
             <span class="meta-label">Participants</span>
@@ -563,9 +568,8 @@ function renderChallongeTournament(tournament) {
             src="https://challonge.com/${tournament.challonge}/module?${tournament.parameter}" 
             width="100%" 
             height="600" 
-            frameborder="0" 
             scrolling="auto" 
-            allowtransparency="true"
+            style="border: none;"
             title="Challonge bracket for ${tournament.name}"
         ></iframe>
         <div style="margin-top: 1rem; text-align: center;">

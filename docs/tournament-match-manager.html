@@ -530,12 +530,18 @@ function submitMatch(matchIndex) {
         return;
     }
     
-    if (match.score_a === match.score_b) {
+    // Ensure scores are numbers
+    const scoreA = parseInt(match.score_a) || 0;
+    const scoreB = parseInt(match.score_b) || 0;
+    
+    if (scoreA === scoreB) {
         showStatus('Cannot have a draw. One player must win.', 'error');
         return;
     }
     
-    match.winner = match.score_a > match.score_b ? match.player_a : match.player_b;
+    match.score_a = scoreA;
+    match.score_b = scoreB;
+    match.winner = scoreA > scoreB ? match.player_a : match.player_b;
     match.status = 'completed';
     
     saveTournament();
