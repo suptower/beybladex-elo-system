@@ -333,13 +333,14 @@ class TestStandings:
             participants=["P1", "P2", "P3", "P4"]
         )
         tournament.start()
-        
-        # Round 1: P1 beats P2, P3 beats P4
-        tournament.report_match(1, 0, "P1", 4, 0)
-        tournament.report_match(1, 1, "P3", 4, 0)
-        
+
+        # Get the actual matches and report them
+        round1_matches = tournament.get_matches(round_num=1)
+        tournament.report_match(1, 0, round1_matches[0]["player_a"], 4, 0)
+        tournament.report_match(1, 1, round1_matches[1]["player_a"], 4, 0)
+
         standings = tournament.get_standings()
-        
+
         # Check that Buchholz is calculated
         for standing in standings:
             assert "buchholz" in standing
@@ -664,8 +665,11 @@ class TestGetMethods:
             participants=["P1", "P2", "P3", "P4"]
         )
         tournament.start()
-        tournament.report_match(1, 0, "P1", 4, 0)
-        tournament.report_match(1, 1, "P3", 4, 0)
-        
+
+        # Get the actual matches and report them
+        round1_matches = tournament.get_matches(round_num=1)
+        tournament.report_match(1, 0, round1_matches[0]["player_a"], 4, 0)
+        tournament.report_match(1, 1, round1_matches[1]["player_a"], 4, 0)
+
         round1_matches = tournament.get_matches(round_num=1)
         assert all(m["round"] == 1 for m in round1_matches)
