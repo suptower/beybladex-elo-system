@@ -394,13 +394,11 @@ function startTournament(id) {
 }
 
 function manageTournament(id) {
-    showMessage('Tournament management UI coming soon! This will allow match reporting and round progression.', 'info');
-    // TODO: Navigate to tournament management page
+    window.location.href = `tournament-match-manager.html?id=${id}`;
 }
 
 function viewTournament(id) {
-    showMessage('Tournament viewer coming soon! This will show brackets and standings.', 'info');
-    // TODO: Navigate to tournament viewer page
+    window.location.href = `tournament-viewer.html?id=${id}`;
 }
 
 function saveTournaments() {
