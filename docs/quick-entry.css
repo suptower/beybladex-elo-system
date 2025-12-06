@@ -320,9 +320,9 @@
 .vs-text { font-weight: 700; color: var(--text-light); font-size: 0.6875rem; }
 
 .winner-indicator {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline;
+    align-items: end;
+    justify-content: right;
     padding: 0.25rem 0.5rem;
     border-radius: var(--radius-sm);
     font-size: 0.6875rem;
@@ -444,18 +444,32 @@
 .match-cards-container { display: none; flex-direction: column; gap: 0.75rem; }
 .match-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
 .match-card.incomplete { border-color: rgba(245, 158, 11, 0.4); }
-.match-card.complete { border-color: rgba(16, 185, 129, 0.3); }
+.match-card.complete { 
+    border-color: rgba(16, 185, 129, 0.3);  }
 
 .match-card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    text-align: justify;
     padding: 0.75rem 1rem;
     background: var(--bg);
     border-bottom: 1px solid var(--border);
+    width: 100%;
 }
 .match-card-number { font-weight: 700; font-size: 0.9375rem; color: var(--accent); }
-.match-card-winner { font-size: 0.8125rem; }
+/*
+    make match card winner inline with match card number and align to the right
+*/
+.match-card-winner {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: end;
+    justify-content: right;
+}
 
 .match-card-content { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
 
