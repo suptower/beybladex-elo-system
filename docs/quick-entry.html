@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Entry - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="quick-entry.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Quick Entry</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🏅</span>Tournaments</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="quick-entry-page">
+    <!-- Hero Section -->
+    <section class="quick-entry-hero">
+        <h2>⚡ Fast Round Entry System</h2>
+        <p class="quick-entry-description">
+            Rapidly enter match results during tournaments. Optimized for touch and keyboard with auto-save.
+        </p>
+    </section>
+
+    <!-- Controls Section -->
+    <section class="quick-entry-controls">
+        <div class="controls-row">
+            <!-- Tournament Setup -->
+            <div class="control-group">
+                <label for="tournamentName">Tournament Name</label>
+                <input type="text" id="tournamentName" placeholder="e.g., Swiss Round 1" class="control-input">
+            </div>
+            <div class="control-group">
+                <label for="roundNumber">Round</label>
+                <input type="number" id="roundNumber" value="1" min="1" max="99" class="control-input control-input-small">
+            </div>
+            <div class="control-group">
+                <label for="matchCount">Matches</label>
+                <input type="number" id="matchCount" value="8" min="1" max="64" class="control-input control-input-small">
+            </div>
+            <div class="control-group">
+                <label for="formatSelect">Format</label>
+                <select id="formatSelect" class="control-select">
+                    <option value="swiss">Swiss</option>
+                    <option value="knockout">Knockout (SE)</option>
+                    <option value="double-elim">Double Elimination</option>
+                    <option value="round-robin">Round Robin</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="controls-row controls-actions">
+            <button class="action-btn action-btn-primary" id="generateMatchesBtn">
+                <span class="btn-icon">🎲</span> Generate Matches
+            </button>
+            <button class="action-btn action-btn-secondary" id="addMatchBtn">
+                <span class="btn-icon">➕</span> Add Match
+            </button>
+            <button class="action-btn action-btn-warning" id="resetRoundBtn">
+                <span class="btn-icon">🔄</span> Reset Round
+            </button>
+            <button class="action-btn action-btn-danger" id="clearAllBtn">
+                <span class="btn-icon">🗑️</span> Clear All
+            </button>
+        </div>
+    </section>
+
+    <!-- Status Bar -->
+    <section class="status-bar">
+        <div class="status-item">
+            <span class="status-label">Total Matches:</span>
+            <span class="status-value" id="totalMatchesCount">0</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Completed:</span>
+            <span class="status-value status-success" id="completedMatchesCount">0</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Incomplete:</span>
+            <span class="status-value status-warning" id="incompleteMatchesCount">0</span>
+        </div>
+        <div class="status-item status-autosave">
+            <span class="status-icon" id="autoSaveIcon">💾</span>
+            <span class="status-text" id="autoSaveStatus">Auto-saved</span>
+        </div>
+    </section>
+
+    <!-- Keyboard Shortcuts Legend -->
+    <section class="shortcuts-legend collapsed" id="shortcutsLegend">
+        <div class="shortcuts-header" id="shortcutsHeader">
+            <span class="shortcuts-title">⌨️ Keyboard Shortcuts</span>
+            <button class="shortcuts-toggle" id="shortcutsToggle">▼</button>
+        </div>
+        <div class="shortcuts-content" id="shortcutsContent">
+            <div class="shortcut-item"><kbd>↑</kbd> / <kbd>↓</kbd> Adjust score</div>
+            <div class="shortcut-item"><kbd>Tab</kbd> Next field</div>
+            <div class="shortcut-item"><kbd>Shift</kbd>+<kbd>Tab</kbd> Previous field</div>
+            <div class="shortcut-item"><kbd>Enter</kbd> Next match</div>
+            <div class="shortcut-item"><kbd>Ctrl</kbd>+<kbd>S</kbd> Force save</div>
+        </div>
+    </section>
+
+    <!-- Match Entry Table -->
+    <section class="match-entry-section">
+        <div class="table-wrapper match-table-wrapper">
+            <table class="match-entry-table" id="matchEntryTable">
+                <thead>
+                    <tr>
+                        <th class="col-match">#</th>
+                        <th class="col-bey-a">Bey A</th>
+                        <th class="col-score-a">Score A</th>
+                        <th class="col-vs">VS</th>
+                        <th class="col-score-b">Score B</th>
+                        <th class="col-bey-b">Bey B</th>
+                        <th class="col-winner">Winner</th>
+                        <th class="col-actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="matchEntryBody">
+                    <!-- Match rows will be generated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Match Cards -->
+        <div class="match-cards-container" id="matchCardsContainer">
+            <!-- Mobile cards will be generated here -->
+        </div>
+    </section>
+
+    <!-- Export/Import Section -->
+    <section class="export-import-section">
+        <h3>📦 Data Management</h3>
+        <div class="export-import-controls">
+            <div class="export-group">
+                <button class="action-btn action-btn-export" id="exportJsonBtn">
+                    <span class="btn-icon">📄</span> Export JSON
+                </button>
+                <button class="action-btn action-btn-export" id="exportCsvBtn">
+                    <span class="btn-icon">📊</span> Export CSV
+                </button>
+                <button class="action-btn action-btn-export" id="exportRoundsCsvBtn">
+                    <span class="btn-icon">📋</span> Export Rounds CSV
+                </button>
+            </div>
+            <div class="import-group">
+                <label class="action-btn action-btn-import" for="importFile">
+                    <span class="btn-icon">📥</span> Import Data
+                    <input type="file" id="importFile" accept=".json,.csv" hidden>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <!-- Swiss Pairing Section -->
+    <section class="pairing-section" id="pairingSection">
+        <h3>🔀 Swiss Pairing Generator</h3>
+        <p class="pairing-description">Select participants to generate Swiss pairings based on standings.</p>
+        
+        <div class="pairing-controls">
+            <div class="participant-selector">
+                <label for="participantSearch">Add Participants</label>
+                <div class="participant-search-container">
+                    <input type="text" id="participantSearch" placeholder="Search beys..." class="participant-search">
+                    <div class="participant-dropdown" id="participantDropdown"></div>
+                </div>
+            </div>
+            <div class="selected-participants" id="selectedParticipants">
+                <!-- Selected participant chips will appear here -->
+            </div>
+        </div>
+        
+        <div class="pairing-actions">
+            <button class="action-btn action-btn-primary" id="generatePairingsBtn">
+                <span class="btn-icon">🔀</span> Generate Swiss Pairings
+            </button>
+            <button class="action-btn action-btn-secondary" id="randomPairingsBtn">
+                <span class="btn-icon">🎲</span> Random Pairings
+            </button>
+        </div>
+    </section>
+</main>
+
+<footer class="enhanced-footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h4>Beyblade X ELO System</h4>
+            <p>Comprehensive analytics platform for competitive Beyblade X.</p>
+        </div>
+        <div class="footer-section">
+            <h4>Data</h4>
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <a href="upsets.html">Upsets</a>
+            <a href="tournaments.html">Tournaments</a>
+        </div>
+        <div class="footer-section">
+            <h4>Tools</h4>
+            <a href="compare.html">Compare</a>
+            <a href="explorer.html">Parts Explorer</a>
+            <a href="counters.html">Counters</a>
+            <a href="simulator.html">Simulator</a>
+            <a href="predictor.html">Predictor</a>
+            <a href="quick-entry.html">Quick Entry</a>
+        </div>
+        <div class="footer-section">
+            <h4>Analytics</h4>
+            <a href="plots.html">Plots</a>
+            <a href="parts.html">Parts</a>
+            <a href="synergy.html">Synergy Heatmaps</a>
+            <a href="meta-balance.html">Meta Balance</a>
+            <a href="https://github.com/suptower/beybladex-elo-system" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2025 suptower • Built with 💜 for the Beyblade X community</p>
+    </div>
+</footer>
+
+<script src="quick-entry.js"></script>
+
+</body>
+</html>
