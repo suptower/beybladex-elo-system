@@ -195,15 +195,16 @@ class TestSwissPairing:
             participants=["P1", "P2", "P3", "P4"]
         )
         tournament.start()
-        
-        # Complete round 1
-        tournament.report_match(1, 0, "P1", 4, 0)
-        tournament.report_match(1, 1, "P3", 4, 0)
-        
+
+        # Get the actual matches and report them
+        round1_matches = tournament.get_matches(round_num=1)
+        tournament.report_match(1, 0, round1_matches[0]["player_a"], 4, 0)
+        tournament.report_match(1, 1, round1_matches[1]["player_a"], 4, 0)
+
         # Round 2 should pair winners together
         round2_matches = tournament.get_matches(round_num=2)
         assert len(round2_matches) == 2
-        
+
         # Winners should not be paired with same opponent
         for match in round2_matches:
             # Check pairing history
@@ -354,17 +355,22 @@ class TestStandings:
             participants=["P1", "P2"]
         )
         tournament.start()
-        
-        tournament.report_match(1, 0, "P1", 4, 2)
-        
+
+        # Get the actual match and report it
+        round1_matches = tournament.get_matches(round_num=1)
+        match = round1_matches[0]
+        winner = match["player_a"]
+        loser = match["player_b"]
+        tournament.report_match(1, 0, winner, 4, 2)
+
         standings = tournament.get_standings()
-        p1_standing = next(s for s in standings if s["player"] == "P1")
-        p2_standing = next(s for s in standings if s["player"] == "P2")
-        
-        assert p1_standing["game_wins"] == 4
-        assert p1_standing["game_losses"] == 2
-        assert p2_standing["game_wins"] == 2
-        assert p2_standing["game_losses"] == 4
+        winner_standing = next(s for s in standings if s["player"] == winner)
+        loser_standing = next(s for s in standings if s["player"] == loser)
+
+        assert winner_standing["game_wins"] == 4
+        assert winner_standing["game_losses"] == 2
+        assert loser_standing["game_wins"] == 2
+        assert loser_standing["game_losses"] == 4
 
 
 class TestRoundProgression:

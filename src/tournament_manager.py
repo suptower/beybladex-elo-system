@@ -141,7 +141,7 @@ class TournamentManager:
 
         filepath = self.storage_dir / f"{tournament_id}.json"
         if not filepath.exists():
-            raise ValueError("Tournament {} not found")
+            raise ValueError(f"Tournament {tournament_id} not found")
 
         tournament = Tournament.load(str(filepath))
         self.tournaments[tournament_id] = tournament
@@ -156,7 +156,7 @@ class TournamentManager:
             tournament_id: Tournament ID to save
         """
         if tournament_id not in self.tournaments:
-            raise ValueError("Tournament {} not in memory")
+            raise ValueError(f"Tournament {tournament_id} not in memory")
 
         tournament = self.tournaments[tournament_id]
         filepath = self.storage_dir / f"{tournament_id}.json"

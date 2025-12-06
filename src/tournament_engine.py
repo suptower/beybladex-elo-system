@@ -177,8 +177,6 @@ class Tournament:
         
         # Calculate rounds after adding participants
         self.num_rounds = num_rounds or self._calculate_rounds()
-        # Calculate rounds after adding participants
-        self.num_rounds = num_rounds or self._calculate_rounds()
         
         # Configuration
         self.tie_breakers = [TieBreaker(tb) for tb in (tie_breakers or ["buchholz", "opponent_win_pct"])]
