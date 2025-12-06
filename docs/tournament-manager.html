@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Manager - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <style>
+        .tournament-manager {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .manager-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .manager-section h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .participants-input {
+            min-height: 150px;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .tournament-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .tournament-item {
+            background: var(--hover-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tournament-info h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .tournament-meta {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .tournament-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .status-completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-active {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .status-pending {
+            background: #6c757d;
+            color: white;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .message-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Tournament Manager</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🏅</span>Tournaments</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="tournament-manager">
+    <!-- Messages -->
+    <div id="messageContainer"></div>
+
+    <!-- Create Tournament Section -->
+    <section class="manager-section">
+        <h2>🏆 Create New Tournament</h2>
+        
+        <form id="createTournamentForm">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="tournamentName">Tournament Name *</label>
+                    <input type="text" id="tournamentName" required placeholder="e.g., Spring Championship 2025">
+                </div>
+
+                <div class="form-group">
+                    <label for="tournamentDate">Date *</label>
+                    <input type="date" id="tournamentDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tournamentFormat">Format *</label>
+                    <select id="tournamentFormat" required>
+                        <option value="swiss">Swiss System</option>
+                        <option value="single_elimination">Single Elimination</option>
+                        <option value="double_elimination">Double Elimination</option>
+                        <option value="round_robin">Round Robin</option>
+                        <option value="hybrid_swiss_se">Hybrid: Swiss → Single Elim</option>
+                        <option value="hybrid_swiss_de">Hybrid: Swiss → Double Elim</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="numRounds">Number of Rounds</label>
+                    <input type="number" id="numRounds" min="1" max="20" placeholder="Auto (recommended)">
+                    <span class="help-text">Leave blank for automatic calculation</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="participants">Participants *</label>
+                <textarea id="participants" class="participants-input" required placeholder="Enter participant names, one per line"></textarea>
+                <span class="help-text">Enter one participant per line</span>
+            </div>
+
+            <button type="submit" class="btn">Create Tournament</button>
+        </form>
+    </section>
+
+    <!-- Active Tournaments -->
+    <section class="manager-section">
+        <h2>⚡ Active Tournaments</h2>
+        <div id="activeTournaments" class="tournament-list">
+            <p class="help-text">No active tournaments. Create one above to get started!</p>
+        </div>
+    </section>
+
+    <!-- Completed Tournaments -->
+    <section class="manager-section">
+        <h2>✅ Completed Tournaments</h2>
+        <div id="completedTournaments" class="tournament-list">
+            <p class="help-text">No completed tournaments yet.</p>
+        </div>
+    </section>
+</main>
+
+<script>
+// Note: This is a static demo UI. In production, this would connect to a backend API
+// that uses the Python tournament_manager.py module.
+
+// Mock data storage (simulates backend)
+let tournaments = JSON.parse(localStorage.getItem('tournaments') || '[]');
+
+function showMessage(message, type = 'info') {
+    const container = document.getElementById('messageContainer');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message message-${type}`;
+    messageDiv.textContent = message;
+    container.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 5000);
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function getStatusBadge(tournament) {
+    if (tournament.completed) {
+        return '<span class="status-badge status-completed">Completed</span>';
+    } else if (tournament.started) {
+        return '<span class="status-badge status-active">In Progress</span>';
+    } else {
+        return '<span class="status-badge status-pending">Not Started</span>';
+    }
+}
+
+function renderTournamentItem(tournament) {
+    return `
+        <div class="tournament-item" data-id="${tournament.id}">
+            <div class="tournament-info">
+                <h3>${tournament.name} ${getStatusBadge(tournament)}</h3>
+                <div class="tournament-meta">
+                    ${tournament.format.replace('_', ' ')} • 
+                    ${tournament.participants} participants • 
+                    ${formatDate(tournament.date)}
+                    ${tournament.winner ? ` • Winner: ${tournament.winner}` : ''}
+                </div>
+            </div>
+            <div class="tournament-actions">
+                ${!tournament.started ? `<button class="btn btn-small" onclick="startTournament('${tournament.id}')">Start</button>` : ''}
+                ${tournament.started && !tournament.completed ? `<button class="btn btn-small" onclick="manageTournament('${tournament.id}')">Manage</button>` : ''}
+                <button class="btn btn-secondary btn-small" onclick="viewTournament('${tournament.id}')">View</button>
+            </div>
+        </div>
+    `;
+}
+
+function renderTournaments() {
+    const active = tournaments.filter(t => t.started && !t.completed);
+    const completed = tournaments.filter(t => t.completed);
+    
+    const activeContainer = document.getElementById('activeTournaments');
+    const completedContainer = document.getElementById('completedTournaments');
+    
+    if (active.length === 0) {
+        activeContainer.innerHTML = '<p class="help-text">No active tournaments. Create one above to get started!</p>';
+    } else {
+        activeContainer.innerHTML = active.map(renderTournamentItem).join('');
+    }
+    
+    if (completed.length === 0) {
+        completedContainer.innerHTML = '<p class="help-text">No completed tournaments yet.</p>';
+    } else {
+        completedContainer.innerHTML = completed.map(renderTournamentItem).join('');
+    }
+}
+
+function startTournament(id) {
+    const tournament = tournaments.find(t => t.id === id);
+    if (tournament) {
+        tournament.started = true;
+        tournament.current_round = 1;
+        saveTournaments();
+        showMessage(`Tournament "${tournament.name}" started!`, 'success');
+        renderTournaments();
+    }
+}
+
+function manageTournament(id) {
+    window.location.href = `tournament-match-manager.html?id=${id}`;
+}
+
+function viewTournament(id) {
+    window.location.href = `tournament-viewer.html?id=${id}`;
+}
+
+function saveTournaments() {
+    localStorage.setItem('tournaments', JSON.stringify(tournaments));
+}
+
+// Create tournament form handler
+document.getElementById('createTournamentForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('tournamentName').value.trim();
+    const date = document.getElementById('tournamentDate').value;
+    const format = document.getElementById('tournamentFormat').value;
+    const numRounds = document.getElementById('numRounds').value;
+    const participantsText = document.getElementById('participants').value.trim();
+    
+    // Parse participants
+    const participants = participantsText.split('\n')
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+    
+    if (participants.length < 2) {
+        showMessage('Need at least 2 participants!', 'error');
+        return;
+    }
+    
+    // Create tournament
+    const tournament = {
+        id: 'tournament_' + Date.now(),
+        name: name,
+        date: date,
+        format: format,
+        participants: participants.length,
+        participant_list: participants,
+        num_rounds: numRounds || null,
+        started: false,
+        completed: false,
+        current_round: 0,
+        winner: null
+    };
+    
+    tournaments.push(tournament);
+    saveTournaments();
+    
+    showMessage(`Tournament "${name}" created successfully!`, 'success');
+    
+    // Reset form
+    this.reset();
+    document.getElementById('tournamentDate').valueAsDate = new Date();
+    
+    renderTournaments();
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to today
+    document.getElementById('tournamentDate').valueAsDate = new Date();
+    
+    renderTournaments();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Match Manager - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <style>
+        .match-manager {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .manager-header {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .round-selector {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .round-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .round-btn:hover {
+            border-color: var(--accent-color);
+            background: var(--hover-bg);
+        }
+
+        .round-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .round-btn.completed {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .matches-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .match-entry {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .match-entry.completed {
+            opacity: 0.7;
+        }
+
+        .match-number {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .match-players {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1.5rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .player-entry {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .player-name-input {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        .player-name-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .player-name-input.winner {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .score-input {
+            width: 80px;
+            padding: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+
+        .score-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .vs-separator {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .match-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .bye-badge {
+            background: #ffc107;
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .round-complete-actions {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .quick-score-btns {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .quick-score-btn {
+            padding: 0.5rem 1rem;
+            background: var(--hover-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .quick-score-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .match-players {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .vs-separator {
+                order: 2;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Match Manager</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🏅</span>Tournaments</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="match-manager">
+    <div id="statusContainer"></div>
+
+    <div class="manager-header">
+        <h1 id="tournamentName">Loading Tournament...</h1>
+        <p id="tournamentInfo"></p>
+    </div>
+
+    <div class="round-selector" id="roundSelector">
+        <!-- Round buttons will be dynamically generated -->
+    </div>
+
+    <div class="matches-grid" id="matchesGrid">
+        <!-- Matches will be dynamically generated -->
+    </div>
+
+    <div class="round-complete-actions" id="roundCompleteSection" style="display: none;">
+        <h3>Round Complete!</h3>
+        <p>All matches in this round have been reported.</p>
+        <button class="btn btn-primary" onclick="advanceToNextRound()">Generate Next Round</button>
+        <button class="btn btn-secondary" onclick="viewStandings()">View Standings</button>
+    </div>
+</main>
+
+<script>
+// Note: This is a demo interface. In production, this would connect to a backend API.
+// For now, it uses localStorage to simulate tournament state management.
+
+const urlParams = new URLSearchParams(window.location.search);
+const tournamentId = urlParams.get('id');
+
+if (!tournamentId) {
+    window.location.href = 'tournament-manager.html';
+}
+
+let tournamentData = null;
+let currentRound = 1;
+
+function showStatus(message, type = 'info') {
+    const container = document.getElementById('statusContainer');
+    container.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
+    setTimeout(() => {
+        container.innerHTML = '';
+    }, 3000);
+}
+
+async function loadTournament() {
+    try {
+        // In production, load from the tournament file
+        // For demo, use localStorage
+        const stored = localStorage.getItem(`tournament_${tournamentId}`);
+        if (stored) {
+            tournamentData = JSON.parse(stored);
+        } else {
+            // Try to load from file
+            const response = await fetch(`data/tournaments/${tournamentId}.json`);
+            if (response.ok) {
+                tournamentData = await response.json();
+            } else {
+                showStatus('Tournament not found', 'error');
+                return;
+            }
+        }
+
+        renderTournament();
+    } catch (error) {
+        console.error('Error loading tournament:', error);
+        showStatus('Failed to load tournament', 'error');
+    }
+}
+
+function renderTournament() {
+    document.getElementById('tournamentName').textContent = tournamentData.name;
+    document.getElementById('tournamentInfo').textContent = 
+        `${tournamentData.format.replace('_', ' ')} • ${tournamentData.participants.length} participants • ${tournamentData.num_rounds} rounds`;
+
+    renderRoundSelector();
+    renderMatches();
+}
+
+function renderRoundSelector() {
+    const container = document.getElementById('roundSelector');
+    const currentRoundNum = tournamentData.current_round || 1;
+    
+    let html = '<label style="font-weight: 600; margin-right: 1rem;">Round:</label>';
+    for (let i = 1; i <= tournamentData.num_rounds; i++) {
+        const isComplete = isRoundComplete(i);
+        const isCurrent = i === currentRoundNum;
+        const className = isComplete ? 'round-btn completed' : (isCurrent ? 'round-btn active' : 'round-btn');
+        
+        html += `<button class="${className}" onclick="selectRound(${i})" ${i > currentRoundNum ? 'disabled' : ''}>
+            Round ${i} ${isComplete ? '✓' : ''}
+        </button>`;
+    }
+    
+    container.innerHTML = html;
+    currentRound = currentRoundNum;
+}
+
+function isRoundComplete(roundNum) {
+    const roundMatches = tournamentData.matches.filter(m => m.round === roundNum);
+    return roundMatches.length > 0 && roundMatches.every(m => m.status === 'completed');
+}
+
+function selectRound(roundNum) {
+    currentRound = roundNum;
+    renderMatches();
+}
+
+function renderMatches() {
+    const container = document.getElementById('matchesGrid');
+    const roundMatches = tournamentData.matches.filter(m => m.round === currentRound);
+    
+    if (roundMatches.length === 0) {
+        container.innerHTML = '<p class="status-info">No matches for this round yet.</p>';
+        return;
+    }
+
+    let html = '';
+    roundMatches.forEach((match, index) => {
+        const isCompleted = match.status === 'completed';
+        const isBye = match.player_b === null;
+
+        html += `
+            <div class="match-entry ${isCompleted ? 'completed' : ''}" data-match-index="${index}">
+                <div class="match-number">Match ${match.match_num + 1}</div>
+                
+                ${isBye ? `
+                    <div class="bye-badge">
+                        ${match.player_a} - BYE (Auto-Win)
+                    </div>
+                ` : `
+                    <div class="match-players">
+                        <div class="player-entry">
+                            <input type="text" 
+                                   class="player-name-input ${match.winner === match.player_a ? 'winner' : ''}" 
+                                   value="${match.player_a || ''}" 
+                                   placeholder="Player A"
+                                   ${isCompleted ? 'disabled' : ''}
+                                   data-player="a">
+                            <input type="number" 
+                                   class="score-input" 
+                                   value="${match.score_a || 0}" 
+                                   min="0" 
+                                   max="10"
+                                   ${isCompleted ? 'disabled' : ''}
+                                   data-score="a">
+                            <div class="quick-score-btns">
+                                <button class="quick-score-btn" onclick="setScore(${index}, 'a', 4)" ${isCompleted ? 'disabled' : ''}>4</button>
+                                <button class="quick-score-btn" onclick="setScore(${index}, 'a', 3)" ${isCompleted ? 'disabled' : ''}>3</button>
+                                <button class="quick-score-btn" onclick="setScore(${index}, 'a', 5)" ${isCompleted ? 'disabled' : ''}>5</button>
+                            </div>
+                        </div>
+                        
+                        <div class="vs-separator">VS</div>
+                        
+                        <div class="player-entry">
+                            <input type="text" 
+                                   class="player-name-input ${match.winner === match.player_b ? 'winner' : ''}" 
+                                   value="${match.player_b || ''}" 
+                                   placeholder="Player B"
+                                   ${isCompleted ? 'disabled' : ''}
+                                   data-player="b">
+                            <input type="number" 
+                                   class="score-input" 
+                                   value="${match.score_b || 0}" 
+                                   min="0" 
+                                   max="10"
+                                   ${isCompleted ? 'disabled' : ''}
+                                   data-score="b">
+                            <div class="quick-score-btns">
+                                <button class="quick-score-btn" onclick="setScore(${index}, 'b', 4)" ${isCompleted ? 'disabled' : ''}>4</button>
+                                <button class="quick-score-btn" onclick="setScore(${index}, 'b', 3)" ${isCompleted ? 'disabled' : ''}>3</button>
+                                <button class="quick-score-btn" onclick="setScore(${index}, 'b', 5)" ${isCompleted ? 'disabled' : ''}>5</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="match-actions">
+                        ${isCompleted ? `
+                            <button class="btn btn-secondary" onclick="undoMatch(${index})">Undo</button>
+                        ` : `
+                            <button class="btn btn-primary" onclick="submitMatch(${index})">Report Result</button>
+                        `}
+                    </div>
+                `}
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+
+    // Check if round is complete
+    if (isRoundComplete(currentRound)) {
+        document.getElementById('roundCompleteSection').style.display = 'block';
+    } else {
+        document.getElementById('roundCompleteSection').style.display = 'none';
+    }
+}
+
+function setScore(matchIndex, player, score) {
+    const roundMatches = tournamentData.matches.filter(m => m.round === currentRound);
+    const match = roundMatches[matchIndex];
+    
+    if (player === 'a') {
+        match.score_a = score;
+    } else {
+        match.score_b = score;
+    }
+    
+    saveTournament();
+    renderMatches();
+}
+
+function submitMatch(matchIndex) {
+    const roundMatches = tournamentData.matches.filter(m => m.round === currentRound);
+    const match = roundMatches[matchIndex];
+    
+    if (!match.player_a || !match.player_b) {
+        showStatus('Please fill in both player names', 'error');
+        return;
+    }
+    
+    // Ensure scores are numbers
+    const scoreA = parseInt(match.score_a) || 0;
+    const scoreB = parseInt(match.score_b) || 0;
+    
+    if (scoreA === scoreB) {
+        showStatus('Cannot have a draw. One player must win.', 'error');
+        return;
+    }
+    
+    match.score_a = scoreA;
+    match.score_b = scoreB;
+    match.winner = scoreA > scoreB ? match.player_a : match.player_b;
+    match.status = 'completed';
+    
+    saveTournament();
+    showStatus('Match result recorded!', 'success');
+    renderTournament();
+}
+
+function undoMatch(matchIndex) {
+    const roundMatches = tournamentData.matches.filter(m => m.round === currentRound);
+    const match = roundMatches[matchIndex];
+    
+    match.winner = null;
+    match.status = 'pending';
+    
+    saveTournament();
+    showStatus('Match result undone', 'info');
+    renderTournament();
+}
+
+function advanceToNextRound() {
+    // This would call the backend to generate next round pairings
+    showStatus('Next round generation would be handled by the backend', 'info');
+    // In a real implementation:
+    // - Call tournament_manager.py to generate next round
+    // - Reload tournament data
+    // - Navigate to next round
+}
+
+function viewStandings() {
+    window.location.href = `tournament-viewer.html?id=${tournamentId}`;
+}
+
+function saveTournament() {
+    // Save to localStorage (demo)
+    localStorage.setItem(`tournament_${tournamentId}`, JSON.stringify(tournamentData));
+    
+    // In production, this would send the data to the backend
+    // fetch(`/api/tournaments/${tournamentId}`, {
+    //     method: 'PUT',
+    //     body: JSON.stringify(tournamentData)
+    // });
+}
+
+// Initialize
+loadTournament();
+</script>
+
+</body>
+</html>
