@@ -222,18 +222,19 @@ function renderTournamentCards() {
         const escapedPlayers = escapeHtml(tournament.players);
         
         return `
-        <div class="tournament-card" data-tournament-id="${escapedId}" onclick="selectTournament('${escapedId}')">
+        <div class="tournament-card" data-tournament-id="${escapedId}" onclick="viewTournament('${escapedId}')">
             <div class="tournament-card-header">
                 <span class="tournament-format-badge ${getFormatClass(tournament.format || 'Other')}">${escapedFormat}</span>
                 <span class="tournament-date">${formatDate(tournament.date)}</span>
+                ${tournament.custom ? '<span class="custom-badge" style="background: var(--accent-color); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">CUSTOM</span>' : ''}
             </div>
             <h4 class="tournament-name">${escapedName}</h4>
             <div class="tournament-card-details">
                 ${tournament.winner ? `<div class="tournament-winner"><span class="winner-label">🏆 Winner:</span> <span class="winner-name">${escapedWinner}</span></div>` : ''}
                 ${tournament.players ? `<div class="tournament-players"><span class="players-label">👥 Players:</span> ${escapedPlayers}</div>` : ''}
             </div>
-            <button class="view-bracket-btn" onclick="event.stopPropagation(); selectTournament('${escapedId}')">
-                View Bracket →
+            <button class="view-bracket-btn" onclick="event.stopPropagation(); viewTournament('${escapedId}')">
+                ${tournament.custom ? 'View Details' : 'View Bracket'} →
             </button>
         </div>
     `}).join('');
@@ -261,6 +262,20 @@ function populateTournamentSelect() {
             hideBracket();
         }
     });
+}
+
+// View tournament in dedicated viewer
+function viewTournament(tournamentId) {
+    const tournament = tournamentsData.find(t => t.id === tournamentId);
+    if (!tournament) return;
+    
+    // For custom tournaments, go to the viewer page
+    if (tournament.custom) {
+        window.location.href = `tournament-viewer.html?id=${tournamentId}`;
+    } else {
+        // For Challonge tournaments, use the old behavior
+        selectTournament(tournamentId);
+    }
 }
 
 // Select and display a tournament

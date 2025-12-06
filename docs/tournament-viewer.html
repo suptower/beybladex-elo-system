@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Viewer - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <style>
+        .tournament-viewer {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .viewer-header {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .viewer-header h1 {
+            margin: 0 0 0.5rem 0;
+            color: var(--accent-color);
+        }
+
+        .tournament-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+
+        .meta-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .standings-table {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .standings-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .standings-table th,
+        .standings-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .standings-table th {
+            background: var(--hover-bg);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .standings-table tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .rank-cell {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .rank-1 { color: #FFD700; }
+        .rank-2 { color: #C0C0C0; }
+        .rank-3 { color: #CD7F32; }
+
+        .matches-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .match-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .match-players {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .player {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .player-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .player.winner .player-name {
+            color: var(--accent-color);
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .vs {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .bracket-container {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Tournament Viewer</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🏅</span>Tournaments</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="tournament-viewer">
+    <div id="errorContainer"></div>
+
+    <div class="viewer-header">
+        <h1 id="tournamentName">Loading...</h1>
+        <div class="tournament-meta" id="tournamentMeta">
+            <!-- Meta information will be loaded here -->
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" data-tab="standings">Standings</button>
+        <button class="tab" data-tab="matches">Matches</button>
+        <button class="tab" data-tab="bracket">Bracket</button>
+        <button class="tab" data-tab="stats">Statistics</button>
+    </div>
+
+    <div class="tab-content active" id="standings-tab">
+        <div class="standings-table" id="standingsContainer">
+            <div class="no-data">Loading standings...</div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="matches-tab">
+        <div class="matches-list" id="matchesContainer">
+            <div class="no-data">Loading matches...</div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="bracket-tab">
+        <div class="bracket-container" id="bracketContainer">
+            <div class="no-data">Loading bracket...</div>
+        </div>
+    </div>
+
+    <div class="tab-content" id="stats-tab">
+        <div class="no-data">Tournament statistics coming soon...</div>
+    </div>
+</main>
+
+<script>
+// Get tournament ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const tournamentId = urlParams.get('id');
+
+if (!tournamentId) {
+    window.location.href = 'tournaments.html';
+}
+
+let tournamentData = null;
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        
+        // Update tabs
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+    });
+});
+
+function showError(message) {
+    const container = document.getElementById('errorContainer');
+    container.innerHTML = `<div class="error-message">${message}</div>`;
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+async function loadTournament() {
+    try {
+        // Try to load custom tournament
+        const response = await fetch(`data/tournaments/${tournamentId}.json`);
+        
+        if (response.ok) {
+            tournamentData = await response.json();
+            renderCustomTournament();
+        } else {
+            // Fallback to tournaments list for Challonge tournaments
+            const listResponse = await fetch('data/tournaments.json');
+            const listData = await listResponse.json();
+            const tournament = listData.tournaments.find(t => t.id === tournamentId);
+            
+            if (tournament && tournament.challonge) {
+                renderChallongeTournament(tournament);
+            } else {
+                showError('Tournament not found');
+            }
+        }
+    } catch (error) {
+        console.error('Error loading tournament:', error);
+        showError('Failed to load tournament data');
+    }
+}
+
+function renderCustomTournament() {
+    // Update header
+    document.getElementById('tournamentName').textContent = tournamentData.name;
+    
+    // Render meta
+    const metaContainer = document.getElementById('tournamentMeta');
+    metaContainer.innerHTML = `
+        <div class="meta-item">
+            <span class="meta-label">Date</span>
+            <span class="meta-value">${formatDate(tournamentData.date)}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Format</span>
+            <span class="meta-value">${tournamentData.format.replace('_', ' ')}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Participants</span>
+            <span class="meta-value">${tournamentData.participants.length}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Rounds</span>
+            <span class="meta-value">${tournamentData.num_rounds}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Status</span>
+            <span class="meta-value">${tournamentData.completed ? 'Completed' : 'In Progress'}</span>
+        </div>
+    `;
+    
+    // Render standings
+    renderStandings();
+    
+    // Render matches
+    renderMatches();
+    
+    // Render bracket (if applicable)
+    renderBracket();
+}
+
+function renderStandings() {
+    const container = document.getElementById('standingsContainer');
+    const standings = tournamentData.standings || [];
+    
+    if (standings.length === 0) {
+        container.innerHTML = '<div class="no-data">No standings available</div>';
+        return;
+    }
+    
+    const html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Player</th>
+                    <th>W-L-D</th>
+                    <th>Points</th>
+                    <th>Game W-L</th>
+                    <th>Buchholz</th>
+                    <th>Opp Win %</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${standings.map(s => `
+                    <tr>
+                        <td class="rank-cell rank-${s.rank <= 3 ? s.rank : ''}">${s.rank}</td>
+                        <td>${s.player}</td>
+                        <td>${s.wins}-${s.losses}-${s.draws}</td>
+                        <td><strong>${s.points}</strong></td>
+                        <td>${s.game_wins}-${s.game_losses}</td>
+                        <td>${s.buchholz.toFixed(1)}</td>
+                        <td>${(s.opponent_win_pct * 100).toFixed(1)}%</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+    
+    container.innerHTML = html;
+}
+
+function renderMatches() {
+    const container = document.getElementById('matchesContainer');
+    const matches = tournamentData.matches || [];
+    
+    if (matches.length === 0) {
+        container.innerHTML = '<div class="no-data">No matches available</div>';
+        return;
+    }
+    
+    // Group by round
+    const matchesByRound = {};
+    matches.forEach(match => {
+        if (!matchesByRound[match.round]) {
+            matchesByRound[match.round] = [];
+        }
+        matchesByRound[match.round].push(match);
+    });
+    
+    let html = '';
+    Object.keys(matchesByRound).sort((a, b) => a - b).forEach(round => {
+        html += `<h3>Round ${round}</h3>`;
+        matchesByRound[round].forEach(match => {
+            if (match.player_b === null) {
+                // Bye match
+                html += `
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span>Match ${match.match_num + 1}</span>
+                            <span class="badge">BYE</span>
+                        </div>
+                        <div class="match-players">
+                            <div class="player winner">
+                                <span class="player-name">${match.player_a}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (match.status === 'completed') {
+                html += `
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span>Match ${match.match_num + 1}</span>
+                            <span class="badge">${match.bracket === 'losers' ? 'Losers' : ''}</span>
+                        </div>
+                        <div class="match-players">
+                            <div class="player ${match.winner === match.player_a ? 'winner' : ''}">
+                                <span class="player-name">${match.player_a}</span>
+                                <span class="score">${match.score_a}</span>
+                            </div>
+                            <span class="vs">vs</span>
+                            <div class="player ${match.winner === match.player_b ? 'winner' : ''}">
+                                <span class="score">${match.score_b}</span>
+                                <span class="player-name">${match.player_b}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="match-card">
+                        <div class="match-header">
+                            <span>Match ${match.match_num + 1}</span>
+                            <span class="badge">Pending</span>
+                        </div>
+                        <div class="match-players">
+                            <div class="player">
+                                <span class="player-name">${match.player_a || 'TBD'}</span>
+                            </div>
+                            <span class="vs">vs</span>
+                            <div class="player">
+                                <span class="player-name">${match.player_b || 'TBD'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        });
+    });
+    
+    container.innerHTML = html;
+}
+
+function renderBracket() {
+    const container = document.getElementById('bracketContainer');
+    
+    if (tournamentData.format === 'swiss') {
+        container.innerHTML = '<div class="no-data">Swiss format uses standings view. See the Standings tab for current rankings.</div>';
+    } else {
+        container.innerHTML = '<div class="no-data">Bracket visualization coming soon...</div>';
+    }
+}
+
+function renderChallongeTournament(tournament) {
+    document.getElementById('tournamentName').textContent = tournament.name;
+    
+    const metaContainer = document.getElementById('tournamentMeta');
+    metaContainer.innerHTML = `
+        <div class="meta-item">
+            <span class="meta-label">Date</span>
+            <span class="meta-value">${formatDate(tournament.date)}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Format</span>
+            <span class="meta-value">${tournament.format}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Participants</span>
+            <span class="meta-value">${tournament.players}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Winner</span>
+            <span class="meta-value">${tournament.winner}</span>
+        </div>
+    `;
+    
+    // Show only bracket tab for Challonge
+    document.getElementById('standingsContainer').innerHTML = '<div class="no-data">Standings not available for Challonge tournaments</div>';
+    document.getElementById('matchesContainer').innerHTML = '<div class="no-data">Match details not available for Challonge tournaments</div>';
+    
+    const bracketContainer = document.getElementById('bracketContainer');
+    bracketContainer.innerHTML = `
+        <iframe 
+            src="https://challonge.com/${tournament.challonge}/module?${tournament.parameter}" 
+            width="100%" 
+            height="600" 
+            frameborder="0" 
+            scrolling="auto" 
+            allowtransparency="true"
+            title="Challonge bracket for ${tournament.name}"
+        ></iframe>
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="https://challonge.com/${tournament.challonge}" target="_blank" rel="noopener noreferrer" 
+               style="color: var(--accent-color);">
+                View on Challonge ↗
+            </a>
+        </div>
+    `;
+}
+
+// Initialize
+loadTournament();
+</script>
+
+</body>
+</html>
