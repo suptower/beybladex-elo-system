@@ -13,8 +13,7 @@ Each stat uses a 0-5 scale with fractional values supported.
 import json
 
 # File paths
-PARTS_STATS_JSON = "./data/parts_stats.json"
-DOCS_PARTS_STATS_JSON = "./docs/data/parts_stats.json"
+PARTS_STATS_JSON = "./docs/data/parts_stats.json"
 
 # Colors for terminal output
 RESET = "\033[0m"
@@ -92,16 +91,11 @@ def load_parts_stats() -> dict:
 
 def save_parts_stats(data: dict) -> None:
     """Save parts stats to JSON files."""
-    # Save to csv folder
+    # Save to docs/data folder
     with open(PARTS_STATS_JSON, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
-    # Copy to docs folder
-    with open(DOCS_PARTS_STATS_JSON, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
     print(f"{GREEN}Parts stats saved to {PARTS_STATS_JSON}{RESET}")
-    print(f"{GREEN}Parts stats copied to {DOCS_PARTS_STATS_JSON}{RESET}")
 
 
 def get_blade_stats(blade_name: str) -> dict | None:

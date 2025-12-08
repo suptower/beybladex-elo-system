@@ -14,7 +14,7 @@ import os
 from collections import defaultdict, Counter
 
 # ---------- Konfiguration ----------
-LEADERBOARD_CSV = "./data/leaderboard.csv"
+LEADERBOARD_CSV = "./docs/data/leaderboard.csv"
 OUT_DIR = "./sim_output"
 N_SIMULATIONS = 1000    # Anzahl Simulationen (anpassen)
 RANDOM_SEED = 42        # für Reproduzierbarkeit (setze None für Zufall)

@@ -29,9 +29,9 @@ GREEN = "\033[32m"
 YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
-HISTORY_FILE = "./data/elo_history.csv"
-UPSET_ANALYSIS_FILE = "./data/upset_analysis.csv"
-UPSET_MATCHES_FILE = "./data/upset_matches.csv"
+HISTORY_FILE = "./docs/data/elo_history.csv"
+UPSET_ANALYSIS_FILE = "./docs/data/upset_analysis.csv"
+UPSET_MATCHES_FILE = "./docs/data/upset_matches.csv"
 
 # --- Giant Killer Score Weights ---
 GIANT_KILLER_WEIGHTS = {
@@ -339,17 +339,6 @@ def save_upset_analysis(analysis_data, upset_matches, output_file=UPSET_ANALYSIS
                 m["elo_difference"],
                 m["score"]
             ])
-
-    # Copy to docs folder
-    os.makedirs("./docs/data", exist_ok=True)
-
-    with open(output_file, "r", encoding="utf-8") as src:
-        with open("./docs/data/upset_analysis.csv", "w", encoding="utf-8") as dst:
-            dst.write(src.read())
-
-    with open(matches_file, "r", encoding="utf-8") as src:
-        with open("./docs/data/upset_matches.csv", "w", encoding="utf-8") as dst:
-            dst.write(src.read())
 
 
 def print_summary(analysis_data, upset_matches):
