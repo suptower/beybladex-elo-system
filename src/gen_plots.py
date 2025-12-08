@@ -28,18 +28,18 @@ plt.rcParams["axes.grid"] = True
 def load_files(mode):
     if mode == "official":
         return {
-            "leaderboard": "./data/leaderboard.csv",
-            "history": "./data/elo_history.csv",
-            "timeseries": "./data/elo_timeseries.csv",
-            "positions": "./data/position_timeseries.csv",
+            "leaderboard": "./docs/data/leaderboard.csv",
+            "history": "./docs/data/elo_history.csv",
+            "timeseries": "./docs/data/elo_timeseries.csv",
+            "positions": "./docs/data/position_timeseries.csv",
             "outdir": "./docs/plots/"
         }
     else:
         return {
-            "leaderboard": "./data/private_leaderboard.csv",
-            "history": "./data/private_elo_history.csv",
-            "timeseries": "./data/private_elo_timeseries.csv",
-            "positions": "./data/private_position_timeseries.csv",
+            "leaderboard": "./docs/data/private_leaderboard.csv",
+            "history": "./docs/data/private_elo_history.csv",
+            "timeseries": "./docs/data/private_elo_timeseries.csv",
+            "positions": "./docs/data/private_position_timeseries.csv",
             "outdir": "./plots/private/"
         }
 

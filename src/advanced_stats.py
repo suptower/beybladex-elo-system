@@ -13,8 +13,8 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 
-HISTORY_FILE = "./data/elo_history.csv"
-ADVANCED_FILE = "./data/advanced_leaderboard.csv"
+HISTORY_FILE = "./docs/data/elo_history.csv"
+ADVANCED_FILE = "./docs/data/advanced_leaderboard.csv"
 
 # --- Power Index Weights ---
 POWER_INDEX_WEIGHTS = {
@@ -256,9 +256,7 @@ with open(ADVANCED_FILE, "w", newline="", encoding="utf-8") as f:
             d["upset_wins"], d["upset_losses"], d["elo_trend"]
         ])
 
-# copy to docs folder
-with open(ADVANCED_FILE, "r", encoding="utf-8") as src, open("./docs/data/advanced_leaderboard.csv", "w", encoding="utf-8") as dst:
-    dst.write(src.read())
+# No need to copy to docs folder since ADVANCED_FILE already points to docs/data
 
 print(f"{GREEN} Advanced Leaderboard erstellt: {ADVANCED_FILE}")
 
