@@ -3499,18 +3499,26 @@ body.dark .hover-card-rank.rank-bronze {
     border-radius: var(--radius-sm);
     letter-spacing: 0.05em;
     text-transform: uppercase;
+    box-shadow: 0 0 10px rgba(var(--accent-rgb, 124, 58, 237), 0.5),
+                0 0 20px rgba(var(--accent-rgb, 124, 58, 237), 0.3);
 }
 
 .hover-card-code.basic-line {
     background: linear-gradient(135deg, #70bbe9 0%, #4a9fd9 100%);
+    box-shadow: 0 0 10px rgba(112, 187, 233, 0.5),
+                0 0 20px rgba(112, 187, 233, 0.3);
 }
 
 .hover-card-code.unique-line {
     background: linear-gradient(135deg, #ee7700 0%, #cc6600 100%);
+    box-shadow: 0 0 10px rgba(238, 119, 0, 0.5),
+                0 0 20px rgba(238, 119, 0, 0.3);
 }
 
 .hover-card-code.custom-line {
     background: linear-gradient(135deg, #e8314a 0%, #c92842 100%);
+    box-shadow: 0 0 10px rgba(232, 49, 74, 0.5),
+                0 0 20px rgba(232, 49, 74, 0.3);
 }
 
 .hover-card-archetype {
@@ -3528,31 +3536,43 @@ body.dark .hover-card-rank.rank-bronze {
 .hover-card-archetype.archetype-category-offense {
     background: rgba(239, 68, 68, 0.15);
     border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4),
+                0 0 20px rgba(239, 68, 68, 0.2);
 }
 
 .hover-card-archetype.archetype-category-defense {
     background: rgba(59, 130, 246, 0.15);
     border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4),
+                0 0 20px rgba(59, 130, 246, 0.2);
 }
 
 .hover-card-archetype.archetype-category-stamina {
     background: rgba(16, 185, 129, 0.15);
     border-color: rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4),
+                0 0 20px rgba(16, 185, 129, 0.2);
 }
 
 .hover-card-archetype.archetype-category-control {
     background: rgba(245, 158, 11, 0.15);
     border-color: rgba(245, 158, 11, 0.3);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.4),
+                0 0 20px rgba(245, 158, 11, 0.2);
 }
 
 .hover-card-archetype.archetype-category-balance {
     background: rgba(139, 92, 246, 0.15);
     border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.4),
+                0 0 20px rgba(139, 92, 246, 0.2);
 }
 
 .hover-card-archetype.archetype-category-unknown {
     background: rgba(107, 114, 128, 0.15);
     border-color: rgba(107, 114, 128, 0.3);
+    box-shadow: 0 0 10px rgba(107, 114, 128, 0.4),
+                0 0 20px rgba(107, 114, 128, 0.2);
 }
 
 .archetype-icon {
@@ -3588,6 +3608,9 @@ body.dark .hover-card-rank.rank-bronze {
     background: var(--bg);
     border-radius: var(--radius-sm);
     justify-content: center;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3),
+                0 0 20px rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .hover-card-stat {
