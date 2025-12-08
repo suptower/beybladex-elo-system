@@ -37,7 +37,6 @@ import datetime
 from collections import defaultdict
 import os
 import pandas as pd
-import shutil
 
 # Colors for Windows
 os.system("")
