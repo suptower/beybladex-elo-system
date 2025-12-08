@@ -266,10 +266,21 @@ function showHoverCard(beyData, targetElement, leaderboardEntry, archetypeData) 
         const elo = parseInt(leaderboardEntry.ELO);
         const powerIndex = parseFloat(leaderboardEntry.PowerIndex);
         
+        // Get the ELO class for the glow effect
+        const eloClass = getHoverEloClass(elo);
+        
+        // Remove any existing trend classes from stats container
+        statsContainer.className = 'hover-card-stats';
+        
+        // Add the ELO trend class to the stats container for glow effect
+        if (eloClass) {
+            statsContainer.classList.add(eloClass);
+        }
+        
         statsContainer.innerHTML = `
             <div class="hover-card-stat">
                 <span class="hover-stat-label">ELO</span>
-                <span class="hover-stat-value ${getHoverEloClass(elo)}">${leaderboardEntry.ELO || '-'}</span>
+                <span class="hover-stat-value ${eloClass}">${leaderboardEntry.ELO || '-'}</span>
             </div>
             <div class="hover-card-stat">
                 <span class="hover-stat-label">PWR</span>

@@ -3608,9 +3608,38 @@ body.dark .hover-card-rank.rank-bronze {
     background: var(--bg);
     border-radius: var(--radius-sm);
     justify-content: center;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Dynamic glow effects based on ELO rating */
+.hover-card-stats.trend-very-positive {
     box-shadow: 0 0 10px rgba(16, 185, 129, 0.3),
                 0 0 20px rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.hover-card-stats.trend-positive {
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.3),
+                0 0 20px rgba(34, 197, 94, 0.15);
+    border-color: rgba(34, 197, 94, 0.2);
+}
+
+.hover-card-stats.trend-neutral {
+    box-shadow: 0 0 10px rgba(156, 163, 175, 0.3),
+                0 0 20px rgba(156, 163, 175, 0.15);
+    border-color: rgba(156, 163, 175, 0.2);
+}
+
+.hover-card-stats.trend-negative {
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3),
+                0 0 20px rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.hover-card-stats.trend-very-negative {
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.3),
+                0 0 20px rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.2);
 }
 
 .hover-card-stat {
