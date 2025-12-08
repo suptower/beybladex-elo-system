@@ -8,6 +8,7 @@ const HOVER_CARD_PADDING = 10;
 
 let beysDataCache = null;
 let leaderboardDataCache = null;
+let rpgStatsDataCache = null;
 let hoverCardElement = null;
 let hoverTimeout = null;
 let hideTimeout = null;
@@ -41,6 +42,20 @@ async function loadLeaderboardData() {
     }
 }
 
+// Load RPG stats data for archetype information
+async function loadRpgStatsData() {
+    if (rpgStatsDataCache) return rpgStatsDataCache;
+    
+    try {
+        const response = await fetch('data/rpg_stats.json');
+        rpgStatsDataCache = await response.json();
+        return rpgStatsDataCache;
+    } catch (error) {
+        console.warn('Could not load RPG stats data for hover cards:', error);
+        return {};
+    }
+}
+
 // Parse CSV text to array of objects
 function parseHoverCardCSV(text) {
     const lines = text.trim().split(/\r?\n/);
@@ -63,6 +78,21 @@ function findLeaderboardEntry(name) {
         const entryName = entry.Name || entry.Bey || '';
         return normalizeHoverBeyName(entryName) === normalizedSearch;
     });
+}
+
+// Find archetype data by name
+function findArchetypeData(name) {
+    if (!rpgStatsDataCache || !name) return null;
+    const normalizedSearch = normalizeHoverBeyName(name);
+    
+    // Try exact match on key first
+    for (const [key, value] of Object.entries(rpgStatsDataCache)) {
+        if (normalizeHoverBeyName(key) === normalizedSearch) {
+            return value.archetype || null;
+        }
+    }
+    
+    return null;
 }
 
 // Normalize bey name for matching
@@ -110,6 +140,7 @@ function createHoverCard() {
                     <span class="hover-card-rank"></span>
                 </div>
                 <p class="hover-card-code"></p>
+                <div class="hover-card-archetype"></div>
                 <div class="hover-card-stats"></div>
                 <p class="hover-card-description"></p>
                 <div class="hover-card-parts"></div>
@@ -152,7 +183,7 @@ function getHoverPowerIndexClass(pwr) {
 }
 
 // Show hover card with bey data
-function showHoverCard(beyData, targetElement, leaderboardEntry) {
+function showHoverCard(beyData, targetElement, leaderboardEntry, archetypeData) {
     if (!beyData) return;
     
     const card = createHoverCard();
@@ -194,6 +225,18 @@ function showHoverCard(beyData, targetElement, leaderboardEntry) {
         else if (beyData.code.startsWith('CX')) codeEl.classList.add('custom-line');
     } else {
         codeEl.style.display = 'none';
+    }
+    
+    // Populate archetype section
+    const archetypeEl = card.querySelector('.hover-card-archetype');
+    if (archetypeData && archetypeData.name) {
+        archetypeEl.innerHTML = `
+            <span class="archetype-icon">${archetypeData.icon || '🎯'}</span>
+            <span class="archetype-name">${archetypeData.name}</span>
+        `;
+        archetypeEl.style.display = 'flex';
+    } else {
+        archetypeEl.style.display = 'none';
     }
     
     card.querySelector('.hover-card-description').textContent = beyData.description || '';
@@ -284,8 +327,8 @@ function hideHoverCard() {
 
 // Initialize hover functionality for bey links
 function initBeyHoverCards() {
-    // Load beys data and leaderboard data first
-    Promise.all([loadBeysData(), loadLeaderboardData()]).then(() => {
+    // Load beys data, leaderboard data, and RPG stats data first
+    Promise.all([loadBeysData(), loadLeaderboardData(), loadRpgStatsData()]).then(() => {
         // Use event delegation for better performance
         document.addEventListener('mouseover', handleMouseOver);
         document.addEventListener('mouseout', handleMouseOut);
@@ -319,8 +362,9 @@ async function handleMouseOver(event) {
         // Find bey data and leaderboard entry
         const beyData = findBeyByName(beyName);
         const leaderboardEntry = findLeaderboardEntry(beyName);
+        const archetypeData = findArchetypeData(beyName);
         if (beyData) {
-            showHoverCard(beyData, link, leaderboardEntry);
+            showHoverCard(beyData, link, leaderboardEntry, archetypeData);
         }
     }, 200); // 200ms delay before showing
 }
