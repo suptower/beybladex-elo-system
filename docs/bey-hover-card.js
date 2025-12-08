@@ -239,9 +239,13 @@ function showHoverCard(beyData, targetElement, leaderboardEntry, archetypeData) 
         iconSpan.textContent = archetypeData.icon || '🎯';
         archetypeEl.appendChild(iconSpan);
         
-        // Create and append name
+        // Create and append name with category color class
         const nameSpan = document.createElement('span');
         nameSpan.className = 'hover-card-archetype-name';
+        // Add category-based color class if category is available
+        if (archetypeData.category) {
+            nameSpan.classList.add(`archetype-category-${archetypeData.category}`);
+        }
         nameSpan.textContent = archetypeData.name;
         archetypeEl.appendChild(nameSpan);
         
