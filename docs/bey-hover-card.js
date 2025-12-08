@@ -230,8 +230,14 @@ function showHoverCard(beyData, targetElement, leaderboardEntry, archetypeData) 
     // Populate archetype section
     const archetypeEl = card.querySelector('.hover-card-archetype');
     if (archetypeData && archetypeData.name) {
-        // Clear previous content
+        // Clear previous content and remove old category classes
         archetypeEl.innerHTML = '';
+        archetypeEl.className = 'hover-card-archetype';
+        
+        // Add category-based color class to the container
+        if (archetypeData.category) {
+            archetypeEl.classList.add(`archetype-category-${archetypeData.category}`);
+        }
         
         // Create and append icon
         const iconSpan = document.createElement('span');
@@ -239,13 +245,9 @@ function showHoverCard(beyData, targetElement, leaderboardEntry, archetypeData) 
         iconSpan.textContent = archetypeData.icon || '🎯';
         archetypeEl.appendChild(iconSpan);
         
-        // Create and append name with category color class
+        // Create and append name
         const nameSpan = document.createElement('span');
         nameSpan.className = 'hover-card-archetype-name';
-        // Add category-based color class if category is available
-        if (archetypeData.category) {
-            nameSpan.classList.add(`archetype-category-${archetypeData.category}`);
-        }
         nameSpan.textContent = archetypeData.name;
         archetypeEl.appendChild(nameSpan);
         

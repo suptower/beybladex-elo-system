@@ -3524,6 +3524,37 @@ body.dark .hover-card-rank.rank-bronze {
     border: 1px solid var(--border);
 }
 
+/* When archetype has a category, style the entire card */
+.hover-card-archetype.archetype-category-offense {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.hover-card-archetype.archetype-category-defense {
+    background: rgba(59, 130, 246, 0.15);
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.hover-card-archetype.archetype-category-stamina {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.hover-card-archetype.archetype-category-control {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.hover-card-archetype.archetype-category-balance {
+    background: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.hover-card-archetype.archetype-category-unknown {
+    background: rgba(107, 114, 128, 0.15);
+    border-color: rgba(107, 114, 128, 0.3);
+}
+
 .archetype-icon {
     font-size: 0.875rem;
     line-height: 1;
@@ -5106,6 +5137,31 @@ body.dark .win-probability {
     color: var(--text);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+}
+
+/* Apply category colors to the archetype name text */
+.hover-card-archetype.archetype-category-offense .hover-card-archetype-name {
+    color: #ef4444;
+}
+
+.hover-card-archetype.archetype-category-defense .hover-card-archetype-name {
+    color: #3b82f6;
+}
+
+.hover-card-archetype.archetype-category-stamina .hover-card-archetype-name {
+    color: #10b981;
+}
+
+.hover-card-archetype.archetype-category-control .hover-card-archetype-name {
+    color: #f59e0b;
+}
+
+.hover-card-archetype.archetype-category-balance .hover-card-archetype-name {
+    color: #8b5cf6;
+}
+
+.hover-card-archetype.archetype-category-unknown .hover-card-archetype-name {
+    color: #6b7280;
 }
 
 .archetype-category-badge {
