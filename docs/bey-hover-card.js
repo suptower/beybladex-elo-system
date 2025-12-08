@@ -230,10 +230,21 @@ function showHoverCard(beyData, targetElement, leaderboardEntry, archetypeData) 
     // Populate archetype section
     const archetypeEl = card.querySelector('.hover-card-archetype');
     if (archetypeData && archetypeData.name) {
-        archetypeEl.innerHTML = `
-            <span class="archetype-icon">${archetypeData.icon || '🎯'}</span>
-            <span class="archetype-name">${archetypeData.name}</span>
-        `;
+        // Clear previous content
+        archetypeEl.innerHTML = '';
+        
+        // Create and append icon
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'archetype-icon';
+        iconSpan.textContent = archetypeData.icon || '🎯';
+        archetypeEl.appendChild(iconSpan);
+        
+        // Create and append name
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'archetype-name';
+        nameSpan.textContent = archetypeData.name;
+        archetypeEl.appendChild(nameSpan);
+        
         archetypeEl.style.display = 'flex';
     } else {
         archetypeEl.style.display = 'none';
