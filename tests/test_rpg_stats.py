@@ -541,3 +541,109 @@ class TestDetectArchetype:
         if len(result["candidates"]) > 1:
             for i in range(len(result["candidates"]) - 1):
                 assert result["candidates"][i]["score"] >= result["candidates"][i + 1]["score"]
+
+    def test_high_attack_beys_not_iron_wall(self):
+        """High attack beys (>3.5) should not be classified as Iron Wall."""
+        stats = {"attack": 4.0, "defense": 2.8, "stamina": 0.6, "control": 1.7, "meta_impact": 3.3}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["attack"]["burst_finish_rate"] = 0.4
+        sub_metrics["defense"]["burst_resistance"] = 0.7
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # High attack should exclude Iron Wall archetype
+        assert result["archetype"] != "iron_wall"
+
+    def test_spin_tank_requires_both_stamina_and_defense(self):
+        """Spin Tank should require both high stamina and high defense."""
+        # Test with high stamina AND high defense
+        stats = {"attack": 1.6, "defense": 3.4, "stamina": 4.1, "control": 3.1, "meta_impact": 2.4}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["stamina"]["spin_finish_win_rate"] = 0.5
+        sub_metrics["stamina"]["long_round_win_rate"] = 0.6
+        sub_metrics["defense"]["burst_resistance"] = 0.8
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should be eligible for Spin Tank
+        candidate_archetypes = [c["archetype"] for c in result["candidates"]]
+        assert "spin_tank" in candidate_archetypes
+
+    def test_chaser_requires_pocket_or_extreme_finishes(self):
+        """Chaser archetype should require pocket or extreme finish bias."""
+        stats = {"attack": 2.9, "defense": 1.8, "stamina": 0.4, "control": 1.9, "meta_impact": 2.3}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["attack"]["pocket_finish_rate"] = 0.3
+        sub_metrics["attack"]["extreme_finish_rate"] = 0.2
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should be eligible for Chaser
+        candidate_archetypes = [c["archetype"] for c in result["candidates"]]
+        assert "chaser" in candidate_archetypes
+
+    def test_balanced_stats_suggest_adaptive_fighter(self):
+        """Beys with balanced stats should be classified as Adaptive Fighter."""
+        stats = {"attack": 2.4, "defense": 2.3, "stamina": 2.8, "control": 2.2, "meta_impact": 2.3}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["meta_impact"]["matchup_spread"] = 0.7
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should be Adaptive Fighter or at least a candidate
+        assert (
+            result["archetype"] == "adaptive_fighter" or
+            "adaptive_fighter" in [c["archetype"] for c in result["candidates"]]
+        )
+
+    def test_no_archetype_criteria_met_returns_unknown(self):
+        """When no archetype criteria are met, should return unknown."""
+        # Low stats across the board that don't meet any archetype criteria
+        stats = {"attack": 1.0, "defense": 1.0, "stamina": 1.0, "control": 1.0, "meta_impact": 1.0}
+        sub_metrics = self._create_default_sub_metrics()
+        # Set sub-metrics to very low values
+        for category in sub_metrics:
+            for metric in sub_metrics[category]:
+                sub_metrics[category][metric] = 0.1
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should return unknown
+        assert result["archetype"] == "unknown"
+        assert "reason" in result
+
+    def test_iron_wall_requires_high_defense_and_burst_resistance(self):
+        """Iron Wall should require defense > 2.5 and burst_resistance > 0.65."""
+        # Test with good defense and burst resistance, low stamina
+        stats = {"attack": 2.4, "defense": 3.0, "stamina": 1.5, "control": 2.5, "meta_impact": 2.5}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["defense"]["burst_resistance"] = 0.8
+        sub_metrics["control"]["volatility_inverse"] = 0.7
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should be eligible for Iron Wall
+        candidate_archetypes = [c["archetype"] for c in result["candidates"]]
+        assert "iron_wall" in candidate_archetypes
+
+    def test_glass_cannon_requires_high_attack_low_defense(self):
+        """Glass Cannon should require high attack and low defense."""
+        stats = {"attack": 4.0, "defense": 2.5, "stamina": 1.0, "control": 2.0, "meta_impact": 3.0}
+        sub_metrics = self._create_default_sub_metrics()
+        sub_metrics["attack"]["burst_finish_rate"] = 0.4
+        sub_metrics["defense"]["burst_resistance"] = 0.5
+        leaderboard_data = {"matches": 10}
+
+        result = detect_archetype(stats, sub_metrics, leaderboard_data)
+
+        # Should be Glass Cannon or at least a candidate
+        assert (
+            result["archetype"] == "glass_cannon" or
+            "glass_cannon" in [c["archetype"] for c in result["candidates"]]
+        )
