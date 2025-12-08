@@ -261,10 +261,17 @@ def run_elo_pipeline(pipeline_config):
     for pos, row in enumerate(tour_rows_sorted, start=1):
         row["Platz"] = pos
 
+    # Copy tour_rows but only with names
+    tour_rows_names_only = [{"Name": row["Name"]} for row in tour_rows_sorted]
+
     tour_rows_df = pd.DataFrame(tour_rows_sorted)
     tour_rows_df.to_csv(leaderboard_file, index=False)
     # copy leaderboard to data folder for docs
     tour_rows_df.to_csv("./docs/data/leaderboard.csv", index=False)
+
+    # Write names-only-leaderboard to data/beys.csv for easy access but remove header line
+    pd.DataFrame(tour_rows_names_only).to_csv("./data/beys.csv", index=False, header=False)
+    pd.DataFrame(tour_rows_names_only).to_csv("./docs/data/beys.csv", index=False, header=False)
 
     # copy matches to data folder for docs
     shutil.copy(input_file, "./docs/data/matches.csv")
