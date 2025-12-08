@@ -601,7 +601,12 @@ class TestDetectArchetype:
         )
 
     def test_no_archetype_criteria_met_returns_unknown(self):
-        """When no archetype criteria are met, should return unknown."""
+        """When no archetype criteria are met, should return unknown.
+
+        Tests the edge case where a Bey has very low stats across all categories,
+        failing to meet any archetype's minimum threshold requirements. This ensures
+        the system gracefully handles outliers by returning 'unknown' archetype.
+        """
         # Low stats across the board that don't meet any archetype criteria
         stats = {"attack": 1.0, "defense": 1.0, "stamina": 1.0, "control": 1.0, "meta_impact": 1.0}
         sub_metrics = self._create_default_sub_metrics()
