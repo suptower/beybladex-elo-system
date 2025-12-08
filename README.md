@@ -31,17 +31,17 @@ beybladex-elo-system/
 │       ├── meta_landscape.py
 │       ├── tier_flow.py
 │       └── heatmaps.py
-├── data/                       # Source data and generated CSVs
-│   ├── beys.csv                # Beyblade registry
-│   ├── matches.csv             # Match records
-│   ├── leaderboard.csv         # Current rankings
-│   ├── elo_history.csv         # Historical Elo changes
-│   └── leaderboards/           # Tournament snapshots
 ├── docs/                       # GitHub Pages frontend
 │   ├── index.html              # Main page
 │   ├── styles.css              # Stylesheet
 │   ├── *.js                    # JavaScript modules
-│   ├── data/                   # Frontend data (CSV/JSON)
+│   ├── data/                   # All generated data (CSV/JSON)
+│   │   ├── beys.csv            # Beyblade registry
+│   │   ├── matches.csv         # Match records
+│   │   ├── leaderboard.csv     # Current rankings
+│   │   ├── elo_history.csv     # Historical Elo changes
+│   │   ├── leaderboards/       # Tournament snapshots
+│   │   └── *.json              # Various data files
 │   ├── plots/                  # Generated visualizations
 │   ├── schema/                 # Data schemas
 │   └── tournament-charts/      # Tournament standings
@@ -55,6 +55,8 @@ beybladex-elo-system/
 ├── roadmap.md                  # Project roadmap
 └── README.md                   # This file
 ```
+
+**Note:** All data files are now stored in `./docs/data/` to avoid duplication. All scripts read from and write to this single location.
 
 ## Quick Start
 
@@ -94,7 +96,9 @@ python src/simulation.py -n 16 -f single-elimination --append
 
 ## Data Files
 
-### Input Data (data/)
+**All data files are stored in `./docs/data/` to serve the GitHub Pages site.**
+
+### Input Data (docs/data/)
 
 | File | Description |
 |------|-------------|
@@ -102,7 +106,7 @@ python src/simulation.py -n 16 -f single-elimination --append
 | `matches.csv` | Match records (winner, loser, scores, timestamp) |
 | `rounds.csv` | Round-level match data |
 
-### Generated Data (data/)
+### Generated Data (docs/data/)
 
 | File | Description |
 |------|-------------|
@@ -111,6 +115,15 @@ python src/simulation.py -n 16 -f single-elimination --append
 | `elo_history.csv` | Chronological Elo changes |
 | `elo_timeseries.csv` | Elo over time per Beyblade |
 | `bey_counters.csv` | Counter matchup data |
+| `rpg_stats.json` | RPG-style stats and archetypes |
+| `synergy_data.json` | Part synergy heatmap data |
+| `meta_balance.json` | Meta health analysis |
+| `combo_data.json` | Combination explorer data |
+| `parts_stats.json` | Individual part statistics |
+| `tournaments.json` | Tournament metadata |
+| `leaderboards/` | Per-tournament leaderboard snapshots |
+
+**Note:** All scripts read from and write to `./docs/data/` only. No data is stored in the repository root.
 
 ## Google Sheets Integration
 
