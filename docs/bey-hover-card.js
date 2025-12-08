@@ -235,13 +235,13 @@ function showHoverCard(beyData, targetElement, leaderboardEntry, archetypeData) 
         
         // Create and append icon
         const iconSpan = document.createElement('span');
-        iconSpan.className = 'archetype-icon';
+        iconSpan.className = 'hover-card-archetype-icon';
         iconSpan.textContent = archetypeData.icon || '🎯';
         archetypeEl.appendChild(iconSpan);
         
         // Create and append name
         const nameSpan = document.createElement('span');
-        nameSpan.className = 'archetype-name';
+        nameSpan.className = 'hover-card-archetype-name';
         nameSpan.textContent = archetypeData.name;
         archetypeEl.appendChild(nameSpan);
         

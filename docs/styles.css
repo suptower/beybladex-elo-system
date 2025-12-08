@@ -5090,9 +5090,22 @@ body.dark .win-probability {
 }
 
 .archetype-name {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: var(--text);
+}
+
+.hover-card-archetype-icon {
+    font-size: 1.25rem;
+    line-height: 1;
+}
+
+.hover-card-archetype-name {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .archetype-category-badge {
