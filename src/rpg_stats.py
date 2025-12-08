@@ -181,6 +181,51 @@ MAX_STAT_BALANCE_DIVISOR = 15.0
 CONFIDENCE_BASE_WEIGHT = 0.6
 CONFIDENCE_GAP_MULTIPLIER = 2.0
 
+# Archetype threshold constants
+# Glass Cannon thresholds
+GLASS_CANNON_MIN_ATTACK = 3.0
+GLASS_CANNON_MAX_DEFENSE = 3.0
+
+# Berserker thresholds
+BERSERKER_MIN_ATTACK = 3.0
+BERSERKER_MAX_VOLATILITY_INVERSE = 0.6
+
+# Chaser thresholds
+CHASER_MIN_ATTACK = 2.5
+CHASER_MIN_POCKET_FINISH = 0.15
+CHASER_MIN_EXTREME_FINISH = 0.15
+
+# Iron Wall thresholds
+IRON_WALL_MIN_DEFENSE = 2.5
+IRON_WALL_MIN_BURST_RESISTANCE = 0.65
+IRON_WALL_MAX_ATTACK = 3.5
+IRON_WALL_MAX_STAMINA = 3.5
+
+# Counter Shield thresholds
+COUNTER_SHIELD_MIN_DEFENSE = 2.3
+COUNTER_SHIELD_MIN_DEFENSIVE_CONVERSION = 0.5
+COUNTER_SHIELD_MAX_STAMINA = 3.5
+
+# Endurance Core thresholds
+ENDURANCE_CORE_MIN_STAMINA = 3.0
+ENDURANCE_CORE_MIN_SPIN_FINISH_WIN_RATE = 0.3
+ENDURANCE_CORE_MAX_DEFENSE = 3.0
+
+# Spin Tank thresholds
+SPIN_TANK_MIN_STAMINA = 2.8
+SPIN_TANK_MIN_DEFENSE = 2.5
+
+# Tempo Controller thresholds
+TEMPO_CONTROLLER_MIN_CONTROL = 3.0
+
+# Adaptive Fighter thresholds
+ADAPTIVE_FIGHTER_MIN_STAT = 2.0
+ADAPTIVE_FIGHTER_MAX_STAT = 4.0
+ADAPTIVE_FIGHTER_MIN_STAT_BALANCE = 0.6
+
+# Meta Anchor thresholds
+META_ANCHOR_MIN_META_IMPACT = 3.0
+
 
 def detect_archetype(
     stats: dict[str, float],
@@ -244,77 +289,132 @@ def detect_archetype(
     archetype_scores: dict[str, float] = {}
 
     # Glass Cannon: High attack, low defense & burst resistance
-    archetype_scores["glass_cannon"] = (
-        (attack / 5.0) * 0.5
-        + ((5.0 - defense) / 5.0) * 0.3
-        + ((1.0 - burst_resistance) * 0.2)
-    )
+    # Require: attack > threshold, defense < threshold
+    if attack > GLASS_CANNON_MIN_ATTACK and defense < GLASS_CANNON_MAX_DEFENSE:
+        archetype_scores["glass_cannon"] = (
+            (attack / 5.0) * 0.5
+            + ((5.0 - defense) / 5.0) * 0.35
+            + ((1.0 - burst_resistance) * 0.15)
+        )
+    else:
+        archetype_scores["glass_cannon"] = 0.0
 
     # Berserker: High attack + high volatility (low control)
-    archetype_scores["berserker"] = (
-        (attack / 5.0) * 0.4
-        + (burst_finish_rate * 0.3)
-        + ((1.0 - volatility_inverse) * 0.3)
-    )
+    # Require: attack > threshold, volatility_inverse < threshold
+    if attack > BERSERKER_MIN_ATTACK and volatility_inverse < BERSERKER_MAX_VOLATILITY_INVERSE:
+        archetype_scores["berserker"] = (
+            (attack / 5.0) * 0.4
+            + (burst_finish_rate * 0.35)
+            + ((1.0 - volatility_inverse) * 0.25)
+        )
+    else:
+        archetype_scores["berserker"] = 0.0
 
     # Chaser: Fast finisher, pocket/extreme focused
-    archetype_scores["chaser"] = (
-        (attack / 5.0) * 0.3
-        + (pocket_finish_rate * 0.35)
-        + (extreme_finish_rate * 0.35)
-    )
+    # Require: attack > threshold AND (pocket_finish OR extreme_finish > threshold)
+    if (attack > CHASER_MIN_ATTACK and
+            (pocket_finish_rate > CHASER_MIN_POCKET_FINISH or
+             extreme_finish_rate > CHASER_MIN_EXTREME_FINISH)):
+        archetype_scores["chaser"] = (
+            (attack / 5.0) * 0.25
+            + (pocket_finish_rate * 0.4)
+            + (extreme_finish_rate * 0.35)
+        )
+    else:
+        archetype_scores["chaser"] = 0.0
 
     # Iron Wall: High defense, high burst resistance, low volatility
-    archetype_scores["iron_wall"] = (
-        (defense / 5.0) * 0.4
-        + (burst_resistance * 0.35)
-        + (volatility_inverse * 0.25)
-    )
+    # Require: defense, burst_resistance above threshold, attack and stamina below threshold
+    if (defense > IRON_WALL_MIN_DEFENSE and
+            burst_resistance > IRON_WALL_MIN_BURST_RESISTANCE and
+            attack < IRON_WALL_MAX_ATTACK and
+            stamina < IRON_WALL_MAX_STAMINA):
+        archetype_scores["iron_wall"] = (
+            (defense / 5.0) * 0.45
+            + (burst_resistance * 0.35)
+            + (volatility_inverse * 0.20)
+        )
+    else:
+        archetype_scores["iron_wall"] = 0.0
 
     # Counter Shield: Defensive but with reversal potential
-    archetype_scores["counter_shield"] = (
-        (defense / 5.0) * 0.35
-        + (defensive_conversion * 0.4)
-        + (burst_resistance * 0.25)
-    )
+    # Require: defense, defensive_conversion above threshold, stamina below threshold
+    if (defense > COUNTER_SHIELD_MIN_DEFENSE and
+            defensive_conversion > COUNTER_SHIELD_MIN_DEFENSIVE_CONVERSION and
+            stamina < COUNTER_SHIELD_MAX_STAMINA):
+        archetype_scores["counter_shield"] = (
+            (defense / 5.0) * 0.35
+            + (defensive_conversion * 0.45)
+            + (burst_resistance * 0.20)
+        )
+    else:
+        archetype_scores["counter_shield"] = 0.0
 
     # Endurance Core: High stamina, stable, spin finish focused
-    archetype_scores["endurance_core"] = (
-        (stamina / 5.0) * 0.4
-        + (spin_finish_win_rate * 0.35)
-        + (volatility_inverse * 0.25)
-    )
+    # Require: stamina, spin_finish_win_rate above threshold, defense below threshold
+    if (stamina > ENDURANCE_CORE_MIN_STAMINA and
+            spin_finish_win_rate > ENDURANCE_CORE_MIN_SPIN_FINISH_WIN_RATE and
+            defense < ENDURANCE_CORE_MAX_DEFENSE):
+        archetype_scores["endurance_core"] = (
+            (stamina / 5.0) * 0.45
+            + (spin_finish_win_rate * 0.35)
+            + (volatility_inverse * 0.20)
+        )
+    else:
+        archetype_scores["endurance_core"] = 0.0
 
     # Spin Tank: High stamina + high defense, long match winner
-    archetype_scores["spin_tank"] = (
-        (stamina / 5.0) * 0.35
-        + (defense / 5.0) * 0.35
-        + (stamina_metrics.get("long_round_win_rate", 0.5) * 0.3)
-    )
+    # Require: stamina and defense above threshold (prioritize dual high stats)
+    if stamina > SPIN_TANK_MIN_STAMINA and defense > SPIN_TANK_MIN_DEFENSE:
+        archetype_scores["spin_tank"] = (
+            (stamina / 5.0) * 0.45
+            + (defense / 5.0) * 0.35
+            + (stamina_metrics.get("long_round_win_rate", 0.5) * 0.20)
+        )
+    else:
+        archetype_scores["spin_tank"] = 0.0
 
     # Tempo Controller: High control, stable performance
-    archetype_scores["tempo_controller"] = (
-        (control / 5.0) * 0.5
-        + (volatility_inverse * 0.3)
-        + (control_metrics.get("first_contact_advantage", 0.5) * 0.2)
-    )
+    # Require: control > threshold
+    if control > TEMPO_CONTROLLER_MIN_CONTROL:
+        archetype_scores["tempo_controller"] = (
+            (control / 5.0) * 0.55
+            + (volatility_inverse * 0.25)
+            + (control_metrics.get("first_contact_advantage", 0.5) * 0.20)
+        )
+    else:
+        archetype_scores["tempo_controller"] = 0.0
 
     # Adaptive Fighter: Balanced stats, good matchup spread
+    # Require: all main stats in range, no stat dominates
     stat_balance = 1.0 - (
         abs(attack - defense) + abs(defense - stamina) + abs(stamina - control)
     ) / MAX_STAT_BALANCE_DIVISOR
-    archetype_scores["adaptive_fighter"] = (
-        stat_balance * 0.4
-        + (matchup_spread * 0.35)
-        + (min(attack, defense, stamina, control) / 5.0) * 0.25
-    )
+    min_stat = min(attack, defense, stamina, control)
+    max_stat = max(attack, defense, stamina, control)
+    is_balanced = (min_stat >= ADAPTIVE_FIGHTER_MIN_STAT and
+                   max_stat <= ADAPTIVE_FIGHTER_MAX_STAT and
+                   stat_balance > ADAPTIVE_FIGHTER_MIN_STAT_BALANCE)
+
+    if is_balanced:
+        archetype_scores["adaptive_fighter"] = (
+            stat_balance * 0.5
+            + (matchup_spread * 0.3)
+            + (min_stat / 5.0) * 0.20
+        )
+    else:
+        archetype_scores["adaptive_fighter"] = 0.0
 
     # Meta Anchor: High meta impact despite balanced/mixed profile
-    archetype_scores["meta_anchor"] = (
-        (meta_impact / 5.0) * 0.5
-        + (anti_meta_score * 0.3)
-        + (matchup_spread * 0.2)
-    )
+    # Require: meta_impact > threshold
+    if meta_impact > META_ANCHOR_MIN_META_IMPACT:
+        archetype_scores["meta_anchor"] = (
+            (meta_impact / 5.0) * 0.55
+            + (anti_meta_score * 0.25)
+            + (matchup_spread * 0.20)
+        )
+    else:
+        archetype_scores["meta_anchor"] = 0.0
 
     # Find top candidates
     sorted_archetypes = sorted(
@@ -325,6 +425,16 @@ def detect_archetype(
 
     top_archetype = sorted_archetypes[0][0]
     top_score = sorted_archetypes[0][1]
+
+    # If no archetype has a score > 0, return unknown
+    if top_score == 0.0:
+        return {
+            "archetype": "unknown",
+            "archetype_data": ARCHETYPE_DEFINITIONS["unknown"],
+            "confidence": 0.0,
+            "candidates": [],
+            "reason": "No archetype criteria met",
+        }
 
     # Calculate confidence based on score gap
     # Confidence formula combines base score contribution with gap bonus
