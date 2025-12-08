@@ -340,17 +340,6 @@ def save_upset_analysis(analysis_data, upset_matches, output_file=UPSET_ANALYSIS
                 m["score"]
             ])
 
-    # Copy to docs folder
-    os.makedirs("./docs/data", exist_ok=True)
-
-    with open(output_file, "r", encoding="utf-8") as src:
-        with open("./docs/data/upset_analysis.csv", "w", encoding="utf-8") as dst:
-            dst.write(src.read())
-
-    with open(matches_file, "r", encoding="utf-8") as src:
-        with open("./docs/data/upset_matches.csv", "w", encoding="utf-8") as dst:
-            dst.write(src.read())
-
 
 def print_summary(analysis_data, upset_matches):
     """
