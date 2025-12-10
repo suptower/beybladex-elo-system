@@ -759,7 +759,9 @@ function toggleCardRounds(matchIndex) {
 
 function renderBeySelect(selectedBey, matchIndex, player) {
     const escapedSelectedBey = escapeHtml(selectedBey);
-    const options = state.beyblades.map(bey => {
+    // Sort beyblades alphabetically for quick entry
+    const sortedBeyblades = [...state.beyblades].sort((a, b) => a.name.localeCompare(b.name));
+    const options = sortedBeyblades.map(bey => {
         const escapedName = escapeHtml(bey.name);
         return `<option value="${escapedName}" ${bey.name === selectedBey ? 'selected' : ''}>${escapedName}</option>`;
     }).join('');
