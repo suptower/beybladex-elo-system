@@ -3,7 +3,7 @@
     "stats": {
       "attack": 3.91,
       "defense": 2.74,
-      "stamina": 1.97,
+      "stamina": 1.94,
       "control": 2.06,
       "meta_impact": 3.51
     },
@@ -76,7 +76,7 @@
       "attack": 3.31,
       "defense": 2.79,
       "stamina": 1.56,
-      "control": 2.83,
+      "control": 2.79,
       "meta_impact": 4.41
     },
     "sub_metrics": {
@@ -147,8 +147,8 @@
     "stats": {
       "attack": 1.56,
       "defense": 3.39,
-      "stamina": 4.06,
-      "control": 3.1,
+      "stamina": 4.03,
+      "control": 3.06,
       "meta_impact": 2.4
     },
     "sub_metrics": {
@@ -195,16 +195,16 @@
       "category": "stamina",
       "icon": "\ud83d\udd0b",
       "color": "#14b8a6",
-      "confidence": 0.567,
+      "confidence": 0.569,
       "candidates": [
         {
           "archetype": "spin_tank",
-          "score": 0.723,
+          "score": 0.72,
           "name": "Spin Tank"
         },
         {
           "archetype": "tempo_controller",
-          "score": 0.656,
+          "score": 0.651,
           "name": "Tempo Controller"
         },
         {
@@ -218,7 +218,7 @@
   "CobaltDragoon": {
     "stats": {
       "attack": 4.04,
-      "defense": 2.75,
+      "defense": 2.79,
       "stamina": 0.56,
       "control": 1.69,
       "meta_impact": 3.3
@@ -267,11 +267,11 @@
       "category": "offense",
       "icon": "\ud83d\udca5",
       "color": "#ef4444",
-      "confidence": 0.404,
+      "confidence": 0.397,
       "candidates": [
         {
           "archetype": "glass_cannon",
-          "score": 0.561,
+          "score": 0.559,
           "name": "Glass Cannon"
         },
         {
@@ -291,7 +291,7 @@
     "stats": {
       "attack": 2.43,
       "defense": 2.27,
-      "stamina": 2.83,
+      "stamina": 2.87,
       "control": 2.22,
       "meta_impact": 2.29
     },
@@ -343,7 +343,7 @@
       "candidates": [
         {
           "archetype": "adaptive_fighter",
-          "score": 0.587,
+          "score": 0.585,
           "name": "Adaptive Fighter"
         },
         {
@@ -362,8 +362,8 @@
   "DranDagger": {
     "stats": {
       "attack": 2.62,
-      "defense": 2.46,
-      "stamina": 2.99,
+      "defense": 2.44,
+      "stamina": 3.0,
       "control": 1.7,
       "meta_impact": 3.51
     },
@@ -434,9 +434,9 @@
   "ViperTail": {
     "stats": {
       "attack": 2.4,
-      "defense": 2.23,
-      "stamina": 2.06,
-      "control": 2.31,
+      "defense": 2.19,
+      "stamina": 2.79,
+      "control": 2.82,
       "meta_impact": 3.73
     },
     "sub_metrics": {
@@ -448,20 +448,20 @@
         "opening_dominance": 0.5
       },
       "defense": {
-        "burst_resistance": 0.9,
-        "pocket_resistance": 0.6,
+        "burst_resistance": 0.8889,
+        "pocket_resistance": 0.5556,
         "extreme_resistance": 1.0,
-        "defensive_conversion": 0.4
+        "defensive_conversion": 0.4444
       },
       "stamina": {
         "spin_finish_win_rate": 0.5,
-        "spin_differential_index": 0.5833,
-        "long_round_win_rate": 0.4
+        "spin_differential_index": 0.6364,
+        "long_round_win_rate": 0.6
       },
       "control": {
         "volatility_inverse": 0.3094,
         "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.92
+        "match_flow_stability": 0.9433
       },
       "meta_impact": {
         "elo_normalized": 0.6815,
@@ -483,7 +483,7 @@
       "category": "balance",
       "icon": "\u2b50",
       "color": "#eab308",
-      "confidence": 0.58,
+      "confidence": 0.586,
       "candidates": [
         {
           "archetype": "meta_anchor",
@@ -492,7 +492,7 @@
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.606,
+          "score": 0.602,
           "name": "Adaptive Fighter"
         },
         {
@@ -507,7 +507,7 @@
     "stats": {
       "attack": 2.04,
       "defense": 2.18,
-      "stamina": 4.11,
+      "stamina": 4.09,
       "control": 1.69,
       "meta_impact": 3.78
     },
@@ -555,11 +555,11 @@
       "category": "stamina",
       "icon": "\ud83d\udcaa",
       "color": "#10b981",
-      "confidence": 0.628,
+      "confidence": 0.623,
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.693,
+          "score": 0.691,
           "name": "Endurance Core"
         },
         {
@@ -579,8 +579,8 @@
     "stats": {
       "attack": 1.06,
       "defense": 1.7,
-      "stamina": 4.09,
-      "control": 2.58,
+      "stamina": 4.06,
+      "control": 2.54,
       "meta_impact": 3.35
     },
     "sub_metrics": {
@@ -627,11 +627,11 @@
       "category": "stamina",
       "icon": "\ud83d\udcaa",
       "color": "#10b981",
-      "confidence": 0.659,
+      "confidence": 0.652,
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.655,
+          "score": 0.652,
           "name": "Endurance Core"
         },
         {
@@ -649,18 +649,18 @@
   },
   "TuskMammoth": {
     "stats": {
-      "attack": 2.93,
+      "attack": 3.06,
       "defense": 2.51,
-      "stamina": 2.96,
-      "control": 2.35,
+      "stamina": 2.67,
+      "control": 2.44,
       "meta_impact": 2.93
     },
     "sub_metrics": {
       "attack": {
-        "burst_finish_rate": 0.1818,
-        "pocket_finish_rate": 0.2273,
-        "extreme_finish_rate": 0.0909,
-        "offensive_point_efficiency": 1.5909,
+        "burst_finish_rate": 0.1905,
+        "pocket_finish_rate": 0.2381,
+        "extreme_finish_rate": 0.0952,
+        "offensive_point_efficiency": 1.619,
         "opening_dominance": 0.5556
       },
       "defense": {
@@ -670,14 +670,14 @@
         "defensive_conversion": 0.5385
       },
       "stamina": {
-        "spin_finish_win_rate": 0.5,
-        "spin_differential_index": 0.6471,
-        "long_round_win_rate": 0.6667
+        "spin_finish_win_rate": 0.4762,
+        "spin_differential_index": 0.625,
+        "long_round_win_rate": 0.6
       },
       "control": {
         "volatility_inverse": 0.4019,
         "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.8889
+        "match_flow_stability": 0.9056
       },
       "meta_impact": {
         "elo_normalized": 0.6,
@@ -699,7 +699,7 @@
       "category": "defense",
       "icon": "\ud83d\udee1\ufe0f",
       "color": "#3b82f6",
-      "confidence": 0.47,
+      "confidence": 0.437,
       "candidates": [
         {
           "archetype": "iron_wall",
@@ -707,24 +707,24 @@
           "name": "Iron Wall"
         },
         {
+          "archetype": "adaptive_fighter",
+          "score": 0.635,
+          "name": "Adaptive Fighter"
+        },
+        {
           "archetype": "counter_shield",
           "score": 0.618,
           "name": "Counter Shield"
-        },
-        {
-          "archetype": "adaptive_fighter",
-          "score": 0.613,
-          "name": "Adaptive Fighter"
         }
       ]
     }
   },
   "DranSword": {
     "stats": {
-      "attack": 2.37,
+      "attack": 2.35,
       "defense": 3.0,
-      "stamina": 3.41,
-      "control": 3.02,
+      "stamina": 3.44,
+      "control": 2.98,
       "meta_impact": 3.13
     },
     "sub_metrics": {
@@ -771,7 +771,7 @@
       "category": "defense",
       "icon": "\ud83d\udee1\ufe0f",
       "color": "#3b82f6",
-      "confidence": 0.615,
+      "confidence": 0.61,
       "candidates": [
         {
           "archetype": "iron_wall",
@@ -780,12 +780,12 @@
         },
         {
           "archetype": "spin_tank",
-          "score": 0.644,
+          "score": 0.647,
           "name": "Spin Tank"
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.59,
+          "score": 0.585,
           "name": "Adaptive Fighter"
         }
       ]
@@ -795,7 +795,7 @@
     "stats": {
       "attack": 1.98,
       "defense": 2.24,
-      "stamina": 3.46,
+      "stamina": 3.43,
       "control": 1.91,
       "meta_impact": 1.99
     },
@@ -847,7 +847,7 @@
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.556,
+          "score": 0.553,
           "name": "Endurance Core"
         },
         {
@@ -867,8 +867,8 @@
     "stats": {
       "attack": 3.13,
       "defense": 1.63,
-      "stamina": 2.06,
-      "control": 2.83,
+      "stamina": 2.03,
+      "control": 2.79,
       "meta_impact": 2.34
     },
     "sub_metrics": {
@@ -939,7 +939,7 @@
     "stats": {
       "attack": 3.43,
       "defense": 2.75,
-      "stamina": 0.37,
+      "stamina": 0.34,
       "control": 2.85,
       "meta_impact": 2.29
     },
@@ -1010,9 +1010,9 @@
   "ScorpioSpear": {
     "stats": {
       "attack": 2.34,
-      "defense": 2.76,
-      "stamina": 1.63,
-      "control": 2.9,
+      "defense": 2.74,
+      "stamina": 1.7,
+      "control": 2.86,
       "meta_impact": 1.86
     },
     "sub_metrics": {
@@ -1063,7 +1063,7 @@
       "candidates": [
         {
           "archetype": "iron_wall",
-          "score": 0.679,
+          "score": 0.677,
           "name": "Iron Wall"
         },
         {
@@ -1082,7 +1082,7 @@
   "SharkEdge": {
     "stats": {
       "attack": 3.13,
-      "defense": 2.65,
+      "defense": 2.7,
       "stamina": 0.7,
       "control": 1.93,
       "meta_impact": 1.48
@@ -1131,11 +1131,11 @@
       "category": "defense",
       "icon": "\ud83d\udee1\ufe0f",
       "color": "#3b82f6",
-      "confidence": 0.499,
+      "confidence": 0.511,
       "candidates": [
         {
           "archetype": "iron_wall",
-          "score": 0.624,
+          "score": 0.629,
           "name": "Iron Wall"
         },
         {
@@ -1145,7 +1145,7 @@
         },
         {
           "archetype": "glass_cannon",
-          "score": 0.493,
+          "score": 0.489,
           "name": "Glass Cannon"
         }
       ]
@@ -1155,7 +1155,7 @@
     "stats": {
       "attack": 2.92,
       "defense": 1.77,
-      "stamina": 0.37,
+      "stamina": 0.34,
       "control": 1.86,
       "meta_impact": 2.26
     },
@@ -1226,9 +1226,9 @@
   "PhoenixWing": {
     "stats": {
       "attack": 3.58,
-      "defense": 2.75,
+      "defense": 2.73,
       "stamina": 0.53,
-      "control": 1.74,
+      "control": 1.69,
       "meta_impact": 2.95
     },
     "sub_metrics": {
@@ -1275,11 +1275,11 @@
       "category": "offense",
       "icon": "\ud83d\udca5",
       "color": "#ef4444",
-      "confidence": 0.382,
+      "confidence": 0.386,
       "candidates": [
         {
           "archetype": "glass_cannon",
-          "score": 0.515,
+          "score": 0.517,
           "name": "Glass Cannon"
         },
         {
@@ -1443,7 +1443,7 @@
     "stats": {
       "attack": 3.29,
       "defense": 1.57,
-      "stamina": 1.79,
+      "stamina": 1.76,
       "control": 1.51,
       "meta_impact": 2.08
     },
@@ -1516,7 +1516,7 @@
       "attack": 1.58,
       "defense": 2.5,
       "stamina": 2.53,
-      "control": 2.18,
+      "control": 2.14,
       "meta_impact": 1.14
     },
     "sub_metrics": {
@@ -1571,8 +1571,8 @@
     "stats": {
       "attack": 2.93,
       "defense": 1.74,
-      "stamina": 1.06,
-      "control": 1.7,
+      "stamina": 1.03,
+      "control": 1.66,
       "meta_impact": 1.69
     },
     "sub_metrics": {
@@ -1857,10 +1857,10 @@
   },
   "BlackShell": {
     "stats": {
-      "attack": 1.78,
-      "defense": 2.26,
-      "stamina": 2.47,
-      "control": 1.69,
+      "attack": 1.74,
+      "defense": 2.31,
+      "stamina": 2.44,
+      "control": 1.65,
       "meta_impact": 1.69
     },
     "sub_metrics": {
@@ -1915,7 +1915,7 @@
     "stats": {
       "attack": 1.68,
       "defense": 2.92,
-      "stamina": 3.07,
+      "stamina": 3.04,
       "control": 2.56,
       "meta_impact": 1.41
     },
@@ -1963,7 +1963,7 @@
       "category": "defense",
       "icon": "\ud83d\udee1\ufe0f",
       "color": "#3b82f6",
-      "confidence": 0.517,
+      "confidence": 0.523,
       "candidates": [
         {
           "archetype": "iron_wall",
@@ -1972,12 +1972,12 @@
         },
         {
           "archetype": "endurance_core",
-          "score": 0.625,
+          "score": 0.622,
           "name": "Endurance Core"
         },
         {
           "archetype": "spin_tank",
-          "score": 0.581,
+          "score": 0.578,
           "name": "Spin Tank"
         }
       ]
@@ -1987,7 +1987,7 @@
     "stats": {
       "attack": 1.86,
       "defense": 1.25,
-      "stamina": 3.54,
+      "stamina": 3.51,
       "control": 1.63,
       "meta_impact": 0.64
     },
@@ -2039,7 +2039,7 @@
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.618,
+          "score": 0.615,
           "name": "Endurance Core"
         },
         {
@@ -2060,7 +2060,7 @@
       "attack": 0.3,
       "defense": 2.74,
       "stamina": 2.6,
-      "control": 3.35,
+      "control": 3.31,
       "meta_impact": 0.99
     },
     "sub_metrics": {
@@ -2107,7 +2107,7 @@
       "category": "defense",
       "icon": "\ud83d\udee1\ufe0f",
       "color": "#3b82f6",
-      "confidence": 0.549,
+      "confidence": 0.558,
       "candidates": [
         {
           "archetype": "iron_wall",
@@ -2116,7 +2116,7 @@
         },
         {
           "archetype": "tempo_controller",
-          "score": 0.69,
+          "score": 0.686,
           "name": "Tempo Controller"
         },
         {
@@ -2131,8 +2131,8 @@
     "stats": {
       "attack": 2.99,
       "defense": 1.79,
-      "stamina": 1.36,
-      "control": 2.63,
+      "stamina": 1.33,
+      "control": 2.59,
       "meta_impact": 2.01
     },
     "sub_metrics": {
@@ -2203,7 +2203,7 @@
     "stats": {
       "attack": 2.44,
       "defense": 2.72,
-      "stamina": 1.16,
+      "stamina": 1.23,
       "control": 2.96,
       "meta_impact": 0.92
     },
@@ -2274,8 +2274,8 @@
   "WizardArrow": {
     "stats": {
       "attack": 0.41,
-      "defense": 1.5,
-      "stamina": 3.6,
+      "defense": 1.54,
+      "stamina": 3.57,
       "control": 1.45,
       "meta_impact": 0.84
     },
@@ -2327,7 +2327,7 @@
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.733,
+          "score": 0.73,
           "name": "Endurance Core"
         },
         {
@@ -2403,7 +2403,7 @@
     "stats": {
       "attack": 0.0,
       "defense": 1.56,
-      "stamina": 3.7,
+      "stamina": 3.67,
       "control": 2.19,
       "meta_impact": 0.13
     },
@@ -2455,7 +2455,7 @@
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.819,
+          "score": 0.817,
           "name": "Endurance Core"
         },
         {
@@ -2475,7 +2475,7 @@
     "stats": {
       "attack": 1.39,
       "defense": 1.79,
-      "stamina": 1.61,
+      "stamina": 1.66,
       "control": 2.42,
       "meta_impact": 0.66
     },
