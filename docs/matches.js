@@ -3,7 +3,7 @@ let allMatches = [];
 let filteredMatches = [];
 let beysData = [];
 let roundsData = {}; // Mapping of match_id to rounds array
-let currentSort = { column: 1, asc: false }; // Default: Date descending (Date is now column index 1)
+let currentSort = { column: 0, asc: false }; // Default: Match ID descending (Match ID is now column index 0)
 let currentPage = 1;
 let pageSize = 50;
 let expandedMatches = new Set(); // Track which matches are expanded
@@ -145,8 +145,8 @@ async function loadMatches() {
             };
         });
         
-        // Sort by date descending by default (newest first)
-        allMatches.sort((a, b) => new Date(b.date) - new Date(a.date));
+        // Sort by matchId descending by default (newest first)
+        allMatches.sort((a, b) => b.matchId - a.matchId);
         filteredMatches = [...allMatches];
         
         populateFilters();
