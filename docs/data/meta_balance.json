@@ -1,28 +1,28 @@
 {
   "meta_health": {
-    "overall_score": 56.6,
+    "overall_score": 55.3,
     "status": "Moderate",
     "status_class": "moderate",
     "breakdown": {
       "usage_diversity": {
-        "score": 97.5,
+        "score": 96.9,
         "weight": 0.25,
-        "contribution": 24.4
+        "contribution": 24.2
       },
       "win_rate_balance": {
-        "score": 16.2,
+        "score": 20.2,
         "weight": 0.25,
-        "contribution": 4.0
+        "contribution": 5.0
       },
       "elo_spread": {
-        "score": 85.0,
+        "score": 77.4,
         "weight": 0.2,
-        "contribution": 17.0
+        "contribution": 15.5
       },
       "dominance_penalty": {
-        "score": 74.2,
+        "score": 70.1,
         "weight": 0.15,
-        "contribution": 11.1
+        "contribution": 10.5
       },
       "polarization_penalty": {
         "score": 0.0,
@@ -52,69 +52,69 @@
   },
   "metrics": {
     "usage_diversity": {
-      "overall_score": 97.5,
+      "overall_score": 96.9,
       "blade": {
-        "entropy": 5.098,
+        "entropy": 5.062,
         "max_entropy": 5.17,
-        "score": 98.6,
+        "score": 97.9,
         "unique_count": 36
       },
       "ratchet": {
-        "entropy": 4.086,
+        "entropy": 4.053,
         "max_entropy": 4.322,
-        "score": 94.6,
+        "score": 93.8,
         "unique_count": 20
       },
       "bit": {
-        "entropy": 4.962,
+        "entropy": 4.936,
         "max_entropy": 5.044,
-        "score": 98.4,
+        "score": 97.9,
         "unique_count": 33
       },
       "bey": {
-        "entropy": 5.098,
+        "entropy": 5.062,
         "max_entropy": 5.17,
-        "score": 98.6,
+        "score": 97.9,
         "unique_count": 36
       },
       "top_used_blades": [
         [
-          "FoxBrush",
-          12
-        ],
-        [
           "ImpactDrake",
-          10
+          14
         ],
         [
           "TuskMammoth",
+          13
+        ],
+        [
+          "FoxBrush",
+          13
+        ],
+        [
+          "DranDagger",
           9
         ],
         [
-          "RhinoReaper",
-          8
-        ],
-        [
-          "DranSword",
-          7
+          "SharkEdge",
+          9
         ]
       ],
       "top_used_ratchets": [
         [
           "3-60",
-          26
-        ],
-        [
-          "9-70",
-          18
-        ],
-        [
-          "5-80",
-          17
+          34
         ],
         [
           "9-60",
-          16
+          22
+        ],
+        [
+          "5-80",
+          20
+        ],
+        [
+          "9-70",
+          20
         ],
         [
           "5-60",
@@ -124,63 +124,63 @@
       "top_used_bits": [
         [
           "Dot",
+          14
+        ],
+        [
+          "Low Rush",
+          14
+        ],
+        [
+          "Taper",
           13
         ],
         [
           "Gear Rush",
-          12
+          13
         ],
         [
-          "Low Rush",
-          10
-        ],
-        [
-          "Taper",
+          "Rush",
           9
-        ],
-        [
-          "High Taper",
-          8
         ]
       ]
     },
     "win_rate_deviation": {
-      "score": 16.2,
-      "std_deviation": 0.2513,
-      "variance": 0.0632,
-      "mean_winrate": 0.4373,
+      "score": 20.2,
+      "std_deviation": 0.2393,
+      "variance": 0.0572,
+      "mean_winrate": 0.4283,
       "min_winrate": 0.0,
-      "max_winrate": 0.833,
-      "range": 0.833,
+      "max_winrate": 0.857,
+      "range": 0.857,
       "beys_analyzed": 36
     },
     "elo_compression": {
-      "score": 85.0,
-      "mean_elo": 999.5,
+      "score": 77.4,
+      "mean_elo": 999.6,
       "std_deviation": 33.7,
-      "min_elo": 943,
-      "max_elo": 1078,
-      "range": 135,
-      "compression_ratio": 0.25,
+      "min_elo": 940,
+      "max_elo": 1090,
+      "range": 150,
+      "compression_ratio": 0.225,
       "beys_analyzed": 36
     },
     "top_dominance": {
-      "score": 74.2,
-      "top_3_share": 25.5,
-      "top_5_share": 36.3,
-      "top_10_share": 60.8,
+      "score": 70.1,
+      "top_3_share": 28.0,
+      "top_5_share": 38.1,
+      "top_10_share": 65.3,
       "top_3_beys": [
-        "FoxBrush",
+        "CerberusFlame",
         "ImpactDrake",
-        "CerberusFlame"
+        "FoxBrush"
       ],
-      "total_matches": 102
+      "total_matches": 118
     },
     "matchup_polarization": {
       "score": 0.0,
-      "polarization_rate": 60.0,
-      "polarized_matchups_count": 3,
-      "total_matchups_analyzed": 5,
+      "polarization_rate": 71.4,
+      "polarized_matchups_count": 5,
+      "total_matchups_analyzed": 7,
       "threshold_used": 70.0,
       "worst_matchups": [
         {
@@ -200,6 +200,22 @@
           "games": 2
         },
         {
+          "bey_1": "CobaltDragoon",
+          "bey_2": "PhoenixWing",
+          "bey_1_wins": 0,
+          "bey_2_wins": 2,
+          "win_rate": 0.0,
+          "games": 2
+        },
+        {
+          "bey_1": "ImpactDrake",
+          "bey_2": "TuskMammoth",
+          "bey_1_wins": 2,
+          "bey_2_wins": 0,
+          "win_rate": 100.0,
+          "games": 2
+        },
+        {
           "bey_1": "CerberusFlame",
           "bey_2": "SilverWolf",
           "bey_1_wins": 2,
@@ -213,59 +229,35 @@
   "outliers": {
     "overcentralizing": [
       {
+        "bey": "ImpactDrake",
+        "elo": 1090,
+        "winrate": 85.7,
+        "matches": 14,
+        "deviation_from_mean": 1.79,
+        "confidence": "high"
+      },
+      {
         "bey": "FoxBrush",
-        "elo": 1078,
-        "winrate": 83.3,
-        "matches": 12,
-        "deviation_from_mean": 1.57,
+        "elo": 1062,
+        "winrate": 76.9,
+        "matches": 13,
+        "deviation_from_mean": 1.42,
         "confidence": "high"
       },
       {
         "bey": "CerberusFlame",
         "elo": 1056,
-        "winrate": 83.3,
-        "matches": 6,
-        "deviation_from_mean": 1.57,
+        "winrate": 75.0,
+        "matches": 8,
+        "deviation_from_mean": 1.34,
         "confidence": "medium"
-      },
-      {
-        "bey": "ImpactDrake",
-        "elo": 1067,
-        "winrate": 80.0,
-        "matches": 10,
-        "deviation_from_mean": 1.44,
-        "confidence": "high"
-      },
-      {
-        "bey": "TuskMammoth",
-        "elo": 1024,
-        "winrate": 77.8,
-        "matches": 9,
-        "deviation_from_mean": 1.36,
-        "confidence": "high"
       },
       {
         "bey": "RhinoReaper",
         "elo": 1033,
         "winrate": 75.0,
         "matches": 8,
-        "deviation_from_mean": 1.24,
-        "confidence": "medium"
-      },
-      {
-        "bey": "CobaltDragoon",
-        "elo": 1045,
-        "winrate": 71.4,
-        "matches": 7,
-        "deviation_from_mean": 1.1,
-        "confidence": "medium"
-      },
-      {
-        "bey": "DranDagger",
-        "elo": 1040,
-        "winrate": 71.4,
-        "matches": 7,
-        "deviation_from_mean": 1.1,
+        "deviation_from_mean": 1.34,
         "confidence": "medium"
       },
       {
@@ -273,15 +265,31 @@
         "elo": 1016,
         "winrate": 71.4,
         "matches": 7,
-        "deviation_from_mean": 1.1,
+        "deviation_from_mean": 1.19,
         "confidence": "medium"
       },
       {
-        "bey": "ViperTail",
-        "elo": 1035,
+        "bey": "TuskMammoth",
+        "elo": 1022,
+        "winrate": 69.2,
+        "matches": 13,
+        "deviation_from_mean": 1.1,
+        "confidence": "high"
+      },
+      {
+        "bey": "DranDagger",
+        "elo": 1034,
         "winrate": 66.7,
-        "matches": 6,
-        "deviation_from_mean": 0.91,
+        "matches": 9,
+        "deviation_from_mean": 1.0,
+        "confidence": "medium"
+      },
+      {
+        "bey": "CobaltDragoon",
+        "elo": 1041,
+        "winrate": 62.5,
+        "matches": 8,
+        "deviation_from_mean": 0.82,
         "confidence": "medium"
       }
     ],
@@ -291,7 +299,7 @@
         "elo": 965,
         "winrate": 0.0,
         "matches": 4,
-        "deviation_from_mean": -1.74,
+        "deviation_from_mean": -1.79,
         "confidence": "medium"
       },
       {
@@ -299,7 +307,7 @@
         "elo": 961,
         "winrate": 0.0,
         "matches": 4,
-        "deviation_from_mean": -1.74,
+        "deviation_from_mean": -1.79,
         "confidence": "medium"
       },
       {
@@ -307,7 +315,7 @@
         "elo": 957,
         "winrate": 0.0,
         "matches": 3,
-        "deviation_from_mean": -1.74,
+        "deviation_from_mean": -1.79,
         "confidence": "medium"
       },
       {
@@ -315,15 +323,23 @@
         "elo": 954,
         "winrate": 0.0,
         "matches": 4,
-        "deviation_from_mean": -1.74,
+        "deviation_from_mean": -1.79,
         "confidence": "medium"
       },
       {
         "bey": "SamuraiSaber",
-        "elo": 943,
+        "elo": 940,
         "winrate": 0.0,
-        "matches": 4,
-        "deviation_from_mean": -1.74,
+        "matches": 5,
+        "deviation_from_mean": -1.79,
+        "confidence": "medium"
+      },
+      {
+        "bey": "LeonCrest",
+        "elo": 973,
+        "winrate": 20.0,
+        "matches": 5,
+        "deviation_from_mean": -0.95,
         "confidence": "medium"
       },
       {
@@ -331,15 +347,7 @@
         "elo": 965,
         "winrate": 20.0,
         "matches": 5,
-        "deviation_from_mean": -0.94,
-        "confidence": "medium"
-      },
-      {
-        "bey": "DranBrave",
-        "elo": 962,
-        "winrate": 20.0,
-        "matches": 5,
-        "deviation_from_mean": -0.94,
+        "deviation_from_mean": -0.95,
         "confidence": "medium"
       },
       {
@@ -347,15 +355,7 @@
         "elo": 986,
         "winrate": 25.0,
         "matches": 4,
-        "deviation_from_mean": -0.75,
-        "confidence": "medium"
-      },
-      {
-        "bey": "LeonCrest",
-        "elo": 982,
-        "winrate": 25.0,
-        "matches": 4,
-        "deviation_from_mean": -0.75,
+        "deviation_from_mean": -0.74,
         "confidence": "medium"
       },
       {
@@ -363,15 +363,31 @@
         "elo": 979,
         "winrate": 25.0,
         "matches": 4,
-        "deviation_from_mean": -0.75,
+        "deviation_from_mean": -0.74,
         "confidence": "medium"
+      },
+      {
+        "bey": "DranBrave",
+        "elo": 987,
+        "winrate": 28.6,
+        "matches": 7,
+        "deviation_from_mean": -0.59,
+        "confidence": "high"
       },
       {
         "bey": "WhaleFlame",
         "elo": 983,
         "winrate": 33.3,
         "matches": 3,
-        "deviation_from_mean": -0.42,
+        "deviation_from_mean": -0.4,
+        "confidence": "medium"
+      },
+      {
+        "bey": "BlackShell",
+        "elo": 972,
+        "winrate": 33.3,
+        "matches": 6,
+        "deviation_from_mean": -0.4,
         "confidence": "medium"
       },
       {
@@ -379,15 +395,7 @@
         "elo": 1002,
         "winrate": 40.0,
         "matches": 5,
-        "deviation_from_mean": -0.15,
-        "confidence": "medium"
-      },
-      {
-        "bey": "SharkEdge",
-        "elo": 995,
-        "winrate": 40.0,
-        "matches": 5,
-        "deviation_from_mean": -0.15,
+        "deviation_from_mean": -0.12,
         "confidence": "medium"
       },
       {
@@ -395,7 +403,7 @@
         "elo": 995,
         "winrate": 40.0,
         "matches": 5,
-        "deviation_from_mean": -0.15,
+        "deviation_from_mean": -0.12,
         "confidence": "medium"
       },
       {
@@ -403,15 +411,7 @@
         "elo": 988,
         "winrate": 40.0,
         "matches": 5,
-        "deviation_from_mean": -0.15,
-        "confidence": "medium"
-      },
-      {
-        "bey": "BlackShell",
-        "elo": 980,
-        "winrate": 40.0,
-        "matches": 5,
-        "deviation_from_mean": -0.15,
+        "deviation_from_mean": -0.12,
         "confidence": "medium"
       },
       {
@@ -419,7 +419,7 @@
         "elo": 963,
         "winrate": 40.0,
         "matches": 5,
-        "deviation_from_mean": -0.15,
+        "deviation_from_mean": -0.12,
         "confidence": "medium"
       }
     ],
@@ -430,19 +430,12 @@
         "winrate": 60.0,
         "matches": 5,
         "note": "Potentially overcentralizing but needs more data"
-      },
-      {
-        "bey": "KnightMail",
-        "elo": 1031,
-        "winrate": 60.0,
-        "matches": 5,
-        "note": "Potentially overcentralizing but needs more data"
       }
     ],
     "confidence_notes": []
   },
   "metadata": {
-    "total_matches": 102,
+    "total_matches": 118,
     "total_beys": 36,
     "analysis_thresholds": {
       "overcentralizing_usage_percentile": 0.9,
