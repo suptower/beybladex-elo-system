@@ -48,6 +48,7 @@ const FINISH_TYPES = {
 // ELO CALCULATION CONSTANTS
 // ============================================
 const K_FACTOR = 32; // K-factor for ELO calculation (Swiss tournament standard)
+const DEFAULT_ELO = 1000; // Default ELO rating for new players
 
 // ============================================
 // STORAGE KEYS
@@ -626,13 +627,14 @@ function getBeyData(beyName) {
 /**
  * Render pre-match analysis panel for a match
  * @param {number} matchIndex - Index of the match
+ * @param {string} idPrefix - ID prefix for the panel (default: 'analysisPanel')
  * @returns {string} HTML string for the analysis panel
  */
-function renderAnalysisPanel(matchIndex) {
+function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
     const match = state.matches[matchIndex];
     if (!match || !match.beyA || !match.beyB) {
         return `
-            <div class="match-analysis-panel" id="analysisPanel_${matchIndex}">
+            <div class="match-analysis-panel" id="${idPrefix}_${matchIndex}">
                 <div class="analysis-placeholder">
                     <span class="analysis-placeholder-text">Select both Beys to see pre-match analysis</span>
                 </div>
@@ -645,7 +647,7 @@ function renderAnalysisPanel(matchIndex) {
     
     if (!beyAData || !beyBData) {
         return `
-            <div class="match-analysis-panel" id="analysisPanel_${matchIndex}">
+            <div class="match-analysis-panel" id="${idPrefix}_${matchIndex}">
                 <div class="analysis-placeholder">
                     <span class="analysis-placeholder-text">ELO data not available for selected Beys</span>
                 </div>
@@ -653,8 +655,8 @@ function renderAnalysisPanel(matchIndex) {
         `;
     }
     
-    const eloA = beyAData.elo || 1000;
-    const eloB = beyBData.elo || 1000;
+    const eloA = beyAData.elo || DEFAULT_ELO;
+    const eloB = beyBData.elo || DEFAULT_ELO;
     const eloDiff = eloA - eloB;
     
     // Calculate win probabilities
@@ -678,7 +680,7 @@ function renderAnalysisPanel(matchIndex) {
     }
     
     return `
-        <div class="match-analysis-panel" id="analysisPanel_${matchIndex}">
+        <div class="match-analysis-panel" id="${idPrefix}_${matchIndex}">
             <div class="analysis-header">
                 <span class="analysis-title">📊 Pre-Match Analysis</span>
                 ${favoredText}
@@ -759,10 +761,7 @@ function updateAnalysisPanel(matchIndex) {
     // Update card view analysis panel
     const cardPanel = document.getElementById(`cardAnalysisPanel_${matchIndex}`);
     if (cardPanel) {
-        cardPanel.outerHTML = renderAnalysisPanel(matchIndex).replace(
-            `analysisPanel_${matchIndex}`,
-            `cardAnalysisPanel_${matchIndex}`
-        );
+        cardPanel.outerHTML = renderAnalysisPanel(matchIndex, 'cardAnalysisPanel');
     }
 }
 
@@ -918,7 +917,7 @@ function renderMatchCards() {
                         <div class="score-display-large score-b ${match.winner === 'B' ? 'score-winner' : ''}">${match.scoreB}</div>
                     </div>
                 </div>
-                ${renderAnalysisPanel(index).replace(`analysisPanel_${index}`, `cardAnalysisPanel_${index}`)}
+                ${renderAnalysisPanel(index, 'cardAnalysisPanel')}
                 <div class="match-card-rounds">
                     <div class="rounds-toggle" onclick="toggleCardRounds(${index})">
                         ⚔️ Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>
