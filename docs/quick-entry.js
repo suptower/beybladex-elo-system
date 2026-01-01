@@ -45,6 +45,11 @@ const FINISH_TYPES = {
 };
 
 // ============================================
+// ELO CALCULATION CONSTANTS
+// ============================================
+const K_FACTOR = 32; // K-factor for ELO calculation (Swiss tournament standard)
+
+// ============================================
 // STORAGE KEYS
 // ============================================
 const STORAGE_KEYS = {
@@ -53,6 +58,32 @@ const STORAGE_KEYS = {
     PARTICIPANTS: 'quickEntry_participants',
     SETTINGS: 'quickEntry_settings'
 };
+
+// ============================================
+// ELO CALCULATION FUNCTIONS
+// ============================================
+
+/**
+ * Calculate expected score (win probability) using ELO formula
+ * @param {number} eloA - ELO rating of player A
+ * @param {number} eloB - ELO rating of player B
+ * @returns {number} Expected score for player A (0.0 to 1.0)
+ */
+function calculateExpectedScore(eloA, eloB) {
+    return 1.0 / (1.0 + Math.pow(10, (eloB - eloA) / 400.0));
+}
+
+/**
+ * Calculate ELO change for a given outcome
+ * @param {number} elo - Current ELO rating
+ * @param {number} opponentElo - Opponent's ELO rating
+ * @param {number} actualScore - Actual score (1 for win, 0 for loss, 0.5 for draw)
+ * @returns {number} ELO change (can be positive or negative)
+ */
+function calculateEloChange(elo, opponentElo, actualScore) {
+    const expectedScore = calculateExpectedScore(elo, opponentElo);
+    return Math.round(K_FACTOR * (actualScore - expectedScore));
+}
 
 // ============================================
 // STATE
@@ -573,6 +604,166 @@ function updateBey(matchIndex, player, beyName) {
     
     saveToStorage();
     renderMatches();
+    
+    // Update analysis panel when both Beys are selected
+    updateAnalysisPanel(matchIndex);
+}
+
+// ============================================
+// PRE-MATCH ANALYSIS PANEL
+// ============================================
+
+/**
+ * Get Bey data including ELO from state
+ * @param {string} beyName - Name of the Bey
+ * @returns {object|null} Bey data or null if not found
+ */
+function getBeyData(beyName) {
+    if (!beyName) return null;
+    return state.beyblades.find(bey => bey.name === beyName) || null;
+}
+
+/**
+ * Render pre-match analysis panel for a match
+ * @param {number} matchIndex - Index of the match
+ * @returns {string} HTML string for the analysis panel
+ */
+function renderAnalysisPanel(matchIndex) {
+    const match = state.matches[matchIndex];
+    if (!match || !match.beyA || !match.beyB) {
+        return `
+            <div class="match-analysis-panel" id="analysisPanel_${matchIndex}">
+                <div class="analysis-placeholder">
+                    <span class="analysis-placeholder-text">Select both Beys to see pre-match analysis</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    const beyAData = getBeyData(match.beyA);
+    const beyBData = getBeyData(match.beyB);
+    
+    if (!beyAData || !beyBData) {
+        return `
+            <div class="match-analysis-panel" id="analysisPanel_${matchIndex}">
+                <div class="analysis-placeholder">
+                    <span class="analysis-placeholder-text">ELO data not available for selected Beys</span>
+                </div>
+            </div>
+        `;
+    }
+    
+    const eloA = beyAData.elo || 1000;
+    const eloB = beyBData.elo || 1000;
+    const eloDiff = eloA - eloB;
+    
+    // Calculate win probabilities
+    const probA = calculateExpectedScore(eloA, eloB);
+    const probB = 1 - probA;
+    
+    // Calculate expected ELO changes
+    const eloChangeAWin = calculateEloChange(eloA, eloB, 1);
+    const eloChangeALoss = calculateEloChange(eloA, eloB, 0);
+    const eloChangeBWin = calculateEloChange(eloB, eloA, 1);
+    const eloChangeBLoss = calculateEloChange(eloB, eloA, 0);
+    
+    // Determine favored status
+    let favoredText = '';
+    if (Math.abs(eloDiff) < 50) {
+        favoredText = '<span class="favored-even">Even Match</span>';
+    } else if (eloDiff > 0) {
+        favoredText = `<span class="favored-a">${escapeHtml(match.beyA)} Favored</span>`;
+    } else {
+        favoredText = `<span class="favored-b">${escapeHtml(match.beyB)} Favored</span>`;
+    }
+    
+    return `
+        <div class="match-analysis-panel" id="analysisPanel_${matchIndex}">
+            <div class="analysis-header">
+                <span class="analysis-title">📊 Pre-Match Analysis</span>
+                ${favoredText}
+            </div>
+            
+            <div class="analysis-content">
+                <div class="analysis-section elo-ratings">
+                    <div class="elo-rating-item elo-a">
+                        <span class="elo-bey-name">${escapeHtml(match.beyA)}</span>
+                        <span class="elo-value">${eloA}</span>
+                    </div>
+                    <div class="elo-diff">
+                        <span class="elo-diff-label">ΔELO</span>
+                        <span class="elo-diff-value ${eloDiff >= 0 ? 'positive' : 'negative'}">${eloDiff >= 0 ? '+' : ''}${eloDiff}</span>
+                    </div>
+                    <div class="elo-rating-item elo-b">
+                        <span class="elo-bey-name">${escapeHtml(match.beyB)}</span>
+                        <span class="elo-value">${eloB}</span>
+                    </div>
+                </div>
+                
+                <div class="analysis-section win-probability">
+                    <div class="probability-label">Win Probability</div>
+                    <div class="probability-bars">
+                        <div class="probability-bar-container">
+                            <div class="probability-bar prob-a" style="width: ${probA * 100}%">
+                                <span class="probability-text">${(probA * 100).toFixed(0)}%</span>
+                            </div>
+                        </div>
+                        <div class="probability-bar-container">
+                            <div class="probability-bar prob-b" style="width: ${probB * 100}%">
+                                <span class="probability-text">${(probB * 100).toFixed(0)}%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis-section elo-changes">
+                    <div class="elo-change-label">Expected ELO Changes</div>
+                    <div class="elo-change-outcomes">
+                        <div class="elo-outcome">
+                            <span class="outcome-label">If ${escapeHtml(match.beyA)} wins:</span>
+                            <span class="outcome-values">
+                                <span class="elo-change ${eloChangeAWin >= 0 ? 'positive' : 'negative'}">${eloChangeAWin >= 0 ? '+' : ''}${eloChangeAWin}</span>
+                                <span class="outcome-separator">/</span>
+                                <span class="elo-change ${eloChangeBLoss >= 0 ? 'positive' : 'negative'}">${eloChangeBLoss >= 0 ? '+' : ''}${eloChangeBLoss}</span>
+                            </span>
+                        </div>
+                        <div class="elo-outcome">
+                            <span class="outcome-label">If ${escapeHtml(match.beyB)} wins:</span>
+                            <span class="outcome-values">
+                                <span class="elo-change ${eloChangeALoss >= 0 ? 'positive' : 'negative'}">${eloChangeALoss >= 0 ? '+' : ''}${eloChangeALoss}</span>
+                                <span class="outcome-separator">/</span>
+                                <span class="elo-change ${eloChangeBWin >= 0 ? 'positive' : 'negative'}">${eloChangeBWin >= 0 ? '+' : ''}${eloChangeBWin}</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Update analysis panel for a specific match
+ * @param {number} matchIndex - Index of the match to update
+ */
+function updateAnalysisPanel(matchIndex) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    // Update table row analysis panel
+    const panel = document.getElementById(`analysisPanel_${matchIndex}`);
+    if (panel) {
+        panel.outerHTML = renderAnalysisPanel(matchIndex);
+    }
+    
+    // Update card view analysis panel
+    const cardPanel = document.getElementById(`cardAnalysisPanel_${matchIndex}`);
+    if (cardPanel) {
+        cardPanel.outerHTML = renderAnalysisPanel(matchIndex).replace(
+            `analysisPanel_${matchIndex}`,
+            `cardAnalysisPanel_${matchIndex}`
+        );
+    }
 }
 
 // ============================================
@@ -671,6 +862,11 @@ function renderMatchTable() {
                     </div>
                 </td>
             </tr>
+            <tr class="analysis-panel-row" id="analysisPanelRow_${index}">
+                <td colspan="8">
+                    ${renderAnalysisPanel(index)}
+                </td>
+            </tr>
             <tr class="rounds-panel-row" id="roundsPanel_${index}" style="display: none;">
                 <td colspan="8">
                     <div class="rounds-panel">
@@ -722,6 +918,7 @@ function renderMatchCards() {
                         <div class="score-display-large score-b ${match.winner === 'B' ? 'score-winner' : ''}">${match.scoreB}</div>
                     </div>
                 </div>
+                ${renderAnalysisPanel(index).replace(`analysisPanel_${index}`, `cardAnalysisPanel_${index}`)}
                 <div class="match-card-rounds">
                     <div class="rounds-toggle" onclick="toggleCardRounds(${index})">
                         ⚔️ Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>
