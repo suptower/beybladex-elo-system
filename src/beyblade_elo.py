@@ -99,7 +99,7 @@ def calculate_score_with_dominance(sa, sb):
     Calculate score contribution with dominance scaling.
 
     Winner gets: base_win_value + dominance_bonus
-    Loser gets: 0.0
+    Loser gets: 1.0 - (base_win_value + dominance_bonus)
 
     Args:
         sa: Score for player A

@@ -168,15 +168,11 @@ class TestScoreWithDominance:
 
     def test_larger_differential_gives_higher_score(self):
         """Larger point differential should give higher score to winner."""
-        _, s_b_4_3 = calculate_score_with_dominance(4, 3)
-        _, s_b_4_2 = calculate_score_with_dominance(4, 2)
-        _, s_b_4_0 = calculate_score_with_dominance(4, 0)
+        s_a_4_3, _ = calculate_score_with_dominance(4, 3)
+        s_a_4_2, _ = calculate_score_with_dominance(4, 2)
+        s_a_4_0, _ = calculate_score_with_dominance(4, 0)
 
         # Winner's score should increase with larger differential
-        s_a_4_3 = 1.0 - s_b_4_3
-        s_a_4_2 = 1.0 - s_b_4_2
-        s_a_4_0 = 1.0 - s_b_4_0
-
         assert s_a_4_3 < s_a_4_2 < s_a_4_0
 
 
