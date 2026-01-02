@@ -995,6 +995,25 @@
 
 .match-card-player, .match-card-vs { display: none; }
 
+/* Analysis panel in card view */
+.match-card .match-analysis-panel {
+    width: 100%;
+    box-sizing: border-box;
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+}
+
+.match-card .analysis-toggle {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.match-card .analysis-content {
+    width: 100%;
+    box-sizing: border-box;
+}
+
 /* ============================================
    EXPORT/IMPORT SECTION
    ============================================ */
