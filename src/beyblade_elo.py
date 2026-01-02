@@ -97,17 +97,17 @@ def expected(a, b):
 def calculate_score_with_dominance(sa, sb):
     """
     Calculate score contribution with dominance scaling.
-    
+
     Winner gets: base_win_value + dominance_bonus
     Loser gets: 0.0
-    
+
     Args:
         sa: Score for player A
         sb: Score for player B
-    
+
     Returns:
         tuple: (score_a, score_b) with dominance applied
-    
+
     Examples:
         4-3 win: Winner gets ~0.58, Loser gets ~0.42
         4-0 win: Winner gets ~0.83, Loser gets ~0.17
@@ -116,16 +116,16 @@ def calculate_score_with_dominance(sa, sb):
     total = sa + sb
     if total == 0:
         return 0.5, 0.5  # Draw case (though rare in Beyblade)
-    
+
     # Calculate point differential
     point_diff = abs(sa - sb)
-    
+
     # Normalize dominance between 0 and 1
     dominance = min(point_diff / MAX_POINT_DIFFERENTIAL, 1.0)
-    
+
     # Calculate dominance bonus (scales from 0 to 0.5)
     dominance_bonus = 0.5 * dominance
-    
+
     # Winner gets base + bonus, loser gets inverse
     if sa > sb:
         score_a = BASE_WIN_VALUE + dominance_bonus
@@ -137,7 +137,7 @@ def calculate_score_with_dominance(sa, sb):
         # Exact tie (rare)
         score_a = 0.5
         score_b = 0.5
-    
+
     return score_a, score_b
 
 # ------------- Elo update for ONE MATCH -------------
@@ -156,7 +156,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None):
 
     # Use dominance-based scoring (ELO Version 2)
     s_a, s_b = calculate_score_with_dominance(sa, sb)
-    
+
     new_a = ra + Ka * (s_a - ea)
     new_b = rb + Kb * (s_b - eb)
     elos[a], elos[b] = new_a, new_b

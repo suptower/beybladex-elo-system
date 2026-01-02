@@ -20,8 +20,7 @@ from beyblade_elo import (
     K_INTERMEDIATE,
     K_EXPERIENCED,
     START_ELO,
-    BASE_WIN_VALUE,
-    MAX_POINT_DIFFERENTIAL
+    BASE_WIN_VALUE
 )
 
 
@@ -172,12 +171,12 @@ class TestScoreWithDominance:
         _, s_b_4_3 = calculate_score_with_dominance(4, 3)
         _, s_b_4_2 = calculate_score_with_dominance(4, 2)
         _, s_b_4_0 = calculate_score_with_dominance(4, 0)
-        
+
         # Winner's score should increase with larger differential
         s_a_4_3 = 1.0 - s_b_4_3
         s_a_4_2 = 1.0 - s_b_4_2
         s_a_4_0 = 1.0 - s_b_4_0
-        
+
         assert s_a_4_3 < s_a_4_2 < s_a_4_0
 
 
@@ -286,29 +285,29 @@ class TestUpdateElo:
         elos_close, stats_close = self._create_test_data()
         elos_close["BeyA"] = 1000
         elos_close["BeyB"] = 1000
-        
+
         elos_dominant, stats_dominant = self._create_test_data()
         elos_dominant["BeyC"] = 1000
         elos_dominant["BeyD"] = 1000
-        
+
         elos_overwhelming, stats_overwhelming = self._create_test_data()
         elos_overwhelming["BeyE"] = 1000
         elos_overwhelming["BeyF"] = 1000
-        
+
         # Close win: 4-3
         update_elo("BeyA", "BeyB", 4, 3, "2024-01-01", elos_close, stats_close)
-        
+
         # Dominant win: 4-0
         update_elo("BeyC", "BeyD", 4, 0, "2024-01-01", elos_dominant, stats_dominant)
-        
+
         # Overwhelming win: 6-0
         update_elo("BeyE", "BeyF", 6, 0, "2024-01-01", elos_overwhelming, stats_overwhelming)
-        
+
         # Calculate ELO gains
         gain_close = elos_close["BeyA"] - 1000
         gain_dominant = elos_dominant["BeyC"] - 1000
         gain_overwhelming = elos_overwhelming["BeyE"] - 1000
-        
+
         # More dominant wins should result in larger ELO gains
         assert gain_close < gain_dominant < gain_overwhelming, \
             f"Expected gains to increase with dominance: {gain_close} < {gain_dominant} < {gain_overwhelming}"
@@ -318,20 +317,20 @@ class TestUpdateElo:
         elos_max, stats_max = self._create_test_data()
         elos_max["BeyA"] = 1000
         elos_max["BeyB"] = 1000
-        
+
         elos_near_max, stats_near_max = self._create_test_data()
         elos_near_max["BeyC"] = 1000
         elos_near_max["BeyD"] = 1000
-        
+
         # 6-0 win (maximum dominance)
         update_elo("BeyA", "BeyB", 6, 0, "2024-01-01", elos_max, stats_max)
-        
+
         # 5-0 win (near maximum)
         update_elo("BeyC", "BeyD", 5, 0, "2024-01-01", elos_near_max, stats_near_max)
-        
+
         gain_max = elos_max["BeyA"] - 1000
         gain_near_max = elos_near_max["BeyC"] - 1000
-        
+
         # 6-0 should give more than 5-0
         assert gain_max > gain_near_max
 
