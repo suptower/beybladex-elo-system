@@ -98,6 +98,8 @@ let state = {
     },
     participants: [],
     beyblades: [],
+    matchHistory: [], // Historical match data
+    roundsHistory: [], // Historical rounds data
     focusedMatchIndex: -1
 };
 
@@ -129,9 +131,62 @@ async function loadBeybladeData() {
                 wins: parseInt(values[4]) || 0
             };
         }).sort((a, b) => b.elo - a.elo);
+        
+        // Load match history
+        await loadMatchHistory();
+        
+        // Load rounds history
+        await loadRoundsHistory();
     } catch (error) {
         console.error('Error loading beyblade data:', error);
         state.beyblades = [];
+    }
+}
+
+// Load historical match data
+async function loadMatchHistory() {
+    try {
+        const response = await fetch('data/matches.csv');
+        const text = await response.text();
+        const lines = text.trim().split(/\r?\n/);
+        
+        state.matchHistory = lines.slice(1).map(line => {
+            const values = line.split(',');
+            return {
+                matchId: values[0],
+                date: values[1],
+                beyA: values[2],
+                beyB: values[3],
+                scoreA: parseInt(values[4]) || 0,
+                scoreB: parseInt(values[5]) || 0
+            };
+        });
+    } catch (error) {
+        console.error('Error loading match history:', error);
+        state.matchHistory = [];
+    }
+}
+
+// Load historical rounds data
+async function loadRoundsHistory() {
+    try {
+        const response = await fetch('data/rounds.csv');
+        const text = await response.text();
+        const lines = text.trim().split(/\r?\n/);
+        
+        state.roundsHistory = lines.slice(1).map(line => {
+            const values = line.split(',');
+            return {
+                matchId: values[0],
+                roundNumber: parseInt(values[1]) || 0,
+                winner: values[2],
+                finishType: values[3],
+                points: parseInt(values[4]) || 0
+            };
+        });
+    } catch (error) {
+        console.error('Error loading rounds history:', error);
+        state.roundsHistory = [];
     }
 }
 
@@ -576,6 +631,125 @@ function setScore(matchIndex, player, value) {
     updateStatusBar();
 }
 
+/**
+ * Get head-to-head record between two beys
+ * @param {string} beyA - Name of first bey
+ * @param {string} beyB - Name of second bey
+ * @returns {object} Object with winsA, winsB, and matches array
+ */
+function getHeadToHead(beyA, beyB) {
+    const h2h = {
+        winsA: 0,
+        winsB: 0,
+        matches: []
+    };
+    
+    state.matchHistory.forEach(match => {
+        if ((match.beyA === beyA && match.beyB === beyB) || (match.beyA === beyB && match.beyB === beyA)) {
+            h2h.matches.push(match);
+            
+            if (match.beyA === beyA && match.scoreA > match.scoreB) {
+                h2h.winsA++;
+            } else if (match.beyB === beyA && match.scoreB > match.scoreA) {
+                h2h.winsA++;
+            } else if (match.beyA === beyB && match.scoreA > match.scoreB) {
+                h2h.winsB++;
+            } else if (match.beyB === beyB && match.scoreB > match.scoreA) {
+                h2h.winsB++;
+            }
+        }
+    });
+    
+    return h2h;
+}
+
+/**
+ * Calculate predicted score based on win probability
+ * Assumes matches typically go to 4 points (first to 4 wins)
+ * @param {number} winProb - Win probability (0-1)
+ * @returns {object} Object with predictedScoreA and predictedScoreB
+ */
+function calculatePredictedScore(winProb) {
+    // Average match length is around 5-6 rounds
+    // Winner typically gets 3-4 points, loser gets 1-2
+    const avgWinnerScore = 4;
+    const avgLoserScore = 2;
+    
+    if (winProb > 0.7) {
+        // Strong favorite: likely 4-1 or 4-0
+        return { scoreA: 4, scoreB: Math.round(Math.random() * 1) };
+    } else if (winProb > 0.55) {
+        // Slight favorite: likely 4-2 or 4-3
+        return { scoreA: 4, scoreB: 2 + Math.round(Math.random()) };
+    } else if (winProb >= 0.45) {
+        // Even match: could go either way, likely 4-3
+        return { scoreA: 4, scoreB: 3 };
+    } else if (winProb >= 0.3) {
+        // Slight underdog: likely 2-4 or 3-4
+        return { scoreA: 2 + Math.round(Math.random()), scoreB: 4 };
+    } else {
+        // Strong underdog: likely 0-4 or 1-4
+        return { scoreA: Math.round(Math.random() * 1), scoreB: 4 };
+    }
+}
+
+/**
+ * Get finish type statistics for a bey
+ * @param {string} beyName - Name of the bey
+ * @returns {object} Object with finish type counts
+ */
+function getFinishTypeStats(beyName) {
+    const stats = {
+        spin: 0,
+        burst: 0,
+        pocket: 0,
+        extreme: 0,
+        total: 0
+    };
+    
+    // Get all matches involving this bey
+    const beyMatches = state.matchHistory.filter(m => m.beyA === beyName || m.beyB === beyName);
+    const matchIds = beyMatches.map(m => m.matchId);
+    
+    // Get rounds for these matches where the bey won
+    state.roundsHistory.forEach(round => {
+        if (matchIds.includes(round.matchId) && round.winner === beyName) {
+            const finishType = round.finishType.toLowerCase();
+            if (stats[finishType] !== undefined) {
+                stats[finishType]++;
+                stats.total++;
+            }
+        }
+    });
+    
+    return stats;
+}
+
+/**
+ * Get most likely finish type for a bey
+ * @param {string} beyName - Name of the bey
+ * @returns {string} Most common finish type
+ */
+function getMostLikelyFinish(beyName) {
+    const stats = getFinishTypeStats(beyName);
+    
+    if (stats.total === 0) {
+        return 'spin'; // Default if no data
+    }
+    
+    let maxCount = 0;
+    let mostLikely = 'spin';
+    
+    ['spin', 'burst', 'pocket', 'extreme'].forEach(type => {
+        if (stats[type] > maxCount) {
+            maxCount = stats[type];
+            mostLikely = type;
+        }
+    });
+    
+    return mostLikely;
+}
+
 function updateWinner(matchIndex) {
     const match = state.matches[matchIndex];
     if (!match) return;
@@ -634,9 +808,11 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
     const match = state.matches[matchIndex];
     if (!match || !match.beyA || !match.beyB) {
         return `
-            <div class="match-analysis-panel" id="${idPrefix}_${matchIndex}">
-                <div class="analysis-placeholder">
-                    <span class="analysis-placeholder-text">Select both Beys to see pre-match analysis</span>
+            <div class="match-analysis-panel collapsed" id="${idPrefix}_${matchIndex}">
+                <div class="analysis-toggle" onclick="toggleAnalysisPanel('${idPrefix}_${matchIndex}')">
+                    <span class="analysis-toggle-icon">▶</span>
+                    <span class="analysis-toggle-text">📊 Pre-Match Analysis</span>
+                    <span class="analysis-toggle-hint">Select both Beys to see predictions</span>
                 </div>
             </div>
         `;
@@ -647,9 +823,11 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
     
     if (!beyAData || !beyBData) {
         return `
-            <div class="match-analysis-panel" id="${idPrefix}_${matchIndex}">
-                <div class="analysis-placeholder">
-                    <span class="analysis-placeholder-text">ELO data not available for selected Beys</span>
+            <div class="match-analysis-panel collapsed" id="${idPrefix}_${matchIndex}">
+                <div class="analysis-toggle" onclick="toggleAnalysisPanel('${idPrefix}_${matchIndex}')">
+                    <span class="analysis-toggle-icon">▶</span>
+                    <span class="analysis-toggle-text">📊 Pre-Match Analysis</span>
+                    <span class="analysis-toggle-hint">ELO data not available</span>
                 </div>
             </div>
         `;
@@ -669,6 +847,18 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
     const eloChangeBWin = calculateEloChange(eloB, eloA, 1);
     const eloChangeBLoss = calculateEloChange(eloB, eloA, 0);
     
+    // Get head-to-head record
+    const h2h = getHeadToHead(match.beyA, match.beyB);
+    
+    // Get predicted score
+    const predictedScore = calculatePredictedScore(probA);
+    
+    // Get likely finish types
+    const finishA = getMostLikelyFinish(match.beyA);
+    const finishB = getMostLikelyFinish(match.beyB);
+    const finishStatsA = getFinishTypeStats(match.beyA);
+    const finishStatsB = getFinishTypeStats(match.beyB);
+    
     // Determine favored status
     let favoredText = '';
     if (Math.abs(eloDiff) < 50) {
@@ -679,14 +869,70 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
         favoredText = `<span class="favored-b">${escapeHtml(match.beyB)} Favored</span>`;
     }
     
+    // Build head-to-head display
+    let h2hDisplay = '';
+    if (h2h.matches.length > 0) {
+        h2hDisplay = `
+            <div class="analysis-section head-to-head">
+                <div class="h2h-label">Head-to-Head Record</div>
+                <div class="h2h-record">
+                    <span class="h2h-stat">
+                        <span class="h2h-bey">${escapeHtml(match.beyA)}</span>
+                        <span class="h2h-wins">${h2h.winsA}W</span>
+                    </span>
+                    <span class="h2h-separator">-</span>
+                    <span class="h2h-stat">
+                        <span class="h2h-wins">${h2h.winsB}W</span>
+                        <span class="h2h-bey">${escapeHtml(match.beyB)}</span>
+                    </span>
+                </div>
+                <div class="h2h-total">${h2h.matches.length} previous ${h2h.matches.length === 1 ? 'match' : 'matches'}</div>
+            </div>
+        `;
+    }
+    
+    // Build finish type predictions
+    const finishIcons = {
+        spin: '🌀',
+        burst: '💥',
+        pocket: '🎯',
+        extreme: '⚡'
+    };
+    
+    let finishDisplay = '';
+    if (finishStatsA.total > 0 || finishStatsB.total > 0) {
+        finishDisplay = `
+            <div class="analysis-section finish-predictions">
+                <div class="finish-label">Most Likely Finish Types</div>
+                <div class="finish-types">
+                    ${finishStatsA.total > 0 ? `
+                        <div class="finish-type-item">
+                            <span class="finish-bey">${escapeHtml(match.beyA)}</span>
+                            <span class="finish-icon">${finishIcons[finishA]} ${finishA.charAt(0).toUpperCase() + finishA.slice(1)}</span>
+                            <span class="finish-percent">${((finishStatsA[finishA] / finishStatsA.total) * 100).toFixed(0)}%</span>
+                        </div>
+                    ` : ''}
+                    ${finishStatsB.total > 0 ? `
+                        <div class="finish-type-item">
+                            <span class="finish-bey">${escapeHtml(match.beyB)}</span>
+                            <span class="finish-icon">${finishIcons[finishB]} ${finishB.charAt(0).toUpperCase() + finishB.slice(1)}</span>
+                            <span class="finish-percent">${((finishStatsB[finishB] / finishStatsB.total) * 100).toFixed(0)}%</span>
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+    
     return `
-        <div class="match-analysis-panel" id="${idPrefix}_${matchIndex}">
-            <div class="analysis-header">
-                <span class="analysis-title">📊 Pre-Match Analysis</span>
+        <div class="match-analysis-panel collapsed" id="${idPrefix}_${matchIndex}">
+            <div class="analysis-toggle" onclick="toggleAnalysisPanel('${idPrefix}_${matchIndex}')">
+                <span class="analysis-toggle-icon">▶</span>
+                <span class="analysis-toggle-text">📊 Pre-Match Analysis</span>
                 ${favoredText}
             </div>
             
-            <div class="analysis-content">
+            <div class="analysis-content" style="display: none;">
                 <div class="analysis-section elo-ratings">
                     <div class="elo-rating-item elo-a">
                         <span class="elo-bey-name">${escapeHtml(match.beyA)}</span>
@@ -717,6 +963,20 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
                         </div>
                     </div>
                 </div>
+                
+                <div class="analysis-section predicted-score">
+                    <div class="predicted-score-label">Predicted Score</div>
+                    <div class="predicted-score-value">
+                        <span class="score-team score-a">${predictedScore.scoreA}</span>
+                        <span class="score-separator">-</span>
+                        <span class="score-team score-b">${predictedScore.scoreB}</span>
+                    </div>
+                    <div class="predicted-score-hint">Based on ${(probA * 100).toFixed(0)}% win probability</div>
+                </div>
+                
+                ${h2hDisplay}
+                
+                ${finishDisplay}
                 
                 <div class="analysis-section elo-changes">
                     <div class="elo-change-label">Expected ELO Changes</div>
@@ -950,6 +1210,31 @@ function toggleCardRounds(matchIndex) {
     const panel = document.getElementById(`cardRoundsPanel_${matchIndex}`);
     if (panel) {
         panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+// Toggle analysis panel visibility
+function toggleAnalysisPanel(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    
+    const content = panel.querySelector('.analysis-content');
+    const icon = panel.querySelector('.analysis-toggle-icon');
+    
+    if (content && icon) {
+        const isCollapsed = panel.classList.contains('collapsed');
+        
+        if (isCollapsed) {
+            // Expand
+            panel.classList.remove('collapsed');
+            content.style.display = 'flex';
+            icon.textContent = '▼';
+        } else {
+            // Collapse
+            panel.classList.add('collapsed');
+            content.style.display = 'none';
+            icon.textContent = '▶';
+        }
     }
 }
 
