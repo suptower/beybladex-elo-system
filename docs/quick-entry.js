@@ -147,6 +147,9 @@ async function loadBeybladeData() {
 async function loadMatchHistory() {
     try {
         const response = await fetch('data/matches.csv');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const text = await response.text();
         const lines = text.trim().split(/\r?\n/);
         
@@ -171,6 +174,9 @@ async function loadMatchHistory() {
 async function loadRoundsHistory() {
     try {
         const response = await fetch('data/rounds.csv');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const text = await response.text();
         const lines = text.trim().split(/\r?\n/);
         
@@ -669,27 +675,27 @@ function getHeadToHead(beyA, beyB) {
 /**
  * Calculate predicted score based on win probability
  * Assumes matches typically go to 4 points (first to 4 wins)
- * @param {number} winProb - Win probability (0-1)
+ * @param {number} winProb - Win probability (0-1) for player A
  * @returns {object} Object with scoreA and scoreB
  */
 function calculatePredictedScore(winProb) {
     // Deterministic score prediction based on win probability
-    // Winner gets 4 points, loser gets points based on probability
+    // Winner gets 4 points, loser gets points based on probability difference
     
     if (winProb > 0.7) {
-        // Strong favorite: likely 4-1
+        // Strong favorite A: likely 4-1
         return { scoreA: 4, scoreB: 1 };
     } else if (winProb > 0.55) {
-        // Slight favorite: likely 4-2
+        // Slight favorite A: likely 4-2
         return { scoreA: 4, scoreB: 2 };
     } else if (winProb >= 0.45) {
         // Even match: could go either way, likely 4-3
         return { scoreA: 4, scoreB: 3 };
     } else if (winProb >= 0.3) {
-        // Slight underdog: likely 2-4
+        // Slight underdog A (B is favorite): likely 2-4
         return { scoreA: 2, scoreB: 4 };
     } else {
-        // Strong underdog: likely 1-4
+        // Strong underdog A (B is strong favorite): likely 1-4
         return { scoreA: 1, scoreB: 4 };
     }
 }
