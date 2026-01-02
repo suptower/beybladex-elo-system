@@ -50,6 +50,14 @@ const FINISH_TYPES = {
 const K_FACTOR = 32; // K-factor for ELO calculation (Swiss tournament standard)
 const DEFAULT_ELO = 1000; // Default ELO rating for new players
 
+// Score prediction thresholds
+const SCORE_PREDICTION_THRESHOLDS = {
+    STRONG_FAVORITE: 0.7,   // Win probability above 70%
+    SLIGHT_FAVORITE: 0.55,  // Win probability above 55%
+    EVEN_MATCH: 0.45,       // Win probability between 45-55%
+    SLIGHT_UNDERDOG: 0.3    // Win probability above 30%
+};
+
 // ============================================
 // STORAGE KEYS
 // ============================================
@@ -682,16 +690,16 @@ function calculatePredictedScore(winProb) {
     // Deterministic score prediction based on win probability
     // Winner gets 4 points, loser gets points based on probability difference
     
-    if (winProb > 0.7) {
+    if (winProb > SCORE_PREDICTION_THRESHOLDS.STRONG_FAVORITE) {
         // Strong favorite A: likely 4-1
         return { scoreA: 4, scoreB: 1 };
-    } else if (winProb > 0.55) {
+    } else if (winProb > SCORE_PREDICTION_THRESHOLDS.SLIGHT_FAVORITE) {
         // Slight favorite A: likely 4-2
         return { scoreA: 4, scoreB: 2 };
-    } else if (winProb >= 0.45) {
+    } else if (winProb >= SCORE_PREDICTION_THRESHOLDS.EVEN_MATCH) {
         // Even match: could go either way, likely 4-3
         return { scoreA: 4, scoreB: 3 };
-    } else if (winProb >= 0.3) {
+    } else if (winProb >= SCORE_PREDICTION_THRESHOLDS.SLIGHT_UNDERDOG) {
         // Slight underdog A (B is favorite): likely 2-4
         return { scoreA: 2, scoreB: 4 };
     } else {
@@ -721,8 +729,8 @@ function getFinishTypeStats(beyName) {
     // Get rounds for these matches where the bey won
     state.roundsHistory.forEach(round => {
         if (matchIdsSet.has(round.matchId) && round.winner === beyName) {
-            const finishType = round.finishType.toLowerCase();
-            if (stats[finishType] !== undefined) {
+            const finishType = round.finishType?.toLowerCase();
+            if (finishType && stats[finishType] !== undefined) {
                 stats[finishType]++;
                 stats.total++;
             }
