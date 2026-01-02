@@ -1,32 +1,48 @@
 """
 Beyblade ELO Rating System
-This module implements an ELO rating system for Beyblade matches with dynamic K-factors
-and comprehensive statistics tracking.
+This module implements an ELO rating system for Beyblade matches with dynamic K-factors,
+dominance-based scoring, and comprehensive statistics tracking.
+
 The system supports two modes:
 - official: Starts all beyblades at the default ELO (1000)
 - private: Uses existing ELO ratings from the official leaderboard as starting values
+
 Features:
 - Dynamic K-factor based on match experience (learning/intermediate/experienced)
+- Dominance-based scoring that rewards dominant victories (Version 2)
 - Match-by-match ELO history tracking
 - Tournament-based leaderboards with position deltas
 - Time series data for ELO progression
 - Position tracking over time with passive/active change detection
+
 K-Factor Rules:
 - Learning (< 6 matches): K = 40
 - Intermediate (6-14 matches): K = 24
 - Experienced (15+ matches): K = 12
+
+Dominance-Based Scoring (ELO Version 2):
+- Winner gets: base_win_value (0.5) + dominance_bonus (0 to 0.5)
+- Dominance bonus scales with point differential (max 6 points)
+- Examples:
+  - 4-3 win: Winner gets ~0.58 (close match)
+  - 4-0 win: Winner gets ~0.83 (dominant)
+  - 6-0 win: Winner gets 1.00 (overwhelming)
+
 Functions:
     dynamic_k(matches): Calculate K-factor based on number of matches played
     expected(a, b): Calculate expected score for player A against player B
+    calculate_score_with_dominance(sa, sb): Calculate score with dominance scaling
     update_elo(a, b, sa, sb, date, elos, stats, writer): Update ELO ratings after a match
     calculate_winrates(stats): Calculate win rates for all beyblades
     run_elo_pipeline(pipeline_config): Execute the complete ELO calculation pipeline
+
 Output Files:
     - leaderboard.csv: Current tournament standings
     - elo_history.csv: Complete match-by-match ELO changes
     - elo_timeseries.csv: ELO progression per beyblade over matches
     - position_timeseries.csv: Position changes over time
     - leaderboards/leaderboard_N.csv: Per-tournament leaderboards
+
 Usage:
     python beyblade_elo.py --mode official
     python beyblade_elo.py --mode private
@@ -52,6 +68,13 @@ K_LEARNING = 40
 K_INTERMEDIATE = 24
 K_EXPERIENCED = 12
 
+# ELO version for calculation changes
+ELO_VERSION = 2  # Version 2: Dominance-based scoring
+
+# Dominance calculation constants
+MAX_POINT_DIFFERENTIAL = 6  # Maximum realistic point difference
+BASE_WIN_VALUE = 0.5  # Base value for winning regardless of score
+
 # ------------ K-factor rules ------------
 
 
@@ -68,6 +91,55 @@ def dynamic_k(matches):
 def expected(a, b):
     return 1 / (1 + 10 ** ((b - a) / 400))
 
+# ------------ Dominance-based scoring ------------
+
+
+def calculate_score_with_dominance(sa, sb):
+    """
+    Calculate score contribution with dominance scaling.
+    
+    Winner gets: base_win_value + dominance_bonus
+    Loser gets: 0.0
+    
+    Args:
+        sa: Score for player A
+        sb: Score for player B
+    
+    Returns:
+        tuple: (score_a, score_b) with dominance applied
+    
+    Examples:
+        4-3 win: Winner gets ~0.58, Loser gets ~0.42
+        4-0 win: Winner gets ~0.83, Loser gets ~0.17
+        6-0 win: Winner gets 1.00, Loser gets 0.00
+    """
+    total = sa + sb
+    if total == 0:
+        return 0.5, 0.5  # Draw case (though rare in Beyblade)
+    
+    # Calculate point differential
+    point_diff = abs(sa - sb)
+    
+    # Normalize dominance between 0 and 1
+    dominance = min(point_diff / MAX_POINT_DIFFERENTIAL, 1.0)
+    
+    # Calculate dominance bonus (scales from 0 to 0.5)
+    dominance_bonus = 0.5 * dominance
+    
+    # Winner gets base + bonus, loser gets inverse
+    if sa > sb:
+        score_a = BASE_WIN_VALUE + dominance_bonus
+        score_b = 1.0 - score_a
+    elif sb > sa:
+        score_b = BASE_WIN_VALUE + dominance_bonus
+        score_a = 1.0 - score_b
+    else:
+        # Exact tie (rare)
+        score_a = 0.5
+        score_b = 0.5
+    
+    return score_a, score_b
+
 # ------------- Elo update for ONE MATCH -------------
 
 
@@ -82,7 +154,9 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None):
     if total == 0:
         return
 
-    s_a, s_b = sa / total, sb / total
+    # Use dominance-based scoring (ELO Version 2)
+    s_a, s_b = calculate_score_with_dominance(sa, sb)
+    
     new_a = ra + Ka * (s_a - ea)
     new_b = rb + Kb * (s_b - eb)
     elos[a], elos[b] = new_a, new_b
