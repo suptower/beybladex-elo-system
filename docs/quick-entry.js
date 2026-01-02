@@ -645,16 +645,19 @@ function getHeadToHead(beyA, beyB) {
     };
     
     state.matchHistory.forEach(match => {
-        if ((match.beyA === beyA && match.beyB === beyB) || (match.beyA === beyB && match.beyB === beyA)) {
+        const isAinMatch = match.beyA === beyA || match.beyB === beyA;
+        const isBinMatch = match.beyA === beyB || match.beyB === beyB;
+        
+        if (isAinMatch && isBinMatch) {
             h2h.matches.push(match);
             
-            if (match.beyA === beyA && match.scoreA > match.scoreB) {
+            // Determine winner
+            const aIsFirst = match.beyA === beyA;
+            const aWon = aIsFirst ? (match.scoreA > match.scoreB) : (match.scoreB > match.scoreA);
+            
+            if (aWon) {
                 h2h.winsA++;
-            } else if (match.beyB === beyA && match.scoreB > match.scoreA) {
-                h2h.winsA++;
-            } else if (match.beyA === beyB && match.scoreA > match.scoreB) {
-                h2h.winsB++;
-            } else if (match.beyB === beyB && match.scoreB > match.scoreA) {
+            } else if (match.scoreA !== match.scoreB) {
                 h2h.winsB++;
             }
         }
@@ -707,11 +710,11 @@ function getFinishTypeStats(beyName) {
     
     // Get all matches involving this bey
     const beyMatches = state.matchHistory.filter(m => m.beyA === beyName || m.beyB === beyName);
-    const matchIds = beyMatches.map(m => m.matchId);
+    const matchIdsSet = new Set(beyMatches.map(m => m.matchId));
     
     // Get rounds for these matches where the bey won
     state.roundsHistory.forEach(round => {
-        if (matchIds.includes(round.matchId) && round.winner === beyName) {
+        if (matchIdsSet.has(round.matchId) && round.winner === beyName) {
             const finishType = round.finishType.toLowerCase();
             if (stats[finishType] !== undefined) {
                 stats[finishType]++;
