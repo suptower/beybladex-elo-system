@@ -667,29 +667,27 @@ function getHeadToHead(beyA, beyB) {
  * Calculate predicted score based on win probability
  * Assumes matches typically go to 4 points (first to 4 wins)
  * @param {number} winProb - Win probability (0-1)
- * @returns {object} Object with predictedScoreA and predictedScoreB
+ * @returns {object} Object with scoreA and scoreB
  */
 function calculatePredictedScore(winProb) {
-    // Average match length is around 5-6 rounds
-    // Winner typically gets 3-4 points, loser gets 1-2
-    const avgWinnerScore = 4;
-    const avgLoserScore = 2;
+    // Deterministic score prediction based on win probability
+    // Winner gets 4 points, loser gets points based on probability
     
     if (winProb > 0.7) {
-        // Strong favorite: likely 4-1 or 4-0
-        return { scoreA: 4, scoreB: Math.round(Math.random() * 1) };
+        // Strong favorite: likely 4-1
+        return { scoreA: 4, scoreB: 1 };
     } else if (winProb > 0.55) {
-        // Slight favorite: likely 4-2 or 4-3
-        return { scoreA: 4, scoreB: 2 + Math.round(Math.random()) };
+        // Slight favorite: likely 4-2
+        return { scoreA: 4, scoreB: 2 };
     } else if (winProb >= 0.45) {
         // Even match: could go either way, likely 4-3
         return { scoreA: 4, scoreB: 3 };
     } else if (winProb >= 0.3) {
-        // Slight underdog: likely 2-4 or 3-4
-        return { scoreA: 2 + Math.round(Math.random()), scoreB: 4 };
+        // Slight underdog: likely 2-4
+        return { scoreA: 2, scoreB: 4 };
     } else {
-        // Strong underdog: likely 0-4 or 1-4
-        return { scoreA: Math.round(Math.random() * 1), scoreB: 4 };
+        // Strong underdog: likely 1-4
+        return { scoreA: 1, scoreB: 4 };
     }
 }
 
