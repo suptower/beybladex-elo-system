@@ -124,6 +124,7 @@ def run_elo_pipeline(pipeline_config):
     timeseries_file = pipeline_config["timeseries"]
     position_file = pipeline_config["positions"]
     pipeline_start_elos = pipeline_config["start_elos"]
+    beys_data_path = pipeline_config.get("beys_data_file", "./docs/data/beys_data.json")
 
     print(f"{BOLD}{CYAN}Running ELO Pipeline — Mode: {pipeline_mode}{RESET}")
     print(f"{YELLOW}Reading matches from {input_file}...{RESET}")
@@ -133,7 +134,6 @@ def run_elo_pipeline(pipeline_config):
     stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
 
     # Load all beys from beys_data.json to include beys without matches
-    beys_data_path = "./docs/data/beys_data.json"
     all_bey_blades = set()
     if os.path.exists(beys_data_path):
         print(f"{CYAN}Loading all beys from {beys_data_path}...{RESET}")
@@ -148,6 +148,10 @@ def run_elo_pipeline(pipeline_config):
                         if blade_name not in elos:
                             elos[blade_name] = START_ELO
             print(f"{GREEN}Loaded {len(all_bey_blades)} beys from registry{RESET}")
+        except FileNotFoundError:
+            print(f"{YELLOW}Warning: beys_data.json not found at {beys_data_path}{RESET}")
+        except json.JSONDecodeError as e:
+            print(f"{YELLOW}Warning: Invalid JSON in beys_data.json: {e}{RESET}")
         except Exception as e:
             print(f"{YELLOW}Warning: Could not load beys_data.json: {e}{RESET}")
 
