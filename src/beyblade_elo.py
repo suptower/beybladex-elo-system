@@ -130,8 +130,6 @@ def calculate_score_with_dominance(sa, sb):
     else:
         return score_loser, score_winner
 
-
-
 # ------------- Elo update for ONE MATCH -------------
 
 

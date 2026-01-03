@@ -339,9 +339,6 @@ class TestUpdateElo:
         # 6-0 win (point diff = 6)
         update_elo("BeyE", "BeyF", 6, 0, "2024-01-01", elos_6_0, stats_6_0)
 
-        gain_4_0 = elos_4_0["BeyA"] - 1000
-        gain_5_0 = elos_5_0["BeyC"] - 1000
-        gain_6_0 = elos_6_0["BeyE"] - 1000
 
 class TestCalculateWinrates:
     """Tests for the calculate_winrates function."""
