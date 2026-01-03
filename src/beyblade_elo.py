@@ -99,73 +99,37 @@ def expected(a, b):
 
 
 def calculate_score_with_dominance(sa, sb):
-    """
-    Calculate score contribution with dominance scaling.
+    if sa == sb:
+        return 0.5, 0.5
 
-    Winner gets: base_win_value + dominance_bonus
-    Loser gets: 1.0 - (base_win_value + dominance_bonus)
+    winner_score = max(sa, sb)
+    loser_score = min(sa, sb)
+    diff = winner_score - loser_score
 
-    Args:
-        sa: Score for player A
-        sb: Score for player B
+    # Base win value (minimum reward for a win)
+    BASE_WIN = 0.75
 
-    Returns:
-        tuple: (score_a, score_b) with dominance applied
-    Examples:
-        - 4-3 win: Winner gets 0.6 (close match)
-        - 4-2 win: Winner gets 0.75 (moderate)
-        - 4-1 win: Winner gets 0.875 (strong)
-        - 4-0 win: Winner gets 1.0 (dominant)
-        - 6-0 win: Winner gets 1.25 (overwhelming)
-    """
-    total = sa + sb
-    if total == 0:
-        return 0.5, 0.5  # No score, treat as draw
+    # Dominance scaling up to 4-0
+    if diff >= 4:
+        dominance = 1.0
+    else:
+        dominance = diff / 4.0  # 1 → 0.25, 2 → 0.5, 3 → 0.75
 
-    base_win_value = 0.5
-    dominance_bonus = 0.0
+    score_winner = BASE_WIN + (1.0 - BASE_WIN) * dominance
+
+    # Overkill bonus (beyond 4 points)
+    if winner_score > WIN_THRESHOLD:
+        overkill_points = winner_score - WIN_THRESHOLD
+        max_overkill = MAX_POINT_DIFF - WIN_THRESHOLD  # 2
+        score_winner += (overkill_points / max_overkill) * OVERKILL_WEIGHT
+
+    score_loser = 1.0 - score_winner
 
     if sa > sb:
-        point_diff = sa - sb
-        if point_diff >= WIN_THRESHOLD:
-            dominance_bonus = 0.5
-        elif point_diff == 1:
-            dominance_bonus = 0.1
-        elif point_diff == 2:
-            dominance_bonus = 0.25
-        elif point_diff == 3:
-            dominance_bonus = 0.375
-
-        # Overkill bonus for very high margins
-        if point_diff > MAX_POINT_DIFF:
-            overkill = point_diff - MAX_POINT_DIFF
-            dominance_bonus += (overkill * OVERKILL_WEIGHT) / (total)
-
-        score_a = base_win_value + dominance_bonus
-        score_b = 1.0 - score_a
-    elif sb > sa:
-        point_diff = sb - sa
-        if point_diff >= WIN_THRESHOLD:
-            dominance_bonus = 0.5
-        elif point_diff == 1:
-            dominance_bonus = 0.1
-        elif point_diff == 2:
-            dominance_bonus = 0.25
-        elif point_diff == 3:
-            dominance_bonus = 0.375
-
-        # Overkill bonus for very high margins
-        if point_diff > MAX_POINT_DIFF:
-            overkill = point_diff - MAX_POINT_DIFF
-            dominance_bonus += (overkill * OVERKILL_WEIGHT) / (total)
-
-        score_b = base_win_value + dominance_bonus
-        score_a = 1.0 - score_b
+        return score_winner, score_loser
     else:
-        score_a = 0.5
-        score_b = 0.5
+        return score_loser, score_winner
 
-    return score_a, score_b
 
 
 # ------------- Elo update for ONE MATCH -------------

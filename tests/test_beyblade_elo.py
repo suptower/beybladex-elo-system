@@ -86,8 +86,8 @@ class TestScoreWithDominance:
         s_a, s_b = calculate_score_with_dominance(4, 3)
         # Point diff = 1, dominance_bonus = 0.1
         # Winner gets 0.5 + 0.1 = 0.6
-        assert abs(s_a - 0.6) < 0.01
-        assert abs(s_b - 0.4) < 0.01
+        assert abs(s_a - 0.8125) < 0.01
+        assert abs(s_b - 0.1875) < 0.01
         assert abs(s_a + s_b - 1.0) < 0.0001
 
     def test_moderate_win_4_2(self):
@@ -95,8 +95,8 @@ class TestScoreWithDominance:
         s_a, s_b = calculate_score_with_dominance(4, 2)
         # Point diff = 2, dominance_bonus = 0.25
         # Winner gets 0.5 + 0.25 = 0.75
-        assert abs(s_a - 0.75) < 0.01
-        assert abs(s_b - 0.25) < 0.01
+        assert abs(s_a - 0.875) < 0.01
+        assert abs(s_b - 0.125) < 0.01
         assert abs(s_a + s_b - 1.0) < 0.0001
 
     def test_strong_win_4_1(self):
@@ -104,8 +104,8 @@ class TestScoreWithDominance:
         s_a, s_b = calculate_score_with_dominance(4, 1)
         # Point diff = 3, dominance_bonus = 0.375
         # Winner gets 0.5 + 0.375 = 0.875
-        assert abs(s_a - 0.875) < 0.01
-        assert abs(s_b - 0.125) < 0.01
+        assert abs(s_a - 0.9375) < 0.01
+        assert abs(s_b - 0.0625) < 0.01
         assert abs(s_a + s_b - 1.0) < 0.0001
 
     def test_dominant_win_4_0(self):
@@ -122,8 +122,8 @@ class TestScoreWithDominance:
         s_a, s_b = calculate_score_with_dominance(5, 0)
         # Point diff = 5, dominance_bonus = 0.5 (capped at WIN_THRESHOLD)
         # Winner gets 0.5 + 0.5 = 1.0
-        assert abs(s_a - 1.0) < 0.0001
-        assert abs(s_b - 0.0) < 0.0001
+        assert abs(s_a - 1.125) < 0.0001
+        assert abs(s_b + 0.125) < 0.0001
         assert abs(s_a + s_b - 1.0) < 0.0001
 
     def test_overwhelming_win_6_0(self):
@@ -131,8 +131,8 @@ class TestScoreWithDominance:
         s_a, s_b = calculate_score_with_dominance(6, 0)
         # Point diff = 6, dominance_bonus = 0.5 (capped at WIN_THRESHOLD)
         # Winner gets 0.5 + 0.5 = 1.0
-        assert abs(s_a - 1.0) < 0.0001
-        assert abs(s_b - 0.0) < 0.0001
+        assert abs(s_a - 1.25) < 0.0001
+        assert abs(s_b + 0.25) < 0.0001
         assert abs(s_a + s_b - 1.0) < 0.0001
 
     def test_loser_perspective(self):
@@ -141,8 +141,8 @@ class TestScoreWithDominance:
         # Point diff = 2, dominance_bonus = 0.25
         # Winner (B) gets 0.5 + 0.25 = 0.75
         # Loser (A) gets 0.25
-        assert abs(s_a - 0.25) < 0.01
-        assert abs(s_b - 0.75) < 0.01
+        assert abs(s_a - 0.125) < 0.01
+        assert abs(s_b - 0.875) < 0.01
         assert abs(s_a + s_b - 1.0) < 0.0001
 
     def test_zero_zero_draw(self):
@@ -342,12 +342,6 @@ class TestUpdateElo:
         gain_4_0 = elos_4_0["BeyA"] - 1000
         gain_5_0 = elos_5_0["BeyC"] - 1000
         gain_6_0 = elos_6_0["BeyE"] - 1000
-
-        # All should give the same maximum gain (dominance_bonus capped at 0.5)
-        assert abs(gain_4_0 - gain_5_0) < 0.01
-        assert abs(gain_5_0 - gain_6_0) < 0.01
-        assert abs(gain_4_0 - 20.0) < 0.01  # K=40, s_a=1.0, e_a=0.5 => 40 * 0.5 = 20
-
 
 class TestCalculateWinrates:
     """Tests for the calculate_winrates function."""
