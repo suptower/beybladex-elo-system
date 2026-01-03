@@ -125,7 +125,7 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
     for bey, group in df_ts.groupby("Bey"):
         plt.figure(figsize=(6, 4))
         plt.plot(group["MatchIndex"], group["ELO"], marker="o", linewidth=1.8)
-        
+
         # Highlight max and min ELO values
         if len(group) > 0:
             max_idx = group["ELO"].idxmax()
@@ -134,21 +134,21 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
             min_elo = group.loc[min_idx, "ELO"]
             max_match = group.loc[max_idx, "MatchIndex"]
             min_match = group.loc[min_idx, "MatchIndex"]
-            
+
             # Only highlight if max != min (not a flat curve)
             if max_elo != min_elo:
                 # Highlight maximum ELO (peak) with green star
-                plt.scatter(max_match, max_elo, color='green', s=150, marker='*', 
-                           zorder=5, edgecolors='darkgreen', linewidths=1.5,
-                           label=f'Peak: {int(max_elo)}')
-                
+                plt.scatter(max_match, max_elo, color='green', s=150, marker='*',
+                            zorder=5, edgecolors='darkgreen', linewidths=1.5,
+                            label=f'Peak: {int(max_elo)}')
+
                 # Highlight minimum ELO (low point) with red star
-                plt.scatter(min_match, min_elo, color='red', s=150, marker='*', 
-                           zorder=5, edgecolors='darkred', linewidths=1.5,
-                           label=f'Low: {int(min_elo)}')
-                
+                plt.scatter(min_match, min_elo, color='red', s=150, marker='*',
+                            zorder=5, edgecolors='darkred', linewidths=1.5,
+                            label=f'Low: {int(min_elo)}')
+
                 plt.legend(loc='best', fontsize=9)
-        
+
         plt.xticks(ticks=range(group["MatchIndex"].min(), group["MatchIndex"].max() + 1))
         plt.title(f"ELO-Verlauf: {bey}")
         plt.xlabel("Match")
@@ -225,7 +225,7 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
         height = max_rank * 0.15
         plt.figure(figsize=(6, height))
         plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2)
-        
+
         # Highlight best and worst positions
         if len(group) > 0:
             # Best position = minimum rank number (e.g., 1 is better than 10)
@@ -236,21 +236,21 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
             worst_pos = group.loc[worst_idx, "Position"]
             best_plotx = group.loc[best_idx, "PlotX"]
             worst_plotx = group.loc[worst_idx, "PlotX"]
-            
+
             # Only highlight if best != worst (not a flat curve)
             if best_pos != worst_pos:
                 # Highlight best position (lowest rank) with gold trophy
-                plt.scatter(best_plotx, best_pos, color='gold', s=150, marker='*', 
-                           zorder=5, edgecolors='darkorange', linewidths=1.5,
-                           label=f'Best: #{int(best_pos)}')
-                
+                plt.scatter(best_plotx, best_pos, color='gold', s=150, marker='*',
+                            zorder=5, edgecolors='darkorange', linewidths=1.5,
+                            label=f'Best: #{int(best_pos)}')
+
                 # Highlight worst position (highest rank) with red marker
-                plt.scatter(worst_plotx, worst_pos, color='red', s=150, marker='v', 
-                           zorder=5, edgecolors='darkred', linewidths=1.5,
-                           label=f'Worst: #{int(worst_pos)}')
-                
+                plt.scatter(worst_plotx, worst_pos, color='red', s=150, marker='v',
+                            zorder=5, edgecolors='darkred', linewidths=1.5,
+                            label=f'Worst: #{int(worst_pos)}')
+
                 plt.legend(loc='best', fontsize=9)
-        
+
         plt.gca().invert_yaxis()  # Higher positions (1st) should be at the top
         plt.xticks(ticks=group["MatchIndex"].unique())
         plt.title(f"Positionsverlauf: {bey}")
