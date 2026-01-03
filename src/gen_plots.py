@@ -138,13 +138,13 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
             # Only highlight if max != min (not a flat curve)
             if max_elo != min_elo:
                 # Highlight maximum ELO (peak) with green dot
-                plt.scatter(max_match, max_elo, color='green', s=120, marker='o',
-                            zorder=5, edgecolors='darkgreen', linewidths=2,
+                plt.scatter(max_match, max_elo, color='green', s=36, marker='o',
+                            zorder=5, edgecolors='darkgreen', linewidths=1.5,
                             label=f'Peak: {int(max_elo)}')
 
                 # Highlight minimum ELO (low point) with red dot
-                plt.scatter(min_match, min_elo, color='red', s=120, marker='o',
-                            zorder=5, edgecolors='darkred', linewidths=2,
+                plt.scatter(min_match, min_elo, color='red', s=36, marker='o',
+                            zorder=5, edgecolors='darkred', linewidths=1.5,
                             label=f'Low: {int(min_elo)}')
 
                 # Draw subtle horizontal lines to y-axis
@@ -248,13 +248,13 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
             # Only highlight if best != worst (not a flat curve)
             if best_pos != worst_pos:
                 # Highlight best position (lowest rank) with green dot
-                plt.scatter(best_plotx, best_pos, color='green', s=120, marker='o',
-                            zorder=5, edgecolors='darkgreen', linewidths=2,
+                plt.scatter(best_plotx, best_pos, color='green', s=36, marker='o',
+                            zorder=5, edgecolors='darkgreen', linewidths=1.5,
                             label=f'Best: #{int(best_pos)}')
 
                 # Highlight worst position (highest rank) with red dot
-                plt.scatter(worst_plotx, worst_pos, color='red', s=120, marker='o',
-                            zorder=5, edgecolors='darkred', linewidths=2,
+                plt.scatter(worst_plotx, worst_pos, color='red', s=36, marker='o',
+                            zorder=5, edgecolors='darkred', linewidths=1.5,
                             label=f'Worst: #{int(worst_pos)}')
 
                 # Draw subtle horizontal lines to y-axis
