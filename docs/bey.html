@@ -1339,10 +1339,12 @@ function calculateMilestones() {
         });
     }
     
-    // Peak ELO
+    // Peak ELO and Low ELO
     if (eloHistory.length > 0) {
-        let peakElo = 1000;
+        let peakElo = -Infinity;
         let peakDate = null;
+        let lowElo = Infinity;
+        let lowDate = null;
         
         eloHistory.forEach(match => {
             const isA = normalizeBeyName(match.BeyA) === normalizedName;
@@ -1350,6 +1352,10 @@ function calculateMilestones() {
             if (postElo > peakElo) {
                 peakElo = postElo;
                 peakDate = match.Date;
+            }
+            if (postElo < lowElo) {
+                lowElo = postElo;
+                lowDate = match.Date;
             }
         });
         
@@ -1361,13 +1367,25 @@ function calculateMilestones() {
                 description: formatDate(peakDate)
             });
         }
+        
+        // Only show low ELO if it's different from peak (not a flat curve)
+        if (lowDate && lowElo !== peakElo) {
+            milestones.push({
+                icon: '📉',
+                title: 'Low ELO',
+                value: Math.round(lowElo),
+                description: formatDate(lowDate)
+            });
+        }
     }
     
-    // Best rank position
+    // Best rank position and worst rank position
     if (positionTimeseries.length > 0) {
         const positions = positionTimeseries.map(p => parseInt(p.Position));
         const bestPosition = Math.min(...positions);
+        const worstPosition = Math.max(...positions);
         const bestEntry = positionTimeseries.find(p => parseInt(p.Position) === bestPosition);
+        const worstEntry = positionTimeseries.find(p => parseInt(p.Position) === worstPosition);
         
         milestones.push({
             icon: '🏅',
@@ -1375,6 +1393,16 @@ function calculateMilestones() {
             value: `#${bestPosition}`,
             description: bestEntry ? formatDate(bestEntry.Date) : ''
         });
+        
+        // Only show worst rank if it's different from best (not a flat curve)
+        if (worstPosition !== bestPosition) {
+            milestones.push({
+                icon: '⚠️',
+                title: 'Worst Rank',
+                value: `#${worstPosition}`,
+                description: worstEntry ? formatDate(worstEntry.Date) : ''
+            });
+        }
     }
     
     // Match count milestones
