@@ -1349,6 +1349,10 @@ function calculateMilestones() {
         eloHistory.forEach(match => {
             const isA = normalizeBeyName(match.BeyA) === normalizedName;
             const postElo = parseFloat(isA ? match.PostA : match.PostB);
+            
+            // Skip invalid ELO values
+            if (isNaN(postElo)) return;
+            
             if (postElo > peakElo) {
                 peakElo = postElo;
                 peakDate = match.Date;
@@ -1359,7 +1363,8 @@ function calculateMilestones() {
             }
         });
         
-        if (peakDate) {
+        // Only show milestones if valid values were found
+        if (peakDate && isFinite(peakElo)) {
             milestones.push({
                 icon: '⭐',
                 title: 'Peak ELO',
@@ -1368,8 +1373,8 @@ function calculateMilestones() {
             });
         }
         
-        // Only show low ELO if it's different from peak (not a flat curve)
-        if (lowDate && lowElo !== peakElo) {
+        // Only show low ELO if it's different from peak and is valid
+        if (lowDate && isFinite(lowElo) && lowElo !== peakElo) {
             milestones.push({
                 icon: '📉',
                 title: 'Low ELO',
