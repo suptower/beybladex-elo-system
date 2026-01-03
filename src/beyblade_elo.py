@@ -53,6 +53,7 @@ import datetime
 from collections import defaultdict
 import os
 import pandas as pd
+import json
 
 # Colors for Windows
 os.system("")
@@ -68,6 +69,8 @@ K_LEARNING = 40
 K_INTERMEDIATE = 24
 K_EXPERIENCED = 12
 
+# Default path for beyblade registry
+DEFAULT_BEYS_DATA_FILE = "./docs/data/beys_data.json"
 # ELO version for calculation changes
 ELO_VERSION = 2  # Version 2: Dominance-based scoring
 
@@ -222,6 +225,7 @@ def run_elo_pipeline(pipeline_config):
     timeseries_file = pipeline_config["timeseries"]
     position_file = pipeline_config["positions"]
     pipeline_start_elos = pipeline_config["start_elos"]
+    beys_data_path = pipeline_config.get("beys_data_file", DEFAULT_BEYS_DATA_FILE)
 
     print(f"{BOLD}{CYAN}Running ELO Pipeline — Mode: {pipeline_mode}{RESET}")
     print(f"{YELLOW}Reading matches from {input_file}...{RESET}")
@@ -229,6 +233,27 @@ def run_elo_pipeline(pipeline_config):
     # Initialize ELO + stats
     elos = defaultdict(lambda: START_ELO)
     stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+
+    # Load all beys from beys_data.json to include beys without matches
+    all_bey_blades = set()
+    if os.path.exists(beys_data_path):
+        print(f"{CYAN}Loading all beys from {beys_data_path}...{RESET}")
+        try:
+            with open(beys_data_path, "r", encoding="utf-8") as f:
+                beys_data = json.load(f)
+                for bey in beys_data:
+                    blade_name = bey.get("blade")
+                    if blade_name:
+                        all_bey_blades.add(blade_name)
+                        # Initialize in elos dict by accessing it (triggers defaultdict)
+                        _ = elos[blade_name]
+            print(f"{GREEN}Loaded {len(all_bey_blades)} beys from registry{RESET}")
+        except FileNotFoundError:
+            print(f"{YELLOW}Warning: beys_data.json not found at {beys_data_path}{RESET}")
+        except json.JSONDecodeError as e:
+            print(f"{YELLOW}Warning: Invalid JSON in beys_data.json: {e}{RESET}")
+        except Exception as e:
+            print(f"{YELLOW}Warning: Could not load beys_data.json: {e}{RESET}")
 
     # Load start ratings for private ladder
     if pipeline_start_elos is not None:
@@ -259,84 +284,93 @@ def run_elo_pipeline(pipeline_config):
     print(f"{CYAN}Computing tournament deltas and saving per-turnier CSVs...{RESET}")
 
     matches_df = pd.read_csv(input_file, parse_dates=["Date"])
-    tournament_dates = matches_df["Date"].drop_duplicates().sort_values().tolist()
 
-    # Ausgangswerte für Turnier 1
-    prev_positions = {}
-    prev_elos = pipeline_start_elos.copy() if pipeline_start_elos else {}
-    prev_stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+    # Initialize tour_rows for case where there are no matches
+    tour_rows = []
 
-    for t_idx, t_date in enumerate(tournament_dates, start=1):
-        tour_matches = matches_df[matches_df["Date"] == t_date].sort_values(["Date"])
+    if len(matches_df) > 0:
+        tournament_dates = matches_df["Date"].drop_duplicates().sort_values().tolist()
 
-        # Stats und Elos für dieses Turnier initialisieren mit Werten vom vorherigen Turnier
-        temp_elos = defaultdict(lambda: START_ELO)
-        temp_stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        # Ausgangswerte für Turnier 1
+        prev_positions = {}
+        prev_elos = pipeline_start_elos.copy() if pipeline_start_elos else {}
+        prev_stats = defaultdict(
+            lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0}
+        )
 
-        # Übernehmen der ELOs & Stats vom vorherigen Turnier
-        for bey, elo in prev_elos.items():
-            temp_elos[bey] = elo
-        for bey, s in prev_stats.items():
-            temp_stats[bey] = s.copy()  # deepcopy, damit Änderungen temp_stats nicht prev_stats beeinflussen
+        for t_idx, t_date in enumerate(tournament_dates, start=1):
+            tour_matches = matches_df[matches_df["Date"] == t_date].sort_values(["Date"])
 
-        # Matches für dieses Turnier durchlaufen
-        for _, m in tour_matches.iterrows():
-            update_elo(
-                m["BeyA"], m["BeyB"],
-                int(m["ScoreA"]), int(m["ScoreB"]),
-                m["Date"], temp_elos, temp_stats,
-                match_id=m.get("MatchID", "")
+            # Stats und Elos für dieses Turnier initialisieren mit Werten vom vorherigen Turnier
+            temp_elos = defaultdict(lambda: START_ELO)
+            temp_stats = defaultdict(
+                lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0}
             )
 
-        calculate_winrates(temp_stats)
+            # Übernehmen der ELOs & Stats vom vorherigen Turnier
+            for bey, elo in prev_elos.items():
+                temp_elos[bey] = elo
+            for bey, s in prev_stats.items():
+                temp_stats[bey] = s.copy()  # deepcopy, damit Änderungen temp_stats nicht prev_stats beeinflussen
 
-        # Sortiere nach ELO absteigend und erstelle Leaderboard
-        sorted_beys = sorted(temp_elos.items(), key=lambda x: x[1], reverse=True)
-        tour_rows = []
+            # Matches für dieses Turnier durchlaufen
+            for _, m in tour_matches.iterrows():
+                update_elo(
+                    m["BeyA"], m["BeyB"],
+                    int(m["ScoreA"]), int(m["ScoreB"]),
+                    m["Date"], temp_elos, temp_stats,
+                    match_id=m.get("MatchID", "")
+                )
 
-        for pos, (bey, elo) in enumerate(sorted_beys, start=1):
-            s = temp_stats[bey]
-            delta = prev_positions.get(bey, pos) - pos if prev_positions else 0
-            prev_positions[bey] = pos
-            prev_elo = prev_elos.get(bey, START_ELO) if prev_elos else START_ELO
-            elo_delta = round(elo - prev_elo)
+            calculate_winrates(temp_stats)
 
-            if elo_delta > 0:
-                elo_delta_str = f"+{elo_delta}"
-            elif elo_delta < 0:
-                elo_delta_str = f"{elo_delta}"  # Minus schon drin
-            else:
-                elo_delta_str = "0"
+            # Sortiere nach ELO absteigend und erstelle Leaderboard
+            sorted_beys = sorted(temp_elos.items(), key=lambda x: x[1], reverse=True)
+            tour_rows = []
 
-            if delta > 0:
-                delta_str = f"▲ {delta}"
-            elif delta < 0:
-                delta_str = f"▼ {abs(delta)}"
-            else:
-                delta_str = "→ 0"
+            for pos, (bey, elo) in enumerate(sorted_beys, start=1):
+                s = temp_stats[bey]
+                delta = prev_positions.get(bey, pos) - pos if prev_positions else 0
+                prev_positions[bey] = pos
+                prev_elo = prev_elos.get(bey, START_ELO) if prev_elos else START_ELO
+                elo_delta = round(elo - prev_elo)
 
-            tour_rows.append({
-                "Platz": pos,
-                "Name": bey,
-                "ELO": round(elo),
-                "Spiele": s["matches"],
-                "Siege": s["wins"],
-                "Niederlagen": s["losses"],
-                # convert to percentage string with 1 decimal
-                "Winrate": f"{round(s['winrate'] * 100, 1)}%",
-                "Gewonnene Punkte": s["for"],
-                "Verlorene Punkte": s["against"],
-                "Differenz": s["for"] - s["against"],
-                "Positionsdelta": delta_str,
-                "ELOdelta": elo_delta_str
-            })
+                if elo_delta > 0:
+                    elo_delta_str = f"+{elo_delta}"
+                elif elo_delta < 0:
+                    elo_delta_str = f"{elo_delta}"  # Minus schon drin
+                else:
+                    elo_delta_str = "0"
 
-        out_file = f"./docs/data/leaderboards/leaderboard_{t_idx}.csv"
-        pd.DataFrame(tour_rows).to_csv(out_file, index=False)
+                if delta > 0:
+                    delta_str = f"▲ {delta}"
+                elif delta < 0:
+                    delta_str = f"▼ {abs(delta)}"
+                else:
+                    delta_str = "→ 0"
 
-        # Update für nächstes Turnier
-        prev_elos = temp_elos.copy()
-        prev_stats = temp_stats.copy()
+                tour_rows.append({
+                    "Platz": pos,
+                    "Name": bey,
+                    "ELO": round(elo),
+                    "Spiele": s["matches"],
+                    "Siege": s["wins"],
+                    "Niederlagen": s["losses"],
+                    # convert to percentage string with 1 decimal
+                    "Winrate": f"{round(s['winrate'] * 100, 1)}%",
+                    "Gewonnene Punkte": s["for"],
+                    "Verlorene Punkte": s["against"],
+                    "Differenz": s["for"] - s["against"],
+                    "Positionsdelta": delta_str,
+                    "ELOdelta": elo_delta_str
+                })
+
+            out_file = f"./docs/data/leaderboards/leaderboard_{t_idx}.csv"
+            pd.DataFrame(tour_rows).to_csv(out_file, index=False)
+
+            # Update für nächstes Turnier
+            prev_elos = temp_elos.copy()
+            prev_stats = temp_stats.copy()
 
     # --- Aktuelles Turnier zusätzlich als leaderboard.csv ---
     # Use tour_rows from the last tournament iteration (which has correct deltas)
@@ -345,6 +379,24 @@ def run_elo_pipeline(pipeline_config):
 
     # Create a mapping of bey names to their correct ELO from sequential calculation
     correct_elos = {bey: round(elo) for bey, elo in elos.items()}
+
+    # Add all beys from beys_data.json that don't have match history yet
+    for bey_name in all_bey_blades:
+        if bey_name not in [row["Name"] for row in tour_rows]:
+            tour_rows.append({
+                "Platz": 0,  # Will be updated after sorting
+                "Name": bey_name,
+                "ELO": correct_elos.get(bey_name, START_ELO),
+                "Spiele": stats[bey_name]["matches"],
+                "Siege": stats[bey_name]["wins"],
+                "Niederlagen": stats[bey_name]["losses"],
+                "Winrate": "0.0%",
+                "Gewonnene Punkte": stats[bey_name]["for"],
+                "Verlorene Punkte": stats[bey_name]["against"],
+                "Differenz": stats[bey_name]["for"] - stats[bey_name]["against"],
+                "Positionsdelta": "→ 0",
+                "ELOdelta": "0"
+            })
 
     # Update tour_rows with correct ELO values while preserving delta calculations
     for row in tour_rows:
