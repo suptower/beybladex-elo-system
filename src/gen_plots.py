@@ -137,15 +137,23 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
 
             # Only highlight if max != min (not a flat curve)
             if max_elo != min_elo:
-                # Highlight maximum ELO (peak) with green star
-                plt.scatter(max_match, max_elo, color='green', s=150, marker='*',
-                            zorder=5, edgecolors='darkgreen', linewidths=1.5,
+                # Highlight maximum ELO (peak) with green dot
+                plt.scatter(max_match, max_elo, color='green', s=120, marker='o',
+                            zorder=5, edgecolors='darkgreen', linewidths=2,
                             label=f'Peak: {int(max_elo)}')
 
-                # Highlight minimum ELO (low point) with red star
-                plt.scatter(min_match, min_elo, color='red', s=150, marker='*',
-                            zorder=5, edgecolors='darkred', linewidths=1.5,
+                # Highlight minimum ELO (low point) with red dot
+                plt.scatter(min_match, min_elo, color='red', s=120, marker='o',
+                            zorder=5, edgecolors='darkred', linewidths=2,
                             label=f'Low: {int(min_elo)}')
+
+                # Draw subtle horizontal lines to y-axis
+                ax = plt.gca()
+                xlim = ax.get_xlim()
+                plt.hlines(max_elo, xlim[0], max_match, colors='green',
+                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+                plt.hlines(min_elo, xlim[0], min_match, colors='red',
+                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
 
                 plt.legend(loc='best', fontsize=9)
 
@@ -239,15 +247,23 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
 
             # Only highlight if best != worst (not a flat curve)
             if best_pos != worst_pos:
-                # Highlight best position (lowest rank) with gold trophy
-                plt.scatter(best_plotx, best_pos, color='gold', s=150, marker='*',
-                            zorder=5, edgecolors='darkorange', linewidths=1.5,
+                # Highlight best position (lowest rank) with green dot
+                plt.scatter(best_plotx, best_pos, color='green', s=120, marker='o',
+                            zorder=5, edgecolors='darkgreen', linewidths=2,
                             label=f'Best: #{int(best_pos)}')
 
-                # Highlight worst position (highest rank) with red marker
-                plt.scatter(worst_plotx, worst_pos, color='red', s=150, marker='v',
-                            zorder=5, edgecolors='darkred', linewidths=1.5,
+                # Highlight worst position (highest rank) with red dot
+                plt.scatter(worst_plotx, worst_pos, color='red', s=120, marker='o',
+                            zorder=5, edgecolors='darkred', linewidths=2,
                             label=f'Worst: #{int(worst_pos)}')
+
+                # Draw subtle horizontal lines to y-axis
+                ax = plt.gca()
+                xlim = ax.get_xlim()
+                plt.hlines(best_pos, xlim[0], best_plotx, colors='green',
+                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+                plt.hlines(worst_pos, xlim[0], worst_plotx, colors='red',
+                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
 
                 plt.legend(loc='best', fontsize=9)
 
