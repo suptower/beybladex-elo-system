@@ -125,6 +125,38 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
     for bey, group in df_ts.groupby("Bey"):
         plt.figure(figsize=(6, 4))
         plt.plot(group["MatchIndex"], group["ELO"], marker="o", linewidth=1.8)
+
+        # Highlight max and min ELO values
+        if len(group) > 0:
+            max_idx = group["ELO"].idxmax()
+            min_idx = group["ELO"].idxmin()
+            max_elo = group.loc[max_idx, "ELO"]
+            min_elo = group.loc[min_idx, "ELO"]
+            max_match = group.loc[max_idx, "MatchIndex"]
+            min_match = group.loc[min_idx, "MatchIndex"]
+
+            # Only highlight if max != min (not a flat curve)
+            if max_elo != min_elo:
+                # Highlight maximum ELO (peak) with green dot
+                plt.scatter(max_match, max_elo, color='green', s=36, marker='o',
+                            zorder=5, edgecolors='darkgreen', linewidths=1.5,
+                            label=f'Peak: {int(max_elo)}')
+
+                # Highlight minimum ELO (low point) with red dot
+                plt.scatter(min_match, min_elo, color='red', s=36, marker='o',
+                            zorder=5, edgecolors='darkred', linewidths=1.5,
+                            label=f'Low: {int(min_elo)}')
+
+                # Draw subtle horizontal lines to y-axis
+                ax = plt.gca()
+                xlim = ax.get_xlim()
+                plt.hlines(max_elo, xlim[0], max_match, colors='green',
+                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+                plt.hlines(min_elo, xlim[0], min_match, colors='red',
+                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+
+                plt.legend(loc='best', fontsize=9)
+
         plt.xticks(ticks=range(group["MatchIndex"].min(), group["MatchIndex"].max() + 1))
         plt.title(f"ELO-Verlauf: {bey}")
         plt.xlabel("Match")
@@ -201,6 +233,40 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
         height = max_rank * 0.15
         plt.figure(figsize=(6, height))
         plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2)
+
+        # Highlight best and worst positions
+        if len(group) > 0:
+            # Best position = minimum rank number (e.g., 1 is better than 10)
+            best_idx = group["Position"].idxmin()
+            # Worst position = maximum rank number (e.g., 30 is worse than 10)
+            worst_idx = group["Position"].idxmax()
+            best_pos = group.loc[best_idx, "Position"]
+            worst_pos = group.loc[worst_idx, "Position"]
+            best_plotx = group.loc[best_idx, "PlotX"]
+            worst_plotx = group.loc[worst_idx, "PlotX"]
+
+            # Only highlight if best != worst (not a flat curve)
+            if best_pos != worst_pos:
+                # Highlight best position (lowest rank) with green dot
+                plt.scatter(best_plotx, best_pos, color='green', s=36, marker='o',
+                            zorder=5, edgecolors='darkgreen', linewidths=1.5,
+                            label=f'Best: #{int(best_pos)}')
+
+                # Highlight worst position (highest rank) with red dot
+                plt.scatter(worst_plotx, worst_pos, color='red', s=36, marker='o',
+                            zorder=5, edgecolors='darkred', linewidths=1.5,
+                            label=f'Worst: #{int(worst_pos)}')
+
+                # Draw subtle horizontal lines to y-axis
+                ax = plt.gca()
+                xlim = ax.get_xlim()
+                plt.hlines(best_pos, xlim[0], best_plotx, colors='green',
+                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+                plt.hlines(worst_pos, xlim[0], worst_plotx, colors='red',
+                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+
+                plt.legend(loc='best', fontsize=9)
+
         plt.gca().invert_yaxis()  # Higher positions (1st) should be at the top
         plt.xticks(ticks=group["MatchIndex"].unique())
         plt.title(f"Positionsverlauf: {bey}")
