@@ -72,8 +72,9 @@ K_EXPERIENCED = 12
 ELO_VERSION = 2  # Version 2: Dominance-based scoring
 
 # Dominance calculation constants
-MAX_POINT_DIFFERENTIAL = 6  # Maximum realistic point difference
-BASE_WIN_VALUE = 0.5  # Base value for winning regardless of score
+WIN_THRESHOLD = 4
+MAX_POINT_DIFF = 6
+OVERKILL_WEIGHT = 0.25
 
 # ------------ K-factor rules ------------
 
@@ -107,38 +108,62 @@ def calculate_score_with_dominance(sa, sb):
 
     Returns:
         tuple: (score_a, score_b) with dominance applied
-
     Examples:
-        4-3 win: Winner gets ~0.58, Loser gets ~0.42
-        4-0 win: Winner gets ~0.83, Loser gets ~0.17
-        6-0 win: Winner gets 1.00, Loser gets 0.00
+        - 4-3 win: Winner gets 0.6 (close match)
+        - 4-2 win: Winner gets 0.75 (moderate)
+        - 4-1 win: Winner gets 0.875 (strong)
+        - 4-0 win: Winner gets 1.0 (dominant)
+        - 6-0 win: Winner gets 1.25 (overwhelming)
     """
     total = sa + sb
     if total == 0:
-        return 0.5, 0.5  # Draw case (though rare in Beyblade)
+        return 0.5, 0.5  # No score, treat as draw
 
-    # Calculate point differential
-    point_diff = abs(sa - sb)
+    base_win_value = 0.5
+    dominance_bonus = 0.0
 
-    # Normalize dominance between 0 and 1
-    dominance = min(point_diff / MAX_POINT_DIFFERENTIAL, 1.0)
-
-    # Calculate dominance bonus (scales from 0 to 0.5)
-    dominance_bonus = 0.5 * dominance
-
-    # Winner gets base + bonus, loser gets inverse
     if sa > sb:
-        score_a = BASE_WIN_VALUE + dominance_bonus
+        point_diff = sa - sb
+        if point_diff >= WIN_THRESHOLD:
+            dominance_bonus = 0.5
+        elif point_diff == 1:
+            dominance_bonus = 0.1
+        elif point_diff == 2:
+            dominance_bonus = 0.25
+        elif point_diff == 3:
+            dominance_bonus = 0.375
+
+        # Overkill bonus for very high margins
+        if point_diff > MAX_POINT_DIFF:
+            overkill = point_diff - MAX_POINT_DIFF
+            dominance_bonus += (overkill * OVERKILL_WEIGHT) / (total)
+
+        score_a = base_win_value + dominance_bonus
         score_b = 1.0 - score_a
     elif sb > sa:
-        score_b = BASE_WIN_VALUE + dominance_bonus
+        point_diff = sb - sa
+        if point_diff >= WIN_THRESHOLD:
+            dominance_bonus = 0.5
+        elif point_diff == 1:
+            dominance_bonus = 0.1
+        elif point_diff == 2:
+            dominance_bonus = 0.25
+        elif point_diff == 3:
+            dominance_bonus = 0.375
+
+        # Overkill bonus for very high margins
+        if point_diff > MAX_POINT_DIFF:
+            overkill = point_diff - MAX_POINT_DIFF
+            dominance_bonus += (overkill * OVERKILL_WEIGHT) / (total)
+
+        score_b = base_win_value + dominance_bonus
         score_a = 1.0 - score_b
     else:
-        # Exact tie (rare)
         score_a = 0.5
         score_b = 0.5
 
     return score_a, score_b
+
 
 # ------------- Elo update for ONE MATCH -------------
 

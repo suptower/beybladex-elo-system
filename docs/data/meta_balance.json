@@ -1,6 +1,6 @@
 {
   "meta_health": {
-    "overall_score": 59.9,
+    "overall_score": 59.8,
     "status": "Moderate",
     "status_class": "moderate",
     "breakdown": {
@@ -15,9 +15,9 @@
         "contribution": 7.2
       },
       "elo_spread": {
-        "score": 81.6,
+        "score": 81.0,
         "weight": 0.2,
-        "contribution": 16.3
+        "contribution": 16.2
       },
       "dominance_penalty": {
         "score": 80.5,
@@ -155,24 +155,24 @@
       "beys_analyzed": 36
     },
     "elo_compression": {
-      "score": 81.6,
-      "mean_elo": 999.3,
-      "std_deviation": 35.8,
-      "min_elo": 921,
-      "max_elo": 1071,
-      "range": 150,
-      "compression_ratio": 0.239,
+      "score": 81.0,
+      "mean_elo": 999.2,
+      "std_deviation": 41.4,
+      "min_elo": 912,
+      "max_elo": 1087,
+      "range": 175,
+      "compression_ratio": 0.236,
       "beys_analyzed": 36
     },
     "top_dominance": {
       "score": 80.5,
       "top_3_share": 21.7,
-      "top_5_share": 32.6,
-      "top_10_share": 57.7,
+      "top_5_share": 36.6,
+      "top_10_share": 58.3,
       "top_3_beys": [
         "WeissTiger",
-        "FoxBrush",
-        "ImpactDrake"
+        "ImpactDrake",
+        "FoxBrush"
       ],
       "total_matches": 175
     },
@@ -269,16 +269,16 @@
   "outliers": {
     "overcentralizing": [
       {
-        "bey": "ImpactDrake",
-        "elo": 1071,
+        "bey": "FoxBrush",
+        "elo": 1087,
         "winrate": 75.0,
         "matches": 16,
         "deviation_from_mean": 1.45,
         "confidence": "high"
       },
       {
-        "bey": "FoxBrush",
-        "elo": 1071,
+        "bey": "ImpactDrake",
+        "elo": 1082,
         "winrate": 75.0,
         "matches": 16,
         "deviation_from_mean": 1.45,
@@ -286,7 +286,7 @@
       },
       {
         "bey": "DranSword",
-        "elo": 1039,
+        "elo": 1050,
         "winrate": 75.0,
         "matches": 12,
         "deviation_from_mean": 1.45,
@@ -294,7 +294,7 @@
       },
       {
         "bey": "TuskMammoth",
-        "elo": 1021,
+        "elo": 1040,
         "winrate": 68.4,
         "matches": 19,
         "deviation_from_mean": 1.14,
@@ -302,7 +302,7 @@
       },
       {
         "bey": "LeonCrest",
-        "elo": 1014,
+        "elo": 1028,
         "winrate": 63.6,
         "matches": 11,
         "deviation_from_mean": 0.92,
@@ -310,7 +310,7 @@
       },
       {
         "bey": "CobaltDragoon",
-        "elo": 1042,
+        "elo": 1037,
         "winrate": 60.0,
         "matches": 10,
         "deviation_from_mean": 0.75,
@@ -318,7 +318,7 @@
       },
       {
         "bey": "ViperTail",
-        "elo": 1039,
+        "elo": 1036,
         "winrate": 60.0,
         "matches": 10,
         "deviation_from_mean": 0.75,
@@ -328,23 +328,23 @@
     "underpowered": [
       {
         "bey": "PegasusBlast",
-        "elo": 950,
+        "elo": 940,
         "winrate": 0.0,
         "matches": 4,
         "deviation_from_mean": -2.06,
         "confidence": "medium"
       },
       {
-        "bey": "HellsHammer",
-        "elo": 943,
+        "bey": "WizardArrow",
+        "elo": 937,
         "winrate": 0.0,
         "matches": 5,
         "deviation_from_mean": -2.06,
         "confidence": "medium"
       },
       {
-        "bey": "WizardArrow",
-        "elo": 942,
+        "bey": "HellsHammer",
+        "elo": 927,
         "winrate": 0.0,
         "matches": 5,
         "deviation_from_mean": -2.06,
@@ -352,7 +352,7 @@
       },
       {
         "bey": "SamuraiSaber",
-        "elo": 921,
+        "elo": 912,
         "winrate": 0.0,
         "matches": 6,
         "deviation_from_mean": -2.06,
@@ -360,7 +360,7 @@
       },
       {
         "bey": "WizardArc",
-        "elo": 965,
+        "elo": 950,
         "winrate": 16.7,
         "matches": 6,
         "deviation_from_mean": -1.28,
@@ -368,7 +368,7 @@
       },
       {
         "bey": "WhaleFlame",
-        "elo": 964,
+        "elo": 965,
         "winrate": 25.0,
         "matches": 4,
         "deviation_from_mean": -0.89,
@@ -376,7 +376,7 @@
       },
       {
         "bey": "BlackShell",
-        "elo": 957,
+        "elo": 955,
         "winrate": 25.0,
         "matches": 8,
         "deviation_from_mean": -0.89,
@@ -384,7 +384,7 @@
       },
       {
         "bey": "CrimsonGaruda",
-        "elo": 973,
+        "elo": 967,
         "winrate": 28.6,
         "matches": 7,
         "deviation_from_mean": -0.72,
@@ -392,7 +392,7 @@
       },
       {
         "bey": "TyrannoBeat",
-        "elo": 972,
+        "elo": 966,
         "winrate": 28.6,
         "matches": 7,
         "deviation_from_mean": -0.72,
@@ -400,7 +400,7 @@
       },
       {
         "bey": "PhoenixRudder",
-        "elo": 965,
+        "elo": 961,
         "winrate": 33.3,
         "matches": 9,
         "deviation_from_mean": -0.5,
@@ -408,15 +408,7 @@
       },
       {
         "bey": "DranBuster",
-        "elo": 1000,
-        "winrate": 37.5,
-        "matches": 8,
-        "deviation_from_mean": -0.3,
-        "confidence": "medium"
-      },
-      {
-        "bey": "HellsChain",
-        "elo": 990,
+        "elo": 994,
         "winrate": 37.5,
         "matches": 8,
         "deviation_from_mean": -0.3,
@@ -424,7 +416,15 @@
       },
       {
         "bey": "SilverWolf",
-        "elo": 987,
+        "elo": 993,
+        "winrate": 37.5,
+        "matches": 8,
+        "deviation_from_mean": -0.3,
+        "confidence": "medium"
+      },
+      {
+        "bey": "HellsChain",
+        "elo": 982,
         "winrate": 37.5,
         "matches": 8,
         "deviation_from_mean": -0.3,
@@ -434,7 +434,7 @@
     "emerging_threats": [
       {
         "bey": "WeissTiger",
-        "elo": 1053,
+        "elo": 1057,
         "winrate": 62.5,
         "matches": 8,
         "note": "Potentially overcentralizing but needs more data"
