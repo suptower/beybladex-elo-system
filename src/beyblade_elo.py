@@ -53,6 +53,9 @@ K_LEARNING = 40
 K_INTERMEDIATE = 24
 K_EXPERIENCED = 12
 
+# Default path for beyblade registry
+DEFAULT_BEYS_DATA_FILE = "./docs/data/beys_data.json"
+
 # ------------ K-factor rules ------------
 
 
@@ -124,7 +127,7 @@ def run_elo_pipeline(pipeline_config):
     timeseries_file = pipeline_config["timeseries"]
     position_file = pipeline_config["positions"]
     pipeline_start_elos = pipeline_config["start_elos"]
-    beys_data_path = pipeline_config.get("beys_data_file", "./docs/data/beys_data.json")
+    beys_data_path = pipeline_config.get("beys_data_file", DEFAULT_BEYS_DATA_FILE)
 
     print(f"{BOLD}{CYAN}Running ELO Pipeline — Mode: {pipeline_mode}{RESET}")
     print(f"{YELLOW}Reading matches from {input_file}...{RESET}")
@@ -144,9 +147,8 @@ def run_elo_pipeline(pipeline_config):
                     blade_name = bey.get("blade")
                     if blade_name:
                         all_bey_blades.add(blade_name)
-                        # Initialize ELO for all beys
-                        if blade_name not in elos:
-                            elos[blade_name] = START_ELO
+                        # Initialize in elos dict by accessing it (triggers defaultdict)
+                        _ = elos[blade_name]
             print(f"{GREEN}Loaded {len(all_bey_blades)} beys from registry{RESET}")
         except FileNotFoundError:
             print(f"{YELLOW}Warning: beys_data.json not found at {beys_data_path}{RESET}")
