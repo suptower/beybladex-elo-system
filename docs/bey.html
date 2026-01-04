@@ -245,6 +245,14 @@
                 <h3 class="section-title">🔗 Related Beys</h3>
                 
                 <div class="related-beys-container">
+                    <!-- Bey Family -->
+                    <div class="related-category" id="beyFamilySection">
+                        <h4 class="related-category-title">👨‍👩‍👧‍👦 Bey Family</h4>
+                        <div id="beyFamilyBeys" class="related-beys-grid">
+                            <!-- Related beys from same family -->
+                        </div>
+                    </div>
+                    
                     <!-- Similar Parts -->
                     <div class="related-category" id="samePartsSection">
                         <h4 class="related-category-title">🔧 Same Parts</h4>
@@ -1780,6 +1788,15 @@ function renderRelatedBeys() {
     const relatedSection = document.getElementById('relatedBeysSection');
     let hasRelatedContent = false;
     
+    // Find beys from same family
+    const familyBeys = findBeyFamilyMembers();
+    if (familyBeys.length > 0) {
+        renderBeyFamilyMembers(familyBeys);
+        hasRelatedContent = true;
+    } else {
+        document.getElementById('beyFamilySection').style.display = 'none';
+    }
+    
     // Find beys with same parts
     if (beyData) {
         const samePartsBeys = findBeysWithSameParts();
@@ -1812,6 +1829,86 @@ function renderRelatedBeys() {
     }
     
     relatedSection.style.display = hasRelatedContent ? 'block' : 'none';
+}
+
+// Extract bey family/families from blade name
+function extractBeyFamilies(bladeName) {
+    if (!bladeName) return [];
+    
+    // Look for capital letters to find word boundaries
+    const capitals = [];
+    for (let i = 0; i < bladeName.length; i++) {
+        if (/[A-Z]/.test(bladeName[i])) {
+            capitals.push(i);
+        }
+    }
+    
+    // Need at least 2 capital letters to extract prefix or suffix
+    if (capitals.length < 2) return [];
+    
+    const families = [];
+    
+    // Extract prefix-based family (e.g., "DranSword" -> "Dran")
+    // If the first capital is at position 0, extract the first word
+    if (capitals[0] === 0) {
+        const firstWord = bladeName.substring(capitals[0], capitals[1]);
+        // Only consider it a family if it's at least 3 characters
+        if (firstWord.length >= 3) {
+            families.push(firstWord);
+        }
+    }
+    
+    // Extract suffix-based family (e.g., "WhaleFlame" -> "Flame")
+    // Take the last word (from the last capital letter to the end)
+    const lastCapitalIndex = capitals[capitals.length - 1];
+    const lastWord = bladeName.substring(lastCapitalIndex);
+    // Only consider it a family if it's at least 3 characters and different from prefix
+    if (lastWord.length >= 3 && !families.includes(lastWord)) {
+        families.push(lastWord);
+    }
+    
+    return families;
+}
+
+// Find beys from the same family/families
+function findBeyFamilyMembers() {
+    if (!beyData || !allBeysData) return [];
+    
+    const currentBlade = beyData.blade;
+    const normalizedName = normalizeBeyName(currentBlade);
+    const families = extractBeyFamilies(currentBlade);
+    
+    if (families.length === 0) return [];
+    
+    const familyMembersMap = new Map();
+    
+    allBeysData.forEach(bey => {
+        if (normalizeBeyName(bey.blade) === normalizedName) return;
+        
+        const otherFamilies = extractBeyFamilies(bey.blade);
+        const sharedFamilies = families.filter(f => otherFamilies.includes(f));
+        
+        if (sharedFamilies.length > 0) {
+            familyMembersMap.set(bey.blade, {
+                bey: bey,
+                sharedFamilies: sharedFamilies
+            });
+        }
+    });
+    
+    return Array.from(familyMembersMap.values()).slice(0, 6);
+}
+
+// Render bey family members
+function renderBeyFamilyMembers(familyMembers) {
+    const container = document.getElementById('beyFamilyBeys');
+    
+    container.innerHTML = familyMembers.map(({ bey, sharedFamilies }) => `
+        <a href="bey.html?name=${encodeURIComponent(bey.blade)}" class="related-bey-card">
+            <div class="related-bey-name">${escapeHtml(bey.blade)}</div>
+            <div class="related-bey-shared">Family: ${escapeHtml(sharedFamilies.join(', '))}</div>
+        </a>
+    `).join('');
 }
 
 // Find beys with same parts (ratchet or bit)
