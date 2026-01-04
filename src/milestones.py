@@ -21,11 +21,13 @@ Categories:
 import csv
 import json
 import os
+import datetime
 from collections import defaultdict
 from typing import Dict, List, Any, Tuple
 
 # Initialize Windows terminal for ANSI color support (no-op on Unix systems)
-os.system("")
+if os.name == 'nt':
+    os.system("")
 
 # Colors for terminal output
 RESET = "\033[0m"
@@ -58,7 +60,7 @@ def load_csv_to_dict(filepath: str) -> List[Dict[str, str]]:
 def calculate_streaks(matches: List[Dict[str, str]]) -> Dict[str, Any]:
     """
     Calculate longest win and losing streaks for each Bey.
-    
+
     Returns dict with:
     - longest_win_streak: {bey: streak_length}
     - longest_losing_streak: {bey: streak_length}
@@ -67,26 +69,26 @@ def calculate_streaks(matches: List[Dict[str, str]]) -> Dict[str, Any]:
     current_lose_streak = defaultdict(int)
     max_win_streak = defaultdict(int)
     max_lose_streak = defaultdict(int)
-    
+
     for match in matches:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
         score_a = int(match['ScoreA'])
         score_b = int(match['ScoreB'])
-        
+
         winner = bey_a if score_a > score_b else bey_b
         loser = bey_b if winner == bey_a else bey_a
-        
+
         # Update winner's streak
         current_win_streak[winner] += 1
         current_lose_streak[winner] = 0
         max_win_streak[winner] = max(max_win_streak[winner], current_win_streak[winner])
-        
+
         # Update loser's streak
         current_lose_streak[loser] += 1
         current_win_streak[loser] = 0
         max_lose_streak[loser] = max(max_lose_streak[loser], current_lose_streak[loser])
-    
+
     return {
         'longest_win_streak': dict(max_win_streak),
         'longest_losing_streak': dict(max_lose_streak)
@@ -96,54 +98,54 @@ def calculate_streaks(matches: List[Dict[str, str]]) -> Dict[str, Any]:
 def calculate_total_wins(matches: List[Dict[str, str]]) -> Dict[str, int]:
     """Calculate total wins for each Bey."""
     wins = defaultdict(int)
-    
+
     for match in matches:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
         score_a = int(match['ScoreA'])
         score_b = int(match['ScoreB'])
-        
+
         winner = bey_a if score_a > score_b else bey_b
         wins[winner] += 1
-    
+
     return dict(wins)
 
 
 def calculate_win_rates(matches: List[Dict[str, str]]) -> Dict[str, Tuple[float, int]]:
     """
     Calculate win rates for Beys with minimum match threshold.
-    
+
     Returns dict of {bey: (win_rate, total_matches)}
     """
     wins = defaultdict(int)
     total_matches = defaultdict(int)
-    
+
     for match in matches:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
         score_a = int(match['ScoreA'])
         score_b = int(match['ScoreB'])
-        
+
         total_matches[bey_a] += 1
         total_matches[bey_b] += 1
-        
+
         winner = bey_a if score_a > score_b else bey_b
         wins[winner] += 1
-    
+
     # Calculate win rates for Beys meeting minimum match threshold
     win_rates = {}
     for bey, matches_played in total_matches.items():
         if matches_played >= MIN_MATCHES_FOR_WINRATE:
             win_rate = (wins[bey] / matches_played) * 100
             win_rates[bey] = (win_rate, matches_played)
-    
+
     return win_rates
 
 
 def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
     """
     Calculate finish type statistics for each Bey.
-    
+
     Returns dict with:
     - spin_finishes: {bey: count}
     - burst_finishes: {bey: count}
@@ -158,15 +160,15 @@ def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
         'extreme': defaultdict(int)
     }
     finish_types_achieved = defaultdict(set)
-    
+
     for round_data in rounds:
         winner = round_data['winner']
         finish_type = round_data['finish_type'].lower()
-        
+
         if finish_type in finish_counts:
             finish_counts[finish_type][winner] += 1
             finish_types_achieved[winner].add(finish_type)
-    
+
     return {
         'spin_finishes': dict(finish_counts['spin']),
         'burst_finishes': dict(finish_counts['burst']),
@@ -179,7 +181,7 @@ def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
 def calculate_elo_extremes(elo_history: List[Dict[str, str]]) -> Dict[str, Any]:
     """
     Calculate ELO extremes for each Bey.
-    
+
     Returns dict with:
     - highest_elo_ever: {bey: elo_value}
     - biggest_upclimb: {bey: (delta, from_elo, to_elo)}
@@ -187,70 +189,66 @@ def calculate_elo_extremes(elo_history: List[Dict[str, str]]) -> Dict[str, Any]:
     """
     highest_elo = defaultdict(lambda: 0)
     bey_elo_history = defaultdict(list)
-    
+
     # Build ELO history per Bey
     for match in elo_history:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
         post_a = float(match['PostA'])
         post_b = float(match['PostB'])
-        
+
         bey_elo_history[bey_a].append(post_a)
         bey_elo_history[bey_b].append(post_b)
-        
+
         highest_elo[bey_a] = max(highest_elo[bey_a], post_a)
         highest_elo[bey_b] = max(highest_elo[bey_b], post_b)
-    
+
     # Calculate biggest continuous upclimb and downfall
     biggest_upclimb = {}
     biggest_downfall = {}
-    
+
     for bey, elo_values in bey_elo_history.items():
         if len(elo_values) < 2:
             continue
-        
+
         # Find largest continuous upclimb (lowest point to highest point after it)
         max_climb = 0
         climb_from = elo_values[0]
         climb_to = elo_values[0]
         min_elo = elo_values[0]
-        min_idx = 0
-        
+
         for i, elo in enumerate(elo_values):
             if elo < min_elo:
                 min_elo = elo
-                min_idx = i
-            
+
             climb = elo - min_elo
             if climb > max_climb:
                 max_climb = climb
                 climb_from = min_elo
                 climb_to = elo
-        
+
         if max_climb > 0:
             biggest_upclimb[bey] = (max_climb, climb_from, climb_to)
-        
+
         # Find largest continuous downfall (highest point to lowest point after it)
         max_fall = 0
         fall_from = elo_values[0]
         fall_to = elo_values[0]
         max_elo = elo_values[0]
-        max_idx = 0
-        
+
         for i, elo in enumerate(elo_values):
             if elo > max_elo:
                 max_elo = elo
-                max_idx = i
-            
+
             fall = max_elo - elo
             if fall > max_fall:
                 max_fall = fall
                 fall_from = max_elo
                 fall_to = elo
-        
+
         if max_fall > 0:
             biggest_downfall[bey] = (max_fall, fall_from, fall_to)
-    
+
     return {
         'highest_elo_ever': dict(highest_elo),
         'biggest_upclimb': biggest_upclimb,
@@ -261,14 +259,14 @@ def calculate_elo_extremes(elo_history: List[Dict[str, str]]) -> Dict[str, Any]:
 def calculate_upset_stats(elo_history: List[Dict[str, str]]) -> Dict[str, Any]:
     """
     Calculate upset-related statistics.
-    
+
     Returns dict with:
     - best_upsetter: {bey: upset_win_count}
     - biggest_single_upset: {bey: (elo_diff, match_id)}
     """
     upset_wins = defaultdict(int)
     biggest_upset = {}
-    
+
     for match in elo_history:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
@@ -277,21 +275,20 @@ def calculate_upset_stats(elo_history: List[Dict[str, str]]) -> Dict[str, Any]:
         pre_a = float(match['PreA'])
         pre_b = float(match['PreB'])
         match_id = match['MatchID']
-        
+
         winner = bey_a if score_a > score_b else bey_b
-        loser = bey_b if winner == bey_a else bey_a
         winner_pre_elo = pre_a if winner == bey_a else pre_b
         loser_pre_elo = pre_b if winner == bey_a else pre_a
-        
+
         # Check if this was an upset (lower ELO won)
         if winner_pre_elo < loser_pre_elo:
             elo_diff = loser_pre_elo - winner_pre_elo
             upset_wins[winner] += 1
-            
+
             # Track biggest single upset
             if winner not in biggest_upset or elo_diff > biggest_upset[winner][0]:
                 biggest_upset[winner] = (elo_diff, match_id)
-    
+
     return {
         'best_upsetter': dict(upset_wins),
         'biggest_single_upset': biggest_upset
@@ -301,33 +298,33 @@ def calculate_upset_stats(elo_history: List[Dict[str, str]]) -> Dict[str, Any]:
 def calculate_top_rank_time(elo_timeseries: List[Dict[str, str]]) -> Dict[str, Any]:
     """
     Calculate time spent in top 5 and top 10 rankings.
-    
+
     Returns dict with:
     - time_in_top_5: {bey: match_count}
     - time_in_top_10: {bey: match_count}
     """
     # Group by match number to get rankings at each point
     matches_data = defaultdict(list)
-    
+
     for row in elo_timeseries:
         bey = row['Bey']
         match_num = int(row['MatchIndex'])
         elo = float(row['ELO'])
         matches_data[match_num].append((bey, elo))
-    
+
     top_5_time = defaultdict(int)
     top_10_time = defaultdict(int)
-    
+
     # For each match, rank Beys and count time in top positions
     for match_num, bey_elos in matches_data.items():
         sorted_beys = sorted(bey_elos, key=lambda x: x[1], reverse=True)
-        
+
         for rank, (bey, elo) in enumerate(sorted_beys, start=1):
             if rank <= 5:
                 top_5_time[bey] += 1
             if rank <= 10:
                 top_10_time[bey] += 1
-    
+
     return {
         'time_in_top_5': dict(top_5_time),
         'time_in_top_10': dict(top_10_time)
@@ -337,26 +334,26 @@ def calculate_top_rank_time(elo_timeseries: List[Dict[str, str]]) -> Dict[str, A
 def calculate_longevity_stats(matches: List[Dict[str, str]]) -> Dict[str, Any]:
     """
     Calculate longevity statistics.
-    
+
     Returns dict with:
     - most_matches_played: {bey: count}
     - most_tournaments: {bey: count} (based on distinct dates as proxy)
     """
     matches_played = defaultdict(int)
     tournament_dates = defaultdict(set)
-    
+
     for match in matches:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
         date = match['Date']
-        
+
         matches_played[bey_a] += 1
         matches_played[bey_b] += 1
         tournament_dates[bey_a].add(date)
         tournament_dates[bey_b].add(date)
-    
+
     tournaments_played = {bey: len(dates) for bey, dates in tournament_dates.items()}
-    
+
     return {
         'most_matches_played': dict(matches_played),
         'most_tournaments': tournaments_played
@@ -366,20 +363,20 @@ def calculate_longevity_stats(matches: List[Dict[str, str]]) -> Dict[str, Any]:
 def calculate_stability(elo_history: List[Dict[str, str]]) -> Dict[str, float]:
     """
     Calculate ELO stability (inverse of variance) for each Bey.
-    
+
     Returns dict of {bey: variance}
     """
     bey_elos = defaultdict(list)
-    
+
     for match in elo_history:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
         post_a = float(match['PostA'])
         post_b = float(match['PostB'])
-        
+
         bey_elos[bey_a].append(post_a)
         bey_elos[bey_b].append(post_b)
-    
+
     stability = {}
     for bey, elos in bey_elos.items():
         if len(elos) >= 2:
@@ -387,7 +384,7 @@ def calculate_stability(elo_history: List[Dict[str, str]]) -> Dict[str, float]:
             mean_elo = sum(elos) / len(elos)
             variance = sum((elo - mean_elo) ** 2 for elo in elos) / len(elos)
             stability[bey] = variance
-    
+
     return stability
 
 
@@ -397,7 +394,7 @@ def format_milestone_entry(bey: str, value: Any, category: str) -> Dict[str, Any
         'bey': bey,
         'value': value
     }
-    
+
     # Add formatted display text based on category
     if isinstance(value, tuple):
         if len(value) == 2:
@@ -411,7 +408,7 @@ def format_milestone_entry(bey: str, value: Any, category: str) -> Dict[str, Any
             entry['display'] = f"{value:.1f}"
     else:
         entry['display'] = str(value)
-    
+
     return entry
 
 
@@ -419,23 +416,23 @@ def get_top_n_milestones(data: Dict[str, Any], n: int = 5) -> List[Dict[str, Any
     """Get top N entries from a milestone category."""
     if not data:
         return []
-    
+
     # Sort by value (handle tuples by using first element)
     def get_sort_key(item):
         value = item[1]
         if isinstance(value, tuple):
             return value[0]
         return value
-    
+
     sorted_items = sorted(data.items(), key=get_sort_key, reverse=True)
-    
+
     results = []
     for bey, value in sorted_items[:n]:
         results.append({
             'bey': bey,
             'value': value
         })
-    
+
     return results
 
 
@@ -443,103 +440,103 @@ def get_bottom_n_milestones(data: Dict[str, Any], n: int = 5) -> List[Dict[str, 
     """Get bottom N entries from a milestone category (for stability - lowest variance is best)."""
     if not data:
         return []
-    
+
     sorted_items = sorted(data.items(), key=lambda x: x[1])
-    
+
     results = []
     for bey, value in sorted_items[:n]:
         results.append({
             'bey': bey,
             'value': value
         })
-    
+
     return results
 
 
-def calculate_giant_killer_from_top_ranks(elo_history: List[Dict[str, str]], 
+def calculate_giant_killer_from_top_ranks(elo_history: List[Dict[str, str]],
                                           elo_timeseries: List[Dict[str, str]],
                                           top_n: int = 10) -> Dict[str, int]:
     """
     Calculate Giant Killer metric: wins against Top-N Beys.
-    
+
     This requires determining who was in top N at the time of each match.
     """
     # Build ranking at each match point
     match_rankings = {}
-    
+
     for row in elo_timeseries:
         match_num = int(row['MatchIndex'])
         bey = row['Bey']
         elo = float(row['ELO'])
-        
+
         if match_num not in match_rankings:
             match_rankings[match_num] = []
         match_rankings[match_num].append((bey, elo))
-    
+
     # Get top N at each match
     top_n_at_match = {}
     for match_num, bey_elos in match_rankings.items():
         sorted_beys = sorted(bey_elos, key=lambda x: x[1], reverse=True)
         top_n_at_match[match_num] = {bey for bey, _ in sorted_beys[:top_n]}
-    
+
     # Count wins against top N opponents
     giant_killer_wins = defaultdict(int)
-    
+
     for idx, match in enumerate(elo_history):
         match_num = idx + 1
         bey_a = match['BeyA']
         bey_b = match['BeyB']
         score_a = int(match['ScoreA'])
         score_b = int(match['ScoreB'])
-        
+
         winner = bey_a if score_a > score_b else bey_b
         loser = bey_b if winner == bey_a else bey_a
-        
+
         # Check if winner beat a top N opponent
         if match_num in top_n_at_match and loser in top_n_at_match[match_num]:
             giant_killer_wins[winner] += 1
-    
+
     return dict(giant_killer_wins)
 
 
 def compute_milestones():
     """Main function to compute all milestones and save to JSON."""
     print(f"{CYAN}=== Beyblade Milestones Calculation ==={RESET}")
-    
+
     # Load data files
     print(f"{YELLOW}→{RESET} Loading data files...")
     matches = load_csv_to_dict(MATCHES_FILE)
     rounds = load_csv_to_dict(ROUNDS_FILE)
     elo_history = load_csv_to_dict(ELO_HISTORY_FILE)
     elo_timeseries = load_csv_to_dict(ELO_TIMESERIES_FILE)
-    
+
     print(f"{YELLOW}→{RESET} Calculating Match & Win Records...")
     streaks = calculate_streaks(matches)
     total_wins = calculate_total_wins(matches)
     win_rates = calculate_win_rates(matches)
-    
+
     print(f"{YELLOW}→{RESET} Calculating Finish Statistics...")
     finish_stats = calculate_finish_stats(rounds)
-    
+
     print(f"{YELLOW}→{RESET} Calculating ELO Extremes...")
     elo_extremes = calculate_elo_extremes(elo_history)
-    
+
     print(f"{YELLOW}→{RESET} Calculating Upset Statistics...")
     upset_stats = calculate_upset_stats(elo_history)
-    
+
     print(f"{YELLOW}→{RESET} Calculating Giant Killer Stats...")
     giant_killer_top5 = calculate_giant_killer_from_top_ranks(elo_history, elo_timeseries, top_n=5)
     giant_killer_top10 = calculate_giant_killer_from_top_ranks(elo_history, elo_timeseries, top_n=10)
-    
+
     print(f"{YELLOW}→{RESET} Calculating Top Rank Time...")
     top_rank_time = calculate_top_rank_time(elo_timeseries)
-    
+
     print(f"{YELLOW}→{RESET} Calculating Longevity Statistics...")
     longevity = calculate_longevity_stats(matches)
-    
+
     print(f"{YELLOW}→{RESET} Calculating Stability...")
     stability = calculate_stability(elo_history)
-    
+
     # Compile all milestones
     milestones = {
         'match_and_win_records': {
@@ -612,18 +609,18 @@ def compute_milestones():
             'most_stable_bey': get_bottom_n_milestones(stability)
         },
         'metadata': {
-            'generated_at': __import__('datetime').datetime.now().isoformat(),
+            'generated_at': datetime.datetime.now().isoformat(),
             'total_matches': len(matches),
             'total_rounds': len(rounds),
             'min_matches_for_winrate': MIN_MATCHES_FOR_WINRATE
         }
     }
-    
+
     # Save to JSON
     print(f"{YELLOW}→{RESET} Writing milestones to {MILESTONES_FILE}...")
     with open(MILESTONES_FILE, 'w', encoding='utf-8') as f:
         json.dump(milestones, f, indent=2, ensure_ascii=False)
-    
+
     print(f"{GREEN}✓{RESET} Milestones calculation complete!")
     print(f"{GREEN}✓{RESET} Output: {MILESTONES_FILE}")
 
