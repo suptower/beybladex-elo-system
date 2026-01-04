@@ -235,14 +235,14 @@ def run_version_generation(verbose=False):
     """Generate version information from Git."""
     log_step("Version Generation", "section")
     results = []
-    
+
     success, duration = run_script(
         SCRIPT_GENERATE_VERSION,
         "Generate Version Info",
         verbose=verbose
     )
     results.append(("Version Generation", success, duration))
-    
+
     return results
 
 
