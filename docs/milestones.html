@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X - Milestones</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Milestones</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="milestones.html"><span class="nav-item-icon">🏅</span>Milestones</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🎪</span>Tournaments</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <div class="page-intro">
+        <p>Exceptional historical achievements and records across all tracked data. These milestones highlight standout performances independent of current rankings.</p>
+    </div>
+
+    <!-- Category Sections -->
+    <div id="milestones-container">
+        <div class="loading-placeholder">Loading milestones...</div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 suptower • <span id="site-version">Loading version...</span></p>
+</footer>
+
+<script src="version-display.js"></script>
+<script>
+// Load and display milestones
+async function loadMilestones() {
+    try {
+        const response = await fetch('data/milestones.json');
+        const data = await response.json();
+        
+        const container = document.getElementById('milestones-container');
+        container.innerHTML = '';
+        
+        // Match & Win Records
+        const matchSection = createMilestoneSection(
+            '🏆 Match & Win Records',
+            'Exceptional winning and losing performances',
+            [
+                {
+                    title: 'Longest Win Streak',
+                    items: data.match_and_win_records.longest_win_streak,
+                    formatValue: (item) => `${item.value} wins`
+                },
+                {
+                    title: 'Longest Losing Streak',
+                    items: data.match_and_win_records.longest_losing_streak,
+                    formatValue: (item) => `${item.value} losses`
+                },
+                {
+                    title: 'Most Total Wins',
+                    items: data.match_and_win_records.most_total_wins,
+                    formatValue: (item) => `${item.value} wins`
+                },
+                {
+                    title: 'Highest Win Rate',
+                    items: data.match_and_win_records.highest_win_rate,
+                    formatValue: (item) => `${item.value.toFixed(1)}% (${item.matches} matches)`,
+                    subtitle: `Minimum ${data.metadata.min_matches_for_winrate} matches`
+                }
+            ]
+        );
+        container.appendChild(matchSection);
+        
+        // Finish Specialists
+        const finishSection = createMilestoneSection(
+            '🔥 Finish Specialists',
+            'Masters of specific finish types',
+            [
+                {
+                    title: 'Most Spin Finishes',
+                    items: data.finish_specialists.most_spin_finishes,
+                    formatValue: (item) => `${item.value} spin finishes`
+                },
+                {
+                    title: 'Most Burst Finishes',
+                    items: data.finish_specialists.most_burst_finishes,
+                    formatValue: (item) => `${item.value} burst finishes`
+                },
+                {
+                    title: 'Most Pocket Finishes',
+                    items: data.finish_specialists.most_pocket_finishes,
+                    formatValue: (item) => `${item.value} pocket finishes`
+                },
+                {
+                    title: 'Most Extreme Finishes',
+                    items: data.finish_specialists.most_extreme_finishes,
+                    formatValue: (item) => `${item.value} extreme finishes`
+                },
+                {
+                    title: 'Highest Finish Diversity',
+                    items: data.finish_specialists.highest_finish_diversity,
+                    formatValue: (item) => `${item.value} different finish types`,
+                    subtitle: 'Beys that have achieved all finish types'
+                }
+            ]
+        );
+        container.appendChild(finishSection);
+        
+        // ELO & Performance Extremes
+        const eloSection = createMilestoneSection(
+            '📈 ELO & Performance Extremes',
+            'Record ELO achievements and dramatic shifts',
+            [
+                {
+                    title: 'Highest ELO Ever Reached',
+                    items: data.elo_performance_extremes.highest_elo_ever,
+                    formatValue: (item) => `${item.value.toFixed(1)} ELO`
+                },
+                {
+                    title: 'Biggest ELO Upclimb',
+                    items: data.elo_performance_extremes.biggest_elo_upclimb,
+                    formatValue: (item) => `+${item.climb.toFixed(1)} ELO (${item.from_elo.toFixed(0)} → ${item.to_elo.toFixed(0)})`,
+                    subtitle: 'Largest continuous ELO gain'
+                },
+                {
+                    title: 'Biggest ELO Downfall',
+                    items: data.elo_performance_extremes.biggest_elo_downfall,
+                    formatValue: (item) => `-${item.fall.toFixed(1)} ELO (${item.from_elo.toFixed(0)} → ${item.to_elo.toFixed(0)})`,
+                    subtitle: 'Largest continuous ELO loss'
+                }
+            ]
+        );
+        container.appendChild(eloSection);
+        
+        // Upsets & Clutch Performance
+        const upsetsSection = createMilestoneSection(
+            '🎯 Upsets & Clutch Performance',
+            'Giant killers and underdog victories',
+            [
+                {
+                    title: 'Best Upsetter',
+                    items: data.upsets_and_clutch.best_upsetter,
+                    formatValue: (item) => `${item.value} upset wins`,
+                    subtitle: 'Most wins against higher-ELO opponents'
+                },
+                {
+                    title: 'Biggest Single Upset',
+                    items: data.upsets_and_clutch.biggest_single_upset,
+                    formatValue: (item) => `${item.elo_diff.toFixed(1)} ELO difference`,
+                    subtitle: 'Largest ELO gap overcome in one match'
+                },
+                {
+                    title: 'Giant Killer (Top 5)',
+                    items: data.upsets_and_clutch.giant_killer_top5,
+                    formatValue: (item) => `${item.value} wins vs Top 5`,
+                    subtitle: 'Most wins against Top-5 ranked Beys'
+                },
+                {
+                    title: 'Giant Killer (Top 10)',
+                    items: data.upsets_and_clutch.giant_killer_top10,
+                    formatValue: (item) => `${item.value} wins vs Top 10`,
+                    subtitle: 'Most wins against Top-10 ranked Beys'
+                }
+            ]
+        );
+        container.appendChild(upsetsSection);
+        
+        // Consistency & Longevity
+        const consistencySection = createMilestoneSection(
+            '🧠 Consistency & Longevity',
+            'Durability, stability, and sustained excellence',
+            [
+                {
+                    title: 'Most Matches Played',
+                    items: data.consistency_and_longevity.most_matches_played,
+                    formatValue: (item) => `${item.value} matches`
+                },
+                {
+                    title: 'Most Tournaments',
+                    items: data.consistency_and_longevity.most_tournaments,
+                    formatValue: (item) => `${item.value} tournaments`,
+                    subtitle: 'Based on distinct tournament dates'
+                },
+                {
+                    title: 'Most Time in Top 5',
+                    items: data.consistency_and_longevity.most_time_in_top_5,
+                    formatValue: (item) => `${item.value} match periods`,
+                    subtitle: 'Number of matches spent in top 5 ranking'
+                },
+                {
+                    title: 'Most Time in Top 10',
+                    items: data.consistency_and_longevity.most_time_in_top_10,
+                    formatValue: (item) => `${item.value} match periods`,
+                    subtitle: 'Number of matches spent in top 10 ranking'
+                },
+                {
+                    title: 'Most Stable Bey',
+                    items: data.consistency_and_longevity.most_stable_bey,
+                    formatValue: (item) => `${item.value.toFixed(1)} variance`,
+                    subtitle: 'Lowest ELO variance (most consistent performance)'
+                }
+            ]
+        );
+        container.appendChild(consistencySection);
+        
+    } catch (error) {
+        console.error('Error loading milestones:', error);
+        document.getElementById('milestones-container').innerHTML = 
+            '<p class="error-text">Failed to load milestones data</p>';
+    }
+}
+
+function createMilestoneSection(title, description, milestones) {
+    const section = document.createElement('div');
+    section.className = 'milestone-section';
+    
+    const header = document.createElement('div');
+    header.className = 'milestone-section-header';
+    header.innerHTML = `
+        <h2>${title}</h2>
+        <p class="milestone-section-description">${description}</p>
+    `;
+    section.appendChild(header);
+    
+    const grid = document.createElement('div');
+    grid.className = 'milestone-grid';
+    
+    milestones.forEach(milestone => {
+        const card = createMilestoneCard(milestone);
+        grid.appendChild(card);
+    });
+    
+    section.appendChild(grid);
+    return section;
+}
+
+function createMilestoneCard(milestone) {
+    const card = document.createElement('div');
+    card.className = 'milestone-card';
+    
+    let headerHTML = `<h3>${milestone.title}</h3>`;
+    if (milestone.subtitle) {
+        headerHTML += `<p class="milestone-subtitle">${milestone.subtitle}</p>`;
+    }
+    card.innerHTML = headerHTML;
+    
+    const list = document.createElement('div');
+    list.className = 'milestone-list';
+    
+    if (!milestone.items || milestone.items.length === 0) {
+        list.innerHTML = '<p class="no-data">No data available</p>';
+    } else {
+        milestone.items.forEach((item, index) => {
+            const entry = document.createElement('div');
+            entry.className = 'milestone-entry';
+            
+            const rank = index + 1;
+            const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
+            
+            entry.innerHTML = `
+                <span class="milestone-rank">${medal}</span>
+                <a href="bey.html?name=${encodeURIComponent(item.bey)}" class="milestone-bey" data-bey="${item.bey}">${item.bey}</a>
+                <span class="milestone-value">${milestone.formatValue(item)}</span>
+            `;
+            
+            list.appendChild(entry);
+        });
+    }
+    
+    card.appendChild(list);
+    return card;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', loadMilestones);
+</script>
+
+<style>
+.page-intro {
+    max-width: 900px;
+    margin: 0 auto 2rem;
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.milestone-section {
+    margin-bottom: 3rem;
+}
+
+.milestone-section-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.milestone-section-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.milestone-section-description {
+    color: var(--text-secondary);
+    font-size: 1rem;
+}
+
+.milestone-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.milestone-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.milestone-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.milestone-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.milestone-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.milestone-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.milestone-entry {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.milestone-entry:hover {
+    background: var(--hover-bg);
+}
+
+.milestone-rank {
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.milestone-bey {
+    font-weight: 600;
+    color: var(--link-color);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.milestone-bey:hover {
+    text-decoration: underline;
+}
+
+.milestone-value {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: right;
+    white-space: nowrap;
+}
+
+.no-data {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 1rem;
+}
+
+.error-text {
+    text-align: center;
+    color: var(--error-color, #ef4444);
+    padding: 2rem;
+}
+
+.loading-placeholder {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .milestone-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .milestone-section-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .milestone-card {
+        padding: 1rem;
+    }
+    
+    .milestone-entry {
+        grid-template-columns: 2rem 1fr;
+        gap: 0.5rem;
+    }
+    
+    .milestone-value {
+        grid-column: 2;
+        text-align: left;
+        margin-left: 2.5rem;
+        font-size: 0.85rem;
+    }
+}
+</style>
+
+</body>
+</html>

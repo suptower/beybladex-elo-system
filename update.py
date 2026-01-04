@@ -57,6 +57,7 @@ SCRIPT_META_BALANCE = "./src/meta_balance.py"
 SCRIPT_SYNERGY_HEATMAPS = "./src/synergy_heatmaps.py"
 SCRIPT_COUNTER_CHECKER = "./src/counter_checker.py"
 SCRIPT_COMBO_EXPLORER = "./src/combo_explorer.py"
+SCRIPT_MILESTONES = "./src/milestones.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
@@ -322,6 +323,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Combo Explorer", success, duration))
+
+    # Milestones (depends on matches, rounds, elo_history, elo_timeseries)
+    success, duration = run_script(
+        SCRIPT_MILESTONES,
+        "Milestones Calculation",
+        verbose=verbose
+    )
+    results.append(("Milestones", success, duration))
 
     return results
 
