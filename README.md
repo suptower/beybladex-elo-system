@@ -72,6 +72,12 @@ pip install -r requirements.txt
 python update.py
 ```
 
+This will:
+1. Generate version information from Git (commit count + hash)
+2. Calculate ELO ratings and advanced statistics
+3. Generate analysis modules (RPG stats, upsets, meta balance, etc.)
+4. Create visualizations and plots
+
 ### Command Line Options
 
 ```bash
@@ -124,6 +130,34 @@ python src/simulation.py -n 16 -f single-elimination --append
 | `leaderboards/` | Per-tournament leaderboard snapshots |
 
 **Note:** All scripts read from and write to `./docs/data/` only. No data is stored in the repository root.
+
+## Automatic Site Versioning
+
+The website displays an automatic version number in the footer of every page, based on Git commit history. The version is automatically updated on every commit without manual intervention.
+
+### How It Works
+
+1. **Version Generation**: The `src/generate_version.py` script extracts:
+   - Total commit count (used as version number)
+   - Short commit hash (7 characters)
+   - Full commit hash and timestamp
+
+2. **JavaScript Integration**: Version info is written to `docs/version.js` and automatically displayed in all page footers via `docs/version-display.js`
+
+3. **Format**: Version strings appear as: `Version [count] · [hash]`
+   - Example: `Version 142 · a3f92c1`
+
+4. **Pipeline Integration**: Version generation runs automatically as the first step in `update.py`
+
+### Manual Version Generation
+
+To regenerate the version file manually:
+
+```bash
+python src/generate_version.py
+```
+
+This creates/updates `docs/version.js` with current Git state.
 
 ## Google Sheets Integration
 
