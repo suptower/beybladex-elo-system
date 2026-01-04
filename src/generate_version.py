@@ -26,7 +26,7 @@ from datetime import datetime, timezone
 def get_git_info():
     """
     Extract version information from Git repository.
-    
+
     Returns:
         dict: Version information containing:
             - commit_count: Total number of commits
@@ -42,28 +42,28 @@ def get_git_info():
             text=True,
             timeout=10
         ).strip()
-        
+
         # Get short commit hash
         short_hash = subprocess.check_output(
             ["git", "rev-parse", "--short=7", "HEAD"],
             text=True,
             timeout=10
         ).strip()
-        
+
         # Get full commit hash
         full_hash = subprocess.check_output(
             ["git", "rev-parse", "HEAD"],
             text=True,
             timeout=10
         ).strip()
-        
+
         # Get commit date
         commit_date = subprocess.check_output(
             ["git", "log", "-1", "--format=%cI"],
             text=True,
             timeout=10
         ).strip()
-        
+
         return {
             "commit_count": int(commit_count),
             "short_hash": short_hash,
@@ -86,7 +86,7 @@ def get_git_info():
 def write_version_js(version_info, output_path):
     """
     Write version information to a JavaScript file.
-    
+
     Args:
         version_info (dict): Version information from get_git_info()
         output_path (str): Path to write the JavaScript file
@@ -101,12 +101,12 @@ const VERSION_INFO = {{
     fullHash: "{version_info['full_hash']}",
     commitDate: "{version_info['commit_date']}",
     generatedAt: "{version_info['generated_at']}",
-    
+
     // Formatted version string for display
     getVersionString: function() {{
         return `Version ${{this.commitCount}} · ${{this.shortHash}}`;
     }},
-    
+
     // Full version info string
     getFullVersionString: function() {{
         return `v${{this.commitCount}} (${{this.shortHash}})`;
@@ -118,10 +118,10 @@ if (typeof window !== 'undefined') {{
     window.VERSION_INFO = VERSION_INFO;
 }}
 """
-    
+
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(js_content)
-    
+
     print(f"✓ Version file written to {output_path}")
     print(f"  Commit count: {version_info['commit_count']}")
     print(f"  Short hash: {version_info['short_hash']}")
@@ -134,7 +134,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     repo_root = os.path.dirname(script_dir)
     output_path = os.path.join(repo_root, "docs", "version.js")
-    
+
     print("Generating version information...")
     version_info = get_git_info()
     write_version_js(version_info, output_path)
