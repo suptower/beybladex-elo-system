@@ -271,15 +271,15 @@ function createMilestoneSection(title, description, milestones) {
     `;
     section.appendChild(header);
     
-    const grid = document.createElement('div');
-    grid.className = 'milestone-grid';
+    const cardsContainer = document.createElement('div');
+    cardsContainer.className = 'milestone-cards-container';
     
     milestones.forEach(milestone => {
         const card = createMilestoneCard(milestone);
-        grid.appendChild(card);
+        cardsContainer.appendChild(card);
     });
     
-    section.appendChild(grid);
+    section.appendChild(cardsContainer);
     return section;
 }
 
@@ -287,17 +287,23 @@ function createMilestoneCard(milestone) {
     const card = document.createElement('div');
     card.className = 'milestone-card';
     
-    let headerHTML = `<h3>${milestone.title}</h3>`;
-    if (milestone.subtitle) {
-        headerHTML += `<p class="milestone-subtitle">${milestone.subtitle}</p>`;
-    }
-    card.innerHTML = headerHTML;
+    // Card header with title and subtitle
+    const cardHeader = document.createElement('div');
+    cardHeader.className = 'milestone-card-header';
     
-    const list = document.createElement('div');
-    list.className = 'milestone-list';
+    let headerHTML = `<h3 class="milestone-card-title">${milestone.title}</h3>`;
+    if (milestone.subtitle) {
+        headerHTML += `<p class="milestone-card-subtitle">${milestone.subtitle}</p>`;
+    }
+    cardHeader.innerHTML = headerHTML;
+    card.appendChild(cardHeader);
+    
+    // Card body with entries
+    const cardBody = document.createElement('div');
+    cardBody.className = 'milestone-card-body';
     
     if (!milestone.items || milestone.items.length === 0) {
-        list.innerHTML = '<p class="no-data">No data available</p>';
+        cardBody.innerHTML = '<p class="no-data">No data available</p>';
     } else {
         milestone.items.forEach((item, index) => {
             const entry = document.createElement('div');
@@ -306,17 +312,26 @@ function createMilestoneCard(milestone) {
             const rank = index + 1;
             const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
             
-            entry.innerHTML = `
-                <span class="milestone-rank">${medal}</span>
-                <a href="bey.html?name=${encodeURIComponent(item.bey)}" class="milestone-bey" data-bey="${item.bey}">${item.bey}</a>
-                <span class="milestone-value">${milestone.formatValue(item)}</span>
+            // Create entry structure
+            const entryContent = document.createElement('div');
+            entryContent.className = 'milestone-entry-content';
+            
+            entryContent.innerHTML = `
+                <div class="milestone-entry-left">
+                    <span class="milestone-rank">${medal}</span>
+                    <a href="bey.html?name=${encodeURIComponent(item.bey)}" class="milestone-bey" data-bey="${item.bey}">${item.bey}</a>
+                </div>
+                <div class="milestone-entry-right">
+                    <span class="milestone-value">${milestone.formatValue(item)}</span>
+                </div>
             `;
             
-            list.appendChild(entry);
+            entry.appendChild(entryContent);
+            cardBody.appendChild(entry);
         });
     }
     
-    card.appendChild(list);
+    card.appendChild(cardBody);
     return card;
 }
 
@@ -327,141 +342,156 @@ document.addEventListener('DOMContentLoaded', loadMilestones);
 <style>
 /* Page Layout */
 .page-intro {
-    max-width: 900px;
-    margin: 0 auto 3rem;
-    padding: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    padding: 1rem;
     text-align: center;
     color: var(--text-secondary);
-    font-size: 1.05rem;
+    font-size: 1rem;
     line-height: 1.6;
 }
 
 /* Section Styling */
 .milestone-section {
-    margin-bottom: 4rem;
-    max-width: 1600px;
+    margin-bottom: 3rem;
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
-    padding: 0 2rem;
+    padding: 0 1rem;
 }
 
 .milestone-section-header {
     text-align: center;
-    margin-bottom: 2.5rem;
-    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
     border-bottom: 2px solid var(--border-color);
 }
 
 .milestone-section-header h2 {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     color: var(--text-primary);
-    letter-spacing: -0.02em;
 }
 
 .milestone-section-description {
     color: var(--text-secondary);
-    font-size: 1.05rem;
+    font-size: 0.95rem;
 }
 
-/* Grid Layout */
-.milestone-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2rem;
+/* Cards Container - Single Column Mobile-Style Layout */
+.milestone-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
 }
 
-/* Card Styling */
+/* Mobile Card Styling */
 .milestone-card {
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 1.75rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.2s ease;
 }
 
 .milestone-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
 }
 
-.milestone-card h3 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.milestone-subtitle {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    margin-bottom: 1.25rem;
-    font-style: italic;
-    line-height: 1.4;
-}
-
-/* List Container */
-.milestone-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-/* Entry Styling with Enhanced Top 3 */
-.milestone-entry {
-    display: grid;
-    grid-template-columns: 3.5rem 1fr auto;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.875rem 1rem;
+/* Card Header */
+.milestone-card-header {
     background: var(--bg-secondary);
-    border-radius: 12px;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.milestone-card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.milestone-card-subtitle {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0.375rem 0 0 0;
+    font-style: italic;
+}
+
+/* Card Body */
+.milestone-card-body {
+    padding: 0.5rem;
+}
+
+/* Entry Styling */
+.milestone-entry {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    transition: background 0.15s ease;
 }
 
 .milestone-entry:hover {
     background: var(--hover-bg);
-    border-color: var(--border-color);
-    transform: translateX(4px);
 }
 
-/* Top 3 Special Styling */
-.milestone-entry:nth-child(1),
-.milestone-entry:nth-child(2),
-.milestone-entry:nth-child(3) {
-    background: linear-gradient(135deg, var(--card-bg) 0%, var(--bg-secondary) 100%);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+.milestone-entry:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
 }
 
+/* Top 3 Highlighting */
 .milestone-entry:nth-child(1) {
-    padding: 1rem 1.25rem;
+    background: linear-gradient(to right, rgba(255, 215, 0, 0.08), transparent);
+}
+
+.milestone-entry:nth-child(2) {
+    background: linear-gradient(to right, rgba(192, 192, 192, 0.08), transparent);
+}
+
+.milestone-entry:nth-child(3) {
+    background: linear-gradient(to right, rgba(205, 127, 50, 0.08), transparent);
 }
 
 .milestone-entry:nth-child(1):hover,
 .milestone-entry:nth-child(2):hover,
 .milestone-entry:nth-child(3):hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: var(--accent);
+    background: var(--hover-bg);
+}
+
+/* Entry Content Layout */
+.milestone-entry-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.milestone-entry-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.milestone-entry-right {
+    flex-shrink: 0;
 }
 
 /* Rank Badge */
 .milestone-rank {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
+    min-width: 2rem;
     text-align: center;
-    line-height: 1;
+    flex-shrink: 0;
 }
 
 .milestone-entry:nth-child(1) .milestone-rank {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
 }
 
 /* Bey Name */
@@ -470,13 +500,17 @@ document.addEventListener('DOMContentLoaded', loadMilestones);
     font-size: 1rem;
     color: var(--link-color);
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color 0.15s;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .milestone-entry:nth-child(1) .milestone-bey,
 .milestone-entry:nth-child(2) .milestone-bey,
 .milestone-entry:nth-child(3) .milestone-bey {
     font-size: 1.05rem;
+    font-weight: 700;
 }
 
 .milestone-bey:hover {
@@ -484,25 +518,22 @@ document.addEventListener('DOMContentLoaded', loadMilestones);
     text-decoration: underline;
 }
 
-/* Value Display */
+/* Value Badge */
 .milestone-value {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-primary);
-    text-align: right;
-    white-space: nowrap;
-    background: var(--card-bg);
+    background: var(--bg-secondary);
     padding: 0.375rem 0.75rem;
-    border-radius: 8px;
+    border-radius: 6px;
+    white-space: nowrap;
     border: 1px solid var(--border-color);
 }
 
 .milestone-entry:nth-child(1) .milestone-value,
 .milestone-entry:nth-child(2) .milestone-value,
 .milestone-entry:nth-child(3) .milestone-value {
-    font-size: 1rem;
     font-weight: 700;
-    padding: 0.5rem 0.875rem;
 }
 
 /* Empty State */
@@ -510,9 +541,7 @@ document.addEventListener('DOMContentLoaded', loadMilestones);
     text-align: center;
     color: var(--text-secondary);
     font-style: italic;
-    padding: 2rem;
-    background: var(--bg-secondary);
-    border-radius: 12px;
+    padding: 1.5rem;
 }
 
 .error-text {
@@ -526,128 +555,69 @@ document.addEventListener('DOMContentLoaded', loadMilestones);
 
 .loading-placeholder {
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 3rem 1rem;
     color: var(--text-secondary);
     font-size: 1.1rem;
 }
 
-/* Responsive Tablet */
-@media (max-width: 1200px) {
-    .milestone-grid {
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 1.5rem;
+/* Responsive - Tablet and Up */
+@media (min-width: 768px) {
+    .page-intro {
+        padding: 1.5rem;
+        font-size: 1.05rem;
     }
     
     .milestone-section {
         padding: 0 1.5rem;
     }
-}
-
-/* Responsive Mobile */
-@media (max-width: 768px) {
-    .page-intro {
-        padding: 1rem;
-        font-size: 0.95rem;
-        margin-bottom: 2rem;
-    }
-    
-    .milestone-section {
-        margin-bottom: 3rem;
-        padding: 0 1rem;
-    }
-    
-    .milestone-section-header {
-        margin-bottom: 1.5rem;
-    }
     
     .milestone-section-header h2 {
-        font-size: 1.5rem;
+        font-size: 2rem;
     }
     
-    .milestone-section-description {
-        font-size: 0.95rem;
+    .milestone-cards-container {
+        gap: 1.5rem;
     }
     
-    .milestone-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
+    .milestone-card-header {
+        padding: 1.25rem 1.5rem;
     }
     
-    .milestone-card {
-        padding: 1.25rem;
-        border-radius: 12px;
-    }
-    
-    .milestone-card h3 {
-        font-size: 1.1rem;
-    }
-    
-    .milestone-subtitle {
-        font-size: 0.85rem;
-        margin-bottom: 1rem;
-    }
-    
-    .milestone-list {
-        gap: 0.5rem;
+    .milestone-card-body {
+        padding: 0.75rem;
     }
     
     .milestone-entry {
-        grid-template-columns: 3rem 1fr auto;
-        gap: 0.75rem;
-        padding: 0.75rem 0.875rem;
-    }
-    
-    .milestone-entry:nth-child(1) {
-        padding: 0.875rem 1rem;
-    }
-    
-    .milestone-rank {
-        font-size: 1.25rem;
-    }
-    
-    .milestone-entry:nth-child(1) .milestone-rank {
-        font-size: 1.5rem;
-    }
-    
-    .milestone-bey {
-        font-size: 0.95rem;
-    }
-    
-    .milestone-entry:nth-child(1) .milestone-bey,
-    .milestone-entry:nth-child(2) .milestone-bey,
-    .milestone-entry:nth-child(3) .milestone-bey {
-        font-size: 1rem;
-    }
-    
-    .milestone-value {
-        font-size: 0.85rem;
-        padding: 0.35rem 0.65rem;
-    }
-    
-    .milestone-entry:nth-child(1) .milestone-value,
-    .milestone-entry:nth-child(2) .milestone-value,
-    .milestone-entry:nth-child(3) .milestone-value {
-        font-size: 0.9rem;
-        padding: 0.4rem 0.75rem;
+        padding: 1rem 1.25rem;
     }
 }
 
-/* Extra Small Mobile */
+/* Responsive - Desktop */
+@media (min-width: 1024px) {
+    .milestone-section {
+        max-width: 900px;
+    }
+}
+
+/* Extra Small Mobile Adjustments */
 @media (max-width: 400px) {
-    .milestone-entry {
-        grid-template-columns: 2.5rem 1fr;
+    .milestone-entry-content {
+        flex-direction: column;
+        align-items: flex-start;
         gap: 0.5rem;
     }
     
-    .milestone-value {
-        grid-column: 2;
-        text-align: left;
-        margin-left: 3rem;
-        margin-top: 0.25rem;
+    .milestone-entry-left {
+        width: 100%;
     }
     
-    .milestone-bey {
-        grid-column: 2;
+    .milestone-entry-right {
+        width: 100%;
+        margin-left: 2.75rem;
+    }
+    
+    .milestone-value {
+        font-size: 0.85rem;
     }
 }
 </style>
