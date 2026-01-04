@@ -18,6 +18,7 @@ Pipeline Stages:
    - Synergy Heatmaps (synergy_heatmaps.py)
    - Bey Counters (counter_checker.py)
    - Combo Explorer (combo_explorer.py)
+   - Milestones (milestones.py)
 
 3. Visualization (runs by default, use --skip-plots to skip)
    - Plot Generation (gen_plots.py)

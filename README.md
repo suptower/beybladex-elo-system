@@ -127,6 +127,7 @@ python src/simulation.py -n 16 -f single-elimination --append
 | `combo_data.json` | Combination explorer data |
 | `parts_stats.json` | Individual part statistics |
 | `tournaments.json` | Tournament metadata |
+| `milestones.json` | Statistical records and achievements |
 | `leaderboards/` | Per-tournament leaderboard snapshots |
 
 **Note:** All scripts read from and write to `./docs/data/` only. No data is stored in the repository root.
