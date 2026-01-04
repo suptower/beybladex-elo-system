@@ -4,7 +4,7 @@
 (function() {
     function updateVersionDisplay() {
         if (!window.VERSION_INFO) {
-            console.warn('VERSION_INFO not loaded yet');
+            console.debug('VERSION_INFO not loaded yet');
             return;
         }
         

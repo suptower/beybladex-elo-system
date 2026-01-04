@@ -19,7 +19,6 @@ Output:
 """
 
 import subprocess
-import json
 import os
 from datetime import datetime, timezone
 
@@ -40,25 +39,29 @@ def get_git_info():
         # Get total commit count
         commit_count = subprocess.check_output(
             ["git", "rev-list", "--count", "HEAD"],
-            text=True
+            text=True,
+            timeout=10
         ).strip()
         
         # Get short commit hash
         short_hash = subprocess.check_output(
             ["git", "rev-parse", "--short=7", "HEAD"],
-            text=True
+            text=True,
+            timeout=10
         ).strip()
         
         # Get full commit hash
         full_hash = subprocess.check_output(
             ["git", "rev-parse", "HEAD"],
-            text=True
+            text=True,
+            timeout=10
         ).strip()
         
         # Get commit date
         commit_date = subprocess.check_output(
             ["git", "log", "-1", "--format=%cI"],
-            text=True
+            text=True,
+            timeout=10
         ).strip()
         
         return {
