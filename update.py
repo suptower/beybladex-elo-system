@@ -43,6 +43,9 @@ import time
 from datetime import datetime
 
 # --- Script Paths ---
+# Version generation
+SCRIPT_GENERATE_VERSION = "./src/generate_version.py"
+
 # Core data generation
 SCRIPT_BLADE_ELO = "./src/beyblade_elo.py"
 SCRIPT_ADVANCED_STATS = "./src/advanced_stats.py"
@@ -226,6 +229,21 @@ def run_script(script_path, description, verbose=False, stream_output=False):
         duration = time.time() - start_time
         log_step(f"{description} - error: {e}", "error")
         return False, duration
+
+
+def run_version_generation(verbose=False):
+    """Generate version information from Git."""
+    log_step("Version Generation", "section")
+    results = []
+    
+    success, duration = run_script(
+        SCRIPT_GENERATE_VERSION,
+        "Generate Version Info",
+        verbose=verbose
+    )
+    results.append(("Version Generation", success, duration))
+    
+    return results
 
 
 def run_core_stats(verbose=False):
@@ -422,6 +440,10 @@ def main():
     all_results = []
 
     log_step("Beyblade X Update Pipeline", "header")
+
+    # Always generate version information first
+    results = run_version_generation(verbose=args.verbose)
+    all_results.extend(results)
 
     # Determine what to run based on arguments
     stages = determine_pipeline_stages(args)
