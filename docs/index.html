@@ -6,6 +6,7 @@
     <title>Beyblade X ELO Analytics - suptower</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="hamburger.js"></script>
 </head>
@@ -224,10 +225,11 @@
         </div>
     </div>
     <div class="footer-bottom">
-        <p>© 2026 suptower • Built with 💜 for the Beyblade X community • v2.41</p>
+        <p>© 2026 suptower • Built with 💜 for the Beyblade X community • <span id="site-version">Loading version...</span></p>
     </div>
 </footer>
 
+<script src="version-display.js"></script>
 <script>
 // Parse CSV text to array of objects
 // Note: This simple parser works for the project's CSV files which don't contain
