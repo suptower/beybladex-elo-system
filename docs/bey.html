@@ -1831,9 +1831,9 @@ function renderRelatedBeys() {
     relatedSection.style.display = hasRelatedContent ? 'block' : 'none';
 }
 
-// Extract bey family from blade name
-function extractBeyFamily(bladeName) {
-    if (!bladeName) return null;
+// Extract bey family/families from blade name
+function extractBeyFamilies(bladeName) {
+    if (!bladeName) return [];
     
     // Look for capital letters to find word boundaries
     const capitals = [];
@@ -1844,7 +1844,9 @@ function extractBeyFamily(bladeName) {
     }
     
     // Need at least 2 capital letters to extract prefix or suffix
-    if (capitals.length < 2) return null;
+    if (capitals.length < 2) return [];
+    
+    const families = [];
     
     // Extract prefix-based family (e.g., "DranSword" -> "Dran")
     // If the first capital is at position 0, extract the first word
@@ -1852,7 +1854,7 @@ function extractBeyFamily(bladeName) {
         const firstWord = bladeName.substring(capitals[0], capitals[1]);
         // Only consider it a family if it's at least 3 characters
         if (firstWord.length >= 3) {
-            return firstWord;
+            families.push(firstWord);
         }
     }
     
@@ -1860,47 +1862,51 @@ function extractBeyFamily(bladeName) {
     // Take the last word (from the last capital letter to the end)
     const lastCapitalIndex = capitals[capitals.length - 1];
     const lastWord = bladeName.substring(lastCapitalIndex);
-    // Only consider it a family if it's at least 3 characters
-    if (lastWord.length >= 3) {
-        return lastWord;
+    // Only consider it a family if it's at least 3 characters and different from prefix
+    if (lastWord.length >= 3 && !families.includes(lastWord)) {
+        families.push(lastWord);
     }
     
-    return null;
+    return families;
 }
 
-// Find beys from the same family
+// Find beys from the same family/families
 function findBeyFamilyMembers() {
     if (!beyData || !allBeysData) return [];
     
     const currentBlade = beyData.blade;
     const normalizedName = normalizeBeyName(currentBlade);
-    const family = extractBeyFamily(currentBlade);
+    const families = extractBeyFamilies(currentBlade);
     
-    if (!family) return [];
+    if (families.length === 0) return [];
     
-    const familyMembers = [];
+    const familyMembersMap = new Map();
     
     allBeysData.forEach(bey => {
         if (normalizeBeyName(bey.blade) === normalizedName) return;
         
-        const otherFamily = extractBeyFamily(bey.blade);
-        if (otherFamily && otherFamily === family) {
-            familyMembers.push(bey);
+        const otherFamilies = extractBeyFamilies(bey.blade);
+        const sharedFamilies = families.filter(f => otherFamilies.includes(f));
+        
+        if (sharedFamilies.length > 0) {
+            familyMembersMap.set(bey.blade, {
+                bey: bey,
+                sharedFamilies: sharedFamilies
+            });
         }
     });
     
-    return familyMembers.slice(0, 6);
+    return Array.from(familyMembersMap.values()).slice(0, 6);
 }
 
 // Render bey family members
-function renderBeyFamilyMembers(beys) {
+function renderBeyFamilyMembers(familyMembers) {
     const container = document.getElementById('beyFamilyBeys');
-    const family = extractBeyFamily(beyData.blade);
     
-    container.innerHTML = beys.map(bey => `
+    container.innerHTML = familyMembers.map(({ bey, sharedFamilies }) => `
         <a href="bey.html?name=${encodeURIComponent(bey.blade)}" class="related-bey-card">
             <div class="related-bey-name">${escapeHtml(bey.blade)}</div>
-            <div class="related-bey-shared">Family: ${escapeHtml(family)}</div>
+            <div class="related-bey-shared">Family: ${escapeHtml(sharedFamilies.join(', '))}</div>
         </a>
     `).join('');
 }
