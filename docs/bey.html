@@ -1835,17 +1835,6 @@ function renderRelatedBeys() {
 function extractBeyFamily(bladeName) {
     if (!bladeName) return null;
     
-    // Common suffixes that indicate family relations
-    const commonSuffixes = ['Flame', 'Wave', 'Rudder', 'Wing', 'Edge', 'Scale', 'Claw', 'Crest'];
-    
-    // Check for suffix-based family (e.g., "CerberusFlame", "WhaleFlame" -> "Flame")
-    for (const suffix of commonSuffixes) {
-        if (bladeName.endsWith(suffix) && bladeName.length > suffix.length) {
-            return suffix;
-        }
-    }
-    
-    // Extract prefix-based family (e.g., "DranSword" -> "Dran")
     // Look for capital letters to find word boundaries
     const capitals = [];
     for (let i = 0; i < bladeName.length; i++) {
@@ -1854,13 +1843,26 @@ function extractBeyFamily(bladeName) {
         }
     }
     
-    // If we have at least 2 capital letters and the first is at position 0, extract the first word
-    if (capitals.length >= 2 && capitals[0] === 0) {
+    // Need at least 2 capital letters to extract prefix or suffix
+    if (capitals.length < 2) return null;
+    
+    // Extract prefix-based family (e.g., "DranSword" -> "Dran")
+    // If the first capital is at position 0, extract the first word
+    if (capitals[0] === 0) {
         const firstWord = bladeName.substring(capitals[0], capitals[1]);
         // Only consider it a family if it's at least 3 characters
         if (firstWord.length >= 3) {
             return firstWord;
         }
+    }
+    
+    // Extract suffix-based family (e.g., "WhaleFlame" -> "Flame")
+    // Take the last word (from the last capital letter to the end)
+    const lastCapitalIndex = capitals[capitals.length - 1];
+    const lastWord = bladeName.substring(lastCapitalIndex);
+    // Only consider it a family if it's at least 3 characters
+    if (lastWord.length >= 3) {
+        return lastWord;
     }
     
     return null;
