@@ -1849,14 +1849,14 @@ function extractBeyFamily(bladeName) {
     // Look for capital letters to find word boundaries
     const capitals = [];
     for (let i = 0; i < bladeName.length; i++) {
-        if (bladeName[i] === bladeName[i].toUpperCase() && /[A-Z]/.test(bladeName[i])) {
+        if (/[A-Z]/.test(bladeName[i])) {
             capitals.push(i);
         }
     }
     
-    // If we have at least 2 capital letters, extract the first word
-    if (capitals.length >= 2) {
-        const firstWord = bladeName.substring(0, capitals[1]);
+    // If we have at least 2 capital letters and the first is at position 0, extract the first word
+    if (capitals.length >= 2 && capitals[0] === 0) {
+        const firstWord = bladeName.substring(capitals[0], capitals[1]);
         // Only consider it a family if it's at least 3 characters
         if (firstWord.length >= 3) {
             return firstWord;
