@@ -275,7 +275,7 @@
 </main>
 
 <footer>
-    <p>© 2025 suptower</p>
+    <p>© 2026 suptower</p>
 </footer>
 
 <script>
@@ -1341,10 +1341,10 @@ function calculateMilestones() {
     
     // Peak ELO and Low ELO
     if (eloHistory.length > 0) {
-        let peakElo = -Infinity;
-        let peakDate = null;
-        let lowElo = Infinity;
-        let lowDate = null;
+        let peakElo = 1000;
+        let peakDate = eloHistory[0].Date;
+        let lowElo = 1000;
+        let lowDate = eloHistory[0].Date;
         
         eloHistory.forEach(match => {
             const isA = normalizeBeyName(match.BeyA) === normalizedName;
