@@ -122,7 +122,7 @@ if (typeof window !== 'undefined') {{
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(js_content)
 
-    print(f"✓ Version file written to {output_path}")
+    print(f"  Version file written to {output_path}")
     print(f"  Commit count: {version_info['commit_count']}")
     print(f"  Short hash: {version_info['short_hash']}")
     print(f"  Version string: Version {version_info['commit_count']} · {version_info['short_hash']}")
@@ -138,7 +138,7 @@ def main():
     print("Generating version information...")
     version_info = get_git_info()
     write_version_js(version_info, output_path)
-    print("✓ Version generation complete")
+    print("Version generation complete")
 
 
 if __name__ == "__main__":
