@@ -187,6 +187,13 @@
             '<p class="error-message">Failed to load archetype data. Please ensure the data file exists.</p>';
     }
 
+    // HTML escape function to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     function renderDashboard() {
         if (!archetypeData) return;
 
@@ -207,45 +214,45 @@
                 <div class="insight-icon">👑</div>
                 <div class="insight-content">
                     <h4>Dominant Archetype</h4>
-                    <p class="insight-value">${insights.dominant_archetype.name}</p>
+                    <p class="insight-value">${escapeHtml(insights.dominant_archetype.name)}</p>
                     <p class="insight-detail">Avg ELO: ${insights.dominant_archetype.avg_elo.toFixed(1)}</p>
-                    <p class="insight-reason">${insights.dominant_archetype.reason}</p>
+                    <p class="insight-reason">${escapeHtml(insights.dominant_archetype.reason)}</p>
                 </div>
             </div>
             <div class="insight-card">
                 <div class="insight-icon">🎯</div>
                 <div class="insight-content">
                     <h4>Most Reliable</h4>
-                    <p class="insight-value">${insights.most_reliable.name}</p>
+                    <p class="insight-value">${escapeHtml(insights.most_reliable.name)}</p>
                     <p class="insight-detail">Winrate: ${(insights.most_reliable.avg_winrate * 100).toFixed(1)}%</p>
-                    <p class="insight-reason">${insights.most_reliable.reason}</p>
+                    <p class="insight-reason">${escapeHtml(insights.most_reliable.reason)}</p>
                 </div>
             </div>
             <div class="insight-card">
                 <div class="insight-icon">🎲</div>
                 <div class="insight-content">
                     <h4>Most Volatile</h4>
-                    <p class="insight-value">${insights.most_volatile.name}</p>
+                    <p class="insight-value">${escapeHtml(insights.most_volatile.name)}</p>
                     <p class="insight-detail">Upset Rate: ${(insights.most_volatile.upset_rate * 100).toFixed(1)}%</p>
-                    <p class="insight-reason">${insights.most_volatile.reason}</p>
+                    <p class="insight-reason">${escapeHtml(insights.most_volatile.reason)}</p>
                 </div>
             </div>
             <div class="insight-card">
                 <div class="insight-icon">🏆</div>
                 <div class="insight-content">
                     <h4>Highest Winrate</h4>
-                    <p class="insight-value">${insights.highest_winrate.name}</p>
+                    <p class="insight-value">${escapeHtml(insights.highest_winrate.name)}</p>
                     <p class="insight-detail">Winrate: ${(insights.highest_winrate.avg_winrate * 100).toFixed(1)}%</p>
-                    <p class="insight-reason">${insights.highest_winrate.reason}</p>
+                    <p class="insight-reason">${escapeHtml(insights.highest_winrate.reason)}</p>
                 </div>
             </div>
             <div class="insight-card">
                 <div class="insight-icon">📈</div>
                 <div class="insight-content">
                     <h4>Most Active</h4>
-                    <p class="insight-value">${insights.most_active.name}</p>
+                    <p class="insight-value">${escapeHtml(insights.most_active.name)}</p>
                     <p class="insight-detail">${insights.most_active.total_matches} matches</p>
-                    <p class="insight-reason">${insights.most_active.reason}</p>
+                    <p class="insight-reason">${escapeHtml(insights.most_active.reason)}</p>
                 </div>
             </div>
         `;
@@ -263,10 +270,10 @@
         tbody.innerHTML = sortedArchetypes.map(archetype => `
             <tr>
                 <td>
-                    <span style="font-size: 1.2em;">${archetype.icon}</span>
-                    <strong>${archetype.name}</strong>
+                    <span style="font-size: 1.2em;">${escapeHtml(archetype.icon)}</span>
+                    <strong>${escapeHtml(archetype.name)}</strong>
                 </td>
-                <td><span class="category-badge category-${archetype.category}">${archetype.category}</span></td>
+                <td><span class="category-badge category-${escapeHtml(archetype.category)}">${escapeHtml(archetype.category)}</span></td>
                 <td>${archetype.bey_count}</td>
                 <td><strong>${archetype.avg_elo.toFixed(0)}</strong> <span style="color: #888; font-size: 0.9em;">±${archetype.elo_std.toFixed(0)}</span></td>
                 <td>${(archetype.avg_winrate * 100).toFixed(1)}%</td>
@@ -441,13 +448,13 @@
         
         // Header row
         archetypes.forEach(arch => {
-            html += `<th><span class="archetype-icon" title="${arch.name}">${arch.icon}</span></th>`;
+            html += `<th><span class="archetype-icon" title="${escapeHtml(arch.name)}">${escapeHtml(arch.icon)}</span></th>`;
         });
         html += '</tr></thead><tbody>';
 
         // Data rows
         archetypes.forEach(rowArch => {
-            html += `<tr><th><span class="archetype-icon" title="${rowArch.name}">${rowArch.icon}</span> ${rowArch.name}</th>`;
+            html += `<tr><th><span class="archetype-icon" title="${escapeHtml(rowArch.name)}">${escapeHtml(rowArch.icon)}</span> ${escapeHtml(rowArch.name)}</th>`;
             
             archetypes.forEach(colArch => {
                 const matchupData = matrix[rowArch.id]?.[colArch.id];
@@ -459,7 +466,7 @@
                     const winrate = matchupData.winrate * 100;
                     const intensity = Math.min(100, winrate * 1.2);
                     const bgColor = `rgba(34, 197, 94, ${intensity / 100})`;
-                    html += `<td class="matchup-cell" style="background-color: ${bgColor};" title="${rowArch.name} vs ${colArch.name}: ${winrate.toFixed(1)}% (${matchupData.total} matches)">
+                    html += `<td class="matchup-cell" style="background-color: ${bgColor};" title="${escapeHtml(rowArch.name)} vs ${escapeHtml(colArch.name)}: ${winrate.toFixed(1)}% (${matchupData.total} matches)">
                         <div class="matchup-winrate">${winrate.toFixed(0)}%</div>
                         <div class="matchup-count">${matchupData.total}</div>
                     </td>`;
@@ -484,11 +491,11 @@
         const sortedArchetypes = Object.values(stats).sort((a, b) => b.avg_elo - a.avg_elo);
 
         container.innerHTML = sortedArchetypes.map(archetype => `
-            <div class="archetype-detail-card" style="border-left: 4px solid ${archetype.color}">
+            <div class="archetype-detail-card" style="border-left: 4px solid ${escapeHtml(archetype.color)}">
                 <div class="archetype-detail-header">
-                    <span class="archetype-detail-icon">${archetype.icon}</span>
-                    <h4>${archetype.name}</h4>
-                    <span class="category-badge category-${archetype.category}">${archetype.category}</span>
+                    <span class="archetype-detail-icon">${escapeHtml(archetype.icon)}</span>
+                    <h4>${escapeHtml(archetype.name)}</h4>
+                    <span class="category-badge category-${escapeHtml(archetype.category)}">${escapeHtml(archetype.category)}</span>
                 </div>
                 <div class="archetype-detail-stats">
                     <div class="detail-stat">
@@ -519,7 +526,7 @@
                 <div class="archetype-beys">
                     <strong>Beys in this archetype:</strong>
                     <div class="bey-list">
-                        ${archetype.beys.map(bey => `<a href="bey.html?name=${encodeURIComponent(bey)}" class="bey-link">${bey}</a>`).join(', ')}
+                        ${archetype.beys.map(bey => `<a href="bey.html?name=${encodeURIComponent(bey)}" class="bey-link">${escapeHtml(bey)}</a>`).join(', ')}
                     </div>
                 </div>
             </div>
