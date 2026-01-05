@@ -37,7 +37,7 @@ def load_matches() -> List[Dict]:
 def load_bey_metadata() -> Tuple[Dict, Dict, Dict]:
     """
     Load bey metadata including ELO, tier, and archetype information.
-    
+
     Returns:
         Tuple of (elo_map, tier_map, archetype_map)
     """
@@ -54,7 +54,7 @@ def load_bey_metadata() -> Tuple[Dict, Dict, Dict]:
                 tier_map[bey] = row.get('Tier', 'Unranked')
     except FileNotFoundError:
         print(f"Warning: {LEADERBOARD_CSV} not found, using default values")
-    
+
     # Load archetype data from RPG stats
     archetype_map = {}
     try:
@@ -70,22 +70,22 @@ def load_bey_metadata() -> Tuple[Dict, Dict, Dict]:
                         archetype_map[bey] = archetype if archetype else 'Unknown'
     except FileNotFoundError:
         print(f"Warning: {RPG_STATS_JSON} not found, using default values")
-    
+
     return elo_map, tier_map, archetype_map
 
 
 def calculate_matchup_matrix(matches: List[Dict]) -> Dict:
     """
     Calculate the matchup matrix from match history.
-    
+
     For each Bey pair (A, B), tracks:
     - Wins for A against B
     - Total matches between A and B
     - Score differential (A's score - B's score)
-    
+
     Args:
         matches: List of match dictionaries
-        
+
     Returns:
         Nested dictionary: matchup_data[beyA][beyB] = stats
     """
@@ -96,52 +96,52 @@ def calculate_matchup_matrix(matches: List[Dict]) -> Dict:
         'score_for': 0,
         'score_against': 0
     }))
-    
+
     for match in matches:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
         score_a = int(match['ScoreA'])
         score_b = int(match['ScoreB'])
-        
+
         # Skip ties
         if score_a == score_b:
             continue
-        
+
         # Update matchup stats for both directions
         matchup_data[bey_a][bey_b]['total_matches'] += 1
         matchup_data[bey_a][bey_b]['score_for'] += score_a
         matchup_data[bey_a][bey_b]['score_against'] += score_b
-        
+
         matchup_data[bey_b][bey_a]['total_matches'] += 1
         matchup_data[bey_b][bey_a]['score_for'] += score_b
         matchup_data[bey_b][bey_a]['score_against'] += score_a
-        
+
         if score_a > score_b:
             matchup_data[bey_a][bey_b]['wins'] += 1
             matchup_data[bey_b][bey_a]['losses'] += 1
         else:
             matchup_data[bey_b][bey_a]['wins'] += 1
             matchup_data[bey_a][bey_b]['losses'] += 1
-    
+
     return matchup_data
 
 
 def build_matrix_output(matchup_data: Dict, elo_map: Dict, tier_map: Dict, archetype_map: Dict) -> Dict:
     """
     Build the final output structure for the matchup matrix.
-    
+
     Args:
         matchup_data: Raw matchup statistics
         elo_map: Bey name to ELO mapping
         tier_map: Bey name to tier mapping
         archetype_map: Bey name to archetype mapping
-        
+
     Returns:
         Dictionary with beys list and matchup matrix
     """
     # Get all beys that have participated in matches
     all_beys = sorted(matchup_data.keys())
-    
+
     # Build bey metadata list
     beys = []
     for bey in all_beys:
@@ -151,7 +151,7 @@ def build_matrix_output(matchup_data: Dict, elo_map: Dict, tier_map: Dict, arche
             'tier': tier_map.get(bey, 'Unranked'),
             'archetype': archetype_map.get(bey, 'Unknown')
         })
-    
+
     # Build matchup matrix
     matrix = {}
     for bey_a in all_beys:
@@ -168,14 +168,14 @@ def build_matrix_output(matchup_data: Dict, elo_map: Dict, tier_map: Dict, arche
                 stats = matchup_data[bey_a][bey_b]
                 total = stats['total_matches']
                 wins = stats['wins']
-                
+
                 if total > 0:
                     winrate = wins / total
                     avg_diff = (stats['score_for'] - stats['score_against']) / total
                 else:
                     winrate = 0.0
                     avg_diff = 0.0
-                
+
                 matrix[bey_a][bey_b] = {
                     'winrate': round(winrate, 3),
                     'matches': total,
@@ -190,7 +190,7 @@ def build_matrix_output(matchup_data: Dict, elo_map: Dict, tier_map: Dict, arche
                     'matches': 0,
                     'avg_diff': None
                 }
-    
+
     return {
         'beys': beys,
         'matrix': matrix,
@@ -201,24 +201,24 @@ def build_matrix_output(matchup_data: Dict, elo_map: Dict, tier_map: Dict, arche
 def identify_hard_counters(matrix_data: Dict, min_matches: int = 5, winrate_threshold: float = 0.7) -> List[Dict]:
     """
     Identify hard counter matchups (high winrate with sufficient matches).
-    
+
     Args:
         matrix_data: The matchup matrix data
         min_matches: Minimum matches required
         winrate_threshold: Minimum winrate to be considered a hard counter
-        
+
     Returns:
         List of hard counter matchups
     """
     hard_counters = []
     matrix = matrix_data['matrix']
-    
+
     for bey_a, opponents in matrix.items():
         for bey_b, stats in opponents.items():
-            if (stats['matches'] >= min_matches and 
-                stats['winrate'] is not None and 
-                stats['winrate'] >= winrate_threshold):
-                
+            if (stats['matches'] >= min_matches and
+                stats['winrate'] is not None and
+                    stats['winrate'] >= winrate_threshold):
+
                 hard_counters.append({
                     'counter': bey_a,
                     'counters': bey_b,
@@ -226,10 +226,10 @@ def identify_hard_counters(matrix_data: Dict, min_matches: int = 5, winrate_thre
                     'matches': stats['matches'],
                     'avg_diff': stats['avg_diff']
                 })
-    
+
     # Sort by winrate descending, then by number of matches
     hard_counters.sort(key=lambda x: (-x['winrate'], -x['matches']))
-    
+
     return hard_counters
 
 
@@ -238,25 +238,25 @@ def main():
     print("Loading match data...")
     matches = load_matches()
     print(f"Loaded {len(matches)} matches")
-    
+
     print("Loading bey metadata...")
     elo_map, tier_map, archetype_map = load_bey_metadata()
-    
+
     print("Calculating matchup matrix...")
     matchup_data = calculate_matchup_matrix(matches)
-    
+
     print("Building output structure...")
     matrix_output = build_matrix_output(matchup_data, elo_map, tier_map, archetype_map)
-    
+
     print("Identifying hard counters...")
     hard_counters = identify_hard_counters(matrix_output, min_matches=5, winrate_threshold=0.7)
     matrix_output['hard_counters'] = hard_counters
-    
+
     print(f"Saving matchup matrix to {OUTPUT_JSON}...")
     with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
         json.dump(matrix_output, f, indent=2, ensure_ascii=False)
-    
-    print(f"✓ Matchup matrix generated successfully!")
+
+    print("✓ Matchup matrix generated successfully!")
     print(f"  - {len(matrix_output['beys'])} beys in matrix")
     print(f"  - {len(hard_counters)} hard counter matchups identified")
 
