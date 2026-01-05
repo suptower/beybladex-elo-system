@@ -372,13 +372,13 @@ function renderCards(headers, rows) {
             applyWinrateStyling(winrateStatValue, row["Winrate"] || "0%");
         }
         
-        // Add Credibility Score to mobile view
-        const credLabel = row["CredibilityLabel"] || "Low";
-        stats.appendChild(createStat("Confidence", credLabel));
-        // Apply credibility styling
+        // Add Credibility Score to mobile view (numerical score, not label)
+        const credScore = row["CredibilityScore"] || "0.0";
+        stats.appendChild(createStat("Confidence", credScore));
+        // Apply credibility styling based on score value
         const credStatValue = stats.children[3].querySelector(".lb-stat-value");
         if (credStatValue) {
-            applyCredibilityLabelStyling(credStatValue, credLabel);
+            applyCredibilityScoreStyling(credStatValue, credScore);
         }
         
         card.appendChild(stats);
@@ -1065,5 +1065,20 @@ function applyCredibilityLabelStyling(td, value) {
         td.classList.add("trend-neutral");
     } else if (label === "Low") {
         td.classList.add("trend-negative");
+    }
+}
+
+function applyCredibilityScoreStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    
+    // Apply color coding based on credibility score thresholds
+    if (numValue >= 0.7) {
+        td.classList.add("trend-very-positive");  // High confidence (green)
+    } else if (numValue >= 0.5) {
+        td.classList.add("trend-neutral");        // Medium confidence (yellow)
+    } else {
+        td.classList.add("trend-negative");       // Low confidence (red)
     }
 }
