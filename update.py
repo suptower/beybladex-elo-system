@@ -19,6 +19,7 @@ Pipeline Stages:
    - Bey Counters (counter_checker.py)
    - Combo Explorer (combo_explorer.py)
    - Milestones (milestones.py)
+   - Recommended Matches (recommended_matches.py)
 
 3. Visualization (runs by default, use --skip-plots to skip)
    - Plot Generation (gen_plots.py)
@@ -59,6 +60,7 @@ SCRIPT_SYNERGY_HEATMAPS = "./src/synergy_heatmaps.py"
 SCRIPT_COUNTER_CHECKER = "./src/counter_checker.py"
 SCRIPT_COMBO_EXPLORER = "./src/combo_explorer.py"
 SCRIPT_MILESTONES = "./src/milestones.py"
+SCRIPT_RECOMMENDED_MATCHES = "./src/recommended_matches.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
@@ -332,6 +334,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Milestones", success, duration))
+
+    # Recommended Matches (depends on leaderboard, advanced_leaderboard, matches)
+    success, duration = run_script(
+        SCRIPT_RECOMMENDED_MATCHES,
+        "Recommended Matches",
+        verbose=verbose
+    )
+    results.append(("Recommended Matches", success, duration))
 
     return results
 
