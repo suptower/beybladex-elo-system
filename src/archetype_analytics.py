@@ -29,7 +29,6 @@ import json
 import os
 import statistics
 from collections import defaultdict
-from typing import Any
 
 # Initialize Windows terminal for ANSI color support (no-op on Unix systems)
 os.system("")
@@ -397,9 +396,18 @@ def main():
 
     if meta_insights:
         print(f"\n{BOLD}Meta Insights:{RESET}")
-        print(f"  Dominant: {meta_insights['dominant_archetype']['name']} (ELO: {meta_insights['dominant_archetype']['avg_elo']:.1f})")
-        print(f"  Most Reliable: {meta_insights['most_reliable']['name']} (WR: {meta_insights['most_reliable']['avg_winrate']:.2%})")
-        print(f"  Most Volatile: {meta_insights['most_volatile']['name']} (Upset Rate: {meta_insights['most_volatile']['upset_rate']:.2%})")
+        print(
+            f"  Dominant: {meta_insights['dominant_archetype']['name']} "
+            f"(ELO: {meta_insights['dominant_archetype']['avg_elo']:.1f})"
+        )
+        print(
+            f"  Most Reliable: {meta_insights['most_reliable']['name']} "
+            f"(WR: {meta_insights['most_reliable']['avg_winrate']:.2%})"
+        )
+        print(
+            f"  Most Volatile: {meta_insights['most_volatile']['name']} "
+            f"(Upset Rate: {meta_insights['most_volatile']['upset_rate']:.2%})"
+        )
 
     print()
 
