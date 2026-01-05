@@ -62,7 +62,12 @@ def load_bey_metadata() -> Tuple[Dict, Dict, Dict]:
             rpg_data = json.load(f)
             for bey, bey_data in rpg_data.items():
                 if isinstance(bey_data, dict):
-                    archetype_map[bey] = bey_data.get('archetype', 'Unknown')
+                    archetype = bey_data.get('archetype', 'Unknown')
+                    # Handle both string and object archetype formats
+                    if isinstance(archetype, dict):
+                        archetype_map[bey] = archetype.get('name', 'Unknown')
+                    else:
+                        archetype_map[bey] = archetype if archetype else 'Unknown'
     except FileNotFoundError:
         print(f"Warning: {RPG_STATS_JSON} not found, using default values")
     

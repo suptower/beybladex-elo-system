@@ -4,1178 +4,235 @@
       "name": "BlackShell",
       "elo": 931.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "unknown",
-        "name": "Unknown",
-        "description": "Insufficient data or no clear archetype match",
-        "category": "unknown",
-        "icon": "❓",
-        "color": "#6b7280",
-        "confidence": 0.0,
-        "candidates": []
-      }
+      "archetype": "Unknown"
     },
     {
       "name": "CerberusFlame",
       "elo": 1048.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 0.661,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.759,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "tempo_controller",
-            "score": 0.657,
-            "name": "Tempo Controller"
-          },
-          {
-            "archetype": "meta_anchor",
-            "score": 0.553,
-            "name": "Meta Anchor"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     },
     {
       "name": "CobaltDragoon",
       "elo": 1057.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "meta_anchor",
-        "name": "Meta Anchor",
-        "description": "Above-average Meta Impact despite mixed stat profile",
-        "category": "balance",
-        "icon": "⭐",
-        "color": "#eab308",
-        "confidence": 0.572,
-        "candidates": [
-          {
-            "archetype": "meta_anchor",
-            "score": 0.731,
-            "name": "Meta Anchor"
-          },
-          {
-            "archetype": "iron_wall",
-            "score": 0.664,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.481,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Meta Anchor"
     },
     {
       "name": "CobaltDrake",
       "elo": 949.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.566,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.212,
-            "name": "Chaser"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "CrimsonGaruda",
       "elo": 985.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "glass_cannon",
-        "name": "Glass Cannon",
-        "description": "Very high Attack, low Defense & low Burst Resistance",
-        "category": "offense",
-        "icon": "💥",
-        "color": "#ef4444",
-        "confidence": 0.329,
-        "candidates": [
-          {
-            "archetype": "glass_cannon",
-            "score": 0.534,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.53,
-            "name": "Berserker"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.28,
-            "name": "Chaser"
-          }
-        ]
-      }
+      "archetype": "Glass Cannon"
     },
     {
       "name": "DranBrave",
       "elo": 1016.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 0.795,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.675,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "meta_anchor",
-            "score": 0.48,
-            "name": "Meta Anchor"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.467,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "DranBuster",
       "elo": 969.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "glass_cannon",
-        "name": "Glass Cannon",
-        "description": "Very high Attack, low Defense & low Burst Resistance",
-        "category": "offense",
-        "icon": "💥",
-        "color": "#ef4444",
-        "confidence": 0.472,
-        "candidates": [
-          {
-            "archetype": "glass_cannon",
-            "score": 0.674,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.64,
-            "name": "Berserker"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.34,
-            "name": "Chaser"
-          }
-        ]
-      }
+      "archetype": "Glass Cannon"
     },
     {
       "name": "DranDagger",
       "elo": 1020.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 0.488,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.612,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "spin_tank",
-            "score": 0.552,
-            "name": "Spin Tank"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "DranSword",
       "elo": 1055.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 0.494,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.658,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "spin_tank",
-            "score": 0.608,
-            "name": "Spin Tank"
-          },
-          {
-            "archetype": "adaptive_fighter",
-            "score": 0.606,
-            "name": "Adaptive Fighter"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "FoxBrush",
       "elo": 1100.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "adaptive_fighter",
-        "name": "Adaptive Fighter",
-        "description": "Moderate in all stats, excels in matchup spread",
-        "category": "balance",
-        "icon": "⚡",
-        "color": "#8b5cf6",
-        "confidence": 0.612,
-        "candidates": [
-          {
-            "archetype": "adaptive_fighter",
-            "score": 0.685,
-            "name": "Adaptive Fighter"
-          },
-          {
-            "archetype": "iron_wall",
-            "score": 0.585,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.52,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Adaptive Fighter"
     },
     {
       "name": "GolemRock",
       "elo": 1082.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "tempo_controller",
-        "name": "Tempo Controller",
-        "description": "High Control, stable flow, consistency-focused",
-        "category": "control",
-        "icon": "🎼",
-        "color": "#f59e0b",
-        "confidence": 0.479,
-        "candidates": [
-          {
-            "archetype": "tempo_controller",
-            "score": 0.69,
-            "name": "Tempo Controller"
-          },
-          {
-            "archetype": "adaptive_fighter",
-            "score": 0.657,
-            "name": "Adaptive Fighter"
-          },
-          {
-            "archetype": "meta_anchor",
-            "score": 0.656,
-            "name": "Meta Anchor"
-          }
-        ]
-      }
+      "archetype": "Tempo Controller"
     },
     {
       "name": "HellsChain",
       "elo": 985.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.527,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.0,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     },
     {
       "name": "HellsHammer",
       "elo": 903.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.87,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.0,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     },
     {
       "name": "HellsReaper",
       "elo": 1014.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.693,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.309,
-            "name": "Chaser"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "ImpactDrake",
       "elo": 1119.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "meta_anchor",
-        "name": "Meta Anchor",
-        "description": "Above-average Meta Impact despite mixed stat profile",
-        "category": "balance",
-        "icon": "⭐",
-        "color": "#eab308",
-        "confidence": 0.493,
-        "candidates": [
-          {
-            "archetype": "meta_anchor",
-            "score": 0.739,
-            "name": "Meta Anchor"
-          },
-          {
-            "archetype": "tempo_controller",
-            "score": 0.714,
-            "name": "Tempo Controller"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.502,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Meta Anchor"
     },
     {
       "name": "KnightMail",
       "elo": 1006.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "tempo_controller",
-        "name": "Tempo Controller",
-        "description": "High Control, stable flow, consistency-focused",
-        "category": "control",
-        "icon": "🎼",
-        "color": "#f59e0b",
-        "confidence": 0.628,
-        "candidates": [
-          {
-            "archetype": "tempo_controller",
-            "score": 0.639,
-            "name": "Tempo Controller"
-          },
-          {
-            "archetype": "endurance_core",
-            "score": 0.516,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Tempo Controller"
     },
     {
       "name": "LeonClaw",
       "elo": 975.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 0.429,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.638,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "adaptive_fighter",
-            "score": 0.615,
-            "name": "Adaptive Fighter"
-          },
-          {
-            "archetype": "tempo_controller",
-            "score": 0.551,
-            "name": "Tempo Controller"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "LeonCrest",
       "elo": 1037.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 0.35,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.583,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "meta_anchor",
-            "score": 0.583,
-            "name": "Meta Anchor"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.557,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "PegasusBlast",
       "elo": 925.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "glass_cannon",
-        "name": "Glass Cannon",
-        "description": "Very high Attack, low Defense & low Burst Resistance",
-        "category": "offense",
-        "icon": "💥",
-        "color": "#ef4444",
-        "confidence": 0.449,
-        "candidates": [
-          {
-            "archetype": "glass_cannon",
-            "score": 0.663,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.638,
-            "name": "Berserker"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.442,
-            "name": "Chaser"
-          }
-        ]
-      }
+      "archetype": "Glass Cannon"
     },
     {
       "name": "PerseusDark",
       "elo": 1011.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.677,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.277,
-            "name": "Chaser"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "PhoenixRudder",
       "elo": 962.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.587,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.0,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "PhoenixWing",
       "elo": 1024.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "meta_anchor",
-        "name": "Meta Anchor",
-        "description": "Above-average Meta Impact despite mixed stat profile",
-        "category": "balance",
-        "icon": "⭐",
-        "color": "#eab308",
-        "confidence": 0.467,
-        "candidates": [
-          {
-            "archetype": "meta_anchor",
-            "score": 0.661,
-            "name": "Meta Anchor"
-          },
-          {
-            "archetype": "iron_wall",
-            "score": 0.626,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.529,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Meta Anchor"
     },
     {
       "name": "RhinoReaper",
       "elo": 993.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "spin_tank",
-        "name": "Spin Tank",
-        "description": "High stamina + high defense, wins long rounds consistently",
-        "category": "stamina",
-        "icon": "🔋",
-        "color": "#14b8a6",
-        "confidence": 0.441,
-        "candidates": [
-          {
-            "archetype": "spin_tank",
-            "score": 0.611,
-            "name": "Spin Tank"
-          },
-          {
-            "archetype": "endurance_core",
-            "score": 0.573,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Spin Tank"
     },
     {
       "name": "SamuraiSaber",
       "elo": 888.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "glass_cannon",
-        "name": "Glass Cannon",
-        "description": "Very high Attack, low Defense & low Burst Resistance",
-        "category": "offense",
-        "icon": "💥",
-        "color": "#ef4444",
-        "confidence": 0.639,
-        "candidates": [
-          {
-            "archetype": "glass_cannon",
-            "score": 0.654,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "tempo_controller",
-            "score": 0.531,
-            "name": "Tempo Controller"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.33,
-            "name": "Chaser"
-          }
-        ]
-      }
+      "archetype": "Glass Cannon"
     },
     {
       "name": "ScorpioSpear",
       "elo": 1047.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "adaptive_fighter",
-        "name": "Adaptive Fighter",
-        "description": "Moderate in all stats, excels in matchup spread",
-        "category": "balance",
-        "icon": "⚡",
-        "color": "#8b5cf6",
-        "confidence": 0.46,
-        "candidates": [
-          {
-            "archetype": "adaptive_fighter",
-            "score": 0.674,
-            "name": "Adaptive Fighter"
-          },
-          {
-            "archetype": "iron_wall",
-            "score": 0.647,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "tempo_controller",
-            "score": 0.631,
-            "name": "Tempo Controller"
-          }
-        ]
-      }
+      "archetype": "Adaptive Fighter"
     },
     {
       "name": "SharkEdge",
       "elo": 996.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "iron_wall",
-        "name": "Iron Wall",
-        "description": "Extremely high Defense, high Burst Resistance, low volatility",
-        "category": "defense",
-        "icon": "🛡️",
-        "color": "#3b82f6",
-        "confidence": 0.488,
-        "candidates": [
-          {
-            "archetype": "iron_wall",
-            "score": 0.642,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.591,
-            "name": "Berserker"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.342,
-            "name": "Chaser"
-          }
-        ]
-      }
+      "archetype": "Iron Wall"
     },
     {
       "name": "SharkScale",
       "elo": 1019.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.58,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.0,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     },
     {
       "name": "SilverWolf",
       "elo": 981.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 0.418,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.617,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "spin_tank",
-            "score": 0.592,
-            "name": "Spin Tank"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     },
     {
       "name": "SolEclipse",
       "elo": 1011.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "berserker",
-        "name": "Berserker",
-        "description": "High Attack + high volatility, KO-heavy style",
-        "category": "offense",
-        "icon": "⚔️",
-        "color": "#dc2626",
-        "confidence": 0.383,
-        "candidates": [
-          {
-            "archetype": "berserker",
-            "score": 0.572,
-            "name": "Berserker"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.552,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.267,
-            "name": "Chaser"
-          }
-        ]
-      }
+      "archetype": "Berserker"
     },
     {
       "name": "TuskMammoth",
       "elo": 1090.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "tempo_controller",
-        "name": "Tempo Controller",
-        "description": "High Control, stable flow, consistency-focused",
-        "category": "control",
-        "icon": "🎼",
-        "color": "#f59e0b",
-        "confidence": 0.467,
-        "candidates": [
-          {
-            "archetype": "tempo_controller",
-            "score": 0.692,
-            "name": "Tempo Controller"
-          },
-          {
-            "archetype": "iron_wall",
-            "score": 0.666,
-            "name": "Iron Wall"
-          },
-          {
-            "archetype": "meta_anchor",
-            "score": 0.584,
-            "name": "Meta Anchor"
-          }
-        ]
-      }
+      "archetype": "Tempo Controller"
     },
     {
       "name": "TyrannoBeat",
       "elo": 933.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "unknown",
-        "name": "Unknown",
-        "description": "Insufficient data or no clear archetype match",
-        "category": "unknown",
-        "icon": "❓",
-        "color": "#6b7280",
-        "confidence": 0.0,
-        "candidates": []
-      }
+      "archetype": "Unknown"
     },
     {
       "name": "UnicornSting",
       "elo": 984.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "glass_cannon",
-        "name": "Glass Cannon",
-        "description": "Very high Attack, low Defense & low Burst Resistance",
-        "category": "offense",
-        "icon": "💥",
-        "color": "#ef4444",
-        "confidence": 0.407,
-        "candidates": [
-          {
-            "archetype": "glass_cannon",
-            "score": 0.577,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.546,
-            "name": "Berserker"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.311,
-            "name": "Chaser"
-          }
-        ]
-      }
+      "archetype": "Glass Cannon"
     },
     {
       "name": "ViperTail",
       "elo": 1036.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "adaptive_fighter",
-        "name": "Adaptive Fighter",
-        "description": "Moderate in all stats, excels in matchup spread",
-        "category": "balance",
-        "icon": "⚡",
-        "color": "#8b5cf6",
-        "confidence": 0.665,
-        "candidates": [
-          {
-            "archetype": "adaptive_fighter",
-            "score": 0.625,
-            "name": "Adaptive Fighter"
-          },
-          {
-            "archetype": "meta_anchor",
-            "score": 0.48,
-            "name": "Meta Anchor"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.297,
-            "name": "Chaser"
-          }
-        ]
-      }
+      "archetype": "Adaptive Fighter"
     },
     {
       "name": "WeissTiger",
       "elo": 1034.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 0.874,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.543,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "chaser",
-            "score": 0.269,
-            "name": "Chaser"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     },
     {
       "name": "WhaleFlame",
       "elo": 947.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.676,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.0,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     },
     {
       "name": "WhaleWave",
       "elo": 994.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "chaser",
-        "name": "Chaser",
-        "description": "Fast, Pocket/Extreme-focused finish bias",
-        "category": "offense",
-        "icon": "🎯",
-        "color": "#f97316",
-        "confidence": 0.838,
-        "candidates": [
-          {
-            "archetype": "chaser",
-            "score": 0.322,
-            "name": "Chaser"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.0,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Chaser"
     },
     {
       "name": "WizardArc",
       "elo": 917.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 0.453,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.649,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "spin_tank",
-            "score": 0.618,
-            "name": "Spin Tank"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     },
     {
       "name": "WizardArrow",
       "elo": 901.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.799,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.0,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     },
     {
       "name": "WizardRod",
       "elo": 978.0,
       "tier": "Unranked",
-      "archetype": {
-        "id": "endurance_core",
-        "name": "Endurance Core",
-        "description": "Stable, low volatility, high Spin Finish bias",
-        "category": "stamina",
-        "icon": "💪",
-        "color": "#10b981",
-        "confidence": 1.0,
-        "candidates": [
-          {
-            "archetype": "endurance_core",
-            "score": 0.773,
-            "name": "Endurance Core"
-          },
-          {
-            "archetype": "glass_cannon",
-            "score": 0.0,
-            "name": "Glass Cannon"
-          },
-          {
-            "archetype": "berserker",
-            "score": 0.0,
-            "name": "Berserker"
-          }
-        ]
-      }
+      "archetype": "Endurance Core"
     }
   ],
   "matrix": {

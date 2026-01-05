@@ -55,8 +55,10 @@ function initializeFilters() {
     
     // Populate archetype filter
     const archetypes = [...new Set(matchupData.beys.map(b => {
-        if (typeof b.archetype === 'object' && b.archetype.name) {
+        if (typeof b.archetype === 'object' && b.archetype !== null && b.archetype.name) {
             return b.archetype.name;
+        } else if (typeof b.archetype === 'string' && b.archetype) {
+            return b.archetype;
         }
         return 'Unknown';
     }))].sort();
@@ -119,7 +121,13 @@ function filterAndRenderMatrix() {
         
         // Filter by archetype
         if (selectedArchetype !== 'all') {
-            const beyArchetype = typeof bey.archetype === 'object' ? bey.archetype.name : 'Unknown';
+            let beyArchetype = 'Unknown';
+            if (typeof bey.archetype === 'object' && bey.archetype !== null) {
+                beyArchetype = bey.archetype.name || 'Unknown';
+            } else if (typeof bey.archetype === 'string') {
+                beyArchetype = bey.archetype;
+            }
+            
             if (beyArchetype !== selectedArchetype) {
                 return false;
             }
