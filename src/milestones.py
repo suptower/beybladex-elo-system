@@ -288,7 +288,7 @@ def calculate_upset_stats(elo_history: List[Dict[str, str]]) -> Dict[str, Any]:
 
     Returns dict with:
     - best_upsetter: {bey: upset_win_count}
-    - biggest_single_upset: {bey: (elo_diff, match_id)}
+    - biggest_single_upset: {bey: (elo_diff, opponent, match_id)}
     """
     upset_wins = defaultdict(int)
     biggest_upset = {}
@@ -303,6 +303,7 @@ def calculate_upset_stats(elo_history: List[Dict[str, str]]) -> Dict[str, Any]:
         match_id = match['MatchID']
 
         winner = bey_a if score_a > score_b else bey_b
+        loser = bey_b if winner == bey_a else bey_a
         winner_pre_elo = pre_a if winner == bey_a else pre_b
         loser_pre_elo = pre_b if winner == bey_a else pre_a
 
@@ -311,9 +312,9 @@ def calculate_upset_stats(elo_history: List[Dict[str, str]]) -> Dict[str, Any]:
             elo_diff = loser_pre_elo - winner_pre_elo
             upset_wins[winner] += 1
 
-            # Track biggest single upset
+            # Track biggest single upset (with opponent)
             if winner not in biggest_upset or elo_diff > biggest_upset[winner][0]:
-                biggest_upset[winner] = (elo_diff, match_id)
+                biggest_upset[winner] = (elo_diff, loser, match_id)
 
     return {
         'best_upsetter': dict(upset_wins),
@@ -363,26 +364,18 @@ def calculate_longevity_stats(matches: List[Dict[str, str]]) -> Dict[str, Any]:
 
     Returns dict with:
     - most_matches_played: {bey: count}
-    - most_tournaments: {bey: count} (based on distinct dates as proxy)
     """
     matches_played = defaultdict(int)
-    tournament_dates = defaultdict(set)
 
     for match in matches:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
-        date = match['Date']
 
         matches_played[bey_a] += 1
         matches_played[bey_b] += 1
-        tournament_dates[bey_a].add(date)
-        tournament_dates[bey_b].add(date)
-
-    tournaments_played = {bey: len(dates) for bey, dates in tournament_dates.items()}
 
     return {
-        'most_matches_played': dict(matches_played),
-        'most_tournaments': tournaments_played
+        'most_matches_played': dict(matches_played)
     }
 
 
@@ -620,9 +613,10 @@ def compute_milestones():
                 {
                     'bey': bey,
                     'elo_diff': elo_diff,
+                    'opponent': opponent,
                     'match_id': match_id
                 }
-                for bey, (elo_diff, match_id) in sorted(
+                for bey, (elo_diff, opponent, match_id) in sorted(
                     upset_stats['biggest_single_upset'].items(), key=lambda x: x[1][0], reverse=True
                 )[:5]
             ],
@@ -631,7 +625,6 @@ def compute_milestones():
         },
         'consistency_and_longevity': {
             'most_matches_played': get_top_n_milestones(longevity['most_matches_played']),
-            'most_tournaments': get_top_n_milestones(longevity['most_tournaments']),
             'most_time_in_top_5': get_top_n_milestones(top_rank_time['time_in_top_5']),
             'most_time_in_top_10': get_top_n_milestones(top_rank_time['time_in_top_10']),
             'most_stable_bey': get_bottom_n_milestones(stability)

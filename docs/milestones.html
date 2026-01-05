@@ -195,7 +195,7 @@ async function loadMilestones() {
                 {
                     title: 'Biggest Single Upset',
                     items: data.upsets_and_clutch.biggest_single_upset,
-                    formatValue: (item) => `${item.elo_diff.toFixed(1)} ELO difference`,
+                    formatValue: (item) => `${item.elo_diff.toFixed(1)} ELO difference vs ${item.opponent} (Match #${item.match_id})`,
                     subtitle: 'Largest ELO gap overcome in one match'
                 },
                 {
@@ -223,12 +223,6 @@ async function loadMilestones() {
                     title: 'Most Matches Played',
                     items: data.consistency_and_longevity.most_matches_played,
                     formatValue: (item) => `${item.value} matches`
-                },
-                {
-                    title: 'Most Tournaments',
-                    items: data.consistency_and_longevity.most_tournaments,
-                    formatValue: (item) => `${item.value} tournaments`,
-                    subtitle: 'Based on distinct tournament dates'
                 },
                 {
                     title: 'Most Time in Top 5',
