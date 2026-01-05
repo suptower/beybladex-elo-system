@@ -41,12 +41,15 @@ class TestPlotEloSingle:
         df = pd.DataFrame(data)
 
         # Calculate expected values
-        expected_avg = df['ELO'].mean()  # ~1092.86
-        expected_median = df['ELO'].median()  # 1030.0
+        # Sum: 1000+1010+1020+1500+1030+1040+1050 = 7650
+        # Average: 7650/7 ≈ 1092.857...
+        expected_avg = sum([1000, 1010, 1020, 1500, 1030, 1040, 1050]) / 7
+        # Median of [1000, 1010, 1020, 1030, 1040, 1050, 1500] = 1030
+        expected_median = df['ELO'].median()
 
         # Median should be less affected by the outlier (1500)
         assert expected_median == 1030.0
-        assert abs(expected_avg - 1092.86) < 0.01
+        assert abs(expected_avg - 1092.857) < 0.01
         # Average should be higher due to outlier
         assert expected_avg > expected_median
 

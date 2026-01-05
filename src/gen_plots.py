@@ -21,6 +21,27 @@ plt.rcParams["figure.figsize"] = (10, 6)
 plt.rcParams["axes.grid"] = True
 
 # -------------------
+# Statistical reference line styling
+# -------------------
+
+# Consistent styling for average and median lines across all plots
+AVERAGE_LINE_STYLE = {
+    'color': 'blue',
+    'linestyle': '--',
+    'linewidth': 1.5,
+    'alpha': 0.7,
+    'zorder': 4
+}
+
+MEDIAN_LINE_STYLE = {
+    'color': 'purple',
+    'linestyle': ':',
+    'linewidth': 1.5,
+    'alpha': 0.7,
+    'zorder': 4
+}
+
+# -------------------
 # File selection
 # -------------------
 
@@ -135,12 +156,12 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
             xlim = ax.get_xlim()
 
             # Plot average line (dashed)
-            plt.axhline(avg_elo, color='blue', linestyle='--', linewidth=1.5,
-                        alpha=0.7, label=f'Average: {int(avg_elo)}', zorder=4)
+            plt.axhline(avg_elo, label=f'Average: {int(avg_elo)}',
+                        **AVERAGE_LINE_STYLE)
 
             # Plot median line (dotted)
-            plt.axhline(median_elo, color='purple', linestyle=':', linewidth=1.5,
-                        alpha=0.7, label=f'Median: {int(median_elo)}', zorder=4)
+            plt.axhline(median_elo, label=f'Median: {int(median_elo)}',
+                        **MEDIAN_LINE_STYLE)
 
             # Highlight max and min ELO values
             max_idx = group["ELO"].idxmax()
@@ -256,12 +277,12 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
             xlim = ax.get_xlim()
 
             # Plot average line (dashed)
-            plt.axhline(avg_pos, color='blue', linestyle='--', linewidth=1.5,
-                        alpha=0.7, label=f'Average: #{int(avg_pos)}', zorder=4)
+            plt.axhline(avg_pos, label=f'Average: #{int(avg_pos)}',
+                        **AVERAGE_LINE_STYLE)
 
             # Plot median line (dotted)
-            plt.axhline(median_pos, color='purple', linestyle=':', linewidth=1.5,
-                        alpha=0.7, label=f'Median: #{int(median_pos)}', zorder=4)
+            plt.axhline(median_pos, label=f'Median: #{int(median_pos)}',
+                        **MEDIAN_LINE_STYLE)
 
             # Highlight best and worst positions
             # Best position = minimum rank number (e.g., 1 is better than 10)
