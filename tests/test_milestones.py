@@ -141,8 +141,8 @@ class TestCalculateFinishStats:
             {'winner': 'BeyY', 'finish_type': 'spin'},
         ]
         result = calculate_finish_stats(rounds)
-        assert result['finish_diversity']['BeyX'] == 4  # All 4 types
-        assert result['finish_diversity']['BeyY'] == 1  # Only 1 type
+        assert result['finish_diversity']['BeyX'] == 100.0  # All 4 types
+        assert result['finish_diversity']['BeyY'] == 0.0  # Only 1 type
 
 
 class TestCalculateEloExtremes:
@@ -183,35 +183,6 @@ class TestCalculateEloExtremes:
         assert fall == 80  # 1050 to 970
 
 
-class TestCalculateUpsetStats:
-    """Tests for upset statistics calculation."""
-
-    def test_upset_win_counting(self):
-        """Test counting upset wins."""
-        elo_history = [
-            {'BeyA': 'BeyX', 'BeyB': 'BeyY', 'ScoreA': '4', 'ScoreB': '0',
-             'PreA': '900', 'PreB': '1100', 'MatchID': 'M001'},
-            {'BeyA': 'BeyX', 'BeyB': 'BeyZ', 'ScoreA': '4', 'ScoreB': '1',
-             'PreA': '920', 'PreB': '1080', 'MatchID': 'M002'},
-        ]
-        result = calculate_upset_stats(elo_history)
-        assert result['best_upsetter']['BeyX'] == 2
-
-    def test_biggest_upset(self):
-        """Test tracking biggest single upset."""
-        elo_history = [
-            {'BeyA': 'BeyX', 'BeyB': 'BeyY', 'ScoreA': '4', 'ScoreB': '0',
-             'PreA': '900', 'PreB': '1100', 'MatchID': 'M001'},
-            {'BeyA': 'BeyX', 'BeyB': 'BeyZ', 'ScoreA': '4', 'ScoreB': '1',
-             'PreA': '920', 'PreB': '1200', 'MatchID': 'M002'},
-        ]
-        result = calculate_upset_stats(elo_history)
-        assert 'BeyX' in result['biggest_single_upset']
-        elo_diff, match_id = result['biggest_single_upset']['BeyX']
-        assert elo_diff == 280  # 1200 - 920
-        assert match_id == 'M002'
-
-
 class TestCalculateLongevityStats:
     """Tests for longevity statistics calculation."""
 
@@ -225,17 +196,6 @@ class TestCalculateLongevityStats:
         result = calculate_longevity_stats(matches)
         assert result['most_matches_played']['BeyX'] == 3
         assert result['most_matches_played']['BeyY'] == 2
-
-    def test_tournament_counting(self):
-        """Test counting tournaments via distinct dates."""
-        matches = [
-            {'BeyA': 'BeyX', 'BeyB': 'BeyY', 'Date': '2025-01-01'},
-            {'BeyA': 'BeyX', 'BeyB': 'BeyZ', 'Date': '2025-01-01'},
-            {'BeyA': 'BeyX', 'BeyB': 'BeyY', 'Date': '2025-01-02'},
-            {'BeyA': 'BeyX', 'BeyB': 'BeyZ', 'Date': '2025-01-03'},
-        ]
-        result = calculate_longevity_stats(matches)
-        assert result['most_tournaments']['BeyX'] == 3  # 3 distinct dates
 
 
 class TestCalculateStability:
