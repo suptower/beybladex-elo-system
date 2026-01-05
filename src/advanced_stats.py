@@ -3,6 +3,7 @@ import csv
 import statistics
 from collections import defaultdict
 import os
+
 os.system("")
 
 # Farben
@@ -86,6 +87,93 @@ def calculate_power_index(elo, winrate, trend, matches, volatility,
     return round(power_index * 100, 1)
 
 
+def calculate_credibility_score(matches, opponent_elos, volatility, max_matches, max_volatility):
+    """
+    Calculate the Credibility Score (Ranking Confidence) for a Beyblade.
+
+    The Credibility Score represents how trustworthy a Bey's current ELO rating is.
+    It combines multiple factors to assess rating reliability:
+    - Match count: More matches → higher credibility
+    - Opponent ELO diversity: Facing a wide range of opponents → higher confidence
+    - ELO volatility: Large fluctuations → lower credibility (unstable performance)
+
+    Args:
+        matches: Number of matches played
+        opponent_elos: List of opponent ELO ratings faced
+        volatility: Standard deviation of ELO changes (performance consistency)
+        max_matches: Maximum matches played by any Bey (for normalization)
+        max_volatility: Maximum volatility in the dataset (for normalization)
+
+    Returns:
+        tuple: (credibility_score, credibility_label)
+            - credibility_score: float from 0.0 to 1.0
+            - credibility_label: str, one of "Low", "Medium", "High"
+    """
+    # Minimum thresholds for credibility
+    MIN_MATCHES_FOR_HIGH = 15  # Need at least 15 matches for high confidence
+    MIN_MATCHES_FOR_MEDIUM = 6  # Need at least 6 matches for medium confidence
+
+    # Weight factors for credibility calculation
+    MATCH_COUNT_WEIGHT = 0.50  # Match experience is most important
+    DIVERSITY_WEIGHT = 0.30    # Opponent diversity
+    STABILITY_WEIGHT = 0.20    # Performance consistency (inverse of volatility)
+
+    # 1. Match Count Factor (0-1 scale)
+    # Uses sigmoid-like curve to give credit for early matches but plateau after sufficient data
+    if matches == 0:
+        match_factor = 0.0
+    else:
+        # Normalize with diminishing returns
+        # Full credit at max_matches, 50% at MIN_MATCHES_FOR_HIGH
+        match_factor = min(1.0, matches / max(max_matches, 1))
+        # Apply sqrt to give more credit to early matches
+        match_factor = match_factor ** 0.7
+
+    # 2. Opponent Diversity Factor (0-1 scale)
+    # Higher standard deviation of opponent ELOs = faced more diverse competition
+    if len(opponent_elos) <= 1:
+        diversity_factor = 0.0
+    else:
+        elo_stddev = statistics.stdev(opponent_elos)
+        # Typical ELO std dev range: 0-100 (wider range = more diverse opponents)
+        # Normalize: 0 = no diversity, 50+ = high diversity
+        diversity_factor = min(1.0, elo_stddev / 50.0)
+
+    # 3. Stability Factor (0-1 scale)
+    # Lower volatility = more stable = higher credibility
+    if max_volatility > 0 and volatility >= 0:
+        # Inverse: high volatility = low stability
+        stability_factor = 1.0 - min(1.0, volatility / max_volatility)
+    else:
+        stability_factor = 1.0  # If no volatility data, assume stable
+
+    # Calculate weighted credibility score
+    credibility_score = (
+        MATCH_COUNT_WEIGHT * match_factor +
+        DIVERSITY_WEIGHT * diversity_factor +
+        STABILITY_WEIGHT * stability_factor
+    )
+
+    # Clamp to 0.0-1.0 range
+    credibility_score = max(0.0, min(1.0, credibility_score))
+
+    # Determine categorical label based on thresholds
+    if matches < MIN_MATCHES_FOR_MEDIUM:
+        # Not enough matches for reliable rating
+        credibility_label = "Low"
+    elif matches < MIN_MATCHES_FOR_HIGH or credibility_score < 0.5:
+        # Some matches but still building reliability
+        credibility_label = "Medium"
+    elif credibility_score >= 0.7:
+        # Well-established rating with good stability and diversity
+        credibility_label = "High"
+    else:
+        # Between thresholds
+        credibility_label = "Medium"
+
+    return round(credibility_score, 3), credibility_label
+
+
 # --- Datenstrukturen ---
 stats = defaultdict(lambda: {
     "rank": 0,
@@ -97,7 +185,8 @@ stats = defaultdict(lambda: {
     "elo_deltas": [],
     "last_elo": 1000,  # letzter PostELO
     "upset_wins": 0,
-    "upset_losses": 0
+    "upset_losses": 0,
+    "opponent_elos": []  # Track opponent ELOs for credibility calculation
 })
 
 # --- CSV einlesen und Stats sammeln ---
@@ -125,6 +214,7 @@ with open(HISTORY_FILE, newline="", encoding="utf-8") as f:
             delta = post - pre
             s["elo_deltas"].append(delta)
             s["last_elo"] = post
+            s["opponent_elos"].append(opponent_pre)  # Track opponent ELO for credibility
 
             # Win / Loss
             if score_self > score_opp:
@@ -179,7 +269,8 @@ for bey, s in sorted_stats:
         "min_delta": min_delta,
         "upset_wins": s["upset_wins"],
         "upset_losses": s["upset_losses"],
-        "elo_trend": elo_trend
+        "elo_trend": elo_trend,
+        "opponent_elos": s["opponent_elos"]  # For credibility calculation
     })
 
 # --- Phase 2: Calculate normalization parameters for Power Index ---
@@ -195,7 +286,7 @@ min_trend = min(all_trends) if all_trends else 0
 max_matches = max(all_matches) if all_matches else 1
 max_volatility = max(all_volatilities) if all_volatilities else 1
 
-# --- Phase 3: Calculate Power Index and build final data ---
+# --- Phase 3: Calculate Power Index and Credibility Score, build final data ---
 advanced_data = []
 for d in intermediate_data:
     power_index = calculate_power_index(
@@ -208,6 +299,15 @@ for d in intermediate_data:
         min_elo=min_elo,
         max_trend=max_trend,
         min_trend=min_trend,
+        max_matches=max_matches,
+        max_volatility=max_volatility
+    )
+
+    # Calculate credibility score
+    credibility_score, credibility_label = calculate_credibility_score(
+        matches=d["matches"],
+        opponent_elos=d["opponent_elos"],
+        volatility=d["volatility"],
         max_matches=max_matches,
         max_volatility=max_volatility
     )
@@ -229,7 +329,9 @@ for d in intermediate_data:
         "upset_wins": d["upset_wins"],
         "upset_losses": d["upset_losses"],
         "elo_trend": round(d["elo_trend"], 2),
-        "power_index": power_index
+        "power_index": power_index,
+        "credibility_score": credibility_score,
+        "credibility_label": credibility_label
     })
 
 # --- Phase 4: Sort by ELO and assign ranks ---
@@ -241,7 +343,8 @@ for rank, d in enumerate(advanced_data_sorted, start=1):
 header = [
     "Platz", "Bey", "ELO", "PowerIndex", "Matches", "Wins", "Losses", "Winrate",
     "PointsFor", "PointsAgainst", "AvgPointDiff", "Volatility",
-    "AvgΔELO", "MaxΔELO", "MinΔELO", "UpsetWins", "UpsetLosses", "ELOTrend"
+    "AvgΔELO", "MaxΔELO", "MinΔELO", "UpsetWins", "UpsetLosses", "ELOTrend",
+    "CredibilityScore", "CredibilityLabel"
 ]
 
 with open(ADVANCED_FILE, "w", newline="", encoding="utf-8") as f:
@@ -253,12 +356,14 @@ with open(ADVANCED_FILE, "w", newline="", encoding="utf-8") as f:
             d["wins"], d["losses"], d["winrate"], d["points_for"],
             d["points_against"], d["avg_point_diff"], d["volatility"],
             d["avg_delta"], d["max_delta"], d["min_delta"],
-            d["upset_wins"], d["upset_losses"], d["elo_trend"]
+            d["upset_wins"], d["upset_losses"], d["elo_trend"],
+            d["credibility_score"], d["credibility_label"]
         ])
 
 # No need to copy to docs folder since ADVANCED_FILE already points to docs/data
 
 print(f"{GREEN} Advanced Leaderboard erstellt: {ADVANCED_FILE}")
+
 
 # | Spalte            | Beschreibung                                                                                                                        |
 # | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |

@@ -16,7 +16,9 @@ const COLUMN_ABBREVIATIONS = {
     'MinΔELO': 'MinΔ',
     'UpsetWins': 'U-W',
     'UpsetLosses': 'U-L',
-    'ELOTrend': 'Trend'
+    'ELOTrend': 'Trend',
+    'CredibilityScore': 'Cred',
+    'CredibilityLabel': 'Confidence'
 };
 
 // Full descriptions for legend with detailed explanations
@@ -39,6 +41,8 @@ const COLUMN_DESCRIPTIONS = {
     'U-W': { short: 'Upset Wins', long: 'Number of wins against higher-rated opponents' },
     'U-L': { short: 'Upset Losses', long: 'Number of losses against lower-rated opponents' },
     'Trend': { short: 'ELO Trend', long: 'Overall ELO trend/momentum (positive = improving, negative = declining)' },
+    'Cred': { short: 'Credibility Score', long: 'Rating confidence (0.0-1.0): How reliable the ELO rating is based on match count (50%), opponent diversity (30%), and performance stability (20%)' },
+    'Confidence': { short: 'Confidence Level', long: 'Categorical rating reliability: Low (<6 matches), Medium (6-14 matches), High (15+ matches with good stability)' },
     // Standard mode columns
     'Name': { short: 'Beyblade Name', long: 'Name of the Beyblade' },
     'Spiele': { short: 'Games Played', long: 'Total number of matches played' },
@@ -50,7 +54,9 @@ const COLUMN_DESCRIPTIONS = {
     'Positionsdelta': { short: 'Position Change', long: 'Change in ranking position since last update' },
     'ELOdelta': { short: 'ELO Change', long: 'ELO rating change since last update' },
     'ΔPosition': { short: 'Position Change', long: 'Change in ranking position since last update' },
-    'ΔELO': { short: 'ELO Change', long: 'ELO rating change since last update' }
+    'ΔELO': { short: 'ELO Change', long: 'ELO rating change since last update' },
+    'CredibilityScore': { short: 'Credibility Score', long: 'Rating confidence (0.0-1.0): How reliable the ELO rating is based on match count (50%), opponent diversity (30%), and performance stability (20%)' },
+    'CredibilityLabel': { short: 'Confidence Level', long: 'Categorical rating reliability: Low (<6 matches), Medium (6-14 matches), High (15+ matches with good stability)' }
 };
 
 function getAbbreviatedHeader(header) {
@@ -104,6 +110,10 @@ function applyValueStyling(element, value, columnName) {
         applyVolatilityStyling(element, value);
     } else if (col === "powerindex") {
         applyPowerIndexStyling(element, value);
+    } else if (col === "credibilityscore") {
+        applyCredibilityScoreStyling(element, value);
+    } else if (col === "credibilitylabel" || col === "confidence") {
+        applyCredibilityLabelStyling(element, value);
     } else if (col === "elotrend") {
         applyTrendStyling(element, value);
     } else if (col.includes("differenz") || col.includes("pointdiff")) {
@@ -265,6 +275,16 @@ function renderTable(headers, rows) {
                 applyPowerIndexStyling(td, value);
             }
 
+            // Highlight Credibility Score
+            if (h === "CredibilityScore" || h.toLowerCase() === "credibilityscore" || h.toLowerCase() === "cred") {
+                applyCredibilityScoreStyling(td, value);
+            }
+
+            // Highlight Credibility Label
+            if (h === "CredibilityLabel" || h.toLowerCase() === "credibilitylabel" || h.toLowerCase() === "confidence") {
+                applyCredibilityLabelStyling(td, value);
+            }
+
             tr.appendChild(td);
         });
 
@@ -351,6 +371,7 @@ function renderCards(headers, rows) {
         if (winrateStatValue) {
             applyWinrateStyling(winrateStatValue, row["Winrate"] || "0%");
         }
+        
         card.appendChild(stats);
 
         // Expandable details section
@@ -403,9 +424,29 @@ function renderCards(headers, rows) {
                 details.appendChild(pwrDetail);
             }
             
+            // Add Credibility info
+            if (headerInfo.sortedColumn !== "CredibilityLabel") {
+                const credDetail = createDetail("Confidence", row["CredibilityLabel"] || "Unknown");
+                const credValue = credDetail.querySelector('.lb-detail-value');
+                if (credValue && row["CredibilityLabel"]) {
+                    applyCredibilityLabelStyling(credValue, row["CredibilityLabel"]);
+                }
+                details.appendChild(credDetail);
+            }
+            
             if (headerInfo.sortedColumn !== "Matches") {
                 details.appendChild(createDetail("Matches", row["Matches"]));
             }
+
+            if (headerInfo.sortedColumn !== "CredibilityScore") {
+                const credScoreDetail = createDetail("Credibility Score", row["CredibilityScore"] || "-");
+                const credScoreValue = credScoreDetail.querySelector('.lb-detail-value');
+                if (credScoreValue && row["CredibilityScore"]) {
+                    applyCredibilityScoreStyling(credScoreValue, row["CredibilityScore"]);
+                }
+                details.appendChild(credScoreDetail);
+            }
+            
             if (headerInfo.sortedColumn !== "PointsFor") {
                 details.appendChild(createDetail("Pts For", row["PointsFor"]));
             }
@@ -449,6 +490,7 @@ function renderCards(headers, rows) {
                 details.appendChild(trendDetail);
             }
         } else {
+            
             if (headerInfo.sortedColumn !== "Spiele") {
                 details.appendChild(createDetail("Games", row["Spiele"]));
             }
@@ -830,7 +872,9 @@ function updateLegend() {
             ['MinΔ', COLUMN_DESCRIPTIONS['MinΔ']],
             ['U-W', COLUMN_DESCRIPTIONS['U-W']],
             ['U-L', COLUMN_DESCRIPTIONS['U-L']],
-            ['Trend', COLUMN_DESCRIPTIONS['Trend']]
+            ['Trend', COLUMN_DESCRIPTIONS['Trend']],
+            ['Cred', COLUMN_DESCRIPTIONS['CredibilityLabel']],
+            ['Confidence', COLUMN_DESCRIPTIONS['CredibilityScore']]
         ];
         
         legendContent.innerHTML = legendEntries
@@ -987,5 +1031,48 @@ function applyPowerIndexStyling(td, value) {
         td.classList.add("trend-negative");
     } else {
         td.classList.add("trend-very-negative");
+    }
+}
+
+function applyCredibilityScoreStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    // Credibility Score ranges from 0.0-1.0
+    if (numValue >= 0.7) {
+        td.classList.add("trend-very-positive");
+    } else if (numValue >= 0.5) {
+        td.classList.add("trend-positive");
+    } else if (numValue >= 0.3) {
+        td.classList.add("trend-neutral");
+    } else {
+        td.classList.add("trend-negative");
+    }
+}
+
+function applyCredibilityLabelStyling(td, value) {
+    if (!value) return;
+    const label = value.trim();
+    if (label === "High") {
+        td.classList.add("trend-very-positive");
+    } else if (label === "Medium") {
+        td.classList.add("trend-neutral");
+    } else if (label === "Low") {
+        td.classList.add("trend-negative");
+    }
+}
+
+function applyCredibilityScoreStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    
+    // Apply color coding based on credibility score thresholds
+    if (numValue >= 0.7) {
+        td.classList.add("trend-very-positive");  // High confidence (green)
+    } else if (numValue >= 0.5) {
+        td.classList.add("trend-neutral");        // Medium confidence (yellow)
+    } else {
+        td.classList.add("trend-negative");       // Low confidence (red)
     }
 }
