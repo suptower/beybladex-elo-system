@@ -176,7 +176,7 @@ class TestLowDataRecommendations:
             "BeyD": {"matches": 10, "elo": 1050},
         }
         matchups = {}
-        
+
         recs = generate_low_data_recommendations(low_data_beys, beys, matchups)
         assert len(recs) > 0
         assert all(rec["category"] == "low_data_exploration" for rec in recs)
@@ -189,7 +189,7 @@ class TestLowDataRecommendations:
             "BeyB": {"matches": 10, "elo": 1000},
         }
         matchups = {("BeyA", "BeyB"): 5}  # Already played 5 times
-        
+
         recs = generate_low_data_recommendations(low_data_beys, beys, matchups)
         # Should not recommend this matchup
         assert not any(
@@ -209,7 +209,7 @@ class TestELOClarityRecommendations:
             "BeyB": {"matches": 10, "elo": 1010, "rank": 6},
         }
         matchups = {}
-        
+
         recs = generate_elo_clarity_recommendations(clusters, beys, matchups)
         assert len(recs) > 0
         assert all(rec["category"] == "elo_clarity" for rec in recs)
@@ -227,7 +227,7 @@ class TestELOClarityRecommendations:
             "BeyD": {"matches": 10, "elo": 910, "rank": 16},
         }
         matchups = {}
-        
+
         recs = generate_elo_clarity_recommendations(clusters, beys, matchups)
         # Top-ranked matchup should have higher info value
         top_rec = [r for r in recs if set([r["bey_a"], r["bey_b"]]) == set(["BeyA", "BeyB"])][0]
@@ -250,7 +250,7 @@ class TestUncertaintyRecommendations:
             "BeyB": {"volatility": 5.0},
         }
         matchups = {}
-        
+
         recs = generate_uncertainty_recommendations(
             high_uncertainty_beys, beys, advanced_stats, matchups
         )
@@ -269,7 +269,7 @@ class TestMetaBalanceRecommendations:
             "BeyC": {"matches": 10},  # Normal
         }
         matchups = {}
-        
+
         recs = generate_meta_balance_recommendations(beys, matchups)
         # Should recommend BeyA vs BeyB
         assert any(
@@ -288,7 +288,7 @@ class TestUpsetRecommendations:
             "WeakBey": {"matches": 10, "elo": 950},
         }
         matchups = {}
-        
+
         recs = generate_upset_recommendations(beys, matchups)
         assert len(recs) > 0
         assert all(rec["category"] == "upset_testing" for rec in recs)
@@ -300,7 +300,7 @@ class TestUpsetRecommendations:
             "BeyB": {"matches": 10, "elo": 1020},  # Only 20 ELO gap
         }
         matchups = {}
-        
+
         recs = generate_upset_recommendations(beys, matchups)
         assert len(recs) == 0  # Below 50 ELO minimum
 
@@ -316,10 +316,10 @@ class TestRecommendationStructure:
             "BeyB": {"matches": 10, "elo": 1000},
         }
         matchups = {}
-        
+
         recs = generate_low_data_recommendations(low_data_beys, beys, matchups)
         assert len(recs) > 0
-        
+
         required_fields = {"bey_a", "bey_b", "category", "info_value", "explanation", "existing_matches"}
         for rec in recs:
             assert required_fields == set(rec.keys())
@@ -332,7 +332,7 @@ class TestRecommendationStructure:
             "BeyB": {"matches": 10, "elo": 1000},
         }
         matchups = {}
-        
+
         recs = generate_low_data_recommendations(low_data_beys, beys, matchups)
         for rec in recs:
             assert isinstance(rec["info_value"], (int, float))
@@ -346,7 +346,7 @@ class TestRecommendationStructure:
             "BeyB": {"matches": 10, "elo": 1000},
         }
         matchups = {}
-        
+
         recs = generate_low_data_recommendations(low_data_beys, beys, matchups)
         for rec in recs:
             assert isinstance(rec["explanation"], str)
