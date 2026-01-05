@@ -24,7 +24,7 @@ class TestCredibilityScore:
             max_volatility=20.0
         )
         assert score < 0.3  # Should be very low
-        assert label == "Low Confidence"
+        assert label == "Low"
 
     def test_few_matches_low_confidence(self):
         """Bey with very few matches (<6) should have low confidence."""
@@ -36,7 +36,7 @@ class TestCredibilityScore:
             max_volatility=20.0
         )
         assert score < 0.5  # Should be low
-        assert label == "Low Confidence"
+        assert label == "Low"
 
     def test_medium_matches_medium_confidence(self):
         """Bey with moderate matches (6-14) should have medium confidence."""
@@ -48,7 +48,7 @@ class TestCredibilityScore:
             max_volatility=20.0
         )
         assert 0.3 < score < 0.8  # Should be in middle range
-        assert label == "Medium Confidence"
+        assert label == "Medium"
 
     def test_many_matches_high_confidence(self):
         """Bey with many matches (15+) and good diversity should have high confidence."""
@@ -63,7 +63,7 @@ class TestCredibilityScore:
             max_volatility=20.0
         )
         assert score >= 0.65  # Should be reasonably high
-        assert label in ["Medium Confidence", "High Confidence"]
+        assert label in ["Medium", "High"]
 
     def test_high_volatility_reduces_confidence(self):
         """High volatility should reduce confidence score."""
@@ -138,7 +138,7 @@ class TestCredibilityScore:
             max_matches=30,
             max_volatility=20.0
         )
-        assert label1 == "Low Confidence"
+        assert label1 == "Low"
         
         # High confidence: 15+ matches and high score
         score2, label2 = calculate_credibility_score(
@@ -149,7 +149,7 @@ class TestCredibilityScore:
             max_volatility=20.0
         )
         if score2 >= 0.7:
-            assert label2 == "High Confidence"
+            assert label2 == "High"
 
     def test_single_opponent_low_diversity(self):
         """Playing only one opponent should have low diversity factor."""
@@ -177,7 +177,7 @@ class TestCredibilityScore:
         )
         
         assert score > 0.85
-        assert label == "High Confidence"
+        assert label == "High"
 
     def test_matches_below_medium_threshold(self):
         """Bey with exactly 5 matches should be low confidence."""
@@ -188,7 +188,7 @@ class TestCredibilityScore:
             max_matches=30,
             max_volatility=20.0
         )
-        assert label == "Low Confidence"
+        assert label == "Low"
 
     def test_matches_at_medium_threshold(self):
         """Bey with exactly 6 matches should be medium confidence."""
@@ -199,7 +199,7 @@ class TestCredibilityScore:
             max_matches=30,
             max_volatility=20.0
         )
-        assert label in ["Low Confidence", "Medium Confidence"]
+        assert label in ["Low", "Medium"]
 
     def test_matches_at_high_threshold(self):
         """Bey with exactly 15 matches should have potential for high confidence."""
@@ -213,4 +213,4 @@ class TestCredibilityScore:
             max_volatility=20.0
         )
         # With good conditions, should be able to reach high confidence
-        assert label in ["Medium Confidence", "High Confidence"]
+        assert label in ["Medium", "High"]

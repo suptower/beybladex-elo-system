@@ -108,7 +108,7 @@ def calculate_credibility_score(matches, opponent_elos, volatility, max_matches,
     Returns:
         tuple: (credibility_score, credibility_label)
             - credibility_score: float from 0.0 to 1.0
-            - credibility_label: str, one of "Low Confidence", "Medium Confidence", "High Confidence"
+            - credibility_label: str, one of "Low", "Medium", "High"
     """
     # Minimum thresholds for credibility
     MIN_MATCHES_FOR_HIGH = 15  # Need at least 15 matches for high confidence
@@ -161,16 +161,16 @@ def calculate_credibility_score(matches, opponent_elos, volatility, max_matches,
     # Determine categorical label based on thresholds
     if matches < MIN_MATCHES_FOR_MEDIUM:
         # Not enough matches for reliable rating
-        credibility_label = "Low Confidence"
+        credibility_label = "Low"
     elif matches < MIN_MATCHES_FOR_HIGH or credibility_score < 0.5:
         # Some matches but still building reliability
-        credibility_label = "Medium Confidence"
+        credibility_label = "Medium"
     elif credibility_score >= 0.7:
         # Well-established rating with good stability and diversity
-        credibility_label = "High Confidence"
+        credibility_label = "High"
     else:
         # Between thresholds
-        credibility_label = "Medium Confidence"
+        credibility_label = "Medium"
 
     return round(credibility_score, 3), credibility_label
 
@@ -379,10 +379,10 @@ try:
     
     # Add credibility columns to leaderboard
     leaderboard_df["CredibilityScore"] = leaderboard_df["Name"].map(
-        lambda name: credibility_lookup.get(name, (0.0, "Low Confidence"))[0]
+        lambda name: credibility_lookup.get(name, (0.0, "Low"))[0]
     )
     leaderboard_df["CredibilityLabel"] = leaderboard_df["Name"].map(
-        lambda name: credibility_lookup.get(name, (0.0, "Low Confidence"))[1]
+        lambda name: credibility_lookup.get(name, (0.0, "Low"))[1]
     )
     
     # Save updated leaderboard

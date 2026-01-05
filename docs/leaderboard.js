@@ -371,6 +371,16 @@ function renderCards(headers, rows) {
         if (winrateStatValue) {
             applyWinrateStyling(winrateStatValue, row["Winrate"] || "0%");
         }
+        
+        // Add Credibility Score to mobile view
+        const credLabel = row["CredibilityLabel"] || "Low";
+        stats.appendChild(createStat("Confidence", credLabel));
+        // Apply credibility styling
+        const credStatValue = stats.children[3].querySelector(".lb-stat-value");
+        if (credStatValue) {
+            applyCredibilityLabelStyling(credStatValue, credLabel);
+        }
+        
         card.appendChild(stats);
 
         // Expandable details section
@@ -1049,11 +1059,11 @@ function applyCredibilityScoreStyling(td, value) {
 function applyCredibilityLabelStyling(td, value) {
     if (!value) return;
     const label = value.trim();
-    if (label === "High Confidence") {
+    if (label === "High") {
         td.classList.add("trend-very-positive");
-    } else if (label === "Medium Confidence") {
+    } else if (label === "Medium") {
         td.classList.add("trend-neutral");
-    } else if (label === "Low Confidence") {
+    } else if (label === "Low") {
         td.classList.add("trend-negative");
     }
 }
