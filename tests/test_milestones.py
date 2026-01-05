@@ -15,7 +15,6 @@ from milestones import (
     calculate_win_rates,
     calculate_finish_stats,
     calculate_elo_extremes,
-    calculate_upset_stats,
     calculate_longevity_stats,
     calculate_stability,
     MIN_MATCHES_FOR_WINRATE
@@ -109,7 +108,7 @@ class TestCalculateWinRates:
                 'ScoreA': score_a,
                 'ScoreB': score_b
             })
-        
+
         result = calculate_win_rates(matches)
         assert 'BeyX' in result
         win_rate, total = result['BeyX']
@@ -229,14 +228,14 @@ class TestMilestonesOutput:
     def test_milestones_json_structure(self):
         """Test that generated milestones.json has expected structure."""
         milestones_file = './docs/data/milestones.json'
-        
+
         if not os.path.exists(milestones_file):
             # Skip if file doesn't exist (not yet generated)
             return
-        
+
         with open(milestones_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        
+
         # Check top-level categories exist
         assert 'match_and_win_records' in data
         assert 'finish_specialists' in data
@@ -244,24 +243,24 @@ class TestMilestonesOutput:
         assert 'upsets_and_clutch' in data
         assert 'consistency_and_longevity' in data
         assert 'metadata' in data
-        
+
         # Check specific milestones exist
         assert 'longest_win_streak' in data['match_and_win_records']
         assert 'most_spin_finishes' in data['finish_specialists']
         assert 'highest_elo_ever' in data['elo_performance_extremes']
         assert 'best_upsetter' in data['upsets_and_clutch']
         assert 'most_matches_played' in data['consistency_and_longevity']
-        
+
     def test_milestone_entries_have_required_fields(self):
         """Test that milestone entries have bey and value fields."""
         milestones_file = './docs/data/milestones.json'
-        
+
         if not os.path.exists(milestones_file):
             return
-        
+
         with open(milestones_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        
+
         # Check a few milestone entries
         win_streak = data['match_and_win_records']['longest_win_streak']
         if len(win_streak) > 0:
