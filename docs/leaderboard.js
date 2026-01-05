@@ -372,15 +372,6 @@ function renderCards(headers, rows) {
             applyWinrateStyling(winrateStatValue, row["Winrate"] || "0%");
         }
         
-        // Add Credibility Score to mobile view (numerical score, not label)
-        const credScore = row["CredibilityScore"] || "0.0";
-        stats.appendChild(createStat("Confidence", credScore));
-        // Apply credibility styling based on score value
-        const credStatValue = stats.children[3].querySelector(".lb-stat-value");
-        if (credStatValue) {
-            applyCredibilityScoreStyling(credStatValue, credScore);
-        }
-        
         card.appendChild(stats);
 
         // Expandable details section
@@ -434,7 +425,7 @@ function renderCards(headers, rows) {
             }
             
             // Add Credibility info
-            if (headerInfo.sortedColumn !== "CredibilityScore" && headerInfo.sortedColumn !== "CredibilityLabel") {
+            if (headerInfo.sortedColumn !== "CredibilityLabel") {
                 const credDetail = createDetail("Confidence", row["CredibilityLabel"] || "Unknown");
                 const credValue = credDetail.querySelector('.lb-detail-value');
                 if (credValue && row["CredibilityLabel"]) {
@@ -446,6 +437,16 @@ function renderCards(headers, rows) {
             if (headerInfo.sortedColumn !== "Matches") {
                 details.appendChild(createDetail("Matches", row["Matches"]));
             }
+
+            if (headerInfo.sortedColumn !== "CredibilityScore") {
+                const credScoreDetail = createDetail("Credibility Score", row["CredibilityScore"] || "-");
+                const credScoreValue = credScoreDetail.querySelector('.lb-detail-value');
+                if (credScoreValue && row["CredibilityScore"]) {
+                    applyCredibilityScoreStyling(credScoreValue, row["CredibilityScore"]);
+                }
+                details.appendChild(credScoreDetail);
+            }
+            
             if (headerInfo.sortedColumn !== "PointsFor") {
                 details.appendChild(createDetail("Pts For", row["PointsFor"]));
             }
@@ -489,15 +490,6 @@ function renderCards(headers, rows) {
                 details.appendChild(trendDetail);
             }
         } else {
-            // Add Credibility info in standard mode too
-            if (headerInfo.sortedColumn !== "CredibilityLabel") {
-                const credDetail = createDetail("Confidence", row["CredibilityLabel"] || "Unknown");
-                const credValue = credDetail.querySelector('.lb-detail-value');
-                if (credValue && row["CredibilityLabel"]) {
-                    applyCredibilityLabelStyling(credValue, row["CredibilityLabel"]);
-                }
-                details.appendChild(credDetail);
-            }
             
             if (headerInfo.sortedColumn !== "Spiele") {
                 details.appendChild(createDetail("Games", row["Spiele"]));
@@ -880,7 +872,9 @@ function updateLegend() {
             ['MinΔ', COLUMN_DESCRIPTIONS['MinΔ']],
             ['U-W', COLUMN_DESCRIPTIONS['U-W']],
             ['U-L', COLUMN_DESCRIPTIONS['U-L']],
-            ['Trend', COLUMN_DESCRIPTIONS['Trend']]
+            ['Trend', COLUMN_DESCRIPTIONS['Trend']],
+            ['Cred', COLUMN_DESCRIPTIONS['CredibilityLabel']],
+            ['Confidence', COLUMN_DESCRIPTIONS['CredibilityScore']]
         ];
         
         legendContent.innerHTML = legendEntries

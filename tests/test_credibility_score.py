@@ -54,7 +54,7 @@ class TestCredibilityScore:
         """Bey with many matches (15+) and good diversity should have high confidence."""
         # Create diverse opponent list
         opponent_elos = list(range(950, 1050, 5))  # Wide range of opponents
-        
+
         score, label = calculate_credibility_score(
             matches=20,
             opponent_elos=opponent_elos[:20],
@@ -75,7 +75,7 @@ class TestCredibilityScore:
             max_matches=30,
             max_volatility=20.0
         )
-        
+
         score_volatile, _ = calculate_credibility_score(
             matches=15,
             opponent_elos=[1000] * 15,
@@ -83,7 +83,7 @@ class TestCredibilityScore:
             max_matches=30,
             max_volatility=20.0
         )
-        
+
         assert score_stable > score_volatile
 
     def test_diverse_opponents_increases_confidence(self):
@@ -96,7 +96,7 @@ class TestCredibilityScore:
             max_matches=30,
             max_volatility=20.0
         )
-        
+
         score_diverse, _ = calculate_credibility_score(
             matches=15,
             opponent_elos=list(range(950, 1050, 7))[:15],  # Wide range
@@ -104,7 +104,7 @@ class TestCredibilityScore:
             max_matches=30,
             max_volatility=20.0
         )
-        
+
         assert score_diverse > score_same
 
     def test_score_range_bounded(self):
@@ -118,7 +118,7 @@ class TestCredibilityScore:
             max_volatility=1.0
         )
         assert 0.0 <= score1 <= 1.0
-        
+
         score2, _ = calculate_credibility_score(
             matches=100,
             opponent_elos=list(range(800, 1200, 4)),
@@ -139,7 +139,7 @@ class TestCredibilityScore:
             max_volatility=20.0
         )
         assert label1 == "Low"
-        
+
         # High confidence: 15+ matches and high score
         score2, label2 = calculate_credibility_score(
             matches=20,
@@ -167,7 +167,7 @@ class TestCredibilityScore:
         """Perfect conditions should yield very high credibility."""
         # Max matches, perfect diversity, zero volatility
         opponent_elos = list(range(900, 1100, 3))[:30]  # Very diverse
-        
+
         score, label = calculate_credibility_score(
             matches=30,
             opponent_elos=opponent_elos,
@@ -175,7 +175,7 @@ class TestCredibilityScore:
             max_matches=30,
             max_volatility=20.0
         )
-        
+
         assert score > 0.85
         assert label == "High"
 
@@ -204,7 +204,7 @@ class TestCredibilityScore:
     def test_matches_at_high_threshold(self):
         """Bey with exactly 15 matches should have potential for high confidence."""
         opponent_elos = list(range(950, 1050, 7))[:15]
-        
+
         score, label = calculate_credibility_score(
             matches=15,
             opponent_elos=opponent_elos,

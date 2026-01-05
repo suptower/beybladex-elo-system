@@ -3,7 +3,6 @@ import csv
 import statistics
 from collections import defaultdict
 import os
-import pandas as pd
 
 os.system("")
 
@@ -365,31 +364,6 @@ with open(ADVANCED_FILE, "w", newline="", encoding="utf-8") as f:
 
 print(f"{GREEN} Advanced Leaderboard erstellt: {ADVANCED_FILE}")
 
-# --- Merge credibility scores into regular leaderboard ---
-LEADERBOARD_FILE = "./docs/data/leaderboard.csv"
-print(f"{CYAN} Merging credibility scores into {LEADERBOARD_FILE}...{RESET}")
-
-try:
-    # Read regular leaderboard
-    leaderboard_df = pd.read_csv(LEADERBOARD_FILE)
-    
-    # Create credibility lookup from advanced_data
-    credibility_lookup = {d["bey"]: (d["credibility_score"], d["credibility_label"]) 
-                         for d in advanced_data_sorted}
-    
-    # Add credibility columns to leaderboard
-    leaderboard_df["CredibilityScore"] = leaderboard_df["Name"].map(
-        lambda name: credibility_lookup.get(name, (0.0, "Low"))[0]
-    )
-    leaderboard_df["CredibilityLabel"] = leaderboard_df["Name"].map(
-        lambda name: credibility_lookup.get(name, (0.0, "Low"))[1]
-    )
-    
-    # Save updated leaderboard
-    leaderboard_df.to_csv(LEADERBOARD_FILE, index=False)
-    print(f"{GREEN} Credibility scores merged into {LEADERBOARD_FILE}{RESET}")
-except Exception as e:
-    print(f"{YELLOW} Warning: Could not merge credibility into leaderboard: {e}{RESET}")
 
 # | Spalte            | Beschreibung                                                                                                                        |
 # | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |

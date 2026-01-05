@@ -623,8 +623,8 @@ def run_recommendation_pipeline():
     with open(RECOMMENDED_MATCHES_OUTPUT, 'w', encoding='utf-8') as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
-    print(f"{GREEN}✓ Generated {len(all_recs)} recommendations{RESET}")
-    print(f"{GREEN}✓ Top {len(top_recommendations)} recommendations saved to {RECOMMENDED_MATCHES_OUTPUT}{RESET}")
+    print(f"{GREEN} Generated {len(all_recs)} recommendations{RESET}")
+    print(f"{GREEN} Top {len(top_recommendations)} recommendations saved to {RECOMMENDED_MATCHES_OUTPUT}{RESET}")
 
     # Print summary
     print(f"\n{BOLD}Recommendation Summary:{RESET}")
