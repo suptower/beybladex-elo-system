@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archetype Effectiveness Dashboard - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Archetype Effectiveness Dashboard</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="milestones.html"><span class="nav-item-icon">🏅</span>Milestones</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🎪</span>Tournaments</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                    <a href="matchup-matrix.html"><span class="nav-item-icon">🎲</span>Matchup Matrix</a>
+                    <a href="archetype-dashboard.html"><span class="nav-item-icon">🎭</span>Archetype Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="archetype-dashboard-page">
+    <section class="archetype-hero">
+        <h2>🎭 Archetype Effectiveness Dashboard</h2>
+        <p class="archetype-description">
+            Quantify archetype performance, identify strong and weak interactions, 
+            and discover which archetypes dominate the competitive meta.
+        </p>
+    </section>
+
+    <!-- Meta Insights Section -->
+    <section class="meta-insights-section">
+        <h3>🎯 Key Meta Insights</h3>
+        <div class="insights-grid" id="insightsGrid">
+            <div class="loading-placeholder">Loading insights...</div>
+        </div>
+    </section>
+
+    <!-- Archetype Statistics Table -->
+    <section class="archetype-stats-section">
+        <h3>📊 Archetype Statistics</h3>
+        <div class="help-text">
+            <span class="tooltip-icon">ℹ️</span>
+            <span>Statistics aggregated from all Beyblades classified under each archetype. 
+            Minimum 3 matches required per Beyblade for inclusion.</span>
+        </div>
+        <div class="table-container">
+            <table class="archetype-stats-table" id="archetypeStatsTable">
+                <thead>
+                    <tr>
+                        <th>Archetype</th>
+                        <th>Category</th>
+                        <th>Beys</th>
+                        <th>Avg ELO</th>
+                        <th>Avg Winrate</th>
+                        <th>Upset Rate</th>
+                        <th>Avg Dominance</th>
+                        <th>Matches</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="8" class="loading-cell">Loading data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Performance Charts -->
+    <section class="performance-charts-section">
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Average ELO by Archetype</h3>
+                <canvas id="eloChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Average Winrate by Archetype</h3>
+                <canvas id="winrateChart"></canvas>
+            </div>
+        </div>
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Upset Rate by Archetype</h3>
+                <canvas id="upsetChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>ELO Distribution by Archetype</h3>
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Matchup Matrix Heatmap -->
+    <section class="matchup-matrix-section">
+        <h3>⚔️ Archetype vs Archetype Matchup Matrix</h3>
+        <div class="help-text">
+            <span class="tooltip-icon">ℹ️</span>
+            <span>Winrate percentages show how often the row archetype wins against the column archetype. 
+            Darker green = stronger matchup. Cell shows winrate and match count.</span>
+        </div>
+        <div id="matchupMatrixContainer" class="matchup-matrix-container">
+            <div class="loading-placeholder">Loading matchup matrix...</div>
+        </div>
+    </section>
+
+    <!-- Detailed Archetype Breakdown -->
+    <section class="archetype-details-section">
+        <h3>📋 Detailed Archetype Breakdown</h3>
+        <div id="archetypeDetailsContainer" class="archetype-details-grid">
+            <div class="loading-placeholder">Loading archetype details...</div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p id="versionDisplay">Loading version...</p>
+</footer>
+
+<script>
+    let archetypeData = null;
+
+    // Load archetype analytics data
+    async function loadArchetypeData() {
+        try {
+            const response = await fetch('data/archetype_analytics.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            archetypeData = await response.json();
+            renderDashboard();
+        } catch (error) {
+            console.error('Error loading archetype data:', error);
+            showError();
+        }
+    }
+
+    function showError() {
+        document.getElementById('insightsGrid').innerHTML = 
+            '<p class="error-message">Failed to load archetype data. Please ensure the data file exists.</p>';
+    }
+
+    function renderDashboard() {
+        if (!archetypeData) return;
+
+        renderMetaInsights();
+        renderStatsTable();
+        renderCharts();
+        renderMatchupMatrix();
+        renderArchetypeDetails();
+    }
+
+    function renderMetaInsights() {
+        const insights = archetypeData.meta_insights;
+        if (!insights) return;
+
+        const grid = document.getElementById('insightsGrid');
+        grid.innerHTML = `
+            <div class="insight-card">
+                <div class="insight-icon">👑</div>
+                <div class="insight-content">
+                    <h4>Dominant Archetype</h4>
+                    <p class="insight-value">${insights.dominant_archetype.name}</p>
+                    <p class="insight-detail">Avg ELO: ${insights.dominant_archetype.avg_elo.toFixed(1)}</p>
+                    <p class="insight-reason">${insights.dominant_archetype.reason}</p>
+                </div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">🎯</div>
+                <div class="insight-content">
+                    <h4>Most Reliable</h4>
+                    <p class="insight-value">${insights.most_reliable.name}</p>
+                    <p class="insight-detail">Winrate: ${(insights.most_reliable.avg_winrate * 100).toFixed(1)}%</p>
+                    <p class="insight-reason">${insights.most_reliable.reason}</p>
+                </div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">🎲</div>
+                <div class="insight-content">
+                    <h4>Most Volatile</h4>
+                    <p class="insight-value">${insights.most_volatile.name}</p>
+                    <p class="insight-detail">Upset Rate: ${(insights.most_volatile.upset_rate * 100).toFixed(1)}%</p>
+                    <p class="insight-reason">${insights.most_volatile.reason}</p>
+                </div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">🏆</div>
+                <div class="insight-content">
+                    <h4>Highest Winrate</h4>
+                    <p class="insight-value">${insights.highest_winrate.name}</p>
+                    <p class="insight-detail">Winrate: ${(insights.highest_winrate.avg_winrate * 100).toFixed(1)}%</p>
+                    <p class="insight-reason">${insights.highest_winrate.reason}</p>
+                </div>
+            </div>
+            <div class="insight-card">
+                <div class="insight-icon">📈</div>
+                <div class="insight-content">
+                    <h4>Most Active</h4>
+                    <p class="insight-value">${insights.most_active.name}</p>
+                    <p class="insight-detail">${insights.most_active.total_matches} matches</p>
+                    <p class="insight-reason">${insights.most_active.reason}</p>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderStatsTable() {
+        const stats = archetypeData.archetype_stats;
+        if (!stats) return;
+
+        const tbody = document.querySelector('#archetypeStatsTable tbody');
+        
+        // Sort by avg ELO descending
+        const sortedArchetypes = Object.values(stats).sort((a, b) => b.avg_elo - a.avg_elo);
+
+        tbody.innerHTML = sortedArchetypes.map(archetype => `
+            <tr>
+                <td>
+                    <span style="font-size: 1.2em;">${archetype.icon}</span>
+                    <strong>${archetype.name}</strong>
+                </td>
+                <td><span class="category-badge category-${archetype.category}">${archetype.category}</span></td>
+                <td>${archetype.bey_count}</td>
+                <td><strong>${archetype.avg_elo.toFixed(0)}</strong> <span style="color: #888; font-size: 0.9em;">±${archetype.elo_std.toFixed(0)}</span></td>
+                <td>${(archetype.avg_winrate * 100).toFixed(1)}%</td>
+                <td>${(archetype.upset_rate * 100).toFixed(1)}%</td>
+                <td>${archetype.avg_dominance > 0 ? '+' : ''}${archetype.avg_dominance.toFixed(2)}</td>
+                <td>${archetype.total_matches}</td>
+            </tr>
+        `).join('');
+    }
+
+    function renderCharts() {
+        const stats = archetypeData.archetype_stats;
+        if (!stats) return;
+
+        // Sort by avg ELO
+        const sortedArchetypes = Object.values(stats).sort((a, b) => b.avg_elo - a.avg_elo);
+
+        const labels = sortedArchetypes.map(a => a.name);
+        const colors = sortedArchetypes.map(a => a.color);
+
+        // ELO Chart
+        new Chart(document.getElementById('eloChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Average ELO',
+                    data: sortedArchetypes.map(a => a.avg_elo),
+                    backgroundColor: colors,
+                    borderColor: colors.map(c => c + 'CC'),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            afterLabel: (context) => {
+                                const idx = context.dataIndex;
+                                return `±${sortedArchetypes[idx].elo_std.toFixed(0)} std dev`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 900
+                    }
+                }
+            }
+        });
+
+        // Winrate Chart
+        new Chart(document.getElementById('winrateChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Average Winrate',
+                    data: sortedArchetypes.map(a => (a.avg_winrate * 100)),
+                    backgroundColor: colors,
+                    borderColor: colors.map(c => c + 'CC'),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: (value) => value + '%'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Upset Chart
+        new Chart(document.getElementById('upsetChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Upset Rate',
+                    data: sortedArchetypes.map(a => (a.upset_rate * 100)),
+                    backgroundColor: colors,
+                    borderColor: colors.map(c => c + 'CC'),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            callback: (value) => value + '%'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Distribution Chart (ELO std dev)
+        new Chart(document.getElementById('distributionChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'ELO Std Deviation',
+                    data: sortedArchetypes.map(a => a.elo_std),
+                    backgroundColor: colors,
+                    borderColor: colors.map(c => c + 'CC'),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const idx = context.dataIndex;
+                                const arch = sortedArchetypes[idx];
+                                return [
+                                    `Std Dev: ${arch.elo_std.toFixed(0)}`,
+                                    `Avg ELO: ${arch.avg_elo.toFixed(0)}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+    function renderMatchupMatrix() {
+        const matrix = archetypeData.matchup_matrix;
+        const stats = archetypeData.archetype_stats;
+        if (!matrix || !stats) return;
+
+        const container = document.getElementById('matchupMatrixContainer');
+        
+        // Get all archetypes
+        const archetypes = Object.values(stats).sort((a, b) => b.avg_elo - a.avg_elo);
+        const archetypeIds = archetypes.map(a => a.id);
+
+        // Build HTML for matrix
+        let html = '<table class="matchup-heatmap"><thead><tr><th></th>';
+        
+        // Header row
+        archetypes.forEach(arch => {
+            html += `<th><span class="archetype-icon" title="${arch.name}">${arch.icon}</span></th>`;
+        });
+        html += '</tr></thead><tbody>';
+
+        // Data rows
+        archetypes.forEach(rowArch => {
+            html += `<tr><th><span class="archetype-icon" title="${rowArch.name}">${rowArch.icon}</span> ${rowArch.name}</th>`;
+            
+            archetypes.forEach(colArch => {
+                const matchupData = matrix[rowArch.id]?.[colArch.id];
+                
+                if (rowArch.id === colArch.id) {
+                    // Same archetype
+                    html += '<td class="matchup-cell same-archetype">—</td>';
+                } else if (matchupData && matchupData.total > 0) {
+                    const winrate = matchupData.winrate * 100;
+                    const intensity = Math.min(100, winrate * 1.2);
+                    const bgColor = `rgba(34, 197, 94, ${intensity / 100})`;
+                    html += `<td class="matchup-cell" style="background-color: ${bgColor};" title="${rowArch.name} vs ${colArch.name}: ${winrate.toFixed(1)}% (${matchupData.total} matches)">
+                        <div class="matchup-winrate">${winrate.toFixed(0)}%</div>
+                        <div class="matchup-count">${matchupData.total}</div>
+                    </td>`;
+                } else {
+                    // No data
+                    html += '<td class="matchup-cell no-data" title="No matches recorded">—</td>';
+                }
+            });
+            
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    function renderArchetypeDetails() {
+        const stats = archetypeData.archetype_stats;
+        if (!stats) return;
+
+        const container = document.getElementById('archetypeDetailsContainer');
+        const sortedArchetypes = Object.values(stats).sort((a, b) => b.avg_elo - a.avg_elo);
+
+        container.innerHTML = sortedArchetypes.map(archetype => `
+            <div class="archetype-detail-card" style="border-left: 4px solid ${archetype.color}">
+                <div class="archetype-detail-header">
+                    <span class="archetype-detail-icon">${archetype.icon}</span>
+                    <h4>${archetype.name}</h4>
+                    <span class="category-badge category-${archetype.category}">${archetype.category}</span>
+                </div>
+                <div class="archetype-detail-stats">
+                    <div class="detail-stat">
+                        <span class="stat-label">Beyblades:</span>
+                        <span class="stat-value">${archetype.bey_count}</span>
+                    </div>
+                    <div class="detail-stat">
+                        <span class="stat-label">Avg ELO:</span>
+                        <span class="stat-value">${archetype.avg_elo.toFixed(0)} ±${archetype.elo_std.toFixed(0)}</span>
+                    </div>
+                    <div class="detail-stat">
+                        <span class="stat-label">Winrate:</span>
+                        <span class="stat-value">${(archetype.avg_winrate * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="detail-stat">
+                        <span class="stat-label">Upset Rate:</span>
+                        <span class="stat-value">${(archetype.upset_rate * 100).toFixed(1)}%</span>
+                    </div>
+                    <div class="detail-stat">
+                        <span class="stat-label">Dominance:</span>
+                        <span class="stat-value">${archetype.avg_dominance > 0 ? '+' : ''}${archetype.avg_dominance.toFixed(2)}</span>
+                    </div>
+                    <div class="detail-stat">
+                        <span class="stat-label">Total Matches:</span>
+                        <span class="stat-value">${archetype.total_matches}</span>
+                    </div>
+                </div>
+                <div class="archetype-beys">
+                    <strong>Beys in this archetype:</strong>
+                    <div class="bey-list">
+                        ${archetype.beys.map(bey => `<a href="bey.html?name=${encodeURIComponent(bey)}" class="bey-link">${bey}</a>`).join(', ')}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', loadArchetypeData);
+</script>
+
+<style>
+    .archetype-dashboard-page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .archetype-hero {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .archetype-hero h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .archetype-description {
+        font-size: 1.1rem;
+        color: #666;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    body.dark-mode .archetype-description {
+        color: #aaa;
+    }
+
+    /* Meta Insights */
+    .meta-insights-section {
+        margin-bottom: 3rem;
+    }
+
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .insight-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+
+    .insight-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    body.dark-mode .insight-card {
+        background: #2d2d2d;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .insight-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .insight-content h4 {
+        margin: 0.5rem 0;
+        color: #333;
+    }
+
+    body.dark-mode .insight-content h4 {
+        color: #e0e0e0;
+    }
+
+    .insight-value {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #2563eb;
+        margin: 0.5rem 0;
+    }
+
+    body.dark-mode .insight-value {
+        color: #60a5fa;
+    }
+
+    .insight-detail {
+        font-size: 0.95rem;
+        color: #666;
+        margin: 0.25rem 0;
+    }
+
+    body.dark-mode .insight-detail {
+        color: #aaa;
+    }
+
+    .insight-reason {
+        font-size: 0.85rem;
+        color: #999;
+        font-style: italic;
+        margin-top: 0.5rem;
+    }
+
+    /* Stats Table */
+    .archetype-stats-section {
+        margin-bottom: 3rem;
+    }
+
+    .help-text {
+        background: #f0f9ff;
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+        color: #0369a1;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    body.dark-mode .help-text {
+        background: #1e3a5f;
+        color: #93c5fd;
+    }
+
+    .tooltip-icon {
+        font-size: 1.2rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        margin-top: 1rem;
+    }
+
+    .archetype-stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .archetype-stats-table {
+        background: #2d2d2d;
+    }
+
+    .archetype-stats-table th,
+    .archetype-stats-table td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    body.dark-mode .archetype-stats-table th,
+    body.dark-mode .archetype-stats-table td {
+        border-bottom: 1px solid #404040;
+    }
+
+    .archetype-stats-table th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    body.dark-mode .archetype-stats-table th {
+        background: #1f1f1f;
+        color: #e0e0e0;
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .category-offense { background: #fee2e2; color: #991b1b; }
+    .category-defense { background: #dbeafe; color: #1e40af; }
+    .category-stamina { background: #d1fae5; color: #065f46; }
+    .category-control { background: #fef3c7; color: #92400e; }
+    .category-balance { background: #e9d5ff; color: #6b21a8; }
+    .category-unknown { background: #e5e7eb; color: #374151; }
+
+    body.dark-mode .category-offense { background: #7f1d1d; color: #fca5a5; }
+    body.dark-mode .category-defense { background: #1e3a8a; color: #93c5fd; }
+    body.dark-mode .category-stamina { background: #064e3b; color: #6ee7b7; }
+    body.dark-mode .category-control { background: #78350f; color: #fcd34d; }
+    body.dark-mode .category-balance { background: #581c87; color: #d8b4fe; }
+    body.dark-mode .category-unknown { background: #374151; color: #d1d5db; }
+
+    /* Charts */
+    .performance-charts-section {
+        margin-bottom: 3rem;
+    }
+
+    .chart-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-top: 1.5rem;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .chart-card {
+        background: #2d2d2d;
+    }
+
+    .chart-card h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: #374151;
+    }
+
+    body.dark-mode .chart-card h3 {
+        color: #e0e0e0;
+    }
+
+    /* Matchup Matrix */
+    .matchup-matrix-section {
+        margin-bottom: 3rem;
+    }
+
+    .matchup-matrix-container {
+        overflow-x: auto;
+        margin-top: 1.5rem;
+    }
+
+    .matchup-heatmap {
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        min-width: 100%;
+    }
+
+    body.dark-mode .matchup-heatmap {
+        background: #2d2d2d;
+    }
+
+    .matchup-heatmap th,
+    .matchup-heatmap td {
+        padding: 0.75rem;
+        border: 1px solid #e5e7eb;
+        text-align: center;
+        min-width: 80px;
+    }
+
+    body.dark-mode .matchup-heatmap th,
+    body.dark-mode .matchup-heatmap td {
+        border: 1px solid #404040;
+    }
+
+    .matchup-heatmap thead th {
+        background: #f9fafb;
+        font-weight: 600;
+    }
+
+    body.dark-mode .matchup-heatmap thead th {
+        background: #1f1f1f;
+    }
+
+    .matchup-heatmap tbody th {
+        background: #f9fafb;
+        text-align: left;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    body.dark-mode .matchup-heatmap tbody th {
+        background: #1f1f1f;
+    }
+
+    .matchup-cell {
+        cursor: help;
+        position: relative;
+    }
+
+    .matchup-winrate {
+        font-weight: bold;
+        font-size: 0.95rem;
+    }
+
+    .matchup-count {
+        font-size: 0.75rem;
+        color: #666;
+    }
+
+    body.dark-mode .matchup-count {
+        color: #aaa;
+    }
+
+    .matchup-cell.same-archetype {
+        background: #f3f4f6 !important;
+        color: #9ca3af;
+    }
+
+    body.dark-mode .matchup-cell.same-archetype {
+        background: #1f1f1f !important;
+    }
+
+    .matchup-cell.no-data {
+        background: #fafafa !important;
+        color: #d1d5db;
+    }
+
+    body.dark-mode .matchup-cell.no-data {
+        background: #252525 !important;
+    }
+
+    .archetype-icon {
+        font-size: 1.2rem;
+    }
+
+    /* Archetype Details */
+    .archetype-details-section {
+        margin-bottom: 3rem;
+    }
+
+    .archetype-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .archetype-detail-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .archetype-detail-card {
+        background: #2d2d2d;
+    }
+
+    .archetype-detail-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .archetype-detail-icon {
+        font-size: 2rem;
+    }
+
+    .archetype-detail-header h4 {
+        margin: 0;
+        flex: 1;
+    }
+
+    .archetype-detail-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .detail-stat {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem;
+        background: #f9fafb;
+        border-radius: 4px;
+    }
+
+    body.dark-mode .detail-stat {
+        background: #1f1f1f;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    body.dark-mode .stat-label {
+        color: #9ca3af;
+    }
+
+    .stat-value {
+        font-weight: 600;
+        color: #111827;
+    }
+
+    body.dark-mode .stat-value {
+        color: #e0e0e0;
+    }
+
+    .archetype-beys {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e5e7eb;
+        font-size: 0.9rem;
+    }
+
+    body.dark-mode .archetype-beys {
+        border-top: 1px solid #404040;
+    }
+
+    .bey-list {
+        margin-top: 0.5rem;
+    }
+
+    .bey-link {
+        color: #2563eb;
+        text-decoration: none;
+    }
+
+    .bey-link:hover {
+        text-decoration: underline;
+    }
+
+    body.dark-mode .bey-link {
+        color: #60a5fa;
+    }
+
+    .loading-placeholder,
+    .error-message {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+    }
+
+    body.dark-mode .loading-placeholder,
+    body.dark-mode .error-message {
+        color: #9ca3af;
+    }
+
+    @media (max-width: 768px) {
+        .chart-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .insights-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .archetype-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .archetype-detail-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+</body>
+</html>
