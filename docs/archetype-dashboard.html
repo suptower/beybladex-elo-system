@@ -552,6 +552,11 @@
     .archetype-hero h2 {
         font-size: 2.5rem;
         margin-bottom: 1rem;
+        color: #1a1a1a;
+    }
+
+    body.dark .archetype-hero h2 {
+        color: #f1f5f9;
     }
 
     .archetype-description {
@@ -561,8 +566,17 @@
         margin: 0 auto;
     }
 
-    body.dark-mode .archetype-description {
+    body.dark .archetype-description {
         color: #aaa;
+    }
+
+    /* Section headings dark mode */
+    .archetype-dashboard-page h3 {
+        color: #1a1a1a;
+    }
+
+    body.dark .archetype-dashboard-page h3 {
+        color: #f1f5f9;
     }
 
     /* Meta Insights */
@@ -590,7 +604,7 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
-    body.dark-mode .insight-card {
+    body.dark .insight-card {
         background: #2d2d2d;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
@@ -605,7 +619,7 @@
         color: #333;
     }
 
-    body.dark-mode .insight-content h4 {
+    body.dark .insight-content h4 {
         color: #e0e0e0;
     }
 
@@ -616,7 +630,7 @@
         margin: 0.5rem 0;
     }
 
-    body.dark-mode .insight-value {
+    body.dark .insight-value {
         color: #60a5fa;
     }
 
@@ -626,7 +640,7 @@
         margin: 0.25rem 0;
     }
 
-    body.dark-mode .insight-detail {
+    body.dark .insight-detail {
         color: #aaa;
     }
 
@@ -654,7 +668,7 @@
         gap: 0.5rem;
     }
 
-    body.dark-mode .help-text {
+    body.dark .help-text {
         background: #1e3a5f;
         color: #93c5fd;
     }
@@ -675,7 +689,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    body.dark-mode .archetype-stats-table {
+    body.dark .archetype-stats-table {
         background: #2d2d2d;
     }
 
@@ -686,8 +700,8 @@
         border-bottom: 1px solid #e5e7eb;
     }
 
-    body.dark-mode .archetype-stats-table th,
-    body.dark-mode .archetype-stats-table td {
+    body.dark .archetype-stats-table th,
+    body.dark .archetype-stats-table td {
         border-bottom: 1px solid #404040;
     }
 
@@ -697,7 +711,7 @@
         color: #374151;
     }
 
-    body.dark-mode .archetype-stats-table th {
+    body.dark .archetype-stats-table th {
         background: #1f1f1f;
         color: #e0e0e0;
     }
@@ -718,12 +732,12 @@
     .category-balance { background: #e9d5ff; color: #6b21a8; }
     .category-unknown { background: #e5e7eb; color: #374151; }
 
-    body.dark-mode .category-offense { background: #7f1d1d; color: #fca5a5; }
-    body.dark-mode .category-defense { background: #1e3a8a; color: #93c5fd; }
-    body.dark-mode .category-stamina { background: #064e3b; color: #6ee7b7; }
-    body.dark-mode .category-control { background: #78350f; color: #fcd34d; }
-    body.dark-mode .category-balance { background: #581c87; color: #d8b4fe; }
-    body.dark-mode .category-unknown { background: #374151; color: #d1d5db; }
+    body.dark .category-offense { background: #7f1d1d; color: #fca5a5; }
+    body.dark .category-defense { background: #1e3a8a; color: #93c5fd; }
+    body.dark .category-stamina { background: #064e3b; color: #6ee7b7; }
+    body.dark .category-control { background: #78350f; color: #fcd34d; }
+    body.dark .category-balance { background: #581c87; color: #d8b4fe; }
+    body.dark .category-unknown { background: #374151; color: #d1d5db; }
 
     /* Charts */
     .performance-charts-section {
@@ -744,7 +758,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    body.dark-mode .chart-card {
+    body.dark .chart-card {
         background: #2d2d2d;
     }
 
@@ -754,7 +768,7 @@
         color: #374151;
     }
 
-    body.dark-mode .chart-card h3 {
+    body.dark .chart-card h3 {
         color: #e0e0e0;
     }
 
@@ -775,7 +789,7 @@
         min-width: 100%;
     }
 
-    body.dark-mode .matchup-heatmap {
+    body.dark .matchup-heatmap {
         background: #2d2d2d;
     }
 
@@ -787,8 +801,8 @@
         min-width: 80px;
     }
 
-    body.dark-mode .matchup-heatmap th,
-    body.dark-mode .matchup-heatmap td {
+    body.dark .matchup-heatmap th,
+    body.dark .matchup-heatmap td {
         border: 1px solid #404040;
     }
 
@@ -797,7 +811,7 @@
         font-weight: 600;
     }
 
-    body.dark-mode .matchup-heatmap thead th {
+    body.dark .matchup-heatmap thead th {
         background: #1f1f1f;
     }
 
@@ -808,7 +822,7 @@
         white-space: nowrap;
     }
 
-    body.dark-mode .matchup-heatmap tbody th {
+    body.dark .matchup-heatmap tbody th {
         background: #1f1f1f;
     }
 
@@ -827,7 +841,7 @@
         color: #666;
     }
 
-    body.dark-mode .matchup-count {
+    body.dark .matchup-count {
         color: #aaa;
     }
 
@@ -836,7 +850,7 @@
         color: #9ca3af;
     }
 
-    body.dark-mode .matchup-cell.same-archetype {
+    body.dark .matchup-cell.same-archetype {
         background: #1f1f1f !important;
     }
 
@@ -845,7 +859,7 @@
         color: #d1d5db;
     }
 
-    body.dark-mode .matchup-cell.no-data {
+    body.dark .matchup-cell.no-data {
         background: #252525 !important;
     }
 
@@ -872,7 +886,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    body.dark-mode .archetype-detail-card {
+    body.dark .archetype-detail-card {
         background: #2d2d2d;
     }
 
@@ -907,7 +921,7 @@
         border-radius: 4px;
     }
 
-    body.dark-mode .detail-stat {
+    body.dark .detail-stat {
         background: #1f1f1f;
     }
 
@@ -916,7 +930,7 @@
         color: #6b7280;
     }
 
-    body.dark-mode .stat-label {
+    body.dark .stat-label {
         color: #9ca3af;
     }
 
@@ -925,7 +939,7 @@
         color: #111827;
     }
 
-    body.dark-mode .stat-value {
+    body.dark .stat-value {
         color: #e0e0e0;
     }
 
@@ -936,7 +950,7 @@
         font-size: 0.9rem;
     }
 
-    body.dark-mode .archetype-beys {
+    body.dark .archetype-beys {
         border-top: 1px solid #404040;
     }
 
@@ -953,7 +967,7 @@
         text-decoration: underline;
     }
 
-    body.dark-mode .bey-link {
+    body.dark .bey-link {
         color: #60a5fa;
     }
 
@@ -964,8 +978,8 @@
         color: #6b7280;
     }
 
-    body.dark-mode .loading-placeholder,
-    body.dark-mode .error-message {
+    body.dark .loading-placeholder,
+    body.dark .error-message {
         color: #9ca3af;
     }
 
