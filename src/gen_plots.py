@@ -156,11 +156,11 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
             xlim = ax.get_xlim()
 
             # Plot average line (dashed)
-            plt.axhline(avg_elo, label=f'Average: {int(avg_elo)}',
+            plt.axhline(avg_elo, label=f'Average: {avg_elo:.1f}',
                         **AVERAGE_LINE_STYLE)
 
             # Plot median line (dotted)
-            plt.axhline(median_elo, label=f'Median: {int(median_elo)}',
+            plt.axhline(median_elo, label=f'Median: {median_elo:.1f}',
                         **MEDIAN_LINE_STYLE)
 
             # Highlight max and min ELO values
@@ -277,11 +277,11 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
             xlim = ax.get_xlim()
 
             # Plot average line (dashed)
-            plt.axhline(avg_pos, label=f'Average: #{int(avg_pos)}',
+            plt.axhline(avg_pos, label=f'Average: #{avg_pos:.1f}',
                         **AVERAGE_LINE_STYLE)
 
             # Plot median line (dotted)
-            plt.axhline(median_pos, label=f'Median: #{int(median_pos)}',
+            plt.axhline(median_pos, label=f'Median: #{median_pos:.1f}',
                         **MEDIAN_LINE_STYLE)
 
             # Highlight best and worst positions
