@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Matches - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Recommended Matches</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="milestones.html"><span class="nav-item-icon">🏅</span>Milestones</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🎪</span>Tournaments</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                    <a href="recommended-matches.html"><span class="nav-item-icon">🎯</span>Recommended Matches</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="recommended-matches-page">
+    <section class="hero">
+        <h2>🎯 Recommended Matches</h2>
+        <p class="description">
+            Data-driven match suggestions to improve ranking quality, meta balance, and data coverage.
+            These recommendations are <strong>advisory</strong> and aim to maximize information gain per match.
+        </p>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="summary-section">
+        <h3>📊 Recommendation Summary</h3>
+        <div class="summary-cards" id="summaryCards">
+            <!-- Dynamically populated -->
+        </div>
+    </section>
+
+    <!-- Top Recommendations -->
+    <section class="top-recommendations-section">
+        <h3>⭐ Top Recommendations</h3>
+        <p class="section-description">
+            These are the highest-value matchups based on information gain scoring.
+        </p>
+        <div class="recommendations-list" id="topRecommendations">
+            <!-- Dynamically populated -->
+        </div>
+    </section>
+
+    <!-- Category Sections -->
+    <section class="categories-section">
+        <h3>📂 Recommendations by Category</h3>
+        
+        <!-- Low Data Exploration -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('lowData')">
+                <h4>🧪 Low-Data Beys (Exploration)</h4>
+                <span class="toggle-icon" id="lowDataToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Beys with significantly fewer matches than average. These need more games to establish reliable ratings.
+            </p>
+            <div class="category-content" id="lowDataContent">
+                <div class="recommendations-list" id="lowDataList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ELO Clarity -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('eloClarity')">
+                <h4>⚖️ ELO Clarity / Leaderboard Stabilization</h4>
+                <span class="toggle-icon" id="eloClarityToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Beys with similar ELO ratings that haven't played each other. Direct comparisons clarify rankings.
+            </p>
+            <div class="category-content" id="eloClarityContent">
+                <div class="recommendations-list" id="eloClarityList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- High Uncertainty -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('highUncertainty')">
+                <h4>📊 High-Uncertainty Matchups</h4>
+                <span class="toggle-icon" id="highUncertaintyToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Beys with high ELO volatility. Playing against stable references helps stabilize their ratings.
+            </p>
+            <div class="category-content" id="highUncertaintyContent">
+                <div class="recommendations-list" id="highUncertaintyList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Meta Balance -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('metaBalance')">
+                <h4>🔄 Meta-Balance Matches</h4>
+                <span class="toggle-icon" id="metaBalanceToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Matchups between frequently played and rarely played Beys. Prevents ELO inflation in closed meta loops.
+            </p>
+            <div class="category-content" id="metaBalanceContent">
+                <div class="recommendations-list" id="metaBalanceList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Upset Testing -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('upsetTesting')">
+                <h4>🎲 Upset & Hypothesis Testing</h4>
+                <span class="toggle-icon" id="upsetTestingToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Matches with high upset potential. Tests ELO assumptions and identifies over/underrated Beys.
+            </p>
+            <div class="category-content" id="upsetTestingContent">
+                <div class="recommendations-list" id="upsetTestingList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="version-display.js"></script>
+
+<script>
+// Category toggle functionality
+function toggleCategory(categoryId) {
+    const content = document.getElementById(categoryId + 'Content');
+    const toggle = document.getElementById(categoryId + 'Toggle');
+    
+    if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'block';
+        toggle.textContent = '▲';
+    } else {
+        content.style.display = 'none';
+        toggle.textContent = '▼';
+    }
+}
+
+// Initialize all categories as collapsed
+document.addEventListener('DOMContentLoaded', () => {
+    ['lowData', 'eloClarity', 'highUncertainty', 'metaBalance', 'upsetTesting'].forEach(cat => {
+        document.getElementById(cat + 'Content').style.display = 'none';
+    });
+});
+
+// Category name mapping
+const categoryNames = {
+    'low_data_exploration': 'Low-Data Exploration',
+    'elo_clarity': 'ELO Clarity',
+    'high_uncertainty': 'High Uncertainty',
+    'meta_balance': 'Meta Balance',
+    'upset_testing': 'Upset Testing'
+};
+
+const categoryIcons = {
+    'low_data_exploration': '🧪',
+    'elo_clarity': '⚖️',
+    'high_uncertainty': '📊',
+    'meta_balance': '🔄',
+    'upset_testing': '🎲'
+};
+
+const categoryListIds = {
+    'low_data_exploration': 'lowDataList',
+    'elo_clarity': 'eloClarityList',
+    'high_uncertainty': 'highUncertaintyList',
+    'meta_balance': 'metaBalanceList',
+    'upset_testing': 'upsetTestingList'
+};
+
+// Create recommendation card
+function createRecommendationCard(rec, index) {
+    const card = document.createElement('div');
+    card.className = 'recommendation-card';
+    
+    const rankBadge = index !== undefined ? `<span class="rank-badge">#${index + 1}</span>` : '';
+    const categoryBadge = `<span class="category-badge">${categoryIcons[rec.category]} ${categoryNames[rec.category]}</span>`;
+    
+    card.innerHTML = `
+        ${rankBadge}
+        <div class="rec-header">
+            <div class="matchup">
+                <span class="bey-name">${rec.bey_a}</span>
+                <span class="vs">vs</span>
+                <span class="bey-name">${rec.bey_b}</span>
+            </div>
+            <div class="info-value">
+                <span class="value-label">Info Value</span>
+                <span class="value-number">${rec.info_value.toFixed(1)}</span>
+            </div>
+        </div>
+        <div class="rec-body">
+            ${categoryBadge}
+            <p class="explanation">${rec.explanation}</p>
+            ${rec.existing_matches > 0 ? `<p class="existing-matches">⚠️ Already played ${rec.existing_matches} time(s)</p>` : ''}
+        </div>
+    `;
+    
+    return card;
+}
+
+// Load and display recommendations
+async function loadRecommendations() {
+    try {
+        const response = await fetch('data/recommended_matches.json');
+        const data = await response.json();
+        
+        // Display summary
+        displaySummary(data.metadata);
+        
+        // Display top recommendations
+        const topList = document.getElementById('topRecommendations');
+        data.top_recommendations.forEach((rec, index) => {
+            topList.appendChild(createRecommendationCard(rec, index));
+        });
+        
+        // Display by category
+        for (const [category, recommendations] of Object.entries(data.by_category)) {
+            const listId = categoryListIds[category];
+            if (listId) {
+                const list = document.getElementById(listId);
+                recommendations.forEach(rec => {
+                    list.appendChild(createRecommendationCard(rec));
+                });
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error loading recommendations:', error);
+        document.querySelector('.recommended-matches-page').innerHTML += `
+            <div class="error-message">
+                <p>⚠️ Unable to load recommendations. Please try again later.</p>
+            </div>
+        `;
+    }
+}
+
+function displaySummary(metadata) {
+    const summaryCards = document.getElementById('summaryCards');
+    
+    const totalCard = document.createElement('div');
+    totalCard.className = 'summary-card';
+    totalCard.innerHTML = `
+        <div class="summary-icon">📋</div>
+        <div class="summary-content">
+            <div class="summary-label">Total Recommendations</div>
+            <div class="summary-value">${metadata.total_recommendations}</div>
+        </div>
+    `;
+    summaryCards.appendChild(totalCard);
+    
+    for (const [category, count] of Object.entries(metadata.categories)) {
+        if (count > 0) {
+            const card = document.createElement('div');
+            card.className = 'summary-card';
+            card.innerHTML = `
+                <div class="summary-icon">${categoryIcons[category]}</div>
+                <div class="summary-content">
+                    <div class="summary-label">${categoryNames[category]}</div>
+                    <div class="summary-value">${count}</div>
+                </div>
+            `;
+            summaryCards.appendChild(card);
+        }
+    }
+}
+
+// Load data on page load
+loadRecommendations();
+</script>
+
+<style>
+.recommended-matches-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.summary-section {
+    margin-bottom: 3rem;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.summary-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.summary-icon {
+    font-size: 2rem;
+}
+
+.summary-content {
+    flex: 1;
+}
+
+.summary-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.summary-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.top-recommendations-section,
+.categories-section {
+    margin-bottom: 3rem;
+}
+
+.section-description {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.recommendation-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.recommendation-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.rank-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--accent-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.rec-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.matchup {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.2rem;
+}
+
+.bey-name {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.vs {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.info-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.value-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.value-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--success-color);
+}
+
+.rec-body {
+    margin-top: 1rem;
+}
+
+.category-badge {
+    display: inline-block;
+    background: var(--secondary-bg);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+}
+
+.explanation {
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+.existing-matches {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--warning-color);
+}
+
+.category-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.category-header {
+    padding: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--secondary-bg);
+    transition: background 0.2s;
+}
+
+.category-header:hover {
+    background: var(--hover-bg);
+}
+
+.category-header h4 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s;
+}
+
+.category-description {
+    padding: 1rem 1.5rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.category-content {
+    padding: 1.5rem;
+}
+
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--error-color);
+}
+
+@media (max-width: 768px) {
+    .rec-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .matchup {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .rank-badge {
+        position: static;
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+
+</body>
+</html>
