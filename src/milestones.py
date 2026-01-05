@@ -485,42 +485,44 @@ def calculate_giant_killer_from_top_ranks(elo_history: List[Dict[str, str]],
     """
     Calculate Giant Killer metric: wins against Top-N Beys.
 
-    This requires determining who was in top N at the time of each match.
+    This requires determining who was in top N at the time of each match,
+    using pre-match ELO values.
     """
-    # Build ranking at each match point
-    match_rankings = {}
-
-    for row in elo_timeseries:
-        match_num = int(row['MatchIndex'])
-        bey = row['Bey']
-        elo = float(row['ELO'])
-
-        if match_num not in match_rankings:
-            match_rankings[match_num] = []
-        match_rankings[match_num].append((bey, elo))
-
-    # Get top N at each match
-    top_n_at_match = {}
-    for match_num, bey_elos in match_rankings.items():
-        sorted_beys = sorted(bey_elos, key=lambda x: x[1], reverse=True)
-        top_n_at_match[match_num] = {bey for bey, _ in sorted_beys[:top_n]}
-
+    # Build a dict to track current ELO for each Bey as we go through matches
+    current_elo = defaultdict(lambda: 1000.0)  # Default starting ELO
+    
     # Count wins against top N opponents
     giant_killer_wins = defaultdict(int)
 
-    for idx, match in enumerate(elo_history):
-        match_num = idx + 1
+    for match in elo_history:
         bey_a = match['BeyA']
         bey_b = match['BeyB']
         score_a = int(match['ScoreA'])
         score_b = int(match['ScoreB'])
+        pre_a = float(match['PreA'])
+        pre_b = float(match['PreB'])
+        post_a = float(match['PostA'])
+        post_b = float(match['PostB'])
 
+        # Update current ELO values for both Beys (in case they haven't been seen yet)
+        current_elo[bey_a] = pre_a
+        current_elo[bey_b] = pre_b
+
+        # Get top N Beys based on current ELO (pre-match)
+        sorted_beys = sorted(current_elo.items(), key=lambda x: x[1], reverse=True)
+        top_n_beys = {bey for bey, _ in sorted_beys[:top_n]}
+
+        # Determine winner and loser
         winner = bey_a if score_a > score_b else bey_b
         loser = bey_b if winner == bey_a else bey_a
 
         # Check if winner beat a top N opponent
-        if match_num in top_n_at_match and loser in top_n_at_match[match_num]:
+        if loser in top_n_beys:
             giant_killer_wins[winner] += 1
+
+        # Update current ELO values with post-match values
+        current_elo[bey_a] = post_a
+        current_elo[bey_b] = post_b
 
     return dict(giant_killer_wins)
 
