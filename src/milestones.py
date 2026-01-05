@@ -524,37 +524,37 @@ def compute_milestones():
     print(f"{CYAN}=== Beyblade Milestones Calculation ==={RESET}")
 
     # Load data files
-    print(f"{YELLOW}→{RESET} Loading data files...")
+    print(f"{YELLOW}{RESET} Loading data files...")
     matches = load_csv_to_dict(MATCHES_FILE)
     rounds = load_csv_to_dict(ROUNDS_FILE)
     elo_history = load_csv_to_dict(ELO_HISTORY_FILE)
     elo_timeseries = load_csv_to_dict(ELO_TIMESERIES_FILE)
 
-    print(f"{YELLOW}→{RESET} Calculating Match & Win Records...")
+    print(f"{YELLOW}{RESET} Calculating Match & Win Records...")
     streaks = calculate_streaks(matches)
     total_wins = calculate_total_wins(matches)
     win_rates = calculate_win_rates(matches)
 
-    print(f"{YELLOW}→{RESET} Calculating Finish Statistics...")
+    print(f"{YELLOW}{RESET} Calculating Finish Statistics...")
     finish_stats = calculate_finish_stats(rounds)
 
-    print(f"{YELLOW}→{RESET} Calculating ELO Extremes...")
+    print(f"{YELLOW}{RESET} Calculating ELO Extremes...")
     elo_extremes = calculate_elo_extremes(elo_history)
 
-    print(f"{YELLOW}→{RESET} Calculating Upset Statistics...")
+    print(f"{YELLOW}{RESET} Calculating Upset Statistics...")
     upset_stats = calculate_upset_stats(elo_history)
 
-    print(f"{YELLOW}→{RESET} Calculating Giant Killer Stats...")
+    print(f"{YELLOW}{RESET} Calculating Giant Killer Stats...")
     giant_killer_top5 = calculate_giant_killer_from_top_ranks(elo_history, elo_timeseries, top_n=5)
     giant_killer_top10 = calculate_giant_killer_from_top_ranks(elo_history, elo_timeseries, top_n=10)
 
-    print(f"{YELLOW}→{RESET} Calculating Top Rank Time...")
+    print(f"{YELLOW}{RESET} Calculating Top Rank Time...")
     top_rank_time = calculate_top_rank_time(elo_timeseries)
 
-    print(f"{YELLOW}→{RESET} Calculating Longevity Statistics...")
+    print(f"{YELLOW}{RESET} Calculating Longevity Statistics...")
     longevity = calculate_longevity_stats(matches)
 
-    print(f"{YELLOW}→{RESET} Calculating Stability...")
+    print(f"{YELLOW}{RESET} Calculating Stability...")
     stability = calculate_stability(elo_history)
 
     # Compile all milestones
@@ -637,12 +637,12 @@ def compute_milestones():
     }
 
     # Save to JSON
-    print(f"{YELLOW}→{RESET} Writing milestones to {MILESTONES_FILE}...")
+    print(f"{YELLOW}{RESET} Writing milestones to {MILESTONES_FILE}...")
     with open(MILESTONES_FILE, 'w', encoding='utf-8') as f:
         json.dump(milestones, f, indent=2, ensure_ascii=False)
 
-    print(f"{GREEN}✓{RESET} Milestones calculation complete!")
-    print(f"{GREEN}✓{RESET} Output: {MILESTONES_FILE}")
+    print(f"{GREEN}{RESET} Milestones calculation complete!")
+    print(f"{GREEN}{RESET} Output: {MILESTONES_FILE}")
 
 
 if __name__ == '__main__':
