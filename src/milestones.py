@@ -151,7 +151,7 @@ def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
     - burst_finishes: {bey: count}
     - pocket_finishes: {bey: count}
     - extreme_finishes: {bey: count}
-    - finish_diversity: {bey: set of finish types achieved}
+    - finish_diversity: {bey: evenness_score} where 100 is perfect distribution
     """
     finish_counts = {
         'spin': defaultdict(int),
@@ -159,7 +159,9 @@ def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
         'pocket': defaultdict(int),
         'extreme': defaultdict(int)
     }
-    finish_types_achieved = defaultdict(set)
+    
+    # Track all finish types per Bey
+    bey_finish_counts = defaultdict(lambda: {'spin': 0, 'burst': 0, 'pocket': 0, 'extreme': 0})
 
     for round_data in rounds:
         winner = round_data['winner']
@@ -167,14 +169,38 @@ def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
 
         if finish_type in finish_counts:
             finish_counts[finish_type][winner] += 1
-            finish_types_achieved[winner].add(finish_type)
+            bey_finish_counts[winner][finish_type] += 1
+    
+    # Calculate finish diversity score (evenness of distribution)
+    # Perfect distribution = 25% each = score of 100
+    # Use coefficient of variation inverted and scaled to 0-100
+    finish_diversity_scores = {}
+    for bey, counts in bey_finish_counts.items():
+        total_wins = sum(counts.values())
+        if total_wins == 0:
+            continue
+            
+        # Calculate percentages for each finish type
+        percentages = [counts[ft] / total_wins * 100 for ft in ['spin', 'burst', 'pocket', 'extreme']]
+        
+        # Calculate deviation from perfect distribution (25% each)
+        # Sum of squared differences from 25%
+        deviations = sum((pct - 25) ** 2 for pct in percentages)
+        
+        # Max deviation would be 100% in one category: (100-25)^2 + 3*(0-25)^2 = 5625 + 1875 = 7500
+        # Perfect distribution: 0 deviation
+        # Score: 100 - (deviation / max_deviation * 100)
+        max_deviation = 7500
+        evenness_score = 100 - (deviations / max_deviation * 100)
+        
+        finish_diversity_scores[bey] = round(evenness_score, 1)
 
     return {
         'spin_finishes': dict(finish_counts['spin']),
         'burst_finishes': dict(finish_counts['burst']),
         'pocket_finishes': dict(finish_counts['pocket']),
         'extreme_finishes': dict(finish_counts['extreme']),
-        'finish_diversity': {bey: len(types) for bey, types in finish_types_achieved.items()}
+        'finish_diversity': finish_diversity_scores
     }
 
 

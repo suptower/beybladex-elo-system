@@ -148,8 +148,8 @@ async function loadMilestones() {
                 {
                     title: 'Highest Finish Diversity',
                     items: data.finish_specialists.highest_finish_diversity,
-                    formatValue: (item) => `${item.value} different finish types`,
-                    subtitle: 'Beys that have achieved all finish types'
+                    formatValue: (item) => `${item.value}% distribution score`,
+                    subtitle: 'Most evenly distributed finish types (25% each is perfect)'
                 }
             ]
         );
