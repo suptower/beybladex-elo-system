@@ -3,6 +3,8 @@ import csv
 import statistics
 from collections import defaultdict
 import os
+import pandas as pd
+
 os.system("")
 
 # Farben
@@ -369,7 +371,6 @@ print(f"{CYAN} Merging credibility scores into {LEADERBOARD_FILE}...{RESET}")
 
 try:
     # Read regular leaderboard
-    import pandas as pd
     leaderboard_df = pd.read_csv(LEADERBOARD_FILE)
     
     # Create credibility lookup from advanced_data
