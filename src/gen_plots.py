@@ -124,10 +124,25 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
 
     for bey, group in df_ts.groupby("Bey"):
         plt.figure(figsize=(6, 4))
-        plt.plot(group["MatchIndex"], group["ELO"], marker="o", linewidth=1.8)
+        plt.plot(group["MatchIndex"], group["ELO"], marker="o", linewidth=1.8, label="ELO History")
 
-        # Highlight max and min ELO values
+        # Calculate and plot median and average
         if len(group) > 0:
+            avg_elo = group["ELO"].mean()
+            median_elo = group["ELO"].median()
+
+            ax = plt.gca()
+            xlim = ax.get_xlim()
+
+            # Plot average line (dashed)
+            plt.axhline(avg_elo, color='blue', linestyle='--', linewidth=1.5,
+                        alpha=0.7, label=f'Average: {int(avg_elo)}', zorder=4)
+
+            # Plot median line (dotted)
+            plt.axhline(median_elo, color='purple', linestyle=':', linewidth=1.5,
+                        alpha=0.7, label=f'Median: {int(median_elo)}', zorder=4)
+
+            # Highlight max and min ELO values
             max_idx = group["ELO"].idxmax()
             min_idx = group["ELO"].idxmin()
             max_elo = group.loc[max_idx, "ELO"]
@@ -148,14 +163,12 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
                             label=f'Low: {int(min_elo)}')
 
                 # Draw subtle horizontal lines to y-axis
-                ax = plt.gca()
-                xlim = ax.get_xlim()
                 plt.hlines(max_elo, xlim[0], max_match, colors='green',
                            linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
                 plt.hlines(min_elo, xlim[0], min_match, colors='red',
                            linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
 
-                plt.legend(loc='best', fontsize=9)
+            plt.legend(loc='best', fontsize=8)
 
         plt.xticks(ticks=range(group["MatchIndex"].min(), group["MatchIndex"].max() + 1))
         plt.title(f"ELO-Verlauf: {bey}")
@@ -232,10 +245,25 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
 
         height = max_rank * 0.15
         plt.figure(figsize=(6, height))
-        plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2)
+        plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2, label="Position History")
 
-        # Highlight best and worst positions
+        # Calculate and plot median and average positions
         if len(group) > 0:
+            avg_pos = group["Position"].mean()
+            median_pos = group["Position"].median()
+
+            ax = plt.gca()
+            xlim = ax.get_xlim()
+
+            # Plot average line (dashed)
+            plt.axhline(avg_pos, color='blue', linestyle='--', linewidth=1.5,
+                        alpha=0.7, label=f'Average: #{int(avg_pos)}', zorder=4)
+
+            # Plot median line (dotted)
+            plt.axhline(median_pos, color='purple', linestyle=':', linewidth=1.5,
+                        alpha=0.7, label=f'Median: #{int(median_pos)}', zorder=4)
+
+            # Highlight best and worst positions
             # Best position = minimum rank number (e.g., 1 is better than 10)
             best_idx = group["Position"].idxmin()
             # Worst position = maximum rank number (e.g., 30 is worse than 10)
@@ -258,14 +286,12 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
                             label=f'Worst: #{int(worst_pos)}')
 
                 # Draw subtle horizontal lines to y-axis
-                ax = plt.gca()
-                xlim = ax.get_xlim()
                 plt.hlines(best_pos, xlim[0], best_plotx, colors='green',
                            linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
                 plt.hlines(worst_pos, xlim[0], worst_plotx, colors='red',
                            linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
 
-                plt.legend(loc='best', fontsize=9)
+            plt.legend(loc='best', fontsize=8)
 
         plt.gca().invert_yaxis()  # Higher positions (1st) should be at the top
         plt.xticks(ticks=group["MatchIndex"].unique())
