@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchup Matrix - suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <style>
+        .matchup-matrix-container {
+            margin: 20px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .matrix-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--card-bg, #f8f9fa);
+            border-radius: 8px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-color, #333);
+        }
+        
+        .control-group select,
+        .control-group input[type="number"] {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color, #ddd);
+            background: var(--input-bg, white);
+            color: var(--text-color, #333);
+        }
+        
+        .matrix-table {
+            border-collapse: collapse;
+            min-width: 100%;
+            font-size: 0.85rem;
+        }
+        
+        .matrix-table th,
+        .matrix-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color, #ddd);
+            position: relative;
+        }
+        
+        .matrix-table th {
+            background: var(--header-bg, #f0f0f0);
+            font-weight: 600;
+            position: sticky;
+            z-index: 10;
+        }
+        
+        .matrix-table th.row-header {
+            left: 0;
+            background: var(--header-bg, #f0f0f0);
+            text-align: left;
+            white-space: nowrap;
+        }
+        
+        .matrix-table th.col-header {
+            top: 0;
+            min-width: 80px;
+            max-width: 120px;
+            word-wrap: break-word;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            height: 150px;
+        }
+        
+        .matrix-cell {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 80px;
+            height: 60px;
+        }
+        
+        .matrix-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 5;
+        }
+        
+        .matrix-cell.no-data {
+            background: var(--bg-no-data, #e9ecef);
+            color: var(--text-muted, #999);
+        }
+        
+        .matrix-cell.self-matchup {
+            background: var(--bg-self, #ccc);
+            color: var(--text-muted, #999);
+        }
+        
+        .cell-winrate {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .cell-matches {
+            font-size: 0.75rem;
+            color: var(--text-secondary, #666);
+        }
+        
+        /* Winrate color scale */
+        .wr-0-20 { background-color: #dc2626; color: white; }
+        .wr-20-40 { background-color: #f97316; color: white; }
+        .wr-40-60 { background-color: #fbbf24; color: black; }
+        .wr-60-80 { background-color: #84cc16; color: black; }
+        .wr-80-100 { background-color: #22c55e; color: white; }
+        
+        .matrix-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--card-bg, #f8f9fa);
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color, #ddd);
+        }
+        
+        .legend-label {
+            font-size: 0.9rem;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 250px;
+            display: none;
+        }
+        
+        .tooltip.show {
+            display: block;
+        }
+        
+        .tooltip-row {
+            margin: 4px 0;
+        }
+        
+        .hard-counters-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: var(--card-bg, #f8f9fa);
+            border-radius: 8px;
+        }
+        
+        .hard-counters-section h3 {
+            margin-top: 0;
+        }
+        
+        .counter-list {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+        
+        .counter-item {
+            padding: 12px;
+            background: var(--input-bg, white);
+            border-radius: 6px;
+            border: 1px solid var(--border-color, #ddd);
+        }
+        
+        .counter-matchup {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .counter-stats {
+            font-size: 0.85rem;
+            color: var(--text-secondary, #666);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary, #666);
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Matchup Matrix</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="milestones.html"><span class="nav-item-icon">🏅</span>Milestones</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🎪</span>Tournaments</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                    <a href="matchup-matrix.html"><span class="nav-item-icon">🎯</span>Matchup Matrix</a>
+                    <a href="recommended-matches.html"><span class="nav-item-icon">💡</span>Recommended Matches</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h2>🎯 Matchup Matrix</h2>
+    <p class="page-description">
+        Comprehensive Bey-vs-Bey matchup analysis showing win rates, match counts, and average point differentials. 
+        Identify hard counters and understand matchup dynamics at a glance.
+    </p>
+
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+        <p>Loading matchup data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="error" style="display: none;">
+        <p>Error loading matchup data. Please try again later.</p>
+    </div>
+
+    <!-- Content -->
+    <div id="content" style="display: none;">
+        
+        <!-- Hard Counters Section -->
+        <div class="hard-counters-section">
+            <h3>🔥 Hard Counters (70%+ Winrate, 5+ Matches)</h3>
+            <div id="hardCountersList" class="counter-list">
+                <p class="loading">No hard counters identified with current criteria.</p>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="matrix-legend">
+            <h4 style="width: 100%; margin: 0 0 10px 0;">Winrate Color Scale</h4>
+            <div class="legend-item">
+                <div class="legend-color wr-0-20"></div>
+                <span class="legend-label">0-20%: Very Unfavorable</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color wr-20-40"></div>
+                <span class="legend-label">20-40%: Unfavorable</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color wr-40-60"></div>
+                <span class="legend-label">40-60%: Even</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color wr-60-80"></div>
+                <span class="legend-label">60-80%: Favorable</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color wr-80-100"></div>
+                <span class="legend-label">80-100%: Very Favorable</span>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="matrix-controls">
+            <div class="control-group">
+                <label for="minMatches">Minimum Matches</label>
+                <input type="number" id="minMatches" min="0" max="20" value="0" step="1">
+            </div>
+            <div class="control-group">
+                <label for="filterTier">Filter by Tier</label>
+                <select id="filterTier">
+                    <option value="all">All Tiers</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="filterArchetype">Filter by Archetype</label>
+                <select id="filterArchetype">
+                    <option value="all">All Archetypes</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="sortBy">Sort By</label>
+                <select id="sortBy">
+                    <option value="name">Name (A-Z)</option>
+                    <option value="elo">ELO (High-Low)</option>
+                    <option value="matches">Most Matches</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Matrix Container -->
+        <div class="matchup-matrix-container">
+            <table id="matrixTable" class="matrix-table">
+                <thead id="matrixHeader"></thead>
+                <tbody id="matrixBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2025 suptower - Beyblade X ELO System</p>
+    <script defer src="version-display.js"></script>
+</footer>
+
+<script src="matchup-matrix.js"></script>
+
+</body>
+</html>
