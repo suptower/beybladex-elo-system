@@ -50,6 +50,8 @@ CONFIG = {
     "high_volatility_percentile": 0.75,  # Top 25% volatility is "high"
     "meta_balance_usage_threshold": 2.0,  # Usage ratio for meta balance
     "upset_elo_difference_min": 50,  # Minimum ELO gap for upset potential
+    "max_existing_matches_threshold": 3,  # Skip matchups played this many times
+    "division_by_zero_epsilon": 0.1,  # Small value to prevent division by zero
 }
 
 
@@ -136,26 +138,31 @@ def load_matchup_history():
 def identify_low_data_beys(beys):
     """
     Identify Beys with significantly fewer matches than average.
-    
+
     Args:
         beys: Dict of bey stats
-        
+
     Returns:
         list: Bey names that need more matches
     """
     if not beys:
         return []
-    
+
     match_counts = [stats['matches'] for stats in beys.values()]
-    threshold = statistics.quantiles(match_counts, n=100)[
-        int(CONFIG['low_data_threshold_percentile'] * 100) - 1
-    ]
-    
+    # Use quantiles to find threshold, with bounds checking
+    percentile = CONFIG['low_data_threshold_percentile']
+    if percentile >= 1.0:
+        percentile = 0.99  # Cap at 99th percentile to avoid index errors
+
+    quantiles = statistics.quantiles(match_counts, n=100)
+    threshold_index = max(0, min(len(quantiles) - 1, int(percentile * 100) - 1))
+    threshold = quantiles[threshold_index]
+
     low_data = [
         name for name, stats in beys.items()
         if stats['matches'] < threshold and stats['matches'] >= CONFIG['min_matches_for_analysis']
     ]
-    
+
     return low_data
 
 
@@ -184,35 +191,40 @@ def identify_similar_elo_clusters(beys):
 def identify_high_uncertainty_beys(beys, advanced_stats):
     """
     Identify Beys with high ELO volatility.
-    
+
     Args:
         beys: Dict of bey stats
         advanced_stats: Dict of advanced stats including volatility
-        
+
     Returns:
         list: Bey names with high uncertainty
     """
     if not advanced_stats:
         return []
-    
+
     # Get volatility values for Beys in our dataset
     volatilities = []
     for name in beys:
         if name in advanced_stats:
             volatilities.append(advanced_stats[name]['volatility'])
-    
+
     if not volatilities:
         return []
-    
-    threshold = statistics.quantiles(volatilities, n=100)[
-        int(CONFIG['high_volatility_percentile'] * 100) - 1
-    ]
-    
+
+    # Use quantiles to find threshold, with bounds checking
+    percentile = CONFIG['high_volatility_percentile']
+    if percentile >= 1.0:
+        percentile = 0.99  # Cap at 99th percentile to avoid index errors
+
+    quantiles = statistics.quantiles(volatilities, n=100)
+    threshold_index = max(0, min(len(quantiles) - 1, int(percentile * 100) - 1))
+    threshold = quantiles[threshold_index]
+
     high_uncertainty = [
         name for name in beys
         if name in advanced_stats and advanced_stats[name]['volatility'] >= threshold
     ]
-    
+
     return high_uncertainty
 
 
@@ -272,7 +284,7 @@ def generate_low_data_recommendations(low_data_beys, beys, matchups):
                 existing_matches = matchups.get(pair, 0)
                 
                 # Skip if already played multiple times
-                if existing_matches >= 3:
+                if existing_matches >= CONFIG['max_existing_matches_threshold']:
                     continue
                 
                 elo_diff = abs(opp_stats['elo'] - target_elo)
@@ -454,7 +466,7 @@ def generate_meta_balance_recommendations(beys, matchups):
 
             info_value = (
                 60 + (usage_ratios[over_bey] * 5) +
-                (10 / (usage_ratios[under_bey] + 0.1))
+                (10 / (usage_ratios[under_bey] + CONFIG['division_by_zero_epsilon']))
             )
 
             explanation = (

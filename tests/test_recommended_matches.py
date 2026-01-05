@@ -35,6 +35,8 @@ class TestConfiguration:
             "high_volatility_percentile",
             "meta_balance_usage_threshold",
             "upset_elo_difference_min",
+            "max_existing_matches_threshold",
+            "division_by_zero_epsilon",
         }
         assert required == set(CONFIG.keys())
 
@@ -50,6 +52,8 @@ class TestConfiguration:
         assert CONFIG["min_matches_for_analysis"] >= 0
         assert CONFIG["meta_balance_usage_threshold"] > 0
         assert CONFIG["upset_elo_difference_min"] > 0
+        assert CONFIG["max_existing_matches_threshold"] > 0
+        assert CONFIG["division_by_zero_epsilon"] > 0
 
 
 class TestLowDataIdentification:
