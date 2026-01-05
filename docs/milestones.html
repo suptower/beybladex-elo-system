@@ -397,6 +397,8 @@ document.addEventListener('DOMContentLoaded', loadMilestones);
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
 }
 
 .milestone-card:hover {
@@ -407,10 +409,13 @@ document.addEventListener('DOMContentLoaded', loadMilestones);
 /* Category Header - Above entries */
 .milestone-category-header {
     padding: 1rem 1.25rem 0.75rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    width: 100%;
 }
 
 .milestone-category-title {
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 700;
     margin: 0 0 0.25rem 0;
     color: var(--text-primary);
@@ -426,6 +431,8 @@ document.addEventListener('DOMContentLoaded', loadMilestones);
 /* Entries Table */
 .milestone-entries-table {
     padding: 0;
+    width: 100%;
+    flex: 1;
 }
 
 /* Entry Styling */
