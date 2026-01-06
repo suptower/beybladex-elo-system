@@ -21,6 +21,7 @@ Pipeline Stages:
    - Milestones (milestones.py)
    - Recommended Matches (recommended_matches.py)
    - Matchup Matrix (matchup_matrix.py)
+   - Archetype Analytics (archetype_analytics.py)
 
 3. Visualization (runs by default, use --skip-plots to skip)
    - Plot Generation (gen_plots.py)
@@ -63,6 +64,7 @@ SCRIPT_COMBO_EXPLORER = "./src/combo_explorer.py"
 SCRIPT_MILESTONES = "./src/milestones.py"
 SCRIPT_RECOMMENDED_MATCHES = "./src/recommended_matches.py"
 SCRIPT_MATCHUP_MATRIX = "./src/matchup_matrix.py"
+SCRIPT_ARCHETYPE_ANALYTICS = "./src/archetype_analytics.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
@@ -352,6 +354,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Matchup Matrix", success, duration))
+
+    # Archetype Analytics (depends on rpg_stats, advanced_leaderboard, matches, elo_history)
+    success, duration = run_script(
+        SCRIPT_ARCHETYPE_ANALYTICS,
+        "Archetype Analytics",
+        verbose=verbose
+    )
+    results.append(("Archetype Analytics", success, duration))
 
     return results
 
