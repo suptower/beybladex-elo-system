@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changelog - Beyblade X ELO System</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="changelog.js"></script>
+    <script defer src="hamburger.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Changelog</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="milestones.html"><span class="nav-item-icon">🏅</span>Milestones</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🎪</span>Tournaments</a>
+                    <a href="changelog.html"><span class="nav-item-icon">📝</span>Changelog</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                    <a href="matchup-matrix.html"><span class="nav-item-icon">🎲</span>Matchup Matrix</a>
+                    <a href="archetype-dashboard.html"><span class="nav-item-icon">🎭</span>Archetype Dashboard</a>
+                    <a href="recommended-matches.html"><span class="nav-item-icon">🎯</span>Recommended Matches</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <div class="page-header">
+        <h2>📝 Changelog</h2>
+        <p class="page-description">Track all updates, features, and improvements to the Beyblade X ELO System</p>
+    </div>
+
+    <div class="changelog-controls">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search commits by message or author...">
+        </div>
+
+        <div class="filter-group">
+            <label for="categoryFilter">Category:</label>
+            <select id="categoryFilter">
+                <option value="all">All Categories</option>
+                <option value="Feature">✨ Feature</option>
+                <option value="Fix">🐛 Fix</option>
+                <option value="Balance">⚖️ Balance</option>
+                <option value="UI">🎨 UI</option>
+                <option value="Documentation">📝 Documentation</option>
+                <option value="Performance">⚡ Performance</option>
+                <option value="Refactor">♻️ Refactor</option>
+                <option value="Data">📊 Data</option>
+                <option value="Test">✅ Test</option>
+                <option value="Build">🔧 Build</option>
+                <option value="CI">🤖 CI</option>
+                <option value="Other">📦 Other</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="changelog-stats" id="changelogStats">
+        <div class="stat-card">
+            <div class="stat-value" id="totalCommits">-</div>
+            <div class="stat-label">Total Commits</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="lastUpdated">-</div>
+            <div class="stat-label">Last Updated</div>
+        </div>
+    </div>
+
+    <div id="changelogContainer" class="changelog-container">
+        <div class="loading-placeholder">
+            <p>Loading changelog...</p>
+        </div>
+    </div>
+
+    <div id="noResultsMessage" class="no-results" style="display: none;">
+        <p>No commits found matching your filters.</p>
+    </div>
+</main>
+
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-description {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+    }
+
+    .changelog-controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .search-container {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .search-container input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        color: var(--text);
+        font-size: 1rem;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-group label {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .filter-group select {
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        color: var(--text);
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .changelog-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--card);
+        padding: 1.5rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .changelog-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .commit-entry {
+        background: var(--card);
+        padding: 1.5rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border-left: 4px solid var(--accent);
+        transition: var(--transition);
+    }
+
+    .commit-entry:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .commit-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .commit-message {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text);
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .commit-category {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: var(--accent);
+        color: white;
+    }
+
+    .commit-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .commit-date {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .commit-author {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .commit-hash {
+        font-family: 'Courier New', monospace;
+        background: var(--bg);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .commit-link {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+    .commit-link:hover {
+        text-decoration: underline;
+    }
+
+    .loading-placeholder {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+        background: var(--card);
+        border-radius: var(--radius);
+    }
+
+    /* Category color variations */
+    .commit-entry[data-category="Feature"] {
+        border-left-color: #10b981;
+    }
+
+    .commit-entry[data-category="Fix"] {
+        border-left-color: #ef4444;
+    }
+
+    .commit-entry[data-category="Balance"] {
+        border-left-color: #f59e0b;
+    }
+
+    .commit-entry[data-category="UI"] {
+        border-left-color: #8b5cf6;
+    }
+
+    .commit-entry[data-category="Documentation"] {
+        border-left-color: #3b82f6;
+    }
+
+    .commit-entry[data-category="Performance"] {
+        border-left-color: #06b6d4;
+    }
+
+    .commit-entry[data-category="Data"] {
+        border-left-color: #ec4899;
+    }
+
+    @media (max-width: 768px) {
+        .changelog-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-container {
+            width: 100%;
+        }
+
+        .filter-group {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-group select {
+            width: 100%;
+        }
+
+        .commit-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .commit-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    }
+</style>
+
+</body>
+</html>
