@@ -170,8 +170,6 @@ async function loadBeybladeData() {
         state.beyblades = [];
     }
 }
-    }
-}
 
 // Load historical match data
 async function loadMatchHistory() {
@@ -658,6 +656,13 @@ function resetRound() {
     saveToStorage();
     renderMatches();
     updateStatusBar();
+    
+    // Recalculate live leaderboard after reset
+    if (state.liveMode) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
+    
     showToast('Round reset', 'warning');
 }
 
@@ -669,10 +674,14 @@ function clearAll() {
     state.matches = [];
     state.participants = [];
     
+    // Also reset live tournament state
+    initializeLiveElos();
+    
     saveToStorage();
     renderMatches();
     renderSelectedParticipants();
     updateStatusBar();
+    updateLiveLeaderboard();
     showToast('All data cleared', 'warning');
 }
 
@@ -923,8 +932,15 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
         `;
     }
     
-    const eloA = beyAData.elo || DEFAULT_ELO;
-    const eloB = beyBData.elo || DEFAULT_ELO;
+    // Use live ELOs if available and live mode is enabled, otherwise use static data
+    let eloA, eloB;
+    if (state.liveMode && state.liveElos[match.beyA] && state.liveElos[match.beyB]) {
+        eloA = state.liveElos[match.beyA];
+        eloB = state.liveElos[match.beyB];
+    } else {
+        eloA = beyAData.elo || DEFAULT_ELO;
+        eloB = beyBData.elo || DEFAULT_ELO;
+    }
     const eloDiff = eloA - eloB;
     
     // Calculate win probabilities
