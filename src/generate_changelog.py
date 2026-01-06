@@ -25,6 +25,9 @@ import re
 from datetime import datetime, timezone
 import argparse
 
+# Default repository URL for fallback
+DEFAULT_REPO_URL = "https://github.com/suptower/beybladex-elo-system"
+
 
 def categorize_commit(message):
     """
@@ -79,14 +82,19 @@ def get_commit_history(limit=50):
             - category: Commit category
             - github_url: URL to commit on GitHub
     """
+    # Validate limit parameter
+    if not isinstance(limit, int) or limit <= 0:
+        raise ValueError("Limit must be a positive integer")
+
     try:
-        # Get commit history with custom format
+        # Get commit history with custom format using %x00 as delimiter
         # Format: hash|full_hash|date|author|message
+        # Using null byte separator to avoid issues with | in commit messages
         output = subprocess.check_output(
             [
                 "git", "log",
                 f"-{limit}",
-                "--pretty=format:%h|%H|%aI|%an|%s",
+                "--pretty=format:%h%x00%H%x00%aI%x00%an%x00%s",
             ],
             text=True,
             timeout=30
@@ -97,7 +105,7 @@ def get_commit_history(limit=50):
             if not line:
                 continue
 
-            parts = line.split('|', 4)
+            parts = line.split('\x00')
             if len(parts) != 5:
                 continue
 
@@ -123,7 +131,7 @@ def get_commit_history(limit=50):
 
                 github_url = f"{repo_url}/commit/{full_hash}"
             except Exception:
-                github_url = f"https://github.com/suptower/beybladex-elo-system/commit/{full_hash}"
+                github_url = f"{DEFAULT_REPO_URL}/commit/{full_hash}"
 
             commits.append({
                 'hash': short_hash,
@@ -171,7 +179,7 @@ def write_changelog_json(commits, output_path):
         cat = commit['category']
         categories[cat] = categories.get(cat, 0) + 1
 
-    print(f"  Categories:")
+    print("  Categories:")
     for cat, count in sorted(categories.items(), key=lambda x: x[1], reverse=True):
         print(f"    - {cat}: {count}")
 

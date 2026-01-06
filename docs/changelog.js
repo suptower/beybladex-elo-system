@@ -8,7 +8,7 @@ let filteredCommits = [];
 
 // Category emoji mapping
 const categoryEmojis = {
-    'Feature': '🎨',
+    'Feature': '✨',
     'Fix': '🐛',
     'Balance': '⚖️',
     'UI': '🎨',
