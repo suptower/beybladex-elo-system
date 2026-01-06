@@ -627,6 +627,12 @@ function addMatch() {
     saveToStorage();
     renderMatches();
     updateStatusBar();
+    
+    // Save current positions so new match deltas are calculated from this point
+    if (state.liveMode && state.liveLeaderboard.length > 0) {
+        state.previousPositions = getPositionMap(state.liveLeaderboard);
+        saveToStorage();
+    }
 }
 
 function deleteMatch(index) {
@@ -642,7 +648,7 @@ function deleteMatch(index) {
     // Recalculate live ELOs after match deletion
     if (state.liveMode) {
         recalculateAllLiveElos();
-        updateLiveLeaderboard();
+        updateLiveLeaderboard(true); // Save positions after match deletion
     }
 }
 
@@ -2058,8 +2064,9 @@ function recalculateAllLiveElos() {
 
 /**
  * Update the live leaderboard display
+ * @param {boolean} savePositions - Whether to save current positions for future delta calculation
  */
-function updateLiveLeaderboard() {
+function updateLiveLeaderboard(savePositions = false) {
     if (!state.liveMode) {
         document.getElementById('liveLeaderboardPanel')?.classList.add('collapsed');
         return;
@@ -2076,8 +2083,11 @@ function updateLiveLeaderboard() {
         oldPositions
     );
     
-    // NOW update previous positions for next time (after we've used them)
-    state.previousPositions = getPositionMap(state.liveLeaderboard);
+    // Only update previous positions when explicitly requested
+    // This prevents position deltas from being reset during incremental round additions
+    if (savePositions) {
+        state.previousPositions = getPositionMap(state.liveLeaderboard);
+    }
     
     // Render the leaderboard
     renderLiveLeaderboard();
