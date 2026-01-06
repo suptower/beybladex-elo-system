@@ -18,19 +18,38 @@ beybladex-elo-system/
 ├── src/                    # Core Python modules
 │   ├── beyblade_elo.py         # Elo calculation logic
 │   ├── advanced_stats.py       # Power index and advanced metrics
-│   ├── simulation.py           # Tournament simulation
-│   ├── matchup_predictor.py    # Match prediction tools
+│   ├── rpg_stats.py            # RPG-style stats and archetypes
+│   ├── archetype_analytics.py  # Archetype effectiveness analysis
+│   ├── parts_stats.py          # Individual part statistics
+│   ├── upset_analysis.py       # Upset detection and analysis
 │   ├── meta_balance.py         # Meta analysis tools
 │   ├── synergy_heatmaps.py     # Part synergy analysis
-│   ├── upset_analysis.py       # Upset detection and analysis
+│   ├── matchup_matrix.py       # Matchup matrix generation
+│   ├── matchup_predictor.py    # Match prediction tools
+│   ├── counter_checker.py      # Counter matchup analysis
+│   ├── combo_explorer.py       # Combination explorer data
+│   ├── milestones.py           # Statistical records and achievements
+│   ├── recommended_matches.py  # Match recommendation engine
+│   ├── simulation.py           # Tournament simulation
+│   ├── elo_simulator.py        # Elo simulation tools
 │   ├── gen_plots.py            # Plot generation orchestrator
+│   ├── plot_positions.py       # Position plot generation
+│   ├── plot_styles.py          # Plot styling utilities
+│   ├── generate_version.py     # Git-based version generation
 │   ├── sheets_upload.py        # Google Sheets integration
 │   ├── export_leaderboard_pdf.py # PDF export
+│   ├── filter_csv.py           # CSV filtering utility
+│   ├── merge_rounds.py         # Round data merging
+│   ├── offset_matchid.py       # Match ID offset utility
+│   ├── simulation_cl_format.py # Simulation CLI formatting
 │   └── visualization/          # Visualization modules
 │       ├── elo_density_map.py
 │       ├── meta_landscape.py
 │       ├── tier_flow.py
-│       └── heatmaps.py
+│       ├── heatmaps.py
+│       ├── advanced_visualizations.py
+│       ├── combined_elo_trends_top5.py
+│       └── interactive_elo_trends.py
 ├── docs/                       # GitHub Pages frontend
 │   ├── index.html              # Main page
 │   ├── styles.css              # Stylesheet
@@ -52,7 +71,6 @@ beybladex-elo-system/
 ├── .github/workflows/          # CI/CD workflows
 ├── update.py                   # Main update pipeline
 ├── requirements.txt            # Python dependencies
-├── roadmap.md                  # Project roadmap
 └── README.md                   # This file
 ```
 
@@ -75,16 +93,20 @@ python update.py
 This will:
 1. Generate version information from Git (commit count + hash)
 2. Calculate ELO ratings and advanced statistics
-3. Generate analysis modules (RPG stats, upsets, meta balance, etc.)
+3. Generate analysis modules (RPG stats, archetypes, upsets, meta balance, synergy, counters, combo explorer, milestones, recommended matches, matchup matrix)
 4. Create visualizations and plots
 
 ### Command Line Options
 
 ```bash
-python update.py                    # Run full pipeline (Elo, stats, plots)
-python update.py --skip-diagrams    # Skip plot generation
-python update.py --pdf              # Generate PDF leaderboard
-python update.py --upload           # Upload to Google Sheets
+python update.py                    # Run full pipeline (stats + analysis + plots)
+python update.py --skip-plots       # Skip plot generation (faster updates)
+python update.py --stats-only       # Only run core statistics (ELO + Advanced Stats)
+python update.py --plots-only       # Only generate visualizations
+python update.py --pdf              # Include PDF leaderboard generation
+python update.py --upload           # Include Google Sheets upload
+python update.py --verbose          # Show detailed output from each script
+python update.py --all              # Explicitly run complete pipeline (same as default)
 ```
 
 ### Simulate Tournaments
@@ -120,14 +142,23 @@ python src/simulation.py -n 16 -f single-elimination --append
 | `advanced_leaderboard.csv` | Extended metrics |
 | `elo_history.csv` | Chronological Elo changes |
 | `elo_timeseries.csv` | Elo over time per Beyblade |
+| `position_timeseries.csv` | Position rankings over time |
 | `bey_counters.csv` | Counter matchup data |
+| `rpg_stats.csv` | RPG-style stats (CSV format) |
 | `rpg_stats.json` | RPG-style stats and archetypes |
+| `archetype_analytics.json` | Archetype effectiveness metrics |
 | `synergy_data.json` | Part synergy heatmap data |
 | `meta_balance.json` | Meta health analysis |
+| `matchup_matrix.json` | Head-to-head matchup matrix |
 | `combo_data.json` | Combination explorer data |
 | `parts_stats.json` | Individual part statistics |
 | `tournaments.json` | Tournament metadata |
 | `milestones.json` | Statistical records and achievements |
+| `recommended_matches.json` | Match recommendations |
+| `upset_analysis.csv` | Upset match analysis |
+| `upset_matches.csv` | Individual upset records |
+| `matches_with_rounds.json` | Matches with round-level data |
+| `beys_data.json` | Beyblade data in JSON format |
 | `leaderboards/` | Per-tournament leaderboard snapshots |
 
 **Note:** All scripts read from and write to `./docs/data/` only. No data is stored in the repository root.
@@ -183,5 +214,8 @@ python -m flake8 .
 
 ## Contributing
 
-See [roadmap.md](roadmap.md) for planned features and improvements.
+Contributions are welcome! Please ensure that:
+- Code follows existing style conventions
+- Tests pass before submitting changes
+- Documentation is updated for new features
 
