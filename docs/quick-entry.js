@@ -113,6 +113,7 @@ let state = {
     beyblades: [],
     matchHistory: [], // Historical match data
     roundsHistory: [], // Historical rounds data
+    recommendedMatches: [], // Recommended match data
     focusedMatchIndex: -1,
     // Live ELO tracking
     liveMode: true,
@@ -129,6 +130,7 @@ let state = {
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
     await loadBeybladeData();
+    await loadRecommendedMatches();
     loadFromStorage();
     initializeLiveElos();
     initializeUI();
@@ -222,6 +224,25 @@ async function loadRoundsHistory() {
     } catch (error) {
         console.error('Error loading rounds history:', error);
         state.roundsHistory = [];
+    }
+}
+
+// Load recommended matches data
+async function loadRecommendedMatches() {
+    try {
+        const response = await fetch('data/recommended_matches.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        // Store both top recommendations and all recommendations
+        state.recommendedMatches = data.top_recommendations || [];
+        
+        console.log(`Loaded ${state.recommendedMatches.length} recommended matches`);
+    } catch (error) {
+        console.error('Error loading recommended matches:', error);
+        state.recommendedMatches = [];
     }
 }
 
@@ -355,6 +376,7 @@ function setupEventListeners() {
     document.getElementById('participantSearch')?.addEventListener('focus', handleParticipantSearch);
     document.getElementById('generatePairingsBtn')?.addEventListener('click', generateSwissPairings);
     document.getElementById('randomPairingsBtn')?.addEventListener('click', generateRandomPairings);
+    document.getElementById('recommendedPairingsBtn')?.addEventListener('click', generateRecommendedPairings);
     
     // Shortcuts legend toggle
     document.getElementById('shortcutsHeader')?.addEventListener('click', toggleShortcutsLegend);
@@ -941,6 +963,21 @@ function getBeyData(beyName) {
 }
 
 /**
+ * Find recommendation info for a matchup
+ * @param {string} beyA - Name of first bey
+ * @param {string} beyB - Name of second bey
+ * @returns {object|null} Recommendation object or null if not found
+ */
+function findRecommendation(beyA, beyB) {
+    if (!beyA || !beyB) return null;
+    
+    return state.recommendedMatches.find(rec => 
+        (rec.bey_a === beyA && rec.bey_b === beyB) ||
+        (rec.bey_a === beyB && rec.bey_b === beyA)
+    ) || null;
+}
+
+/**
  * Render pre-match analysis panel for a match
  * @param {number} matchIndex - Index of the match
  * @param {string} idPrefix - ID prefix for the panel (default: 'analysisPanel')
@@ -974,6 +1011,9 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
             </div>
         `;
     }
+    
+    // Check if this match is a recommended match
+    const recommendationInfo = match.recommendation || findRecommendation(match.beyA, match.beyB);
     
     // Use live ELOs if available and live mode is enabled, otherwise use static data
     let eloA, eloB, livePositionA, livePositionB, offlinePositionA, offlinePositionB;
@@ -1088,6 +1128,50 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
         `;
     }
     
+    // Build recommendation display if this match is recommended
+    let recommendationDisplay = '';
+    if (recommendationInfo) {
+        const categoryIcons = {
+            'meta_balance': '⚖️',
+            'high_uncertainty': '🎲',
+            'elo_clarity': '🔍',
+            'low_data_exploration': '📊',
+            'upset_testing': '⚡'
+        };
+        const categoryLabels = {
+            'meta_balance': 'Meta Balance',
+            'high_uncertainty': 'High Uncertainty',
+            'elo_clarity': 'ELO Clarity',
+            'low_data_exploration': 'Low Data Exploration',
+            'upset_testing': 'Upset Testing'
+        };
+        
+        const categoryIcon = categoryIcons[recommendationInfo.category] || '🎯';
+        const categoryLabel = categoryLabels[recommendationInfo.category] || recommendationInfo.category;
+        const infoValue = recommendationInfo.info_value || recommendationInfo.infoValue || 0;
+        
+        recommendationDisplay = `
+            <div class="analysis-section recommendation-info">
+                <div class="recommendation-badge">
+                    ${categoryIcon} <strong>Recommended Match</strong>
+                </div>
+                <div class="recommendation-details">
+                    <div class="recommendation-category">
+                        <span class="recommendation-label">Category:</span>
+                        <span class="recommendation-value">${categoryLabel}</span>
+                    </div>
+                    <div class="recommendation-score">
+                        <span class="recommendation-label">Info Value:</span>
+                        <span class="recommendation-value">${infoValue.toFixed(1)}</span>
+                    </div>
+                </div>
+                <div class="recommendation-explanation">
+                    ${escapeHtml(recommendationInfo.explanation)}
+                </div>
+            </div>
+        `;
+    }
+    
     return `
         <div class="match-analysis-panel collapsed" id="${idPrefix}_${matchIndex}">
             <div class="analysis-toggle" onclick="toggleAnalysisPanel('${idPrefix}_${matchIndex}')">
@@ -1147,6 +1231,8 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
                 ${h2hDisplay}
                 
                 ${finishDisplay}
+                
+                ${recommendationDisplay}
                 
                 <div class="analysis-section elo-changes">
                     <div class="elo-change-label">Expected ELO Changes</div>
@@ -1627,6 +1713,43 @@ function generateRandomPairings() {
     renderMatches();
     updateStatusBar();
     showToast(`Generated ${state.matches.length} random pairings`, 'success');
+}
+
+function generateRecommendedPairings() {
+    if (state.recommendedMatches.length === 0) {
+        showToast('No recommended matches available', 'error');
+        return;
+    }
+    
+    // Get the top N recommended matches that haven't been played yet
+    const count = parseInt(document.getElementById('matchCount')?.value) || 8;
+    const topRecommendations = state.recommendedMatches.slice(0, count);
+    
+    // Create matches from recommendations
+    state.matches = [];
+    topRecommendations.forEach((rec, i) => {
+        state.matches.push({
+            id: generateUniqueId(),
+            matchNumber: i + 1,
+            beyA: rec.bey_a,
+            beyB: rec.bey_b,
+            rounds: [],
+            scoreA: 0,
+            scoreB: 0,
+            winner: null,
+            timestamp: null,
+            recommendation: {
+                category: rec.category,
+                infoValue: rec.info_value,
+                explanation: rec.explanation
+            }
+        });
+    });
+    
+    saveToStorage();
+    renderMatches();
+    updateStatusBar();
+    showToast(`Generated ${state.matches.length} recommended pairings`, 'success');
 }
 
 // ============================================
