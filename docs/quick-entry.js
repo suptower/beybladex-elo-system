@@ -148,6 +148,7 @@ async function loadBeybladeData() {
         state.beyblades = lines.slice(1).map(line => {
             const values = line.split(',');
             return {
+                rank: parseInt(values[0]) || null,
                 name: values[1],
                 elo: parseInt(values[2]) || 1000,
                 matches: parseInt(values[3]) || 0,
