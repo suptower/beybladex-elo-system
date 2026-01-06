@@ -314,7 +314,7 @@ function getPositionMap(leaderboard) {
 // ============================================
 
 // Export functions for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module !== 'undefined' && module.exports !== undefined) {
     // Node.js environment (for testing)
     module.exports = {
         ELO_START,
