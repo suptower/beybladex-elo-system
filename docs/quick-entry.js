@@ -2039,25 +2039,14 @@ function renderLiveLeaderboard() {
     if (leaderboard.length === 0) {
         tbody.innerHTML = `
             <tr class="empty-state">
-                <td colspan="7">No matches entered yet. Start entering matches to see live rankings!</td>
+                <td colspan="7">No beys loaded. Please check if leaderboard.csv is available.</td>
             </tr>
         `;
         return;
     }
     
-    // Show only beys with at least one match
-    const activeLeaderboard = leaderboard.filter(entry => entry.matches > 0);
-    
-    if (activeLeaderboard.length === 0) {
-        tbody.innerHTML = `
-            <tr class="empty-state">
-                <td colspan="7">No matches entered yet. Start entering matches to see live rankings!</td>
-            </tr>
-        `;
-        return;
-    }
-    
-    tbody.innerHTML = activeLeaderboard.map(entry => {
+    // Always show all beys in the leaderboard
+    tbody.innerHTML = leaderboard.map(entry => {
         const baselineElo = state.baselineElos[entry.bey] || ELO_START;
         const eloDelta = entry.elo - baselineElo;
         
