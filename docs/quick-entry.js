@@ -625,7 +625,7 @@ function addMatch() {
     const newIndex = state.matches.length;
     state.matches.push(createEmptyMatch(newIndex));
     
-    // DO NOT update previousPositions here - it should always reference the baseline from CSV
+    // DO NOT update previousPositions here - it should always reference the baseline positions from tournament start
     // Position deltas will show change from tournament start, not from previous match
     
     saveToStorage();
@@ -646,7 +646,7 @@ function deleteMatch(index) {
     // Recalculate live ELOs after match deletion
     if (state.liveMode) {
         recalculateAllLiveElos();
-        updateLiveLeaderboard(); // Don't save positions - always compare to baseline
+        updateLiveLeaderboard(); // Don't update baseline positions - maintain comparison to tournament start
     }
 }
 
