@@ -65,7 +65,12 @@ const STORAGE_KEYS = {
     MATCHES: 'quickEntry_matches',
     TOURNAMENT: 'quickEntry_tournament',
     PARTICIPANTS: 'quickEntry_participants',
-    SETTINGS: 'quickEntry_settings'
+    SETTINGS: 'quickEntry_settings',
+    LIVE_ELOS: 'quickEntry_liveElos',
+    LIVE_STATS: 'quickEntry_liveStats',
+    LIVE_MODE: 'quickEntry_liveMode',
+    BASELINE_ELOS: 'quickEntry_baselineElos',
+    PREVIOUS_POSITIONS: 'quickEntry_previousPositions'
 };
 
 // ============================================
@@ -108,7 +113,15 @@ let state = {
     beyblades: [],
     matchHistory: [], // Historical match data
     roundsHistory: [], // Historical rounds data
-    focusedMatchIndex: -1
+    focusedMatchIndex: -1,
+    // Live ELO tracking
+    liveMode: true,
+    liveElos: {}, // Current ELO ratings during this tournament
+    liveStats: {}, // Current stats (matches, wins, losses, etc.)
+    liveLeaderboard: [], // Sorted leaderboard
+    previousPositions: {}, // For tracking rank changes
+    baselineElos: {}, // Starting ELOs at tournament start
+    liveEloHistory: [] // Track all ELO changes in this session
 };
 
 // ============================================
@@ -117,10 +130,12 @@ let state = {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadBeybladeData();
     loadFromStorage();
+    initializeLiveElos();
     initializeUI();
     setupEventListeners();
     renderMatches();
     updateStatusBar();
+    updateLiveLeaderboard();
 });
 
 // Load beyblade data from CSV
@@ -140,6 +155,11 @@ async function loadBeybladeData() {
             };
         }).sort((a, b) => b.elo - a.elo);
         
+        // Initialize baseline ELOs from loaded data
+        state.beyblades.forEach(bey => {
+            state.baselineElos[bey.name] = bey.elo;
+        });
+        
         // Load match history
         await loadMatchHistory();
         
@@ -148,6 +168,8 @@ async function loadBeybladeData() {
     } catch (error) {
         console.error('Error loading beyblade data:', error);
         state.beyblades = [];
+    }
+}
     }
 }
 
@@ -210,6 +232,11 @@ function loadFromStorage() {
         const matchesData = localStorage.getItem(STORAGE_KEYS.MATCHES);
         const tournamentData = localStorage.getItem(STORAGE_KEYS.TOURNAMENT);
         const participantsData = localStorage.getItem(STORAGE_KEYS.PARTICIPANTS);
+        const liveElosData = localStorage.getItem(STORAGE_KEYS.LIVE_ELOS);
+        const liveStatsData = localStorage.getItem(STORAGE_KEYS.LIVE_STATS);
+        const liveModeData = localStorage.getItem(STORAGE_KEYS.LIVE_MODE);
+        const baselineElosData = localStorage.getItem(STORAGE_KEYS.BASELINE_ELOS);
+        const previousPositionsData = localStorage.getItem(STORAGE_KEYS.PREVIOUS_POSITIONS);
         
         if (matchesData) {
             const parsed = JSON.parse(matchesData);
@@ -236,6 +263,33 @@ function loadFromStorage() {
                 state.participants = parsed.filter(p => typeof p === 'string');
             }
         }
+        if (liveElosData) {
+            const parsed = JSON.parse(liveElosData);
+            if (parsed && typeof parsed === 'object') {
+                state.liveElos = parsed;
+            }
+        }
+        if (liveStatsData) {
+            const parsed = JSON.parse(liveStatsData);
+            if (parsed && typeof parsed === 'object') {
+                state.liveStats = parsed;
+            }
+        }
+        if (liveModeData !== null) {
+            state.liveMode = liveModeData === 'true';
+        }
+        if (baselineElosData) {
+            const parsed = JSON.parse(baselineElosData);
+            if (parsed && typeof parsed === 'object') {
+                state.baselineElos = parsed;
+            }
+        }
+        if (previousPositionsData) {
+            const parsed = JSON.parse(previousPositionsData);
+            if (parsed && typeof parsed === 'object') {
+                state.previousPositions = parsed;
+            }
+        }
     } catch (error) {
         console.error('Error loading from storage:', error);
     }
@@ -247,6 +301,11 @@ function saveToStorage() {
         localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify(state.matches));
         localStorage.setItem(STORAGE_KEYS.TOURNAMENT, JSON.stringify(state.tournament));
         localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(state.participants));
+        localStorage.setItem(STORAGE_KEYS.LIVE_ELOS, JSON.stringify(state.liveElos));
+        localStorage.setItem(STORAGE_KEYS.LIVE_STATS, JSON.stringify(state.liveStats));
+        localStorage.setItem(STORAGE_KEYS.LIVE_MODE, String(state.liveMode));
+        localStorage.setItem(STORAGE_KEYS.BASELINE_ELOS, JSON.stringify(state.baselineElos));
+        localStorage.setItem(STORAGE_KEYS.PREVIOUS_POSITIONS, JSON.stringify(state.previousPositions));
         showAutoSaveStatus();
     } catch (error) {
         console.error('Error saving to storage:', error);
@@ -259,11 +318,13 @@ function initializeUI() {
     const roundNumberInput = document.getElementById('roundNumber');
     const formatSelect = document.getElementById('formatSelect');
     const matchCountInput = document.getElementById('matchCount');
+    const liveModeToggle = document.getElementById('liveModeToggle');
     
     if (tournamentNameInput) tournamentNameInput.value = state.tournament.name || '';
     if (roundNumberInput) roundNumberInput.value = state.tournament.round || 1;
     if (formatSelect) formatSelect.value = state.tournament.format || 'swiss';
     if (matchCountInput) matchCountInput.value = state.matches.length || 8;
+    if (liveModeToggle) liveModeToggle.checked = state.liveMode;
     
     // Render selected participants
     renderSelectedParticipants();
@@ -298,6 +359,14 @@ function setupEventListeners() {
     
     // Shortcuts legend toggle
     document.getElementById('shortcutsHeader')?.addEventListener('click', toggleShortcutsLegend);
+    
+    // Live leaderboard controls
+    document.getElementById('leaderboardHeader')?.addEventListener('click', toggleLiveLeaderboard);
+    document.getElementById('leaderboardToggleBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleLiveLeaderboard();
+    });
+    document.getElementById('liveModeToggle')?.addEventListener('change', toggleLiveMode);
     
     // Global keyboard shortcuts
     document.addEventListener('keydown', handleGlobalKeydown);
@@ -395,6 +464,12 @@ function updateMatchFromRounds(matchIndex) {
     }
     
     match.timestamp = new Date().toISOString();
+    
+    // Process for live ELO if match is complete
+    if (state.liveMode && match.beyA && match.beyB && scoreA !== '' && scoreB !== '') {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
 }
 
 // Add a round to a match
@@ -1755,3 +1830,334 @@ function validateMatches() {
     
     return warnings;
 }
+
+// ============================================
+// LIVE ELO TRACKING
+// ============================================
+
+/**
+ * Initialize live ELO ratings from baseline
+ */
+function initializeLiveElos() {
+    // If we have saved live ELOs and they're not empty, we're resuming
+    if (Object.keys(state.liveElos).length > 0) {
+        console.log('Resuming live tournament with existing ELOs');
+        return;
+    }
+    
+    // Otherwise, initialize from baseline
+    state.liveElos = { ...state.baselineElos };
+    state.liveStats = {};
+    state.previousPositions = {};
+    
+    // Initialize stats for all beyblades
+    for (const beyName in state.baselineElos) {
+        state.liveStats[beyName] = {
+            matches: 0,
+            wins: 0,
+            losses: 0,
+            for: 0,
+            against: 0,
+            winrate: 0.0
+        };
+    }
+    
+    console.log('Initialized live ELO tracking with baseline values');
+}
+
+/**
+ * Reset live tournament to baseline
+ */
+function resetLiveTournament() {
+    const confirmed = confirm('Reset live tournament? This will clear all live ELO changes and match results.');
+    if (!confirmed) return;
+    
+    state.liveElos = { ...state.baselineElos };
+    state.liveStats = {};
+    state.previousPositions = {};
+    state.liveLeaderboard = [];
+    state.liveEloHistory = [];
+    
+    // Initialize stats
+    for (const beyName in state.baselineElos) {
+        state.liveStats[beyName] = {
+            matches: 0,
+            wins: 0,
+            losses: 0,
+            for: 0,
+            against: 0,
+            winrate: 0.0
+        };
+    }
+    
+    // Clear matches
+    state.matches = [];
+    
+    saveToStorage();
+    updateLiveLeaderboard();
+    renderMatches();
+    updateStatusBar();
+    
+    showToast('Live tournament reset successfully', 'success');
+}
+
+/**
+ * Process a match and update live ELO ratings
+ */
+function processMatchForLiveElo(match) {
+    if (!state.liveMode) return;
+    if (!match.beyA || !match.beyB) return;
+    if (match.scoreA === '' || match.scoreB === '') return;
+    
+    const scoreA = parseInt(match.scoreA) || 0;
+    const scoreB = parseInt(match.scoreB) || 0;
+    
+    // Ensure both beys have ELO ratings
+    if (!state.liveElos[match.beyA]) {
+        state.liveElos[match.beyA] = state.baselineElos[match.beyA] || ELO_START;
+    }
+    if (!state.liveElos[match.beyB]) {
+        state.liveElos[match.beyB] = state.baselineElos[match.beyB] || ELO_START;
+    }
+    
+    // Ensure both beys have stats
+    if (!state.liveStats[match.beyA]) {
+        state.liveStats[match.beyA] = {
+            matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0
+        };
+    }
+    if (!state.liveStats[match.beyB]) {
+        state.liveStats[match.beyB] = {
+            matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0
+        };
+    }
+    
+    // Use the elo-calculator.js functions
+    const result = updateElo(
+        match.beyA,
+        match.beyB,
+        scoreA,
+        scoreB,
+        state.liveElos,
+        state.liveStats
+    );
+    
+    // Store in history
+    state.liveEloHistory.push({
+        matchId: match.id,
+        timestamp: Date.now(),
+        ...result
+    });
+    
+    return result;
+}
+
+/**
+ * Recalculate all live ELOs from scratch
+ */
+function recalculateAllLiveElos() {
+    // Reset to baseline
+    state.liveElos = { ...state.baselineElos };
+    state.liveStats = {};
+    state.liveEloHistory = [];
+    
+    // Initialize stats for all beyblades
+    for (const beyName in state.baselineElos) {
+        state.liveStats[beyName] = {
+            matches: 0,
+            wins: 0,
+            losses: 0,
+            for: 0,
+            against: 0,
+            winrate: 0.0
+        };
+    }
+    
+    // Process all completed matches in order
+    const completedMatches = state.matches.filter(m => 
+        m.beyA && m.beyB && m.scoreA !== '' && m.scoreB !== ''
+    );
+    
+    completedMatches.forEach(match => {
+        processMatchForLiveElo(match);
+    });
+    
+    console.log('Recalculated all live ELOs:', state.liveElos);
+}
+
+/**
+ * Update the live leaderboard display
+ */
+function updateLiveLeaderboard() {
+    if (!state.liveMode) {
+        document.getElementById('liveLeaderboardPanel')?.classList.add('collapsed');
+        return;
+    }
+    
+    // Generate leaderboard
+    state.liveLeaderboard = generateLeaderboard(
+        state.liveElos,
+        state.liveStats,
+        state.previousPositions
+    );
+    
+    // Update previous positions for next time
+    state.previousPositions = getPositionMap(state.liveLeaderboard);
+    
+    // Render the leaderboard
+    renderLiveLeaderboard();
+    
+    // Save state
+    saveToStorage();
+}
+
+/**
+ * Render the live leaderboard table
+ */
+function renderLiveLeaderboard() {
+    const tbody = document.getElementById('liveLeaderboardBody');
+    if (!tbody) return;
+    
+    const leaderboard = state.liveLeaderboard;
+    
+    if (leaderboard.length === 0) {
+        tbody.innerHTML = `
+            <tr class="empty-state">
+                <td colspan="7">No matches entered yet. Start entering matches to see live rankings!</td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Show only beys with at least one match
+    const activeLeaderboard = leaderboard.filter(entry => entry.matches > 0);
+    
+    if (activeLeaderboard.length === 0) {
+        tbody.innerHTML = `
+            <tr class="empty-state">
+                <td colspan="7">No matches entered yet. Start entering matches to see live rankings!</td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = activeLeaderboard.map(entry => {
+        const baselineElo = state.baselineElos[entry.bey] || ELO_START;
+        const eloDelta = entry.elo - baselineElo;
+        
+        // Rank badge for top 3
+        let rankDisplay;
+        if (entry.position <= 3) {
+            rankDisplay = `<span class="rank-badge rank-${entry.position}">${entry.position}</span>`;
+        } else {
+            rankDisplay = entry.position;
+        }
+        
+        // Position delta
+        let positionDeltaDisplay = '';
+        if (entry.positionDelta > 0) {
+            positionDeltaDisplay = `<span class="position-delta up">
+                <span class="position-delta-icon">↑</span>${entry.positionDelta}
+            </span>`;
+        } else if (entry.positionDelta < 0) {
+            positionDeltaDisplay = `<span class="position-delta down">
+                <span class="position-delta-icon">↓</span>${Math.abs(entry.positionDelta)}
+            </span>`;
+        } else {
+            positionDeltaDisplay = `<span class="position-delta neutral">—</span>`;
+        }
+        
+        // ELO change
+        let eloChangeDisplay;
+        if (eloDelta > 0) {
+            eloChangeDisplay = `<span class="elo-change positive">+${eloDelta}</span>`;
+        } else if (eloDelta < 0) {
+            eloChangeDisplay = `<span class="elo-change negative">${eloDelta}</span>`;
+        } else {
+            eloChangeDisplay = `<span class="elo-change neutral">—</span>`;
+        }
+        
+        // Record
+        const recordDisplay = `<span class="record-display">
+            <span class="record-wins">${entry.wins}</span>-<span class="record-losses">${entry.losses}</span>
+        </span>`;
+        
+        // Winrate
+        const winratePercent = (entry.winrate * 100).toFixed(0);
+        let winrateClass = 'winrate-medium';
+        if (entry.winrate >= 0.6) winrateClass = 'winrate-high';
+        else if (entry.winrate < 0.4) winrateClass = 'winrate-low';
+        
+        const winrateDisplay = `<span class="winrate-display ${winrateClass}">${winratePercent}%</span>`;
+        
+        return `
+            <tr class="leaderboard-row" data-bey="${escapeHtml(entry.bey)}">
+                <td class="col-rank">${rankDisplay}</td>
+                <td class="col-delta">${positionDeltaDisplay}</td>
+                <td class="col-bey">${escapeHtml(entry.bey)}</td>
+                <td class="col-elo">${entry.elo}</td>
+                <td class="col-elo-change">${eloChangeDisplay}</td>
+                <td class="col-record">${recordDisplay}</td>
+                <td class="col-winrate">${winrateDisplay}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+/**
+ * Toggle live leaderboard panel
+ */
+function toggleLiveLeaderboard() {
+    const panel = document.getElementById('liveLeaderboardPanel');
+    if (panel) {
+        panel.classList.toggle('collapsed');
+    }
+}
+
+/**
+ * Toggle live mode on/off
+ */
+function toggleLiveMode() {
+    state.liveMode = !state.liveMode;
+    saveToStorage();
+    
+    if (state.liveMode) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+        showToast('Live mode enabled', 'success');
+    } else {
+        showToast('Live mode disabled', 'info');
+    }
+}
+
+/**
+ * Show a post-match summary modal with ELO changes
+ */
+function showPostMatchSummary(eloResult) {
+    if (!eloResult) return;
+    
+    const summary = `
+        <div class="post-match-summary">
+            <h3>Match Complete!</h3>
+            <div class="summary-row">
+                <span class="summary-label">${escapeHtml(eloResult.beyA)}</span>
+                <span class="summary-value">${Math.round(eloResult.eloA)} → ${Math.round(eloResult.newEloA)}</span>
+                <span class="summary-delta ${eloResult.eloChangeA >= 0 ? 'positive' : 'negative'}">
+                    ${eloResult.eloChangeA >= 0 ? '+' : ''}${Math.round(eloResult.eloChangeA)}
+                </span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">${escapeHtml(eloResult.beyB)}</span>
+                <span class="summary-value">${Math.round(eloResult.eloB)} → ${Math.round(eloResult.newEloB)}</span>
+                <span class="summary-delta ${eloResult.eloChangeB >= 0 ? 'positive' : 'negative'}">
+                    ${eloResult.eloChangeB >= 0 ? '+' : ''}${Math.round(eloResult.eloChangeB)}
+                </span>
+            </div>
+        </div>
+    `;
+    
+    // You could show this in a toast or modal
+    // For now, we'll just log it
+    console.log('Post-match summary:', eloResult);
+}
+

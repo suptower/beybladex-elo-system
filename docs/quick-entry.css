@@ -1217,3 +1217,337 @@
     .bey-select { min-height: 40px; }
     .quick-add-btn { width: 44px; height: 44px; }
 }
+
+/* ============================================
+   LIVE LEADERBOARD PANEL
+   ============================================ */
+.live-leaderboard-panel {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.live-leaderboard-panel.collapsed .leaderboard-content {
+    display: none;
+}
+
+.leaderboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    background: var(--card-hover);
+    transition: var(--transition);
+    gap: 0.75rem;
+}
+
+.leaderboard-header:hover {
+    background: var(--primary-bg);
+}
+
+.leaderboard-title {
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.leaderboard-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    flex: 1;
+}
+
+.leaderboard-toggle {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    transition: var(--transition);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.live-leaderboard-panel:not(.collapsed) .leaderboard-toggle {
+    transform: rotate(180deg);
+}
+
+.leaderboard-content {
+    padding: 1rem 1.25rem;
+    background: var(--bg);
+}
+
+.leaderboard-table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-sm);
+}
+
+.live-leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.live-leaderboard-table thead {
+    background: var(--card-hover);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.live-leaderboard-table th {
+    padding: 0.75rem 0.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    letter-spacing: 0.03em;
+    border-bottom: 2px solid var(--border);
+}
+
+.live-leaderboard-table td {
+    padding: 0.625rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+}
+
+.live-leaderboard-table tbody tr {
+    transition: var(--transition);
+}
+
+.live-leaderboard-table tbody tr:hover {
+    background: var(--card-hover);
+}
+
+.live-leaderboard-table tbody tr.empty-state td {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.live-leaderboard-table tbody tr.updated {
+    animation: rowHighlight 0.8s ease-out;
+}
+
+@keyframes rowHighlight {
+    0% { background: var(--primary-bg); }
+    100% { background: transparent; }
+}
+
+/* Column specific styles */
+.col-rank {
+    width: 60px;
+    text-align: center;
+    font-weight: 700;
+}
+
+.col-delta {
+    width: 50px;
+    text-align: center;
+}
+
+.col-bey {
+    min-width: 200px;
+    font-weight: 600;
+}
+
+.col-elo {
+    width: 80px;
+    text-align: center;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.col-elo-change {
+    width: 90px;
+    text-align: center;
+}
+
+.col-record {
+    width: 100px;
+    text-align: center;
+}
+
+.col-winrate {
+    width: 80px;
+    text-align: center;
+}
+
+/* Rank badges */
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+
+.rank-badge.rank-1 {
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #000;
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+}
+
+.rank-badge.rank-2 {
+    background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+    color: #000;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4);
+}
+
+.rank-badge.rank-3 {
+    background: linear-gradient(135deg, #cd7f32, #e8a87c);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4);
+}
+
+/* Position delta indicators */
+.position-delta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8125rem;
+}
+
+.position-delta.up {
+    color: var(--success);
+}
+
+.position-delta.down {
+    color: var(--danger);
+}
+
+.position-delta.neutral {
+    color: var(--text-light);
+}
+
+.position-delta-icon {
+    font-size: 1rem;
+}
+
+/* ELO change indicators */
+.elo-change {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    font-family: 'Courier New', monospace;
+}
+
+.elo-change.positive {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.elo-change.negative {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.elo-change.neutral {
+    color: var(--text-light);
+}
+
+/* Record display */
+.record-display {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8125rem;
+}
+
+.record-wins {
+    color: var(--success);
+    font-weight: 700;
+}
+
+.record-losses {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+/* Winrate display */
+.winrate-display {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+}
+
+.winrate-high {
+    color: var(--success);
+}
+
+.winrate-medium {
+    color: var(--warning);
+}
+
+.winrate-low {
+    color: var(--danger);
+}
+
+/* Live mode toggle in status bar */
+.status-live-mode {
+    margin-left: auto;
+}
+
+.live-mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.live-mode-toggle input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .leaderboard-header {
+        flex-wrap: wrap;
+    }
+    
+    .leaderboard-subtitle {
+        flex-basis: 100%;
+        order: 3;
+        margin-top: 0.5rem;
+    }
+    
+    .live-leaderboard-table {
+        font-size: 0.8125rem;
+    }
+    
+    .live-leaderboard-table th,
+    .live-leaderboard-table td {
+        padding: 0.5rem 0.375rem;
+    }
+    
+    .col-bey {
+        min-width: 150px;
+    }
+    
+    .leaderboard-subtitle {
+        display: none;
+    }
+}

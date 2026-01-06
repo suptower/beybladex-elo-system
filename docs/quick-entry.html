@@ -10,6 +10,7 @@
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="hamburger.js"></script>
+    <script src="elo-calculator.js"></script>
 </head>
 <body>
 
@@ -135,6 +136,44 @@
         <div class="status-item status-autosave">
             <span class="status-icon" id="autoSaveIcon">💾</span>
             <span class="status-text" id="autoSaveStatus">Auto-saved</span>
+        </div>
+        <div class="status-item status-live-mode">
+            <span class="status-icon">📊</span>
+            <label class="live-mode-toggle">
+                <input type="checkbox" id="liveModeToggle" checked>
+                <span class="status-text">Live Updates</span>
+            </label>
+        </div>
+    </section>
+
+    <!-- Live Leaderboard Panel -->
+    <section class="live-leaderboard-panel collapsed" id="liveLeaderboardPanel">
+        <div class="leaderboard-header" id="leaderboardHeader">
+            <span class="leaderboard-title">🏆 Live Tournament Leaderboard</span>
+            <span class="leaderboard-subtitle" id="leaderboardSubtitle">Updates in real-time as matches are entered</span>
+            <button class="leaderboard-toggle" id="leaderboardToggleBtn">▼</button>
+        </div>
+        <div class="leaderboard-content" id="leaderboardContent">
+            <div class="leaderboard-table-wrapper">
+                <table class="live-leaderboard-table" id="liveLeaderboardTable">
+                    <thead>
+                        <tr>
+                            <th class="col-rank">Rank</th>
+                            <th class="col-delta">Δ</th>
+                            <th class="col-bey">Bey</th>
+                            <th class="col-elo">ELO</th>
+                            <th class="col-elo-change">ΔELO</th>
+                            <th class="col-record">Record</th>
+                            <th class="col-winrate">WR%</th>
+                        </tr>
+                    </thead>
+                    <tbody id="liveLeaderboardBody">
+                        <tr class="empty-state">
+                            <td colspan="7">No matches entered yet. Start entering matches to see live rankings!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 
