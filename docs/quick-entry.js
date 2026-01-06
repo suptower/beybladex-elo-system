@@ -663,10 +663,19 @@ function resetRound() {
     renderMatches();
     updateStatusBar();
     
-    // Recalculate live leaderboard after reset and clear position history
+    // Recalculate live leaderboard after reset
     if (state.liveMode) {
-        state.previousPositions = {}; // Clear position history for accurate deltas
+        // Recalculate from baseline (will reset previousPositions to baseline)
         recalculateAllLiveElos();
+        
+        // Generate baseline leaderboard to reset position tracking
+        const baselineLeaderboard = generateLeaderboard(
+            state.liveElos,
+            state.liveStats,
+            null
+        );
+        state.previousPositions = getPositionMap(baselineLeaderboard);
+        
         updateLiveLeaderboard();
     }
     
@@ -903,7 +912,7 @@ function updateBey(matchIndex, player, beyName) {
     
     // Recalculate live ELOs if match has scores and live mode is enabled
     if (state.liveMode && match.beyA && match.beyB && 
-        (match.scoreA !== '' && match.scoreA !== 0 || match.scoreB !== '' && match.scoreB !== 0)) {
+        (match.scoreA > 0 || match.scoreB > 0)) {
         recalculateAllLiveElos();
         updateLiveLeaderboard();
     }
@@ -1891,7 +1900,6 @@ function initializeLiveElos(forceReset = false) {
     // Otherwise, initialize from baseline
     state.liveElos = { ...state.baselineElos };
     state.liveStats = {};
-    state.previousPositions = {};
     state.liveEloHistory = [];
     
     // Initialize stats for all beyblades
@@ -1906,6 +1914,16 @@ function initializeLiveElos(forceReset = false) {
         };
     }
     
+    // Generate baseline leaderboard to capture initial positions
+    const baselineLeaderboard = generateLeaderboard(
+        state.liveElos,
+        state.liveStats,
+        null  // No previous positions for baseline
+    );
+    
+    // Set previousPositions to baseline positions so first match shows deltas
+    state.previousPositions = getPositionMap(baselineLeaderboard);
+    
     console.log('Initialized live ELO tracking with baseline values');
 }
 
@@ -1918,7 +1936,6 @@ function resetLiveTournament() {
     
     state.liveElos = { ...state.baselineElos };
     state.liveStats = {};
-    state.previousPositions = {};
     state.liveLeaderboard = [];
     state.liveEloHistory = [];
     
@@ -1933,6 +1950,16 @@ function resetLiveTournament() {
             winrate: 0.0
         };
     }
+    
+    // Generate baseline leaderboard to capture initial positions
+    const baselineLeaderboard = generateLeaderboard(
+        state.liveElos,
+        state.liveStats,
+        null  // No previous positions for baseline
+    );
+    
+    // Set previousPositions to baseline positions so first match shows deltas
+    state.previousPositions = getPositionMap(baselineLeaderboard);
     
     // Clear matches
     state.matches = [];
@@ -2038,14 +2065,18 @@ function updateLiveLeaderboard() {
         return;
     }
     
-    // Generate leaderboard
+    // Capture current positions BEFORE generating new leaderboard
+    // This ensures we can show position deltas from the previous state
+    const oldPositions = state.previousPositions || {};
+    
+    // Generate NEW leaderboard with OLD positions for delta calculation
     state.liveLeaderboard = generateLeaderboard(
         state.liveElos,
         state.liveStats,
-        state.previousPositions
+        oldPositions
     );
     
-    // Update previous positions for next time
+    // NOW update previous positions for next time (after we've used them)
     state.previousPositions = getPositionMap(state.liveLeaderboard);
     
     // Render the leaderboard
