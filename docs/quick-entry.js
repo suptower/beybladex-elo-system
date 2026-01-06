@@ -1723,6 +1723,12 @@ function generateRecommendedPairings() {
     
     // Get the top N recommended matches that haven't been played yet
     const count = parseInt(document.getElementById('matchCount')?.value) || 8;
+    
+    // Warn if fewer recommendations than requested
+    if (state.recommendedMatches.length < count) {
+        showToast(`Only ${state.recommendedMatches.length} recommendations available (requested ${count})`, 'warning');
+    }
+    
     const topRecommendations = state.recommendedMatches.slice(0, count);
     
     // Create matches from recommendations
