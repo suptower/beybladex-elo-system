@@ -625,10 +625,8 @@ function addMatch() {
     const newIndex = state.matches.length;
     state.matches.push(createEmptyMatch(newIndex));
     
-    // Save current positions so new match deltas are calculated from this point
-    if (state.liveMode && state.liveLeaderboard.length > 0) {
-        state.previousPositions = getPositionMap(state.liveLeaderboard);
-    }
+    // DO NOT update previousPositions here - it should always reference the baseline from CSV
+    // Position deltas will show change from tournament start, not from previous match
     
     saveToStorage();
     renderMatches();
@@ -648,7 +646,7 @@ function deleteMatch(index) {
     // Recalculate live ELOs after match deletion
     if (state.liveMode) {
         recalculateAllLiveElos();
-        updateLiveLeaderboard(true); // Save positions after match deletion
+        updateLiveLeaderboard(); // Don't save positions - always compare to baseline
     }
 }
 
@@ -1086,15 +1084,15 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
                 <div class="analysis-section elo-ratings">
                     <div class="elo-rating-item elo-a">
                         <span class="elo-bey-name">${escapeHtml(match.beyA)}</span>
-                        <span class="elo-value">${eloA}</span>
+                        <span class="elo-value">${Math.round(eloA)}</span>
                     </div>
                     <div class="elo-diff">
                         <span class="elo-diff-label">ΔELO</span>
-                        <span class="elo-diff-value ${eloDiff >= 0 ? 'positive' : 'negative'}">${eloDiff >= 0 ? '+' : ''}${eloDiff}</span>
+                        <span class="elo-diff-value ${eloDiff >= 0 ? 'positive' : 'negative'}">${eloDiff >= 0 ? '+' : ''}${Math.round(eloDiff)}</span>
                     </div>
                     <div class="elo-rating-item elo-b">
                         <span class="elo-bey-name">${escapeHtml(match.beyB)}</span>
-                        <span class="elo-value">${eloB}</span>
+                        <span class="elo-value">${Math.round(eloB)}</span>
                     </div>
                 </div>
                 
@@ -1134,17 +1132,17 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
                         <div class="elo-outcome">
                             <span class="outcome-label">If ${escapeHtml(match.beyA)} wins:</span>
                             <span class="outcome-values">
-                                <span class="elo-change ${eloChangeAWin >= 0 ? 'positive' : 'negative'}">${eloChangeAWin >= 0 ? '+' : ''}${eloChangeAWin}</span>
+                                <span class="elo-change ${eloChangeAWin >= 0 ? 'positive' : 'negative'}">${eloChangeAWin >= 0 ? '+' : ''}${Math.round(eloChangeAWin)}</span>
                                 <span class="outcome-separator">/</span>
-                                <span class="elo-change ${eloChangeBLoss >= 0 ? 'positive' : 'negative'}">${eloChangeBLoss >= 0 ? '+' : ''}${eloChangeBLoss}</span>
+                                <span class="elo-change ${eloChangeBLoss >= 0 ? 'positive' : 'negative'}">${eloChangeBLoss >= 0 ? '+' : ''}${Math.round(eloChangeBLoss)}</span>
                             </span>
                         </div>
                         <div class="elo-outcome">
                             <span class="outcome-label">If ${escapeHtml(match.beyB)} wins:</span>
                             <span class="outcome-values">
-                                <span class="elo-change ${eloChangeALoss >= 0 ? 'positive' : 'negative'}">${eloChangeALoss >= 0 ? '+' : ''}${eloChangeALoss}</span>
+                                <span class="elo-change ${eloChangeALoss >= 0 ? 'positive' : 'negative'}">${eloChangeALoss >= 0 ? '+' : ''}${Math.round(eloChangeALoss)}</span>
                                 <span class="outcome-separator">/</span>
-                                <span class="elo-change ${eloChangeBWin >= 0 ? 'positive' : 'negative'}">${eloChangeBWin >= 0 ? '+' : ''}${eloChangeBWin}</span>
+                                <span class="elo-change ${eloChangeBWin >= 0 ? 'positive' : 'negative'}">${eloChangeBWin >= 0 ? '+' : ''}${Math.round(eloChangeBWin)}</span>
                             </span>
                         </div>
                     </div>
@@ -2147,10 +2145,11 @@ function renderLiveLeaderboard() {
         
         // ELO change
         let eloChangeDisplay;
-        if (eloDelta > 0) {
-            eloChangeDisplay = `<span class="elo-change positive">+${eloDelta}</span>`;
-        } else if (eloDelta < 0) {
-            eloChangeDisplay = `<span class="elo-change negative">${eloDelta}</span>`;
+        const roundedEloDelta = Math.round(eloDelta);
+        if (roundedEloDelta > 0) {
+            eloChangeDisplay = `<span class="elo-change positive">+${roundedEloDelta}</span>`;
+        } else if (roundedEloDelta < 0) {
+            eloChangeDisplay = `<span class="elo-change negative">${roundedEloDelta}</span>`;
         } else {
             eloChangeDisplay = `<span class="elo-change neutral">—</span>`;
         }
@@ -2173,7 +2172,7 @@ function renderLiveLeaderboard() {
                 <td class="col-rank">${rankDisplay}</td>
                 <td class="col-delta">${positionDeltaDisplay}</td>
                 <td class="col-bey">${escapeHtml(entry.bey)}</td>
-                <td class="col-elo">${entry.elo}</td>
+                <td class="col-elo">${Math.round(entry.elo)}</td>
                 <td class="col-elo-change">${eloChangeDisplay}</td>
                 <td class="col-record">${recordDisplay}</td>
                 <td class="col-winrate">${winrateDisplay}</td>
