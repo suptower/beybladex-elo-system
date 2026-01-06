@@ -975,13 +975,24 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
     }
     
     // Use live ELOs if available and live mode is enabled, otherwise use static data
-    let eloA, eloB;
+    let eloA, eloB, positionA, positionB;
     if (state.liveMode && state.liveElos[match.beyA] && state.liveElos[match.beyB]) {
         eloA = state.liveElos[match.beyA];
         eloB = state.liveElos[match.beyB];
+        
+        // Get current positions from live leaderboard
+        if (state.liveLeaderboard && state.liveLeaderboard.length > 0) {
+            const entryA = state.liveLeaderboard.find(entry => entry.bey === match.beyA);
+            const entryB = state.liveLeaderboard.find(entry => entry.bey === match.beyB);
+            positionA = entryA ? entryA.position : null;
+            positionB = entryB ? entryB.position : null;
+        }
     } else {
         eloA = beyAData.elo || DEFAULT_ELO;
         eloB = beyBData.elo || DEFAULT_ELO;
+        // Positions from static data (rank from CSV)
+        positionA = beyAData.rank || null;
+        positionB = beyBData.rank || null;
     }
     const eloDiff = eloA - eloB;
     
@@ -1084,6 +1095,7 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
                 <div class="analysis-section elo-ratings">
                     <div class="elo-rating-item elo-a">
                         <span class="elo-bey-name">${escapeHtml(match.beyA)}</span>
+                        ${positionA ? `<span class="elo-position">#${positionA}</span>` : ''}
                         <span class="elo-value">${Math.round(eloA)}</span>
                     </div>
                     <div class="elo-diff">
@@ -1092,6 +1104,7 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
                     </div>
                     <div class="elo-rating-item elo-b">
                         <span class="elo-bey-name">${escapeHtml(match.beyB)}</span>
+                        ${positionB ? `<span class="elo-position">#${positionB}</span>` : ''}
                         <span class="elo-value">${Math.round(eloB)}</span>
                     </div>
                 </div>
