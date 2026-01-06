@@ -624,15 +624,15 @@ function generateMatches() {
 function addMatch() {
     const newIndex = state.matches.length;
     state.matches.push(createEmptyMatch(newIndex));
-    saveToStorage();
-    renderMatches();
-    updateStatusBar();
     
     // Save current positions so new match deltas are calculated from this point
     if (state.liveMode && state.liveLeaderboard.length > 0) {
         state.previousPositions = getPositionMap(state.liveLeaderboard);
-        saveToStorage();
     }
+    
+    saveToStorage();
+    renderMatches();
+    updateStatusBar();
 }
 
 function deleteMatch(index) {
@@ -2064,7 +2064,8 @@ function recalculateAllLiveElos() {
 
 /**
  * Update the live leaderboard display
- * @param {boolean} savePositions - Whether to save current positions for future delta calculation
+ * @param {boolean} savePositions - Whether to save current positions as the new baseline for future delta calculations.
+ *                                   Set to true for match-level operations (add/delete/reset) but false for incremental round additions.
  */
 function updateLiveLeaderboard(savePositions = false) {
     if (!state.liveMode) {
