@@ -65,7 +65,12 @@ const STORAGE_KEYS = {
     MATCHES: 'quickEntry_matches',
     TOURNAMENT: 'quickEntry_tournament',
     PARTICIPANTS: 'quickEntry_participants',
-    SETTINGS: 'quickEntry_settings'
+    SETTINGS: 'quickEntry_settings',
+    LIVE_ELOS: 'quickEntry_liveElos',
+    LIVE_STATS: 'quickEntry_liveStats',
+    LIVE_MODE: 'quickEntry_liveMode',
+    BASELINE_ELOS: 'quickEntry_baselineElos',
+    PREVIOUS_POSITIONS: 'quickEntry_previousPositions'
 };
 
 // ============================================
@@ -108,7 +113,15 @@ let state = {
     beyblades: [],
     matchHistory: [], // Historical match data
     roundsHistory: [], // Historical rounds data
-    focusedMatchIndex: -1
+    focusedMatchIndex: -1,
+    // Live ELO tracking
+    liveMode: true,
+    liveElos: {}, // Current ELO ratings during this tournament
+    liveStats: {}, // Current stats (matches, wins, losses, etc.)
+    liveLeaderboard: [], // Sorted leaderboard
+    previousPositions: {}, // For tracking rank changes
+    baselineElos: {}, // Starting ELOs at tournament start
+    liveEloHistory: [] // Track all ELO changes in this session
 };
 
 // ============================================
@@ -117,10 +130,12 @@ let state = {
 document.addEventListener('DOMContentLoaded', async () => {
     await loadBeybladeData();
     loadFromStorage();
+    initializeLiveElos();
     initializeUI();
     setupEventListeners();
     renderMatches();
     updateStatusBar();
+    updateLiveLeaderboard();
 });
 
 // Load beyblade data from CSV
@@ -133,12 +148,18 @@ async function loadBeybladeData() {
         state.beyblades = lines.slice(1).map(line => {
             const values = line.split(',');
             return {
+                rank: parseInt(values[0]) || null,
                 name: values[1],
                 elo: parseInt(values[2]) || 1000,
                 matches: parseInt(values[3]) || 0,
                 wins: parseInt(values[4]) || 0
             };
         }).sort((a, b) => b.elo - a.elo);
+        
+        // Initialize baseline ELOs from loaded data
+        state.beyblades.forEach(bey => {
+            state.baselineElos[bey.name] = bey.elo;
+        });
         
         // Load match history
         await loadMatchHistory();
@@ -210,6 +231,11 @@ function loadFromStorage() {
         const matchesData = localStorage.getItem(STORAGE_KEYS.MATCHES);
         const tournamentData = localStorage.getItem(STORAGE_KEYS.TOURNAMENT);
         const participantsData = localStorage.getItem(STORAGE_KEYS.PARTICIPANTS);
+        const liveElosData = localStorage.getItem(STORAGE_KEYS.LIVE_ELOS);
+        const liveStatsData = localStorage.getItem(STORAGE_KEYS.LIVE_STATS);
+        const liveModeData = localStorage.getItem(STORAGE_KEYS.LIVE_MODE);
+        const baselineElosData = localStorage.getItem(STORAGE_KEYS.BASELINE_ELOS);
+        const previousPositionsData = localStorage.getItem(STORAGE_KEYS.PREVIOUS_POSITIONS);
         
         if (matchesData) {
             const parsed = JSON.parse(matchesData);
@@ -236,6 +262,33 @@ function loadFromStorage() {
                 state.participants = parsed.filter(p => typeof p === 'string');
             }
         }
+        if (liveElosData) {
+            const parsed = JSON.parse(liveElosData);
+            if (parsed && typeof parsed === 'object') {
+                state.liveElos = parsed;
+            }
+        }
+        if (liveStatsData) {
+            const parsed = JSON.parse(liveStatsData);
+            if (parsed && typeof parsed === 'object') {
+                state.liveStats = parsed;
+            }
+        }
+        if (liveModeData !== null) {
+            state.liveMode = liveModeData === 'true';
+        }
+        if (baselineElosData) {
+            const parsed = JSON.parse(baselineElosData);
+            if (parsed && typeof parsed === 'object') {
+                state.baselineElos = parsed;
+            }
+        }
+        if (previousPositionsData) {
+            const parsed = JSON.parse(previousPositionsData);
+            if (parsed && typeof parsed === 'object') {
+                state.previousPositions = parsed;
+            }
+        }
     } catch (error) {
         console.error('Error loading from storage:', error);
     }
@@ -247,6 +300,11 @@ function saveToStorage() {
         localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify(state.matches));
         localStorage.setItem(STORAGE_KEYS.TOURNAMENT, JSON.stringify(state.tournament));
         localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(state.participants));
+        localStorage.setItem(STORAGE_KEYS.LIVE_ELOS, JSON.stringify(state.liveElos));
+        localStorage.setItem(STORAGE_KEYS.LIVE_STATS, JSON.stringify(state.liveStats));
+        localStorage.setItem(STORAGE_KEYS.LIVE_MODE, String(state.liveMode));
+        localStorage.setItem(STORAGE_KEYS.BASELINE_ELOS, JSON.stringify(state.baselineElos));
+        localStorage.setItem(STORAGE_KEYS.PREVIOUS_POSITIONS, JSON.stringify(state.previousPositions));
         showAutoSaveStatus();
     } catch (error) {
         console.error('Error saving to storage:', error);
@@ -259,11 +317,13 @@ function initializeUI() {
     const roundNumberInput = document.getElementById('roundNumber');
     const formatSelect = document.getElementById('formatSelect');
     const matchCountInput = document.getElementById('matchCount');
+    const liveModeToggle = document.getElementById('liveModeToggle');
     
     if (tournamentNameInput) tournamentNameInput.value = state.tournament.name || '';
     if (roundNumberInput) roundNumberInput.value = state.tournament.round || 1;
     if (formatSelect) formatSelect.value = state.tournament.format || 'swiss';
     if (matchCountInput) matchCountInput.value = state.matches.length || 8;
+    if (liveModeToggle) liveModeToggle.checked = state.liveMode;
     
     // Render selected participants
     renderSelectedParticipants();
@@ -298,6 +358,14 @@ function setupEventListeners() {
     
     // Shortcuts legend toggle
     document.getElementById('shortcutsHeader')?.addEventListener('click', toggleShortcutsLegend);
+    
+    // Live leaderboard controls
+    document.getElementById('leaderboardHeader')?.addEventListener('click', toggleLiveLeaderboard);
+    document.getElementById('leaderboardToggleBtn')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleLiveLeaderboard();
+    });
+    document.getElementById('liveModeToggle')?.addEventListener('change', toggleLiveMode);
     
     // Global keyboard shortcuts
     document.addEventListener('keydown', handleGlobalKeydown);
@@ -395,6 +463,12 @@ function updateMatchFromRounds(matchIndex) {
     }
     
     match.timestamp = new Date().toISOString();
+    
+    // Process for live ELO if match is complete
+    if (state.liveMode && match.beyA && match.beyB && scoreA !== '' && scoreB !== '') {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
 }
 
 // Add a round to a match
@@ -551,6 +625,10 @@ function generateMatches() {
 function addMatch() {
     const newIndex = state.matches.length;
     state.matches.push(createEmptyMatch(newIndex));
+    
+    // DO NOT update previousPositions here - it should always reference the baseline positions from tournament start
+    // Position deltas will show change from tournament start, not from previous match
+    
     saveToStorage();
     renderMatches();
     updateStatusBar();
@@ -565,6 +643,12 @@ function deleteMatch(index) {
     saveToStorage();
     renderMatches();
     updateStatusBar();
+    
+    // Recalculate live ELOs after match deletion
+    if (state.liveMode) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard(); // Don't update baseline positions - maintain comparison to tournament start
+    }
 }
 
 function resetRound() {
@@ -583,6 +667,24 @@ function resetRound() {
     saveToStorage();
     renderMatches();
     updateStatusBar();
+    
+    // Recalculate live leaderboard after reset
+    if (state.liveMode) {
+        // Recalculate from baseline (will reset previousPositions to baseline)
+        recalculateAllLiveElos();
+        
+        // Generate baseline leaderboard to reset position tracking
+        const baselineLeaderboard = generateLeaderboard(
+            state.liveElos,
+            state.liveStats,
+            null
+        );
+        state.previousPositions = getPositionMap(baselineLeaderboard);
+        
+        // Don't pass savePositions=true since we just set previousPositions above
+        updateLiveLeaderboard();
+    }
+    
     showToast('Round reset', 'warning');
 }
 
@@ -594,10 +696,16 @@ function clearAll() {
     state.matches = [];
     state.participants = [];
     
+    // Also reset live tournament state (force reset)
+    // initializeLiveElos() will set previousPositions to baseline
+    initializeLiveElos(true);
+    
     saveToStorage();
     renderMatches();
     renderSelectedParticipants();
     updateStatusBar();
+    // Don't pass savePositions=true since initializeLiveElos() already set previousPositions
+    updateLiveLeaderboard();
     showToast('All data cleared', 'warning');
 }
 
@@ -623,6 +731,12 @@ function updateScore(matchIndex, player, delta) {
     saveToStorage();
     renderMatches();
     updateStatusBar();
+    
+    // Update live ELOs if both beys are selected and live mode is enabled
+    if (state.liveMode && match.beyA && match.beyB) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
 }
 
 function setScore(matchIndex, player, value) {
@@ -643,6 +757,12 @@ function setScore(matchIndex, player, value) {
     saveToStorage();
     renderMatches();
     updateStatusBar();
+    
+    // Update live ELOs if both beys are selected and live mode is enabled
+    if (state.liveMode && match.beyA && match.beyB) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
 }
 
 /**
@@ -797,6 +917,13 @@ function updateBey(matchIndex, player, beyName) {
     
     // Update analysis panel when both Beys are selected
     updateAnalysisPanel(matchIndex);
+    
+    // Recalculate live ELOs if match has scores and live mode is enabled
+    if (state.liveMode && match.beyA && match.beyB && 
+        (match.scoreA > 0 || match.scoreB > 0)) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
 }
 
 // ============================================
@@ -848,8 +975,30 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
         `;
     }
     
-    const eloA = beyAData.elo || DEFAULT_ELO;
-    const eloB = beyBData.elo || DEFAULT_ELO;
+    // Use live ELOs if available and live mode is enabled, otherwise use static data
+    let eloA, eloB, livePositionA, livePositionB, offlinePositionA, offlinePositionB;
+    
+    // Always get offline positions from CSV
+    offlinePositionA = beyAData.rank || null;
+    offlinePositionB = beyBData.rank || null;
+    
+    if (state.liveMode && state.liveElos[match.beyA] && state.liveElos[match.beyB]) {
+        eloA = state.liveElos[match.beyA];
+        eloB = state.liveElos[match.beyB];
+        
+        // Get current positions from live leaderboard
+        if (state.liveLeaderboard && state.liveLeaderboard.length > 0) {
+            const entryA = state.liveLeaderboard.find(entry => entry.bey === match.beyA);
+            const entryB = state.liveLeaderboard.find(entry => entry.bey === match.beyB);
+            livePositionA = entryA ? entryA.position : null;
+            livePositionB = entryB ? entryB.position : null;
+        }
+    } else {
+        eloA = beyAData.elo || DEFAULT_ELO;
+        eloB = beyBData.elo || DEFAULT_ELO;
+        livePositionA = null;
+        livePositionB = null;
+    }
     const eloDiff = eloA - eloB;
     
     // Calculate win probabilities
@@ -951,15 +1100,21 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
                 <div class="analysis-section elo-ratings">
                     <div class="elo-rating-item elo-a">
                         <span class="elo-bey-name">${escapeHtml(match.beyA)}</span>
-                        <span class="elo-value">${eloA}</span>
+                        ${livePositionA && offlinePositionA ? `<span class="elo-position">#${offlinePositionA} → #${livePositionA}</span>` : 
+                          livePositionA ? `<span class="elo-position">#${livePositionA}</span>` :
+                          offlinePositionA ? `<span class="elo-position">#${offlinePositionA}</span>` : ''}
+                        <span class="elo-value">${Math.round(eloA)}</span>
                     </div>
                     <div class="elo-diff">
                         <span class="elo-diff-label">ΔELO</span>
-                        <span class="elo-diff-value ${eloDiff >= 0 ? 'positive' : 'negative'}">${eloDiff >= 0 ? '+' : ''}${eloDiff}</span>
+                        <span class="elo-diff-value ${eloDiff >= 0 ? 'positive' : 'negative'}">${eloDiff >= 0 ? '+' : ''}${Math.round(eloDiff)}</span>
                     </div>
                     <div class="elo-rating-item elo-b">
                         <span class="elo-bey-name">${escapeHtml(match.beyB)}</span>
-                        <span class="elo-value">${eloB}</span>
+                        ${livePositionB && offlinePositionB ? `<span class="elo-position">#${offlinePositionB} → #${livePositionB}</span>` : 
+                          livePositionB ? `<span class="elo-position">#${livePositionB}</span>` :
+                          offlinePositionB ? `<span class="elo-position">#${offlinePositionB}</span>` : ''}
+                        <span class="elo-value">${Math.round(eloB)}</span>
                     </div>
                 </div>
                 
@@ -999,17 +1154,17 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
                         <div class="elo-outcome">
                             <span class="outcome-label">If ${escapeHtml(match.beyA)} wins:</span>
                             <span class="outcome-values">
-                                <span class="elo-change ${eloChangeAWin >= 0 ? 'positive' : 'negative'}">${eloChangeAWin >= 0 ? '+' : ''}${eloChangeAWin}</span>
+                                <span class="elo-change ${eloChangeAWin >= 0 ? 'positive' : 'negative'}">${eloChangeAWin >= 0 ? '+' : ''}${Math.round(eloChangeAWin)}</span>
                                 <span class="outcome-separator">/</span>
-                                <span class="elo-change ${eloChangeBLoss >= 0 ? 'positive' : 'negative'}">${eloChangeBLoss >= 0 ? '+' : ''}${eloChangeBLoss}</span>
+                                <span class="elo-change ${eloChangeBLoss >= 0 ? 'positive' : 'negative'}">${eloChangeBLoss >= 0 ? '+' : ''}${Math.round(eloChangeBLoss)}</span>
                             </span>
                         </div>
                         <div class="elo-outcome">
                             <span class="outcome-label">If ${escapeHtml(match.beyB)} wins:</span>
                             <span class="outcome-values">
-                                <span class="elo-change ${eloChangeALoss >= 0 ? 'positive' : 'negative'}">${eloChangeALoss >= 0 ? '+' : ''}${eloChangeALoss}</span>
+                                <span class="elo-change ${eloChangeALoss >= 0 ? 'positive' : 'negative'}">${eloChangeALoss >= 0 ? '+' : ''}${Math.round(eloChangeALoss)}</span>
                                 <span class="outcome-separator">/</span>
-                                <span class="elo-change ${eloChangeBWin >= 0 ? 'positive' : 'negative'}">${eloChangeBWin >= 0 ? '+' : ''}${eloChangeBWin}</span>
+                                <span class="elo-change ${eloChangeBWin >= 0 ? 'positive' : 'negative'}">${eloChangeBWin >= 0 ? '+' : ''}${Math.round(eloChangeBWin)}</span>
                             </span>
                         </div>
                     </div>
@@ -1755,3 +1910,353 @@ function validateMatches() {
     
     return warnings;
 }
+
+// ============================================
+// LIVE ELO TRACKING
+// ============================================
+
+/**
+ * Initialize live ELO ratings from baseline
+ * @param {boolean} forceReset - Force reset even if live ELOs exist
+ */
+function initializeLiveElos(forceReset = false) {
+    // If we have saved live ELOs and they're not empty, we're resuming (unless forced reset)
+    if (!forceReset && Object.keys(state.liveElos).length > 0) {
+        console.log('Resuming live tournament with existing ELOs');
+        return;
+    }
+    
+    // Otherwise, initialize from baseline
+    state.liveElos = { ...state.baselineElos };
+    state.liveStats = {};
+    state.liveEloHistory = [];
+    
+    // Initialize stats for all beyblades
+    for (const beyName in state.baselineElos) {
+        state.liveStats[beyName] = {
+            matches: 0,
+            wins: 0,
+            losses: 0,
+            for: 0,
+            against: 0,
+            winrate: 0.0
+        };
+    }
+    
+    // Generate baseline leaderboard to capture initial positions
+    const baselineLeaderboard = generateLeaderboard(
+        state.liveElos,
+        state.liveStats,
+        null  // No previous positions for baseline
+    );
+    
+    // Set previousPositions to baseline positions so first match shows deltas
+    state.previousPositions = getPositionMap(baselineLeaderboard);
+    
+    console.log('Initialized live ELO tracking with baseline values');
+}
+
+/**
+ * Reset live tournament to baseline
+ */
+function resetLiveTournament() {
+    const confirmed = confirm('Reset live tournament? This will clear all live ELO changes and match results.');
+    if (!confirmed) return;
+    
+    state.liveElos = { ...state.baselineElos };
+    state.liveStats = {};
+    state.liveLeaderboard = [];
+    state.liveEloHistory = [];
+    
+    // Initialize stats
+    for (const beyName in state.baselineElos) {
+        state.liveStats[beyName] = {
+            matches: 0,
+            wins: 0,
+            losses: 0,
+            for: 0,
+            against: 0,
+            winrate: 0.0
+        };
+    }
+    
+    // Generate baseline leaderboard to capture initial positions
+    const baselineLeaderboard = generateLeaderboard(
+        state.liveElos,
+        state.liveStats,
+        null  // No previous positions for baseline
+    );
+    
+    // Set previousPositions to baseline positions so first match shows deltas
+    state.previousPositions = getPositionMap(baselineLeaderboard);
+    
+    // Clear matches
+    state.matches = [];
+    
+    saveToStorage();
+    updateLiveLeaderboard();
+    renderMatches();
+    updateStatusBar();
+    
+    showToast('Live tournament reset successfully', 'success');
+}
+
+/**
+ * Process a match and update live ELO ratings
+ */
+function processMatchForLiveElo(match) {
+    if (!state.liveMode) return;
+    if (!match.beyA || !match.beyB) return;
+    if (match.scoreA === '' || match.scoreB === '') return;
+    
+    const scoreA = parseInt(match.scoreA) || 0;
+    const scoreB = parseInt(match.scoreB) || 0;
+    
+    // Ensure both beys have ELO ratings
+    if (!state.liveElos[match.beyA]) {
+        state.liveElos[match.beyA] = state.baselineElos[match.beyA] || ELO_START;
+    }
+    if (!state.liveElos[match.beyB]) {
+        state.liveElos[match.beyB] = state.baselineElos[match.beyB] || ELO_START;
+    }
+    
+    // Ensure both beys have stats
+    if (!state.liveStats[match.beyA]) {
+        state.liveStats[match.beyA] = {
+            matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0
+        };
+    }
+    if (!state.liveStats[match.beyB]) {
+        state.liveStats[match.beyB] = {
+            matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0
+        };
+    }
+    
+    // Use the elo-calculator.js functions
+    const result = updateElo(
+        match.beyA,
+        match.beyB,
+        scoreA,
+        scoreB,
+        state.liveElos,
+        state.liveStats
+    );
+    
+    // Store in history
+    state.liveEloHistory.push({
+        matchId: match.id,
+        timestamp: Date.now(),
+        ...result
+    });
+    
+    return result;
+}
+
+/**
+ * Recalculate all live ELOs from scratch
+ */
+function recalculateAllLiveElos() {
+    // Reset to baseline
+    state.liveElos = { ...state.baselineElos };
+    state.liveStats = {};
+    state.liveEloHistory = [];
+    
+    // Initialize stats for all beyblades
+    for (const beyName in state.baselineElos) {
+        state.liveStats[beyName] = {
+            matches: 0,
+            wins: 0,
+            losses: 0,
+            for: 0,
+            against: 0,
+            winrate: 0.0
+        };
+    }
+    
+    // Process all completed matches in order
+    const completedMatches = state.matches.filter(m => 
+        m.beyA && m.beyB && m.scoreA !== '' && m.scoreB !== ''
+    );
+    
+    completedMatches.forEach(match => {
+        processMatchForLiveElo(match);
+    });
+    
+    console.log('Recalculated all live ELOs:', state.liveElos);
+}
+
+/**
+ * Update the live leaderboard display
+ * @param {boolean} savePositions - Whether to save current positions as the new baseline for future delta calculations.
+ *                                   Set to true for match-level operations (add/delete/reset) but false for incremental round additions.
+ */
+function updateLiveLeaderboard(savePositions = false) {
+    if (!state.liveMode) {
+        document.getElementById('liveLeaderboardPanel')?.classList.add('collapsed');
+        return;
+    }
+    
+    // Capture current positions BEFORE generating new leaderboard
+    // This ensures we can show position deltas from the previous state
+    const oldPositions = state.previousPositions || {};
+    
+    // Generate NEW leaderboard with OLD positions for delta calculation
+    state.liveLeaderboard = generateLeaderboard(
+        state.liveElos,
+        state.liveStats,
+        oldPositions
+    );
+    
+    // Only update previous positions when explicitly requested
+    // This prevents position deltas from being reset during incremental round additions
+    if (savePositions) {
+        state.previousPositions = getPositionMap(state.liveLeaderboard);
+    }
+    
+    // Render the leaderboard
+    renderLiveLeaderboard();
+    
+    // Save state
+    saveToStorage();
+}
+
+/**
+ * Render the live leaderboard table
+ */
+function renderLiveLeaderboard() {
+    const tbody = document.getElementById('liveLeaderboardBody');
+    if (!tbody) return;
+    
+    const leaderboard = state.liveLeaderboard;
+    
+    if (leaderboard.length === 0) {
+        tbody.innerHTML = `
+            <tr class="empty-state">
+                <td colspan="7">No beys loaded. Please check if leaderboard.csv is available.</td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Always show all beys in the leaderboard
+    tbody.innerHTML = leaderboard.map(entry => {
+        const baselineElo = state.baselineElos[entry.bey] || ELO_START;
+        const eloDelta = entry.elo - baselineElo;
+        
+        // Rank badge for top 3
+        let rankDisplay;
+        if (entry.position <= 3) {
+            rankDisplay = `<span class="rank-badge rank-${entry.position}">${entry.position}</span>`;
+        } else {
+            rankDisplay = entry.position;
+        }
+        
+        // Position delta
+        let positionDeltaDisplay = '';
+        if (entry.positionDelta > 0) {
+            positionDeltaDisplay = `<span class="position-delta up">
+                <span class="position-delta-icon">↑</span>${entry.positionDelta}
+            </span>`;
+        } else if (entry.positionDelta < 0) {
+            positionDeltaDisplay = `<span class="position-delta down">
+                <span class="position-delta-icon">↓</span>${Math.abs(entry.positionDelta)}
+            </span>`;
+        } else {
+            positionDeltaDisplay = `<span class="position-delta neutral">—</span>`;
+        }
+        
+        // ELO change
+        let eloChangeDisplay;
+        const roundedEloDelta = Math.round(eloDelta);
+        if (roundedEloDelta > 0) {
+            eloChangeDisplay = `<span class="elo-change positive">+${roundedEloDelta}</span>`;
+        } else if (roundedEloDelta < 0) {
+            eloChangeDisplay = `<span class="elo-change negative">${roundedEloDelta}</span>`;
+        } else {
+            eloChangeDisplay = `<span class="elo-change neutral">—</span>`;
+        }
+        
+        // Record
+        const recordDisplay = `<span class="record-display">
+            <span class="record-wins">${entry.wins}</span>-<span class="record-losses">${entry.losses}</span>
+        </span>`;
+        
+        // Winrate
+        const winratePercent = (entry.winrate * 100).toFixed(0);
+        let winrateClass = 'winrate-medium';
+        if (entry.winrate >= 0.6) winrateClass = 'winrate-high';
+        else if (entry.winrate < 0.4) winrateClass = 'winrate-low';
+        
+        const winrateDisplay = `<span class="winrate-display ${winrateClass}">${winratePercent}%</span>`;
+        
+        return `
+            <tr class="leaderboard-row" data-bey="${escapeHtml(entry.bey)}">
+                <td class="col-rank">${rankDisplay}</td>
+                <td class="col-delta">${positionDeltaDisplay}</td>
+                <td class="col-bey">${escapeHtml(entry.bey)}</td>
+                <td class="col-elo">${Math.round(entry.elo)}</td>
+                <td class="col-elo-change">${eloChangeDisplay}</td>
+                <td class="col-record">${recordDisplay}</td>
+                <td class="col-winrate">${winrateDisplay}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+/**
+ * Toggle live leaderboard panel
+ */
+function toggleLiveLeaderboard() {
+    const panel = document.getElementById('liveLeaderboardPanel');
+    if (panel) {
+        panel.classList.toggle('collapsed');
+    }
+}
+
+/**
+ * Toggle live mode on/off
+ */
+function toggleLiveMode() {
+    state.liveMode = !state.liveMode;
+    saveToStorage();
+    
+    if (state.liveMode) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+        showToast('Live mode enabled', 'success');
+    } else {
+        showToast('Live mode disabled', 'info');
+    }
+}
+
+/**
+ * Show a post-match summary modal with ELO changes
+ */
+function showPostMatchSummary(eloResult) {
+    if (!eloResult) return;
+    
+    const summary = `
+        <div class="post-match-summary">
+            <h3>Match Complete!</h3>
+            <div class="summary-row">
+                <span class="summary-label">${escapeHtml(eloResult.beyA)}</span>
+                <span class="summary-value">${Math.round(eloResult.eloA)} → ${Math.round(eloResult.newEloA)}</span>
+                <span class="summary-delta ${eloResult.eloChangeA >= 0 ? 'positive' : 'negative'}">
+                    ${eloResult.eloChangeA >= 0 ? '+' : ''}${Math.round(eloResult.eloChangeA)}
+                </span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">${escapeHtml(eloResult.beyB)}</span>
+                <span class="summary-value">${Math.round(eloResult.eloB)} → ${Math.round(eloResult.newEloB)}</span>
+                <span class="summary-delta ${eloResult.eloChangeB >= 0 ? 'positive' : 'negative'}">
+                    ${eloResult.eloChangeB >= 0 ? '+' : ''}${Math.round(eloResult.eloChangeB)}
+                </span>
+            </div>
+        </div>
+    `;
+    
+    // You could show this in a toast or modal
+    // For now, we'll just log it
+    console.log('Post-match summary:', eloResult);
+}
+
