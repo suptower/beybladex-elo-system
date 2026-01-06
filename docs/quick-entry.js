@@ -638,6 +638,12 @@ function deleteMatch(index) {
     saveToStorage();
     renderMatches();
     updateStatusBar();
+    
+    // Recalculate live ELOs after match deletion
+    if (state.liveMode) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
 }
 
 function resetRound() {
@@ -657,8 +663,9 @@ function resetRound() {
     renderMatches();
     updateStatusBar();
     
-    // Recalculate live leaderboard after reset
+    // Recalculate live leaderboard after reset and clear position history
     if (state.liveMode) {
+        state.previousPositions = {}; // Clear position history for accurate deltas
         recalculateAllLiveElos();
         updateLiveLeaderboard();
     }
@@ -674,8 +681,8 @@ function clearAll() {
     state.matches = [];
     state.participants = [];
     
-    // Also reset live tournament state
-    initializeLiveElos();
+    // Also reset live tournament state (force reset)
+    initializeLiveElos(true);
     
     saveToStorage();
     renderMatches();
@@ -707,6 +714,12 @@ function updateScore(matchIndex, player, delta) {
     saveToStorage();
     renderMatches();
     updateStatusBar();
+    
+    // Update live ELOs if both beys are selected and live mode is enabled
+    if (state.liveMode && match.beyA && match.beyB) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
 }
 
 function setScore(matchIndex, player, value) {
@@ -727,6 +740,12 @@ function setScore(matchIndex, player, value) {
     saveToStorage();
     renderMatches();
     updateStatusBar();
+    
+    // Update live ELOs if both beys are selected and live mode is enabled
+    if (state.liveMode && match.beyA && match.beyB) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
 }
 
 /**
@@ -881,6 +900,13 @@ function updateBey(matchIndex, player, beyName) {
     
     // Update analysis panel when both Beys are selected
     updateAnalysisPanel(matchIndex);
+    
+    // Recalculate live ELOs if match has scores and live mode is enabled
+    if (state.liveMode && match.beyA && match.beyB && 
+        (match.scoreA !== '' && match.scoreA !== 0 || match.scoreB !== '' && match.scoreB !== 0)) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+    }
 }
 
 // ============================================
@@ -1853,10 +1879,11 @@ function validateMatches() {
 
 /**
  * Initialize live ELO ratings from baseline
+ * @param {boolean} forceReset - Force reset even if live ELOs exist
  */
-function initializeLiveElos() {
-    // If we have saved live ELOs and they're not empty, we're resuming
-    if (Object.keys(state.liveElos).length > 0) {
+function initializeLiveElos(forceReset = false) {
+    // If we have saved live ELOs and they're not empty, we're resuming (unless forced reset)
+    if (!forceReset && Object.keys(state.liveElos).length > 0) {
         console.log('Resuming live tournament with existing ELOs');
         return;
     }
@@ -1865,6 +1892,7 @@ function initializeLiveElos() {
     state.liveElos = { ...state.baselineElos };
     state.liveStats = {};
     state.previousPositions = {};
+    state.liveEloHistory = [];
     
     // Initialize stats for all beyblades
     for (const beyName in state.baselineElos) {
