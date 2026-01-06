@@ -31,7 +31,7 @@ async function initChangelog() {
     try {
         const response = await fetch('data/changelog.json');
         if (!response.ok) {
-            throw new Error('Failed to load changelog data');
+            throw new Error(`Failed to load changelog data: HTTP ${response.status} ${response.statusText}`);
         }
 
         const data = await response.json();
@@ -43,7 +43,7 @@ async function initChangelog() {
         setupEventListeners();
     } catch (error) {
         console.error('Error loading changelog:', error);
-        showError('Failed to load changelog. Please try again later.');
+        showError(`Failed to load changelog. ${error.message}`);
     }
 }
 

@@ -93,7 +93,7 @@ def get_commit_history(limit=50):
         output = subprocess.check_output(
             [
                 "git", "log",
-                f"-{limit}",
+                f"-{str(limit)}",
                 "--pretty=format:%h%x00%H%x00%aI%x00%an%x00%s",
             ],
             text=True,
