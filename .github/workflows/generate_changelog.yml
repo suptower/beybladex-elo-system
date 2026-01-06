@@ -9,6 +9,8 @@ on:
 jobs:
   generate-changelog:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repo with full history
         uses: actions/checkout@v4
