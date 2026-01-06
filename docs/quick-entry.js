@@ -1172,6 +1172,10 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
         `;
     }
     
+    // Determine which tabs to show
+    const showRecommendationTab = recommendationInfo !== null;
+    const showHistoryTab = (h2hDisplay !== '' || finishDisplay !== '');
+    
     return `
         <div class="match-analysis-panel collapsed" id="${idPrefix}_${matchIndex}">
             <div class="analysis-toggle" onclick="toggleAnalysisPanel('${idPrefix}_${matchIndex}')">
@@ -1181,80 +1185,110 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
             </div>
             
             <div class="analysis-content" style="display: none;">
-                <div class="analysis-section elo-ratings">
-                    <div class="elo-rating-item elo-a">
-                        <span class="elo-bey-name">${escapeHtml(match.beyA)}</span>
-                        ${livePositionA && offlinePositionA ? `<span class="elo-position">#${offlinePositionA} → #${livePositionA}</span>` : 
-                          livePositionA ? `<span class="elo-position">#${livePositionA}</span>` :
-                          offlinePositionA ? `<span class="elo-position">#${offlinePositionA}</span>` : ''}
-                        <span class="elo-value">${Math.round(eloA)}</span>
-                    </div>
-                    <div class="elo-diff">
-                        <span class="elo-diff-label">ΔELO</span>
-                        <span class="elo-diff-value ${eloDiff >= 0 ? 'positive' : 'negative'}">${eloDiff >= 0 ? '+' : ''}${Math.round(eloDiff)}</span>
-                    </div>
-                    <div class="elo-rating-item elo-b">
-                        <span class="elo-bey-name">${escapeHtml(match.beyB)}</span>
-                        ${livePositionB && offlinePositionB ? `<span class="elo-position">#${offlinePositionB} → #${livePositionB}</span>` : 
-                          livePositionB ? `<span class="elo-position">#${livePositionB}</span>` :
-                          offlinePositionB ? `<span class="elo-position">#${offlinePositionB}</span>` : ''}
-                        <span class="elo-value">${Math.round(eloB)}</span>
-                    </div>
+                <div class="analysis-tabs">
+                    <button class="analysis-tab active" onclick="switchAnalysisTab(event, '${idPrefix}_${matchIndex}', 'overview')">
+                        📊 Overview
+                    </button>
+                    ${showHistoryTab ? `
+                        <button class="analysis-tab" onclick="switchAnalysisTab(event, '${idPrefix}_${matchIndex}', 'history')">
+                            📜 History
+                        </button>
+                    ` : ''}
+                    <button class="analysis-tab" onclick="switchAnalysisTab(event, '${idPrefix}_${matchIndex}', 'whatif')">
+                        🔮 What-If
+                    </button>
+                    ${showRecommendationTab ? `
+                        <button class="analysis-tab" onclick="switchAnalysisTab(event, '${idPrefix}_${matchIndex}', 'recommendation')">
+                            🎯 Recommended
+                        </button>
+                    ` : ''}
                 </div>
                 
-                <div class="analysis-section win-probability">
-                    <div class="probability-label">Win Probability</div>
-                    <div class="probability-bars">
-                        <div class="probability-bar-container">
-                            <div class="probability-bar prob-a" style="width: ${probA * 100}%">
-                                <span class="probability-text">${(probA * 100).toFixed(0)}%</span>
+                <div class="analysis-tab-content active" id="${idPrefix}_${matchIndex}_overview">
+                    <div class="analysis-section elo-ratings">
+                        <div class="elo-rating-item elo-a">
+                            <span class="elo-bey-name">${escapeHtml(match.beyA)}</span>
+                            ${livePositionA && offlinePositionA ? `<span class="elo-position">#${offlinePositionA} → #${livePositionA}</span>` : 
+                              livePositionA ? `<span class="elo-position">#${livePositionA}</span>` :
+                              offlinePositionA ? `<span class="elo-position">#${offlinePositionA}</span>` : ''}
+                            <span class="elo-value">${Math.round(eloA)}</span>
+                        </div>
+                        <div class="elo-diff">
+                            <span class="elo-diff-label">ΔELO</span>
+                            <span class="elo-diff-value ${eloDiff >= 0 ? 'positive' : 'negative'}">${eloDiff >= 0 ? '+' : ''}${Math.round(eloDiff)}</span>
+                        </div>
+                        <div class="elo-rating-item elo-b">
+                            <span class="elo-bey-name">${escapeHtml(match.beyB)}</span>
+                            ${livePositionB && offlinePositionB ? `<span class="elo-position">#${offlinePositionB} → #${livePositionB}</span>` : 
+                              livePositionB ? `<span class="elo-position">#${livePositionB}</span>` :
+                              offlinePositionB ? `<span class="elo-position">#${offlinePositionB}</span>` : ''}
+                            <span class="elo-value">${Math.round(eloB)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-section win-probability">
+                        <div class="probability-label">Win Probability</div>
+                        <div class="probability-bars">
+                            <div class="probability-bar-container">
+                                <div class="probability-bar prob-a" style="width: ${probA * 100}%">
+                                    <span class="probability-text">${(probA * 100).toFixed(0)}%</span>
+                                </div>
+                            </div>
+                            <div class="probability-bar-container">
+                                <div class="probability-bar prob-b" style="width: ${probB * 100}%">
+                                    <span class="probability-text">${(probB * 100).toFixed(0)}%</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="probability-bar-container">
-                            <div class="probability-bar prob-b" style="width: ${probB * 100}%">
-                                <span class="probability-text">${(probB * 100).toFixed(0)}%</span>
+                    </div>
+                    
+                    <div class="analysis-section predicted-score">
+                        <div class="predicted-score-label">Predicted Score</div>
+                        <div class="predicted-score-value">
+                            <span class="score-team score-a">${predictedScore.scoreA}</span>
+                            <span class="score-separator">-</span>
+                            <span class="score-team score-b">${predictedScore.scoreB}</span>
+                        </div>
+                        <div class="predicted-score-hint">Based on ${(probA * 100).toFixed(0)}% win probability</div>
+                    </div>
+                </div>
+                
+                ${showHistoryTab ? `
+                    <div class="analysis-tab-content" id="${idPrefix}_${matchIndex}_history" style="display: none;">
+                        ${h2hDisplay}
+                        ${finishDisplay}
+                    </div>
+                ` : ''}
+                
+                <div class="analysis-tab-content" id="${idPrefix}_${matchIndex}_whatif" style="display: none;">
+                    <div class="analysis-section elo-changes">
+                        <div class="elo-change-label">Expected ELO Changes</div>
+                        <div class="elo-change-outcomes">
+                            <div class="elo-outcome">
+                                <span class="outcome-label">If ${escapeHtml(match.beyA)} wins:</span>
+                                <span class="outcome-values">
+                                    <span class="elo-change ${eloChangeAWin >= 0 ? 'positive' : 'negative'}">${eloChangeAWin >= 0 ? '+' : ''}${Math.round(eloChangeAWin)}</span>
+                                    <span class="outcome-separator">/</span>
+                                    <span class="elo-change ${eloChangeBLoss >= 0 ? 'positive' : 'negative'}">${eloChangeBLoss >= 0 ? '+' : ''}${Math.round(eloChangeBLoss)}</span>
+                                </span>
+                            </div>
+                            <div class="elo-outcome">
+                                <span class="outcome-label">If ${escapeHtml(match.beyB)} wins:</span>
+                                <span class="outcome-values">
+                                    <span class="elo-change ${eloChangeALoss >= 0 ? 'positive' : 'negative'}">${eloChangeALoss >= 0 ? '+' : ''}${Math.round(eloChangeALoss)}</span>
+                                    <span class="outcome-separator">/</span>
+                                    <span class="elo-change ${eloChangeBWin >= 0 ? 'positive' : 'negative'}">${eloChangeBWin >= 0 ? '+' : ''}${Math.round(eloChangeBWin)}</span>
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="analysis-section predicted-score">
-                    <div class="predicted-score-label">Predicted Score</div>
-                    <div class="predicted-score-value">
-                        <span class="score-team score-a">${predictedScore.scoreA}</span>
-                        <span class="score-separator">-</span>
-                        <span class="score-team score-b">${predictedScore.scoreB}</span>
+                ${showRecommendationTab ? `
+                    <div class="analysis-tab-content" id="${idPrefix}_${matchIndex}_recommendation" style="display: none;">
+                        ${recommendationDisplay}
                     </div>
-                    <div class="predicted-score-hint">Based on ${(probA * 100).toFixed(0)}% win probability</div>
-                </div>
-                
-                ${h2hDisplay}
-                
-                ${finishDisplay}
-                
-                ${recommendationDisplay}
-                
-                <div class="analysis-section elo-changes">
-                    <div class="elo-change-label">Expected ELO Changes</div>
-                    <div class="elo-change-outcomes">
-                        <div class="elo-outcome">
-                            <span class="outcome-label">If ${escapeHtml(match.beyA)} wins:</span>
-                            <span class="outcome-values">
-                                <span class="elo-change ${eloChangeAWin >= 0 ? 'positive' : 'negative'}">${eloChangeAWin >= 0 ? '+' : ''}${Math.round(eloChangeAWin)}</span>
-                                <span class="outcome-separator">/</span>
-                                <span class="elo-change ${eloChangeBLoss >= 0 ? 'positive' : 'negative'}">${eloChangeBLoss >= 0 ? '+' : ''}${Math.round(eloChangeBLoss)}</span>
-                            </span>
-                        </div>
-                        <div class="elo-outcome">
-                            <span class="outcome-label">If ${escapeHtml(match.beyB)} wins:</span>
-                            <span class="outcome-values">
-                                <span class="elo-change ${eloChangeALoss >= 0 ? 'positive' : 'negative'}">${eloChangeALoss >= 0 ? '+' : ''}${Math.round(eloChangeALoss)}</span>
-                                <span class="outcome-separator">/</span>
-                                <span class="elo-change ${eloChangeBWin >= 0 ? 'positive' : 'negative'}">${eloChangeBWin >= 0 ? '+' : ''}${Math.round(eloChangeBWin)}</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                ` : ''}
             </div>
         </div>
     `;
@@ -1483,7 +1517,7 @@ function toggleAnalysisPanel(panelId) {
         if (isCollapsed) {
             // Expand
             panel.classList.remove('collapsed');
-            content.style.display = 'flex';
+            content.style.display = 'block';
             icon.textContent = '▼';
         } else {
             // Collapse
@@ -1491,6 +1525,35 @@ function toggleAnalysisPanel(panelId) {
             content.style.display = 'none';
             icon.textContent = '▶';
         }
+    }
+}
+
+// Switch between analysis tabs
+function switchAnalysisTab(event, panelId, tabName) {
+    event.stopPropagation();
+    
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    
+    // Remove active class from all tabs in this panel
+    const tabs = panel.querySelectorAll('.analysis-tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Hide all tab contents in this panel
+    const tabContents = panel.querySelectorAll('.analysis-tab-content');
+    tabContents.forEach(content => {
+        content.style.display = 'none';
+        content.classList.remove('active');
+    });
+    
+    // Activate the clicked tab
+    event.target.classList.add('active');
+    
+    // Show the corresponding tab content
+    const targetContent = document.getElementById(`${panelId}_${tabName}`);
+    if (targetContent) {
+        targetContent.style.display = 'block';
+        targetContent.classList.add('active');
     }
 }
 

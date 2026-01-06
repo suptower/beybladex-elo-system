@@ -395,6 +395,49 @@
     padding-top: 0;
 }
 
+/* Analysis Tabs */
+.analysis-tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 0.75rem;
+    overflow-x: auto;
+    padding-top: 0.75rem;
+}
+
+.analysis-tab {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: var(--transition);
+    white-space: nowrap;
+    font-family: inherit;
+}
+
+.analysis-tab:hover {
+    color: var(--text);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.analysis-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.analysis-tab-content {
+    display: none;
+}
+
+.analysis-tab-content.active {
+    display: block;
+}
+
 /* ELO Ratings Section */
 .analysis-section.elo-ratings {
     display: flex;
