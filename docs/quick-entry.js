@@ -682,6 +682,7 @@ function resetRound() {
         );
         state.previousPositions = getPositionMap(baselineLeaderboard);
         
+        // Don't pass savePositions=true since we just set previousPositions above
         updateLiveLeaderboard();
     }
     
@@ -697,12 +698,14 @@ function clearAll() {
     state.participants = [];
     
     // Also reset live tournament state (force reset)
+    // initializeLiveElos() will set previousPositions to baseline
     initializeLiveElos(true);
     
     saveToStorage();
     renderMatches();
     renderSelectedParticipants();
     updateStatusBar();
+    // Don't pass savePositions=true since initializeLiveElos() already set previousPositions
     updateLiveLeaderboard();
     showToast('All data cleared', 'warning');
 }
