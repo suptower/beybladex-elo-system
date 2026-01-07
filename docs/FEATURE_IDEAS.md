@@ -31,7 +31,7 @@ This document contains brainstormed ideas for new features and improvements to e
 **Value:** Makes it easier to run official tournaments and track them within the system.  
 **Implementation:**
 - Add tournament creation form (name, date, format: single-elim, double-elim, round-robin)
-- Generate bracket structure with BeyBlades from leaderboard
+- Generate bracket structure with Beyblades from leaderboard
 - Allow manual entry of match results that update the bracket
 - Export bracket as image/PDF
 - Auto-save tournament results to a dedicated folder
