@@ -4,15 +4,17 @@ This document contains brainstormed ideas for new features and improvements to e
 
 ## 🎯 High Priority Features
 
-### 1. **ELO Rating History Graph per Beyblade**
+### 1. **Interactive ELO History Graph per Beyblade** ✅ *Partially Implemented*
 **Category:** Visualization  
-**Description:** Add individual ELO progression charts on each Beyblade's wiki page showing how their rating evolved over time.  
-**Value:** Helps users understand performance trends and identify when a Beyblade peaked or declined.  
+**Description:** Enhance the existing static ELO plots with interactive features. Currently, static PNG plots exist in `/docs/plots/elo/` and are displayed on individual Beyblade pages.  
+**Value:** Interactive charts would allow zooming, tooltips showing exact values, and better mobile experience.  
 **Implementation:**
-- Extend `bey.html` to include a line chart using the existing `elo_timeseries.csv` data
-- Use Plotly.js or Chart.js for interactive visualization
-- Filter timeseries data by specific Beyblade name
-**Effort:** Medium (2-3 days)
+- Replace static PNG plots with Plotly.js or Chart.js interactive versions
+- Add tooltips showing date, ELO value, and opponent on hover
+- Enable zoom and pan for detailed analysis
+- Add date range selector
+**Effort:** Medium (2-3 days)  
+**Note:** Static plots already exist; this would enhance them with interactivity.
 
 ### 2. **Head-to-Head Comparison Tool**
 **Category:** Tools  
@@ -94,16 +96,17 @@ This document contains brainstormed ideas for new features and improvements to e
 - Export filtered results as CSV
 **Effort:** Medium (3-4 days)
 
-### 9. **Consistency Score**
+### 9. **Enhanced Consistency Metrics** ✅ *Partially Implemented*
 **Category:** Analytics  
-**Description:** New metric measuring how reliably a Beyblade performs near its expected level (low variance in results).  
-**Value:** Helps identify "safe" picks vs high-variance "boom or bust" Beyblades.  
+**Description:** Expand on existing consistency metrics. The system already tracks "Volatility" (std dev of ELO changes) and "Credibility Score" in advanced stats.  
+**Value:** Additional consistency perspectives help identify reliable picks and understand performance patterns.  
 **Implementation:**
-- Calculate standard deviation of point differentials and upset rate
-- Add consistency column to leaderboard and compare page
-- Create consistency tier list
-- Show consistency trends over time
-**Effort:** Low (1-2 days)
+- Add visual consistency tiers to leaderboard (e.g., "Rock Solid", "Stable", "Volatile", "Unpredictable")
+- Calculate consistency trends over time (rolling window volatility)
+- Add point differential consistency (not just ELO volatility)
+- Create consistency vs ELO scatter plot
+**Effort:** Low-Medium (2-3 days)  
+**Note:** Basic volatility and credibility metrics already exist; this would add visual enhancements and additional perspectives.
 
 ### 10. **Rivalry Detection**
 **Category:** Analytics  
@@ -118,16 +121,18 @@ This document contains brainstormed ideas for new features and improvements to e
 
 ## 🎮 User Experience Improvements
 
-### 11. **Keyboard Shortcuts**
+### 11. **Expanded Keyboard Shortcuts** ✅ *Partially Implemented*
 **Category:** UX  
-**Description:** Add keyboard shortcuts for common actions, especially in quick-entry mode.  
-**Value:** Speeds up data entry during live tournaments.  
+**Description:** Extend existing keyboard shortcuts in quick-entry to other pages. Quick-entry already has shortcuts (↑/↓ for scores, Tab, Enter, Ctrl+S).  
+**Value:** Speeds up navigation and actions across the entire site, not just quick-entry.  
 **Implementation:**
-- Define shortcut schema (e.g., Ctrl+S save, Ctrl+N new match, Tab navigation)
-- Add keyboard handler in JavaScript
-- Display shortcut guide modal (press '?' key)
-- Make shortcuts configurable in settings
-**Effort:** Low (1-2 days)
+- Add global shortcuts (e.g., '/' for search, 'L' for leaderboard, 'W' for wiki)
+- Add shortcuts to compare page, matches page, and other tools
+- Create unified keyboard shortcut manager
+- Display shortcut guide modal (press '?') on all pages
+- Make shortcuts configurable in user preferences
+**Effort:** Low-Medium (2-3 days)  
+**Note:** Quick-entry already has shortcuts; this would expand them site-wide.
 
 ### 12. **Dark Mode Improvements**
 **Category:** UX  
@@ -478,15 +483,21 @@ This document contains **38 feature ideas** across multiple categories:
 
 ### Quick Win Recommendations (Start Here)
 
-These features provide good value with relatively low implementation effort:
+These features provide good value with relatively low implementation effort and are **not yet implemented**:
 
-1. ✅ **Consistency Score** (1-2 days) - New metric, easy to calculate
-2. ✅ **Keyboard Shortcuts** (1-2 days) - Big UX improvement, quick to add
-3. ✅ **Export to Common Formats** (1-2 days) - Widely useful
-4. ✅ **Match Comments** (1-2 days) - Simple but valuable context
-5. ✅ **Leaderboard Time Travel** (2-3 days) - Data already exists
-6. ✅ **Dark Mode Improvements** (1 day) - Polish existing feature
-7. ✅ **ELO History Graphs per Bey** (2-3 days) - Data exists, high value
+1. ✅ **Export to Common Formats** (1-2 days) - Widely useful, no implementation found
+2. ✅ **Match Comments** (1-2 days) - Simple but valuable context addition
+3. ✅ **Leaderboard Time Travel** (2-3 days) - Per-tournament data exists, just needs UI
+4. ✅ **Rivalry Detection** (2-3 days) - Identify compelling matchups automatically
+5. ✅ **Head-to-Head Comparison Tool** (3-4 days) - Specific matchup analysis
+6. ✅ **Data Validation Checks** (2-3 days) - Improve data quality
+7. ✅ **Clutch Performance Metrics** (2-3 days) - Identify pressure performers
+
+**Already Implemented** (but could be enhanced):
+- ⚠️ **ELO History Graphs** - Static plots exist, could be made interactive
+- ⚠️ **Consistency Metrics** - Volatility/Credibility exist, could add visual tiers
+- ⚠️ **Keyboard Shortcuts** - Exist in quick-entry, could expand site-wide
+- ⚠️ **Dark Mode** - Already implemented and functional
 
 ---
 
