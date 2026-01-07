@@ -36,5 +36,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore: Update changelog [skip ci]"
-            git push
+            git push --set-upstream origin update-changelog
           fi
