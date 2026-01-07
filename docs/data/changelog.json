@@ -1,33 +1,42 @@
 {
-  "generated_at": "2026-01-06T19:25:05.473061+00:00",
-  "commit_count": 4,
+  "generated_at": "2026-01-07T11:24:03.334160+00:00",
+  "commit_count": 50,
   "commits": [
     {
-      "hash": "ffd72dc",
-      "full_hash": "ffd72dc30e5279f88836ff05b27edc1d868f19c2",
-      "date": "2026-01-06T19:23:49Z",
-      "message": "fix: Address code review feedback - improve error handling and fix emoji duplication",
-      "author": "copilot-swe-agent[bot]",
+      "hash": "5a245e7",
+      "full_hash": "5a245e7c6bf00afc2414d2b7e9b9a09dd9956392",
+      "date": "2026-01-07T12:23:38+01:00",
+      "message": "fix: set upstream on workflow push",
+      "author": "Arda K",
       "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/ffd72dc30e5279f88836ff05b27edc1d868f19c2"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/5a245e7c6bf00afc2414d2b7e9b9a09dd9956392"
     },
     {
-      "hash": "9312039",
-      "full_hash": "93120396d4a44a2f60ded462a7e124552fcda921",
-      "date": "2026-01-06T19:20:50Z",
-      "message": "feat: Add auto-generated changelog feature",
-      "author": "copilot-swe-agent[bot]",
+      "hash": "2c8fb61",
+      "full_hash": "2c8fb618f6effc2c26c6a1d08e86027e797eef5c",
+      "date": "2026-01-07T12:18:03+01:00",
+      "message": "fix: push changelog on new branch",
+      "author": "Arda K",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/2c8fb618f6effc2c26c6a1d08e86027e797eef5c"
+    },
+    {
+      "hash": "2ae4b93",
+      "full_hash": "2ae4b93631c79752b4cfb446283f35e9f3e4fcc8",
+      "date": "2026-01-06T21:44:24+01:00",
+      "message": "fix: Add write permission to generate_changelog workflow (#184)",
+      "author": "Copilot",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/2ae4b93631c79752b4cfb446283f35e9f3e4fcc8"
+    },
+    {
+      "hash": "ac629ec",
+      "full_hash": "ac629ec0ef78d26f3ef3ad46607a1bf328198367",
+      "date": "2026-01-06T20:52:52+01:00",
+      "message": "feat: Add auto-generated changelog page from git commit history (#182)",
+      "author": "Copilot",
       "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/93120396d4a44a2f60ded462a7e124552fcda921"
-    },
-    {
-      "hash": "d7ae0a7",
-      "full_hash": "d7ae0a7d7024489f26b516ea17889259970073e8",
-      "date": "2026-01-06T19:13:45Z",
-      "message": "Initial plan",
-      "author": "copilot-swe-agent[bot]",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/d7ae0a7d7024489f26b516ea17889259970073e8"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/ac629ec0ef78d26f3ef3ad46607a1bf328198367"
     },
     {
       "hash": "b8a1002",
@@ -37,6 +46,411 @@
       "author": "Copilot",
       "category": "Documentation",
       "github_url": "https://github.com/suptower/beybladex-elo-system/commit/b8a10024db3609d34af7db0df0ad973f6d31bffc"
+    },
+    {
+      "hash": "8ed53bf",
+      "full_hash": "8ed53bf3605dedf4da26dc2cb1daf66a19317945",
+      "date": "2026-01-06T19:50:08+01:00",
+      "message": "Integrate recommended matches with pre-match analysis in quick entry (#178)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/8ed53bf3605dedf4da26dc2cb1daf66a19317945"
+    },
+    {
+      "hash": "287e41b",
+      "full_hash": "287e41be0425b604348356bfa3cccac5449ddee1",
+      "date": "2026-01-06T16:26:07+01:00",
+      "message": "feat: client-side live ELO leaderboard with real-time updates (#176)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/287e41be0425b604348356bfa3cccac5449ddee1"
+    },
+    {
+      "hash": "e09a0e8",
+      "full_hash": "e09a0e82e331aca0a66a5f9692c40bf709712d87",
+      "date": "2026-01-06T01:21:35+01:00",
+      "message": "feat: archetype effectiveness dashboard (#174)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e09a0e82e331aca0a66a5f9692c40bf709712d87"
+    },
+    {
+      "hash": "1a69d5b",
+      "full_hash": "1a69d5ba0355d5495e1f0213ad097241a1bf5305",
+      "date": "2026-01-05T23:43:01+01:00",
+      "message": "Add matchup matrix for Bey-vs-Bey performance analysis (#173)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1a69d5ba0355d5495e1f0213ad097241a1bf5305"
+    },
+    {
+      "hash": "fe9b35d",
+      "full_hash": "fe9b35d0c82bcef6df09e062450c323e11458696",
+      "date": "2026-01-05T21:39:37+01:00",
+      "message": "feat: Add credibility score to quantify ELO rating reliability (#170)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/fe9b35d0c82bcef6df09e062450c323e11458696"
+    },
+    {
+      "hash": "6a33de6",
+      "full_hash": "6a33de6d9bc50c140e4ae3334c048d7a15845b5c",
+      "date": "2026-01-05T16:47:26+01:00",
+      "message": "feat: Add recommended matches system for data-driven match suggestions (#168)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/6a33de6d9bc50c140e4ae3334c048d7a15845b5c"
+    },
+    {
+      "hash": "349e77d",
+      "full_hash": "349e77d84608e3354e9b9b98516e6eda76d28726",
+      "date": "2026-01-05T15:10:37+01:00",
+      "message": "Add median and average reference lines to ELO and position history plots (#166)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/349e77d84608e3354e9b9b98516e6eda76d28726"
+    },
+    {
+      "hash": "5486ba8",
+      "full_hash": "5486ba8e92df6bb4fd999bfafed9b73b4e0b0c19",
+      "date": "2026-01-05T13:06:29+01:00",
+      "message": "feat: add milestones page for statistical records and achievements (#164)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/5486ba8e92df6bb4fd999bfafed9b73b4e0b0c19"
+    },
+    {
+      "hash": "13f2b98",
+      "full_hash": "13f2b981445f3aa4fb403174966911ba676d5485",
+      "date": "2026-01-04T22:25:53+01:00",
+      "message": "feat: add ko3 tournament data (#162)",
+      "author": "suptower",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/13f2b981445f3aa4fb403174966911ba676d5485"
+    },
+    {
+      "hash": "899a6c7",
+      "full_hash": "899a6c7ec757cc9b51bbfea17b1e761ef80d1552",
+      "date": "2026-01-04T22:01:55+01:00",
+      "message": "feat: automatic site version number from Git commits (#161)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/899a6c7ec757cc9b51bbfea17b1e761ef80d1552"
+    },
+    {
+      "hash": "db78f5d",
+      "full_hash": "db78f5d37634db6ebde3c481f0e11ddfb474779d",
+      "date": "2026-01-04T17:39:21+01:00",
+      "message": "Add Bey Family relations with multi-family support to Related Beys section (#159)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/db78f5d37634db6ebde3c481f0e11ddfb474779d"
+    },
+    {
+      "hash": "98b1381",
+      "full_hash": "98b1381929cd2ddda60ee48fd8b2b3dc9ec0ea67",
+      "date": "2026-01-04T13:34:32+01:00",
+      "message": "fix: shorten tournament names",
+      "author": "Arda K",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/98b1381929cd2ddda60ee48fd8b2b3dc9ec0ea67"
+    },
+    {
+      "hash": "b1ae2c0",
+      "full_hash": "b1ae2c0bf0ddc21d3ce0215481c62a80386709a4",
+      "date": "2026-01-04T13:28:10+01:00",
+      "message": "feat: always show low elo",
+      "author": "Arda K",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/b1ae2c0bf0ddc21d3ce0215481c62a80386709a4"
+    },
+    {
+      "hash": "6a27665",
+      "full_hash": "6a276651f422ca67b8d22f9ae58973d026cffff4",
+      "date": "2026-01-03T23:42:11+01:00",
+      "message": "feat: highlight min/max ELO and position in history plots and profile pages (#157)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/6a276651f422ca67b8d22f9ae58973d026cffff4"
+    },
+    {
+      "hash": "a2ab2af",
+      "full_hash": "a2ab2af93a2217907d7314f9a98050e502551350",
+      "date": "2026-01-03T21:09:00+01:00",
+      "message": "fix: linting issues",
+      "author": "Arda K",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/a2ab2af93a2217907d7314f9a98050e502551350"
+    },
+    {
+      "hash": "f4cb087",
+      "full_hash": "f4cb087758385c4af67746e225fa6c4252ea4c76",
+      "date": "2026-01-03T21:07:04+01:00",
+      "message": "feat: update elo calc",
+      "author": "Arda K",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f4cb087758385c4af67746e225fa6c4252ea4c76"
+    },
+    {
+      "hash": "5283461",
+      "full_hash": "528346144bfe3a5f997249f37f7318807a6bcdc6",
+      "date": "2026-01-03T20:51:35+01:00",
+      "message": "fix: gitignore data re-inclusion (#155)",
+      "author": "suptower",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/528346144bfe3a5f997249f37f7318807a6bcdc6"
+    },
+    {
+      "hash": "e9b07fb",
+      "full_hash": "e9b07fb63e0e42ecd1c0fd849e513d8e53fe9915",
+      "date": "2026-01-03T17:18:26+01:00",
+      "message": "chore: release 2.4 (#154)",
+      "author": "suptower",
+      "category": "Chore",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e9b07fb63e0e42ecd1c0fd849e513d8e53fe9915"
+    },
+    {
+      "hash": "fa182db",
+      "full_hash": "fa182db700dd368355f676382c98decad10481da",
+      "date": "2026-01-03T17:15:35+01:00",
+      "message": "feat: support adding new beys without match data (#153)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/fa182db700dd368355f676382c98decad10481da"
+    },
+    {
+      "hash": "14ab284",
+      "full_hash": "14ab2844cdd6a2914b4936f1a0feb3ce3f8656ba",
+      "date": "2026-01-03T16:47:54+01:00",
+      "message": "Implement dominance-based ELO scoring (v2) (#151)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/14ab2844cdd6a2914b4936f1a0feb3ce3f8656ba"
+    },
+    {
+      "hash": "39ddcce",
+      "full_hash": "39ddcce1fe95ffbc8df404be5c592463b99af86a",
+      "date": "2026-01-02T21:28:33+01:00",
+      "message": "feat: Add collapsible pre-match ELO analysis panel with enhanced predictions (#149)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/39ddcce1fe95ffbc8df404be5c592463b99af86a"
+    },
+    {
+      "hash": "80ab27d",
+      "full_hash": "80ab27d39b023e290fee9b86bdf6ebebbab9031e",
+      "date": "2025-12-27T20:31:40+01:00",
+      "message": "merge: add data from champions-league-I-tournament (#146)",
+      "author": "suptower",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/80ab27d39b023e290fee9b86bdf6ebebbab9031e"
+    },
+    {
+      "hash": "68a8006",
+      "full_hash": "68a80063f1d08832f3b2a671d5c0764b15de7654",
+      "date": "2025-12-12T19:24:19+01:00",
+      "message": "feat: add  data from q16-erl-I tournament (#145)",
+      "author": "suptower",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/68a80063f1d08832f3b2a671d5c0764b15de7654"
+    },
+    {
+      "hash": "749da77",
+      "full_hash": "749da77082fd0fa8812c847315957735ab6eca28",
+      "date": "2025-12-11T00:01:56+01:00",
+      "message": "fix(matches): m0058 data mismatch (#144)",
+      "author": "suptower",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/749da77082fd0fa8812c847315957735ab6eca28"
+    },
+    {
+      "hash": "ae59216",
+      "full_hash": "ae59216009bdf117cab23f44605c26904fe5ef5c",
+      "date": "2025-12-10T09:11:13+01:00",
+      "message": "feat: sort beys alphabetically in quick entry dropdowns (#142)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/ae59216009bdf117cab23f44605c26904fe5ef5c"
+    },
+    {
+      "hash": "cdce12c",
+      "full_hash": "cdce12c555e2b58ce17a6e46bdabb35b02f8dab3",
+      "date": "2025-12-09T21:29:24+01:00",
+      "message": "feat: adapt front page elements (#140)",
+      "author": "suptower",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/cdce12c555e2b58ce17a6e46bdabb35b02f8dab3"
+    },
+    {
+      "hash": "f5847b1",
+      "full_hash": "f5847b183a439bae4d85d749afc1b82605d64f7d",
+      "date": "2025-12-08T23:12:15+01:00",
+      "message": "feat: display archetype in Beyblade hover tooltips with dynamic glowing effects (#139)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f5847b183a439bae4d85d749afc1b82605d64f7d"
+    },
+    {
+      "hash": "452c05a",
+      "full_hash": "452c05a7520794660a197e656be98a23f5c6f22c",
+      "date": "2025-12-08T21:30:09+01:00",
+      "message": "fix(data): refine archetype detection with threshold requirements and exclusion criteria (#137)",
+      "author": "Copilot",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/452c05a7520794660a197e656be98a23f5c6f22c"
+    },
+    {
+      "hash": "7c33170",
+      "full_hash": "7c33170b4e54031f30cba533f26170c84ba233da",
+      "date": "2025-12-08T20:21:21+01:00",
+      "message": "Consolidate data storage from ./data to ./docs/data (#136)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/7c33170b4e54031f30cba533f26170c84ba233da"
+    },
+    {
+      "hash": "7b4bbe2",
+      "full_hash": "7b4bbe235d4573a303c57b07dd4f601fca18cfd7",
+      "date": "2025-12-08T17:43:17+01:00",
+      "message": "feat: add sorted namelist beys.csv (#134)",
+      "author": "suptower",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/7b4bbe235d4573a303c57b07dd4f601fca18cfd7"
+    },
+    {
+      "hash": "d716761",
+      "full_hash": "d71676154ee0cbdd3a51a14276c85ef56f3e8082",
+      "date": "2025-12-06T13:50:08+01:00",
+      "message": "feat: fast round entry system with round-level data model (#130)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/d71676154ee0cbdd3a51a14276c85ef56f3e8082"
+    },
+    {
+      "hash": "d371a58",
+      "full_hash": "d371a58a0e75cb15e40dc2fe8c039595523a2eae",
+      "date": "2025-12-05T10:57:00+01:00",
+      "message": "feat(matches): display elo delta next to bey name (#128)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/d371a58a0e75cb15e40dc2fe8c039595523a2eae"
+    },
+    {
+      "hash": "2036c30",
+      "full_hash": "2036c30d941e96ca8d99f535400b1f73d5cdcc69",
+      "date": "2025-12-05T02:04:49+01:00",
+      "message": "feat(pages): display Match ID on matches, bey wiki, and upset analysis pages (#127)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/2036c30d941e96ca8d99f535400b1f73d5cdcc69"
+    },
+    {
+      "hash": "a150e80",
+      "full_hash": "a150e803051623572b4e92f6ee2fe29bd6ae17e0",
+      "date": "2025-12-05T00:59:40+01:00",
+      "message": "feat(pages): Add round-level details to matches page (#124)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/a150e803051623572b4e92f6ee2fe29bd6ae17e0"
+    },
+    {
+      "hash": "fcc85d6",
+      "full_hash": "fcc85d61ee2d6a15312ef9bb2806ee33248b8a8b",
+      "date": "2025-12-04T23:16:08+01:00",
+      "message": "fix(data): adapted prior round data (#123)",
+      "author": "suptower",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/fcc85d61ee2d6a15312ef9bb2806ee33248b8a8b"
+    },
+    {
+      "hash": "5e5c592",
+      "full_hash": "5e5c592ad62cc8d6be0eb54aab91ea3646424535",
+      "date": "2025-12-04T22:56:48+01:00",
+      "message": "fix(upsets): Fix date sorting in Upset Analysis page (#122)",
+      "author": "Copilot",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/5e5c592ad62cc8d6be0eb54aab91ea3646424535"
+    },
+    {
+      "hash": "f98b329",
+      "full_hash": "f98b3291da49f8fa83282479b1618cb9675ff806",
+      "date": "2025-12-04T22:26:12+01:00",
+      "message": "feat: add t3 preliminary data (#121)",
+      "author": "suptower",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f98b3291da49f8fa83282479b1618cb9675ff806"
+    },
+    {
+      "hash": "10072fd",
+      "full_hash": "10072fd90f458681b9f5c062db578e7309085782",
+      "date": "2025-12-04T21:48:43+01:00",
+      "message": "Merge branch 'feat-add-t3' of https://github.com/suptower/beybladex-elo-system",
+      "author": "Arda K",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/10072fd90f458681b9f5c062db578e7309085782"
+    },
+    {
+      "hash": "1c40e40",
+      "full_hash": "1c40e40e38c520047d4d2e0c2c5f3f59651f9069",
+      "date": "2025-12-04T21:39:41+01:00",
+      "message": "fix: unified update pipeline",
+      "author": "Copilot",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1c40e40e38c520047d4d2e0c2c5f3f59651f9069"
+    },
+    {
+      "hash": "6f0a186",
+      "full_hash": "6f0a18652290182947977e69a68d9917e780c4ab",
+      "date": "2025-12-04T17:08:19+01:00",
+      "message": "Fix navigation dropdown for touch devices at desktop breakpoints (#114)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/6f0a18652290182947977e69a68d9917e780c4ab"
+    },
+    {
+      "hash": "a94c595",
+      "full_hash": "a94c5952c04e4ed4b41212afddf2ec41afdbb436",
+      "date": "2025-12-04T17:05:40+01:00",
+      "message": "feat: add new tournament data",
+      "author": "Arda K",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/a94c5952c04e4ed4b41212afddf2ec41afdbb436"
+    },
+    {
+      "hash": "d027a8d",
+      "full_hash": "d027a8dfe9fd69bb82f7407acf041d2f32cf031d",
+      "date": "2025-12-04T16:02:04+01:00",
+      "message": "feat: add tournament bracket viewer page with Challonge embeds (#112)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/d027a8dfe9fd69bb82f7407acf041d2f32cf031d"
+    },
+    {
+      "hash": "d3de27c",
+      "full_hash": "d3de27ce185a274c80917f6e478779805b06c0a4",
+      "date": "2025-12-02T16:28:06+01:00",
+      "message": "refactor: restructure project for clarity and maintainability (#110)",
+      "author": "Copilot",
+      "category": "Refactor",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/d3de27ce185a274c80917f6e478779805b06c0a4"
+    },
+    {
+      "hash": "e349f1f",
+      "full_hash": "e349f1f0e0561d41e3d6e4c3b53b65368d536e4d",
+      "date": "2025-12-02T14:43:11+01:00",
+      "message": "feat(pages): redesign navigation with categorized dropdowns (#108)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e349f1f0e0561d41e3d6e4c3b53b65368d536e4d"
+    },
+    {
+      "hash": "b726814",
+      "full_hash": "b72681488da71f99f0ffa32f0d114e66bab2f362",
+      "date": "2025-12-02T11:31:20+01:00",
+      "message": "feat(pages): archetype detection system (#106)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/b72681488da71f99f0ffa32f0d114e66bab2f362"
     }
   ]
 }
