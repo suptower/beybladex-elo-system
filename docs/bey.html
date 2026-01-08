@@ -1187,8 +1187,8 @@ function loadEloPlot() {
     }
     
     // Try interactive plot first on desktop
-    // Add cache-busting parameter to ensure latest version is loaded
-    const cacheBuster = '?v=2'; // Increment version when plots are regenerated
+    // Add timestamp-based cache-busting to ensure latest version is always loaded
+    const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
     const interactivePath = isDark 
         ? `./plots/elo/interactive/dark/${safeName}_dark.html${cacheBuster}`
         : `./plots/elo/interactive/${safeName}.html${cacheBuster}`;
@@ -1276,7 +1276,7 @@ function setupPlotDarkModeObserver() {
         if (eloPlotFrame && eloPlotFrame.style.display !== 'none' && eloPlotFrame.src) {
             // Interactive plot is displayed, reload with correct theme
             const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
-            const cacheBuster = '?v=2'; // Increment version when plots are regenerated
+            const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
             const interactivePath = isDark 
                 ? `./plots/elo/interactive/dark/${safeName}_dark.html${cacheBuster}`
                 : `./plots/elo/interactive/${safeName}.html${cacheBuster}`;
