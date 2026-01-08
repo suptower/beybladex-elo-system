@@ -1213,9 +1213,32 @@
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */
+   
+/* Bottom Add Match Button */
+.bottom-add-match-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+}
+
+.bottom-add-match-wrapper.bottom-add-match-mobile {
+    display: none;
+}
+
 @media (max-width: 1024px) {
     .match-table-wrapper { display: none; }
     .match-cards-container { display: flex; }
+    
+    /* Hide desktop bottom button, show mobile bottom button */
+    .bottom-add-match-wrapper:not(.bottom-add-match-mobile) {
+        display: none;
+    }
+    
+    .bottom-add-match-wrapper.bottom-add-match-mobile {
+        display: flex;
+    }
 }
 
 @media (max-width: 768px) {
