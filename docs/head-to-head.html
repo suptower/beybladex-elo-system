@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Head-to-Head Comparison - suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Head-to-Head Comparison</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="milestones.html"><span class="nav-item-icon">🏅</span>Milestones</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🎪</span>Tournaments</a>
+                    <a href="changelog.html"><span class="nav-item-icon">📝</span>Changelog</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🛡️</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🎯</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                    <a href="head-to-head.html"><span class="nav-item-icon">🤺</span>Head-to-Head</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔩</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔗</span>Synergy</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚙️</span>Meta Balance</a>
+                    <a href="matchup-matrix.html"><span class="nav-item-icon">🎲</span>Matchup Matrix</a>
+                    <a href="archetype-dashboard.html"><span class="nav-item-icon">🎭</span>Archetype Dashboard</a>
+                    <a href="recommended-matches.html"><span class="nav-item-icon">🎯</span>Recommended Matches</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="h2h-page" id="main-content">
+    <!-- Header Section -->
+    <section class="h2h-header-section">
+        <div class="section-header">
+            <h2>🤺 Head-to-Head Matchup Analysis</h2>
+            <p>Compare how two Beyblades perform against each other in direct encounters</p>
+        </div>
+    </section>
+
+    <!-- Selection Section -->
+    <section class="h2h-selection">
+        <div class="h2h-selector-container">
+            <div class="h2h-selector-card">
+                <label for="beyA">Select First Beyblade</label>
+                <select id="beyA" class="h2h-select">
+                    <option value="">Choose Beyblade...</option>
+                </select>
+            </div>
+            <div class="h2h-vs-divider">
+                <span class="h2h-vs-text">VS</span>
+            </div>
+            <div class="h2h-selector-card">
+                <label for="beyB">Select Second Beyblade</label>
+                <select id="beyB" class="h2h-select">
+                    <option value="">Choose Beyblade...</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="resultsSection" class="h2h-results" style="display: none;">
+        <!-- Matchup Header -->
+        <div class="h2h-matchup-header">
+            <div class="h2h-combatant" id="combatantA">
+                <h3 class="h2h-combatant-name"></h3>
+                <div class="h2h-combatant-type"></div>
+            </div>
+            <div class="h2h-score-display">
+                <div class="h2h-record" id="recordDisplay"></div>
+                <div class="h2h-matches-count" id="matchesCount"></div>
+            </div>
+            <div class="h2h-combatant" id="combatantB">
+                <h3 class="h2h-combatant-name"></h3>
+                <div class="h2h-combatant-type"></div>
+            </div>
+        </div>
+
+        <!-- Win Rate Visualization -->
+        <div class="h2h-winrate-section">
+            <div class="h2h-winrate-bar">
+                <div class="h2h-winrate-a" id="winrateBarA"></div>
+                <div class="h2h-winrate-b" id="winrateBarB"></div>
+            </div>
+            <div class="h2h-winrate-labels">
+                <span id="winrateTextA"></span>
+                <span id="winrateTextB"></span>
+            </div>
+        </div>
+
+        <!-- Statistics Grid -->
+        <div class="h2h-stats-grid">
+            <div class="h2h-stat-card">
+                <div class="h2h-stat-icon">🏆</div>
+                <div class="h2h-stat-label">Win Record</div>
+                <div class="h2h-stat-value" id="statWinRecord"></div>
+            </div>
+            <div class="h2h-stat-card">
+                <div class="h2h-stat-icon">📊</div>
+                <div class="h2h-stat-label">Total Points</div>
+                <div class="h2h-stat-value" id="statTotalPoints"></div>
+            </div>
+            <div class="h2h-stat-card">
+                <div class="h2h-stat-icon">📈</div>
+                <div class="h2h-stat-label">Avg Point Diff</div>
+                <div class="h2h-stat-value" id="statAvgPointDiff"></div>
+            </div>
+            <div class="h2h-stat-card">
+                <div class="h2h-stat-icon">⚡</div>
+                <div class="h2h-stat-label">Total ELO Change</div>
+                <div class="h2h-stat-value" id="statEloChange"></div>
+            </div>
+        </div>
+
+        <!-- Recent Form -->
+        <div class="h2h-section">
+            <h3 class="h2h-section-title">📅 Recent Form (Last 5 Matches)</h3>
+            <div id="recentFormContainer" class="h2h-recent-form"></div>
+        </div>
+
+        <!-- Match History -->
+        <div class="h2h-section">
+            <h3 class="h2h-section-title">📜 Complete Match History</h3>
+            <div id="matchHistoryContainer" class="h2h-match-history"></div>
+        </div>
+
+        <!-- Round Breakdown -->
+        <div class="h2h-section" id="roundBreakdownSection" style="display: none;">
+            <h3 class="h2h-section-title">🎯 Round-Level Breakdown</h3>
+            <div class="h2h-round-stats">
+                <div class="h2h-round-stat-card">
+                    <div class="h2h-round-stat-label">Total Rounds Played</div>
+                    <div class="h2h-round-stat-value" id="statTotalRounds"></div>
+                </div>
+                <div class="h2h-round-stat-card">
+                    <div class="h2h-round-stat-label">Rounds Won</div>
+                    <div class="h2h-round-stat-value" id="statRoundsWon"></div>
+                </div>
+            </div>
+            <div class="h2h-finish-breakdown" id="finishBreakdownContainer"></div>
+        </div>
+    </section>
+
+    <!-- Empty State -->
+    <section id="emptyState" class="h2h-empty-state">
+        <div class="h2h-empty-icon">🤺</div>
+        <h3>Select Two Beyblades to Compare</h3>
+        <p>Choose two Beyblades from the dropdowns above to see their head-to-head matchup statistics</p>
+    </section>
+
+    <!-- No Data State -->
+    <section id="noDataState" class="h2h-empty-state" style="display: none;">
+        <div class="h2h-empty-icon">😔</div>
+        <h3>No Matches Found</h3>
+        <p>These two Beyblades have not faced each other yet in recorded matches</p>
+    </section>
+</main>
+
+<footer>
+    <p>
+        <a href="https://github.com/suptower/beybladex-elo-system" target="_blank" rel="noopener noreferrer">GitHub Repository</a> | 
+        <span id="version">Loading version...</span>
+    </p>
+</footer>
+
+<script>
+// Data storage
+let allBeys = [];
+let allMatches = [];
+let eloHistory = [];
+let roundsData = {};
+
+// Color scheme for visualization
+const BEYBLADE_COLORS = {
+    a: { primary: '#3b82f6', secondary: 'rgba(59, 130, 246, 0.1)' },
+    b: { primary: '#ef4444', secondary: 'rgba(239, 68, 68, 0.1)' }
+};
+
+// Finish type configuration
+const FINISH_TYPES = {
+    spin: { label: 'Spin', icon: '🔄', color: '#10b981' },
+    burst: { label: 'Burst', icon: '💥', color: '#ef4444' },
+    pocket: { label: 'Pocket', icon: '🎯', color: '#f59e0b' },
+    extreme: { label: 'Extreme', icon: '⚡', color: '#8b5cf6' }
+};
+
+// Initialize the page
+async function init() {
+    try {
+        await loadAllData();
+        populateBeySelectors();
+        setupEventListeners();
+        checkURLParameters();
+    } catch (error) {
+        console.error('Error initializing page:', error);
+    }
+}
+
+// Load all required data
+async function loadAllData() {
+    try {
+        const [beysRes, matchesRes, eloRes, roundsRes] = await Promise.all([
+            fetch('data/beys.csv'),
+            fetch('data/matches.csv'),
+            fetch('data/elo_history.csv'),
+            fetch('data/matches_with_rounds.json')
+        ]);
+
+        const beysText = await beysRes.text();
+        allBeys = parseCSVList(beysText);
+
+        const matchesText = await matchesRes.text();
+        allMatches = parseCSV(matchesText);
+
+        const eloText = await eloRes.text();
+        eloHistory = parseCSV(eloText);
+
+        const roundsJson = await roundsRes.json();
+        if (roundsJson.matches) {
+            roundsJson.matches.forEach(match => {
+                if (match.rounds && match.rounds.length > 0) {
+                    roundsData[match.match_id] = match.rounds;
+                }
+            });
+        }
+
+        console.log(`Loaded ${allBeys.length} Beyblades, ${allMatches.length} matches`);
+    } catch (error) {
+        console.error('Error loading data:', error);
+        throw error;
+    }
+}
+
+// Parse CSV into array of objects
+function parseCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) return [];
+    
+    const headers = lines[0].split(',').map(h => h.trim());
+    return lines.slice(1).map(line => {
+        const values = line.split(',');
+        const obj = {};
+        headers.forEach((header, i) => {
+            obj[header] = values[i] ? values[i].trim() : '';
+        });
+        return obj;
+    });
+}
+
+// Parse CSV list (single column)
+function parseCSVList(csvText) {
+    return csvText.trim().split('\n').filter(line => line.trim() && !line.startsWith('Blade'));
+}
+
+// Populate Beyblade selectors
+function populateBeySelectors() {
+    const selectA = document.getElementById('beyA');
+    const selectB = document.getElementById('beyB');
+    
+    const sortedBeys = [...allBeys].sort();
+    
+    sortedBeys.forEach(bey => {
+        const optionA = document.createElement('option');
+        optionA.value = bey;
+        optionA.textContent = bey;
+        selectA.appendChild(optionA);
+        
+        const optionB = document.createElement('option');
+        optionB.value = bey;
+        optionB.textContent = bey;
+        selectB.appendChild(optionB);
+    });
+}
+
+// Setup event listeners
+function setupEventListeners() {
+    document.getElementById('beyA').addEventListener('change', updateComparison);
+    document.getElementById('beyB').addEventListener('change', updateComparison);
+}
+
+// Check URL parameters for pre-selected Beyblades
+function checkURLParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const beyA = urlParams.get('beyA');
+    const beyB = urlParams.get('beyB');
+    
+    if (beyA && allBeys.includes(beyA)) {
+        document.getElementById('beyA').value = beyA;
+    }
+    if (beyB && allBeys.includes(beyB)) {
+        document.getElementById('beyB').value = beyB;
+    }
+    
+    if (beyA && beyB) {
+        updateComparison();
+    }
+}
+
+// Update URL with selected Beyblades
+function updateURL(beyA, beyB) {
+    const url = new URL(window.location);
+    if (beyA && beyB) {
+        url.searchParams.set('beyA', beyA);
+        url.searchParams.set('beyB', beyB);
+    } else {
+        url.searchParams.delete('beyA');
+        url.searchParams.delete('beyB');
+    }
+    window.history.replaceState({}, '', url);
+}
+
+// Main update function
+function updateComparison() {
+    const beyA = document.getElementById('beyA').value;
+    const beyB = document.getElementById('beyB').value;
+    
+    const emptyState = document.getElementById('emptyState');
+    const noDataState = document.getElementById('noDataState');
+    const resultsSection = document.getElementById('resultsSection');
+    
+    if (!beyA || !beyB) {
+        emptyState.style.display = 'block';
+        noDataState.style.display = 'none';
+        resultsSection.style.display = 'none';
+        updateURL('', '');
+        return;
+    }
+    
+    if (beyA === beyB) {
+        emptyState.style.display = 'block';
+        noDataState.style.display = 'none';
+        resultsSection.style.display = 'none';
+        updateURL('', '');
+        return;
+    }
+    
+    updateURL(beyA, beyB);
+    
+    // Get head-to-head data
+    const h2hData = calculateHeadToHead(beyA, beyB);
+    
+    if (h2hData.matches.length === 0) {
+        emptyState.style.display = 'none';
+        noDataState.style.display = 'block';
+        resultsSection.style.display = 'none';
+        return;
+    }
+    
+    // Display results
+    emptyState.style.display = 'none';
+    noDataState.style.display = 'none';
+    resultsSection.style.display = 'block';
+    
+    displayResults(beyA, beyB, h2hData);
+}
+
+// Calculate head-to-head statistics
+function calculateHeadToHead(beyA, beyB) {
+    const h2hMatches = allMatches.filter(match => {
+        return (match.BeyA === beyA && match.BeyB === beyB) ||
+               (match.BeyA === beyB && match.BeyB === beyA);
+    });
+    
+    let winsA = 0;
+    let winsB = 0;
+    let pointsA = 0;
+    let pointsB = 0;
+    let eloChangesA = [];
+    let eloChangesB = [];
+    
+    const matchDetails = h2hMatches.map(match => {
+        const isAFirst = match.BeyA === beyA;
+        const scoreA = parseInt(isAFirst ? match.ScoreA : match.ScoreB);
+        const scoreB = parseInt(isAFirst ? match.ScoreB : match.ScoreA);
+        
+        if (scoreA > scoreB) winsA++;
+        else if (scoreB > scoreA) winsB++;
+        
+        pointsA += scoreA;
+        pointsB += scoreB;
+        
+        // Get ELO changes for this match
+        const eloChange = getEloChangeForMatch(match.MatchID, beyA, beyB);
+        if (eloChange) {
+            eloChangesA.push(eloChange.changeA);
+            eloChangesB.push(eloChange.changeB);
+        }
+        
+        return {
+            matchId: match.MatchID,
+            date: match.Date,
+            scoreA,
+            scoreB,
+            winner: scoreA > scoreB ? beyA : beyB,
+            eloChange,
+            rounds: roundsData[match.MatchID] || []
+        };
+    });
+    
+    // Calculate round statistics
+    const roundStats = calculateRoundStatistics(matchDetails, beyA, beyB);
+    
+    return {
+        matches: matchDetails,
+        winsA,
+        winsB,
+        pointsA,
+        pointsB,
+        eloChangesA,
+        eloChangesB,
+        roundStats
+    };
+}
+
+// Get ELO changes for a specific match
+function getEloChangeForMatch(matchId, beyA, beyB) {
+    const eloEntry = eloHistory.find(e => e.MatchID === matchId);
+    
+    if (!eloEntry) return null;
+    
+    // Verify that this entry contains both Beyblades
+    const hasMatchingBeys = (eloEntry.BeyA === beyA && eloEntry.BeyB === beyB) ||
+                            (eloEntry.BeyA === beyB && eloEntry.BeyB === beyA);
+    
+    if (!hasMatchingBeys) return null;
+    
+    // Determine which position each bey is in the elo_history record
+    const aIsFirst = eloEntry.BeyA === beyA;
+    
+    const preEloA = parseFloat(aIsFirst ? eloEntry.PreA : eloEntry.PreB);
+    const preEloB = parseFloat(aIsFirst ? eloEntry.PreB : eloEntry.PreA);
+    const postEloA = parseFloat(aIsFirst ? eloEntry.PostA : eloEntry.PostB);
+    const postEloB = parseFloat(aIsFirst ? eloEntry.PostB : eloEntry.PostA);
+    
+    // Validate that all values are numbers
+    if (isNaN(preEloA) || isNaN(preEloB) || isNaN(postEloA) || isNaN(postEloB)) {
+        return null;
+    }
+    
+    return {
+        changeA: postEloA - preEloA,
+        changeB: postEloB - preEloB,
+        preEloA: preEloA,
+        preEloB: preEloB,
+        postEloA: postEloA,
+        postEloB: postEloB
+    };
+}
+
+// Calculate round-level statistics
+function calculateRoundStatistics(matchDetails, beyA, beyB) {
+    let totalRounds = 0;
+    let roundsWonA = 0;
+    let roundsWonB = 0;
+    const finishCounts = {
+        spin: { a: 0, b: 0 },
+        burst: { a: 0, b: 0 },
+        pocket: { a: 0, b: 0 },
+        extreme: { a: 0, b: 0 }
+    };
+    
+    matchDetails.forEach(match => {
+        if (match.rounds && match.rounds.length > 0) {
+            match.rounds.forEach(round => {
+                totalRounds++;
+                const roundWinner = round.winner;
+                const finishType = round.finish_type;
+                
+                if (roundWinner === beyA) {
+                    roundsWonA++;
+                    if (finishCounts[finishType]) {
+                        finishCounts[finishType].a++;
+                    }
+                } else if (roundWinner === beyB) {
+                    roundsWonB++;
+                    if (finishCounts[finishType]) {
+                        finishCounts[finishType].b++;
+                    }
+                }
+            });
+        }
+    });
+    
+    return {
+        totalRounds,
+        roundsWonA,
+        roundsWonB,
+        finishCounts
+    };
+}
+
+// Display all results
+function displayResults(beyA, beyB, h2hData) {
+    displayMatchupHeader(beyA, beyB, h2hData);
+    displayWinRate(beyA, beyB, h2hData);
+    displayStatistics(beyA, beyB, h2hData);
+    displayRecentForm(beyA, beyB, h2hData);
+    displayMatchHistory(beyA, beyB, h2hData);
+    displayRoundBreakdown(beyA, beyB, h2hData);
+}
+
+// Display matchup header
+function displayMatchupHeader(beyA, beyB, h2hData) {
+    const combatantA = document.getElementById('combatantA');
+    const combatantB = document.getElementById('combatantB');
+    const recordDisplay = document.getElementById('recordDisplay');
+    const matchesCount = document.getElementById('matchesCount');
+    
+    combatantA.querySelector('.h2h-combatant-name').textContent = beyA;
+    combatantB.querySelector('.h2h-combatant-name').textContent = beyB;
+    
+    recordDisplay.innerHTML = `<span style="color: ${BEYBLADE_COLORS.a.primary}">${h2hData.winsA}</span> - <span style="color: ${BEYBLADE_COLORS.b.primary}">${h2hData.winsB}</span>`;
+    matchesCount.textContent = `${h2hData.matches.length} match${h2hData.matches.length !== 1 ? 'es' : ''}`;
+}
+
+// Display win rate visualization
+function displayWinRate(beyA, beyB, h2hData) {
+    const totalWins = h2hData.winsA + h2hData.winsB;
+    const winRateA = totalWins > 0 ? (h2hData.winsA / totalWins * 100) : 50;
+    const winRateB = totalWins > 0 ? (h2hData.winsB / totalWins * 100) : 50;
+    
+    const barA = document.getElementById('winrateBarA');
+    const barB = document.getElementById('winrateBarB');
+    const textA = document.getElementById('winrateTextA');
+    const textB = document.getElementById('winrateTextB');
+    
+    barA.style.width = `${winRateA}%`;
+    barA.style.backgroundColor = BEYBLADE_COLORS.a.primary;
+    barB.style.width = `${winRateB}%`;
+    barB.style.backgroundColor = BEYBLADE_COLORS.b.primary;
+    
+    textA.textContent = `${beyA}: ${winRateA.toFixed(1)}%`;
+    textA.style.color = BEYBLADE_COLORS.a.primary;
+    textB.textContent = `${beyB}: ${winRateB.toFixed(1)}%`;
+    textB.style.color = BEYBLADE_COLORS.b.primary;
+}
+
+// Display statistics cards
+function displayStatistics(beyA, beyB, h2hData) {
+    document.getElementById('statWinRecord').innerHTML = 
+        `<span style="color: ${BEYBLADE_COLORS.a.primary}">${h2hData.winsA}</span> - <span style="color: ${BEYBLADE_COLORS.b.primary}">${h2hData.winsB}</span>`;
+    
+    document.getElementById('statTotalPoints').innerHTML = 
+        `<span style="color: ${BEYBLADE_COLORS.a.primary}">${h2hData.pointsA}</span> - <span style="color: ${BEYBLADE_COLORS.b.primary}">${h2hData.pointsB}</span>`;
+    
+    const avgDiff = (h2hData.pointsA - h2hData.pointsB) / h2hData.matches.length;
+    const avgDiffColor = avgDiff > 0 ? BEYBLADE_COLORS.a.primary : avgDiff < 0 ? BEYBLADE_COLORS.b.primary : '#6b7280';
+    const avgDiffText = avgDiff > 0 ? `+${avgDiff.toFixed(2)}` : avgDiff.toFixed(2);
+    document.getElementById('statAvgPointDiff').innerHTML = 
+        `<span style="color: ${avgDiffColor}">${avgDiffText}</span>`;
+    
+    const totalEloA = h2hData.eloChangesA.reduce((sum, val) => sum + val, 0);
+    const totalEloB = h2hData.eloChangesB.reduce((sum, val) => sum + val, 0);
+    document.getElementById('statEloChange').innerHTML = 
+        `<span style="color: ${BEYBLADE_COLORS.a.primary}">${totalEloA > 0 ? '+' : ''}${totalEloA.toFixed(1)}</span> / <span style="color: ${BEYBLADE_COLORS.b.primary}">${totalEloB > 0 ? '+' : ''}${totalEloB.toFixed(1)}</span>`;
+}
+
+// Display recent form
+function displayRecentForm(beyA, beyB, h2hData) {
+    const container = document.getElementById('recentFormContainer');
+    const recentMatches = h2hData.matches.slice(-5).reverse();
+    
+    if (recentMatches.length === 0) {
+        container.innerHTML = '<div class="h2h-no-data">No recent matches</div>';
+        return;
+    }
+    
+    container.innerHTML = recentMatches.map(match => {
+        const winnerColor = match.winner === beyA ? BEYBLADE_COLORS.a.primary : BEYBLADE_COLORS.b.primary;
+        return `
+            <div class="h2h-form-match">
+                <div class="h2h-form-date">${match.date}</div>
+                <div class="h2h-form-score">
+                    <span style="color: ${BEYBLADE_COLORS.a.primary}">${match.scoreA}</span>
+                    -
+                    <span style="color: ${BEYBLADE_COLORS.b.primary}">${match.scoreB}</span>
+                </div>
+                <div class="h2h-form-winner" style="color: ${winnerColor}">
+                    ${match.winner === beyA ? '← ' : ''}${match.winner}${match.winner === beyB ? ' →' : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Display complete match history
+function displayMatchHistory(beyA, beyB, h2hData) {
+    const container = document.getElementById('matchHistoryContainer');
+    
+    container.innerHTML = h2hData.matches.slice().reverse().map(match => {
+        const winnerColor = match.winner === beyA ? BEYBLADE_COLORS.a.primary : BEYBLADE_COLORS.b.primary;
+        const eloDisplay = match.eloChange ? 
+            `<div class="h2h-match-elo">
+                ELO: <span style="color: ${BEYBLADE_COLORS.a.primary}">${match.eloChange.changeA > 0 ? '+' : ''}${match.eloChange.changeA.toFixed(1)}</span> / 
+                <span style="color: ${BEYBLADE_COLORS.b.primary}">${match.eloChange.changeB > 0 ? '+' : ''}${match.eloChange.changeB.toFixed(1)}</span>
+            </div>` : '';
+        
+        return `
+            <div class="h2h-history-match">
+                <div class="h2h-history-header">
+                    <span class="h2h-history-id">${match.matchId}</span>
+                    <span class="h2h-history-date">${match.date}</span>
+                </div>
+                <div class="h2h-history-result">
+                    <span class="h2h-history-score">
+                        <span style="color: ${BEYBLADE_COLORS.a.primary}">${match.scoreA}</span>
+                        -
+                        <span style="color: ${BEYBLADE_COLORS.b.primary}">${match.scoreB}</span>
+                    </span>
+                    <span class="h2h-history-winner" style="color: ${winnerColor}">Winner: ${match.winner}</span>
+                </div>
+                ${eloDisplay}
+                ${match.rounds.length > 0 ? `<div class="h2h-match-rounds">${match.rounds.length} rounds</div>` : ''}
+            </div>
+        `;
+    }).join('');
+}
+
+// Display round-level breakdown
+function displayRoundBreakdown(beyA, beyB, h2hData) {
+    const section = document.getElementById('roundBreakdownSection');
+    
+    if (h2hData.roundStats.totalRounds === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    
+    section.style.display = 'block';
+    
+    document.getElementById('statTotalRounds').textContent = h2hData.roundStats.totalRounds;
+    document.getElementById('statRoundsWon').innerHTML = 
+        `<span style="color: ${BEYBLADE_COLORS.a.primary}">${h2hData.roundStats.roundsWonA}</span> - <span style="color: ${BEYBLADE_COLORS.b.primary}">${h2hData.roundStats.roundsWonB}</span>`;
+    
+    const finishContainer = document.getElementById('finishBreakdownContainer');
+    finishContainer.innerHTML = Object.entries(FINISH_TYPES).map(([type, config]) => {
+        const countA = h2hData.roundStats.finishCounts[type]?.a || 0;
+        const countB = h2hData.roundStats.finishCounts[type]?.b || 0;
+        const total = countA + countB;
+        
+        if (total === 0) return '';
+        
+        return `
+            <div class="h2h-finish-row">
+                <div class="h2h-finish-label">
+                    <span class="h2h-finish-icon">${config.icon}</span>
+                    ${config.label}
+                </div>
+                <div class="h2h-finish-counts">
+                    <span style="color: ${BEYBLADE_COLORS.a.primary}">${countA}</span>
+                    -
+                    <span style="color: ${BEYBLADE_COLORS.b.primary}">${countB}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Utility function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+</script>
+
+<style>
+/* Head-to-Head Page Styles */
+.h2h-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.h2h-header-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.h2h-selection {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.h2h-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.h2h-selector-card {
+    flex: 1;
+    min-width: 250px;
+    max-width: 350px;
+}
+
+.h2h-selector-card label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.h2h-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.h2h-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.h2h-vs-divider {
+    flex-shrink: 0;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+.h2h-vs-text {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--accent-primary);
+    color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.h2h-results {
+    margin-top: 2rem;
+}
+
+.h2h-matchup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.h2h-combatant {
+    flex: 1;
+    text-align: center;
+}
+
+.h2h-combatant-name {
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.h2h-score-display {
+    text-align: center;
+}
+
+.h2h-record {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.h2h-matches-count {
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+.h2h-winrate-section {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.h2h-winrate-bar {
+    display: flex;
+    height: 40px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.h2h-winrate-a,
+.h2h-winrate-b {
+    transition: width 0.5s ease;
+}
+
+.h2h-winrate-labels {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+}
+
+.h2h-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.h2h-stat-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+}
+
+.h2h-stat-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.h2h-stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.h2h-stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.h2h-section {
+    background: var(--card-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.h2h-section-title {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.25rem;
+    color: var(--text-primary);
+}
+
+.h2h-recent-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.h2h-form-match {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.h2h-form-date {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.h2h-form-score {
+    font-weight: bold;
+    font-size: 1.125rem;
+}
+
+.h2h-form-winner {
+    font-weight: 600;
+}
+
+.h2h-match-history {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.h2h-history-match {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border-left: 4px solid var(--accent-primary);
+}
+
+.h2h-history-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.h2h-history-result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.h2h-history-score {
+    font-weight: bold;
+    font-size: 1.125rem;
+}
+
+.h2h-history-winner {
+    font-weight: 600;
+}
+
+.h2h-match-elo {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.h2h-match-rounds {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.h2h-round-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.h2h-round-stat-card {
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.h2h-round-stat-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.h2h-round-stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.h2h-finish-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.h2h-finish-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+}
+
+.h2h-finish-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+}
+
+.h2h-finish-icon {
+    font-size: 1.25rem;
+}
+
+.h2h-finish-counts {
+    font-weight: bold;
+    font-size: 1.125rem;
+}
+
+.h2h-empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+}
+
+.h2h-empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.h2h-empty-state h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.h2h-empty-state p {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.h2h-no-data {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .h2h-matchup-header {
+        flex-direction: column;
+    }
+    
+    .h2h-selector-container {
+        flex-direction: column;
+    }
+    
+    .h2h-vs-text {
+        transform: rotate(90deg);
+    }
+}
+</style>
+
+</body>
+</html>
