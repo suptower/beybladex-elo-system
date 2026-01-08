@@ -62,3 +62,14 @@ def get_diverging_cmap(dark_mode=False):
     """Get appropriate diverging colormap for the mode."""
     # coolwarm works well in both modes
     return "coolwarm"
+
+
+def get_bg_color(dark_mode=False):
+    """Get appropriate background color for Plotly plots."""
+    return '#1e293b' if dark_mode else 'white'
+
+
+def get_grid_color(dark_mode=False):
+    """Get appropriate grid color for Plotly plots."""
+    return '#334155' if dark_mode else '#e5e7eb'
+
