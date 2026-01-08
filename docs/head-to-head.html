@@ -461,6 +461,12 @@ function getEloChangeForMatch(matchId, beyA, beyB) {
     
     if (!eloEntry) return null;
     
+    // Verify that this entry contains both Beyblades
+    const hasMatchingBeys = (eloEntry.BeyA === beyA && eloEntry.BeyB === beyB) ||
+                            (eloEntry.BeyA === beyB && eloEntry.BeyB === beyA);
+    
+    if (!hasMatchingBeys) return null;
+    
     // Determine which position each bey is in the elo_history record
     const aIsFirst = eloEntry.BeyA === beyA;
     
