@@ -1202,6 +1202,18 @@ function loadEloPlot() {
                 plotFrame.style.display = 'block';
                 plotImg.style.display = 'none';
                 plotSection.style.display = 'block';
+                
+                // Force Plotly to resize/reload on initial load
+                // This ensures proper rendering similar to when dark mode toggles
+                plotFrame.onload = function() {
+                    // Send a message to the iframe to trigger Plotly.Plots.resize()
+                    // or force a layout recalculation by reloading
+                    setTimeout(function() {
+                        const currentSrc = plotFrame.src;
+                        plotFrame.src = '';
+                        plotFrame.src = currentSrc;
+                    }, 100);
+                };
             } else {
                 // Fallback to static PNG
                 loadStaticEloPlot(bladeName, isDark);
