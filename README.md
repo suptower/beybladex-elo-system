@@ -17,6 +17,8 @@ Track match results, compute Elo ratings, generate charts, and export leaderboar
 beybladex-elo-system/
 ├── src/                    # Core Python modules
 │   ├── beyblade_elo.py         # Elo calculation logic
+│   ├── build_manager.py        # Build management (stock + custom combos)
+│   ├── build_elo.py            # Build-aware Elo calculation
 │   ├── advanced_stats.py       # Power index and advanced metrics
 │   ├── rpg_stats.py            # RPG-style stats and archetypes
 │   ├── archetype_analytics.py  # Archetype effectiveness analysis
@@ -56,8 +58,10 @@ beybladex-elo-system/
 │   ├── *.js                    # JavaScript modules
 │   ├── data/                   # All generated data (CSV/JSON)
 │   │   ├── beys.csv            # Beyblade registry
+│   │   ├── builds.json         # Build registry (stock + custom)
 │   │   ├── matches.csv         # Match records
-│   │   ├── leaderboard.csv     # Current rankings
+│   │   ├── leaderboard.csv     # Current rankings (blade level)
+│   │   ├── build_leaderboard.csv # Build-level rankings
 │   │   ├── elo_history.csv     # Historical Elo changes
 │   │   ├── leaderboards/       # Tournament snapshots
 │   │   └── *.json              # Various data files
@@ -199,6 +203,77 @@ This creates/updates `docs/version.js` with current Git state.
 4. Run `python update.py --upload`
 
 ## Development
+
+### Non-Stock Beyblade Combinations (Custom Builds)
+
+The system now supports tracking **custom Beyblade builds** (non-stock Blade + Ratchet + Bit combinations) alongside stock configurations. This enables analysis of custom competitive builds while maintaining 100% backward compatibility.
+
+#### Features
+
+- **Build-Level Tracking**: Each unique combination (e.g., `DranDagger_5-80_Elevate`) has its own ELO rating and statistics
+- **Blade Aggregation**: Blade-level stats aggregate all builds of that blade using weighted averages
+- **Backward Compatible**: Stock-only workflows require no changes - BuildA/BuildB columns are optional
+- **Auto-Registration**: Custom builds are automatically registered when first used in a match
+- **Status Tracking**: Builds are marked as active (≥5 matches), provisional (<5), or retired (>90 days unused)
+
+#### Usage
+
+**Build Management:**
+```bash
+# Initialize stock builds from beys_data.json
+python src/build_manager.py --init
+
+# View all builds
+python src/build_manager.py --list
+
+# View builds for a specific blade
+python src/build_manager.py --list --blade DranDagger
+
+# Create a custom build
+python src/build_manager.py --create DranDagger 5-80 Elevate
+
+# Show statistics
+python src/build_manager.py --stats
+```
+
+**Build-Aware ELO Calculation:**
+```bash
+# Run with build support (automatically uses builds.json)
+python src/build_elo.py --mode official
+
+# Specify custom paths
+python src/build_elo.py --mode official \
+    --matches ./docs/data/matches.csv \
+    --leaderboard ./docs/data/leaderboard.csv \
+    --build-leaderboard ./docs/data/build_leaderboard.csv
+```
+
+**Match CSV Format (Extended):**
+
+Add optional `BuildA` and `BuildB` columns to `matches.csv`:
+
+```csv
+MatchID,Date,BeyA,BeyB,ScoreA,ScoreB,BuildA,BuildB
+M0001,2025-09-07,DranDagger,FoxBrush,4,2,,
+M0002,2025-12-15,DranDagger,ImpactDrake,5,1,DranDagger_5-80_Elevate,
+M0003,2025-12-16,PhoenixWing,DranDagger,3,4,PhoenixWing_9-60_Rush,DranDagger_5-80_Elevate
+```
+
+**Rules:**
+- If `BuildA`/`BuildB` is empty → use stock build for that blade
+- If specified → use the custom build (format: `{Blade}_{Ratchet}_{Bit}`)
+- Blade name in build ID must match the `BeyA`/`BeyB` column
+
+**Output Files:**
+- `builds.json`: Registry of all builds (stock + custom)
+- `build_leaderboard.csv`: Rankings at build level
+- `leaderboard.csv`: Rankings at blade level (aggregated from builds)
+
+#### Design Documentation
+
+For detailed design decisions, ELO strategy, and migration plan, see:
+- [Non-Stock Combos Design Document](docs/NON_STOCK_COMBOS_DESIGN.md)
+- [Builds Schema](docs/schema/builds_schema.json)
 
 ### Running Tests
 
