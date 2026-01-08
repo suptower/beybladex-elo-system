@@ -207,14 +207,14 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         font=dict(color=text_color),
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1,
+            yanchor="top",
+            y=-0.15,
+            xanchor="center",
+            x=0.5,
             font=dict(color=text_color)
         ),
         height=500,
-        margin=dict(l=60, r=30, t=80, b=60)
+        margin=dict(l=60, r=30, t=80, b=100)
     )
 
     # Add range selector if there are enough data points
