@@ -469,6 +469,11 @@ function getEloChangeForMatch(matchId, beyA, beyB) {
     const postEloA = parseFloat(aIsFirst ? eloEntry.PostA : eloEntry.PostB);
     const postEloB = parseFloat(aIsFirst ? eloEntry.PostB : eloEntry.PostA);
     
+    // Validate that all values are numbers
+    if (isNaN(preEloA) || isNaN(preEloB) || isNaN(postEloA) || isNaN(postEloB)) {
+        return null;
+    }
+    
     return {
         changeA: postEloA - preEloA,
         changeB: postEloB - preEloB,
