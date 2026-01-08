@@ -362,6 +362,8 @@ function setupEventListeners() {
     // Action buttons
     document.getElementById('generateMatchesBtn')?.addEventListener('click', generateMatches);
     document.getElementById('addMatchBtn')?.addEventListener('click', addMatch);
+    document.getElementById('addMatchBtnBottom')?.addEventListener('click', addMatch);
+    document.getElementById('addMatchBtnBottomMobile')?.addEventListener('click', addMatch);
     document.getElementById('resetRoundBtn')?.addEventListener('click', resetRound);
     document.getElementById('clearAllBtn')?.addEventListener('click', clearAll);
     
