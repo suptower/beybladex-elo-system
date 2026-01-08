@@ -694,6 +694,18 @@ def generate_all_plots(mode):
     else:
         print("Tier Flow Diagram plots generated successfully.")
 
+    # Individual Interactive ELO Plots
+    result = subprocess.run(
+        ["python", "src/visualization/individual_interactive_elo.py"],
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print("Error running individual_interactive_elo.py:")
+        print(result.stderr)
+    else:
+        print("Individual interactive ELO plots generated successfully.")
+
     print(f"All plots saved to: {files['outdir']}")
 
 

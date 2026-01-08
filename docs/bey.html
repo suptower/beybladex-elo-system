@@ -147,8 +147,10 @@
             <!-- ELO History Section (collapsible, hidden by default) -->
             <details class="profile-section-details" id="plotSection" style="display: none;">
                 <summary class="section-summary">📈 ELO History</summary>
-                <div class="profile-plot-container">
-                    <img id="eloPlot" src="" alt="ELO History" class="profile-plot">
+                <div class="profile-plot-container" id="eloPlotContainer">
+                    <!-- Interactive plot will be embedded here, or fallback to static image -->
+                    <iframe id="eloPlotFrame" src="" style="width: 100%; height: 550px; border: none; display: none;"></iframe>
+                    <img id="eloPlot" src="" alt="ELO History" class="profile-plot" style="display: none;">
                 </div>
             </details>
             
@@ -1160,15 +1162,77 @@ function getBladeName() {
     return beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName);
 }
 
-// Try to load ELO plot
+// Detect if user is on mobile device
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+        || window.innerWidth < 768;
+}
+
+// Try to load ELO plot (interactive first, fallback to static)
 function loadEloPlot() {
     const plotSection = document.getElementById('plotSection');
+    const plotFrame = document.getElementById('eloPlotFrame');
     const plotImg = document.getElementById('eloPlot');
     
     const bladeName = getBladeName();
+    const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
     
     // Check for dark mode
     const isDark = document.body.classList.contains('dark');
+    
+    // On mobile devices, use static PNG for better performance and experience
+    if (isMobileDevice()) {
+        loadStaticEloPlot(bladeName, isDark);
+        return;
+    }
+    
+    // Try interactive plot first on desktop
+    // Add timestamp-based cache-busting to ensure latest version is always loaded
+    const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
+    const interactivePath = isDark 
+        ? `./plots/elo/interactive/dark/${safeName}_dark.html${cacheBuster}`
+        : `./plots/elo/interactive/${safeName}.html${cacheBuster}`;
+    
+    // Check if interactive plot exists
+    fetch(interactivePath, { method: 'HEAD' })
+        .then(response => {
+            if (response.ok) {
+                // Interactive plot exists, use it
+                plotFrame.src = interactivePath;
+                plotFrame.style.display = 'block';
+                plotImg.style.display = 'none';
+                plotSection.style.display = 'block';
+                
+                // Force Plotly to resize/reload on initial load - only once
+                // This ensures proper rendering similar to when dark mode toggles
+                let hasReloaded = false;
+                plotFrame.onload = function() {
+                    if (!hasReloaded) {
+                        hasReloaded = true;
+                        setTimeout(function() {
+                            const currentSrc = plotFrame.src;
+                            plotFrame.src = '';
+                            plotFrame.src = currentSrc;
+                        }, 100);
+                    }
+                };
+            } else {
+                // Fallback to static PNG
+                loadStaticEloPlot(bladeName, isDark);
+            }
+        })
+        .catch(() => {
+            // Fallback to static PNG on error
+            loadStaticEloPlot(bladeName, isDark);
+        });
+}
+
+// Load static ELO plot
+function loadStaticEloPlot(bladeName, isDark) {
+    const plotSection = document.getElementById('plotSection');
+    const plotFrame = document.getElementById('eloPlotFrame');
+    const plotImg = document.getElementById('eloPlot');
+    
     const basePath = isDark ? './plots/elo/dark/' : './plots/elo/';
     const filename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
     
@@ -1181,6 +1245,8 @@ function loadEloPlot() {
     };
     
     plotImg.onload = () => {
+        plotFrame.style.display = 'none';
+        plotImg.style.display = 'block';
         plotSection.style.display = 'block';
     };
 }
@@ -1210,8 +1276,9 @@ function loadPositionPlot() {
     };
 }
 
-// Setup dark mode observer for plot images
+// Setup dark mode observer for plot images and interactive plots
 function setupPlotDarkModeObserver() {
+    const eloPlotFrame = document.getElementById('eloPlotFrame');
     const eloPlot = document.getElementById('eloPlot');
     const positionPlot = document.getElementById('positionPlot');
     const bladeName = getBladeName();
@@ -1219,14 +1286,23 @@ function setupPlotDarkModeObserver() {
     const observer = new MutationObserver(() => {
         const isDark = document.body.classList.contains('dark');
         
-        // Update ELO plot
-        if (eloPlot && eloPlot.src) {
+        // Update ELO plot (check if using interactive or static)
+        if (eloPlotFrame && eloPlotFrame.style.display !== 'none' && eloPlotFrame.src) {
+            // Interactive plot is displayed, reload with correct theme
+            const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
+            const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
+            const interactivePath = isDark 
+                ? `./plots/elo/interactive/dark/${safeName}_dark.html${cacheBuster}`
+                : `./plots/elo/interactive/${safeName}.html${cacheBuster}`;
+            eloPlotFrame.src = interactivePath;
+        } else if (eloPlot && eloPlot.style.display !== 'none' && eloPlot.src) {
+            // Static plot is displayed
             const eloBasePath = isDark ? './plots/elo/dark/' : './plots/elo/';
             const eloFilename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
             eloPlot.src = eloBasePath + eloFilename;
         }
         
-        // Update Position plot
+        // Update Position plot (static only for now)
         if (positionPlot && positionPlot.src) {
             const posBasePath = isDark ? './plots/positions/dark/' : './plots/positions/';
             const posFilename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;

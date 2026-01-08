@@ -388,7 +388,7 @@ def main():
         json.dump(output, f, indent=2)
 
     # Print summary
-    print(f"\n{GREEN}✓ Archetype analytics generated successfully!{RESET}")
+    print(f"\n{GREEN}Archetype analytics generated successfully!{RESET}")
     print(f"\n{BOLD}Summary:{RESET}")
     print(f"  Total Archetypes: {output['summary']['total_archetypes']}")
     print(f"  Total Beys Classified: {output['summary']['total_beys_classified']}")
