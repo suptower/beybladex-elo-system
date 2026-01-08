@@ -72,4 +72,3 @@ def get_bg_color(dark_mode=False):
 def get_grid_color(dark_mode=False):
     """Get appropriate grid color for Plotly plots."""
     return '#334155' if dark_mode else '#e5e7eb'
-

@@ -15,7 +15,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
-from plot_styles import get_text_color, get_bg_color, get_grid_color
+from plot_styles import get_text_color, get_bg_color, get_grid_color  # noqa: E402
 
 # Output directories
 OUTPUT_DIR = "./docs/plots/elo/interactive"
@@ -36,12 +36,12 @@ def load_data():
     df_ts = pd.read_csv(TIMESERIES_FILE)
     df_hist = pd.read_csv(HISTORY_FILE)
     df_matches = pd.read_csv(MATCHES_FILE)
-    
+
     # Clean and convert data types
     df_ts["ELO"] = pd.to_numeric(df_ts["ELO"], errors="coerce")
     df_ts["MatchIndex"] = df_ts["MatchIndex"].astype(int)
     df_ts = df_ts.sort_values(["Bey", "MatchIndex"]).reset_index(drop=True)
-    
+
     return df_ts, df_hist, df_matches
 
 
@@ -49,24 +49,24 @@ def get_match_details(bey, date, df_hist, df_matches):
     """Get opponent and match result for a specific bey on a specific date"""
     # Find match in history
     hist_day = df_hist[
-        (df_hist['Date'] == date) & 
+        (df_hist['Date'] == date) &
         ((df_hist['BeyA'] == bey) | (df_hist['BeyB'] == bey))
     ]
-    
+
     if len(hist_day) == 0:
         return "Unknown", "N/A", "N/A"
-    
+
     match = hist_day.iloc[0]
     is_bey_a = match['BeyA'] == bey
     opponent = match['BeyB'] if is_bey_a else match['BeyA']
-    
+
     # Find match in matches.csv to get score
     match_day = df_matches[
         (df_matches['Date'] == date) &
         (((df_matches['BeyA'] == bey) & (df_matches['BeyB'] == opponent)) |
          ((df_matches['BeyB'] == bey) & (df_matches['BeyA'] == opponent)))
     ]
-    
+
     if len(match_day) > 0:
         m = match_day.iloc[0]
         if m['BeyA'] == bey:
@@ -81,19 +81,19 @@ def get_match_details(bey, date, df_hist, df_matches):
     else:
         score = "N/A"
         result = "N/A"
-    
+
     return opponent, score, result
 
 
 def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
     """Create an interactive Plotly chart for a single Beyblade"""
     template = "plotly_dark" if dark_mode else "plotly_white"
-    
+
     # Get colors based on theme
     text_color = get_text_color(dark_mode)
     bg_color = get_bg_color(dark_mode)
     grid_color = get_grid_color(dark_mode)
-    
+
     # Calculate statistics
     avg_elo = df_bey["ELO"].mean()
     median_elo = df_bey["ELO"].median()
@@ -101,12 +101,12 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
     min_elo = df_bey["ELO"].min()
     max_idx = df_bey["ELO"].idxmax()
     min_idx = df_bey["ELO"].idxmin()
-    
+
     # Prepare hover text with match details
     hover_texts = []
     for idx, row in df_bey.iterrows():
         opponent, score, result = get_match_details(bey, row['Date'], df_hist, df_matches)
-        
+
         # Calculate ELO change
         if idx > df_bey.index[0]:
             prev_elo = df_bey.loc[df_bey.index[df_bey.index.get_loc(idx) - 1], "ELO"]
@@ -114,7 +114,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
             elo_change_str = f"+{elo_change:.1f}" if elo_change >= 0 else f"{elo_change:.1f}"
         else:
             elo_change_str = "N/A"
-        
+
         hover_text = (
             f"<b>{bey}</b><br>"
             f"Date: {row['Date']}<br>"
@@ -125,10 +125,10 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
             f"Result: {result}"
         )
         hover_texts.append(hover_text)
-    
+
     # Create figure
     fig = go.Figure()
-    
+
     # Main ELO line
     fig.add_trace(go.Scatter(
         x=df_bey["MatchIndex"],
@@ -141,7 +141,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         hoverinfo='text',
         hovertemplate='%{hovertext}<extra></extra>'
     ))
-    
+
     # Add average line
     fig.add_trace(go.Scatter(
         x=[df_bey["MatchIndex"].min(), df_bey["MatchIndex"].max()],
@@ -151,7 +151,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         line=dict(color='blue', dash='dash', width=1.5),
         hovertemplate=f'Average ELO: {avg_elo:.1f}<extra></extra>'
     ))
-    
+
     # Add median line
     fig.add_trace(go.Scatter(
         x=[df_bey["MatchIndex"].min(), df_bey["MatchIndex"].max()],
@@ -161,7 +161,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         line=dict(color='purple', dash='dot', width=1.5),
         hovertemplate=f'Median ELO: {median_elo:.1f}<extra></extra>'
     ))
-    
+
     # Highlight peak and low (only if they differ)
     if max_elo != min_elo:
         # Peak marker
@@ -173,7 +173,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
             marker=dict(size=12, color='green', symbol='star', line=dict(color='darkgreen', width=2)),
             hovertemplate=f'Peak ELO: {max_elo:.1f}<extra></extra>'
         ))
-        
+
         # Low marker
         fig.add_trace(go.Scatter(
             x=[df_bey.loc[min_idx, "MatchIndex"]],
@@ -183,7 +183,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
             marker=dict(size=12, color='red', symbol='x', line=dict(color='darkred', width=2)),
             hovertemplate=f'Low ELO: {min_elo:.1f}<extra></extra>'
         ))
-    
+
     # Update layout
     fig.update_layout(
         title=dict(
@@ -216,7 +216,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         height=500,
         margin=dict(l=60, r=30, t=80, b=60)
     )
-    
+
     # Add range selector if there are enough data points
     if len(df_bey) > 10:
         fig.update_xaxes(
@@ -232,7 +232,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
                 activecolor='#6366f1'
             )
         )
-    
+
     return fig
 
 
@@ -240,33 +240,33 @@ def generate_all_individual_plots():
     """Generate interactive plots for all Beyblades"""
     print("Loading data...")
     df_ts, df_hist, df_matches = load_data()
-    
+
     beyblades = df_ts['Bey'].unique()
     total = len(beyblades)
-    
+
     print(f"Generating interactive ELO plots for {total} Beyblades...")
-    
+
     for i, bey in enumerate(beyblades, 1):
         df_bey = df_ts[df_ts['Bey'] == bey].sort_values('MatchIndex')
-        
+
         if len(df_bey) < 2:
             print(f"  [{i}/{total}] Skipping {bey} (insufficient data)")
             continue
-        
+
         # Generate light mode plot
         fig_light = create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False)
         safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
         output_file = os.path.join(OUTPUT_DIR, f"{safe_name}.html")
         fig_light.write_html(output_file, config={'displayModeBar': True, 'responsive': True})
-        
+
         # Generate dark mode plot
         fig_dark = create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=True)
         output_file_dark = os.path.join(OUTPUT_DIR_DARK, f"{safe_name}_dark.html")
         fig_dark.write_html(output_file_dark, config={'displayModeBar': True, 'responsive': True})
-        
+
         print(f"  [{i}/{total}] Generated: {bey}")
-    
-    print(f"\n✓ Interactive ELO plots saved to:")
+
+    print("\n✓ Interactive ELO plots saved to:")
     print(f"  - {OUTPUT_DIR}")
     print(f"  - {OUTPUT_DIR_DARK}")
 
