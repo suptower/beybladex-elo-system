@@ -457,23 +457,26 @@ function calculateHeadToHead(beyA, beyB) {
 
 // Get ELO changes for a specific match
 function getEloChangeForMatch(matchId, beyA, beyB) {
-    const eloEntries = eloHistory.filter(e => e.MatchID === matchId);
+    const eloEntry = eloHistory.find(e => e.MatchID === matchId);
     
-    const entryA = eloEntries.find(e => e.Beyblade === beyA);
-    const entryB = eloEntries.find(e => e.Beyblade === beyB);
+    if (!eloEntry) return null;
     
-    if (entryA && entryB) {
-        return {
-            changeA: parseFloat(entryA.EloChange),
-            changeB: parseFloat(entryB.EloChange),
-            preEloA: parseFloat(entryA.PreElo),
-            preEloB: parseFloat(entryB.PreElo),
-            postEloA: parseFloat(entryA.PostElo),
-            postEloB: parseFloat(entryB.PostElo)
-        };
-    }
+    // Determine which position each bey is in the elo_history record
+    const aIsFirst = eloEntry.BeyA === beyA;
     
-    return null;
+    const preEloA = parseFloat(aIsFirst ? eloEntry.PreA : eloEntry.PreB);
+    const preEloB = parseFloat(aIsFirst ? eloEntry.PreB : eloEntry.PreA);
+    const postEloA = parseFloat(aIsFirst ? eloEntry.PostA : eloEntry.PostB);
+    const postEloB = parseFloat(aIsFirst ? eloEntry.PostB : eloEntry.PostA);
+    
+    return {
+        changeA: postEloA - preEloA,
+        changeB: postEloB - preEloB,
+        preEloA: preEloA,
+        preEloB: preEloB,
+        postEloA: postEloA,
+        postEloB: postEloB
+    };
 }
 
 // Calculate round-level statistics
