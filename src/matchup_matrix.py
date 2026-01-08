@@ -256,7 +256,7 @@ def main():
     with open(OUTPUT_JSON, 'w', encoding='utf-8') as f:
         json.dump(matrix_output, f, indent=2, ensure_ascii=False)
 
-    print("✓ Matchup matrix generated successfully!")
+    print("Matchup matrix generated successfully!")
     print(f"  - {len(matrix_output['beys'])} beys in matrix")
     print(f"  - {len(hard_counters)} hard counter matchups identified")
 
