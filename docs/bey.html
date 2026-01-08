@@ -1203,16 +1203,18 @@ function loadEloPlot() {
                 plotImg.style.display = 'none';
                 plotSection.style.display = 'block';
                 
-                // Force Plotly to resize/reload on initial load
+                // Force Plotly to resize/reload on initial load - only once
                 // This ensures proper rendering similar to when dark mode toggles
+                let hasReloaded = false;
                 plotFrame.onload = function() {
-                    // Send a message to the iframe to trigger Plotly.Plots.resize()
-                    // or force a layout recalculation by reloading
-                    setTimeout(function() {
-                        const currentSrc = plotFrame.src;
-                        plotFrame.src = '';
-                        plotFrame.src = currentSrc;
-                    }, 100);
+                    if (!hasReloaded) {
+                        hasReloaded = true;
+                        setTimeout(function() {
+                            const currentSrc = plotFrame.src;
+                            plotFrame.src = '';
+                            plotFrame.src = currentSrc;
+                        }, 100);
+                    }
                 };
             } else {
                 // Fallback to static PNG
