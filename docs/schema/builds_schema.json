@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Builds Schema",
+  "description": "Schema for Beyblade build registry (stock and custom combinations)",
+  "type": "object",
+  "required": ["metadata", "builds"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["version", "last_updated", "total_builds"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Schema version"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date",
+          "description": "Last update timestamp (ISO 8601)"
+        },
+        "total_builds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total number of builds in registry"
+        }
+      }
+    },
+    "builds": {
+      "type": "array",
+      "description": "Array of all build configurations",
+      "items": {
+        "type": "object",
+        "required": ["build_id", "blade", "ratchet", "bit", "is_stock"],
+        "properties": {
+          "build_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9]+_[A-Za-z0-9\\-]+_[A-Za-z0-9]+$",
+            "description": "Unique identifier: {Blade}_{Ratchet}_{Bit}"
+          },
+          "blade": {
+            "type": "string",
+            "description": "Blade component name"
+          },
+          "ratchet": {
+            "type": "string",
+            "description": "Ratchet component name (e.g., 4-60, 5-80)"
+          },
+          "bit": {
+            "type": "string",
+            "description": "Bit component name"
+          },
+          "is_stock": {
+            "type": "boolean",
+            "description": "True if this is a factory stock combination"
+          },
+          "stock_code": {
+            "type": ["string", "null"],
+            "description": "Product code if stock (e.g., BX-20), null if custom"
+          },
+          "first_seen": {
+            "type": "string",
+            "format": "date",
+            "description": "Date this build was first used in a match"
+          },
+          "last_used": {
+            "type": "string",
+            "format": "date",
+            "description": "Date this build was most recently used"
+          },
+          "match_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Total number of matches using this build"
+          },
+          "current_elo": {
+            "type": "number",
+            "description": "Current ELO rating for this build"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["active", "provisional", "retired"],
+            "description": "Build status: active (>=5 matches), provisional (<5), retired (unused >90 days)"
+          }
+        }
+      }
+    }
+  }
+}
