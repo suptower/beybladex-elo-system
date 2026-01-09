@@ -71,6 +71,27 @@
       "type": "string",
       "description": "Optional tournament identifier"
     },
+    "match_type": {
+      "type": "string",
+      "enum": ["exhibition", "season", "relegation", "season_cup"],
+      "default": "exhibition",
+      "description": "Type of match: exhibition (default, all existing matches), season (league match), relegation (promotion/relegation decision match), season_cup (post-season cup)"
+    },
+    "season_id": {
+      "type": "string",
+      "description": "Season identifier (e.g., 'S1', 'S2'). Required for season, relegation, and season_cup matches"
+    },
+    "tier": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4,
+      "description": "Tier number (1-4) for season matches"
+    },
+    "matchday": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Matchday/round number within the season"
+    },
     "notes": {
       "type": "string",
       "description": "Optional notes about the match"
@@ -81,6 +102,11 @@
       "type": "string",
       "enum": ["spin", "pocket", "burst", "extreme"],
       "description": "Allowed finish types: spin (1pt default), pocket (2pt), burst (2pt), extreme (3pt)"
+    },
+    "match_type": {
+      "type": "string",
+      "enum": ["exhibition", "season", "relegation", "season_cup"],
+      "description": "Allowed match types: exhibition (default), season (league), relegation (decision match), season_cup (post-season tournament)"
     }
   }
 }
