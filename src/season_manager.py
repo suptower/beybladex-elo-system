@@ -58,7 +58,7 @@ POINTS_DOMINANT_WIN = 4
 POINTS_LOSS = 0
 
 # Dominant win threshold
-DOMINANT_WIN_THRESHOLD = 4  # Difference of 4+ points (4-0, 5-0, 6-0)
+DOMINANT_WIN_THRESHOLD = 4  # Shutout victory with 4+ points (4-0, 5-0, 6-0)
 
 # Promotion/Relegation counts
 AUTO_PROMOTION = 2

@@ -102,11 +102,6 @@
       "type": "string",
       "enum": ["spin", "pocket", "burst", "extreme"],
       "description": "Allowed finish types: spin (1pt default), pocket (2pt), burst (2pt), extreme (3pt)"
-    },
-    "match_type": {
-      "type": "string",
-      "enum": ["exhibition", "season", "relegation", "season_cup"],
-      "description": "Allowed match types: exhibition (default), season (league), relegation (decision match), season_cup (post-season tournament)"
     }
   }
 }
