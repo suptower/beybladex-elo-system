@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasonal Leagues - BeybladeX ELO System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>🏆 Seasonal League Archive</h1>
+            <p class="subtitle">Tiered Seasonal Competition History</p>
+        </div>
+
+        <div class="info-box">
+            <h3>About the Seasonal League System</h3>
+            <p>
+                The Seasonal League is a tiered competition system where 40 Beyblades compete across 4 tiers.
+                Each season features round-robin matches within tiers, followed by promotion/relegation and
+                a post-season cup tournament.
+            </p>
+            <div class="system-summary">
+                <div class="stat-card">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Tiers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">10</div>
+                    <div class="stat-label">Beys per Tier</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">180</div>
+                    <div class="stat-label">Matches per Season</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Season Cup Participants</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="seasons-container">
+            <h2>Season History</h2>
+            <div id="seasons-list">
+                <!-- Seasons will be loaded here dynamically -->
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Competition Format</h3>
+            <div class="format-grid">
+                <div class="format-card">
+                    <h4>🎯 League Matches</h4>
+                    <ul>
+                        <li>Single round-robin within each tier</li>
+                        <li>9 matches per Bey</li>
+                        <li>Win: 3 points</li>
+                        <li>Dominant Win (4-0+): 4 points</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>↕️ Promotion & Relegation</h4>
+                    <ul>
+                        <li>Top 2: Automatic promotion</li>
+                        <li>Bottom 2: Automatic relegation</li>
+                        <li>8th vs 3rd: Relegation match</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>🏆 Season Cup</h4>
+                    <ul>
+                        <li>Top 4 from Tier I</li>
+                        <li>Top 2 from Tier II</li>
+                        <li>Top 1 from Tier III & IV</li>
+                        <li>Double-elimination format</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>📊 League Table Ranking</h4>
+                    <ol>
+                        <li>Season Points</li>
+                        <li>Point Difference</li>
+                        <li>Total Points Scored</li>
+                        <li>Head-to-Head</li>
+                        <li>ELO Rating</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="footer-placeholder"></footer>
+
+    <script src="navigation.js"></script>
+    <script src="darkmode.js"></script>
+    <script src="version-display.js"></script>
+    <script src="seasons.js"></script>
+</body>
+</html>

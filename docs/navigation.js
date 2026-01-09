@@ -44,6 +44,8 @@
             'milestones.html': { title: 'Milestones', category: 'Data' },
             'tournaments.html': { title: 'Tournaments', category: 'Data' },
             'changelog.html': { title: 'Changelog', category: 'Data' },
+            'seasons.html': { title: 'Seasons', category: 'Data' },
+            'season.html': { title: 'Season Details', category: 'Data' },
             
             // Tools pages
             'compare.html': { title: 'Compare', category: 'Tools' },
