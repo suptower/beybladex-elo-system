@@ -581,6 +581,15 @@ function performSort(colIndex, asc) {
             return asc ? v1 - v2 : v2 - v1;
         }
 
+        // Special case: Confidence label
+        if (key.toLowerCase() === "credibilitylabel") {
+            const order = { "Low": 1, "Medium": 2, "High": 3 };
+            const v1 = order[raw1] || 0;
+            const v2 = order[raw2] || 0;
+            return asc ? v1 - v2 : v2 - v1;
+        }
+
+
         // --- normaler numeric sort ---
         const n1 = parseFloat(raw1);
         const n2 = parseFloat(raw2);
