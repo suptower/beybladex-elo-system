@@ -107,12 +107,7 @@ let state = {
     tournament: {
         name: '',
         round: 1,
-        format: 'swiss',
-        // Season fields
-        matchType: 'exhibition',
-        seasonId: '',
-        tier: '',
-        matchday: ''
+        format: 'swiss'
     },
     participants: [],
     beyblades: [],
@@ -277,11 +272,7 @@ function loadFromStorage() {
                 state.tournament = {
                     name: String(parsed.name || ''),
                     round: parseInt(parsed.round) || 1,
-                    format: String(parsed.format || 'swiss'),
-                    matchType: String(parsed.matchType || 'exhibition'),
-                    seasonId: String(parsed.seasonId || ''),
-                    tier: String(parsed.tier || ''),
-                    matchday: parsed.matchday ? parseInt(parsed.matchday) : ''
+                    format: String(parsed.format || 'swiss')
                 };
             }
         }
@@ -349,26 +340,11 @@ function initializeUI() {
     const matchCountInput = document.getElementById('matchCount');
     const liveModeToggle = document.getElementById('liveModeToggle');
     
-    // Season fields
-    const matchTypeSelect = document.getElementById('matchTypeSelect');
-    const seasonIdInput = document.getElementById('seasonIdInput');
-    const tierSelect = document.getElementById('tierSelect');
-    const matchdayInput = document.getElementById('matchdayInput');
-    
     if (tournamentNameInput) tournamentNameInput.value = state.tournament.name || '';
     if (roundNumberInput) roundNumberInput.value = state.tournament.round || 1;
     if (formatSelect) formatSelect.value = state.tournament.format || 'swiss';
     if (matchCountInput) matchCountInput.value = state.matches.length || 8;
     if (liveModeToggle) liveModeToggle.checked = state.liveMode;
-    
-    // Restore season fields
-    if (matchTypeSelect) matchTypeSelect.value = state.tournament.matchType || 'exhibition';
-    if (seasonIdInput) seasonIdInput.value = state.tournament.seasonId || '';
-    if (tierSelect) tierSelect.value = state.tournament.tier || '';
-    if (matchdayInput) matchdayInput.value = state.tournament.matchday || '';
-    
-    // Trigger match type change to enable/disable fields appropriately
-    handleMatchTypeChange();
     
     // Render selected participants
     renderSelectedParticipants();
@@ -382,12 +358,6 @@ function setupEventListeners() {
     document.getElementById('tournamentName')?.addEventListener('input', handleTournamentChange);
     document.getElementById('roundNumber')?.addEventListener('input', handleTournamentChange);
     document.getElementById('formatSelect')?.addEventListener('change', handleTournamentChange);
-    
-    // Season controls
-    document.getElementById('matchTypeSelect')?.addEventListener('change', handleMatchTypeChange);
-    document.getElementById('seasonIdInput')?.addEventListener('input', handleSeasonFieldChange);
-    document.getElementById('tierSelect')?.addEventListener('change', handleSeasonFieldChange);
-    document.getElementById('matchdayInput')?.addEventListener('input', handleSeasonFieldChange);
     
     // Action buttons
     document.getElementById('generateMatchesBtn')?.addEventListener('click', generateMatches);
@@ -441,47 +411,6 @@ function handleTournamentChange() {
     saveToStorage();
 }
 
-function handleMatchTypeChange() {
-    const matchType = document.getElementById('matchTypeSelect')?.value || 'exhibition';
-    state.tournament.matchType = matchType;
-    
-    // Enable/disable season fields based on match type
-    const seasonIdInput = document.getElementById('seasonIdInput');
-    const tierSelect = document.getElementById('tierSelect');
-    const matchdayInput = document.getElementById('matchdayInput');
-    
-    if (matchType === 'season') {
-        // Season league matches need all fields
-        seasonIdInput.disabled = false;
-        tierSelect.disabled = false;
-        matchdayInput.disabled = false;
-    } else if (matchType === 'relegation' || matchType === 'season_cup') {
-        // Relegation and cup matches need only seasonId
-        seasonIdInput.disabled = false;
-        tierSelect.disabled = true;
-        matchdayInput.disabled = true;
-        state.tournament.tier = '';
-        state.tournament.matchday = '';
-    } else {
-        // Exhibition matches don't need any season fields
-        seasonIdInput.disabled = true;
-        tierSelect.disabled = true;
-        matchdayInput.disabled = true;
-        state.tournament.seasonId = '';
-        state.tournament.tier = '';
-        state.tournament.matchday = '';
-    }
-    
-    saveToStorage();
-}
-
-function handleSeasonFieldChange() {
-    state.tournament.seasonId = document.getElementById('seasonIdInput')?.value || '';
-    state.tournament.tier = document.getElementById('tierSelect')?.value || '';
-    state.tournament.matchday = parseInt(document.getElementById('matchdayInput')?.value) || '';
-    saveToStorage();
-}
-
 function handleGlobalKeydown(e) {
     // Ctrl+S to force save
     if (e.ctrlKey && e.key === 's') {
@@ -506,6 +435,20 @@ function createEmptyRound(index) {
 
 // Create an empty match with rounds support
 function createEmptyMatch(index) {
+    // Get settings from the most recent match (if any)
+    let matchType = 'exhibition';
+    let seasonId = '';
+    let tier = '';
+    let matchday = '';
+    
+    if (state.matches.length > 0) {
+        const lastMatch = state.matches[state.matches.length - 1];
+        matchType = lastMatch.matchType || 'exhibition';
+        seasonId = lastMatch.seasonId || '';
+        tier = lastMatch.tier || '';
+        matchday = lastMatch.matchday || '';
+    }
+    
     return {
         id: generateUniqueId(),
         matchNumber: index + 1,
@@ -516,11 +459,11 @@ function createEmptyMatch(index) {
         scoreB: 0,  // Computed from rounds
         winner: null,
         timestamp: null,
-        // Season fields
-        matchType: state.tournament.matchType || 'exhibition',
-        seasonId: state.tournament.seasonId || '',
-        tier: state.tournament.tier || '',
-        matchday: state.tournament.matchday || ''
+        // Season fields (copied from most recent match)
+        matchType: matchType,
+        seasonId: seasonId,
+        tier: tier,
+        matchday: matchday
     };
 }
 
@@ -1026,6 +969,51 @@ function updateBey(matchIndex, player, beyName) {
     }
 }
 
+// Season field update functions
+function updateMatchType(matchIndex, matchType) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.matchType = matchType;
+    
+    // Clear fields that don't apply to this match type
+    if (matchType === 'exhibition') {
+        match.seasonId = '';
+        match.tier = '';
+        match.matchday = '';
+    } else if (matchType === 'relegation' || matchType === 'season_cup') {
+        match.tier = '';
+        match.matchday = '';
+    }
+    
+    saveToStorage();
+    renderMatches();
+}
+
+function updateSeasonId(matchIndex, seasonId) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.seasonId = seasonId;
+    saveToStorage();
+}
+
+function updateTier(matchIndex, tier) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.tier = tier;
+    saveToStorage();
+}
+
+function updateMatchday(matchIndex, matchday) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.matchday = matchday ? parseInt(matchday) : '';
+    saveToStorage();
+}
+
 // ============================================
 // PRE-MATCH ANALYSIS PANEL
 // ============================================
@@ -1447,6 +1435,51 @@ function renderQuickAddButtons(matchIndex, match) {
     `;
 }
 
+// Render season fields for a match
+function renderSeasonFields(matchIndex, match) {
+    const matchType = match.matchType || 'exhibition';
+    const seasonId = match.seasonId || '';
+    const tier = match.tier || '';
+    const matchday = match.matchday || '';
+    
+    const isSeasonMatch = matchType === 'season';
+    const needsSeasonId = matchType !== 'exhibition';
+    
+    return `
+        <div class="match-season-fields">
+            <div class="season-field-group">
+                <label class="season-field-label">🏆 Match Type</label>
+                <select class="season-field-select" onchange="updateMatchType(${matchIndex}, this.value)" data-match="${matchIndex}">
+                    <option value="exhibition" ${matchType === 'exhibition' ? 'selected' : ''}>Exhibition</option>
+                    <option value="season" ${matchType === 'season' ? 'selected' : ''}>Season League</option>
+                    <option value="relegation" ${matchType === 'relegation' ? 'selected' : ''}>Relegation Match</option>
+                    <option value="season_cup" ${matchType === 'season_cup' ? 'selected' : ''}>Season Cup</option>
+                </select>
+            </div>
+            <div class="season-field-group ${needsSeasonId ? '' : 'field-disabled'}">
+                <label class="season-field-label">📅 Season ID</label>
+                <input type="text" class="season-field-input" placeholder="e.g., S1" value="${escapeHtml(seasonId)}" 
+                       onchange="updateSeasonId(${matchIndex}, this.value)" ${needsSeasonId ? '' : 'disabled'}>
+            </div>
+            <div class="season-field-group ${isSeasonMatch ? '' : 'field-disabled'}">
+                <label class="season-field-label">🎯 Tier</label>
+                <select class="season-field-select season-field-small" onchange="updateTier(${matchIndex}, this.value)" ${isSeasonMatch ? '' : 'disabled'}>
+                    <option value="" ${tier === '' ? 'selected' : ''}>—</option>
+                    <option value="1" ${tier === '1' ? 'selected' : ''}>Tier 1</option>
+                    <option value="2" ${tier === '2' ? 'selected' : ''}>Tier 2</option>
+                    <option value="3" ${tier === '3' ? 'selected' : ''}>Tier 3</option>
+                    <option value="4" ${tier === '4' ? 'selected' : ''}>Tier 4</option>
+                </select>
+            </div>
+            <div class="season-field-group ${isSeasonMatch ? '' : 'field-disabled'}">
+                <label class="season-field-label">📆 Matchday</label>
+                <input type="number" class="season-field-input season-field-small" placeholder="1-9" min="1" max="9" 
+                       value="${matchday}" onchange="updateMatchday(${matchIndex}, this.value)" ${isSeasonMatch ? '' : 'disabled'}>
+            </div>
+        </div>
+    `;
+}
+
 function renderMatchTable() {
     const tbody = document.getElementById('matchEntryBody');
     if (!tbody) return;
@@ -1506,6 +1539,7 @@ function renderMatchTable() {
                                 <span>⚡ Extreme (+3)</span>
                             </div>
                         </div>
+                        ${renderSeasonFields(index, match)}
                         ${renderQuickAddButtons(index, match)}
                         <div class="rounds-list">
                             ${renderRoundsList(match, index)}
@@ -1551,6 +1585,7 @@ function renderMatchCards() {
                         ⚔️ Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>
                     </div>
                     <div class="card-rounds-panel" id="cardRoundsPanel_${index}" style="display: none;">
+                        ${renderSeasonFields(index, match)}
                         ${renderQuickAddButtons(index, match)}
                         <div class="rounds-list">
                             ${renderRoundsList(match, index)}
@@ -1920,7 +1955,7 @@ function exportJSON() {
 }
 
 function exportCSV() {
-    // Export match-level CSV with new season fields
+    // Export match-level CSV with season fields from each match
     const headers = ['MatchID', 'Date', 'BeyA', 'BeyB', 'ScoreA', 'ScoreB', 'MatchType', 'SeasonID', 'Tier', 'Matchday'];
     const rows = state.matches.map((match, i) => {
         const date = match.timestamp ? new Date(match.timestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
@@ -1931,10 +1966,10 @@ function exportCSV() {
             match.beyB || '',
             match.scoreA,
             match.scoreB,
-            match.matchType || state.tournament.matchType || 'exhibition',
-            match.seasonId || state.tournament.seasonId || '',
-            match.tier || state.tournament.tier || '',
-            match.matchday || state.tournament.matchday || ''
+            match.matchType || 'exhibition',
+            match.seasonId || '',
+            match.tier || '',
+            match.matchday || ''
         ];
     });
     

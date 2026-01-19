@@ -1699,56 +1699,74 @@
 }
 
 /* ============================================
-   Season Fields Styling
+   Per-Match Season Fields Styling
    ============================================ */
 
-/* Season control row styling */
-.controls-row:has(#matchTypeSelect) {
+.match-season-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.75rem;
+    padding: 1rem;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
     border: 1px solid rgba(99, 102, 241, 0.15);
     border-radius: 8px;
-    padding: 1rem;
-    margin-top: 0.5rem;
+    margin-bottom: 1rem;
 }
 
-/* Disabled field styling for season inputs */
-#seasonIdInput:disabled,
-#tierSelect:disabled,
-#matchdayInput:disabled {
+.season-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.season-field-group.field-disabled {
     opacity: 0.5;
-    cursor: not-allowed;
+}
+
+.season-field-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.season-field-select,
+.season-field-input {
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.875rem;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.season-field-select:focus,
+.season-field-input:focus {
+    outline: none;
+    border-color: var(--accent);
     background: var(--bg-secondary);
 }
 
-/* Match type select with visual indicators */
-#matchTypeSelect option[value="season"] {
-    background: rgba(34, 197, 94, 0.1);
+.season-field-select:disabled,
+.season-field-input:disabled {
+    background: var(--bg-secondary);
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
-#matchTypeSelect option[value="relegation"] {
-    background: rgba(251, 191, 36, 0.1);
+.season-field-small {
+    max-width: 120px;
 }
 
-#matchTypeSelect option[value="season_cup"] {
-    background: rgba(139, 92, 246, 0.1);
-}
-
-/* Season field labels with icons */
-.control-group:has(#matchTypeSelect) label::before,
-.control-group:has(#seasonIdInput) label::before,
-.control-group:has(#tierSelect) label::before,
-.control-group:has(#matchdayInput) label::before {
-    content: "🏆 ";
-}
-
-.control-group:has(#seasonIdInput) label::before {
-    content: "📅 ";
-}
-
-.control-group:has(#tierSelect) label::before {
-    content: "🎯 ";
-}
-
-.control-group:has(#matchdayInput) label::before {
-    content: "📆 ";
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .match-season-fields {
+        grid-template-columns: 1fr;
+    }
+    
+    .season-field-small {
+        max-width: 100%;
+    }
 }
