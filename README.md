@@ -272,6 +272,32 @@ The `matches.csv` file now supports an optional `MatchType` column:
 
 If `MatchType` is missing, matches are treated as `exhibition` for full backwards compatibility.
 
+### Initializing a New Season
+
+Use the `init_season.py` utility to initialize a new season from the current leaderboard:
+
+```bash
+# Initialize a season (creates tier assignments)
+python src/init_season.py S1
+
+# Initialize and generate match schedule templates
+python src/init_season.py S1 --generate-schedule
+
+# Specify custom paths
+python src/init_season.py S2 --leaderboard ./custom/leaderboard.csv --data-dir ./data
+```
+
+The utility will:
+1. Read current ELO rankings from `leaderboard.csv`
+2. Assign all 40 Beys to 4 tiers based on ELO
+3. Save tier assignments to `seasons.json`
+4. Optionally generate match schedule CSV templates for each tier
+
+**Generated Schedule Format:**
+- Ready-to-use CSV templates with all matchups
+- Pre-filled with MatchType, SeasonID, Tier, and Matchday
+- Simply add dates and results, then import to `matches.csv`
+
 ### Season Data Processing
 
 Process season data after adding season matches:
