@@ -1697,3 +1697,58 @@
     color: white;
     border-color: var(--accent);
 }
+
+/* ============================================
+   Season Fields Styling
+   ============================================ */
+
+/* Season control row styling */
+.controls-row:has(#matchTypeSelect) {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Disabled field styling for season inputs */
+#seasonIdInput:disabled,
+#tierSelect:disabled,
+#matchdayInput:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--bg-secondary);
+}
+
+/* Match type select with visual indicators */
+#matchTypeSelect option[value="season"] {
+    background: rgba(34, 197, 94, 0.1);
+}
+
+#matchTypeSelect option[value="relegation"] {
+    background: rgba(251, 191, 36, 0.1);
+}
+
+#matchTypeSelect option[value="season_cup"] {
+    background: rgba(139, 92, 246, 0.1);
+}
+
+/* Season field labels with icons */
+.control-group:has(#matchTypeSelect) label::before,
+.control-group:has(#seasonIdInput) label::before,
+.control-group:has(#tierSelect) label::before,
+.control-group:has(#matchdayInput) label::before {
+    content: "🏆 ";
+}
+
+.control-group:has(#seasonIdInput) label::before {
+    content: "📅 ";
+}
+
+.control-group:has(#tierSelect) label::before {
+    content: "🎯 ";
+}
+
+.control-group:has(#matchdayInput) label::before {
+    content: "📆 ";
+}

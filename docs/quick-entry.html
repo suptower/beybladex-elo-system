@@ -109,6 +109,37 @@
             </div>
         </div>
         
+        <!-- Season Controls Row -->
+        <div class="controls-row">
+            <div class="control-group">
+                <label for="matchTypeSelect">Match Type</label>
+                <select id="matchTypeSelect" class="control-select">
+                    <option value="exhibition" selected>Exhibition</option>
+                    <option value="season">Season League</option>
+                    <option value="relegation">Relegation Match</option>
+                    <option value="season_cup">Season Cup</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="seasonIdInput">Season ID</label>
+                <input type="text" id="seasonIdInput" placeholder="e.g., S1" class="control-input control-input-small" disabled>
+            </div>
+            <div class="control-group">
+                <label for="tierSelect">Tier</label>
+                <select id="tierSelect" class="control-select control-input-small" disabled>
+                    <option value="">—</option>
+                    <option value="1">Tier 1</option>
+                    <option value="2">Tier 2</option>
+                    <option value="3">Tier 3</option>
+                    <option value="4">Tier 4</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="matchdayInput">Matchday</label>
+                <input type="number" id="matchdayInput" placeholder="1-9" min="1" max="9" class="control-input control-input-small" disabled>
+            </div>
+        </div>
+        
         <div class="controls-row controls-actions">
             <button class="action-btn action-btn-primary" id="generateMatchesBtn">
                 <span class="btn-icon">🎲</span> Generate Matches
