@@ -130,9 +130,11 @@ function displayTierTables(leagueTables) {
         const table = leagueTables[tier.toString()];
         if (!table || table.length === 0) continue;
         
+        const tierNames = ['I', 'II', 'III', 'IV'];
+        
         html += `
             <div class="tier-section">
-                <h3>Tier ${tier}</h3>
+                <h3>🏆 Tier ${tierNames[tier-1]}</h3>
                 <div class="table-responsive">
                     <table class="league-table">
                         <thead>
@@ -158,11 +160,44 @@ function displayTierTables(leagueTables) {
                     <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
                     <span><strong>PF</strong>=Points For, <strong>PA</strong>=Points Against, <strong>PD</strong>=Point Difference</span>
                 </div>
+                ${getPositionLegend(tier)}
             </div>
         `;
     }
     
     container.innerHTML = html;
+}
+
+/**
+ * Get position legend for tier
+ */
+function getPositionLegend(tier) {
+    let html = '<div class="position-legend">';
+    
+    if (tier > 1) {
+        html += `
+            <div class="position-legend-item">
+                <div class="position-legend-indicator promotion"></div>
+                <span>Promotion (Top 2)</span>
+            </div>
+        `;
+    }
+    
+    if (tier < 4) {
+        html += `
+            <div class="position-legend-item">
+                <div class="position-legend-indicator playoff"></div>
+                <span>Relegation Playoff (8th)</span>
+            </div>
+            <div class="position-legend-item">
+                <div class="position-legend-indicator relegation"></div>
+                <span>Relegation (Bottom 2)</span>
+            </div>
+        `;
+    }
+    
+    html += '</div>';
+    return html;
 }
 
 /**
