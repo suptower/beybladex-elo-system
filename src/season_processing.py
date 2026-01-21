@@ -540,7 +540,7 @@ def main():
     # Print summary
     generate_season_summary(all_data)
 
-    print(f"\n{GREEN}{BOLD}✓ Season processing complete!{RESET}")
+    print(f"\n{GREEN}{BOLD} Season processing complete!{RESET}")
 
 
 if __name__ == "__main__":
