@@ -465,28 +465,36 @@ function displayFixtures(fixturesData) {
             if (!fixtures || fixtures.length === 0) return;
             
             html += `
-                <div class="matchday-section">
-                    <h4>Matchday ${md}</h4>
-                    <div class="matches-grid">
-                        ${fixtures.map(fixture => {
-                            const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link">${fixture.bey_a}</a>`;
-                            const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link">${fixture.bey_b}</a>`;
-                            
-                            return `
-                            <div class="match-card fixture-card">
-                                <div class="match-info">
-                                    <span class="tier-badge">Tier ${fixture.tier || '?'}</span>
-                                    <span class="match-date">${fixture.date || ''}</span>
-                                    <span class="status-badge scheduled">Scheduled</span>
-                                </div>
-                                <div class="match-result">
-                                    <span class="bey">${beyALink}</span>
-                                    <span class="score fixture-vs">vs</span>
-                                    <span class="bey">${beyBLink}</span>
-                                </div>
-                            </div>
-                        `;
-                        }).join('')}
+                <div class="fixtures-matchday">
+                    <h4 class="fixtures-matchday-header">📆 Matchday ${md}</h4>
+                    <div class="fixtures-table-container">
+                        <table class="fixtures-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Tier</th>
+                                    <th colspan="3">Match</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${fixtures.map(fixture => {
+                                    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${fixture.bey_a}</a>`;
+                                    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${fixture.bey_b}</a>`;
+                                    
+                                    return `
+                                    <tr class="fixture-row">
+                                        <td class="fixture-date">${fixture.date || 'TBD'}</td>
+                                        <td class="fixture-tier"><span class="tier-badge-compact">T${fixture.tier || '?'}</span></td>
+                                        <td class="fixture-bey-home">${beyALink}</td>
+                                        <td class="fixture-vs"><span class="vs-text">vs</span></td>
+                                        <td class="fixture-bey-away">${beyBLink}</td>
+                                        <td class="fixture-status"><span class="fixture-badge">Scheduled</span></td>
+                                    </tr>
+                                `;
+                                }).join('')}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             `;
@@ -494,26 +502,34 @@ function displayFixtures(fixturesData) {
     } else {
         // Show all fixtures without matchday grouping
         html += `
-            <div class="matches-grid">
-                ${upcomingMatches.map(fixture => {
-                    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link">${fixture.bey_a}</a>`;
-                    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link">${fixture.bey_b}</a>`;
-                    
-                    return `
-                    <div class="match-card fixture-card">
-                        <div class="match-info">
-                            <span class="tier-badge">Tier ${fixture.tier || '?'}</span>
-                            <span class="match-date">${fixture.date || ''}</span>
-                            <span class="status-badge scheduled">Scheduled</span>
-                        </div>
-                        <div class="match-result">
-                            <span class="bey">${beyALink}</span>
-                            <span class="score fixture-vs">vs</span>
-                            <span class="bey">${beyBLink}</span>
-                        </div>
-                    </div>
-                `;
-                }).join('')}
+            <div class="fixtures-table-container">
+                <table class="fixtures-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Tier</th>
+                            <th colspan="3">Match</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${upcomingMatches.map(fixture => {
+                            const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${fixture.bey_a}</a>`;
+                            const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${fixture.bey_b}</a>`;
+                            
+                            return `
+                            <tr class="fixture-row">
+                                <td class="fixture-date">${fixture.date || 'TBD'}</td>
+                                <td class="fixture-tier"><span class="tier-badge-compact">T${fixture.tier || '?'}</span></td>
+                                <td class="fixture-bey-home">${beyALink}</td>
+                                <td class="fixture-vs"><span class="vs-text">vs</span></td>
+                                <td class="fixture-bey-away">${beyBLink}</td>
+                                <td class="fixture-status"><span class="fixture-badge">Scheduled</span></td>
+                            </tr>
+                        `;
+                        }).join('')}
+                    </tbody>
+                </table>
             </div>
         `;
     }

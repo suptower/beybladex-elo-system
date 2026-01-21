@@ -11152,6 +11152,7 @@ select:focus-visible {
    Fixtures Section Styles
    ======================================== */
 
+/* Fixtures Section */
 #fixtures-section {
     margin-top: 3rem;
     margin-bottom: 3rem;
@@ -11161,55 +11162,186 @@ select:focus-visible {
     color: var(--text-muted);
     margin-bottom: 2rem;
     font-size: 1rem;
+    text-align: center;
 }
 
-.fixture-card {
-    opacity: 0.8;
-    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-    border: 1px dashed var(--border);
+.fixtures-matchday {
+    margin-bottom: 2rem;
 }
 
-.fixture-card:hover {
-    opacity: 1;
-    transform: translateY(0);
+.fixtures-matchday-header {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--accent);
+    padding: 0.5rem 0;
+    border-bottom: 2px solid var(--accent);
+}
+
+.fixtures-table-container {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.fixtures-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--bg-secondary);
+}
+
+.fixtures-table thead {
+    background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.1) 0%, rgba(var(--accent-rgb), 0.05) 100%);
+    border-bottom: 2px solid var(--accent);
+}
+
+.fixtures-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+}
+
+.fixtures-table th[colspan="3"] {
+    text-align: center;
+}
+
+.fixture-row {
+    border-bottom: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.fixture-row:hover {
+    background: rgba(var(--accent-rgb), 0.03);
+    transform: scale(1.01);
+}
+
+.fixture-row td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.fixture-date {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.fixture-tier {
+    text-align: center;
+}
+
+.tier-badge-compact {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: linear-gradient(135deg, var(--accent) 0%, rgba(var(--accent-rgb), 0.8) 100%);
+    color: white;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.fixture-bey-home {
+    text-align: right;
+    padding-right: 1.5rem !important;
+}
+
+.fixture-bey-away {
+    text-align: left;
+    padding-left: 1.5rem !important;
+}
+
+.fixture-bey {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.fixture-bey:hover {
+    color: var(--accent);
 }
 
 .fixture-vs {
-    color: var(--text-muted);
-    font-weight: 600;
-    font-size: 0.9rem;
+    text-align: center;
+    font-weight: 400;
 }
 
-.status-badge {
+.vs-text {
+    display: inline-block;
     padding: 0.25rem 0.75rem;
+    background: var(--bg-tertiary);
     border-radius: var(--radius-sm);
-    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
     font-weight: 600;
-    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
-.status-badge.scheduled {
-    background: var(--warning);
+.fixture-status {
+    text-align: center;
+}
+
+.fixture-badge {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: linear-gradient(135deg, var(--warning) 0%, rgba(var(--warning-rgb), 0.8) 100%);
     color: var(--bg);
+    border-radius: var(--radius-md);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.fixture-card .bey {
-    font-weight: 600;
-}
-
-.fixture-card .match-info {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
+/* Responsive Design */
 @media (max-width: 768px) {
     .fixtures-intro {
         font-size: 0.9rem;
     }
     
-    .fixture-card {
+    .fixtures-table {
         font-size: 0.85rem;
+    }
+    
+    .fixtures-table th,
+    .fixture-row td {
+        padding: 0.75rem 0.5rem;
+    }
+    
+    .fixture-bey {
+        font-size: 0.9rem;
+    }
+    
+    .fixture-date {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .fixtures-table {
+        font-size: 0.8rem;
+    }
+    
+    .fixtures-table th,
+    .fixture-row td {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .fixture-bey {
+        font-size: 0.85rem;
+    }
+    
+    .fixture-bey-home,
+    .fixture-bey-away {
+        padding-right: 0.5rem !important;
+        padding-left: 0.5rem !important;
     }
 }
