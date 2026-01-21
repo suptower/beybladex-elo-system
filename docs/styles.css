@@ -11147,3 +11147,69 @@ select:focus-visible {
         padding: 0.6rem;
     }
 }
+
+/* ========================================
+   Fixtures Section Styles
+   ======================================== */
+
+#fixtures-section {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+.fixtures-intro {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.fixture-card {
+    opacity: 0.8;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border: 1px dashed var(--border);
+}
+
+.fixture-card:hover {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fixture-vs {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.scheduled {
+    background: var(--warning);
+    color: var(--bg);
+}
+
+.fixture-card .bey {
+    font-weight: 600;
+}
+
+.fixture-card .match-info {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .fixtures-intro {
+        font-size: 0.9rem;
+    }
+    
+    .fixture-card {
+        font-size: 0.85rem;
+    }
+}

@@ -59,6 +59,11 @@ function displaySeason(seasonId, season) {
     // Display tier tables
     displayTierTables(season.league_tables || {});
     
+    // Display fixtures if available
+    if (season.fixtures && season.fixtures.upcoming_matches && season.fixtures.upcoming_matches.length > 0) {
+        displayFixtures(season.fixtures);
+    }
+    
     // Display promotion/relegation
     if (season.promotion_relegation) {
         displayPromotionRelegation(season.promotion_relegation);
@@ -425,6 +430,93 @@ function displayMatchdays(matchdays) {
             </div>
         `;
     });
+    
+    container.innerHTML = html;
+}
+
+/**
+ * Display upcoming fixtures
+ */
+function displayFixtures(fixturesData) {
+    const container = document.getElementById('fixtures-section');
+    if (!container) return;
+    
+    const upcomingMatches = fixturesData.upcoming_matches || [];
+    const fixturesByMatchday = fixturesData.fixtures_by_matchday || {};
+    
+    if (upcomingMatches.length === 0) {
+        container.style.display = 'none';
+        return;
+    }
+    
+    container.style.display = 'block';
+    
+    let html = `
+        <h2 class="section-header">📅 Upcoming Fixtures</h2>
+        <p class="fixtures-intro">Scheduled matches that haven't been played yet</p>
+    `;
+    
+    // Group by matchday if available
+    if (Object.keys(fixturesByMatchday).length > 0) {
+        const sortedMatchdays = Object.keys(fixturesByMatchday).sort((a, b) => parseInt(a) - parseInt(b));
+        
+        sortedMatchdays.forEach(md => {
+            const fixtures = fixturesByMatchday[md];
+            if (!fixtures || fixtures.length === 0) return;
+            
+            html += `
+                <div class="matchday-section">
+                    <h4>Matchday ${md}</h4>
+                    <div class="matches-grid">
+                        ${fixtures.map(fixture => {
+                            const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link">${fixture.bey_a}</a>`;
+                            const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link">${fixture.bey_b}</a>`;
+                            
+                            return `
+                            <div class="match-card fixture-card">
+                                <div class="match-info">
+                                    <span class="tier-badge">Tier ${fixture.tier || '?'}</span>
+                                    <span class="match-date">${fixture.date || ''}</span>
+                                    <span class="status-badge scheduled">Scheduled</span>
+                                </div>
+                                <div class="match-result">
+                                    <span class="bey">${beyALink}</span>
+                                    <span class="score fixture-vs">vs</span>
+                                    <span class="bey">${beyBLink}</span>
+                                </div>
+                            </div>
+                        `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        // Show all fixtures without matchday grouping
+        html += `
+            <div class="matches-grid">
+                ${upcomingMatches.map(fixture => {
+                    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link">${fixture.bey_a}</a>`;
+                    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link">${fixture.bey_b}</a>`;
+                    
+                    return `
+                    <div class="match-card fixture-card">
+                        <div class="match-info">
+                            <span class="tier-badge">Tier ${fixture.tier || '?'}</span>
+                            <span class="match-date">${fixture.date || ''}</span>
+                            <span class="status-badge scheduled">Scheduled</span>
+                        </div>
+                        <div class="match-result">
+                            <span class="bey">${beyALink}</span>
+                            <span class="score fixture-vs">vs</span>
+                            <span class="bey">${beyBLink}</span>
+                        </div>
+                    </div>
+                `;
+                }).join('')}
+            </div>
+        `;
+    }
     
     container.innerHTML = html;
 }
