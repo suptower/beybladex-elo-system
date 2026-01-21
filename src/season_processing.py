@@ -117,6 +117,76 @@ def get_active_seasons(matches: List[Dict]) -> List[str]:
     return sorted(list(season_ids))
 
 
+def get_initial_tier_assignments(season_id: str, data_dir: str) -> Dict:
+    """
+    Load initial tier assignments from seasons.json.
+
+    Args:
+        season_id: Season identifier
+        data_dir: Data directory
+
+    Returns:
+        Dictionary mapping tier number to list of bey dictionaries
+    """
+    seasons_file = os.path.join(data_dir, "seasons.json")
+    if not os.path.exists(seasons_file):
+        return {}
+
+    with open(seasons_file, "r", encoding="utf-8") as f:
+        seasons_data = json.load(f)
+
+    season_data = seasons_data.get(season_id)
+    if not season_data:
+        return {}
+
+    tier_assignments = season_data.get("tier_assignments", {})
+    if not tier_assignments:
+        return {}
+
+    # Organize by tier
+    tiers = {1: [], 2: [], 3: [], 4: []}
+    for bey, data in tier_assignments.items():
+        tier = data.get("tier")
+        if tier in tiers:
+            tiers[tier].append({
+                "bey": bey,
+                "elo": data.get("start_elo", 1000)
+            })
+
+    # Sort each tier by ELO descending
+    for tier in tiers:
+        tiers[tier].sort(key=lambda x: -x["elo"])
+
+    return tiers
+
+
+def create_initial_league_table(tier_beys: List[Dict]) -> List[Dict]:
+    """
+    Create an initial league table with all zeros for stats.
+
+    Args:
+        tier_beys: List of bey dictionaries with bey name and elo
+
+    Returns:
+        Initial league table with all stats at zero
+    """
+    table = []
+    for i, bey_data in enumerate(tier_beys, 1):
+        table.append({
+            "position": i,
+            "bey": bey_data["bey"],
+            "matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "season_points": 0,
+            "points_for": 0,
+            "points_against": 0,
+            "point_diff": 0,
+            "elo": bey_data["elo"]
+        })
+    return table
+
+
 def process_season(season_id: str, matches: List[Dict],
                    data_dir: str = DEFAULT_DATA_DIR) -> Dict:
     """
@@ -138,27 +208,43 @@ def process_season(season_id: str, matches: List[Dict],
         if m.get("season_id") == season_id and m.get("match_type") == "season"
     ]
 
-    if not season_matches:
-        print(f"{YELLOW}  No season matches found for {season_id}{RESET}")
+    # Get initial tier assignments
+    initial_tiers = get_initial_tier_assignments(season_id, data_dir)
+
+    if not season_matches and not initial_tiers:
+        print(f"{YELLOW}  No season matches or tier assignments found for {season_id}{RESET}")
         return None
 
     # Generate league tables for all tiers
     league_tables = {}
     for tier in range(1, 5):
-        table = get_league_table(matches, tier, season_id)
+        if season_matches:
+            # Use actual match data
+            table = get_league_table(matches, tier, season_id)
+        elif tier in initial_tiers and initial_tiers[tier]:
+            # Use initial assignments with zero stats
+            table = create_initial_league_table(initial_tiers[tier])
+        else:
+            table = None
+
         if table:
             league_tables[tier] = table
             print(f"{GREEN}  Tier {tier}: {len(table)} teams{RESET}")
 
-    # Determine promotion/relegation
-    promotion_relegation = get_promotion_relegation(
-        load_season_data(season_id, data_dir) or {},
-        league_tables
-    )
+    if not league_tables:
+        print(f"{YELLOW}  No league tables generated for {season_id}{RESET}")
+        return None
 
-    print(f"  Promotions: {len(promotion_relegation['automatic_promotion'])}")
-    print(f"  Relegations: {len(promotion_relegation['automatic_relegation'])}")
-    print(f"  Relegation matches: {len(promotion_relegation['relegation_matches'])}")
+    # Determine promotion/relegation (only if matches played)
+    promotion_relegation = None
+    if season_matches:
+        promotion_relegation = get_promotion_relegation(
+            load_season_data(season_id, data_dir) or {},
+            league_tables
+        )
+        print(f"  Promotions: {len(promotion_relegation['automatic_promotion'])}")
+        print(f"  Relegations: {len(promotion_relegation['automatic_relegation'])}")
+        print(f"  Relegation matches: {len(promotion_relegation['relegation_matches'])}")
 
     # Check for Season Cup data
     cup_bracket = load_season_cup_data(season_id, data_dir)
@@ -179,6 +265,35 @@ def process_season(season_id: str, matches: List[Dict],
     return archive
 
 
+def get_all_seasons(matches: List[Dict], data_dir: str) -> List[str]:
+    """
+    Get list of all season IDs from both matches and seasons.json.
+
+    Args:
+        matches: List of match dictionaries
+        data_dir: Data directory
+
+    Returns:
+        List of unique season IDs
+    """
+    season_ids = set()
+
+    # Get seasons from matches
+    for match in matches:
+        season_id = match.get("season_id")
+        if season_id and match.get("match_type") in ["season", "relegation", "season_cup"]:
+            season_ids.add(season_id)
+
+    # Get seasons from seasons.json
+    seasons_file = os.path.join(data_dir, "seasons.json")
+    if os.path.exists(seasons_file):
+        with open(seasons_file, "r", encoding="utf-8") as f:
+            seasons_data = json.load(f)
+            season_ids.update(seasons_data.keys())
+
+    return sorted(list(season_ids))
+
+
 def process_all_seasons(matches: List[Dict],
                         data_dir: str = DEFAULT_DATA_DIR) -> Dict:
     """
@@ -191,17 +306,17 @@ def process_all_seasons(matches: List[Dict],
     Returns:
         Dictionary with all season data
     """
-    active_seasons = get_active_seasons(matches)
+    all_seasons = get_all_seasons(matches, data_dir)
 
-    if not active_seasons:
-        print(f"{YELLOW}No seasons found in matches{RESET}")
+    if not all_seasons:
+        print(f"{YELLOW}No seasons found{RESET}")
         return {"seasons": {}}
 
-    print(f"{BOLD}{CYAN}Found {len(active_seasons)} season(s): {', '.join(active_seasons)}{RESET}")
+    print(f"{BOLD}{CYAN}Found {len(all_seasons)} season(s): {', '.join(all_seasons)}{RESET}")
 
     all_season_data = {"seasons": {}}
 
-    for season_id in active_seasons:
+    for season_id in all_seasons:
         season_data = process_season(season_id, matches, data_dir)
         if season_data:
             all_season_data["seasons"][season_id] = season_data
