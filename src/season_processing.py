@@ -41,6 +41,7 @@ from season_manager import (  # noqa: E402
 # Default paths
 DEFAULT_DATA_DIR = "./docs/data"
 DEFAULT_MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches.csv")
+DEFAULT_FIXTURES_FILE = os.path.join(DEFAULT_DATA_DIR, "fixtures.csv")
 DEFAULT_LEADERBOARD_FILE = os.path.join(DEFAULT_DATA_DIR, "leaderboard.csv")
 DEFAULT_OUTPUT_FILE = os.path.join(DEFAULT_DATA_DIR, "season_data.json")
 
@@ -96,6 +97,39 @@ def load_matches_with_elo(matches_file: str = DEFAULT_MATCHES_FILE,
             matches.append(match)
 
     return matches
+
+
+def load_fixtures(fixtures_file: str = DEFAULT_FIXTURES_FILE) -> List[Dict]:
+    """
+    Load upcoming fixtures from fixtures.csv.
+
+    Args:
+        fixtures_file: Path to fixtures CSV file
+
+    Returns:
+        List of fixture dictionaries
+    """
+    if not os.path.exists(fixtures_file):
+        return []
+
+    fixtures = []
+    with open(fixtures_file, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            fixture = {
+                "fixture_id": row.get("FixtureID", ""),
+                "date": row.get("Date", ""),
+                "bey_a": row.get("BeyA", ""),
+                "bey_b": row.get("BeyB", ""),
+                "match_type": row.get("MatchType", "season").lower(),
+                "season_id": row.get("SeasonID", ""),
+                "tier": int(row["Tier"]) if row.get("Tier") else None,
+                "matchday": int(row["Matchday"]) if row.get("Matchday") else None,
+                "status": "scheduled"  # Mark as scheduled
+            }
+            fixtures.append(fixture)
+
+    return fixtures
 
 
 def get_active_seasons(matches: List[Dict]) -> List[str]:
@@ -187,14 +221,57 @@ def create_initial_league_table(tier_beys: List[Dict]) -> List[Dict]:
     return table
 
 
-def process_season(season_id: str, matches: List[Dict],
+def organize_fixtures_by_matchday(fixtures: List[Dict]) -> Dict:
+    """
+    Organize fixtures by matchday.
+
+    Args:
+        fixtures: List of fixture dictionaries
+
+    Returns:
+        Dictionary mapping matchday to list of fixtures
+    """
+    by_matchday = {}
+    for fixture in fixtures:
+        matchday = fixture.get("matchday")
+        if matchday:
+            if matchday not in by_matchday:
+                by_matchday[matchday] = []
+            by_matchday[matchday].append(fixture)
+
+    return by_matchday
+
+
+def organize_fixtures_by_tier(fixtures: List[Dict]) -> Dict:
+    """
+    Organize fixtures by tier.
+
+    Args:
+        fixtures: List of fixture dictionaries
+
+    Returns:
+        Dictionary mapping tier to list of fixtures
+    """
+    by_tier = {}
+    for fixture in fixtures:
+        tier = fixture.get("tier")
+        if tier:
+            if tier not in by_tier:
+                by_tier[tier] = []
+            by_tier[tier].append(fixture)
+
+    return by_tier
+
+
+def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
                    data_dir: str = DEFAULT_DATA_DIR) -> Dict:
     """
-    Process all data for a specific season.
+    Process all data for a specific season including fixtures.
 
     Args:
         season_id: Season identifier
-        matches: List of all matches
+        matches: List of all completed matches
+        fixtures: List of all scheduled fixtures
         data_dir: Data directory
 
     Returns:
@@ -208,11 +285,17 @@ def process_season(season_id: str, matches: List[Dict],
         if m.get("season_id") == season_id and m.get("match_type") == "season"
     ]
 
+    # Filter fixtures for this season
+    season_fixtures = [
+        f for f in fixtures
+        if f.get("season_id") == season_id and f.get("match_type") == "season"
+    ]
+
     # Get initial tier assignments
     initial_tiers = get_initial_tier_assignments(season_id, data_dir)
 
-    if not season_matches and not initial_tiers:
-        print(f"{YELLOW}  No season matches or tier assignments found for {season_id}{RESET}")
+    if not season_matches and not initial_tiers and not season_fixtures:
+        print(f"{YELLOW}  No season data found for {season_id}{RESET}")
         return None
 
     # Generate league tables for all tiers
@@ -262,6 +345,16 @@ def process_season(season_id: str, matches: List[Dict],
     if cup_display:
         archive["season_cup"] = cup_display
 
+    # Add fixtures data
+    if season_fixtures:
+        archive["fixtures"] = {
+            "upcoming_matches": season_fixtures,
+            "total_fixtures": len(season_fixtures),
+            "fixtures_by_matchday": organize_fixtures_by_matchday(season_fixtures),
+            "fixtures_by_tier": organize_fixtures_by_tier(season_fixtures)
+        }
+        print(f"  Upcoming fixtures: {len(season_fixtures)}")
+
     return archive
 
 
@@ -294,13 +387,14 @@ def get_all_seasons(matches: List[Dict], data_dir: str) -> List[str]:
     return sorted(list(season_ids))
 
 
-def process_all_seasons(matches: List[Dict],
+def process_all_seasons(matches: List[Dict], fixtures: List[Dict],
                         data_dir: str = DEFAULT_DATA_DIR) -> Dict:
     """
     Process all seasons and generate comprehensive season data.
 
     Args:
-        matches: List of all matches
+        matches: List of all completed matches
+        fixtures: List of all scheduled fixtures
         data_dir: Data directory
 
     Returns:
@@ -317,7 +411,7 @@ def process_all_seasons(matches: List[Dict],
     all_season_data = {"seasons": {}}
 
     for season_id in all_seasons:
-        season_data = process_season(season_id, matches, data_dir)
+        season_data = process_season(season_id, matches, fixtures, data_dir)
         if season_data:
             all_season_data["seasons"][season_id] = season_data
 
@@ -408,27 +502,37 @@ def main():
     # Load matches with ELO data
     print(f"{YELLOW}Loading matches...{RESET}")
     matches_file = os.path.join(args.data_dir, "matches.csv")
+    fixtures_file = os.path.join(args.data_dir, "fixtures.csv")
     leaderboard_file = os.path.join(args.data_dir, "leaderboard.csv")
 
     try:
         matches = load_matches_with_elo(matches_file, leaderboard_file)
-        print(f"{GREEN}Loaded {len(matches)} matches{RESET}\n")
+        print(f"{GREEN}Loaded {len(matches)} matches{RESET}")
     except FileNotFoundError as e:
         print(f"{YELLOW}Warning: {e}{RESET}")
+        print(f"{YELLOW}No completed matches found{RESET}")
+        matches = []
+
+    # Load fixtures
+    print(f"{YELLOW}Loading fixtures...{RESET}")
+    fixtures = load_fixtures(fixtures_file)
+    print(f"{GREEN}Loaded {len(fixtures)} fixtures{RESET}\n")
+
+    if not matches and not fixtures:
         print(f"{YELLOW}No season data to process{RESET}")
         return
 
     # Process seasons
     if args.season:
         # Process specific season
-        season_data = process_season(args.season, matches, args.data_dir)
+        season_data = process_season(args.season, matches, fixtures, args.data_dir)
         if season_data:
             all_data = {"seasons": {args.season: season_data}}
         else:
             all_data = {"seasons": {}}
     else:
         # Process all seasons
-        all_data = process_all_seasons(matches, args.data_dir)
+        all_data = process_all_seasons(matches, fixtures, args.data_dir)
 
     # Save output
     save_season_output(all_data, args.output)
