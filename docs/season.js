@@ -85,16 +85,24 @@ function displayOverview(season) {
     const champion = season.league_champion || 'TBD';
     const cupWinner = season.cup_winner || 'TBD';
     
+    // Create champion link if not TBD
+    const championHtml = champion !== 'TBD' 
+        ? `<a href="bey.html?name=${encodeURIComponent(champion)}" class="bey-link">${champion}</a>`
+        : champion;
+    const cupWinnerHtml = cupWinner !== 'TBD'
+        ? `<a href="bey.html?name=${encodeURIComponent(cupWinner)}" class="bey-link">${cupWinner}</a>`
+        : cupWinner;
+    
     container.innerHTML = `
         <div class="season-overview-grid">
             <div class="overview-card champion-card">
                 <h3>🏆 League Champion</h3>
-                <p class="champion-name">${champion}</p>
+                <p class="champion-name">${championHtml}</p>
                 <p class="champion-note">Most consistent performer of the season</p>
             </div>
             <div class="overview-card cup-card">
                 <h3>🏅 Season Cup Winner</h3>
-                <p class="champion-name">${cupWinner}</p>
+                <p class="champion-name">${cupWinnerHtml}</p>
                 <p class="champion-note">Post-season tournament champion</p>
             </div>
             <div class="overview-card stats-card">
@@ -223,10 +231,13 @@ function createTableRow(entry, idx, tier) {
         positionIndicator = ' ↓';
     }
     
+    // Create Bey link
+    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${entry.bey}</a>`;
+    
     return `
         <tr class="${positionClass}">
             <td>${entry.position}${positionIndicator}</td>
-            <td class="bey-name"><strong>${entry.bey}</strong></td>
+            <td class="bey-name"><strong>${beyLink}</strong></td>
             <td>${entry.matches}</td>
             <td>${entry.wins}</td>
             <td>${entry.losses}</td>
@@ -256,9 +267,10 @@ function displayPromotionRelegation(data) {
             <div class="pr-section promotion-section">
                 <h4>⬆️ Automatic Promotions</h4>
                 <ul>
-                    ${data.automatic_promotion.map(p => 
-                        `<li><strong>${p.bey}</strong> (Tier ${p.from_tier} → Tier ${p.to_tier})</li>`
-                    ).join('')}
+                    ${data.automatic_promotion.map(p => {
+                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(p.bey)}" class="bey-link">${p.bey}</a>`;
+                        return `<li><strong>${beyLink}</strong> (Tier ${p.from_tier} → Tier ${p.to_tier})</li>`;
+                    }).join('')}
                 </ul>
             </div>
         `;
@@ -270,9 +282,10 @@ function displayPromotionRelegation(data) {
             <div class="pr-section relegation-section">
                 <h4>⬇️ Automatic Relegations</h4>
                 <ul>
-                    ${data.automatic_relegation.map(r => 
-                        `<li><strong>${r.bey}</strong> (Tier ${r.from_tier} → Tier ${r.to_tier})</li>`
-                    ).join('')}
+                    ${data.automatic_relegation.map(r => {
+                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(r.bey)}" class="bey-link">${r.bey}</a>`;
+                        return `<li><strong>${beyLink}</strong> (Tier ${r.from_tier} → Tier ${r.to_tier})</li>`;
+                    }).join('')}
                 </ul>
             </div>
         `;
@@ -299,7 +312,11 @@ function displayRelegationMatches(matches) {
     
     const html = `
         <div class="relegation-matches-list">
-            ${matches.map(match => `
+            ${matches.map(match => {
+                const higherBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.higher_bey)}" class="bey-link">${match.higher_bey}</a>`;
+                const lowerBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.lower_bey)}" class="bey-link">${match.lower_bey}</a>`;
+                
+                return `
                 <div class="relegation-match-card">
                     <div class="match-header">
                         <span class="tier-badge">Tier ${match.higher_tier} ↔ Tier ${match.lower_tier}</span>
@@ -307,19 +324,20 @@ function displayRelegationMatches(matches) {
                     <div class="match-participants">
                         <div class="participant">
                             <span class="position-badge">${match.higher_position}th</span>
-                            <span class="bey-name">${match.higher_bey}</span>
+                            <span class="bey-name">${higherBeyLink}</span>
                             <span class="tier-label">Tier ${match.higher_tier}</span>
                         </div>
                         <div class="vs">VS</div>
                         <div class="participant">
                             <span class="position-badge">${match.lower_position}rd</span>
-                            <span class="bey-name">${match.lower_bey}</span>
+                            <span class="bey-name">${lowerBeyLink}</span>
                             <span class="tier-label">Tier ${match.lower_tier}</span>
                         </div>
                     </div>
                     <p class="match-note">Winner plays in Tier ${match.higher_tier} next season</p>
                 </div>
-            `).join('')}
+            `;
+            }).join('')}
         </div>
     `;
     
@@ -340,9 +358,10 @@ function displaySeasonCup(cupData) {
     let html = '';
     
     if (winner) {
+        const winnerLink = `<a href="bey.html?name=${encodeURIComponent(winner)}" class="bey-link">${winner}</a>`;
         html += `
             <div class="cup-winner-banner">
-                <h3>🏆 Season Cup Champion: ${winner}</h3>
+                <h3>🏆 Season Cup Champion: ${winnerLink}</h3>
             </div>
         `;
     }
@@ -384,19 +403,24 @@ function displayMatchdays(matchdays) {
             <div class="matchday-section">
                 <h4>Matchday ${md}</h4>
                 <div class="matches-grid">
-                    ${matches.map(match => `
+                    ${matches.map(match => {
+                        const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${match.bey_a}</a>`;
+                        const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link">${match.bey_b}</a>`;
+                        
+                        return `
                         <div class="match-card">
                             <div class="match-info">
                                 <span class="tier-badge">Tier ${match.tier || '?'}</span>
                                 <span class="match-date">${match.date || ''}</span>
                             </div>
                             <div class="match-result">
-                                <span class="bey ${match.score_a > match.score_b ? 'winner' : ''}">${match.bey_a}</span>
+                                <span class="bey ${match.score_a > match.score_b ? 'winner' : ''}">${beyALink}</span>
                                 <span class="score">${match.score_a} - ${match.score_b}</span>
-                                <span class="bey ${match.score_b > match.score_a ? 'winner' : ''}">${match.bey_b}</span>
+                                <span class="bey ${match.score_b > match.score_a ? 'winner' : ''}">${beyBLink}</span>
                             </div>
                         </div>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </div>
             </div>
         `;
