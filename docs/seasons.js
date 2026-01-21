@@ -108,7 +108,7 @@ function createSeasonCard(seasonId, season) {
             ` : ''}
             
             <div class="season-actions">
-                <a href="season.html?id=${seasonId}" class="btn btn-primary">View Season Details</a>
+                <a href="season.html?id=${seasonId}" class="season-details-btn">View Season Details →</a>
             </div>
         </div>
     `;
