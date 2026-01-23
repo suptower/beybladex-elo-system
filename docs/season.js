@@ -225,15 +225,20 @@ function createTableRow(entry, idx, tier) {
         positionClass = 'promotion-zone';
         positionIndicator = ' ↑';
     }
-    // Relegation match zone (8th place, except Tier IV)
-    else if (tier < 4 && idx === 7) {
+    // Relegation match zone (8th place, except Tier III)
+    else if (tier < 3 && idx === 7) {
         positionClass = 'playoff-zone';
         positionIndicator = ' ↕';
     }
-    // Relegation zone (bottom 2, except Tier IV)
-    else if (tier < 4 && idx >= 8) {
+    // Relegation zone (bottom 2 for Tiers I-II, bottom 4 for Tier III enter qualification)
+    else if (tier < 3 && idx >= 8) {
         positionClass = 'relegation-zone';
         positionIndicator = ' ↓';
+    }
+    // Qualification zone (Tier III positions 7-10 enter qualification)
+    else if (tier === 3 && idx >= 6) {
+        positionClass = 'playoff-zone';
+        positionIndicator = ' Q';
     }
     
     // Create Bey link

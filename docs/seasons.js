@@ -61,7 +61,7 @@ function createSeasonCard(seasonId, season) {
     // Get tier champions
     const tierChampions = [];
     const leagueTables = season.league_tables || {};
-    for (let tier = 1; tier <= 4; tier++) {
+    for (let tier = 1; tier <= 3; tier++) {
         const table = leagueTables[tier.toString()];
         if (table && table.length > 0) {
             tierChampions.push({
