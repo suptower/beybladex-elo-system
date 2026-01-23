@@ -1629,6 +1629,43 @@
       "has_match_data": true
     },
     {
+      "blade": "WyvernHover",
+      "ratchet": "3-85",
+      "bit": "Needle",
+      "blade_type": "Unknown",
+      "bit_category": "Unknown",
+      "combo_name": "WyvernHover 3-85 Needle",
+      "rating": {
+        "attack": 5.0,
+        "defense": 6.5,
+        "stamina": 5.3,
+        "control": 5.2,
+        "meta_impact": 5.5,
+        "overall": 55.0
+      },
+      "synergy": {
+        "score": 50.0,
+        "blade_bit": null,
+        "blade_ratchet": null,
+        "bit_ratchet": null,
+        "has_sufficient_data": false
+      },
+      "elo": 1000,
+      "power_index": 50.0,
+      "win_rate": 50.0,
+      "matches": 0,
+      "rank": 999,
+      "rpg_stats": null,
+      "beys": [
+        {
+          "name": "WyvernHover 3-85N",
+          "code": "UX-00",
+          "blade": "WyvernHover"
+        }
+      ],
+      "has_match_data": false
+    },
+    {
       "blade": "SharkScale",
       "ratchet": "4-50",
       "bit": "Under Flat",
@@ -2004,6 +2041,11 @@
           "spin_control": 4.0,
           "deflection_ability": 2.5
         }
+      },
+      {
+        "name": "WyvernHover",
+        "type": "Unknown",
+        "stats": {}
       }
     ],
     "ratchets": [
@@ -2405,6 +2447,11 @@
         }
       },
       {
+        "name": "Needle",
+        "category": "Unknown",
+        "stats": {}
+      },
+      {
         "name": "Orb",
         "category": "Stamina",
         "stats": {
@@ -2525,9 +2572,9 @@
     ]
   },
   "metadata": {
-    "total_combos": 39,
-    "total_blades": 39,
+    "total_combos": 40,
+    "total_blades": 40,
     "total_ratchets": 21,
-    "total_bits": 35
+    "total_bits": 36
   }
 }
