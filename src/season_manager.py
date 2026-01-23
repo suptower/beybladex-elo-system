@@ -14,16 +14,22 @@ Key Features:
 - Historical season archiving
 
 Season Structure:
-- 40 Beys divided into 4 Tiers of 10 Beys each
-- Tier I (Top Tier), Tier II, Tier III, Tier IV
+- 30 Beys divided into 3 Tiers of 10 Beys each
+- Tier I (Top Tier), Tier II, Tier III
 - Single round-robin within each tier (9 matches per Bey)
-- Total: 180 league matches per season
+- Total: 135 league matches per season
 
 Match Types:
 - exhibition: Default, all existing matches and tournaments
 - season: Regular league matches within a tier
 - relegation: Decision matches between tiers (8th vs 3rd)
+- qualification: Tier III entry tournament for unranked Beys
 - season_cup: Post-season double-elimination tournament
+
+Qualification System:
+- Tier III positions 7-10 enter Qualification Tournament
+- New Beys and unranked Beys compete for Tier III slots
+- Top 4 finishers earn Tier III slots for next season
 
 Season Points:
 - Win: 3 points
@@ -47,9 +53,10 @@ from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 
 # Constants
-TIERS = 4
+TIERS = 3
 BEYS_PER_TIER = 10
-TOTAL_BEYS = 40
+TOTAL_BEYS_IN_LEAGUE = 30  # Beys in active league (3 tiers)
+TOTAL_BEYS = 40  # Total Beys in system (for backward compatibility)
 
 # Season points
 POINTS_WIN = 3
@@ -121,11 +128,11 @@ def initialize_season(season_id: str, beys_with_elo: List[Tuple[str, float]],
     # Sort beys by ELO (highest first)
     sorted_beys = sorted(beys_with_elo, key=lambda x: x[1], reverse=True)
 
-    # Validate we have exactly 40 beys
-    if len(sorted_beys) != TOTAL_BEYS:
-        raise ValueError(f"Expected {TOTAL_BEYS} beys, got {len(sorted_beys)}")
+    # Need at least 30 beys for the league
+    if len(sorted_beys) < TOTAL_BEYS_IN_LEAGUE:
+        raise ValueError(f"Expected at least {TOTAL_BEYS_IN_LEAGUE} beys, got {len(sorted_beys)}")
 
-    # Assign tiers
+    # Assign tiers (top 30 beys get tier assignments)
     tier_assignments = {}
     for tier in range(1, TIERS + 1):
         start_idx = (tier - 1) * BEYS_PER_TIER
@@ -137,6 +144,14 @@ def initialize_season(season_id: str, beys_with_elo: List[Tuple[str, float]],
                 "tier": tier,
                 "start_elo": elo
             }
+    
+    # Remaining beys (beyond top 30) are in qualification pool
+    qualification_pool = []
+    for bey_name, elo in sorted_beys[TOTAL_BEYS_IN_LEAGUE:]:
+        qualification_pool.append({
+            "bey": bey_name,
+            "elo": elo
+        })
 
     # Create season data structure
     season_data = {
@@ -144,6 +159,7 @@ def initialize_season(season_id: str, beys_with_elo: List[Tuple[str, float]],
         "start_date": datetime.now().isoformat(),
         "status": "active",
         "tier_assignments": tier_assignments,
+        "qualification_pool": qualification_pool,
         "league_champion": None,
         "cup_winner": None,
         "tiers": {}
@@ -175,7 +191,7 @@ def get_league_table(matches: List[Dict], tier: int, season_id: str) -> List[Dic
 
     Args:
         matches: List of match dictionaries
-        tier: Tier number (1-4)
+        tier: Tier number (1-3)
         season_id: Season identifier
 
     Returns:
@@ -260,9 +276,10 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
     Determine promotion, relegation, and relegation matches for the next season.
 
     Rules:
-    - Top 2 of Tiers II-IV: Automatic promotion
-    - Bottom 2 of Tiers I-III: Automatic relegation
-    - 8th of higher tier vs 3rd of lower tier: Relegation match
+    - Top 2 of Tiers II-III: Automatic promotion
+    - Bottom 2 of Tiers I-II: Automatic relegation
+    - 8th of higher tier vs 3rd of lower tier: Relegation match (2 matches total)
+    - Tier III positions 7-10: Enter Qualification Tournament
 
     Args:
         season_data: Current season data
@@ -274,7 +291,8 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
     result = {
         "automatic_promotion": [],
         "automatic_relegation": [],
-        "relegation_matches": []
+        "relegation_matches": [],
+        "qualification_candidates": []
     }
 
     for tier in range(1, TIERS + 1):
@@ -282,7 +300,7 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
         if not table or len(table) < BEYS_PER_TIER:
             continue
 
-        # Automatic promotion (Tiers II-IV)
+        # Automatic promotion (Tiers II-III)
         if tier > 1:
             for i in range(AUTO_PROMOTION):
                 if i < len(table):
@@ -293,7 +311,7 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
                         "position": i + 1
                     })
 
-        # Automatic relegation (Tiers I-III)
+        # Automatic relegation (Tiers I-II)
         if tier < TIERS:
             for i in range(AUTO_RELEGATION):
                 pos = len(table) - 1 - i
@@ -305,7 +323,7 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
                         "position": pos + 1
                     })
 
-        # Relegation matches (all tiers except Tier IV)
+        # Relegation matches (Tiers I-II only)
         if tier < TIERS:
             lower_table = league_tables.get(tier + 1, [])
             if (RELEGATION_MATCH_POSITION_HIGH - 1 < len(table) and
@@ -318,6 +336,16 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
                     "lower_bey": lower_table[RELEGATION_MATCH_POSITION_LOW - 1]["bey"],
                     "lower_tier": tier + 1,
                     "lower_position": RELEGATION_MATCH_POSITION_LOW
+                })
+        
+        # Tier III positions 7-10 enter Qualification Tournament
+        if tier == TIERS:
+            for i in range(6, min(10, len(table))):  # Positions 7-10 (indices 6-9)
+                result["qualification_candidates"].append({
+                    "bey": table[i]["bey"],
+                    "tier": tier,
+                    "position": i + 1,
+                    "reason": "tier3_bottom"
                 })
 
     return result

@@ -249,12 +249,18 @@ def main():
             print("3. Add matches to docs/data/matches.csv with:")
             print("   - MatchType: season")
             print(f"   - SeasonID: {args.season_id}")
-            print("   - Tier: 1-4")
+            print("   - Tier: 1-3")
             print("   - Matchday: 1-9")
 
         print("5. Run 'python update.py' to process season data")
         print(
             f"6. View results at /seasons.html#{args.season_id}\n")
+        
+        # Show qualification pool if any
+        if len(beys_with_elo) > 30:
+            print(f"{BOLD}{YELLOW}Qualification Pool:{RESET}")
+            print(f"  {len(beys_with_elo) - 30} Beys outside Top 30 will enter Qualification Tournament")
+            print("  for Tier III slots in the next season.\n")
 
     except FileNotFoundError as e:
         print(f"{RED}Error: {e}{RESET}")
@@ -262,7 +268,9 @@ def main():
     except ValueError as e:
         print(f"{RED}Error: {e}{RESET}")
         print(
-            f"{YELLOW}Hint: Ensure you have exactly 40 Beys in the leaderboard{RESET}")
+            f"{YELLOW}Hint: Ensure you have at least 30 Beys in the leaderboard for league tiers{RESET}")
+        print(
+            f"{YELLOW}      Additional Beys will be placed in Qualification Pool{RESET}")
         sys.exit(1)
     except Exception as e:
         print(f"{RED}Unexpected error: {e}{RESET}")

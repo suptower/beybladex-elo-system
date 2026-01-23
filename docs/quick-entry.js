@@ -1453,6 +1453,7 @@ function renderSeasonFields(matchIndex, match) {
                     <option value="exhibition" ${matchType === 'exhibition' ? 'selected' : ''}>Exhibition</option>
                     <option value="season" ${matchType === 'season' ? 'selected' : ''}>Season League</option>
                     <option value="relegation" ${matchType === 'relegation' ? 'selected' : ''}>Relegation Match</option>
+                    <option value="qualification" ${matchType === 'qualification' ? 'selected' : ''}>Qualification Tournament</option>
                     <option value="season_cup" ${matchType === 'season_cup' ? 'selected' : ''}>Season Cup</option>
                 </select>
             </div>
@@ -1468,7 +1469,6 @@ function renderSeasonFields(matchIndex, match) {
                     <option value="1" ${tier === '1' ? 'selected' : ''}>Tier 1</option>
                     <option value="2" ${tier === '2' ? 'selected' : ''}>Tier 2</option>
                     <option value="3" ${tier === '3' ? 'selected' : ''}>Tier 3</option>
-                    <option value="4" ${tier === '4' ? 'selected' : ''}>Tier 4</option>
                 </select>
             </div>
             <div class="season-field-group ${isSeasonMatch ? '' : 'field-disabled'}">
