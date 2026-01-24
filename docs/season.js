@@ -210,7 +210,7 @@ function getPositionLegend(tier) {
     if (tier < 3) {
         html += `
             <div class="position-legend-item">
-                <div class="position-legend-indicator playoff"></div>
+                <div class="position-legend-indicator qualification"></div>
                 <span>Relegation Match (8th)</span>
             </div>
             <div class="position-legend-item">
@@ -253,7 +253,7 @@ function createTableRow(entry, idx, tier) {
     }
     // Relegation match zone (8th place in Tiers I & II - faces 3rd from tier below)
     else if (tier < 3 && idx === 7) {
-        positionClass = 'playoff-zone';
+        positionClass = 'qualification-zone';
         positionIndicator = ' ↕';
     }
     // Relegation zone (bottom 2 for Tiers I-II)
@@ -263,7 +263,7 @@ function createTableRow(entry, idx, tier) {
     }
     // Qualification zone (Tier III positions 7-10 enter qualification)
     else if (tier === 3 && idx >= 6) {
-        positionClass = 'playoff-zone';
+        positionClass = 'qualification-zone';
         positionIndicator = ' Q';
     }
     

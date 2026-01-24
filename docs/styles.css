@@ -10711,6 +10711,11 @@ select:focus-visible {
     border-left: 4px solid #fbbf24;
 }
 
+.qualification-zone {
+    background: linear-gradient(to right, rgba(249, 115, 22, 0.15) 0%, transparent 100%);
+    border-left: 4px solid #f97316;
+}
+
 .table-legend {
     margin-top: 1.5rem;
     padding: 1rem;
@@ -10763,6 +10768,10 @@ select:focus-visible {
 
 .position-legend-indicator.playoff {
     background: #fbbf24;
+}
+
+.position-legend-indicator.qualification {
+    background: #f97316;
 }
 
 /* Promotion/Relegation */
