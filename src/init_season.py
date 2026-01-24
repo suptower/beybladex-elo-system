@@ -255,7 +255,7 @@ def main():
         print("5. Run 'python update.py' to process season data")
         print(
             f"6. View results at /seasons.html#{args.season_id}\n")
-        
+
         # Show qualification pool if any
         if len(beys_with_elo) > 30:
             print(f"{BOLD}{YELLOW}Qualification Pool:{RESET}")

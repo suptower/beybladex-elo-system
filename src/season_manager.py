@@ -144,7 +144,7 @@ def initialize_season(season_id: str, beys_with_elo: List[Tuple[str, float]],
                 "tier": tier,
                 "start_elo": elo
             }
-    
+
     # Remaining beys (beyond top 30) are in qualification pool
     qualification_pool = []
     for bey_name, elo in sorted_beys[TOTAL_BEYS_IN_LEAGUE:]:
@@ -337,7 +337,7 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
                     "lower_tier": tier + 1,
                     "lower_position": RELEGATION_MATCH_POSITION_LOW
                 })
-        
+
         # Tier III positions 7-10 enter Qualification Tournament
         if tier == TIERS:
             for i in range(6, min(10, len(table))):  # Positions 7-10 (indices 6-9)
