@@ -1,7 +1,7 @@
 {
   "S1": {
     "season_id": "S1",
-    "start_date": "2026-01-19T16:53:04.183439",
+    "start_date": "2026-01-24T14:33:20.895227",
     "status": "active",
     "tier_assignments": {
       "ImpactDrake": {
@@ -80,8 +80,12 @@
         "tier": 2,
         "start_elo": 1006.0
       },
-      "ValkyrieVolt": {
+      "WyvernHover": {
         "tier": 2,
+        "start_elo": 1000.0
+      },
+      "ValkyrieVolt": {
+        "tier": 3,
         "start_elo": 1000.0
       },
       "SharkEdge": {
@@ -119,13 +123,13 @@
       "LeonClaw": {
         "tier": 3,
         "start_elo": 975.0
-      },
-      "DranBuster": {
-        "tier": 3,
-        "start_elo": 969.0
       }
     },
     "qualification_pool": [
+      {
+        "bey": "DranBuster",
+        "elo": 969.0
+      },
       {
         "bey": "PhoenixRudder",
         "elo": 962.0
@@ -197,13 +201,14 @@
           "SolEclipse",
           "PerseusDark",
           "KnightMail",
-          "ValkyrieVolt"
+          "WyvernHover"
         ],
         "matches_played": 0,
         "matches_total": 45
       },
       "3": {
         "beys": [
+          "ValkyrieVolt",
           "SharkEdge",
           "WhaleWave",
           "RhinoReaper",
@@ -212,8 +217,7 @@
           "UnicornSting",
           "SilverWolf",
           "WizardRod",
-          "LeonClaw",
-          "DranBuster"
+          "LeonClaw"
         ],
         "matches_played": 0,
         "matches_total": 45

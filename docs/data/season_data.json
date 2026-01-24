@@ -2,7 +2,7 @@
   "seasons": {
     "S1": {
       "season_id": "S1",
-      "start_date": "2026-01-19T16:53:04.183439",
+      "start_date": "2026-01-24T14:33:20.895227",
       "end_date": null,
       "league_champion": "ImpactDrake",
       "cup_winner": null,
@@ -240,7 +240,7 @@
           },
           {
             "position": 10,
-            "bey": "ValkyrieVolt",
+            "bey": "WyvernHover",
             "matches": 0,
             "wins": 0,
             "losses": 0,
@@ -254,6 +254,18 @@
         "3": [
           {
             "position": 1,
+            "bey": "ValkyrieVolt",
+            "matches": 0,
+            "wins": 0,
+            "losses": 0,
+            "season_points": 0,
+            "points_for": 0,
+            "points_against": 0,
+            "point_diff": 0,
+            "elo": 1000.0
+          },
+          {
+            "position": 2,
             "bey": "SharkEdge",
             "matches": 0,
             "wins": 0,
@@ -265,7 +277,7 @@
             "elo": 996.0
           },
           {
-            "position": 2,
+            "position": 3,
             "bey": "WhaleWave",
             "matches": 0,
             "wins": 0,
@@ -277,7 +289,7 @@
             "elo": 994.0
           },
           {
-            "position": 3,
+            "position": 4,
             "bey": "RhinoReaper",
             "matches": 0,
             "wins": 0,
@@ -289,7 +301,7 @@
             "elo": 993.0
           },
           {
-            "position": 4,
+            "position": 5,
             "bey": "HellsChain",
             "matches": 0,
             "wins": 0,
@@ -301,7 +313,7 @@
             "elo": 985.0
           },
           {
-            "position": 5,
+            "position": 6,
             "bey": "CrimsonGaruda",
             "matches": 0,
             "wins": 0,
@@ -313,7 +325,7 @@
             "elo": 985.0
           },
           {
-            "position": 6,
+            "position": 7,
             "bey": "UnicornSting",
             "matches": 0,
             "wins": 0,
@@ -325,7 +337,7 @@
             "elo": 984.0
           },
           {
-            "position": 7,
+            "position": 8,
             "bey": "SilverWolf",
             "matches": 0,
             "wins": 0,
@@ -337,7 +349,7 @@
             "elo": 981.0
           },
           {
-            "position": 8,
+            "position": 9,
             "bey": "WizardRod",
             "matches": 0,
             "wins": 0,
@@ -349,7 +361,7 @@
             "elo": 978.0
           },
           {
-            "position": 9,
+            "position": 10,
             "bey": "LeonClaw",
             "matches": 0,
             "wins": 0,
@@ -359,18 +371,6 @@
             "points_against": 0,
             "point_diff": 0,
             "elo": 975.0
-          },
-          {
-            "position": 10,
-            "bey": "DranBuster",
-            "matches": 0,
-            "wins": 0,
-            "losses": 0,
-            "season_points": 0,
-            "points_for": 0,
-            "points_against": 0,
-            "point_diff": 0,
-            "elo": 969.0
           }
         ]
       },
@@ -380,86 +380,11 @@
         "total_matches": 0,
         "total_goals": 0
       },
-      "fixtures": {
-        "upcoming_matches": [
-          {
-            "fixture_id": "F0001",
-            "date": "2026-02-15",
-            "bey_a": "CobaltDragoon",
-            "bey_b": "DranSword",
-            "match_type": "season",
-            "season_id": "S1",
-            "tier": 1,
-            "matchday": 1,
-            "status": "scheduled"
-          },
-          {
-            "fixture_id": "F0002",
-            "date": "2026-02-15",
-            "bey_a": "FoxBrush",
-            "bey_b": "LeonCrest",
-            "match_type": "season",
-            "season_id": "S1",
-            "tier": 1,
-            "matchday": 1,
-            "status": "scheduled"
-          }
-        ],
-        "total_fixtures": 2,
-        "fixtures_by_matchday": {
-          "1": [
-            {
-              "fixture_id": "F0001",
-              "date": "2026-02-15",
-              "bey_a": "CobaltDragoon",
-              "bey_b": "DranSword",
-              "match_type": "season",
-              "season_id": "S1",
-              "tier": 1,
-              "matchday": 1,
-              "status": "scheduled"
-            },
-            {
-              "fixture_id": "F0002",
-              "date": "2026-02-15",
-              "bey_a": "FoxBrush",
-              "bey_b": "LeonCrest",
-              "match_type": "season",
-              "season_id": "S1",
-              "tier": 1,
-              "matchday": 1,
-              "status": "scheduled"
-            }
-          ]
-        },
-        "fixtures_by_tier": {
-          "1": [
-            {
-              "fixture_id": "F0001",
-              "date": "2026-02-15",
-              "bey_a": "CobaltDragoon",
-              "bey_b": "DranSword",
-              "match_type": "season",
-              "season_id": "S1",
-              "tier": 1,
-              "matchday": 1,
-              "status": "scheduled"
-            },
-            {
-              "fixture_id": "F0002",
-              "date": "2026-02-15",
-              "bey_a": "FoxBrush",
-              "bey_b": "LeonCrest",
-              "match_type": "season",
-              "season_id": "S1",
-              "tier": 1,
-              "matchday": 1,
-              "status": "scheduled"
-            }
-          ]
-        }
-      },
       "qualification_pool": [
+        {
+          "bey": "DranBuster",
+          "elo": 969.0
+        },
         {
           "bey": "PhoenixRudder",
           "elo": 962.0
