@@ -192,24 +192,40 @@ function displayTierTables(leagueTables) {
 function getPositionLegend(tier) {
     let html = '<div class="position-legend">';
     
+    // Tier II and III show promotion indicators
     if (tier > 1) {
         html += `
             <div class="position-legend-item">
                 <div class="position-legend-indicator promotion"></div>
                 <span>Promotion (Top 2)</span>
             </div>
+            <div class="position-legend-item">
+                <div class="position-legend-indicator playoff"></div>
+                <span>Promotion Playoff (3rd)</span>
+            </div>
         `;
     }
     
-    if (tier < 4) {
+    // Tier I and II show relegation indicators
+    if (tier < 3) {
         html += `
             <div class="position-legend-item">
                 <div class="position-legend-indicator playoff"></div>
-                <span>Relegation Playoff (8th)</span>
+                <span>Relegation Match (8th)</span>
             </div>
             <div class="position-legend-item">
                 <div class="position-legend-indicator relegation"></div>
                 <span>Relegation (Bottom 2)</span>
+            </div>
+        `;
+    }
+    
+    // Tier III shows qualification zone
+    if (tier === 3) {
+        html += `
+            <div class="position-legend-item">
+                <div class="position-legend-indicator qualification"></div>
+                <span>Qualification Tournament (7-10)</span>
             </div>
         `;
     }
