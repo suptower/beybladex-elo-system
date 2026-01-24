@@ -10832,6 +10832,65 @@ select:focus-visible {
     font-weight: 700;
 }
 
+/* Qualification Pool */
+.qualification-pool-section {
+    margin-top: 1rem;
+}
+
+.qualification-intro {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.qualification-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.qualification-card {
+    background: var(--card);
+    border: 2px solid rgba(251, 191, 36, 0.3);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    text-align: center;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+
+.qualification-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(251, 191, 36, 0.6);
+}
+
+.qualification-rank {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    opacity: 0.6;
+}
+
+.qualification-bey {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+}
+
+.qualification-elo {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    background: var(--bg-alt);
+    border-radius: var(--radius-sm);
+    display: inline-block;
+}
+
 /* Relegation matches */
 .relegation-matches-list {
     display: grid;

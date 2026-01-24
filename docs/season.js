@@ -69,6 +69,11 @@ function displaySeason(seasonId, season) {
         displayPromotionRelegation(season.promotion_relegation);
     }
     
+    // Display Qualification Pool
+    if (season.qualification_pool) {
+        displayQualificationPool(season.qualification_pool);
+    }
+    
     // Display Season Cup
     if (season.season_cup) {
         displaySeasonCup(season.season_cup);
@@ -225,12 +230,17 @@ function createTableRow(entry, idx, tier) {
         positionClass = 'promotion-zone';
         positionIndicator = ' ↑';
     }
-    // Relegation match zone (8th place, except Tier III)
+    // Promotion playoff zone (3rd place in Tiers II & III - faces 8th from tier above)
+    else if (tier > 1 && idx === 2) {
+        positionClass = 'playoff-zone';
+        positionIndicator = ' ↕';
+    }
+    // Relegation match zone (8th place in Tiers I & II - faces 3rd from tier below)
     else if (tier < 3 && idx === 7) {
         positionClass = 'playoff-zone';
         positionIndicator = ' ↕';
     }
-    // Relegation zone (bottom 2 for Tiers I-II, bottom 4 for Tier III enter qualification)
+    // Relegation zone (bottom 2 for Tiers I-II)
     else if (tier < 3 && idx >= 8) {
         positionClass = 'relegation-zone';
         positionIndicator = ' ↓';
@@ -348,6 +358,42 @@ function displayRelegationMatches(matches) {
                 </div>
             `;
             }).join('')}
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+/**
+ * Display Qualification Pool
+ */
+function displayQualificationPool(qualificationPool) {
+    const container = document.getElementById('qualification-pool-content');
+    const sectionContainer = document.getElementById('qualification-pool-container');
+    
+    if (!qualificationPool || qualificationPool.length === 0) {
+        sectionContainer.style.display = 'none';
+        return;
+    }
+    
+    sectionContainer.style.display = 'block';
+    
+    let html = `
+        <div class="qualification-pool-section">
+            <h4>🎯 Beys Competing for Tier III Slots</h4>
+            <p class="qualification-intro">These Beys will compete in the Qualification Tournament. Top 4 finishers earn Tier III placement for the next season.</p>
+            <div class="qualification-grid">
+                ${qualificationPool.map((entry, idx) => {
+                    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${entry.bey}</a>`;
+                    return `
+                    <div class="qualification-card">
+                        <div class="qualification-rank">${idx + 1}</div>
+                        <div class="qualification-bey">${beyLink}</div>
+                        <div class="qualification-elo">ELO: ${Math.round(entry.elo)}</div>
+                    </div>
+                `;
+                }).join('')}
+            </div>
         </div>
     `;
     
