@@ -318,11 +318,14 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
         print(f"{YELLOW}  No league tables generated for {season_id}{RESET}")
         return None
 
+    # Load season data for additional info
+    season_data = load_season_data(season_id, data_dir) or {}
+
     # Determine promotion/relegation (only if matches played)
     promotion_relegation = None
     if season_matches:
         promotion_relegation = get_promotion_relegation(
-            load_season_data(season_id, data_dir) or {},
+            season_data,
             league_tables
         )
         print(f"  Promotions: {len(promotion_relegation['automatic_promotion'])}")
@@ -354,6 +357,11 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
             "fixtures_by_tier": organize_fixtures_by_tier(season_fixtures)
         }
         print(f"  Upcoming fixtures: {len(season_fixtures)}")
+
+    # Add qualification pool if available
+    if "qualification_pool" in season_data:
+        archive["qualification_pool"] = season_data["qualification_pool"]
+        print(f"  Qualification Pool: {len(season_data['qualification_pool'])} Beys")
 
     return archive
 
