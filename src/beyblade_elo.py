@@ -180,6 +180,148 @@ def calculate_winrates(stats):
     for s in stats.values():
         s["winrate"] = s["wins"] / s["matches"] if s["matches"] > 0 else 0.0
 
+# ------------- Generate match-by-match leaderboard snapshots -------------
+
+
+def generate_match_snapshots(matches_list, input_file, snapshots_dir, pipeline_start_elos, all_bey_blades):
+    """
+    Generate leaderboard snapshots after each match.
+    
+    Args:
+        matches_list: List of match dictionaries sorted by date
+        input_file: Path to matches.csv (for logging)
+        snapshots_dir: Directory to save snapshots
+        pipeline_start_elos: Starting ELO values (for private mode)
+        all_bey_blades: Set of all registered beys
+    """
+    print(f"{CYAN}Generating per-match leaderboard snapshots...{RESET}")
+    
+    # Create snapshots directory if it doesn't exist
+    os.makedirs(snapshots_dir, exist_ok=True)
+    
+    # Initialize tracking structures
+    snapshot_elos = defaultdict(lambda: START_ELO)
+    snapshot_stats = defaultdict(
+        lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0}
+    )
+    
+    # Load start ratings for private ladder
+    if pipeline_start_elos is not None:
+        for bey, elo in pipeline_start_elos.items():
+            snapshot_elos[bey] = elo
+    
+    # Initialize all beys from registry
+    for bey_name in all_bey_blades:
+        _ = snapshot_elos[bey_name]
+    
+    # Track previous positions and ELOs for delta calculations
+    prev_positions = {}
+    prev_elos = {}
+    
+    # Generate initial snapshot (match_index = 0, before any matches)
+    sorted_beys = sorted(snapshot_elos.items(), key=lambda x: x[1], reverse=True)
+    initial_rows = []
+    for pos, (bey, elo) in enumerate(sorted_beys, start=1):
+        s = snapshot_stats[bey]
+        initial_rows.append({
+            "Platz": pos,
+            "Name": bey,
+            "ELO": round(elo),
+            "Spiele": s["matches"],
+            "Siege": s["wins"],
+            "Niederlagen": s["losses"],
+            "Winrate": f"{round(s['winrate'] * 100, 1)}%",
+            "Gewonnene Punkte": s["for"],
+            "Verlorene Punkte": s["against"],
+            "Differenz": s["for"] - s["against"],
+            "Positionsdelta": "→ 0",
+            "ELOdelta": "0"
+        })
+        prev_positions[bey] = pos
+        prev_elos[bey] = elo
+    
+    snapshot_file = os.path.join(snapshots_dir, "leaderboard_0000.csv")
+    pd.DataFrame(initial_rows).to_csv(snapshot_file, index=False)
+    
+    # Process each match and generate snapshots
+    for match_idx, match in enumerate(matches_list, start=1):
+        bey_a = match["BeyA"]
+        bey_b = match["BeyB"]
+        score_a = int(match["ScoreA"])
+        score_b = int(match["ScoreB"])
+        
+        # Update ELO and stats (without writing to history file)
+        update_elo(
+            bey_a, bey_b, score_a, score_b,
+            match["Date"], snapshot_elos, snapshot_stats,
+            writer=None,  # Don't write to history
+            match_id=match.get("MatchID", ""),
+            arena=match.get("arena", "Xtreme")
+        )
+        
+        # Calculate winrates
+        calculate_winrates(snapshot_stats)
+        
+        # Generate leaderboard snapshot
+        sorted_beys = sorted(snapshot_elos.items(), key=lambda x: x[1], reverse=True)
+        snapshot_rows = []
+        
+        for pos, (bey, elo) in enumerate(sorted_beys, start=1):
+            s = snapshot_stats[bey]
+            
+            # Calculate deltas relative to previous match
+            prev_pos = prev_positions.get(bey, pos)
+            prev_elo = prev_elos.get(bey, START_ELO)
+            
+            pos_delta = prev_pos - pos  # Positive = moved up
+            elo_delta = round(elo - prev_elo)
+            
+            # Format position delta
+            if pos_delta > 0:
+                pos_delta_str = f"▲ {pos_delta}"
+            elif pos_delta < 0:
+                pos_delta_str = f"▼ {abs(pos_delta)}"
+            else:
+                pos_delta_str = "→ 0"
+            
+            # Format ELO delta
+            if elo_delta > 0:
+                elo_delta_str = f"+{elo_delta}"
+            elif elo_delta < 0:
+                elo_delta_str = f"{elo_delta}"
+            else:
+                elo_delta_str = "0"
+            
+            snapshot_rows.append({
+                "Platz": pos,
+                "Name": bey,
+                "ELO": round(elo),
+                "Spiele": s["matches"],
+                "Siege": s["wins"],
+                "Niederlagen": s["losses"],
+                "Winrate": f"{round(s['winrate'] * 100, 1)}%",
+                "Gewonnene Punkte": s["for"],
+                "Verlorene Punkte": s["against"],
+                "Differenz": s["for"] - s["against"],
+                "Positionsdelta": pos_delta_str,
+                "ELOdelta": elo_delta_str
+            })
+            
+            # Update previous values for next iteration
+            prev_positions[bey] = pos
+            prev_elos[bey] = elo
+        
+        # Save snapshot with zero-padded match index
+        snapshot_file = os.path.join(snapshots_dir, f"leaderboard_{match_idx:04d}.csv")
+        pd.DataFrame(snapshot_rows).to_csv(snapshot_file, index=False)
+        
+        # Progress indicator every 50 matches
+        if match_idx % 50 == 0:
+            print(f"{GREEN}  Generated {match_idx} snapshots...{RESET}")
+    
+    print(f"{GREEN}Generated {len(matches_list) + 1} leaderboard snapshots (0 to {len(matches_list)}) in {snapshots_dir}{RESET}")
+
+
 # ----------------- ELO PIPELINE -------------------
 
 
@@ -239,6 +381,11 @@ def run_elo_pipeline(pipeline_config):
         ])
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
+        
+        # Generate match-by-match snapshots
+        snapshots_dir = "./docs/data/leaderboard_snapshots"
+        generate_match_snapshots(matches, input_file, snapshots_dir, pipeline_start_elos, all_bey_blades)
+        
         for m in matches:
             update_elo(
                 m["BeyA"], m["BeyB"],
