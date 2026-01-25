@@ -107,7 +107,8 @@ let state = {
     tournament: {
         name: '',
         round: 1,
-        format: 'swiss'
+        format: 'swiss',
+        arena: 'Xtreme'
     },
     participants: [],
     beyblades: [],
@@ -192,7 +193,8 @@ async function loadMatchHistory() {
                 beyA: values[2],
                 beyB: values[3],
                 scoreA: parseInt(values[4]) || 0,
-                scoreB: parseInt(values[5]) || 0
+                scoreB: parseInt(values[5]) || 0,
+                arena: values[10] || 'Xtreme'  // Arena is the 11th column (index 10)
             };
         });
     } catch (error) {
@@ -337,12 +339,14 @@ function initializeUI() {
     const tournamentNameInput = document.getElementById('tournamentName');
     const roundNumberInput = document.getElementById('roundNumber');
     const formatSelect = document.getElementById('formatSelect');
+    const arenaSelect = document.getElementById('arenaSelect');
     const matchCountInput = document.getElementById('matchCount');
     const liveModeToggle = document.getElementById('liveModeToggle');
     
     if (tournamentNameInput) tournamentNameInput.value = state.tournament.name || '';
     if (roundNumberInput) roundNumberInput.value = state.tournament.round || 1;
     if (formatSelect) formatSelect.value = state.tournament.format || 'swiss';
+    if (arenaSelect) arenaSelect.value = state.tournament.arena || 'Xtreme';
     if (matchCountInput) matchCountInput.value = state.matches.length || 8;
     if (liveModeToggle) liveModeToggle.checked = state.liveMode;
     
@@ -358,6 +362,7 @@ function setupEventListeners() {
     document.getElementById('tournamentName')?.addEventListener('input', handleTournamentChange);
     document.getElementById('roundNumber')?.addEventListener('input', handleTournamentChange);
     document.getElementById('formatSelect')?.addEventListener('change', handleTournamentChange);
+    document.getElementById('arenaSelect')?.addEventListener('change', handleTournamentChange);
     
     // Action buttons
     document.getElementById('generateMatchesBtn')?.addEventListener('click', generateMatches);
@@ -408,6 +413,7 @@ function handleTournamentChange() {
     state.tournament.name = document.getElementById('tournamentName')?.value || '';
     state.tournament.round = parseInt(document.getElementById('roundNumber')?.value) || 1;
     state.tournament.format = document.getElementById('formatSelect')?.value || 'swiss';
+    state.tournament.arena = document.getElementById('arenaSelect')?.value || 'Xtreme';
     saveToStorage();
 }
 
@@ -440,6 +446,7 @@ function createEmptyMatch(index) {
     let seasonId = '';
     let tier = '';
     let matchday = '';
+    let arena = state.tournament.arena || 'Xtreme';
     
     if (state.matches.length > 0) {
         const lastMatch = state.matches[state.matches.length - 1];
@@ -447,6 +454,7 @@ function createEmptyMatch(index) {
         seasonId = lastMatch.seasonId || '';
         tier = lastMatch.tier || '';
         matchday = lastMatch.matchday || '';
+        arena = lastMatch.arena || state.tournament.arena || 'Xtreme';
     }
     
     return {
@@ -463,7 +471,8 @@ function createEmptyMatch(index) {
         matchType: matchType,
         seasonId: seasonId,
         tier: tier,
-        matchday: matchday
+        matchday: matchday,
+        arena: arena
     };
 }
 
@@ -1956,7 +1965,7 @@ function exportJSON() {
 
 function exportCSV() {
     // Export match-level CSV with season fields from each match
-    const headers = ['MatchID', 'Date', 'BeyA', 'BeyB', 'ScoreA', 'ScoreB', 'MatchType', 'SeasonID', 'Tier', 'Matchday'];
+    const headers = ['MatchID', 'Date', 'BeyA', 'BeyB', 'ScoreA', 'ScoreB', 'MatchType', 'SeasonID', 'Tier', 'Matchday', 'arena'];
     const rows = state.matches.map((match, i) => {
         const date = match.timestamp ? new Date(match.timestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         return [
@@ -1969,7 +1978,8 @@ function exportCSV() {
             match.matchType || 'exhibition',
             match.seasonId || '',
             match.tier || '',
-            match.matchday || ''
+            match.matchday || '',
+            match.arena || 'Xtreme'
         ];
     });
     
@@ -2118,6 +2128,7 @@ function importCSV(content) {
     const beyBIndex = headers.findIndex(h => h.includes('beyb') || h === 'bey b');
     const scoreAIndex = headers.findIndex(h => h.includes('scorea') || h === 'score a');
     const scoreBIndex = headers.findIndex(h => h.includes('scoreb') || h === 'score b');
+    const arenaIndex = headers.findIndex(h => h === 'arena');
     
     if (beyAIndex === -1 || beyBIndex === -1) {
         showToast('CSV must have BeyA and BeyB columns', 'error');
@@ -2129,6 +2140,7 @@ function importCSV(content) {
         const values = line.split(',').map(v => v.trim());
         const scoreA = scoreAIndex !== -1 ? parseInt(values[scoreAIndex]) || 0 : 0;
         const scoreB = scoreBIndex !== -1 ? parseInt(values[scoreBIndex]) || 0 : 0;
+        const arena = arenaIndex !== -1 && values[arenaIndex] ? values[arenaIndex] : 'Xtreme';
         
         let winner = null;
         if (scoreA > scoreB && scoreA > 0) winner = 'A';
@@ -2144,7 +2156,8 @@ function importCSV(content) {
             scoreA,
             scoreB,
             winner,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            arena: arena
         };
     });
     
