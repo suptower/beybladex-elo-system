@@ -1455,6 +1455,7 @@ function renderSeasonFields(matchIndex, match) {
     const seasonId = match.seasonId || '';
     const tier = match.tier || '';
     const matchday = match.matchday || '';
+    const arena = match.arena || 'Xtreme';
     
     const isSeasonMatch = matchType === 'season';
     const needsSeasonId = matchType !== 'exhibition';
@@ -1469,6 +1470,13 @@ function renderSeasonFields(matchIndex, match) {
                     <option value="relegation" ${matchType === 'relegation' ? 'selected' : ''}>Relegation Match</option>
                     <option value="qualification" ${matchType === 'qualification' ? 'selected' : ''}>Qualification Tournament</option>
                     <option value="season_cup" ${matchType === 'season_cup' ? 'selected' : ''}>Season Cup</option>
+                </select>
+            </div>
+            <div class="season-field-group">
+                <label class="season-field-label">🏟️ Arena</label>
+                <select class="season-field-select" onchange="updateArena(${matchIndex}, this.value)" data-match="${matchIndex}">
+                    <option value="Xtreme" ${arena === 'Xtreme' ? 'selected' : ''}>⚡ Xtreme Stadium</option>
+                    <option value="DropAttack" ${arena === 'DropAttack' ? 'selected' : ''}>🎯 Drop Attack Beystadium</option>
                 </select>
             </div>
             <div class="season-field-group ${needsSeasonId ? '' : 'field-disabled'}">
@@ -1524,9 +1532,6 @@ function renderMatchTable() {
                 <td class="col-bey-b">
                     ${renderBeySelect(match.beyB, index, 'B')}
                 </td>
-                <td class="col-arena">
-                    ${renderArenaSelect(match.arena || 'Xtreme', index)}
-                </td>
                 <td class="col-winner">
                     ${renderWinnerIndicator(match)}
                 </td>
@@ -1540,12 +1545,12 @@ function renderMatchTable() {
                 </td>
             </tr>
             <tr class="analysis-panel-row" id="analysisPanelRow_${index}">
-                <td colspan="9">
+                <td colspan="8">
                     ${renderAnalysisPanel(index)}
                 </td>
             </tr>
             <tr class="rounds-panel-row" id="roundsPanel_${index}" style="display: none;">
-                <td colspan="9">
+                <td colspan="8">
                     <div class="rounds-panel">
                         <div class="rounds-panel-header">
                             <h4>Rounds for Match ${match.matchNumber}</h4>
@@ -1589,9 +1594,6 @@ function renderMatchCards() {
                         ${renderBeySelect(match.beyA, index, 'A')}
                         <span class="vs-text">VS</span>
                         ${renderBeySelect(match.beyB, index, 'B')}
-                    </div>
-                    <div class="match-card-arena">
-                        Arena: ${renderArenaSelect(match.arena || 'Xtreme', index)}
                     </div>
                     <div class="match-card-scores">
                         <div class="score-display-large score-a ${match.winner === 'A' ? 'score-winner' : ''}">${match.scoreA}</div>
