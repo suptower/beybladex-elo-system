@@ -837,6 +837,13 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Handle toggle changes
         toggleInput.addEventListener("change", (e) => {
+            // Prevent switching to advanced mode in historical mode
+            if (historicalMode && e.target.checked) {
+                e.target.checked = false;
+                alert("Advanced statistics are not available in Time Travel Mode. Please disable Time Travel Mode to view advanced statistics.");
+                return;
+            }
+            
             isAdvancedMode = e.target.checked;
             // Save preference
             localStorage.setItem("leaderboardMode", isAdvancedMode ? "advanced" : "standard");
@@ -1233,11 +1240,47 @@ function setupHistoricalControls() {
                 matchIndexContainer.style.display = historicalMode ? 'block' : 'none';
             }
             
+            const toggleInput = document.getElementById("leaderboardToggle");
+            
             if (historicalMode) {
+                // Switch to standard mode and disable advanced toggle
+                if (isAdvancedMode) {
+                    isAdvancedMode = false;
+                    if (toggleInput) {
+                        toggleInput.checked = false;
+                    }
+                }
+                
+                // Disable the advanced toggle
+                if (toggleInput) {
+                    toggleInput.disabled = true;
+                    // Add visual indication
+                    const toggleContainer = toggleInput.closest('.toggle-container');
+                    if (toggleContainer) {
+                        toggleContainer.style.opacity = '0.5';
+                        toggleContainer.title = 'Advanced statistics are not available in Time Travel Mode';
+                    }
+                }
+                
                 // Load the current match index snapshot
-                loadLeaderboard(isAdvancedMode, currentMatchIndex);
+                loadLeaderboard(false, currentMatchIndex);
             } else {
-                // Load current leaderboard
+                // Re-enable the advanced toggle
+                if (toggleInput) {
+                    toggleInput.disabled = false;
+                    const toggleContainer = toggleInput.closest('.toggle-container');
+                    if (toggleContainer) {
+                        toggleContainer.style.opacity = '1';
+                        toggleContainer.title = '';
+                    }
+                }
+                
+                // Load current leaderboard (use saved preference)
+                const savedMode = localStorage.getItem("leaderboardMode");
+                isAdvancedMode = (savedMode === "advanced");
+                if (toggleInput) {
+                    toggleInput.checked = isAdvancedMode;
+                }
                 loadLeaderboard(isAdvancedMode);
             }
         });
