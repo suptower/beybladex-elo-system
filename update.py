@@ -65,6 +65,7 @@ SCRIPT_MILESTONES = "./src/milestones.py"
 SCRIPT_RECOMMENDED_MATCHES = "./src/recommended_matches.py"
 SCRIPT_MATCHUP_MATRIX = "./src/matchup_matrix.py"
 SCRIPT_ARCHETYPE_ANALYTICS = "./src/archetype_analytics.py"
+SCRIPT_SEASON_PROCESSING = "./src/season_processing.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
@@ -362,6 +363,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Archetype Analytics", success, duration))
+
+    # Season Processing (depends on matches, leaderboard)
+    success, duration = run_script(
+        SCRIPT_SEASON_PROCESSING,
+        "Season Processing",
+        verbose=verbose
+    )
+    results.append(("Season Processing", success, duration))
 
     return results
 

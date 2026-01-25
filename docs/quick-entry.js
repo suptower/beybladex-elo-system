@@ -435,6 +435,20 @@ function createEmptyRound(index) {
 
 // Create an empty match with rounds support
 function createEmptyMatch(index) {
+    // Get settings from the most recent match (if any)
+    let matchType = 'exhibition';
+    let seasonId = '';
+    let tier = '';
+    let matchday = '';
+    
+    if (state.matches.length > 0) {
+        const lastMatch = state.matches[state.matches.length - 1];
+        matchType = lastMatch.matchType || 'exhibition';
+        seasonId = lastMatch.seasonId || '';
+        tier = lastMatch.tier || '';
+        matchday = lastMatch.matchday || '';
+    }
+    
     return {
         id: generateUniqueId(),
         matchNumber: index + 1,
@@ -444,7 +458,12 @@ function createEmptyMatch(index) {
         scoreA: 0,  // Computed from rounds
         scoreB: 0,  // Computed from rounds
         winner: null,
-        timestamp: null
+        timestamp: null,
+        // Season fields (copied from most recent match)
+        matchType: matchType,
+        seasonId: seasonId,
+        tier: tier,
+        matchday: matchday
     };
 }
 
@@ -950,6 +969,51 @@ function updateBey(matchIndex, player, beyName) {
     }
 }
 
+// Season field update functions
+function updateMatchType(matchIndex, matchType) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.matchType = matchType;
+    
+    // Clear fields that don't apply to this match type
+    if (matchType === 'exhibition') {
+        match.seasonId = '';
+        match.tier = '';
+        match.matchday = '';
+    } else if (matchType === 'relegation' || matchType === 'season_cup') {
+        match.tier = '';
+        match.matchday = '';
+    }
+    
+    saveToStorage();
+    renderMatches();
+}
+
+function updateSeasonId(matchIndex, seasonId) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.seasonId = seasonId;
+    saveToStorage();
+}
+
+function updateTier(matchIndex, tier) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.tier = tier;
+    saveToStorage();
+}
+
+function updateMatchday(matchIndex, matchday) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.matchday = matchday ? parseInt(matchday) : '';
+    saveToStorage();
+}
+
 // ============================================
 // PRE-MATCH ANALYSIS PANEL
 // ============================================
@@ -1371,6 +1435,51 @@ function renderQuickAddButtons(matchIndex, match) {
     `;
 }
 
+// Render season fields for a match
+function renderSeasonFields(matchIndex, match) {
+    const matchType = match.matchType || 'exhibition';
+    const seasonId = match.seasonId || '';
+    const tier = match.tier || '';
+    const matchday = match.matchday || '';
+    
+    const isSeasonMatch = matchType === 'season';
+    const needsSeasonId = matchType !== 'exhibition';
+    
+    return `
+        <div class="match-season-fields">
+            <div class="season-field-group">
+                <label class="season-field-label">🏆 Match Type</label>
+                <select class="season-field-select" onchange="updateMatchType(${matchIndex}, this.value)" data-match="${matchIndex}">
+                    <option value="exhibition" ${matchType === 'exhibition' ? 'selected' : ''}>Exhibition</option>
+                    <option value="season" ${matchType === 'season' ? 'selected' : ''}>Season League</option>
+                    <option value="relegation" ${matchType === 'relegation' ? 'selected' : ''}>Relegation Match</option>
+                    <option value="qualification" ${matchType === 'qualification' ? 'selected' : ''}>Qualification Tournament</option>
+                    <option value="season_cup" ${matchType === 'season_cup' ? 'selected' : ''}>Season Cup</option>
+                </select>
+            </div>
+            <div class="season-field-group ${needsSeasonId ? '' : 'field-disabled'}">
+                <label class="season-field-label">📅 Season ID</label>
+                <input type="text" class="season-field-input" placeholder="e.g., S1" value="${escapeHtml(seasonId)}" 
+                       onchange="updateSeasonId(${matchIndex}, this.value)" ${needsSeasonId ? '' : 'disabled'}>
+            </div>
+            <div class="season-field-group ${isSeasonMatch ? '' : 'field-disabled'}">
+                <label class="season-field-label">🎯 Tier</label>
+                <select class="season-field-select season-field-small" onchange="updateTier(${matchIndex}, this.value)" ${isSeasonMatch ? '' : 'disabled'}>
+                    <option value="" ${tier === '' ? 'selected' : ''}>—</option>
+                    <option value="1" ${tier === '1' ? 'selected' : ''}>Tier 1</option>
+                    <option value="2" ${tier === '2' ? 'selected' : ''}>Tier 2</option>
+                    <option value="3" ${tier === '3' ? 'selected' : ''}>Tier 3</option>
+                </select>
+            </div>
+            <div class="season-field-group ${isSeasonMatch ? '' : 'field-disabled'}">
+                <label class="season-field-label">📆 Matchday</label>
+                <input type="number" class="season-field-input season-field-small" placeholder="1-9" min="1" max="9" 
+                       value="${matchday}" onchange="updateMatchday(${matchIndex}, this.value)" ${isSeasonMatch ? '' : 'disabled'}>
+            </div>
+        </div>
+    `;
+}
+
 function renderMatchTable() {
     const tbody = document.getElementById('matchEntryBody');
     if (!tbody) return;
@@ -1430,6 +1539,7 @@ function renderMatchTable() {
                                 <span>⚡ Extreme (+3)</span>
                             </div>
                         </div>
+                        ${renderSeasonFields(index, match)}
                         ${renderQuickAddButtons(index, match)}
                         <div class="rounds-list">
                             ${renderRoundsList(match, index)}
@@ -1475,6 +1585,7 @@ function renderMatchCards() {
                         ⚔️ Rounds (${match.rounds?.length || 0}) <span class="toggle-arrow">▼</span>
                     </div>
                     <div class="card-rounds-panel" id="cardRoundsPanel_${index}" style="display: none;">
+                        ${renderSeasonFields(index, match)}
                         ${renderQuickAddButtons(index, match)}
                         <div class="rounds-list">
                             ${renderRoundsList(match, index)}
@@ -1844,8 +1955,8 @@ function exportJSON() {
 }
 
 function exportCSV() {
-    // Export match-level CSV (summary)
-    const headers = ['MatchID', 'Date', 'BeyA', 'BeyB', 'ScoreA', 'ScoreB', 'RoundsCount'];
+    // Export match-level CSV with season fields from each match
+    const headers = ['MatchID', 'Date', 'BeyA', 'BeyB', 'ScoreA', 'ScoreB', 'MatchType', 'SeasonID', 'Tier', 'Matchday'];
     const rows = state.matches.map((match, i) => {
         const date = match.timestamp ? new Date(match.timestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         return [
@@ -1855,7 +1966,10 @@ function exportCSV() {
             match.beyB || '',
             match.scoreA,
             match.scoreB,
-            match.rounds?.length || 0
+            match.matchType || 'exhibition',
+            match.seasonId || '',
+            match.tier || '',
+            match.matchday || ''
         ];
     });
     
