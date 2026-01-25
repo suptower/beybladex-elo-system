@@ -8,6 +8,7 @@ let isAdvancedMode = false; // Track which leaderboard is being displayed
 let historicalMode = false;
 let currentMatchIndex = null;
 let maxMatchIndex = null;
+let matchesData = []; // Store all matches data for quick lookup
 
 // Column abbreviations for advanced mode
 const COLUMN_ABBREVIATIONS = {
@@ -1122,6 +1123,44 @@ function applyCredibilityScoreStyling(td, value) {
 // HISTORICAL MATCH INDEX CONTROLS
 // ============================================
 
+// Update match details display
+function updateMatchDetails(matchIndex) {
+    const matchDetails = document.getElementById('matchDetails');
+    const matchId = document.getElementById('matchId');
+    const matchTeamA = document.getElementById('matchTeamA');
+    const matchTeamB = document.getElementById('matchTeamB');
+    const matchScore = document.getElementById('matchScore');
+    
+    if (!matchDetails || !matchId || !matchTeamA || !matchTeamB || !matchScore) {
+        return;
+    }
+    
+    // Match index 0 means no matches played yet
+    if (matchIndex === 0) {
+        matchDetails.style.display = 'none';
+        return;
+    }
+    
+    // Check if we have the match data
+    if (matchesData.length === 0) {
+        matchDetails.style.display = 'none';
+        return;
+    }
+    
+    // Get the match at this index (matchIndex - 1 because array is 0-based)
+    const match = matchesData[matchIndex - 1];
+    
+    if (match) {
+        matchDetails.style.display = 'block';
+        matchId.textContent = match.MatchID || '-';
+        matchTeamA.textContent = match.BeyA || '-';
+        matchTeamB.textContent = match.BeyB || '-';
+        matchScore.textContent = `${match.ScoreA || 0} : ${match.ScoreB || 0}`;
+    } else {
+        matchDetails.style.display = 'none';
+    }
+}
+
 function setupHistoricalControls() {
     const historicalToggle = document.getElementById('historicalToggle');
     const matchIndexContainer = document.getElementById('matchIndexContainer');
@@ -1146,6 +1185,19 @@ function setupHistoricalControls() {
         })
         .then(csv => {
             const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',');
+            
+            // Parse matches data
+            matchesData = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const match = {};
+                headers.forEach((header, index) => {
+                    match[header.trim()] = values[index] ? values[index].trim() : '';
+                });
+                matchesData.push(match);
+            }
+            
             // -1 for header, -1 for 0-based indexing, then the last match is at that index
             maxMatchIndex = lines.length - 2; // -1 for header row
             currentMatchIndex = maxMatchIndex;
@@ -1271,6 +1323,9 @@ function updateMatchIndex(newIndex) {
     if (matchIndexValue) {
         matchIndexValue.textContent = newIndex;
     }
+    
+    // Update match details display
+    updateMatchDetails(newIndex);
     
     // Update button states
     const prevMatchBtn = document.getElementById('prevMatchBtn');
