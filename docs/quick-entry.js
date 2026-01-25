@@ -192,7 +192,9 @@ async function loadMatchHistory() {
                 beyA: values[2],
                 beyB: values[3],
                 scoreA: parseInt(values[4]) || 0,
-                scoreB: parseInt(values[5]) || 0
+                scoreB: parseInt(values[5]) || 0,
+                // Arena is at index 10 (11th column): MatchID,Date,BeyA,BeyB,ScoreA,ScoreB,MatchType,SeasonID,Tier,Matchday,arena
+                arena: values[10] || 'Xtreme'
             };
         });
     } catch (error) {
@@ -440,6 +442,7 @@ function createEmptyMatch(index) {
     let seasonId = '';
     let tier = '';
     let matchday = '';
+    let arena = 'Xtreme';
     
     if (state.matches.length > 0) {
         const lastMatch = state.matches[state.matches.length - 1];
@@ -447,6 +450,7 @@ function createEmptyMatch(index) {
         seasonId = lastMatch.seasonId || '';
         tier = lastMatch.tier || '';
         matchday = lastMatch.matchday || '';
+        arena = lastMatch.arena || 'Xtreme';
     }
     
     return {
@@ -463,7 +467,8 @@ function createEmptyMatch(index) {
         matchType: matchType,
         seasonId: seasonId,
         tier: tier,
-        matchday: matchday
+        matchday: matchday,
+        arena: arena
     };
 }
 
@@ -969,6 +974,15 @@ function updateBey(matchIndex, player, beyName) {
     }
 }
 
+function updateArena(matchIndex, arena) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.arena = arena;
+    saveToStorage();
+    renderMatches();
+}
+
 // Season field update functions
 function updateMatchType(matchIndex, matchType) {
     const match = state.matches[matchIndex];
@@ -1441,6 +1455,7 @@ function renderSeasonFields(matchIndex, match) {
     const seasonId = match.seasonId || '';
     const tier = match.tier || '';
     const matchday = match.matchday || '';
+    const arena = match.arena || 'Xtreme';
     
     const isSeasonMatch = matchType === 'season';
     const needsSeasonId = matchType !== 'exhibition';
@@ -1455,6 +1470,13 @@ function renderSeasonFields(matchIndex, match) {
                     <option value="relegation" ${matchType === 'relegation' ? 'selected' : ''}>Relegation Match</option>
                     <option value="qualification" ${matchType === 'qualification' ? 'selected' : ''}>Qualification Tournament</option>
                     <option value="season_cup" ${matchType === 'season_cup' ? 'selected' : ''}>Season Cup</option>
+                </select>
+            </div>
+            <div class="season-field-group">
+                <label class="season-field-label">🏟️ Arena</label>
+                <select class="season-field-select" onchange="updateArena(${matchIndex}, this.value)" data-match="${matchIndex}">
+                    <option value="Xtreme" ${arena === 'Xtreme' ? 'selected' : ''}>⚡ Xtreme Stadium</option>
+                    <option value="DropAttack" ${arena === 'DropAttack' ? 'selected' : ''}>🎯 Drop Attack Beystadium</option>
                 </select>
             </div>
             <div class="season-field-group ${needsSeasonId ? '' : 'field-disabled'}">
@@ -1686,6 +1708,17 @@ function renderBeySelect(selectedBey, matchIndex, player) {
                 data-player="${escapeHtml(player)}">
             <option value="">Select Bey...</option>
             ${options}
+        </select>
+    `;
+}
+
+function renderArenaSelect(selectedArena, matchIndex) {
+    return `
+        <select class="arena-select has-value" 
+                onchange="updateArena(${matchIndex}, this.value)"
+                data-match="${matchIndex}">
+            <option value="Xtreme" ${selectedArena === 'Xtreme' ? 'selected' : ''}>⚡ Xtreme</option>
+            <option value="DropAttack" ${selectedArena === 'DropAttack' ? 'selected' : ''}>🎯 Drop Attack</option>
         </select>
     `;
 }
@@ -1956,7 +1989,7 @@ function exportJSON() {
 
 function exportCSV() {
     // Export match-level CSV with season fields from each match
-    const headers = ['MatchID', 'Date', 'BeyA', 'BeyB', 'ScoreA', 'ScoreB', 'MatchType', 'SeasonID', 'Tier', 'Matchday'];
+    const headers = ['MatchID', 'Date', 'BeyA', 'BeyB', 'ScoreA', 'ScoreB', 'MatchType', 'SeasonID', 'Tier', 'Matchday', 'arena'];
     const rows = state.matches.map((match, i) => {
         const date = match.timestamp ? new Date(match.timestamp).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         return [
@@ -1969,7 +2002,8 @@ function exportCSV() {
             match.matchType || 'exhibition',
             match.seasonId || '',
             match.tier || '',
-            match.matchday || ''
+            match.matchday || '',
+            match.arena || 'Xtreme'
         ];
     });
     
@@ -2118,6 +2152,7 @@ function importCSV(content) {
     const beyBIndex = headers.findIndex(h => h.includes('beyb') || h === 'bey b');
     const scoreAIndex = headers.findIndex(h => h.includes('scorea') || h === 'score a');
     const scoreBIndex = headers.findIndex(h => h.includes('scoreb') || h === 'score b');
+    const arenaIndex = headers.findIndex(h => h === 'arena');
     
     if (beyAIndex === -1 || beyBIndex === -1) {
         showToast('CSV must have BeyA and BeyB columns', 'error');
@@ -2129,6 +2164,7 @@ function importCSV(content) {
         const values = line.split(',').map(v => v.trim());
         const scoreA = scoreAIndex !== -1 ? parseInt(values[scoreAIndex]) || 0 : 0;
         const scoreB = scoreBIndex !== -1 ? parseInt(values[scoreBIndex]) || 0 : 0;
+        const arena = arenaIndex !== -1 && values[arenaIndex] ? values[arenaIndex] : 'Xtreme';
         
         let winner = null;
         if (scoreA > scoreB && scoreA > 0) winner = 'A';
@@ -2144,7 +2180,8 @@ function importCSV(content) {
             scoreA,
             scoreB,
             winner,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            arena: arena
         };
     });
     
