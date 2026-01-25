@@ -316,7 +316,8 @@ def generate_match_snapshots(matches_list, input_file, snapshots_dir, pipeline_s
         pd.DataFrame(snapshot_rows).to_csv(snapshot_file, index=False)
         
         # Progress indicator every 50 matches
-        if match_idx % 50 == 0:
+        progress_interval = 50
+        if match_idx % progress_interval == 0:
             print(f"{GREEN}  Generated {match_idx} snapshots...{RESET}")
     
     print(f"{GREEN}Generated {len(matches_list) + 1} leaderboard snapshots (0 to {len(matches_list)}) in {snapshots_dir}{RESET}")
@@ -383,7 +384,7 @@ def run_elo_pipeline(pipeline_config):
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
         
         # Generate match-by-match snapshots
-        snapshots_dir = "./docs/data/leaderboard_snapshots"
+        snapshots_dir = pipeline_config.get("snapshots_dir", "./docs/data/leaderboard_snapshots")
         generate_match_snapshots(matches, input_file, snapshots_dir, pipeline_start_elos, all_bey_blades)
         
         for m in matches:

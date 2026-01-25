@@ -185,8 +185,10 @@ function loadLeaderboard(isAdvanced = false, matchIndex = null) {
             if (matchIndex !== null) {
                 console.warn("Falling back to current leaderboard");
                 historicalMode = false;
-                document.getElementById('historicalToggle').checked = false;
-                document.getElementById('matchIndexContainer').style.display = 'none';
+                const historicalToggle = document.getElementById('historicalToggle');
+                if (historicalToggle) historicalToggle.checked = false;
+                const matchIndexContainer = document.getElementById('matchIndexContainer');
+                if (matchIndexContainer) matchIndexContainer.style.display = 'none';
                 loadLeaderboard(isAdvanced);
             }
         });
@@ -1131,9 +1133,17 @@ function setupHistoricalControls() {
     const resetMatchBtn = document.getElementById('resetMatchBtn');
     const totalMatchesSpan = document.getElementById('totalMatches');
     
+    // Default max match index (fallback if unable to load matches.csv)
+    const DEFAULT_MAX_MATCHES = 224;
+    
     // Determine max match index by checking for matches.csv
     fetch('./data/matches.csv')
-        .then(res => res.text())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`Failed to load matches.csv: ${res.status}`);
+            }
+            return res.text();
+        })
         .then(csv => {
             const lines = csv.trim().split('\n');
             // -1 for header, -1 for 0-based indexing, then the last match is at that index
@@ -1158,9 +1168,9 @@ function setupHistoricalControls() {
         })
         .catch(err => {
             console.error('Error loading matches for count:', err);
-            // Default to 224 if can't load
-            maxMatchIndex = 224;
-            currentMatchIndex = 224;
+            // Use default fallback if can't load
+            maxMatchIndex = DEFAULT_MAX_MATCHES;
+            currentMatchIndex = DEFAULT_MAX_MATCHES;
         });
     
     // Toggle historical mode
