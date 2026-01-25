@@ -30,6 +30,9 @@ beybladex-elo-system/
 │   ├── combo_explorer.py       # Combination explorer data
 │   ├── milestones.py           # Statistical records and achievements
 │   ├── recommended_matches.py  # Match recommendation engine
+│   ├── season_manager.py       # Season management and league tables
+│   ├── season_cup.py           # Season Cup double-elimination system
+│   ├── season_processing.py    # Season data processing pipeline
 │   ├── simulation.py           # Tournament simulation
 │   ├── elo_simulator.py        # Elo simulation tools
 │   ├── gen_plots.py            # Plot generation orchestrator
@@ -159,6 +162,8 @@ python src/simulation.py -n 16 -f single-elimination --append
 | `upset_matches.csv` | Individual upset records |
 | `matches_with_rounds.json` | Matches with round-level data |
 | `beys_data.json` | Beyblade data in JSON format |
+| `seasons.json` | Season metadata and tier assignments |
+| `season_data.json` | Complete season archives with league tables |
 | `leaderboards/` | Per-tournament leaderboard snapshots |
 
 **Note:** All scripts read from and write to `./docs/data/` only. No data is stored in the repository root.
@@ -190,6 +195,136 @@ python src/generate_version.py
 ```
 
 This creates/updates `docs/version.js` with current Git state.
+
+## Tiered Seasonal League System
+
+The system supports a tiered seasonal league format designed to prioritize statistical reliability, fair ranking, and long-term progression.
+
+### Overview
+
+- **4 Tiers** of 10 Beyblades each (40 total)
+- **Single round-robin** within each tier (9 matches per Beyblade per season)
+- **180 total league matches** per season
+- **Promotion/relegation** between tiers
+- **Post-season cup** tournament (double-elimination)
+
+### Season Structure
+
+**Tier Assignment:**
+- At season start, Beyblades are assigned to tiers based on current ELO rankings
+- Tier I: Top 10 (highest ELO)
+- Tier II: Places 11-20
+- Tier III: Places 21-30
+- Tier IV: Places 31-40 (lowest ELO)
+
+**League Matches:**
+- Each Beyblade plays every other Beyblade in its tier once
+- Tagged with `match_type=season` in matches.csv
+
+**Season Points:**
+- Win: 3 points
+- Dominant Win (4-0, 5-0, 6-0): 4 points
+- Loss: 0 points
+
+**League Table Ranking:**
+1. Season Points
+2. Point Difference (points for - points against)
+3. Total Points Scored
+4. Head-to-Head Result
+5. ELO Rating
+
+### Promotion & Relegation
+
+**Automatic:**
+- Top 2 from Tiers II-IV: Promoted to tier above
+- Bottom 2 from Tiers I-III: Relegated to tier below
+
+**Relegation Matches:**
+- 8th place (higher tier) vs 3rd place (lower tier)
+- Winner plays in higher tier next season
+- Tagged with `match_type=relegation`
+
+### Season Cup
+
+**Qualification:**
+- Tier I: Top 4
+- Tier II: Top 2
+- Tier III: Top 1
+- Tier IV: Top 1
+- Total: 8 qualified Beyblades
+
+**Format:**
+- Double-elimination tournament
+- Tagged with `match_type=season_cup`
+
+**Titles:**
+- **Season League Champion**: 1st place in Tier I (consistency-based)
+- **Season Cup Winner**: Tournament winner (peak performance)
+
+### Match Type Field
+
+The `matches.csv` file now supports an optional `MatchType` column:
+
+- `exhibition` (default): All existing matches and tournaments
+- `season`: League matches within a tier
+- `relegation`: Promotion/relegation decision matches
+- `season_cup`: Post-season cup tournament matches
+
+If `MatchType` is missing, matches are treated as `exhibition` for full backwards compatibility.
+
+### Initializing a New Season
+
+Use the `init_season.py` utility to initialize a new season from the current leaderboard:
+
+```bash
+# Initialize a season (creates tier assignments)
+python src/init_season.py S1
+
+# Initialize and generate match schedule templates
+python src/init_season.py S1 --generate-schedule
+
+# Specify custom paths
+python src/init_season.py S2 --leaderboard ./custom/leaderboard.csv --data-dir ./data
+```
+
+The utility will:
+1. Read current ELO rankings from `leaderboard.csv`
+2. Assign all 40 Beys to 4 tiers based on ELO
+3. Save tier assignments to `seasons.json`
+4. Optionally generate match schedule CSV templates for each tier
+
+**Generated Schedule Format:**
+- Ready-to-use CSV templates with all matchups
+- Pre-filled with MatchType, SeasonID, Tier, and Matchday
+- Simply add dates and results, then import to `matches.csv`
+
+### Season Data Processing
+
+Process season data after adding season matches:
+
+```bash
+# Process all seasons
+python src/season_processing.py
+
+# Process specific season
+python src/season_processing.py --season S1
+```
+
+Season data is automatically processed as part of the main pipeline:
+
+```bash
+python update.py  # Includes season processing
+```
+
+### Season Pages
+
+Visit the Seasons section on the website to view:
+- Season archive and history
+- League tables for all tiers
+- Promotion/relegation results
+- Relegation match outcomes
+- Season Cup brackets
+- Matchday schedules
 
 ## Google Sheets Integration
 

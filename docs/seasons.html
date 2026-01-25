@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasonal Leagues - BeybladeX ELO System</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Seasonal Leagues</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <div class="nav-dropdown">
+                <a href="wiki.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📚</span>Data<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="wiki.html"><span class="nav-item-icon">📖</span>Wiki</a>
+                    <a href="leaderboard.html"><span class="nav-item-icon">🏆</span>Leaderboard</a>
+                    <a href="matches.html"><span class="nav-item-icon">⚔️</span>Matches</a>
+                    <a href="seasons.html"><span class="nav-item-icon">🏅</span>Seasons</a>
+                    <a href="upsets.html"><span class="nav-item-icon">🎲</span>Upsets</a>
+                    <a href="milestones.html"><span class="nav-item-icon">🎯</span>Milestones</a>
+                    <a href="tournaments.html"><span class="nav-item-icon">🎪</span>Tournaments</a>
+                    <a href="changelog.html"><span class="nav-item-icon">📝</span>Changelog</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="compare.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">🔧</span>Tools<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="compare.html"><span class="nav-item-icon">⚖️</span>Compare</a>
+                    <a href="explorer.html"><span class="nav-item-icon">🔍</span>Parts Explorer</a>
+                    <a href="counters.html"><span class="nav-item-icon">🎯</span>Counters</a>
+                    <a href="simulator.html"><span class="nav-item-icon">🎮</span>Simulator</a>
+                    <a href="predictor.html"><span class="nav-item-icon">🔮</span>Predictor</a>
+                    <a href="quick-entry.html"><span class="nav-item-icon">⚡</span>Quick Entry</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="analytics.html" class="nav-dropdown-toggle" data-dropdown-link><span class="nav-icon">📊</span>Analytics<span class="nav-arrow">▼</span></a>
+                <div class="nav-dropdown-content">
+                    <a href="plots.html"><span class="nav-item-icon">📈</span>Plots</a>
+                    <a href="parts.html"><span class="nav-item-icon">🔧</span>Parts</a>
+                    <a href="synergy.html"><span class="nav-item-icon">🔥</span>Synergy Heatmaps</a>
+                    <a href="meta-balance.html"><span class="nav-item-icon">⚖️</span>Meta Balance</a>
+                    <a href="https://github.com/suptower/beybladex-elo-system"><span class="nav-item-icon">💻</span>GitHub</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="container">
+        <div class="header-section">
+            <h1>🏆 Seasonal League Archive</h1>
+            <p class="subtitle">Tiered Seasonal Competition History</p>
+        </div>
+
+        <div class="info-box">
+            <h3>About the Seasonal League System</h3>
+            <p>
+                The Seasonal League is a tiered competition system where 30 Beyblades compete across 3 tiers.
+                Each season features round-robin matches within tiers, followed by promotion/relegation matches.
+                Additionally, Tier III bottom 4 and unranked Beys compete in a Qualification Tournament for Tier III slots.
+            </p>
+            <div class="system-summary">
+                <div class="stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Tiers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">10</div>
+                    <div class="stat-label">Beys per Tier</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">135</div>
+                    <div class="stat-label">Matches per Season</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Season Cup Participants</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="seasons-container">
+            <h2>Season History</h2>
+            <div id="seasons-list">
+                <!-- Seasons will be loaded here dynamically -->
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Competition Format</h3>
+            <div class="format-grid">
+                <div class="format-card">
+                    <h4>🎯 League Matches</h4>
+                    <ul>
+                        <li>Single round-robin within each tier</li>
+                        <li>9 matches per Bey</li>
+                        <li>Win: 3 points</li>
+                        <li>Dominant Win (4-0+): 4 points</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>↕️ Promotion & Relegation</h4>
+                    <ul>
+                        <li>Top 2: Automatic promotion</li>
+                        <li>Bottom 2: Automatic relegation</li>
+                        <li>8th vs 3rd: Relegation match</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>🏆 Season Cup</h4>
+                    <ul>
+                        <li>Top 4 from Tier I</li>
+                        <li>Top 2 from Tier II</li>
+                        <li>Top 1 from Tier III & IV</li>
+                        <li>Double-elimination format</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>📊 League Table Ranking</h4>
+                    <ol>
+                        <li>Season Points</li>
+                        <li>Point Difference</li>
+                        <li>Total Points Scored</li>
+                        <li>Head-to-Head</li>
+                        <li>ELO Rating</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-section">
+            <h4>Beyblade X ELO System</h4>
+            <p>Comprehensive analytics platform for competitive Beyblade X.</p>
+        </div>
+        <div class="footer-section">
+            <h4>Data</h4>
+            <a href="wiki.html">Wiki</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="matches.html">Matches</a>
+            <a href="seasons.html">Seasons</a>
+            <a href="upsets.html">Upsets</a>
+            <a href="milestones.html">Milestones</a>
+            <a href="tournaments.html">Tournaments</a>
+            <a href="changelog.html">Changelog</a>
+        </div>
+        <div class="footer-section">
+            <h4>Tools</h4>
+            <a href="compare.html">Compare</a>
+            <a href="explorer.html">Parts Explorer</a>
+            <a href="counters.html">Counters</a>
+            <a href="simulator.html">Simulator</a>
+            <a href="predictor.html">Predictor</a>
+            <a href="quick-entry.html">Quick Entry</a>
+        </div>
+        <div class="footer-section">
+            <h4>Analytics</h4>
+            <a href="plots.html">Plots</a>
+            <a href="parts.html">Parts</a>
+            <a href="synergy.html">Synergy Heatmaps</a>
+            <a href="meta-balance.html">Meta Balance</a>
+            <a href="https://github.com/suptower/beybladex-elo-system">GitHub</a>
+        </div>
+    </div>
+    <p id="version-info"></p>
+</footer>
+
+<script src="seasons.js"></script>
+</body>
+</html>
