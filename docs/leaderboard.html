@@ -93,6 +93,37 @@
         </div>
     </div>
 
+    <!-- Historical Match Index Selector -->
+    <div class="match-index-controls">
+        <div class="match-index-header">
+            <span class="match-index-title">📅 Historical View</span>
+            <label class="match-index-toggle-label">
+                <input type="checkbox" id="historicalToggle">
+                <span class="toggle-text-small">Time Travel Mode</span>
+            </label>
+        </div>
+        <div class="match-index-slider-container" id="matchIndexContainer" style="display: none;">
+            <div class="match-index-info">
+                <span class="match-index-label">Leaderboard after Match:</span>
+                <span class="match-index-value" id="matchIndexValue">224</span>
+                <span class="match-index-total"> / <span id="totalMatches">224</span></span>
+            </div>
+            <div class="slider-wrapper">
+                <input type="range" id="matchIndexSlider" class="match-index-slider" min="0" max="224" value="224" step="1">
+                <div class="slider-markers">
+                    <span class="slider-marker">Start</span>
+                    <span class="slider-marker">Latest</span>
+                </div>
+            </div>
+            <div class="match-index-buttons">
+                <button class="match-index-btn" id="prevMatchBtn" title="Previous Match">◀ Prev</button>
+                <input type="number" id="matchIndexInput" class="match-index-input" min="0" max="224" value="224" placeholder="Jump to...">
+                <button class="match-index-btn" id="nextMatchBtn" title="Next Match">Next ▶</button>
+                <button class="match-index-btn match-index-reset" id="resetMatchBtn" title="Reset to Latest">🔄 Latest</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Legend for abbreviations -->
     <div id="legend" class="legend" style="display: none;">
         <div class="legend-header">

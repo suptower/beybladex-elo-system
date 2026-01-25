@@ -4,6 +4,11 @@ let currentSort = { column: null, asc: true };
 let currentSearchQuery = ""; // Track the current search query
 let isAdvancedMode = false; // Track which leaderboard is being displayed
 
+// Historical match index tracking
+let historicalMode = false;
+let currentMatchIndex = null;
+let maxMatchIndex = null;
+
 // Column abbreviations for advanced mode
 const COLUMN_ABBREVIATIONS = {
     'PowerIndex': 'PWR',
@@ -144,13 +149,28 @@ function parseCSV(text) {
     return { headers, rows };
 }
 
-function loadLeaderboard(isAdvanced = false) {
-    const csvPath = isAdvanced 
-        ? "./data/advanced_leaderboard.csv" 
-        : "./data/leaderboard.csv";
+function loadLeaderboard(isAdvanced = false, matchIndex = null) {
+    let csvPath;
+    
+    // Determine which CSV to load
+    if (matchIndex !== null && historicalMode) {
+        // Load historical snapshot
+        const paddedIndex = String(matchIndex).padStart(4, '0');
+        csvPath = `./data/leaderboard_snapshots/leaderboard_${paddedIndex}.csv`;
+    } else {
+        // Load current leaderboard (standard or advanced)
+        csvPath = isAdvanced 
+            ? "./data/advanced_leaderboard.csv" 
+            : "./data/leaderboard.csv";
+    }
     
     fetch(csvPath)
-        .then(res => res.text())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`Failed to load ${csvPath}: ${res.status}`);
+            }
+            return res.text();
+        })
         .then(csv => {
             const parsed = parseCSV(csv);
             leaderboardHeaders = parsed.headers;
@@ -161,6 +181,14 @@ function loadLeaderboard(isAdvanced = false) {
         })
         .catch(err => {
             console.error("Error loading leaderboard:", err);
+            // If historical snapshot fails to load, fall back to current leaderboard
+            if (matchIndex !== null) {
+                console.warn("Falling back to current leaderboard");
+                historicalMode = false;
+                document.getElementById('historicalToggle').checked = false;
+                document.getElementById('matchIndexContainer').style.display = 'none';
+                loadLeaderboard(isAdvanced);
+            }
         });
 }
 
@@ -822,6 +850,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Setup legend toggle
     setupLegend();
     
+    // Setup historical match index controls
+    setupHistoricalControls();
+    
     // Setup mobile sorting
     setupMobileSorting();
 });
@@ -1083,5 +1114,167 @@ function applyCredibilityScoreStyling(td, value) {
         td.classList.add("trend-neutral");        // Medium confidence (yellow)
     } else {
         td.classList.add("trend-negative");       // Low confidence (red)
+    }
+}
+// ============================================
+// HISTORICAL MATCH INDEX CONTROLS
+// ============================================
+
+function setupHistoricalControls() {
+    const historicalToggle = document.getElementById('historicalToggle');
+    const matchIndexContainer = document.getElementById('matchIndexContainer');
+    const matchIndexSlider = document.getElementById('matchIndexSlider');
+    const matchIndexInput = document.getElementById('matchIndexInput');
+    const matchIndexValue = document.getElementById('matchIndexValue');
+    const prevMatchBtn = document.getElementById('prevMatchBtn');
+    const nextMatchBtn = document.getElementById('nextMatchBtn');
+    const resetMatchBtn = document.getElementById('resetMatchBtn');
+    const totalMatchesSpan = document.getElementById('totalMatches');
+    
+    // Determine max match index by checking for matches.csv
+    fetch('./data/matches.csv')
+        .then(res => res.text())
+        .then(csv => {
+            const lines = csv.trim().split('\n');
+            // -1 for header, -1 for 0-based indexing, then the last match is at that index
+            maxMatchIndex = lines.length - 2; // -1 for header row
+            currentMatchIndex = maxMatchIndex;
+            
+            // Update UI with max index
+            if (matchIndexSlider) {
+                matchIndexSlider.max = maxMatchIndex;
+                matchIndexSlider.value = maxMatchIndex;
+            }
+            if (matchIndexInput) {
+                matchIndexInput.max = maxMatchIndex;
+                matchIndexInput.value = maxMatchIndex;
+            }
+            if (matchIndexValue) {
+                matchIndexValue.textContent = maxMatchIndex;
+            }
+            if (totalMatchesSpan) {
+                totalMatchesSpan.textContent = maxMatchIndex;
+            }
+        })
+        .catch(err => {
+            console.error('Error loading matches for count:', err);
+            // Default to 224 if can't load
+            maxMatchIndex = 224;
+            currentMatchIndex = 224;
+        });
+    
+    // Toggle historical mode
+    if (historicalToggle) {
+        historicalToggle.addEventListener('change', (e) => {
+            historicalMode = e.target.checked;
+            if (matchIndexContainer) {
+                matchIndexContainer.style.display = historicalMode ? 'block' : 'none';
+            }
+            
+            if (historicalMode) {
+                // Load the current match index snapshot
+                loadLeaderboard(isAdvancedMode, currentMatchIndex);
+            } else {
+                // Load current leaderboard
+                loadLeaderboard(isAdvancedMode);
+            }
+        });
+    }
+    
+    // Slider change
+    if (matchIndexSlider) {
+        matchIndexSlider.addEventListener('input', (e) => {
+            const newIndex = parseInt(e.target.value);
+            updateMatchIndex(newIndex);
+        });
+    }
+    
+    // Input field change
+    if (matchIndexInput) {
+        matchIndexInput.addEventListener('change', (e) => {
+            let newIndex = parseInt(e.target.value);
+            if (isNaN(newIndex) || newIndex < 0) {
+                newIndex = 0;
+            } else if (newIndex > maxMatchIndex) {
+                newIndex = maxMatchIndex;
+            }
+            updateMatchIndex(newIndex);
+        });
+    }
+    
+    // Previous match button
+    if (prevMatchBtn) {
+        prevMatchBtn.addEventListener('click', () => {
+            if (currentMatchIndex > 0) {
+                updateMatchIndex(currentMatchIndex - 1);
+            }
+        });
+    }
+    
+    // Next match button
+    if (nextMatchBtn) {
+        nextMatchBtn.addEventListener('click', () => {
+            if (currentMatchIndex < maxMatchIndex) {
+                updateMatchIndex(currentMatchIndex + 1);
+            }
+        });
+    }
+    
+    // Reset to latest button
+    if (resetMatchBtn) {
+        resetMatchBtn.addEventListener('click', () => {
+            updateMatchIndex(maxMatchIndex);
+        });
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (!historicalMode) return;
+        
+        // Arrow keys to navigate (only if not focused on an input)
+        if (document.activeElement.tagName !== 'INPUT') {
+            if (e.key === 'ArrowLeft' && currentMatchIndex > 0) {
+                e.preventDefault();
+                updateMatchIndex(currentMatchIndex - 1);
+            } else if (e.key === 'ArrowRight' && currentMatchIndex < maxMatchIndex) {
+                e.preventDefault();
+                updateMatchIndex(currentMatchIndex + 1);
+            }
+        }
+    });
+}
+
+function updateMatchIndex(newIndex) {
+    currentMatchIndex = newIndex;
+    
+    // Update all UI elements
+    const matchIndexSlider = document.getElementById('matchIndexSlider');
+    const matchIndexInput = document.getElementById('matchIndexInput');
+    const matchIndexValue = document.getElementById('matchIndexValue');
+    
+    if (matchIndexSlider) {
+        matchIndexSlider.value = newIndex;
+    }
+    if (matchIndexInput) {
+        matchIndexInput.value = newIndex;
+    }
+    if (matchIndexValue) {
+        matchIndexValue.textContent = newIndex;
+    }
+    
+    // Update button states
+    const prevMatchBtn = document.getElementById('prevMatchBtn');
+    const nextMatchBtn = document.getElementById('nextMatchBtn');
+    
+    if (prevMatchBtn) {
+        prevMatchBtn.disabled = (newIndex <= 0);
+    }
+    if (nextMatchBtn) {
+        nextMatchBtn.disabled = (newIndex >= maxMatchIndex);
+    }
+    
+    // Load the snapshot
+    if (historicalMode) {
+        loadLeaderboard(isAdvancedMode, newIndex);
     }
 }
