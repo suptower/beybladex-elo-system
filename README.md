@@ -165,8 +165,49 @@ python src/simulation.py -n 16 -f single-elimination --append
 | `seasons.json` | Season metadata and tier assignments |
 | `season_data.json` | Complete season archives with league tables |
 | `leaderboards/` | Per-tournament leaderboard snapshots |
+| `leaderboard_snapshots/` | **NEW:** Per-match historical leaderboard snapshots (leaderboard_0000.csv to leaderboard_NNNN.csv) |
 
 **Note:** All scripts read from and write to `./docs/data/` only. No data is stored in the repository root.
+
+## Historical Leaderboard Snapshots (Time Travel Mode)
+
+The system now generates **historical leaderboard snapshots** after every single match, allowing you to view the complete evolution of rankings and statistics at any point in time.
+
+### Features
+
+- **Per-Match Snapshots**: A leaderboard snapshot is saved after each match (0 to N)
+- **Complete Statistics**: Each snapshot includes all stats - rank, ELO, matches, wins, losses, winrate, points for/against, differentials, position delta, ELO delta
+- **Interactive UI**: The leaderboard page includes a "Time Travel Mode" toggle with:
+  - Smooth slider to scrub through match history
+  - Prev/Next buttons for step-by-step navigation
+  - Direct input field to jump to specific matches
+  - "Latest" button to return to current leaderboard
+  - Keyboard shortcuts (arrow keys) for navigation
+- **Responsive Design**: Fully optimized for both desktop and mobile devices
+- **Real-time Updates**: Leaderboard updates instantly when changing the match index
+
+### File Format
+
+Snapshots are stored as zero-padded CSV files:
+- `leaderboard_0000.csv` - Initial state (before any matches)
+- `leaderboard_0001.csv` - After match 1
+- `leaderboard_0002.csv` - After match 2
+- ...
+- `leaderboard_0224.csv` - After match 224 (latest)
+
+### Usage
+
+1. Visit the leaderboard page on the website
+2. Enable "Time Travel Mode" using the checkbox
+3. Use the slider, buttons, or input field to navigate through match history
+4. View how rankings and statistics evolved over time
+
+### Technical Details
+
+- Snapshots are generated during the ELO pipeline (`beyblade_elo.py`)
+- Deltas (position and ELO changes) are calculated relative to the previous match
+- The snapshot generation is deterministic and reproducible
+- Compatible with existing data formats (no breaking changes)
 
 ## Automatic Site Versioning
 
