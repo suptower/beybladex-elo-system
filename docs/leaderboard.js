@@ -4,6 +4,12 @@ let currentSort = { column: null, asc: true };
 let currentSearchQuery = ""; // Track the current search query
 let isAdvancedMode = false; // Track which leaderboard is being displayed
 
+// Historical match index tracking
+let historicalMode = false;
+let currentMatchIndex = null;
+let maxMatchIndex = null;
+let matchesData = []; // Store all matches data for quick lookup
+
 // Column abbreviations for advanced mode
 const COLUMN_ABBREVIATIONS = {
     'PowerIndex': 'PWR',
@@ -144,13 +150,28 @@ function parseCSV(text) {
     return { headers, rows };
 }
 
-function loadLeaderboard(isAdvanced = false) {
-    const csvPath = isAdvanced 
-        ? "./data/advanced_leaderboard.csv" 
-        : "./data/leaderboard.csv";
+function loadLeaderboard(isAdvanced = false, matchIndex = null) {
+    let csvPath;
+    
+    // Determine which CSV to load
+    if (matchIndex !== null && historicalMode) {
+        // Load historical snapshot
+        const paddedIndex = String(matchIndex).padStart(4, '0');
+        csvPath = `./data/leaderboard_snapshots/leaderboard_${paddedIndex}.csv`;
+    } else {
+        // Load current leaderboard (standard or advanced)
+        csvPath = isAdvanced 
+            ? "./data/advanced_leaderboard.csv" 
+            : "./data/leaderboard.csv";
+    }
     
     fetch(csvPath)
-        .then(res => res.text())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`Failed to load ${csvPath}: ${res.status}`);
+            }
+            return res.text();
+        })
         .then(csv => {
             const parsed = parseCSV(csv);
             leaderboardHeaders = parsed.headers;
@@ -161,6 +182,16 @@ function loadLeaderboard(isAdvanced = false) {
         })
         .catch(err => {
             console.error("Error loading leaderboard:", err);
+            // If historical snapshot fails to load, fall back to current leaderboard
+            if (matchIndex !== null) {
+                console.warn("Falling back to current leaderboard");
+                historicalMode = false;
+                const historicalToggle = document.getElementById('historicalToggle');
+                if (historicalToggle) historicalToggle.checked = false;
+                const matchIndexContainer = document.getElementById('matchIndexContainer');
+                if (matchIndexContainer) matchIndexContainer.style.display = 'none';
+                loadLeaderboard(isAdvanced);
+            }
         });
 }
 
@@ -806,6 +837,13 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Handle toggle changes
         toggleInput.addEventListener("change", (e) => {
+            // Prevent switching to advanced mode in historical mode
+            if (historicalMode && e.target.checked) {
+                e.target.checked = false;
+                alert("Advanced statistics are not available in Time Travel Mode. Please disable Time Travel Mode to view advanced statistics.");
+                return;
+            }
+            
             isAdvancedMode = e.target.checked;
             // Save preference
             localStorage.setItem("leaderboardMode", isAdvancedMode ? "advanced" : "standard");
@@ -821,6 +859,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Setup legend toggle
     setupLegend();
+    
+    // Setup historical match index controls
+    setupHistoricalControls();
     
     // Setup mobile sorting
     setupMobileSorting();
@@ -1083,5 +1124,265 @@ function applyCredibilityScoreStyling(td, value) {
         td.classList.add("trend-neutral");        // Medium confidence (yellow)
     } else {
         td.classList.add("trend-negative");       // Low confidence (red)
+    }
+}
+// ============================================
+// HISTORICAL MATCH INDEX CONTROLS
+// ============================================
+
+// Update match details display
+function updateMatchDetails(matchIndex) {
+    const matchDetails = document.getElementById('matchDetails');
+    const matchId = document.getElementById('matchId');
+    const matchTeamA = document.getElementById('matchTeamA');
+    const matchTeamB = document.getElementById('matchTeamB');
+    const matchScore = document.getElementById('matchScore');
+    
+    if (!matchDetails || !matchId || !matchTeamA || !matchTeamB || !matchScore) {
+        return;
+    }
+    
+    // Match index 0 means no matches played yet
+    if (matchIndex === 0) {
+        matchDetails.style.display = 'none';
+        return;
+    }
+    
+    // Check if we have the match data
+    if (matchesData.length === 0) {
+        matchDetails.style.display = 'none';
+        return;
+    }
+    
+    // Get the match at this index (matchIndex - 1 because array is 0-based)
+    const match = matchesData[matchIndex - 1];
+    
+    if (match) {
+        matchDetails.style.display = 'block';
+        matchId.textContent = match.MatchID || '-';
+        matchTeamA.textContent = match.BeyA || '-';
+        matchTeamB.textContent = match.BeyB || '-';
+        matchScore.textContent = `${match.ScoreA || 0} : ${match.ScoreB || 0}`;
+    } else {
+        matchDetails.style.display = 'none';
+    }
+}
+
+function setupHistoricalControls() {
+    const historicalToggle = document.getElementById('historicalToggle');
+    const matchIndexContainer = document.getElementById('matchIndexContainer');
+    const matchIndexSlider = document.getElementById('matchIndexSlider');
+    const matchIndexInput = document.getElementById('matchIndexInput');
+    const matchIndexValue = document.getElementById('matchIndexValue');
+    const prevMatchBtn = document.getElementById('prevMatchBtn');
+    const nextMatchBtn = document.getElementById('nextMatchBtn');
+    const resetMatchBtn = document.getElementById('resetMatchBtn');
+    const totalMatchesSpan = document.getElementById('totalMatches');
+    
+    // Default max match index (fallback if unable to load matches.csv)
+    const DEFAULT_MAX_MATCHES = 224;
+    
+    // Determine max match index by checking for matches.csv
+    fetch('./data/matches.csv')
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`Failed to load matches.csv: ${res.status}`);
+            }
+            return res.text();
+        })
+        .then(csv => {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',');
+            
+            // Parse matches data
+            matchesData = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const match = {};
+                headers.forEach((header, index) => {
+                    match[header.trim()] = values[index] ? values[index].trim() : '';
+                });
+                matchesData.push(match);
+            }
+            
+            // -1 for header, -1 for 0-based indexing, then the last match is at that index
+            maxMatchIndex = lines.length - 2; // -1 for header row
+            currentMatchIndex = maxMatchIndex;
+            
+            // Update UI with max index
+            if (matchIndexSlider) {
+                matchIndexSlider.max = maxMatchIndex;
+                matchIndexSlider.value = maxMatchIndex;
+            }
+            if (matchIndexInput) {
+                matchIndexInput.max = maxMatchIndex;
+                matchIndexInput.value = maxMatchIndex;
+            }
+            if (matchIndexValue) {
+                matchIndexValue.textContent = maxMatchIndex;
+            }
+            if (totalMatchesSpan) {
+                totalMatchesSpan.textContent = maxMatchIndex;
+            }
+        })
+        .catch(err => {
+            console.error('Error loading matches for count:', err);
+            // Use default fallback if can't load
+            maxMatchIndex = DEFAULT_MAX_MATCHES;
+            currentMatchIndex = DEFAULT_MAX_MATCHES;
+        });
+    
+    // Toggle historical mode
+    if (historicalToggle) {
+        historicalToggle.addEventListener('change', (e) => {
+            historicalMode = e.target.checked;
+            if (matchIndexContainer) {
+                matchIndexContainer.style.display = historicalMode ? 'block' : 'none';
+            }
+            
+            const toggleInput = document.getElementById("leaderboardToggle");
+            
+            if (historicalMode) {
+                // Switch to standard mode and disable advanced toggle
+                if (isAdvancedMode) {
+                    isAdvancedMode = false;
+                    if (toggleInput) {
+                        toggleInput.checked = false;
+                    }
+                }
+                
+                // Disable the advanced toggle
+                if (toggleInput) {
+                    toggleInput.disabled = true;
+                    // Add visual indication
+                    const toggleContainer = toggleInput.closest('.toggle-container');
+                    if (toggleContainer) {
+                        toggleContainer.style.opacity = '0.5';
+                        toggleContainer.title = 'Advanced statistics are not available in Time Travel Mode';
+                    }
+                }
+                
+                // Load the current match index snapshot
+                loadLeaderboard(false, currentMatchIndex);
+            } else {
+                // Re-enable the advanced toggle
+                if (toggleInput) {
+                    toggleInput.disabled = false;
+                    const toggleContainer = toggleInput.closest('.toggle-container');
+                    if (toggleContainer) {
+                        toggleContainer.style.opacity = '1';
+                        toggleContainer.title = '';
+                    }
+                }
+                
+                // Load current leaderboard (use saved preference)
+                const savedMode = localStorage.getItem("leaderboardMode");
+                isAdvancedMode = (savedMode === "advanced");
+                if (toggleInput) {
+                    toggleInput.checked = isAdvancedMode;
+                }
+                loadLeaderboard(isAdvancedMode);
+            }
+        });
+    }
+    
+    // Slider change
+    if (matchIndexSlider) {
+        matchIndexSlider.addEventListener('input', (e) => {
+            const newIndex = parseInt(e.target.value);
+            updateMatchIndex(newIndex);
+        });
+    }
+    
+    // Input field change
+    if (matchIndexInput) {
+        matchIndexInput.addEventListener('change', (e) => {
+            let newIndex = parseInt(e.target.value);
+            if (isNaN(newIndex) || newIndex < 0) {
+                newIndex = 0;
+            } else if (newIndex > maxMatchIndex) {
+                newIndex = maxMatchIndex;
+            }
+            updateMatchIndex(newIndex);
+        });
+    }
+    
+    // Previous match button
+    if (prevMatchBtn) {
+        prevMatchBtn.addEventListener('click', () => {
+            if (currentMatchIndex > 0) {
+                updateMatchIndex(currentMatchIndex - 1);
+            }
+        });
+    }
+    
+    // Next match button
+    if (nextMatchBtn) {
+        nextMatchBtn.addEventListener('click', () => {
+            if (currentMatchIndex < maxMatchIndex) {
+                updateMatchIndex(currentMatchIndex + 1);
+            }
+        });
+    }
+    
+    // Reset to latest button
+    if (resetMatchBtn) {
+        resetMatchBtn.addEventListener('click', () => {
+            updateMatchIndex(maxMatchIndex);
+        });
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (!historicalMode) return;
+        
+        // Arrow keys to navigate (only if not focused on an input)
+        if (document.activeElement.tagName !== 'INPUT') {
+            if (e.key === 'ArrowLeft' && currentMatchIndex > 0) {
+                e.preventDefault();
+                updateMatchIndex(currentMatchIndex - 1);
+            } else if (e.key === 'ArrowRight' && currentMatchIndex < maxMatchIndex) {
+                e.preventDefault();
+                updateMatchIndex(currentMatchIndex + 1);
+            }
+        }
+    });
+}
+
+function updateMatchIndex(newIndex) {
+    currentMatchIndex = newIndex;
+    
+    // Update all UI elements
+    const matchIndexSlider = document.getElementById('matchIndexSlider');
+    const matchIndexInput = document.getElementById('matchIndexInput');
+    const matchIndexValue = document.getElementById('matchIndexValue');
+    
+    if (matchIndexSlider) {
+        matchIndexSlider.value = newIndex;
+    }
+    if (matchIndexInput) {
+        matchIndexInput.value = newIndex;
+    }
+    if (matchIndexValue) {
+        matchIndexValue.textContent = newIndex;
+    }
+    
+    // Update match details display
+    updateMatchDetails(newIndex);
+    
+    // Update button states
+    const prevMatchBtn = document.getElementById('prevMatchBtn');
+    const nextMatchBtn = document.getElementById('nextMatchBtn');
+    
+    if (prevMatchBtn) {
+        prevMatchBtn.disabled = (newIndex <= 0);
+    }
+    if (nextMatchBtn) {
+        nextMatchBtn.disabled = (newIndex >= maxMatchIndex);
+    }
+    
+    // Load the snapshot
+    if (historicalMode) {
+        loadLeaderboard(isAdvancedMode, newIndex);
     }
 }
