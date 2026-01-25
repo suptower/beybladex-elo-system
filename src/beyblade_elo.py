@@ -153,7 +153,11 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
 
     # Nur schreiben, wenn writer vorhanden
     if writer is not None:
-        writer.writerow([match_id, date, a, b, sa, sb, round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2), arena or 'Xtreme'])
+        writer.writerow([
+            match_id, date, a, b, sa, sb,
+            round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2),
+            arena or 'Xtreme'
+        ])
 
     stats[a]["for"] += sa
     stats[a]["against"] += sb
@@ -229,7 +233,10 @@ def run_elo_pipeline(pipeline_config):
 
         reader = csv.DictReader(f_in)
         writer = csv.writer(f_hist)
-        writer.writerow(["MatchID", "Date", "BeyA", "BeyB", "ScoreA", "ScoreB", "PreA", "PreB", "PostA", "PostB", "arena"])
+        writer.writerow([
+            "MatchID", "Date", "BeyA", "BeyB", "ScoreA", "ScoreB",
+            "PreA", "PreB", "PostA", "PostB", "arena"
+        ])
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
         for m in matches:

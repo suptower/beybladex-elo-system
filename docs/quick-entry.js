@@ -194,7 +194,8 @@ async function loadMatchHistory() {
                 beyB: values[3],
                 scoreA: parseInt(values[4]) || 0,
                 scoreB: parseInt(values[5]) || 0,
-                arena: values[10] || 'Xtreme'  // Arena is the 11th column (index 10)
+                // Arena is at index 10 (11th column): MatchID,Date,BeyA,BeyB,ScoreA,ScoreB,MatchType,SeasonID,Tier,Matchday,arena
+                arena: values[10] || 'Xtreme'
             };
         });
     } catch (error) {
