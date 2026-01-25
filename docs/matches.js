@@ -12,6 +12,7 @@ let expandedMatches = new Set(); // Track which matches are expanded
 const COLUMN_DEFINITIONS = [
     { key: 'matchId', label: 'Match ID', abbrev: 'ID', sortable: true },
     { key: 'date', label: 'Date', abbrev: 'Date', sortable: true },
+    { key: 'arena', label: 'Arena', abbrev: 'Arena', sortable: true },
     { key: 'beyA', label: 'Bey A', abbrev: 'Bey A', sortable: true },
     { key: 'preEloA', label: 'Pre ELO A', abbrev: 'Pre A', sortable: true },
     { key: 'scoreA', label: 'Score A', abbrev: 'Sc A', sortable: true },
@@ -123,6 +124,7 @@ async function loadMatches() {
             const preB = parseFloat(values[7]);
             const postA = parseFloat(values[8]);
             const postB = parseFloat(values[9]);
+            const arena = values[10] || 'Xtreme';
             
             return {
                 id: index,
@@ -141,7 +143,8 @@ async function loadMatches() {
                 eloChangeB: Math.round(postB - preB),
                 eloDiff: Math.round(Math.abs(preA - preB)),
                 winner: scoreA > scoreB ? values[2] : values[3],
-                rounds: roundsData[rawMatchId] || [] // Use original ID for roundsData lookup
+                rounds: roundsData[rawMatchId] || [], // Use original ID for roundsData lookup
+                arena: arena
             };
         });
         
@@ -233,6 +236,7 @@ function getFilterValues() {
         blade: document.getElementById('bladeFilter').value,
         ratchet: document.getElementById('ratchetFilter').value,
         bit: document.getElementById('bitFilter').value,
+        arena: document.getElementById('arenaFilter').value,
         minEloDiff: parseInt(document.getElementById('minEloDiff').value) || 0,
         maxEloDiff: parseInt(document.getElementById('maxEloDiff').value) || Infinity,
         eloChange: document.getElementById('eloChangeFilter').value
@@ -288,6 +292,11 @@ function applyFilters() {
             }
             
             if (!matchesPart) return false;
+        }
+        
+        // Arena filter
+        if (filters.arena !== 'all' && match.arena !== filters.arena) {
+            return false;
         }
         
         // ELO difference filter
@@ -489,6 +498,16 @@ function displayMatches() {
         tdDate.textContent = match.dateFormatted;
         row.appendChild(tdDate);
         
+        // Arena
+        const tdArena = document.createElement('td');
+        tdArena.className = 'arena-cell';
+        const arenaBadge = document.createElement('span');
+        arenaBadge.className = `arena-badge arena-${match.arena.toLowerCase().replace(/\s+/g, '-')}`;
+        arenaBadge.textContent = match.arena === 'Xtreme' ? '⚡X' : '🎯DA';
+        arenaBadge.title = match.arena === 'Xtreme' ? 'Xtreme Stadium' : 'Drop Attack Beystadium';
+        tdArena.appendChild(arenaBadge);
+        row.appendChild(tdArena);
+        
         // Bey A (with inline ELO delta badge)
         const tdBeyA = document.createElement('td');
         tdBeyA.className = match.winner === match.beyA ? 'winner bey-with-delta' : 'bey-with-delta';
@@ -600,6 +619,7 @@ function displayMatches() {
             <div class="card-header">
                 <span class="card-match-id match-id" title="Click to copy" onclick="copyMatchId('${match.matchId}')">${match.matchId}</span>
                 <span class="card-date">${match.dateFormatted}</span>
+                <span class="arena-badge arena-${match.arena.toLowerCase().replace(/\s+/g, '-')}" title="${match.arena === 'Xtreme' ? 'Xtreme Stadium' : 'Drop Attack Beystadium'}">${match.arena === 'Xtreme' ? '⚡X' : '🎯DA'}</span>
                 <span class="match-elo-diff" title="ELO Difference">Δ${match.eloDiff} ELO</span>
             </div>
             <div class="card-match">
@@ -699,6 +719,7 @@ function clearFilters() {
     document.getElementById('bladeFilter').value = 'all';
     document.getElementById('ratchetFilter').value = 'all';
     document.getElementById('bitFilter').value = 'all';
+    document.getElementById('arenaFilter').value = 'all';
     document.getElementById('minEloDiff').value = '';
     document.getElementById('maxEloDiff').value = '';
     document.getElementById('eloChangeFilter').value = 'all';
@@ -943,6 +964,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('bladeFilter').addEventListener('change', applyFilters);
     document.getElementById('ratchetFilter').addEventListener('change', applyFilters);
     document.getElementById('bitFilter').addEventListener('change', applyFilters);
+    document.getElementById('arenaFilter').addEventListener('change', applyFilters);
     document.getElementById('minEloDiff').addEventListener('input', applyFilters);
     document.getElementById('maxEloDiff').addEventListener('input', applyFilters);
     document.getElementById('eloChangeFilter').addEventListener('change', applyFilters);

@@ -133,7 +133,7 @@ def calculate_score_with_dominance(sa, sb):
 # ------------- Elo update for ONE MATCH -------------
 
 
-def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None):
+def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, arena=None):
     ra, rb = elos[a], elos[b]
     ea, eb = expected(ra, rb), expected(rb, ra)
 
@@ -153,7 +153,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None):
 
     # Nur schreiben, wenn writer vorhanden
     if writer is not None:
-        writer.writerow([match_id, date, a, b, sa, sb, round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2)])
+        writer.writerow([match_id, date, a, b, sa, sb, round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2), arena or 'Xtreme'])
 
     stats[a]["for"] += sa
     stats[a]["against"] += sb
@@ -229,7 +229,7 @@ def run_elo_pipeline(pipeline_config):
 
         reader = csv.DictReader(f_in)
         writer = csv.writer(f_hist)
-        writer.writerow(["MatchID", "Date", "BeyA", "BeyB", "ScoreA", "ScoreB", "PreA", "PreB", "PostA", "PostB"])
+        writer.writerow(["MatchID", "Date", "BeyA", "BeyB", "ScoreA", "ScoreB", "PreA", "PreB", "PostA", "PostB", "arena"])
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
         for m in matches:
@@ -237,7 +237,8 @@ def run_elo_pipeline(pipeline_config):
                 m["BeyA"], m["BeyB"],
                 int(m["ScoreA"]), int(m["ScoreB"]),
                 m["Date"], elos, stats, writer,
-                m.get("MatchID", "")
+                m.get("MatchID", ""),
+                m.get("arena", "Xtreme")
             )
 
         calculate_winrates(stats)
@@ -281,7 +282,8 @@ def run_elo_pipeline(pipeline_config):
                     m["BeyA"], m["BeyB"],
                     int(m["ScoreA"]), int(m["ScoreB"]),
                     m["Date"], temp_elos, temp_stats,
-                    match_id=m.get("MatchID", "")
+                    match_id=m.get("MatchID", ""),
+                    arena=m.get("arena", "Xtreme")
                 )
 
             calculate_winrates(temp_stats)

@@ -11413,3 +11413,44 @@ select:focus-visible {
         padding-left: 0.5rem !important;
     }
 }
+
+/* Arena Badge Styles */
+.arena-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.arena-badge.arena-xtreme {
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.15);
+}
+
+.arena-badge.arena-dropattack {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.15);
+}
+
+body.dark .arena-badge.arena-xtreme {
+    background: rgba(139, 92, 246, 0.25);
+}
+
+body.dark .arena-badge.arena-dropattack {
+    background: rgba(245, 158, 11, 0.25);
+}
+
+.arena-cell {
+    text-align: center;
+}
+
+/* Arena badge in mobile cards */
+.card-header .arena-badge {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.7rem;
+}
