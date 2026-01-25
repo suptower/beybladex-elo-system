@@ -107,8 +107,7 @@ let state = {
     tournament: {
         name: '',
         round: 1,
-        format: 'swiss',
-        arena: 'Xtreme'
+        format: 'swiss'
     },
     participants: [],
     beyblades: [],
@@ -340,14 +339,12 @@ function initializeUI() {
     const tournamentNameInput = document.getElementById('tournamentName');
     const roundNumberInput = document.getElementById('roundNumber');
     const formatSelect = document.getElementById('formatSelect');
-    const arenaSelect = document.getElementById('arenaSelect');
     const matchCountInput = document.getElementById('matchCount');
     const liveModeToggle = document.getElementById('liveModeToggle');
     
     if (tournamentNameInput) tournamentNameInput.value = state.tournament.name || '';
     if (roundNumberInput) roundNumberInput.value = state.tournament.round || 1;
     if (formatSelect) formatSelect.value = state.tournament.format || 'swiss';
-    if (arenaSelect) arenaSelect.value = state.tournament.arena || 'Xtreme';
     if (matchCountInput) matchCountInput.value = state.matches.length || 8;
     if (liveModeToggle) liveModeToggle.checked = state.liveMode;
     
@@ -363,7 +360,6 @@ function setupEventListeners() {
     document.getElementById('tournamentName')?.addEventListener('input', handleTournamentChange);
     document.getElementById('roundNumber')?.addEventListener('input', handleTournamentChange);
     document.getElementById('formatSelect')?.addEventListener('change', handleTournamentChange);
-    document.getElementById('arenaSelect')?.addEventListener('change', handleTournamentChange);
     
     // Action buttons
     document.getElementById('generateMatchesBtn')?.addEventListener('click', generateMatches);
@@ -414,7 +410,6 @@ function handleTournamentChange() {
     state.tournament.name = document.getElementById('tournamentName')?.value || '';
     state.tournament.round = parseInt(document.getElementById('roundNumber')?.value) || 1;
     state.tournament.format = document.getElementById('formatSelect')?.value || 'swiss';
-    state.tournament.arena = document.getElementById('arenaSelect')?.value || 'Xtreme';
     saveToStorage();
 }
 
@@ -447,7 +442,7 @@ function createEmptyMatch(index) {
     let seasonId = '';
     let tier = '';
     let matchday = '';
-    let arena = state.tournament.arena || 'Xtreme';
+    let arena = 'Xtreme';
     
     if (state.matches.length > 0) {
         const lastMatch = state.matches[state.matches.length - 1];
@@ -455,7 +450,7 @@ function createEmptyMatch(index) {
         seasonId = lastMatch.seasonId || '';
         tier = lastMatch.tier || '';
         matchday = lastMatch.matchday || '';
-        arena = lastMatch.arena || state.tournament.arena || 'Xtreme';
+        arena = lastMatch.arena || 'Xtreme';
     }
     
     return {
@@ -977,6 +972,15 @@ function updateBey(matchIndex, player, beyName) {
         recalculateAllLiveElos();
         updateLiveLeaderboard();
     }
+}
+
+function updateArena(matchIndex, arena) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    match.arena = arena;
+    saveToStorage();
+    renderMatches();
 }
 
 // Season field update functions
@@ -1520,6 +1524,9 @@ function renderMatchTable() {
                 <td class="col-bey-b">
                     ${renderBeySelect(match.beyB, index, 'B')}
                 </td>
+                <td class="col-arena">
+                    ${renderArenaSelect(match.arena || 'Xtreme', index)}
+                </td>
                 <td class="col-winner">
                     ${renderWinnerIndicator(match)}
                 </td>
@@ -1533,12 +1540,12 @@ function renderMatchTable() {
                 </td>
             </tr>
             <tr class="analysis-panel-row" id="analysisPanelRow_${index}">
-                <td colspan="8">
+                <td colspan="9">
                     ${renderAnalysisPanel(index)}
                 </td>
             </tr>
             <tr class="rounds-panel-row" id="roundsPanel_${index}" style="display: none;">
-                <td colspan="8">
+                <td colspan="9">
                     <div class="rounds-panel">
                         <div class="rounds-panel-header">
                             <h4>Rounds for Match ${match.matchNumber}</h4>
@@ -1582,6 +1589,9 @@ function renderMatchCards() {
                         ${renderBeySelect(match.beyA, index, 'A')}
                         <span class="vs-text">VS</span>
                         ${renderBeySelect(match.beyB, index, 'B')}
+                    </div>
+                    <div class="match-card-arena">
+                        Arena: ${renderArenaSelect(match.arena || 'Xtreme', index)}
                     </div>
                     <div class="match-card-scores">
                         <div class="score-display-large score-a ${match.winner === 'A' ? 'score-winner' : ''}">${match.scoreA}</div>
@@ -1696,6 +1706,17 @@ function renderBeySelect(selectedBey, matchIndex, player) {
                 data-player="${escapeHtml(player)}">
             <option value="">Select Bey...</option>
             ${options}
+        </select>
+    `;
+}
+
+function renderArenaSelect(selectedArena, matchIndex) {
+    return `
+        <select class="arena-select has-value" 
+                onchange="updateArena(${matchIndex}, this.value)"
+                data-match="${matchIndex}">
+            <option value="Xtreme" ${selectedArena === 'Xtreme' ? 'selected' : ''}>⚡ Xtreme</option>
+            <option value="DropAttack" ${selectedArena === 'DropAttack' ? 'selected' : ''}>🎯 Drop Attack</option>
         </select>
     `;
 }

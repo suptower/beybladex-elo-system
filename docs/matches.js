@@ -124,7 +124,7 @@ async function loadMatches() {
             const preB = parseFloat(values[7]);
             const postA = parseFloat(values[8]);
             const postB = parseFloat(values[9]);
-            const arena = values[10] || 'Xtreme';
+            const arena = (values[10] || 'Xtreme').trim();
             
             return {
                 id: index,
