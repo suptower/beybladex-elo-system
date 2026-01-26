@@ -90,6 +90,14 @@
         </div>
     </section>
 
+    <!-- Featured Bey -->
+    <section class="featured-bey-section">
+        <h2 class="section-title">🎯 Featured Bey of the Day</h2>
+        <div id="featuredBeyContainer" class="featured-bey-container">
+            <div class="loading-placeholder">Loading featured Bey...</div>
+        </div>
+    </section>
+
     <!-- Live Meta Snapshot -->
     <section class="meta-snapshot">
         <h2 class="section-title">📈 Live Meta Snapshot</h2>
@@ -112,13 +120,46 @@
                 <a href="matches.html" class="snapshot-link">View All Matches →</a>
             </div>
 
-            <!-- Trending Beys -->
+            <!-- Giant Killers -->
             <div class="snapshot-card">
-                <h3>🔥 Trending Beys</h3>
-                <div id="trendingBeysList" class="trending-beys-list">
+                <h3>🎯 Giant Killers</h3>
+                <div id="giantKillersList" class="giant-killers-list">
                     <div class="loading-placeholder">Loading...</div>
                 </div>
                 <a href="upsets.html" class="snapshot-link">View Upset Analysis →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Power Rankings & Meta Stats -->
+    <section class="power-rankings-section">
+        <h2 class="section-title">📊 Power Rankings & Meta Insights</h2>
+        <div class="power-rankings-grid">
+            <!-- Power Rankings -->
+            <div class="snapshot-card power-rankings-card">
+                <h3>📈 Power Rankings</h3>
+                <p class="card-subtitle">Top Beys by Power Index</p>
+                <div id="powerRankingsList" class="power-rankings-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+                <a href="leaderboard.html" class="snapshot-link">View Full Leaderboard →</a>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="snapshot-card quick-stats-card">
+                <h3>⚡ Quick Stats</h3>
+                <div id="quickStatsList" class="quick-stats-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Meta Health -->
+            <div class="snapshot-card meta-health-card">
+                <h3>🏥 Meta Health</h3>
+                <p class="card-subtitle">Archetype Diversity</p>
+                <div id="metaHealthDisplay" class="meta-health-display">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
             </div>
         </div>
     </section>
@@ -338,45 +379,559 @@ async function loadRecentMatches() {
     }
 }
 
-// Load and display trending beys (highest ELO gain)
-async function loadTrendingBeys() {
+// Load and display giant killers (upset specialists)
+async function loadGiantKillers() {
+    try {
+        const response = await fetch('data/upset_analysis.csv');
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        // Get top 5 by Giant Killer Score
+        const topGiantKillers = data.slice(0, 5);
+        const container = document.getElementById('giantKillersList');
+        
+        if (topGiantKillers.length === 0) {
+            container.innerHTML = '<p class="no-data-text">No upset data available</p>';
+            return;
+        }
+        
+        container.innerHTML = topGiantKillers.map((bey, index) => {
+            const rank = index + 1;
+            const score = parseFloat(bey.GiantKillerScore).toFixed(1);
+            const upsetWins = bey.UpsetWins;
+            
+            return `
+                <a href="bey.html?name=${encodeURIComponent(bey.Bey)}" class="giant-killer-item">
+                    <span class="gk-rank">${getRankMedal(rank)}</span>
+                    <span class="gk-name">${bey.Bey}</span>
+                    <span class="gk-score">${score}</span>
+                    <span class="gk-upsets">${upsetWins}W</span>
+                </a>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading giant killers:', error);
+        document.getElementById('giantKillersList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Load and display power rankings (by Power Index)
+async function loadPowerRankings() {
     try {
         const response = await fetch('data/advanced_leaderboard.csv');
         const text = await response.text();
         const data = parseCSV(text);
         
-        // Sort by ELO trend and get top 5 gainers
-        const sortedByTrend = data
+        // Get top 3 by PowerIndex
+        const topPower = data
             .map(bey => ({
                 ...bey,
-                eloTrendNum: parseFloat(bey.ELOTrend)
+                powerIndexNum: parseFloat(bey.PowerIndex)
             }))
-            .filter(bey => bey.ELOTrend && !isNaN(bey.eloTrendNum))
-            .sort((a, b) => b.eloTrendNum - a.eloTrendNum)
-            .slice(0, 5);
+            .filter(bey => !isNaN(bey.powerIndexNum))
+            .sort((a, b) => b.powerIndexNum - a.powerIndexNum)
+            .slice(0, 3);
         
-        const container = document.getElementById('trendingBeysList');
+        const container = document.getElementById('powerRankingsList');
         
-        if (sortedByTrend.length === 0) {
-            container.innerHTML = '<p class="no-data-text">No trending data available</p>';
+        if (topPower.length === 0) {
+            container.innerHTML = '<p class="no-data-text">No power data available</p>';
             return;
         }
         
-        container.innerHTML = sortedByTrend.map((bey, index) => {
-            const trendValue = bey.eloTrendNum.toFixed(1);
-            const trendClass = getEloTrendClass(trendValue);
+        container.innerHTML = topPower.map((bey, index) => {
+            const rank = index + 1;
+            const powerIndex = bey.powerIndexNum.toFixed(1);
+            const credibility = bey.CredibilityLabel || 'N/A';
             
             return `
-                <a href="bey.html?name=${encodeURIComponent(bey.Bey)}" class="trending-bey-item">
-                    <span class="trending-rank">🔥</span>
-                    <span class="trending-name">${bey.Bey}</span>
-                    <span class="trending-value ${trendClass}">+${trendValue}</span>
+                <a href="bey.html?name=${encodeURIComponent(bey.Bey)}" class="power-ranking-item">
+                    <span class="pr-rank">${getRankMedal(rank)}</span>
+                    <div class="pr-details">
+                        <span class="pr-name">${bey.Bey}</span>
+                        <span class="pr-credibility">${credibility} Credibility</span>
+                    </div>
+                    <span class="pr-power">${powerIndex}</span>
                 </a>
             `;
         }).join('');
     } catch (error) {
-        console.error('Error loading trending beys:', error);
-        document.getElementById('trendingBeysList').innerHTML = '<p class="error-text">Failed to load data</p>';
+        console.error('Error loading power rankings:', error);
+        document.getElementById('powerRankingsList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Load and display quick stats (randomly selects 3 from available stats)
+async function loadQuickStats() {
+    try {
+        const [matchesRes, leaderboardRes, upsetRes] = await Promise.all([
+            fetch('data/matches.csv'),
+            fetch('data/advanced_leaderboard.csv'),
+            fetch('data/upset_analysis.csv')
+        ]);
+        
+        const [matchesText, leaderboardText, upsetText] = await Promise.all([
+            matchesRes.text(),
+            leaderboardRes.text(),
+            upsetRes.text()
+        ]);
+        
+        const matches = parseCSV(matchesText);
+        const leaderboard = parseCSV(leaderboardText);
+        const upsetData = parseCSV(upsetText);
+        
+        // Calculate all possible stats
+        const totalMatches = matches.length;
+        const totalBeys = leaderboard.length;
+        
+        // Find most volatile Bey
+        const mostVolatile = leaderboard
+            .map(bey => ({
+                name: bey.Bey,
+                volatility: parseFloat(bey.Volatility)
+            }))
+            .filter(b => !isNaN(b.volatility))
+            .sort((a, b) => b.volatility - a.volatility)[0];
+        
+        // Find highest win rate (with min 5 matches)
+        const highestWinrate = leaderboard
+            .filter(bey => parseInt(bey.Matches) >= 5)
+            .map(bey => ({
+                name: bey.Bey,
+                winrate: parseFloat(bey.Winrate)
+            }))
+            .filter(b => !isNaN(b.winrate))
+            .sort((a, b) => b.winrate - a.winrate)[0];
+        
+        // Find most played Bey
+        const mostPlayed = leaderboard
+            .map(bey => ({
+                name: bey.Bey,
+                matches: parseInt(bey.Matches)
+            }))
+            .filter(b => !isNaN(b.matches))
+            .sort((a, b) => b.matches - a.matches)[0];
+        
+        // Find biggest ELO climber
+        const biggestClimber = leaderboard
+            .map(bey => ({
+                name: bey.Bey,
+                trend: parseFloat(bey.ELOTrend)
+            }))
+            .filter(b => !isNaN(b.trend) && b.trend > 0)
+            .sort((a, b) => b.trend - a.trend)[0];
+        
+        // Find top Giant Killer
+        const topGiantKiller = upsetData.length > 0 ? upsetData[0] : null;
+        
+        // Calculate average ELO
+        const avgElo = leaderboard
+            .map(bey => parseInt(bey.ELO))
+            .filter(elo => !isNaN(elo))
+            .reduce((sum, elo) => sum + elo, 0) / leaderboard.length;
+        
+        // Find highest credibility Bey
+        const highestCredibility = leaderboard
+            .filter(bey => bey.CredibilityLabel === 'High')
+            .sort((a, b) => parseFloat(b.CredibilityScore) - parseFloat(a.CredibilityScore))[0];
+        
+        // Find most upset-prone
+        const mostUpsetProne = upsetData
+            .map(bey => ({
+                name: bey.Bey,
+                vulnerability: parseFloat(bey.Vulnerability)
+            }))
+            .filter(b => !isNaN(b.vulnerability))
+            .sort((a, b) => b.vulnerability - a.vulnerability)[0];
+        
+        // Total points scored across all matches
+        const totalPoints = matches
+            .map(m => parseInt(m.ScoreA) + parseInt(m.ScoreB))
+            .filter(p => !isNaN(p))
+            .reduce((sum, p) => sum + p, 0);
+        
+        // Define all available stat cards
+        const allStats = [
+            {
+                icon: '⚔️',
+                value: totalMatches,
+                label: 'Total Matches',
+                weight: 2 // Higher weight = more likely to show
+            },
+            {
+                icon: '🎯',
+                value: totalBeys,
+                label: 'Active Beys',
+                weight: 2
+            },
+            {
+                icon: '📊',
+                value: mostVolatile ? mostVolatile.name : 'N/A',
+                label: 'Most Volatile',
+                weight: 1
+            },
+            {
+                icon: '🏆',
+                value: highestWinrate ? `${highestWinrate.winrate.toFixed(1)}%` : 'N/A',
+                label: 'Highest Win Rate',
+                weight: 1
+            },
+            {
+                icon: '🔥',
+                value: mostPlayed ? mostPlayed.name : 'N/A',
+                label: 'Most Played',
+                weight: 1
+            },
+            {
+                icon: '📈',
+                value: biggestClimber ? biggestClimber.name : 'N/A',
+                label: 'Biggest Climber',
+                weight: 1
+            },
+            {
+                icon: '🎯',
+                value: topGiantKiller ? topGiantKiller.Bey : 'N/A',
+                label: 'Top Giant Killer',
+                weight: 1
+            },
+            {
+                icon: '⭐',
+                value: Math.round(avgElo),
+                label: 'Average ELO',
+                weight: 1
+            },
+            {
+                icon: '💎',
+                value: highestCredibility ? highestCredibility.Bey : 'N/A',
+                label: 'Most Credible',
+                weight: 1
+            },
+            {
+                icon: '🎲',
+                value: mostUpsetProne ? mostUpsetProne.name : 'N/A',
+                label: 'Most Upset-Prone',
+                weight: 1
+            },
+            {
+                icon: '🎉',
+                value: totalPoints,
+                label: 'Total Points Scored',
+                weight: 1
+            }
+        ];
+        
+        // Randomly select 3 stats using weighted selection
+        const selectedStats = weightedRandomSelection(allStats, 3);
+        
+        const container = document.getElementById('quickStatsList');
+        
+        container.innerHTML = selectedStats.map(stat => `
+            <div class="quick-stat-item">
+                <span class="qs-icon">${stat.icon}</span>
+                <div class="qs-content">
+                    <span class="qs-value">${stat.value}</span>
+                    <span class="qs-label">${stat.label}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading quick stats:', error);
+        document.getElementById('quickStatsList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Weighted random selection function
+function weightedRandomSelection(items, count) {
+    const selected = [];
+    const available = [...items];
+    
+    for (let i = 0; i < count && available.length > 0; i++) {
+        // Calculate total weight
+        const totalWeight = available.reduce((sum, item) => sum + (item.weight || 1), 0);
+        
+        // Random selection based on weight
+        let random = Math.random() * totalWeight;
+        let selectedIndex = 0;
+        
+        for (let j = 0; j < available.length; j++) {
+            random -= (available[j].weight || 1);
+            if (random <= 0) {
+                selectedIndex = j;
+                break;
+            }
+        }
+        
+        selected.push(available[selectedIndex]);
+        available.splice(selectedIndex, 1);
+    }
+    
+    return selected;
+}
+
+// Load and display meta health (archetype diversity)
+async function loadMetaHealth() {
+    try {
+        const response = await fetch('data/rpg_stats.csv');
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        // Get top 10 Beys
+        const top10 = data.slice(0, 10);
+        
+        // Count unique archetypes in top 10
+        const archetypes = new Set();
+        const archetypeCounts = {};
+        
+        top10.forEach(bey => {
+            const archetype = bey.Archetype;
+            if (archetype) {
+                archetypes.add(archetype);
+                archetypeCounts[archetype] = (archetypeCounts[archetype] || 0) + 1;
+            }
+        });
+        
+        const uniqueArchetypes = archetypes.size;
+        const diversity = ((uniqueArchetypes / 10) * 100).toFixed(0);
+        
+        // Get most dominant archetype
+        let dominantArchetype = 'None';
+        let maxCount = 0;
+        for (const [arch, count] of Object.entries(archetypeCounts)) {
+            if (count > maxCount) {
+                maxCount = count;
+                dominantArchetype = arch;
+            }
+        }
+        
+        const container = document.getElementById('metaHealthDisplay');
+        
+        const healthStatus = uniqueArchetypes >= 7 ? 'Healthy' : uniqueArchetypes >= 5 ? 'Moderate' : 'Narrow';
+        const healthClass = uniqueArchetypes >= 7 ? 'health-good' : uniqueArchetypes >= 5 ? 'health-medium' : 'health-poor';
+        
+        container.innerHTML = `
+            <div class="meta-health-summary">
+                <div class="mh-stat">
+                    <span class="mh-value ${healthClass}">${uniqueArchetypes}/10</span>
+                    <span class="mh-label">Unique Archetypes</span>
+                </div>
+                <div class="mh-diversity">
+                    <div class="mh-bar">
+                        <div class="mh-bar-fill ${healthClass}" style="width: ${diversity}%"></div>
+                    </div>
+                    <span class="mh-status">${healthStatus} Diversity</span>
+                </div>
+                <div class="mh-dominant">
+                    <span class="mh-label">Most Common:</span>
+                    <span class="mh-value-small">${dominantArchetype} (${maxCount})</span>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading meta health:', error);
+        document.getElementById('metaHealthDisplay').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Get deterministic random Bey based on current date
+function getDailyBeyIndex(arrayLength) {
+    const today = new Date();
+    const dateString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    
+    // Simple hash function for deterministic randomness
+    let hash = 0;
+    for (let i = 0; i < dateString.length; i++) {
+        const char = dateString.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    
+    return Math.abs(hash) % arrayLength;
+}
+
+// Get archetype emoji
+function getArchetypeEmoji(archetype) {
+    const emojiMap = {
+        'Meta Anchor': '⚓',
+        'Adaptive Fighter': '🔄',
+        'Tempo Controller': '⏱️',
+        'Iron Wall': '🛡️',
+        'Endurance Core': '⏳',
+        'Precision Striker': '🎯',
+        'Glass Cannon': '💥',
+        'Versatile All-Rounder': '🌟',
+        'Momentum Builder': '⚡',
+        'Defensive Specialist': '🏰'
+    };
+    return emojiMap[archetype] || '⭐';
+}
+
+// Get archetype description
+function getArchetypeDescription(archetype) {
+    const descMap = {
+        'Meta Anchor': 'A dominant force that defines the competitive meta',
+        'Adaptive Fighter': 'Excels at adjusting strategies mid-battle',
+        'Tempo Controller': 'Masters the pace and flow of combat',
+        'Iron Wall': 'Exceptional defensive capabilities and resilience',
+        'Endurance Core': 'Outlasts opponents through superior stamina',
+        'Precision Striker': 'Delivers accurate and devastating attacks',
+        'Glass Cannon': 'Maximum offense with calculated risk',
+        'Versatile All-Rounder': 'Balanced performance across all areas',
+        'Momentum Builder': 'Gains power as the battle progresses',
+        'Defensive Specialist': 'Walls off opponents with impenetrable defense',
+        'Berserker': 'Aggressive offensive playstyle with relentless attacks',
+        'Chaser': 'Pursues and pressures opponents with persistent mobility',
+        'Spin Tank': 'Exceptional spin retention and stamina-based dominance',
+        'Unknown': 'A unique competitive Beyblade with untested potential'
+    };
+    return descMap[archetype] || 'A unique competitive Beyblade';
+}
+
+// Get tier from rank
+function getTier(rank) {
+    if (rank <= 3) return 'S-Tier';
+    if (rank <= 8) return 'A-Tier';
+    if (rank <= 15) return 'B-Tier';
+    return 'C-Tier';
+}
+
+// Load and display featured Bey
+async function loadFeaturedBey() {
+    try {
+        // Load all necessary data
+        const [leaderboardRes, rpgStatsRes, advancedRes] = await Promise.all([
+            fetch('data/leaderboard.csv'),
+            fetch('data/rpg_stats.csv'),
+            fetch('data/advanced_leaderboard.csv')
+        ]);
+        
+        const [leaderboardText, rpgStatsText, advancedText] = await Promise.all([
+            leaderboardRes.text(),
+            rpgStatsRes.text(),
+            advancedRes.text()
+        ]);
+        
+        const leaderboard = parseCSV(leaderboardText);
+        const rpgStats = parseCSV(rpgStatsText);
+        const advanced = parseCSV(advancedText);
+        
+        // Get deterministic daily random Bey
+        const beyIndex = getDailyBeyIndex(leaderboard.length);
+        const bey = leaderboard[beyIndex];
+        
+        // Find corresponding data from other sources
+        const rpgData = rpgStats.find(b => b.Bey === bey.Name);
+        const advancedData = advanced.find(b => b.Bey === bey.Name);
+        
+        const container = document.getElementById('featuredBeyContainer');
+        
+        if (!rpgData) {
+            container.innerHTML = '<p class="error-text">Failed to load featured Bey data</p>';
+            return;
+        }
+        
+        const rank = parseInt(bey.Platz, 10);
+        const tier = getTier(rank);
+        const archetype = rpgData.Archetype || 'Unknown';
+        const archetypeEmoji = getArchetypeEmoji(archetype);
+        const archetypeDesc = getArchetypeDescription(archetype);
+        const winrate = bey.Winrate || '0%';
+        const matches = bey.Spiele || '0';
+        const eloDelta = parseFloat(bey.ELOdelta || 0);
+        const trendClass = getEloTrendClass(eloDelta);
+        const eloDeltaSign = eloDelta > 0 ? '+' : '';
+        
+        // Create stats bars
+        const attack = parseFloat(rpgData.Attack || 0);
+        const defense = parseFloat(rpgData.Defense || 0);
+        const stamina = parseFloat(rpgData.Stamina || 0);
+        const control = parseFloat(rpgData.Control || 0);
+        const MAX_STAT_VALUE = 5; // RPG stats are on a scale of 0-5
+        
+        container.innerHTML = `
+            <div class="featured-bey-card">
+                <div class="featured-bey-header">
+                    <div class="featured-bey-title-section">
+                        <h3 class="featured-bey-name">${bey.Name}</h3>
+                        <div class="featured-bey-meta">
+                            <span class="featured-bey-rank">${getRankMedal(rank)} Rank #${rank}</span>
+                            <span class="featured-bey-tier">${tier}</span>
+                        </div>
+                    </div>
+                    <div class="featured-bey-archetype-badge">
+                        <span class="archetype-emoji">${archetypeEmoji}</span>
+                        <span class="archetype-name">${archetype}</span>
+                    </div>
+                </div>
+                
+                <div class="featured-bey-content">
+                    <div class="featured-bey-description">
+                        <p>${archetypeDesc}</p>
+                    </div>
+                    
+                    <div class="featured-bey-stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">ELO Rating</div>
+                            <div class="stat-value">${bey.ELO}</div>
+                            <div class="stat-trend ${trendClass}">${eloDeltaSign}${bey.ELOdelta}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Win Rate</div>
+                            <div class="stat-value">${winrate}</div>
+                            <div class="stat-subtext">${bey.Siege}W - ${bey.Niederlagen}L</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Matches</div>
+                            <div class="stat-value">${matches}</div>
+                            <div class="stat-subtext">Total played</div>
+                        </div>
+                    </div>
+                    
+                    <div class="featured-bey-rpg-stats">
+                        <h4>Combat Profile</h4>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">⚔️ Attack</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(attack / MAX_STAT_VALUE) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${attack.toFixed(1)}</span>
+                        </div>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">🛡️ Defense</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(defense / MAX_STAT_VALUE) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${defense.toFixed(1)}</span>
+                        </div>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">⏳ Stamina</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(stamina / MAX_STAT_VALUE) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${stamina.toFixed(1)}</span>
+                        </div>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">🎯 Control</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(control / MAX_STAT_VALUE) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${control.toFixed(1)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="featured-bey-actions">
+                        <a href="bey.html?name=${encodeURIComponent(bey.Name)}" class="featured-bey-btn">
+                            📊 View Full Stats
+                        </a>
+                        <a href="counters.html" class="featured-bey-btn secondary">
+                            🛡️ Find Counters
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading featured bey:', error);
+        document.getElementById('featuredBeyContainer').innerHTML = '<p class="error-text">Failed to load featured Bey</p>';
     }
 }
 
@@ -384,7 +939,11 @@ async function loadTrendingBeys() {
 document.addEventListener('DOMContentLoaded', () => {
     loadTopBeys();
     loadRecentMatches();
-    loadTrendingBeys();
+    loadGiantKillers();
+    loadFeaturedBey();
+    loadPowerRankings();
+    loadQuickStats();
+    loadMetaHealth();
 });
 </script>
 
