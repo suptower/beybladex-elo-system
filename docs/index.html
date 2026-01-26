@@ -90,6 +90,14 @@
         </div>
     </section>
 
+    <!-- Featured Bey -->
+    <section class="featured-bey-section">
+        <h2 class="section-title">🎯 Featured Bey of the Day</h2>
+        <div id="featuredBeyContainer" class="featured-bey-container">
+            <div class="loading-placeholder">Loading featured Bey...</div>
+        </div>
+    </section>
+
     <!-- Live Meta Snapshot -->
     <section class="meta-snapshot">
         <h2 class="section-title">📈 Live Meta Snapshot</h2>
@@ -380,11 +388,210 @@ async function loadTrendingBeys() {
     }
 }
 
+// Get deterministic random Bey based on current date
+function getDailyBeyIndex(arrayLength) {
+    const today = new Date();
+    const dateString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    
+    // Simple hash function for deterministic randomness
+    let hash = 0;
+    for (let i = 0; i < dateString.length; i++) {
+        const char = dateString.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    
+    return Math.abs(hash) % arrayLength;
+}
+
+// Get archetype emoji
+function getArchetypeEmoji(archetype) {
+    const emojiMap = {
+        'Meta Anchor': '⚓',
+        'Adaptive Fighter': '🔄',
+        'Tempo Controller': '⏱️',
+        'Iron Wall': '🛡️',
+        'Endurance Core': '⏳',
+        'Precision Striker': '🎯',
+        'Glass Cannon': '💥',
+        'Versatile All-Rounder': '🌟',
+        'Momentum Builder': '⚡',
+        'Defensive Specialist': '🏰'
+    };
+    return emojiMap[archetype] || '⭐';
+}
+
+// Get archetype description
+function getArchetypeDescription(archetype) {
+    const descMap = {
+        'Meta Anchor': 'A dominant force that defines the competitive meta',
+        'Adaptive Fighter': 'Excels at adjusting strategies mid-battle',
+        'Tempo Controller': 'Masters the pace and flow of combat',
+        'Iron Wall': 'Exceptional defensive capabilities and resilience',
+        'Endurance Core': 'Outlasts opponents through superior stamina',
+        'Precision Striker': 'Delivers accurate and devastating attacks',
+        'Glass Cannon': 'Maximum offense with calculated risk',
+        'Versatile All-Rounder': 'Balanced performance across all areas',
+        'Momentum Builder': 'Gains power as the battle progresses',
+        'Defensive Specialist': 'Walls off opponents with impenetrable defense'
+    };
+    return descMap[archetype] || 'A unique competitive Beyblade';
+}
+
+// Get tier from rank
+function getTier(rank) {
+    if (rank <= 3) return 'S-Tier';
+    if (rank <= 8) return 'A-Tier';
+    if (rank <= 15) return 'B-Tier';
+    return 'C-Tier';
+}
+
+// Load and display featured Bey
+async function loadFeaturedBey() {
+    try {
+        // Load all necessary data
+        const [leaderboardRes, rpgStatsRes, advancedRes] = await Promise.all([
+            fetch('data/leaderboard.csv'),
+            fetch('data/rpg_stats.csv'),
+            fetch('data/advanced_leaderboard.csv')
+        ]);
+        
+        const [leaderboardText, rpgStatsText, advancedText] = await Promise.all([
+            leaderboardRes.text(),
+            rpgStatsRes.text(),
+            advancedRes.text()
+        ]);
+        
+        const leaderboard = parseCSV(leaderboardText);
+        const rpgStats = parseCSV(rpgStatsText);
+        const advanced = parseCSV(advancedText);
+        
+        // Get deterministic daily random Bey
+        const beyIndex = getDailyBeyIndex(leaderboard.length);
+        const bey = leaderboard[beyIndex];
+        
+        // Find corresponding data from other sources
+        const rpgData = rpgStats.find(b => b.Bey === bey.Name);
+        const advancedData = advanced.find(b => b.Bey === bey.Name);
+        
+        const container = document.getElementById('featuredBeyContainer');
+        
+        if (!rpgData) {
+            container.innerHTML = '<p class="error-text">Failed to load featured Bey data</p>';
+            return;
+        }
+        
+        const rank = parseInt(bey.Platz, 10);
+        const tier = getTier(rank);
+        const archetype = rpgData.Archetype || 'Unknown';
+        const archetypeEmoji = getArchetypeEmoji(archetype);
+        const archetypeDesc = getArchetypeDescription(archetype);
+        const winrate = bey.Winrate || '0%';
+        const matches = bey.Spiele || '0';
+        const eloDelta = parseFloat(bey.ELOdelta || 0);
+        const trendClass = getEloTrendClass(eloDelta);
+        const eloDeltaSign = eloDelta > 0 ? '+' : '';
+        
+        // Create stats bars
+        const attack = parseFloat(rpgData.Attack || 0);
+        const defense = parseFloat(rpgData.Defense || 0);
+        const stamina = parseFloat(rpgData.Stamina || 0);
+        const control = parseFloat(rpgData.Control || 0);
+        
+        container.innerHTML = `
+            <div class="featured-bey-card">
+                <div class="featured-bey-header">
+                    <div class="featured-bey-title-section">
+                        <h3 class="featured-bey-name">${bey.Name}</h3>
+                        <div class="featured-bey-meta">
+                            <span class="featured-bey-rank">${getRankMedal(rank)} Rank #${rank}</span>
+                            <span class="featured-bey-tier">${tier}</span>
+                        </div>
+                    </div>
+                    <div class="featured-bey-archetype-badge">
+                        <span class="archetype-emoji">${archetypeEmoji}</span>
+                        <span class="archetype-name">${archetype}</span>
+                    </div>
+                </div>
+                
+                <div class="featured-bey-content">
+                    <div class="featured-bey-description">
+                        <p>${archetypeDesc}</p>
+                    </div>
+                    
+                    <div class="featured-bey-stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">ELO Rating</div>
+                            <div class="stat-value">${bey.ELO}</div>
+                            <div class="stat-trend ${trendClass}">${eloDeltaSign}${bey.ELOdelta}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Win Rate</div>
+                            <div class="stat-value">${winrate}</div>
+                            <div class="stat-subtext">${bey.Siege}W - ${bey.Niederlagen}L</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Matches</div>
+                            <div class="stat-value">${matches}</div>
+                            <div class="stat-subtext">Total played</div>
+                        </div>
+                    </div>
+                    
+                    <div class="featured-bey-rpg-stats">
+                        <h4>Combat Profile</h4>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">⚔️ Attack</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(attack / 5) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${attack.toFixed(1)}</span>
+                        </div>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">🛡️ Defense</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(defense / 5) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${defense.toFixed(1)}</span>
+                        </div>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">⏳ Stamina</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(stamina / 5) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${stamina.toFixed(1)}</span>
+                        </div>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">🎯 Control</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(control / 5) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${control.toFixed(1)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="featured-bey-actions">
+                        <a href="bey.html?name=${encodeURIComponent(bey.Name)}" class="featured-bey-btn">
+                            📊 View Full Stats
+                        </a>
+                        <a href="counters.html" class="featured-bey-btn secondary">
+                            🛡️ Find Counters
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading featured bey:', error);
+        document.getElementById('featuredBeyContainer').innerHTML = '<p class="error-text">Failed to load featured Bey</p>';
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     loadTopBeys();
     loadRecentMatches();
     loadTrendingBeys();
+    loadFeaturedBey();
 });
 </script>
 
