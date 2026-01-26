@@ -8,6 +8,8 @@
     /* Light mode colors */
     --bg: #f8f9fa;
     --bg-alt: #ffffff;
+    --bg-secondary: #e5e7eb;
+    --bg-subtle: #f1f3f5;
     --text: #1a1a1a;
     --text-light: #6c757d;
     --accent: #6366f1;
@@ -15,6 +17,7 @@
     --accent-hover-subtle: rgba(79, 70, 229, 0.35);
     --card: #ffffff;
     --border: #e5e7eb;
+    --border-dark: #cbd5e1;
     
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -40,6 +43,8 @@
 body.dark {
     --bg: #0f172a;
     --bg-alt: #1e293b;
+    --bg-secondary: #1e293b;
+    --bg-subtle: #334155;
     --text: #f1f5f9;
     --text-light: #94a3b8;
     --accent: #818cf8;
@@ -47,11 +52,33 @@ body.dark {
     --accent-hover-subtle: rgba(99, 102, 241, 0.35);
     --card: #1e293b;
     --border: #334155;
+    --border-dark: #475569;
     
     --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -1px rgba(0,0,0,0.3);
     --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -2px rgba(0,0,0,0.4);
     --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.6), 0 10px 10px -5px rgba(0,0,0,0.5);
+}
+
+/* Dark mode - Select elements fix */
+body.dark select,
+body.dark .filter-select,
+body.dark .slot-select,
+body.dark .player-select,
+body.dark .bey-select {
+    background-color: var(--bg-alt);
+    color: var(--text);
+    border-color: var(--border);
+    color-scheme: dark;
+}
+
+body.dark select option,
+body.dark .filter-select option,
+body.dark .slot-select option,
+body.dark .player-select option,
+body.dark .bey-select option {
+    background-color: var(--bg-alt);
+    color: var(--text);
 }
 
 /* ============================================
