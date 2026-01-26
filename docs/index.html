@@ -461,23 +461,28 @@ async function loadPowerRankings() {
     }
 }
 
-// Load and display quick stats
+// Load and display quick stats (randomly selects 3 from available stats)
 async function loadQuickStats() {
     try {
-        const [matchesRes, leaderboardRes] = await Promise.all([
+        const [matchesRes, leaderboardRes, upsetRes] = await Promise.all([
             fetch('data/matches.csv'),
-            fetch('data/advanced_leaderboard.csv')
+            fetch('data/advanced_leaderboard.csv'),
+            fetch('data/upset_analysis.csv')
         ]);
         
-        const [matchesText, leaderboardText] = await Promise.all([
+        const [matchesText, leaderboardText, upsetText] = await Promise.all([
             matchesRes.text(),
-            leaderboardRes.text()
+            leaderboardRes.text(),
+            upsetRes.text()
         ]);
         
         const matches = parseCSV(matchesText);
         const leaderboard = parseCSV(leaderboardText);
+        const upsetData = parseCSV(upsetText);
         
+        // Calculate all possible stats
         const totalMatches = matches.length;
+        const totalBeys = leaderboard.length;
         
         // Find most volatile Bey
         const mostVolatile = leaderboard
@@ -488,38 +493,179 @@ async function loadQuickStats() {
             .filter(b => !isNaN(b.volatility))
             .sort((a, b) => b.volatility - a.volatility)[0];
         
-        // Count total Beys
-        const totalBeys = leaderboard.length;
+        // Find highest win rate (with min 5 matches)
+        const highestWinrate = leaderboard
+            .filter(bey => parseInt(bey.Matches) >= 5)
+            .map(bey => ({
+                name: bey.Bey,
+                winrate: parseFloat(bey.Winrate)
+            }))
+            .filter(b => !isNaN(b.winrate))
+            .sort((a, b) => b.winrate - a.winrate)[0];
+        
+        // Find most played Bey
+        const mostPlayed = leaderboard
+            .map(bey => ({
+                name: bey.Bey,
+                matches: parseInt(bey.Matches)
+            }))
+            .filter(b => !isNaN(b.matches))
+            .sort((a, b) => b.matches - a.matches)[0];
+        
+        // Find biggest ELO climber
+        const biggestClimber = leaderboard
+            .map(bey => ({
+                name: bey.Bey,
+                trend: parseFloat(bey.ELOTrend)
+            }))
+            .filter(b => !isNaN(b.trend) && b.trend > 0)
+            .sort((a, b) => b.trend - a.trend)[0];
+        
+        // Find top Giant Killer
+        const topGiantKiller = upsetData.length > 0 ? upsetData[0] : null;
+        
+        // Calculate average ELO
+        const avgElo = leaderboard
+            .map(bey => parseInt(bey.ELO))
+            .filter(elo => !isNaN(elo))
+            .reduce((sum, elo) => sum + elo, 0) / leaderboard.length;
+        
+        // Find highest credibility Bey
+        const highestCredibility = leaderboard
+            .filter(bey => bey.CredibilityLabel === 'High')
+            .sort((a, b) => parseFloat(b.CredibilityScore) - parseFloat(a.CredibilityScore))[0];
+        
+        // Find most upset-prone
+        const mostUpsetProne = upsetData
+            .map(bey => ({
+                name: bey.Bey,
+                vulnerability: parseFloat(bey.Vulnerability)
+            }))
+            .filter(b => !isNaN(b.vulnerability))
+            .sort((a, b) => b.vulnerability - a.vulnerability)[0];
+        
+        // Total points scored across all matches
+        const totalPoints = matches
+            .map(m => parseInt(m.ScoreA) + parseInt(m.ScoreB))
+            .filter(p => !isNaN(p))
+            .reduce((sum, p) => sum + p, 0);
+        
+        // Define all available stat cards
+        const allStats = [
+            {
+                icon: '⚔️',
+                value: totalMatches,
+                label: 'Total Matches',
+                weight: 2 // Higher weight = more likely to show
+            },
+            {
+                icon: '🎯',
+                value: totalBeys,
+                label: 'Active Beys',
+                weight: 2
+            },
+            {
+                icon: '📊',
+                value: mostVolatile ? mostVolatile.name : 'N/A',
+                label: 'Most Volatile',
+                weight: 1
+            },
+            {
+                icon: '🏆',
+                value: highestWinrate ? `${highestWinrate.winrate.toFixed(1)}%` : 'N/A',
+                label: 'Highest Win Rate',
+                weight: 1
+            },
+            {
+                icon: '🔥',
+                value: mostPlayed ? mostPlayed.name : 'N/A',
+                label: 'Most Played',
+                weight: 1
+            },
+            {
+                icon: '📈',
+                value: biggestClimber ? biggestClimber.name : 'N/A',
+                label: 'Biggest Climber',
+                weight: 1
+            },
+            {
+                icon: '🎯',
+                value: topGiantKiller ? topGiantKiller.Bey : 'N/A',
+                label: 'Top Giant Killer',
+                weight: 1
+            },
+            {
+                icon: '⭐',
+                value: Math.round(avgElo),
+                label: 'Average ELO',
+                weight: 1
+            },
+            {
+                icon: '💎',
+                value: highestCredibility ? highestCredibility.Bey : 'N/A',
+                label: 'Most Credible',
+                weight: 1
+            },
+            {
+                icon: '🎲',
+                value: mostUpsetProne ? mostUpsetProne.name : 'N/A',
+                label: 'Most Upset-Prone',
+                weight: 1
+            },
+            {
+                icon: '🎉',
+                value: totalPoints,
+                label: 'Total Points Scored',
+                weight: 1
+            }
+        ];
+        
+        // Randomly select 3 stats using weighted selection
+        const selectedStats = weightedRandomSelection(allStats, 3);
         
         const container = document.getElementById('quickStatsList');
         
-        container.innerHTML = `
+        container.innerHTML = selectedStats.map(stat => `
             <div class="quick-stat-item">
-                <span class="qs-icon">⚔️</span>
+                <span class="qs-icon">${stat.icon}</span>
                 <div class="qs-content">
-                    <span class="qs-value">${totalMatches}</span>
-                    <span class="qs-label">Total Matches</span>
+                    <span class="qs-value">${stat.value}</span>
+                    <span class="qs-label">${stat.label}</span>
                 </div>
             </div>
-            <div class="quick-stat-item">
-                <span class="qs-icon">🎯</span>
-                <div class="qs-content">
-                    <span class="qs-value">${totalBeys}</span>
-                    <span class="qs-label">Active Beys</span>
-                </div>
-            </div>
-            <div class="quick-stat-item">
-                <span class="qs-icon">📊</span>
-                <div class="qs-content">
-                    <span class="qs-value">${mostVolatile ? mostVolatile.name : 'N/A'}</span>
-                    <span class="qs-label">Most Volatile</span>
-                </div>
-            </div>
-        `;
+        `).join('');
     } catch (error) {
         console.error('Error loading quick stats:', error);
         document.getElementById('quickStatsList').innerHTML = '<p class="error-text">Failed to load data</p>';
     }
+}
+
+// Weighted random selection function
+function weightedRandomSelection(items, count) {
+    const selected = [];
+    const available = [...items];
+    
+    for (let i = 0; i < count && available.length > 0; i++) {
+        // Calculate total weight
+        const totalWeight = available.reduce((sum, item) => sum + (item.weight || 1), 0);
+        
+        // Random selection based on weight
+        let random = Math.random() * totalWeight;
+        let selectedIndex = 0;
+        
+        for (let j = 0; j < available.length; j++) {
+            random -= (available[j].weight || 1);
+            if (random <= 0) {
+                selectedIndex = j;
+                break;
+            }
+        }
+        
+        selected.push(available[selectedIndex]);
+        available.splice(selectedIndex, 1);
+    }
+    
+    return selected;
 }
 
 // Load and display meta health (archetype diversity)
