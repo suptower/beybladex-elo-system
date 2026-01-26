@@ -497,6 +497,7 @@ async function loadFeaturedBey() {
         const defense = parseFloat(rpgData.Defense || 0);
         const stamina = parseFloat(rpgData.Stamina || 0);
         const control = parseFloat(rpgData.Control || 0);
+        const MAX_STAT_VALUE = 5; // RPG stats are on a scale of 0-5
         
         container.innerHTML = `
             <div class="featured-bey-card">
@@ -542,28 +543,28 @@ async function loadFeaturedBey() {
                         <div class="rpg-stat-bar">
                             <span class="rpg-stat-label">⚔️ Attack</span>
                             <div class="rpg-stat-fill-container">
-                                <div class="rpg-stat-fill" style="width: ${(attack / 5) * 100}%"></div>
+                                <div class="rpg-stat-fill" style="width: ${(attack / MAX_STAT_VALUE) * 100}%"></div>
                             </div>
                             <span class="rpg-stat-value">${attack.toFixed(1)}</span>
                         </div>
                         <div class="rpg-stat-bar">
                             <span class="rpg-stat-label">🛡️ Defense</span>
                             <div class="rpg-stat-fill-container">
-                                <div class="rpg-stat-fill" style="width: ${(defense / 5) * 100}%"></div>
+                                <div class="rpg-stat-fill" style="width: ${(defense / MAX_STAT_VALUE) * 100}%"></div>
                             </div>
                             <span class="rpg-stat-value">${defense.toFixed(1)}</span>
                         </div>
                         <div class="rpg-stat-bar">
                             <span class="rpg-stat-label">⏳ Stamina</span>
                             <div class="rpg-stat-fill-container">
-                                <div class="rpg-stat-fill" style="width: ${(stamina / 5) * 100}%"></div>
+                                <div class="rpg-stat-fill" style="width: ${(stamina / MAX_STAT_VALUE) * 100}%"></div>
                             </div>
                             <span class="rpg-stat-value">${stamina.toFixed(1)}</span>
                         </div>
                         <div class="rpg-stat-bar">
                             <span class="rpg-stat-label">🎯 Control</span>
                             <div class="rpg-stat-fill-container">
-                                <div class="rpg-stat-fill" style="width: ${(control / 5) * 100}%"></div>
+                                <div class="rpg-stat-fill" style="width: ${(control / MAX_STAT_VALUE) * 100}%"></div>
                             </div>
                             <span class="rpg-stat-value">${control.toFixed(1)}</span>
                         </div>
