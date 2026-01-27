@@ -18,7 +18,6 @@ Output:
 
 import csv
 import json
-import os
 import statistics
 from collections import defaultdict
 from datetime import datetime
@@ -149,22 +148,22 @@ def calculate_stadium_overview(matches, elo_history):
         'tiers': defaultdict(int),
         'match_types': defaultdict(int)
     })
-    
+
     for match in matches:
         stadium = match['stadium']
         stats = stadium_stats[stadium]
-        
+
         stats['total_matches'] += 1
         total_score = match['score_a'] + match['score_b']
         stats['total_points'] += total_score
         stats['match_scores'].append(total_score)
-        
+
         if match['season_id']:
             stats['seasons'][match['season_id']] += 1
         if match['tier']:
             stats['tiers'][match['tier']] += 1
         stats['match_types'][match['match_type']] += 1
-    
+
     # Calculate derived statistics
     overview = {}
     for stadium, stats in stadium_stats.items():
@@ -182,7 +181,7 @@ def calculate_stadium_overview(matches, elo_history):
                 'matches_per_tier': dict(stats['tiers']),
                 'matches_per_type': dict(stats['match_types'])
             }
-    
+
     return overview
 
 
@@ -196,41 +195,41 @@ def calculate_bey_performance_per_stadium(matches, elo_history):
         'points_against': 0,
         'elo_changes': []
     }))
-    
+
     # Process matches
     for match in matches:
         stadium = match['stadium']
         bey_a = match['bey_a']
         bey_b = match['bey_b']
-        
+
         # Update stats for both beys
         bey_stats[stadium][bey_a]['matches'] += 1
         bey_stats[stadium][bey_b]['matches'] += 1
-        
+
         bey_stats[stadium][bey_a]['points_for'] += match['score_a']
         bey_stats[stadium][bey_a]['points_against'] += match['score_b']
         bey_stats[stadium][bey_b]['points_for'] += match['score_b']
         bey_stats[stadium][bey_b]['points_against'] += match['score_a']
-        
+
         if match['score_a'] > match['score_b']:
             bey_stats[stadium][bey_a]['wins'] += 1
             bey_stats[stadium][bey_b]['losses'] += 1
         else:
             bey_stats[stadium][bey_b]['wins'] += 1
             bey_stats[stadium][bey_a]['losses'] += 1
-    
+
     # Process ELO changes
     for entry in elo_history:
         stadium = entry['stadium']
         bey_a = entry['bey_a']
         bey_b = entry['bey_b']
-        
+
         elo_change_a = entry['new_elo_a'] - entry['old_elo_a']
         elo_change_b = entry['new_elo_b'] - entry['old_elo_b']
-        
+
         bey_stats[stadium][bey_a]['elo_changes'].append(elo_change_a)
         bey_stats[stadium][bey_b]['elo_changes'].append(elo_change_b)
-    
+
     # Calculate derived statistics
     performance = {}
     for stadium, beys in bey_stats.items():
@@ -250,19 +249,19 @@ def calculate_bey_performance_per_stadium(matches, elo_history):
                     'avg_points_per_match': round(stats['points_for'] / stats['matches'], 2),
                     'avg_elo_change': round(avg_elo_change, 2)
                 }
-        
+
         # Sort by winrate and identify top/bottom performers
         sorted_beys = sorted(
             performance[stadium].items(),
             key=lambda x: (x[1]['winrate'], x[1]['matches']),
             reverse=True
         )
-        
+
         performance[stadium + '_rankings'] = {
             'best_performers': [{'bey': b, **s} for b, s in sorted_beys[:5]] if sorted_beys else [],
             'worst_performers': [{'bey': b, **s} for b, s in sorted_beys[-5:]] if len(sorted_beys) >= 5 else []
         }
-    
+
     return performance
 
 
@@ -270,7 +269,7 @@ def calculate_archetype_effectiveness_per_stadium(matches, rpg_stats):
     """Calculate archetype performance per stadium."""
     if not rpg_stats:
         return {}
-    
+
     # Build bey to archetype mapping
     bey_to_archetype = {}
     for bey, stats in rpg_stats.items():
@@ -280,7 +279,7 @@ def calculate_archetype_effectiveness_per_stadium(matches, rpg_stats):
                 bey_to_archetype[bey] = archetype.get('name', archetype.get('id', 'Unknown'))
             else:
                 bey_to_archetype[bey] = archetype
-    
+
     archetype_stats = defaultdict(lambda: defaultdict(lambda: {
         'matches': 0,
         'wins': 0,
@@ -288,27 +287,27 @@ def calculate_archetype_effectiveness_per_stadium(matches, rpg_stats):
         'points_against': 0,
         'vs_archetype': defaultdict(lambda: {'wins': 0, 'matches': 0})
     }))
-    
+
     for match in matches:
         stadium = match['stadium']
         bey_a = match['bey_a']
         bey_b = match['bey_b']
-        
+
         archetype_a = bey_to_archetype.get(bey_a)
         archetype_b = bey_to_archetype.get(bey_b)
-        
+
         if not archetype_a or not archetype_b:
             continue
-        
+
         # Update archetype stats
         archetype_stats[stadium][archetype_a]['matches'] += 1
         archetype_stats[stadium][archetype_b]['matches'] += 1
-        
+
         archetype_stats[stadium][archetype_a]['points_for'] += match['score_a']
         archetype_stats[stadium][archetype_a]['points_against'] += match['score_b']
         archetype_stats[stadium][archetype_b]['points_for'] += match['score_b']
         archetype_stats[stadium][archetype_b]['points_against'] += match['score_a']
-        
+
         # Track wins and matchup performance
         if match['score_a'] > match['score_b']:
             archetype_stats[stadium][archetype_a]['wins'] += 1
@@ -320,7 +319,7 @@ def calculate_archetype_effectiveness_per_stadium(matches, rpg_stats):
             archetype_stats[stadium][archetype_b]['vs_archetype'][archetype_a]['wins'] += 1
             archetype_stats[stadium][archetype_b]['vs_archetype'][archetype_a]['matches'] += 1
             archetype_stats[stadium][archetype_a]['vs_archetype'][archetype_b]['matches'] += 1
-    
+
     # Calculate derived statistics
     effectiveness = {}
     for stadium, archetypes in archetype_stats.items():
@@ -329,16 +328,18 @@ def calculate_archetype_effectiveness_per_stadium(matches, rpg_stats):
             if stats['matches'] > 0:
                 winrate = stats['wins'] / stats['matches']
                 dominance = stats['points_for'] - stats['points_against']
-                
+
                 # Calculate vs_archetype winrates
                 vs_archetype_winrates = {}
                 for opp_arch, vs_stats in stats['vs_archetype'].items():
                     if vs_stats['matches'] > 0:
+                        winrate_vs = round(
+                            vs_stats['wins'] / vs_stats['matches'], 3)
                         vs_archetype_winrates[opp_arch] = {
-                            'winrate': round(vs_stats['wins'] / vs_stats['matches'], 3),
+                            'winrate': winrate_vs,
                             'matches': vs_stats['matches']
                         }
-                
+
                 effectiveness[stadium][archetype] = {
                     'matches': stats['matches'],
                     'wins': stats['wins'],
@@ -347,7 +348,7 @@ def calculate_archetype_effectiveness_per_stadium(matches, rpg_stats):
                     'total_dominance': dominance,
                     'vs_archetype': vs_archetype_winrates
                 }
-    
+
     return effectiveness
 
 
@@ -355,10 +356,10 @@ def calculate_finish_type_statistics_per_stadium(matches, rounds):
     """Calculate finish type distribution per stadium."""
     if not rounds:
         return {}
-    
+
     # Map match_id to stadium
     match_to_stadium = {m['match_id']: m['stadium'] for m in matches}
-    
+
     finish_stats = defaultdict(lambda: {
         'spin': 0,
         'burst': 0,
@@ -367,17 +368,17 @@ def calculate_finish_type_statistics_per_stadium(matches, rounds):
         'total_rounds': 0,
         'total_points': 0
     })
-    
+
     for round_data in rounds:
         stadium = match_to_stadium.get(round_data['match_id'], 'Xtreme Stadium')
         finish_type = round_data['finish_type']
         points = round_data['points_awarded']
-        
+
         stats = finish_stats[stadium]
         stats[finish_type] = stats.get(finish_type, 0) + 1
         stats['total_rounds'] += 1
         stats['total_points'] += points
-    
+
     # Calculate percentages and averages
     result = {}
     for stadium, stats in finish_stats.items():
@@ -398,7 +399,7 @@ def calculate_finish_type_statistics_per_stadium(matches, rounds):
                 'total_rounds': stats['total_rounds'],
                 'avg_points_per_round': round(stats['total_points'] / stats['total_rounds'], 2)
             }
-    
+
     return result
 
 
@@ -410,17 +411,17 @@ def calculate_elo_behavior_per_stadium(elo_history):
         'upsets': 0,
         'dominant_wins': 0
     })
-    
+
     for entry in elo_history:
         stadium = entry['stadium']
         behavior = elo_behavior[stadium]
-        
+
         elo_change_a = entry['new_elo_a'] - entry['old_elo_a']
         elo_change_b = entry['new_elo_b'] - entry['old_elo_b']
-        
+
         behavior['elo_changes'].append(abs(elo_change_a))
         behavior['elo_changes'].append(abs(elo_change_b))
-        
+
         # Winner
         if entry['score_a'] > entry['score_b']:
             behavior['wins'] += 1
@@ -436,31 +437,37 @@ def calculate_elo_behavior_per_stadium(elo_history):
                 behavior['upsets'] += 1
             if entry['score_a'] == 0 or (entry['score_b'] - entry['score_a']) >= 4:
                 behavior['dominant_wins'] += 1
-    
+
     # Calculate summary statistics
     result = {}
     for stadium, behavior in elo_behavior.items():
         if behavior['elo_changes'] and behavior['wins'] > 0:
+            elo_changes = behavior['elo_changes']
+            stdev = (statistics.stdev(elo_changes)
+                     if len(elo_changes) > 1 else 0)
+
             result[stadium] = {
-                'avg_elo_change': round(statistics.mean(behavior['elo_changes']), 2),
-                'elo_volatility': round(statistics.stdev(behavior['elo_changes']), 2) if len(behavior['elo_changes']) > 1 else 0,
-                'upset_frequency': round(behavior['upsets'] / behavior['wins'] * 100, 1),
-                'dominant_win_frequency': round(behavior['dominant_wins'] / behavior['wins'] * 100, 1),
+                'avg_elo_change': round(statistics.mean(elo_changes), 2),
+                'elo_volatility': round(stdev, 2),
+                'upset_frequency': round(
+                    behavior['upsets'] / behavior['wins'] * 100, 1),
+                'dominant_win_frequency': round(
+                    behavior['dominant_wins'] / behavior['wins'] * 100, 1),
                 'total_matches': behavior['wins']
             }
-    
+
     return result
 
 
 def calculate_comparative_analysis(bey_performance, archetype_effectiveness, finish_stats, elo_behavior):
     """Generate comparative analysis between stadiums."""
     comparisons = []
-    
+
     stadiums = list(bey_performance.keys())
     stadiums = [s for s in stadiums if not s.endswith('_rankings')]
-    
+
     for i, stadium_a in enumerate(stadiums):
-        for stadium_b in stadiums[i+1:]:
+        for stadium_b in stadiums[i + 1:]:
             comparison = {
                 'stadium_a': stadium_a,
                 'stadium_b': stadium_b,
@@ -469,7 +476,7 @@ def calculate_comparative_analysis(bey_performance, archetype_effectiveness, fin
                 'finish_type_shifts': {},
                 'elo_volatility_delta': 0
             }
-            
+
             # Compare bey performance
             for bey in bey_performance[stadium_a]:
                 if bey in bey_performance[stadium_b]:
@@ -478,7 +485,7 @@ def calculate_comparative_analysis(bey_performance, archetype_effectiveness, fin
                     delta = wr_b - wr_a
                     if abs(delta) > 0.05:  # Only significant changes
                         comparison['bey_winrate_deltas'][bey] = round(delta, 3)
-            
+
             # Compare archetype effectiveness
             if stadium_a in archetype_effectiveness and stadium_b in archetype_effectiveness:
                 for archetype in archetype_effectiveness[stadium_a]:
@@ -488,22 +495,22 @@ def calculate_comparative_analysis(bey_performance, archetype_effectiveness, fin
                         delta = wr_b - wr_a
                         if abs(delta) > 0.05:
                             comparison['archetype_shifts'][archetype] = round(delta, 3)
-            
+
             # Compare finish types
             if stadium_a in finish_stats and stadium_b in finish_stats:
                 for finish_type in ['spin', 'burst', 'pocket', 'extreme']:
                     pct_a = finish_stats[stadium_a]['finish_percentages'][finish_type]
                     pct_b = finish_stats[stadium_b]['finish_percentages'][finish_type]
                     comparison['finish_type_shifts'][finish_type] = round(pct_b - pct_a, 1)
-            
+
             # Compare ELO volatility
             if stadium_a in elo_behavior and stadium_b in elo_behavior:
                 vol_a = elo_behavior[stadium_a]['elo_volatility']
                 vol_b = elo_behavior[stadium_b]['elo_volatility']
                 comparison['elo_volatility_delta'] = round(vol_b - vol_a, 2)
-            
+
             comparisons.append(comparison)
-    
+
     return comparisons
 
 
@@ -511,40 +518,40 @@ def generate_stadium_analytics():
     """Main function to generate complete stadium analytics."""
     print(f"{CYAN}{BOLD}=== Stadium Statistics Generator ==={RESET}")
     print(f"{CYAN}Loading data files...{RESET}")
-    
+
     # Load data
     matches = load_matches()
     rounds = load_rounds()
     elo_history = load_elo_history()
     rpg_stats = load_rpg_stats()
-    
+
     if not matches:
         print(f"{RED}Error: No match data found. Aborting.{RESET}")
         return
-    
+
     print(f"{GREEN}Loaded {len(matches)} matches{RESET}")
     print(f"{GREEN}Loaded {len(elo_history)} ELO history entries{RESET}")
     print(f"{GREEN}Loaded {len(rounds)} rounds{RESET}")
-    
+
     # Calculate all analytics
     print(f"{CYAN}Calculating stadium overview...{RESET}")
     overview = calculate_stadium_overview(matches, elo_history)
-    
+
     print(f"{CYAN}Calculating Bey performance per stadium...{RESET}")
     bey_performance = calculate_bey_performance_per_stadium(matches, elo_history)
-    
+
     print(f"{CYAN}Calculating archetype effectiveness per stadium...{RESET}")
     archetype_effectiveness = calculate_archetype_effectiveness_per_stadium(matches, rpg_stats)
-    
+
     print(f"{CYAN}Calculating finish type statistics per stadium...{RESET}")
     finish_stats = calculate_finish_type_statistics_per_stadium(matches, rounds)
-    
+
     print(f"{CYAN}Analyzing ELO behavior per stadium...{RESET}")
     elo_behavior = calculate_elo_behavior_per_stadium(elo_history)
-    
+
     print(f"{CYAN}Generating comparative analysis...{RESET}")
     comparisons = calculate_comparative_analysis(bey_performance, archetype_effectiveness, finish_stats, elo_behavior)
-    
+
     # Combine all results
     analytics = {
         'generated_at': datetime.now().isoformat(),
@@ -555,14 +562,14 @@ def generate_stadium_analytics():
         'elo_behavior': elo_behavior,
         'comparative_analysis': comparisons
     }
-    
+
     # Save to JSON
     print(f"{CYAN}Saving stadium analytics...{RESET}")
     with open(STADIUM_ANALYTICS_JSON, 'w') as f:
         json.dump(analytics, f, indent=2)
-    
+
     print(f"{GREEN}✓ Stadium analytics saved to {STADIUM_ANALYTICS_JSON}{RESET}")
-    
+
     # Print summary
     print(f"\n{BOLD}Stadium Summary:{RESET}")
     for stadium in overview:
