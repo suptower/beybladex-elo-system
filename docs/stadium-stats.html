@@ -175,11 +175,17 @@ let finishChart = null;
 async function loadStadiumData() {
     try {
         const response = await fetch('./data/stadium_analytics.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         stadiumData = await response.json();
         initializeStadiumSelector();
     } catch (error) {
-        console.error('Error loading stadium data:', error);
-        document.getElementById('stadiumButtons').innerHTML = '<div class="error-message">Failed to load stadium data</div>';
+        console.error('Error loading stadium data:', error.message || error);
+        const errorMsg = error.message?.includes('HTTP') 
+            ? `Failed to load stadium data (${error.message})`
+            : 'Failed to load stadium data - file may not exist or contain invalid JSON';
+        document.getElementById('stadiumButtons').innerHTML = `<div class="error-message">${errorMsg}</div>`;
     }
 }
 

@@ -23,10 +23,7 @@ import statistics
 from collections import defaultdict
 from datetime import datetime
 
-# Enable ANSI colors in Windows terminals
-os.system("")
-
-# Colors for terminal output
+# Colors for terminal output (ANSI escape codes work on most modern terminals)
 RESET = "\033[0m"
 GREEN = "\033[32m"
 YELLOW = "\033[33m"
@@ -40,9 +37,6 @@ ROUNDS_CSV = "./docs/data/rounds.csv"
 ELO_HISTORY_CSV = "./docs/data/elo_history.csv"
 RPG_STATS_JSON = "./docs/data/rpg_stats.json"
 STADIUM_ANALYTICS_JSON = "./docs/data/stadium_analytics.json"
-
-# Known stadiums (for validation and defaults)
-KNOWN_STADIUMS = ["Xtreme", "Drop Attack", "DropAttack"]
 
 # Stadium name normalization
 STADIUM_ALIASES = {
