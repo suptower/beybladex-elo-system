@@ -1800,3 +1800,45 @@
         max-width: 100%;
     }
 }
+
+/* ============================================
+   DARK MODE - SELECT ELEMENTS
+   ============================================ */
+/* Fix for select dropdowns in dark mode */
+body.dark select,
+body.dark .control-select,
+body.dark .bey-select,
+body.dark .arena-select,
+body.dark .season-field-select {
+    background-color: var(--bg-alt);
+    color: var(--text);
+    border-color: var(--border);
+    color-scheme: dark;
+}
+
+body.dark select option,
+body.dark .control-select option,
+body.dark .bey-select option,
+body.dark .arena-select option,
+body.dark .season-field-select option {
+    background-color: var(--bg-alt);
+    color: var(--text);
+}
+
+body.dark select:hover,
+body.dark .control-select:hover,
+body.dark .bey-select:hover,
+body.dark .arena-select:hover,
+body.dark .season-field-select:hover {
+    background-color: var(--bg-subtle);
+    border-color: var(--border-dark);
+}
+
+body.dark select:focus,
+body.dark .control-select:focus,
+body.dark .bey-select:focus,
+body.dark .arena-select:focus,
+body.dark .season-field-select:focus {
+    background-color: var(--bg-alt);
+    border-color: var(--accent);
+}
