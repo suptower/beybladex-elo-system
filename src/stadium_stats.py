@@ -49,7 +49,7 @@ STADIUM_ALIASES = {
 
 def normalize_stadium_name(stadium):
     """Normalize stadium name to canonical form."""
-    if not stadium or stadium == "":
+    if not stadium:
         return "Xtreme Stadium"
     return STADIUM_ALIASES.get(stadium, stadium)
 
@@ -370,12 +370,13 @@ def calculate_finish_type_statistics_per_stadium(matches, rounds):
     })
 
     for round_data in rounds:
-        stadium = match_to_stadium.get(round_data['match_id'], 'Xtreme Stadium')
+        stadium = match_to_stadium.get(
+            round_data['match_id'], 'Xtreme Stadium')
         finish_type = round_data['finish_type']
         points = round_data['points_awarded']
 
         stats = finish_stats[stadium]
-        stats[finish_type] = stats.get(finish_type, 0) + 1
+        stats[finish_type] += 1
         stats['total_rounds'] += 1
         stats['total_points'] += points
 

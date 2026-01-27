@@ -318,4 +318,8 @@ class TestStadiumAnalyticsJSON:
 
 
 if __name__ == '__main__':
+    import sys
+    import os.path
+    # Add current directory to path for test discovery
+    sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
     pytest.main([__file__, '-v'])
