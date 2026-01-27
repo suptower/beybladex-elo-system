@@ -291,8 +291,22 @@ async function loadAllData() {
         console.log(`✓ Data load complete: ${allBeys.length} Beyblades, ${allMatches.length} matches`);
     } catch (error) {
         console.error('Error loading data:', error);
-        // Show user-friendly error
-        alert('Error loading data files. Please refresh the page or check your internet connection.');
+        // Show user-friendly error in the page
+        document.body.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                <h2 style="color: #ef4444; margin-bottom: 1rem;">Error Loading Data</h2>
+                <p style="color: #6b7280; margin-bottom: 1rem;">Unable to load the required data files. This might be due to:</p>
+                <ul style="text-align: left; color: #6b7280; max-width: 400px;">
+                    <li>Network connectivity issues</li>
+                    <li>Server unavailability</li>
+                    <li>Browser cache issues</li>
+                </ul>
+                <button onclick="location.reload()" style="margin-top: 2rem; padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1rem;">
+                    Try Again
+                </button>
+            </div>
+        `;
         throw error;
     }
 }
@@ -432,9 +446,8 @@ function calculateHeadToHead(beyA, beyB) {
     console.log(`Total matches available: ${allMatches.length}`);
     
     const h2hMatches = allMatches.filter(match => {
-        const matchesCombination = (match.BeyA === beyA && match.BeyB === beyB) ||
-                                  (match.BeyA === beyB && match.BeyB === beyA);
-        return matchesCombination;
+        return (match.BeyA === beyA && match.BeyB === beyB) ||
+               (match.BeyA === beyB && match.BeyB === beyA);
     });
     
     console.log(`Found ${h2hMatches.length} matches between ${beyA} and ${beyB}`);
