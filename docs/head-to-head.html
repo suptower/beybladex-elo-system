@@ -260,6 +260,7 @@ async function loadAllData() {
         const beysText = await beysRes.text();
         allBeys = parseCSVList(beysText);
         console.log(`Loaded ${allBeys.length} Beyblades`);
+        console.log('Sample Beyblade names:', allBeys.slice(0, 3).map(b => `"${b}"`));
 
         const matchesText = await matchesRes.text();
         allMatches = parseCSV(matchesText);
@@ -329,7 +330,9 @@ function parseCSV(csvText) {
 
 // Parse CSV list (single column)
 function parseCSVList(csvText) {
-    return csvText.trim().split('\n').filter(line => line.trim() && !line.startsWith('Blade'));
+    return csvText.trim().split('\n')
+        .map(line => line.trim())
+        .filter(line => line && !line.startsWith('Blade'));
 }
 
 // Populate Beyblade selectors
