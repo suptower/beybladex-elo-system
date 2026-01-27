@@ -164,6 +164,7 @@ python src/simulation.py -n 16 -f single-elimination --append
 | `beys_data.json` | Beyblade data in JSON format |
 | `seasons.json` | Season metadata and tier assignments |
 | `season_data.json` | Complete season archives with league tables |
+| `stadium_analytics.json` | **NEW:** Stadium-specific statistics and analytics |
 | `leaderboards/` | Per-tournament leaderboard snapshots |
 | `leaderboard_snapshots/` | **NEW:** Per-match historical leaderboard snapshots (leaderboard_0000.csv to leaderboard_NNNN.csv) |
 
@@ -208,6 +209,45 @@ Snapshots are stored as zero-padded CSV files:
 - Deltas (position and ELO changes) are calculated relative to the previous match
 - The snapshot generation is deterministic and reproducible
 - Compatible with existing data formats (no breaking changes)
+
+## Stadium Statistics & Arena Analysis
+
+The system now includes **comprehensive stadium-specific analytics** to analyze how different arenas affect performance, archetypes, finishes, and the competitive meta.
+
+### Features
+
+- **Stadium Overview**: General statistics per stadium including total matches, average scores, match distribution
+- **Bey Performance per Stadium**: Win rates, ELO changes, point differentials for each Bey in each arena
+- **Archetype Effectiveness**: Archetype win rates and matchup performance per stadium
+- **Finish Type Statistics**: Distribution of spin/burst/pocket/extreme finishes per arena
+- **ELO Behavior Analysis**: ELO volatility, upset frequency, dominant win frequency per stadium
+- **Comparative Analysis**: Stadium-to-stadium comparison showing meta shifts
+
+### Data Model
+
+All matches include an `arena` column in `matches.csv`:
+- Currently supported: `Xtreme` (Xtreme Stadium), `Drop Attack` (Drop Attack Beystadium)
+- Default: `Xtreme` for backward compatibility with existing data
+
+### Generated Data
+
+Stadium analytics are generated automatically as part of the update pipeline:
+- `docs/data/stadium_analytics.json` - Complete stadium-specific statistics
+
+### Viewing Stadium Statistics
+
+Visit the **Stadium Stats** page on the website to view:
+- Interactive stadium selector
+- Comprehensive statistics dashboards
+- Visual charts for finish type distribution
+- Top/worst performers per stadium
+- Archetype effectiveness tables
+- Comparative analysis between stadiums
+
+The stadium statistics module runs automatically with:
+```bash
+python update.py
+```
 
 ## Automatic Site Versioning
 
