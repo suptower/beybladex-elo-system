@@ -201,12 +201,12 @@
 </main>
 
 <footer>
-    <p>
-        <a href="https://github.com/suptower/beybladex-elo-system" target="_blank" rel="noopener noreferrer">GitHub Repository</a> | 
-        <span id="version">Loading version...</span>
-    </p>
+    <div class="footer-bottom">
+        <p>© 2026 suptower • Built with 💜 for the Beyblade X community • <span id="site-version">Loading version...</span></p>
+    </div>
 </footer>
 
+<script src="version-display.js"></script>
 <script>
 // Data storage
 let allBeys = [];
@@ -243,6 +243,7 @@ async function init() {
 // Load all required data
 async function loadAllData() {
     try {
+        console.log('Starting data load...');
         const [beysRes, matchesRes, eloRes, roundsRes] = await Promise.all([
             fetch('data/beys.csv'),
             fetch('data/matches.csv'),
@@ -250,14 +251,33 @@ async function loadAllData() {
             fetch('data/matches_with_rounds.json')
         ]);
 
+        // Check response status
+        if (!beysRes.ok) throw new Error(`Failed to load beys.csv: ${beysRes.status}`);
+        if (!matchesRes.ok) throw new Error(`Failed to load matches.csv: ${matchesRes.status}`);
+        if (!eloRes.ok) throw new Error(`Failed to load elo_history.csv: ${eloRes.status}`);
+        if (!roundsRes.ok) throw new Error(`Failed to load matches_with_rounds.json: ${roundsRes.status}`);
+
         const beysText = await beysRes.text();
         allBeys = parseCSVList(beysText);
+        console.log(`Loaded ${allBeys.length} Beyblades`);
+        console.log('Sample Beyblade names:', allBeys.slice(0, 3).map(b => `"${b}"`));
 
         const matchesText = await matchesRes.text();
         allMatches = parseCSV(matchesText);
+        console.log(`Loaded ${allMatches.length} matches`);
+        
+        // Validate matches data structure
+        if (allMatches.length > 0) {
+            const firstMatch = allMatches[0];
+            console.log('First match sample:', firstMatch);
+            if (!firstMatch.BeyA || !firstMatch.BeyB) {
+                console.warn('Warning: Match data may not have BeyA/BeyB fields');
+            }
+        }
 
         const eloText = await eloRes.text();
         eloHistory = parseCSV(eloText);
+        console.log(`Loaded ${eloHistory.length} ELO history entries`);
 
         const roundsJson = await roundsRes.json();
         if (roundsJson.matches) {
@@ -267,10 +287,27 @@ async function loadAllData() {
                 }
             });
         }
+        console.log(`Loaded ${Object.keys(roundsData).length} matches with round data`);
 
-        console.log(`Loaded ${allBeys.length} Beyblades, ${allMatches.length} matches`);
+        console.log(`✓ Data load complete: ${allBeys.length} Beyblades, ${allMatches.length} matches`);
     } catch (error) {
         console.error('Error loading data:', error);
+        // Show user-friendly error in the page
+        document.body.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem; text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                <h2 style="color: #ef4444; margin-bottom: 1rem;">Error Loading Data</h2>
+                <p style="color: #6b7280; margin-bottom: 1rem;">Unable to load the required data files. This might be due to:</p>
+                <ul style="text-align: left; color: #6b7280; max-width: 400px;">
+                    <li>Network connectivity issues</li>
+                    <li>Server unavailability</li>
+                    <li>Browser cache issues</li>
+                </ul>
+                <button onclick="location.reload()" style="margin-top: 2rem; padding: 0.75rem 1.5rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-size: 1rem;">
+                    Try Again
+                </button>
+            </div>
+        `;
         throw error;
     }
 }
@@ -293,7 +330,9 @@ function parseCSV(csvText) {
 
 // Parse CSV list (single column)
 function parseCSVList(csvText) {
-    return csvText.trim().split('\n').filter(line => line.trim() && !line.startsWith('Blade'));
+    return csvText.trim().split('\n')
+        .map(line => line.trim())
+        .filter(line => line && !line.startsWith('Blade'));
 }
 
 // Populate Beyblade selectors
@@ -358,11 +397,14 @@ function updateComparison() {
     const beyA = document.getElementById('beyA').value;
     const beyB = document.getElementById('beyB').value;
     
+    console.log(`Update comparison called: beyA=${beyA}, beyB=${beyB}`);
+    
     const emptyState = document.getElementById('emptyState');
     const noDataState = document.getElementById('noDataState');
     const resultsSection = document.getElementById('resultsSection');
     
     if (!beyA || !beyB) {
+        console.log('One or both Beyblades not selected');
         emptyState.style.display = 'block';
         noDataState.style.display = 'none';
         resultsSection.style.display = 'none';
@@ -371,6 +413,7 @@ function updateComparison() {
     }
     
     if (beyA === beyB) {
+        console.log('Same Beyblade selected for both');
         emptyState.style.display = 'block';
         noDataState.style.display = 'none';
         resultsSection.style.display = 'none';
@@ -384,6 +427,7 @@ function updateComparison() {
     const h2hData = calculateHeadToHead(beyA, beyB);
     
     if (h2hData.matches.length === 0) {
+        console.log('No matches found between selected Beyblades');
         emptyState.style.display = 'none';
         noDataState.style.display = 'block';
         resultsSection.style.display = 'none';
@@ -391,6 +435,7 @@ function updateComparison() {
     }
     
     // Display results
+    console.log(`Displaying ${h2hData.matches.length} matches`);
     emptyState.style.display = 'none';
     noDataState.style.display = 'none';
     resultsSection.style.display = 'block';
@@ -400,10 +445,15 @@ function updateComparison() {
 
 // Calculate head-to-head statistics
 function calculateHeadToHead(beyA, beyB) {
+    console.log(`Calculating H2H for ${beyA} vs ${beyB}`);
+    console.log(`Total matches available: ${allMatches.length}`);
+    
     const h2hMatches = allMatches.filter(match => {
         return (match.BeyA === beyA && match.BeyB === beyB) ||
                (match.BeyA === beyB && match.BeyB === beyA);
     });
+    
+    console.log(`Found ${h2hMatches.length} matches between ${beyA} and ${beyB}`);
     
     let winsA = 0;
     let winsB = 0;
