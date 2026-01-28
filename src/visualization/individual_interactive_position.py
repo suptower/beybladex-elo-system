@@ -85,9 +85,66 @@ def get_match_details(bey, date, df_hist, df_matches):
     return opponent, score, result
 
 
+def create_plot_x_values(df_bey):
+    """
+    Create fractional x-axis positions for plotting.
+    
+    Active matches (when MatchIndex changes) use integer values.
+    Passive changes (same MatchIndex) are distributed evenly between integers.
+    
+    Example: If there are 3 events at MatchIndex=1 before MatchIndex=2:
+    - First event (active match): x=1.0
+    - Next 2 events (passive): x=1.33, x=1.67
+    - Next event (MatchIndex=2, active): x=2.0
+    """
+    df = df_bey.copy()
+    df = df.sort_values("Event").reset_index(drop=True)
+    df["PlotX"] = 0.0
+    
+    prev_mi = None
+    buffer = []  # List of (match_index, row_index) tuples for passive changes
+    
+    def flush_buffer(mi):
+        """Distribute buffered passive changes evenly between mi and mi+1"""
+        n = len(buffer)
+        if n == 0:
+            return
+        # Distribute evenly: mi + 1/(n+1), mi + 2/(n+1), etc.
+        step = 1.0 / (n + 1)
+        for i, (base_mi, row_idx) in enumerate(buffer, start=1):
+            df.loc[row_idx, "PlotX"] = base_mi + i * step
+    
+    for row_idx, row in df.iterrows():
+        mi = row["MatchIndex"]
+        
+        if prev_mi is None:
+            # First point - set directly
+            df.loc[row_idx, "PlotX"] = mi
+            prev_mi = mi
+            continue
+        
+        if mi == prev_mi:
+            # Passive event - buffer it
+            buffer.append((mi, row_idx))
+        else:
+            # MatchIndex changed - flush buffer and set new point
+            flush_buffer(prev_mi)
+            buffer = []
+            df.loc[row_idx, "PlotX"] = mi
+            prev_mi = mi
+    
+    # Flush any remaining buffered events
+    flush_buffer(prev_mi)
+    
+    return df.sort_values("PlotX").reset_index(drop=True)
+
+
 def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
     """Create an interactive Plotly chart for a single Beyblade's position history"""
     template = "plotly_dark" if dark_mode else "plotly_white"
+
+    # Create fractional x-axis positions for smooth plotting of passive changes
+    df_bey = create_plot_x_values(df_bey)
 
     # Get colors based on theme
     text_color = get_text_color(dark_mode)
@@ -105,8 +162,6 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
     # Prepare hover text with match details
     hover_texts = []
     for idx, row in df_bey.iterrows():
-        opponent, score, result = get_match_details(bey, row['Date'], df_hist, df_matches)
-
         # Calculate position change
         if idx > df_bey.index[0]:
             prev_position = df_bey.loc[df_bey.index[df_bey.index.get_loc(idx) - 1], "Position"]
@@ -121,23 +176,39 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         else:
             position_change_str = "N/A"
 
-        hover_text = (
-            f"<b>{bey}</b><br>"
-            f"Date: {row['Date']}<br>"
-            f"Match: #{int(row['MatchIndex'])}<br>"
-            f"Position: {int(row['Position'])} ({position_change_str})<br>"
-            f"Opponent: {opponent}<br>"
-            f"Score: {score}<br>"
-            f"Result: {result}"
-        )
+        # Check if this was an active match or passive position change
+        played = row.get('Played', 1)  # Default to 1 if field doesn't exist
+        
+        if played == 1:
+            # Active match - get opponent and result
+            opponent, score, result = get_match_details(bey, row['Date'], df_hist, df_matches)
+            hover_text = (
+                f"<b>{bey}</b><br>"
+                f"Date: {row['Date']}<br>"
+                f"Match: #{int(row['MatchIndex'])}<br>"
+                f"Position: {int(row['Position'])} ({position_change_str})<br>"
+                f"Opponent: {opponent}<br>"
+                f"Score: {score}<br>"
+                f"Result: {result}"
+            )
+        else:
+            # Passive position change (didn't play)
+            hover_text = (
+                f"<b>{bey}</b><br>"
+                f"Date: {row['Date']}<br>"
+                f"Match: #{int(row['MatchIndex'])}<br>"
+                f"Position: {int(row['Position'])} ({position_change_str})<br>"
+                f"<i>Passive change (didn't play)</i>"
+            )
+        
         hover_texts.append(hover_text)
 
     # Create figure
     fig = go.Figure()
 
-    # Main position line
+    # Main position line - use PlotX for x-axis to show passive changes
     fig.add_trace(go.Scatter(
-        x=df_bey["MatchIndex"],
+        x=df_bey["PlotX"],
         y=df_bey["Position"],
         mode='lines+markers',
         name='Position History',
@@ -150,7 +221,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
 
     # Add average line
     fig.add_trace(go.Scatter(
-        x=[df_bey["MatchIndex"].min(), df_bey["MatchIndex"].max()],
+        x=[df_bey["PlotX"].min(), df_bey["PlotX"].max()],
         y=[avg_position, avg_position],
         mode='lines',
         name=f'Average: {avg_position:.1f}',
@@ -160,7 +231,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
 
     # Add median line
     fig.add_trace(go.Scatter(
-        x=[df_bey["MatchIndex"].min(), df_bey["MatchIndex"].max()],
+        x=[df_bey["PlotX"].min(), df_bey["PlotX"].max()],
         y=[median_position, median_position],
         mode='lines',
         name=f'Median: {median_position:.1f}',
@@ -172,7 +243,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
     if best_position != worst_position:
         # Best position marker (lowest rank number)
         fig.add_trace(go.Scatter(
-            x=[df_bey.loc[best_idx, "MatchIndex"]],
+            x=[df_bey.loc[best_idx, "PlotX"]],
             y=[best_position],
             mode='markers',
             name=f'Best: {int(best_position)}',
@@ -182,7 +253,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
 
         # Worst position marker (highest rank number)
         fig.add_trace(go.Scatter(
-            x=[df_bey.loc[worst_idx, "MatchIndex"]],
+            x=[df_bey.loc[worst_idx, "PlotX"]],
             y=[worst_position],
             mode='markers',
             name=f'Worst: {int(worst_position)}',
@@ -248,9 +319,9 @@ def generate_all_individual_plots():
     print("Loading data...")
     df_pos, df_hist, df_matches = load_data()
 
-    # Filter to only include active matches (Played == 1)
-    df_pos = df_pos[df_pos["Played"] == 1].copy()
-
+    # Include all position changes (both active matches and passive changes)
+    # Note: Passive changes occur when other Beyblades play and affect rankings
+    
     beyblades = df_pos['Bey'].unique()
     total = len(beyblades)
 
