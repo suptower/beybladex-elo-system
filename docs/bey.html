@@ -160,8 +160,10 @@
             <!-- Position History Section (collapsible, hidden by default) -->
             <details class="profile-section-details" id="positionPlotSection" style="display: none;">
                 <summary class="section-summary">📊 Position History</summary>
-                <div class="profile-plot-container">
-                    <img id="positionPlot" src="" alt="Position History" class="profile-plot">
+                <div class="profile-plot-container" id="positionPlotContainer">
+                    <!-- Interactive plot will be embedded here, or fallback to static image -->
+                    <iframe id="positionPlotFrame" src="" style="width: 100%; height: 550px; border: none; display: none;"></iframe>
+                    <img id="positionPlot" src="" alt="Position History" class="profile-plot" style="display: none;">
                 </div>
             </details>
             
@@ -1257,12 +1259,71 @@ function loadStaticEloPlot(bladeName, isDark) {
 // Try to load Position plot
 function loadPositionPlot() {
     const plotSection = document.getElementById('positionPlotSection');
+    const plotFrame = document.getElementById('positionPlotFrame');
     const plotImg = document.getElementById('positionPlot');
     
     const bladeName = getBladeName();
+    const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
     
     // Check for dark mode
     const isDark = document.body.classList.contains('dark');
+    
+    // Detect mobile devices
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    
+    // Use static PNG for mobile devices
+    if (isMobile) {
+        loadStaticPositionPlot(bladeName, isDark);
+        return;
+    }
+    
+    // Try interactive plot first on desktop
+    // Add timestamp-based cache-busting to ensure latest version is always loaded
+    const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
+    const interactivePath = isDark 
+        ? `./plots/positions/interactive/dark/${safeName}_dark.html${cacheBuster}`
+        : `./plots/positions/interactive/${safeName}.html${cacheBuster}`;
+    
+    // Check if interactive plot exists
+    fetch(interactivePath, { method: 'HEAD' })
+        .then(response => {
+            if (response.ok) {
+                // Interactive plot exists, use it
+                plotFrame.src = interactivePath;
+                plotFrame.style.display = 'block';
+                plotImg.style.display = 'none';
+                plotSection.style.display = 'block';
+                
+                // Force Plotly to resize/reload on initial load - only once
+                // This ensures proper rendering similar to when dark mode toggles
+                let hasReloaded = false;
+                plotFrame.onload = function() {
+                    if (!hasReloaded) {
+                        hasReloaded = true;
+                        setTimeout(function() {
+                            const currentSrc = plotFrame.src;
+                            plotFrame.src = '';
+                            plotFrame.src = currentSrc;
+                        }, 100);
+                    }
+                };
+            } else {
+                // Fallback to static PNG
+                loadStaticPositionPlot(bladeName, isDark);
+            }
+        })
+        .catch(() => {
+            // Fallback to static PNG on error
+            loadStaticPositionPlot(bladeName, isDark);
+        });
+}
+
+// Load static Position plot
+function loadStaticPositionPlot(bladeName, isDark) {
+    const plotSection = document.getElementById('positionPlotSection');
+    const plotFrame = document.getElementById('positionPlotFrame');
+    const plotImg = document.getElementById('positionPlot');
+    
     const basePath = isDark ? './plots/positions/dark/' : './plots/positions/';
     const filename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
     
@@ -1275,6 +1336,8 @@ function loadPositionPlot() {
     };
     
     plotImg.onload = () => {
+        plotFrame.style.display = 'none';
+        plotImg.style.display = 'block';
         plotSection.style.display = 'block';
     };
 }
@@ -1283,6 +1346,7 @@ function loadPositionPlot() {
 function setupPlotDarkModeObserver() {
     const eloPlotFrame = document.getElementById('eloPlotFrame');
     const eloPlot = document.getElementById('eloPlot');
+    const positionPlotFrame = document.getElementById('positionPlotFrame');
     const positionPlot = document.getElementById('positionPlot');
     const bladeName = getBladeName();
     
@@ -1305,8 +1369,17 @@ function setupPlotDarkModeObserver() {
             eloPlot.src = eloBasePath + eloFilename;
         }
         
-        // Update Position plot (static only for now)
-        if (positionPlot && positionPlot.src) {
+        // Update Position plot (check if using interactive or static)
+        if (positionPlotFrame && positionPlotFrame.style.display !== 'none' && positionPlotFrame.src) {
+            // Interactive plot is displayed, reload with correct theme
+            const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
+            const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
+            const interactivePath = isDark 
+                ? `./plots/positions/interactive/dark/${safeName}_dark.html${cacheBuster}`
+                : `./plots/positions/interactive/${safeName}.html${cacheBuster}`;
+            positionPlotFrame.src = interactivePath;
+        } else if (positionPlot && positionPlot.style.display !== 'none' && positionPlot.src) {
+            // Static plot is displayed
             const posBasePath = isDark ? './plots/positions/dark/' : './plots/positions/';
             const posFilename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
             positionPlot.src = posBasePath + posFilename;

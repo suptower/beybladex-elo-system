@@ -706,6 +706,18 @@ def generate_all_plots(mode):
     else:
         print("Individual interactive ELO plots generated successfully.")
 
+    # Individual Interactive Position Plots
+    result = subprocess.run(
+        ["python", "src/visualization/individual_interactive_position.py"],
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print("Error running individual_interactive_position.py:")
+        print(result.stderr)
+    else:
+        print("Individual interactive position plots generated successfully.")
+
     print(f"All plots saved to: {files['outdir']}")
 
 
