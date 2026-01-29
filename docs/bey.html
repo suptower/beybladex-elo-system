@@ -978,6 +978,17 @@ function renderStats() {
         statsGrid.innerHTML = '<p class="no-data">No statistics available for this bey.</p>';
         return;
     }
+
+    const winrateVal = leaderboardData.Winrate.slice(-1) === '%' ? 
+        Math.round(parseFloat(leaderboardData.Winrate.slice(0, -1))) : 
+        Math.round(parseFloat(leaderboardData.Winrate));
+    const winrate = '' + winrateVal + '%';
+    
+    // restrict trend to 2 decimal points
+    const trend = Math.round(leaderboardData.ELOTrend)
+
+    // restrict pointdiff to three digits
+    const pointdiff = Math.round(leaderboardData.AvgPointDiff * 10) / 10;
     
     // Define stats to display (ELO and Power Index are shown in key stats section)
     const stats = [
@@ -985,11 +996,11 @@ function renderStats() {
         { label: 'Matches', value: leaderboardData.Matches || leaderboardData.Spiele, icon: '🎮' },
         { label: 'Wins', value: leaderboardData.Wins || leaderboardData.Siege, icon: '✅' },
         { label: 'Losses', value: leaderboardData.Losses || leaderboardData.Niederlagen, icon: '❌' },
-        { label: 'Winrate', value: leaderboardData.Winrate, icon: '📈', highlight: 'winrate' },
+        { label: 'Winrate', value: winrate, icon: '📈', highlight: 'winrate' },
         { label: 'Points For', value: leaderboardData.PointsFor || leaderboardData['Gewonnene Punkte'], icon: '⬆️' },
         { label: 'Points Against', value: leaderboardData.PointsAgainst || leaderboardData['Verlorene Punkte'], icon: '⬇️' },
-        { label: 'Point Diff', value: leaderboardData.AvgPointDiff || leaderboardData.Differenz, icon: '📉', highlight: 'pointdiff' },
-        { label: 'ELO Trend', value: leaderboardData.ELOTrend, icon: '📈', highlight: 'trend' }
+        { label: 'Point Diff', value: pointdiff, icon: '📉', highlight: 'pointdiff' },
+        { label: 'ELO Trend', value: trend, icon: '📈', highlight: 'trend' }
     ];
     
     stats.forEach(stat => {
