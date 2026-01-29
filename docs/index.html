@@ -816,14 +816,25 @@ async function loadFeaturedBey() {
         const advanced = parseCSV(advancedText);
         
         // Get deterministic daily random Bey
-        const beyIndex = getDailyBeyIndex(leaderboard.length);
-        const bey = leaderboard[beyIndex];
+        let index_length = leaderboard.length
+        let beyIndex = getDailyBeyIndex(index_length);
+        let bey = leaderboard[beyIndex];
         
         // Find corresponding data from other sources
-        const rpgData = rpgStats.find(b => b.Bey === bey.Name);
+        let rpgData = rpgStats.find(b => b.Bey === bey.Name);
+        while (!rpgData) {
+            // If no RPG data found, pick the next Bey in the list
+            console.log("Found bey without data: " + bey.Name + ", picking another one.");
+            index_length -= 1;
+            beyIndex = getDailyBeyIndex(index_length);
+            bey = leaderboard[beyIndex];
+            rpgData = rpgStats.find(b => b.Bey === bey.Name);
+        }
+        
         const advancedData = advanced.find(b => b.Bey === bey.Name);
         
         const container = document.getElementById('featuredBeyContainer');
+
         
         if (!rpgData) {
             container.innerHTML = '<p class="error-text">Failed to load featured Bey data</p>';
