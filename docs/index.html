@@ -830,6 +830,7 @@ async function loadFeaturedBey() {
             bey = leaderboard[beyIndex];
             rpgData = rpgStats.find(b => b.Bey === bey.Name);
         }
+        
         const advancedData = advanced.find(b => b.Bey === bey.Name);
         
         const container = document.getElementById('featuredBeyContainer');
