@@ -88,10 +88,10 @@ def get_match_details(bey, date, df_hist, df_matches):
 def create_plot_x_values(df_bey):
     """
     Create fractional x-axis positions for plotting.
-    
+
     Active matches (when MatchIndex changes) use integer values.
     Passive changes (same MatchIndex) are distributed evenly between integers.
-    
+
     Example: If there are 3 events at MatchIndex=1 before MatchIndex=2:
     - First event (active match): x=1.0
     - Next 2 events (passive): x=1.33, x=1.67
@@ -100,10 +100,10 @@ def create_plot_x_values(df_bey):
     df = df_bey.copy()
     df = df.sort_values("Event").reset_index(drop=True)
     df["PlotX"] = 0.0
-    
+
     prev_mi = None
     buffer = []  # List of (match_index, row_index) tuples for passive changes
-    
+
     def flush_buffer(mi):
         """Distribute buffered passive changes evenly between mi and mi+1"""
         n = len(buffer)
@@ -113,16 +113,16 @@ def create_plot_x_values(df_bey):
         step = 1.0 / (n + 1)
         for i, (base_mi, row_idx) in enumerate(buffer, start=1):
             df.loc[row_idx, "PlotX"] = base_mi + i * step
-    
+
     for row_idx, row in df.iterrows():
         mi = row["MatchIndex"]
-        
+
         if prev_mi is None:
             # First point - set directly
             df.loc[row_idx, "PlotX"] = mi
             prev_mi = mi
             continue
-        
+
         if mi == prev_mi:
             # Passive event - buffer it
             buffer.append((mi, row_idx))
@@ -132,10 +132,10 @@ def create_plot_x_values(df_bey):
             buffer = []
             df.loc[row_idx, "PlotX"] = mi
             prev_mi = mi
-    
+
     # Flush any remaining buffered events
     flush_buffer(prev_mi)
-    
+
     return df.sort_values("PlotX").reset_index(drop=True)
 
 
@@ -178,7 +178,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
 
         # Check if this was an active match or passive position change
         played = row.get('Played', 1)  # Default to 1 if field doesn't exist
-        
+
         if played == 1:
             # Active match - get opponent and result
             opponent, score, result = get_match_details(bey, row['Date'], df_hist, df_matches)
@@ -200,7 +200,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
                 f"Position: {int(row['Position'])} ({position_change_str})<br>"
                 f"<i>Passive change (didn't play)</i>"
             )
-        
+
         hover_texts.append(hover_text)
 
     # Create figure
@@ -321,7 +321,7 @@ def generate_all_individual_plots():
 
     # Include all position changes (both active matches and passive changes)
     # Note: Passive changes occur when other Beyblades play and affect rankings
-    
+
     beyblades = df_pos['Bey'].unique()
     total = len(beyblades)
 
