@@ -185,6 +185,26 @@
         </div>
     </section>
 
+    <!-- Season Tier Leaderboard Panel -->
+    <section class="season-tier-leaderboard-panel collapsed" id="seasonTierLeaderboardPanel">
+        <div class="leaderboard-header" id="seasonLeaderboardHeader">
+            <span class="leaderboard-title">🏅 Live Season Tier Preview</span>
+            <span class="leaderboard-subtitle">Preview only – Final standings calculated after pipeline run</span>
+            <button class="leaderboard-toggle" id="seasonLeaderboardToggleBtn">▼</button>
+        </div>
+        <div class="leaderboard-content" id="seasonLeaderboardContent">
+            <div class="season-disclaimer">
+                ⚠️ This is a live preview using simplified rules and does not replace official Python calculations.
+            </div>
+            <div id="seasonTiersContainer">
+                <!-- Tier leaderboards will be generated here -->
+                <div class="empty-state-message">
+                    Enter season matches to see live tier standings!
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Keyboard Shortcuts Legend -->
     <section class="shortcuts-legend collapsed" id="shortcutsLegend">
         <div class="shortcuts-header" id="shortcutsHeader">
