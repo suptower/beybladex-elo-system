@@ -79,6 +79,30 @@ WIN_THRESHOLD = 4
 MAX_POINT_DIFF = 6
 OVERKILL_WEIGHT = 0.25
 
+# Arena constants
+ARENA_XTREME = "Xtreme"
+ARENA_DROP_ATTACK = "Drop Attack"
+SUPPORTED_ARENAS = [ARENA_XTREME, ARENA_DROP_ATTACK]
+
+# ------------ Arena normalization ------------
+
+
+def normalize_arena_name(arena):
+    """Normalize arena name to canonical form."""
+    if not arena:
+        return ARENA_XTREME
+    # Map common variations to canonical names
+    arena_map = {
+        "xtreme": ARENA_XTREME,
+        "Xtreme": ARENA_XTREME,
+        "drop attack": ARENA_DROP_ATTACK,
+        "Drop Attack": ARENA_DROP_ATTACK,
+        "DropAttack": ARENA_DROP_ATTACK,
+        "drop_attack": ARENA_DROP_ATTACK
+    }
+    return arena_map.get(arena, arena)
+
+
 # ------------ K-factor rules ------------
 
 
@@ -133,12 +157,53 @@ def calculate_score_with_dominance(sa, sb):
 # ------------- Elo update for ONE MATCH -------------
 
 
-def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, arena=None):
-    ra, rb = elos[a], elos[b]
+def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, arena=None, match_type=None,
+               arena_elos=None, arena_stats=None):
+    """
+    Update ELO ratings for a match.
+    
+    Args:
+        a, b: Bey names
+        sa, sb: Scores
+        date: Match date
+        elos: Dict of current ELO ratings (global/Xtreme)
+        stats: Dict of global stats
+        writer: CSV writer for history
+        match_id: Match identifier
+        arena: Arena name (defaults to Xtreme)
+        match_type: Type of match (exhibition, season, etc.)
+        arena_elos: Dict of arena-specific ELO ratings (arena -> bey -> elo)
+        arena_stats: Dict of arena-specific stats (arena -> bey -> stats)
+    
+    Logic:
+        - Season matches: Always update Xtreme ELO only
+        - Exhibition matches: Update arena-specific ELO only
+    """
+    # Normalize arena name
+    arena = normalize_arena_name(arena)
+    match_type = match_type or 'exhibition'
+    
+    # Determine which arena's ELO to update
+    # Season matches always use Xtreme ELO regardless of actual arena
+    if match_type == 'season' or match_type == 'relegation' or match_type == 'season_cup':
+        elo_arena = ARENA_XTREME
+    else:
+        elo_arena = arena
+    
+    # Get the appropriate ELO dict and stats dict
+    if arena_elos is not None and elo_arena in arena_elos:
+        active_elos = arena_elos[elo_arena]
+        active_stats = arena_stats[elo_arena] if arena_stats else stats
+    else:
+        # Fallback to global (for backward compatibility)
+        active_elos = elos
+        active_stats = stats
+    
+    ra, rb = active_elos[a], active_elos[b]
     ea, eb = expected(ra, rb), expected(rb, ra)
 
-    Ka = dynamic_k(stats[a]["matches"])
-    Kb = dynamic_k(stats[b]["matches"])
+    Ka = dynamic_k(active_stats[a]["matches"])
+    Kb = dynamic_k(active_stats[b]["matches"])
 
     total = sa + sb
     if total == 0:
@@ -149,29 +214,33 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
 
     new_a = ra + Ka * (s_a - ea)
     new_b = rb + Kb * (s_b - eb)
-    elos[a], elos[b] = new_a, new_b
+    active_elos[a], active_elos[b] = new_a, new_b
 
-    # Nur schreiben, wenn writer vorhanden
+    # Also update global elos if this is Xtreme arena (for backward compatibility)
+    if elo_arena == ARENA_XTREME and arena_elos is not None:
+        elos[a], elos[b] = new_a, new_b
+
+    # Write to history file
     if writer is not None:
         writer.writerow([
             match_id, date, a, b, sa, sb,
             round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2),
-            arena or 'Xtreme'
+            arena, elo_arena  # Add which arena's ELO was updated
         ])
 
-    stats[a]["for"] += sa
-    stats[a]["against"] += sb
-    stats[b]["for"] += sb
-    stats[b]["against"] += sa
-    stats[a]["matches"] += 1
-    stats[b]["matches"] += 1
+    active_stats[a]["for"] += sa
+    active_stats[a]["against"] += sb
+    active_stats[b]["for"] += sb
+    active_stats[b]["against"] += sa
+    active_stats[a]["matches"] += 1
+    active_stats[b]["matches"] += 1
 
     if sa > sb:
-        stats[a]["wins"] += 1
-        stats[b]["losses"] += 1
+        active_stats[a]["wins"] += 1
+        active_stats[b]["losses"] += 1
     else:
-        stats[b]["wins"] += 1
-        stats[a]["losses"] += 1
+        active_stats[b]["wins"] += 1
+        active_stats[a]["losses"] += 1
 
 # ------------- Calculate winrates -------------
 
@@ -340,9 +409,18 @@ def run_elo_pipeline(pipeline_config):
     print(f"{BOLD}{CYAN}Running ELO Pipeline — Mode: {pipeline_mode}{RESET}")
     print(f"{YELLOW}Reading matches from {input_file}...{RESET}")
 
-    # Initialize ELO + stats
+    # Initialize ELO + stats (global - for backward compatibility, represents Xtreme)
     elos = defaultdict(lambda: START_ELO)
     stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+    
+    # Initialize arena-specific ELO + stats
+    arena_elos = {}
+    arena_stats = {}
+    for arena in SUPPORTED_ARENAS:
+        arena_elos[arena] = defaultdict(lambda: START_ELO)
+        arena_stats[arena] = defaultdict(
+            lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0}
+        )
 
     # Load all beys from beys_data.json to include beys without matches
     all_bey_blades = set()
@@ -357,6 +435,9 @@ def run_elo_pipeline(pipeline_config):
                         all_bey_blades.add(blade_name)
                         # Initialize in elos dict by accessing it (triggers defaultdict)
                         _ = elos[blade_name]
+                        # Initialize in all arena dicts
+                        for arena in SUPPORTED_ARENAS:
+                            _ = arena_elos[arena][blade_name]
             print(f"{GREEN}Loaded {len(all_bey_blades)} beys from registry{RESET}")
         except FileNotFoundError:
             print(f"{YELLOW}Warning: beys_data.json not found at {beys_data_path}{RESET}")
@@ -370,6 +451,9 @@ def run_elo_pipeline(pipeline_config):
         print(f"{CYAN}Loading starting ELOs from official leaderboard...{RESET}")
         for bey, elo in pipeline_start_elos.items():
             elos[bey] = elo
+            # Copy starting ELOs to all arenas
+            for arena in SUPPORTED_ARENAS:
+                arena_elos[arena][bey] = elo
 
     # --- Full history CSV ---
     with open(input_file, newline="", encoding="utf-8") as f_in, \
@@ -379,7 +463,7 @@ def run_elo_pipeline(pipeline_config):
         writer = csv.writer(f_hist)
         writer.writerow([
             "MatchID", "Date", "BeyA", "BeyB", "ScoreA", "ScoreB",
-            "PreA", "PreB", "PostA", "PostB", "arena"
+            "PreA", "PreB", "PostA", "PostB", "arena", "elo_arena_updated"
         ])
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
@@ -394,10 +478,16 @@ def run_elo_pipeline(pipeline_config):
                 int(m["ScoreA"]), int(m["ScoreB"]),
                 m["Date"], elos, stats, writer,
                 m.get("MatchID", ""),
-                m.get("arena", "Xtreme")
+                m.get("arena", "Xtreme"),
+                m.get("MatchType", "exhibition"),
+                arena_elos,
+                arena_stats
             )
 
+        # Calculate winrates for global and all arenas
         calculate_winrates(stats)
+        for arena in SUPPORTED_ARENAS:
+            calculate_winrates(arena_stats[arena])
 
     # --- Turnier-basierte Leaderboards mit Positionsdelta ---
     print(f"{CYAN}Computing tournament deltas and saving per-turnier CSVs...{RESET}")
@@ -547,6 +637,63 @@ def run_elo_pipeline(pipeline_config):
         print(f"{YELLOW}Warning: Round data file not found at {rounds_json_path}{RESET}")
 
     print(f"{GREEN}Aktuelles Leaderboard geschrieben: {leaderboard_file}{RESET}")
+    
+    # --- Generate Arena-Specific Leaderboards ---
+    print(f"{CYAN}Generating arena-specific leaderboards...{RESET}")
+    for arena in SUPPORTED_ARENAS:
+        arena_file_name = arena.lower().replace(" ", "_")
+        arena_leaderboard_file = f"./docs/data/leaderboard_{arena_file_name}.csv"
+        
+        # Sort by arena-specific ELO
+        arena_sorted_beys = sorted(arena_elos[arena].items(), key=lambda x: x[1], reverse=True)
+        arena_rows = []
+        
+        for pos, (bey, arena_elo) in enumerate(arena_sorted_beys, start=1):
+            s = arena_stats[arena][bey]
+            arena_rows.append({
+                "Platz": pos,
+                "Name": bey,
+                "ELO": round(arena_elo),
+                "Spiele": s["matches"],
+                "Siege": s["wins"],
+                "Niederlagen": s["losses"],
+                "Winrate": f"{round(s['winrate'] * 100, 1)}%" if s["matches"] > 0 else "0.0%",
+                "Gewonnene Punkte": s["for"],
+                "Verlorene Punkte": s["against"],
+                "Differenz": s["for"] - s["against"]
+            })
+        
+        pd.DataFrame(arena_rows).to_csv(arena_leaderboard_file, index=False)
+        print(f"{GREEN}  {arena} leaderboard written: {arena_leaderboard_file}{RESET}")
+    
+    # --- Generate Combined Leaderboard with All Arena ELOs ---
+    print(f"{CYAN}Generating combined leaderboard with all arena ELOs...{RESET}")
+    combined_leaderboard_file = "./docs/data/leaderboard_all_arenas.csv"
+    
+    # Use Xtreme ELO for primary sorting (global/season ELO)
+    xtreme_sorted_beys = sorted(arena_elos[ARENA_XTREME].items(), key=lambda x: x[1], reverse=True)
+    combined_rows = []
+    
+    for pos, (bey, xtreme_elo) in enumerate(xtreme_sorted_beys, start=1):
+        row = {
+            "Platz": pos,
+            "Name": bey,
+            "ELO_Global": round(xtreme_elo),  # Xtreme is the global/season ELO
+        }
+        
+        # Add per-arena ELOs and stats
+        for arena in SUPPORTED_ARENAS:
+            arena_col_name = arena.replace(" ", "")
+            s = arena_stats[arena][bey]
+            row[f"ELO_{arena_col_name}"] = round(arena_elos[arena][bey])
+            row[f"Matches_{arena_col_name}"] = s["matches"]
+            row[f"Wins_{arena_col_name}"] = s["wins"]
+            row[f"Winrate_{arena_col_name}"] = f"{round(s['winrate'] * 100, 1)}%" if s["matches"] > 0 else "0.0%"
+        
+        combined_rows.append(row)
+    
+    pd.DataFrame(combined_rows).to_csv(combined_leaderboard_file, index=False)
+    print(f"{GREEN}Combined arena leaderboard written: {combined_leaderboard_file}{RESET}")
 
     # --- Time series ---
     df_hist = pd.read_csv(history_file, parse_dates=["Date"]).reset_index(drop=True)
