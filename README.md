@@ -249,6 +249,82 @@ The stadium statistics module runs automatically with:
 python update.py
 ```
 
+## Arena-Specific ELO Ratings
+
+The system supports **arena-specific ELO ratings** to evaluate Bey performance independently per stadium. This feature allows tracking of how Beys perform in different competitive environments while maintaining the integrity of seasonal rankings.
+
+### Overview
+
+Each Bey maintains multiple parallel ELO ratings:
+- **Global/Season ELO** (Xtreme Stadium) - Used for competitive season rankings
+- **Arena-Specific ELOs** - Independent ratings per stadium type
+
+### Key Features
+
+- **Separate ELO per Arena**: Each Bey has independent ELO ratings for Xtreme Stadium and Drop Attack Beystadium
+- **Season Match Integrity**: All season/competitive matches update Xtreme ELO only, regardless of arena played
+- **Exhibition Match Flexibility**: Non-season matches update the arena-specific ELO where they were played
+- **Backward Compatibility**: Existing matches without arena info are treated as Xtreme Stadium
+
+### ELO Update Rules
+
+#### Exhibition / Non-Season Matches
+- Update **only the ELO of the arena used**
+- Example: Match in Drop Attack → Update `elo_drop_attack` only
+- Xtreme ELO remains unchanged
+
+#### Season / Competitive Matches
+- Always use and update **Xtreme ELO only**
+- Even if the match was played in another arena
+- Ensures season integrity, stable promotion/relegation logic, and historical consistency
+- Applies to: `season`, `relegation`, and `season_cup` match types
+
+### Data Files
+
+The system generates separate leaderboards:
+- `leaderboard.csv` - Default (Xtreme Stadium / Season ELO)
+- `leaderboard_xtreme.csv` - Xtreme Stadium specific rankings
+- `leaderboard_drop_attack.csv` - Drop Attack Beystadium specific rankings
+- `leaderboard_all_arenas.csv` - Combined view with all arena ELOs
+
+### UI Integration
+
+**Leaderboard Page:**
+- Arena selector dropdown to switch between stadiums
+- Default view shows Xtreme Stadium (Season/Global ELO)
+- Combined view shows ELO and stats for all arenas side-by-side
+
+**Quick Entry:**
+- Mandatory arena selector when creating new matches
+- Automatically applies arena setting to all matches in a tournament
+- Defaults to Xtreme Stadium for backward compatibility
+
+### Match Data Format
+
+The `arena` field in `matches.csv`:
+```csv
+MatchID,Date,BeyA,BeyB,ScoreA,ScoreB,MatchType,SeasonID,Tier,Matchday,arena
+M0001,2025-01-30,BeyA,BeyB,4,2,exhibition,,,,Xtreme
+M0002,2025-01-30,BeyC,BeyD,4,1,season,S1,1,1,Xtreme
+M0003,2025-01-30,BeyE,BeyF,3,4,exhibition,,,,Drop Attack
+```
+
+### Implementation Details
+
+Arena-specific ELO tracking is implemented in `src/beyblade_elo.py`:
+- `normalize_arena_name()` - Ensures consistent arena naming
+- `update_elo()` - Handles arena-specific and match-type-based ELO updates
+- Independent stats tracking per arena (wins, losses, matches, points)
+
+### Testing
+
+Comprehensive unit tests in `tests/test_beyblade_elo.py`:
+- Arena name normalization
+- Exhibition match updates correct arena ELO
+- Season matches always update Xtreme ELO
+- Independent ratings across arenas
+- Relegation and season cup match handling
+
 ## Automatic Site Versioning
 
 The website displays an automatic version number in the footer of every page, based on Git commit history. The version is automatically updated on every commit without manual intervention.
