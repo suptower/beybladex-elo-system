@@ -1,7 +1,7 @@
 """
 Unit tests for beyblade_elo.py module.
 Tests the ELO calculation functions including K-factor, expected scores,
-ELO updates, and winrate calculations.
+ELO updates, and winrate calculations, plus arena-specific ELO tracking.
 """
 import sys
 import os
@@ -16,10 +16,13 @@ from beyblade_elo import (
     calculate_score_with_dominance,
     update_elo,
     calculate_winrates,
+    normalize_arena_name,
     K_LEARNING,
     K_INTERMEDIATE,
     K_EXPERIENCED,
-    START_ELO
+    START_ELO,
+    ARENA_XTREME,
+    ARENA_DROP_ATTACK
 )
 
 
@@ -384,3 +387,146 @@ class TestCalculateWinrates:
         calculate_winrates(stats)
         assert stats["BeyA"]["winrate"] == 0.8
         assert stats["BeyB"]["winrate"] == 0.3
+
+
+class TestArenaNameNormalization:
+    """Tests for arena name normalization."""
+    
+    def test_normalize_xtreme_variations(self):
+        """All Xtreme variations should normalize to canonical name."""
+        assert normalize_arena_name("Xtreme") == ARENA_XTREME
+        assert normalize_arena_name("xtreme") == ARENA_XTREME
+        assert normalize_arena_name(None) == ARENA_XTREME
+        assert normalize_arena_name("") == ARENA_XTREME
+    
+    def test_normalize_drop_attack_variations(self):
+        """All Drop Attack variations should normalize to canonical name."""
+        assert normalize_arena_name("Drop Attack") == ARENA_DROP_ATTACK
+        assert normalize_arena_name("drop attack") == ARENA_DROP_ATTACK
+        assert normalize_arena_name("DropAttack") == ARENA_DROP_ATTACK
+        assert normalize_arena_name("drop_attack") == ARENA_DROP_ATTACK
+    
+    def test_normalize_unknown_arena(self):
+        """Unknown arenas should return as-is."""
+        assert normalize_arena_name("Custom Arena") == "Custom Arena"
+
+
+class TestArenaSpecificELO:
+    """Tests for arena-specific ELO tracking."""
+    
+    def test_exhibition_match_updates_arena_elo(self):
+        """Exhibition matches should update the arena-specific ELO."""
+        # Initialize structures
+        elos = defaultdict(lambda: START_ELO)
+        stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        arena_elos = {
+            ARENA_XTREME: defaultdict(lambda: START_ELO),
+            ARENA_DROP_ATTACK: defaultdict(lambda: START_ELO)
+        }
+        arena_stats = {
+            ARENA_XTREME: defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0}),
+            ARENA_DROP_ATTACK: defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        }
+        
+        # Play a match in Drop Attack arena (exhibition)
+        update_elo("BeyA", "BeyB", 4, 2, "2025-01-01", elos, stats, 
+                   writer=None, match_id="M001", arena="Drop Attack", match_type="exhibition",
+                   arena_elos=arena_elos, arena_stats=arena_stats)
+        
+        # Drop Attack ELO should be updated
+        assert arena_elos[ARENA_DROP_ATTACK]["BeyA"] > START_ELO
+        assert arena_elos[ARENA_DROP_ATTACK]["BeyB"] < START_ELO
+        assert arena_stats[ARENA_DROP_ATTACK]["BeyA"]["matches"] == 1
+        assert arena_stats[ARENA_DROP_ATTACK]["BeyA"]["wins"] == 1
+        
+        # Xtreme ELO should remain at start values
+        assert arena_elos[ARENA_XTREME]["BeyA"] == START_ELO
+        assert arena_elos[ARENA_XTREME]["BeyB"] == START_ELO
+        assert arena_stats[ARENA_XTREME]["BeyA"]["matches"] == 0
+    
+    def test_season_match_updates_xtreme_elo_only(self):
+        """Season matches should always update Xtreme ELO, regardless of arena played."""
+        # Initialize structures
+        elos = defaultdict(lambda: START_ELO)
+        stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        arena_elos = {
+            ARENA_XTREME: defaultdict(lambda: START_ELO),
+            ARENA_DROP_ATTACK: defaultdict(lambda: START_ELO)
+        }
+        arena_stats = {
+            ARENA_XTREME: defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0}),
+            ARENA_DROP_ATTACK: defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        }
+        
+        # Play a season match in Drop Attack arena (should still update Xtreme ELO)
+        update_elo("BeyC", "BeyD", 4, 1, "2025-01-01", elos, stats,
+                   writer=None, match_id="M002", arena="Drop Attack", match_type="season",
+                   arena_elos=arena_elos, arena_stats=arena_stats)
+        
+        # Xtreme ELO should be updated (season matches always use Xtreme)
+        assert arena_elos[ARENA_XTREME]["BeyC"] > START_ELO
+        assert arena_elos[ARENA_XTREME]["BeyD"] < START_ELO
+        assert arena_stats[ARENA_XTREME]["BeyC"]["matches"] == 1
+        assert arena_stats[ARENA_XTREME]["BeyC"]["wins"] == 1
+        
+        # Drop Attack ELO should remain unchanged
+        assert arena_elos[ARENA_DROP_ATTACK]["BeyC"] == START_ELO
+        assert arena_elos[ARENA_DROP_ATTACK]["BeyD"] == START_ELO
+        assert arena_stats[ARENA_DROP_ATTACK]["BeyC"]["matches"] == 0
+    
+    def test_multiple_arenas_independent_ratings(self):
+        """Beys should have independent ELO ratings in different arenas."""
+        # Initialize structures
+        elos = defaultdict(lambda: START_ELO)
+        stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        arena_elos = {
+            ARENA_XTREME: defaultdict(lambda: START_ELO),
+            ARENA_DROP_ATTACK: defaultdict(lambda: START_ELO)
+        }
+        arena_stats = {
+            ARENA_XTREME: defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0}),
+            ARENA_DROP_ATTACK: defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        }
+        
+        # BeyE wins in Xtreme
+        update_elo("BeyE", "BeyF", 4, 1, "2025-01-01", elos, stats,
+                   writer=None, match_id="M003", arena="Xtreme", match_type="exhibition",
+                   arena_elos=arena_elos, arena_stats=arena_stats)
+        
+        # BeyE loses in Drop Attack
+        update_elo("BeyE", "BeyF", 2, 4, "2025-01-02", elos, stats,
+                   writer=None, match_id="M004", arena="Drop Attack", match_type="exhibition",
+                   arena_elos=arena_elos, arena_stats=arena_stats)
+        
+        # In Xtreme: BeyE should be higher rated
+        assert arena_elos[ARENA_XTREME]["BeyE"] > arena_elos[ARENA_XTREME]["BeyF"]
+        assert arena_stats[ARENA_XTREME]["BeyE"]["wins"] == 1
+        assert arena_stats[ARENA_XTREME]["BeyE"]["losses"] == 0
+        
+        # In Drop Attack: BeyF should be higher rated
+        assert arena_elos[ARENA_DROP_ATTACK]["BeyF"] > arena_elos[ARENA_DROP_ATTACK]["BeyE"]
+        assert arena_stats[ARENA_DROP_ATTACK]["BeyE"]["wins"] == 0
+        assert arena_stats[ARENA_DROP_ATTACK]["BeyE"]["losses"] == 1
+    
+    def test_relegation_match_updates_xtreme_elo(self):
+        """Relegation matches should update Xtreme ELO like season matches."""
+        # Initialize structures
+        elos = defaultdict(lambda: START_ELO)
+        stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        arena_elos = {
+            ARENA_XTREME: defaultdict(lambda: START_ELO),
+            ARENA_DROP_ATTACK: defaultdict(lambda: START_ELO)
+        }
+        arena_stats = {
+            ARENA_XTREME: defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0}),
+            ARENA_DROP_ATTACK: defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        }
+        
+        # Relegation match
+        update_elo("BeyG", "BeyH", 4, 2, "2025-01-01", elos, stats,
+                   writer=None, match_id="M005", arena="Xtreme", match_type="relegation",
+                   arena_elos=arena_elos, arena_stats=arena_stats)
+        
+        # Should update Xtreme ELO only
+        assert arena_elos[ARENA_XTREME]["BeyG"] > START_ELO
+        assert arena_stats[ARENA_XTREME]["BeyG"]["matches"] == 1
