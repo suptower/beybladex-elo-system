@@ -3,6 +3,7 @@ let leaderboardHeaders = [];
 let currentSort = { column: null, asc: true };
 let currentSearchQuery = ""; // Track the current search query
 let isAdvancedMode = false; // Track which leaderboard is being displayed
+let currentArena = "xtreme"; // Track currently selected arena
 
 // Historical match index tracking
 let historicalMode = false;
@@ -158,11 +159,17 @@ function loadLeaderboard(isAdvanced = false, matchIndex = null) {
         // Load historical snapshot
         const paddedIndex = String(matchIndex).padStart(4, '0');
         csvPath = `./data/leaderboard_snapshots/leaderboard_${paddedIndex}.csv`;
+    } else if (currentArena === "all_arenas") {
+        // Load combined arena leaderboard
+        csvPath = "./data/leaderboard_all_arenas.csv";
+    } else if (currentArena === "drop_attack") {
+        // Load Drop Attack arena leaderboard
+        csvPath = "./data/leaderboard_drop_attack.csv";
     } else {
-        // Load current leaderboard (standard or advanced)
+        // Load current leaderboard (standard or advanced for Xtreme/default)
         csvPath = isAdvanced 
             ? "./data/advanced_leaderboard.csv" 
-            : "./data/leaderboard.csv";
+            : (currentArena === "xtreme" ? "./data/leaderboard_xtreme.csv" : "./data/leaderboard.csv");
     }
     
     fetch(csvPath)
@@ -822,6 +829,44 @@ document.addEventListener("DOMContentLoaded", () => {
     if (searchInput) {
         searchInput.addEventListener("input", e => filterRows(e.target.value));
     }
+    
+    // Arena selector handler
+    const arenaSelector = document.getElementById("arenaSelector");
+    if (arenaSelector) {
+        // Load saved preference from localStorage
+        const savedArena = localStorage.getItem("selectedArena");
+        if (savedArena) {
+            arenaSelector.value = savedArena;
+            currentArena = savedArena;
+        }
+        
+        arenaSelector.addEventListener("change", (e) => {
+            currentArena = e.target.value;
+            // Save preference
+            localStorage.setItem("selectedArena", currentArena);
+            
+            // Disable historical mode for arena-specific views (except xtreme)
+            if (currentArena !== "xtreme" && historicalMode) {
+                historicalMode = false;
+                const historicalToggle = document.getElementById('historicalToggle');
+                if (historicalToggle) historicalToggle.checked = false;
+                const matchIndexContainer = document.getElementById('matchIndexContainer');
+                if (matchIndexContainer) matchIndexContainer.style.display = 'none';
+                alert("Time Travel Mode is only available for Xtreme Stadium (Season/Global). Switching to current leaderboard.");
+            }
+            
+            // Disable advanced mode for arena-specific views
+            if (currentArena !== "xtreme" && isAdvancedMode) {
+                isAdvancedMode = false;
+                const toggleInput = document.getElementById("leaderboardToggle");
+                if (toggleInput) toggleInput.checked = false;
+                alert("Advanced statistics are only available for Xtreme Stadium (Season/Global).");
+            }
+            
+            // Reload leaderboard with selected arena
+            loadLeaderboard(isAdvancedMode);
+        });
+    }
 
     const toggleInput = document.getElementById("leaderboardToggle");
     if (toggleInput) {
@@ -841,6 +886,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (historicalMode && e.target.checked) {
                 e.target.checked = false;
                 alert("Advanced statistics are not available in Time Travel Mode. Please disable Time Travel Mode to view advanced statistics.");
+                return;
+            }
+            
+            // Prevent switching to advanced mode for non-xtreme arenas
+            if (currentArena !== "xtreme" && e.target.checked) {
+                e.target.checked = false;
+                alert("Advanced statistics are only available for Xtreme Stadium (Season/Global).");
                 return;
             }
             
