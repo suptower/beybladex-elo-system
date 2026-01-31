@@ -163,8 +163,10 @@ function loadLeaderboard(isAdvanced = false, matchIndex = null) {
         // Load combined arena leaderboard
         csvPath = "./data/leaderboard_all_arenas.csv";
     } else if (currentArena === "combined") {
-        // Load Combined/Global arena leaderboard (no advanced stats for now)
-        csvPath = "./data/leaderboard_combined.csv";
+        // Load Combined/Global arena leaderboard (with advanced stats support)
+        csvPath = isAdvanced
+            ? "./data/advanced_leaderboard_combined.csv"
+            : "./data/leaderboard_combined.csv";
     } else if (currentArena === "drop_attack") {
         // Load Drop Attack arena leaderboard (advanced if requested)
         csvPath = isAdvanced 
@@ -223,6 +225,17 @@ function renderTable(headers, rows) {
         // Use abbreviated headers for advanced mode
         th.textContent = (isAdvancedMode && index > 0) ? getAbbreviatedHeader(h) : h;
 
+        // Add arena data attribute for comparison view visual grouping
+        if (currentArena === "all_arenas") {
+            if (h.includes("Xtreme")) {
+                th.setAttribute("data-arena", "xtreme");
+            } else if (h.includes("DropAttack")) {
+                th.setAttribute("data-arena", "drop_attack");
+            } else if (h.includes("Global")) {
+                th.setAttribute("data-arena", "combined");
+            }
+        }
+
         // Set sort indicator if this is the active column
         if (currentSort.column === index) {
             th.classList.add(currentSort.asc ? "sorted-asc" : "sorted-desc");
@@ -245,6 +258,17 @@ function renderTable(headers, rows) {
 
         displayHeaders.forEach((h, colIndex) => {
             const td = document.createElement("td");
+            
+            // Add arena data attribute for comparison view visual grouping
+            if (currentArena === "all_arenas") {
+                if (h.includes("Xtreme")) {
+                    td.setAttribute("data-arena", "xtreme");
+                } else if (h.includes("DropAttack")) {
+                    td.setAttribute("data-arena", "drop_attack");
+                } else if (h.includes("Global")) {
+                    td.setAttribute("data-arena", "combined");
+                }
+            }
             
             // For advanced mode, use the actual Platz value from the data
             let value;
@@ -860,13 +884,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Time Travel Mode is only available for Xtreme Stadium (Season/Global). Switching to current leaderboard.");
             }
             
-            // Disable advanced mode for unsupported arena views (all arenas comparison and combined don't have advanced stats)
-            if ((currentArena === "all_arenas" || currentArena === "combined") && isAdvancedMode) {
+            // Disable advanced mode for All Arenas comparison view (no combined advanced stats across arenas)
+            if (currentArena === "all_arenas" && isAdvancedMode) {
                 isAdvancedMode = false;
                 const toggleInput = document.getElementById("leaderboardToggle");
                 if (toggleInput) toggleInput.checked = false;
-                const arenaName = currentArena === "all_arenas" ? "All Arenas" : "Combined/Global";
-                alert(`Advanced statistics are not available for the '${arenaName}' view.`);
+                alert(`Advanced statistics are not available for the 'All Arenas' comparison view.`);
             }
             
             // Reload leaderboard with selected arena
@@ -895,11 +918,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             
-            // Prevent switching to advanced mode for all arenas or combined view
-            if ((currentArena === "all_arenas" || currentArena === "combined") && e.target.checked) {
+            // Prevent switching to advanced mode for all arenas comparison view
+            if (currentArena === "all_arenas" && e.target.checked) {
                 e.target.checked = false;
-                const arenaName = currentArena === "all_arenas" ? "All Arenas" : "Combined/Global";
-                alert(`Advanced statistics are not available for the '${arenaName}' view.`);
+                alert(`Advanced statistics are not available for the 'All Arenas' comparison view.`);
                 return;
             }
             
