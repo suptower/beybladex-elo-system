@@ -189,7 +189,6 @@ function displayOverview(season) {
     let highestScore = 0;
     let lowestScore = Infinity;
     let totalPointDiff = 0;
-    let closeMatches = 0; // 1 point difference
     let blowouts = 0; // 3+ point difference
     
     allMatches.forEach(match => {
@@ -203,16 +202,13 @@ function displayOverview(season) {
         if (scoreB > 0) lowestScore = Math.min(lowestScore, scoreB);
         totalPointDiff += pointDiff;
         
-        if (pointDiff === 1) {
-            closeMatches++;
-        } else if (pointDiff >= 3) {
+        if (pointDiff >= 3) {
             blowouts++;
         }
     });
     
     const avgPointsPerMatch = allMatches.length > 0 ? (totalPoints / allMatches.length).toFixed(1) : 0;
     const avgPointDiff = allMatches.length > 0 ? (totalPointDiff / allMatches.length).toFixed(1) : 0;
-    const closeMatchPct = allMatches.length > 0 ? ((closeMatches / allMatches.length) * 100).toFixed(0) : 0;
     
     if (lowestScore === Infinity) lowestScore = 0;
     
@@ -254,10 +250,6 @@ function displayOverview(season) {
                     <div class="stat-item">
                         <span class="stat-label">Highest Score</span>
                         <span class="stat-value">${highestScore}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Close Matches</span>
-                        <span class="stat-value">${closeMatches} (${closeMatchPct}%)</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Blowouts</span>
