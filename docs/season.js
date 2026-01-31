@@ -491,6 +491,19 @@ function displaySeasonCup(cupData) {
 }
 
 /**
+ * Format ELO display with optional change indicator
+ */
+function formatEloWithChange(elo, eloChange) {
+    const roundedElo = Math.round(elo);
+    if (eloChange === null) {
+        return `ELO: ${roundedElo}`;
+    }
+    const sign = eloChange >= 0 ? '+' : '';
+    const changeClass = eloChange >= 0 ? 'positive' : 'negative';
+    return `ELO: ${roundedElo} <span class="elo-change ${changeClass}">(${sign}${eloChange})</span>`;
+}
+
+/**
  * Display matchdays
  */
 function displayMatchdays(matchdays) {
@@ -576,12 +589,12 @@ function displayMatchdays(matchdays) {
                                 <div class="match-result">
                                     <div class="bey-container ${beyAClass}">
                                         <span class="bey-name">${beyALink}</span>
-                                        <span class="bey-elo">ELO: ${Math.round(eloA)}${eloChangeA !== null ? ` <span class="elo-change ${eloChangeA >= 0 ? 'positive' : 'negative'}">(${eloChangeA >= 0 ? '+' : ''}${eloChangeA})</span>` : ''}</span>
+                                        <span class="bey-elo">${formatEloWithChange(eloA, eloChangeA)}</span>
                                     </div>
                                     <span class="score">${match.score_a}<span class="score-separator"> - </span>${match.score_b}</span>
                                     <div class="bey-container ${beyBClass}">
                                         <span class="bey-name">${beyBLink}</span>
-                                        <span class="bey-elo">ELO: ${Math.round(eloB)}${eloChangeB !== null ? ` <span class="elo-change ${eloChangeB >= 0 ? 'positive' : 'negative'}">(${eloChangeB >= 0 ? '+' : ''}${eloChangeB})</span>` : ''}</span>
+                                        <span class="bey-elo">${formatEloWithChange(eloB, eloChangeB)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -595,7 +608,7 @@ function displayMatchdays(matchdays) {
                             </div>
                             ${hasRounds ? `
                             <div class="match-card-rounds">
-                                <button class="rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMatchRounds('${match.match_id}')">
+                                <button class="rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMatchRounds('${match.match_id}', ${matchData.rounds.length})">
                                     <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
                                     <span class="toggle-text">${isExpanded ? 'Hide' : 'Show'} Round Details (${matchData.rounds.length})</span>
                                 </button>
@@ -795,7 +808,7 @@ function createRoundsHtml(match, rounds) {
 /**
  * Toggle match rounds visibility
  */
-function toggleMatchRounds(matchId) {
+function toggleMatchRounds(matchId, roundCount) {
     const content = document.getElementById(`rounds-${matchId}`);
     const toggle = document.querySelector(`[data-match-id="${matchId}"] .rounds-toggle`);
     const icon = toggle?.querySelector('.toggle-icon');
@@ -807,7 +820,6 @@ function toggleMatchRounds(matchId) {
         if (toggle) toggle.classList.remove('expanded');
         if (icon) icon.textContent = '▼';
         if (text) {
-            const roundCount = content?.querySelectorAll('.round-item').length || 0;
             text.textContent = `Show Round Details (${roundCount})`;
         }
     } else {
@@ -816,7 +828,6 @@ function toggleMatchRounds(matchId) {
         if (toggle) toggle.classList.add('expanded');
         if (icon) icon.textContent = '▲';
         if (text) {
-            const roundCount = content?.querySelectorAll('.round-item').length || 0;
             text.textContent = `Hide Round Details (${roundCount})`;
         }
     }
