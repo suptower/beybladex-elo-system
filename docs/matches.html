@@ -138,10 +138,46 @@
                             <option value="Drop Attack">Drop Attack Beystadium</option>
                         </select>
                     </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="matchTypeFilter">Match Type</label>
+                        <select id="matchTypeFilter" class="filter-select">
+                            <option value="all">All Types</option>
+                            <option value="exhibition">Exhibition</option>
+                            <option value="season">Season</option>
+                            <option value="relegation">Relegation</option>
+                            <option value="season_cup">Season Cup</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <!-- Advanced Filters Row -->
                 <div class="filters-row">
+                    <div class="filter-group">
+                        <label class="filter-label" for="seasonFilter">Season</label>
+                        <select id="seasonFilter" class="filter-select">
+                            <option value="all">All Seasons</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="tierFilter">Tier</label>
+                        <select id="tierFilter" class="filter-select">
+                            <option value="all">All Tiers</option>
+                            <option value="1">Tier I</option>
+                            <option value="2">Tier II</option>
+                            <option value="3">Tier III</option>
+                            <option value="4">Tier IV</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="matchdayFilter">Matchday</label>
+                        <select id="matchdayFilter" class="filter-select">
+                            <option value="all">All Matchdays</option>
+                        </select>
+                    </div>
+                    
                     <div class="filter-group">
                         <label class="filter-label" for="minEloDiff">Min ELO Diff</label>
                         <input type="number" id="minEloDiff" class="filter-input" placeholder="0" min="0">

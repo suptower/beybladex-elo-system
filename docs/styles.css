@@ -12370,6 +12370,110 @@ body.dark .arena-badge.arena-drop-attack {
     font-size: 0.7rem;
 }
 
+/* Match type badges */
+.match-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.match-type-badge.match-type-exhibition {
+    background-color: rgba(107, 114, 128, 0.15);
+    color: #6b7280;
+    border-color: rgba(107, 114, 128, 0.2);
+}
+
+.match-type-badge.match-type-season {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+.match-type-badge.match-type-relegation {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border-color: rgba(245, 158, 11, 0.2);
+}
+
+.match-type-badge.match-type-season_cup {
+    background-color: rgba(139, 92, 246, 0.15);
+    color: #8b5cf6;
+    border-color: rgba(139, 92, 246, 0.2);
+}
+
+body.dark .match-type-badge.match-type-exhibition {
+    color: #9ca3af;
+}
+
+body.dark .match-type-badge.match-type-season {
+    color: #60a5fa;
+}
+
+body.dark .match-type-badge.match-type-relegation {
+    color: #fbbf24;
+}
+
+body.dark .match-type-badge.match-type-season_cup {
+    color: #a78bfa;
+}
+
+/* Match metadata cells */
+.match-type-cell,
+.season-cell,
+.tier-cell,
+.matchday-cell {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.season-cell,
+.tier-cell,
+.matchday-cell {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+body.dark .season-cell,
+body.dark .tier-cell,
+body.dark .matchday-cell {
+    color: #9ca3af;
+}
+
+/* Card metadata */
+.card-match-type {
+    margin: 8px 0;
+    text-align: center;
+}
+
+.card-metadata {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 8px 0;
+    flex-wrap: wrap;
+}
+
+.card-metadata .meta-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    background-color: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+}
+
+body.dark .card-metadata .meta-item {
+    background-color: rgba(156, 163, 175, 0.1);
+    color: #9ca3af;
+}
+
+
 /* ============================================
    RESPONSIVE: MATCH INDEX CONTROLS
 ============================================ */
