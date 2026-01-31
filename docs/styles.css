@@ -12119,10 +12119,11 @@ select:focus-visible {
 
 #matchdays-container .bey-name {
     text-align: center;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
     max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: help;
 }
 
 #matchdays-container .bey-elo {
