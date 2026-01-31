@@ -13,6 +13,10 @@ const COLUMN_DEFINITIONS = [
     { key: 'matchId', label: 'Match ID', abbrev: 'ID', sortable: true },
     { key: 'date', label: 'Date', abbrev: 'Date', sortable: true },
     { key: 'arena', label: 'Arena', abbrev: 'Arena', sortable: true },
+    { key: 'matchType', label: 'Match Type', abbrev: 'Type', sortable: true },
+    { key: 'season', label: 'Season', abbrev: 'Season', sortable: true },
+    { key: 'tier', label: 'Tier', abbrev: 'Tier', sortable: true },
+    { key: 'matchday', label: 'Matchday', abbrev: 'MD', sortable: true },
     { key: 'beyA', label: 'Bey A', abbrev: 'Bey A', sortable: true },
     { key: 'preEloA', label: 'Pre ELO A', abbrev: 'Pre A', sortable: true },
     { key: 'scoreA', label: 'Score A', abbrev: 'Sc A', sortable: true },
@@ -27,6 +31,11 @@ const COLUMN_DEFINITIONS = [
 const COLUMN_DESCRIPTIONS = {
     'ID': { short: 'Match ID', long: 'Unique identifier for the match, used for referencing and debugging' },
     'Date': { short: 'Match Date', long: 'The date when the match was played' },
+    'Arena': { short: 'Arena', long: 'The arena where the match was played (Xtreme or Drop Attack)' },
+    'Type': { short: 'Match Type', long: 'Type of match: Exhibition, Season, Relegation, or Season Cup' },
+    'Season': { short: 'Season', long: 'Season identifier (e.g., S1) - only for season-related matches' },
+    'Tier': { short: 'Tier', long: 'Tier number (I-IV) - only for season and relegation matches' },
+    'MD': { short: 'Matchday', long: 'Matchday number - groups matches into logical rounds within a season' },
     'Bey A': { short: 'Beyblade A', long: 'Name of the first Beyblade in the match (with ELO change shown inline)' },
     'Pre A': { short: 'Pre-Match ELO A', long: 'ELO rating of Bey A before the match' },
     'Sc A': { short: 'Score A', long: 'Points scored by Bey A in the match' },
@@ -83,6 +92,40 @@ const FINISH_TYPE_STYLES = {
     extreme: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Extreme', icon: '⚡', points: 3 }
 };
 
+// Match type styling configuration
+const MATCH_TYPE_STYLES = {
+    exhibition: { color: '#6b7280', bgColor: 'rgba(107, 114, 128, 0.15)', label: 'Exhibition', icon: '⚔️' },
+    season: { color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.15)', label: 'Season', icon: '🏆' },
+    relegation: { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', label: 'Relegation', icon: '⚠️' },
+    season_cup: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Season Cup', icon: '🏅' }
+};
+
+// Helper function to create match type badge
+function createMatchTypeBadge(matchType) {
+    const style = MATCH_TYPE_STYLES[matchType] || MATCH_TYPE_STYLES.exhibition;
+    const badge = document.createElement('span');
+    badge.className = `match-type-badge match-type-${matchType}`;
+    badge.style.color = style.color;
+    badge.style.backgroundColor = style.bgColor;
+    badge.textContent = `${style.icon} ${style.label}`;
+    badge.title = style.label;
+    return badge;
+}
+
+// Helper function to format tier
+function formatTier(tier) {
+    if (!tier) return '—';
+    const tierNames = ['', 'I', 'II', 'III', 'IV'];
+    return `${tierNames[tier] || tier}`;
+}
+
+// Helper function to format matchday
+function formatMatchday(matchday) {
+    if (!matchday) return '—';
+    return `${matchday}`;
+}
+
+
 // Load rounds data from matches_with_rounds.json
 async function loadRoundsData() {
     try {
@@ -125,6 +168,11 @@ async function loadMatches() {
             const postA = parseFloat(values[8]);
             const postB = parseFloat(values[9]);
             const arena = (values[10] || 'Xtreme').trim();
+            // New metadata fields (columns 12-15)
+            const matchType = (values[12] || 'exhibition').trim();
+            const seasonId = (values[13] || '').trim();
+            const tier = values[14] ? parseInt(values[14]) : null;
+            const matchday = values[15] ? parseInt(values[15]) : null;
             
             return {
                 id: index,
@@ -144,7 +192,11 @@ async function loadMatches() {
                 eloDiff: Math.round(Math.abs(preA - preB)),
                 winner: scoreA > scoreB ? values[2] : values[3],
                 rounds: roundsData[rawMatchId] || [], // Use original ID for roundsData lookup
-                arena: arena
+                arena: arena,
+                matchType: matchType,
+                seasonId: seasonId,
+                tier: tier,
+                matchday: matchday
             };
         });
         
@@ -225,6 +277,26 @@ function populateFilters() {
         option.textContent = bit;
         bitSelect.appendChild(option);
     });
+    
+    // Season filter
+    const seasons = [...new Set(allMatches.map(m => m.seasonId).filter(Boolean))].sort();
+    const seasonSelect = document.getElementById('seasonFilter');
+    seasons.forEach(season => {
+        const option = document.createElement('option');
+        option.value = season;
+        option.textContent = season;
+        seasonSelect.appendChild(option);
+    });
+    
+    // Matchday filter
+    const matchdays = [...new Set(allMatches.map(m => m.matchday).filter(md => md !== null))].sort((a, b) => a - b);
+    const matchdaySelect = document.getElementById('matchdayFilter');
+    matchdays.forEach(md => {
+        const option = document.createElement('option');
+        option.value = md;
+        option.textContent = `MD ${md}`;
+        matchdaySelect.appendChild(option);
+    });
 }
 
 // Get current filter values
@@ -239,7 +311,11 @@ function getFilterValues() {
         arena: document.getElementById('arenaFilter').value,
         minEloDiff: parseInt(document.getElementById('minEloDiff').value) || 0,
         maxEloDiff: parseInt(document.getElementById('maxEloDiff').value) || Infinity,
-        eloChange: document.getElementById('eloChangeFilter').value
+        eloChange: document.getElementById('eloChangeFilter').value,
+        matchType: document.getElementById('matchTypeFilter').value,
+        season: document.getElementById('seasonFilter').value,
+        tier: document.getElementById('tierFilter').value,
+        matchday: document.getElementById('matchdayFilter').value
     };
 }
 
@@ -320,6 +396,26 @@ function applyFilters() {
                     if (match.eloChangeA >= 0 && match.eloChangeB >= 0) return false;
                 }
             }
+        }
+        
+        // Match Type filter
+        if (filters.matchType !== 'all' && match.matchType !== filters.matchType) {
+            return false;
+        }
+        
+        // Season filter
+        if (filters.season !== 'all' && match.seasonId !== filters.season) {
+            return false;
+        }
+        
+        // Tier filter
+        if (filters.tier !== 'all' && match.tier !== parseInt(filters.tier)) {
+            return false;
+        }
+        
+        // Matchday filter
+        if (filters.matchday !== 'all' && match.matchday !== parseInt(filters.matchday)) {
+            return false;
         }
         
         return true;
@@ -508,6 +604,30 @@ function displayMatches() {
         tdArena.appendChild(arenaBadge);
         row.appendChild(tdArena);
         
+        // Match Type
+        const tdMatchType = document.createElement('td');
+        tdMatchType.className = 'match-type-cell';
+        tdMatchType.appendChild(createMatchTypeBadge(match.matchType));
+        row.appendChild(tdMatchType);
+        
+        // Season
+        const tdSeason = document.createElement('td');
+        tdSeason.className = 'season-cell';
+        tdSeason.textContent = match.seasonId || '—';
+        row.appendChild(tdSeason);
+        
+        // Tier
+        const tdTier = document.createElement('td');
+        tdTier.className = 'tier-cell';
+        tdTier.textContent = formatTier(match.tier);
+        row.appendChild(tdTier);
+        
+        // Matchday
+        const tdMatchday = document.createElement('td');
+        tdMatchday.className = 'matchday-cell';
+        tdMatchday.textContent = formatMatchday(match.matchday);
+        row.appendChild(tdMatchday);
+        
         // Bey A (with inline ELO delta badge)
         const tdBeyA = document.createElement('td');
         tdBeyA.className = match.winner === match.beyA ? 'winner bey-with-delta' : 'bey-with-delta';
@@ -615,6 +735,20 @@ function displayMatches() {
         const deltaBadgeAHtml = createDeltaBadgeHtml(match.eloChangeA);
         const deltaBadgeBHtml = createDeltaBadgeHtml(match.eloChangeB);
         
+        // Create match type badge HTML
+        const matchTypeStyle = MATCH_TYPE_STYLES[match.matchType] || MATCH_TYPE_STYLES.exhibition;
+        const matchTypeBadgeHtml = `<span class="match-type-badge match-type-${match.matchType}" style="color: ${matchTypeStyle.color}; background-color: ${matchTypeStyle.bgColor}" title="${matchTypeStyle.label}">${matchTypeStyle.icon} ${matchTypeStyle.label}</span>`;
+        
+        // Create metadata HTML for season matches
+        let metadataHtml = '';
+        if (match.seasonId || match.tier || match.matchday) {
+            const metaParts = [];
+            if (match.seasonId) metaParts.push(`<span class="meta-item">⚔️ ${match.seasonId}</span>`);
+            if (match.tier) metaParts.push(`<span class="meta-item">🏆Tier ${formatTier(match.tier)}</span>`);
+            if (match.matchday) metaParts.push(`<span class="meta-item">📅 Matchday ${formatMatchday(match.matchday)}</span>`);
+            metadataHtml = `<div class="card-metadata">${metaParts.join(' ')}</div>`;
+        }
+        
         card.innerHTML = `
             <div class="card-header">
                 <span class="card-match-id match-id" title="Click to copy" onclick="copyMatchId('${match.matchId}')">${match.matchId}</span>
@@ -622,6 +756,10 @@ function displayMatches() {
                 <span class="arena-badge arena-${match.arena.toLowerCase().replace(/\s+/g, '-')}" title="${match.arena === 'Xtreme' ? 'Xtreme Stadium' : 'Drop Attack Beystadium'}">${match.arena === 'Xtreme' ? '⚡X' : '🎯DA'}</span>
                 <span class="match-elo-diff" title="ELO Difference">Δ${match.eloDiff} ELO</span>
             </div>
+            <div class="card-match-type">
+                ${matchTypeBadgeHtml}
+            </div>
+            ${metadataHtml}
             <div class="card-match">
                 <div class="card-bey ${match.winner === match.beyA ? 'winner' : ''}">
                     <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyA)}" class="bey-link">${match.beyA}</a></div>
@@ -668,11 +806,16 @@ function saveFiltersToURL() {
     if (filters.blade !== 'all') params.set('blade', filters.blade);
     if (filters.ratchet !== 'all') params.set('ratchet', filters.ratchet);
     if (filters.bit !== 'all') params.set('bit', filters.bit);
+    if (filters.arena !== 'all') params.set('arena', filters.arena);
     if (filters.minEloDiff > 0) params.set('minEloDiff', filters.minEloDiff);
     if (filters.maxEloDiff < Infinity && document.getElementById('maxEloDiff').value) {
         params.set('maxEloDiff', filters.maxEloDiff);
     }
     if (filters.eloChange !== 'all') params.set('eloChange', filters.eloChange);
+    if (filters.matchType !== 'all') params.set('matchType', filters.matchType);
+    if (filters.season !== 'all') params.set('season', filters.season);
+    if (filters.tier !== 'all') params.set('tier', filters.tier);
+    if (filters.matchday !== 'all') params.set('matchday', filters.matchday);
     
     const newURL = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
     window.history.replaceState({}, '', newURL);
@@ -700,6 +843,9 @@ function loadFiltersFromURL() {
     if (params.has('bit')) {
         document.getElementById('bitFilter').value = params.get('bit');
     }
+    if (params.has('arena')) {
+        document.getElementById('arenaFilter').value = params.get('arena');
+    }
     if (params.has('minEloDiff')) {
         document.getElementById('minEloDiff').value = params.get('minEloDiff');
     }
@@ -708,6 +854,18 @@ function loadFiltersFromURL() {
     }
     if (params.has('eloChange')) {
         document.getElementById('eloChangeFilter').value = params.get('eloChange');
+    }
+    if (params.has('matchType')) {
+        document.getElementById('matchTypeFilter').value = params.get('matchType');
+    }
+    if (params.has('season')) {
+        document.getElementById('seasonFilter').value = params.get('season');
+    }
+    if (params.has('tier')) {
+        document.getElementById('tierFilter').value = params.get('tier');
+    }
+    if (params.has('matchday')) {
+        document.getElementById('matchdayFilter').value = params.get('matchday');
     }
 }
 
@@ -720,6 +878,10 @@ function clearFilters() {
     document.getElementById('ratchetFilter').value = 'all';
     document.getElementById('bitFilter').value = 'all';
     document.getElementById('arenaFilter').value = 'all';
+    document.getElementById('matchTypeFilter').value = 'all';
+    document.getElementById('seasonFilter').value = 'all';
+    document.getElementById('tierFilter').value = 'all';
+    document.getElementById('matchdayFilter').value = 'all';
     document.getElementById('minEloDiff').value = '';
     document.getElementById('maxEloDiff').value = '';
     document.getElementById('eloChangeFilter').value = 'all';
