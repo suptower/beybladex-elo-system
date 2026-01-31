@@ -1,33 +1,78 @@
 {
-  "generated_at": "2026-01-29T12:10:34.895323+00:00",
+  "generated_at": "2026-01-31T12:39:41.895183+00:00",
   "commit_count": 50,
   "commits": [
     {
-      "hash": "21cf000",
-      "full_hash": "21cf000d836c0421d18ddd0db45c58691eadc919",
-      "date": "2026-01-29T13:10:23+01:00",
-      "message": "fix: round functions where necessary",
+      "hash": "647c2b9",
+      "full_hash": "647c2b91d3f03e4a0b693c4fa9a0cd92d5444042",
+      "date": "2026-01-31T13:38:50+01:00",
+      "message": "feat: add first drop attack tournaments data",
       "author": "Arda K",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/21cf000d836c0421d18ddd0db45c58691eadc919"
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/647c2b91d3f03e4a0b693c4fa9a0cd92d5444042"
     },
     {
-      "hash": "0b37ef5",
-      "full_hash": "0b37ef5fb4f50082ea50706b91ff86a63ca68b26",
-      "date": "2026-01-29T11:54:53Z",
-      "message": "Fix statistics card value centering in bey profile pages",
+      "hash": "ed9f90d",
+      "full_hash": "ed9f90d845dce3a65455af876465d8ee3f4648b6",
+      "date": "2026-01-30T15:01:56Z",
+      "message": "Update documentation for arena-specific ELO feature",
       "author": "copilot-swe-agent[bot]",
       "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/0b37ef5fb4f50082ea50706b91ff86a63ca68b26"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/ed9f90d845dce3a65455af876465d8ee3f4648b6"
     },
     {
-      "hash": "1581486",
-      "full_hash": "1581486a491672ed7308e57a0f6e861fdbb7633e",
-      "date": "2026-01-29T11:51:31Z",
+      "hash": "1207e3e",
+      "full_hash": "1207e3e545f07e427c6332b93dd802ad0185a2f5",
+      "date": "2026-01-30T15:00:54Z",
+      "message": "Add unit tests for arena-specific ELO functionality",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1207e3e545f07e427c6332b93dd802ad0185a2f5"
+    },
+    {
+      "hash": "6abbfbb",
+      "full_hash": "6abbfbba63e222f4993bdbd24f650c050f003fe9",
+      "date": "2026-01-30T14:59:35Z",
+      "message": "Add arena selector to UI (leaderboard and quick-entry)",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/6abbfbba63e222f4993bdbd24f650c050f003fe9"
+    },
+    {
+      "hash": "4bc4fb8",
+      "full_hash": "4bc4fb8a6cbf7b89090e287607d73efa92bec01f",
+      "date": "2026-01-30T14:54:29Z",
+      "message": "Implement arena-specific ELO tracking in core system",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/4bc4fb8a6cbf7b89090e287607d73efa92bec01f"
+    },
+    {
+      "hash": "1d2b660",
+      "full_hash": "1d2b660a4a6f02e7ad76e2f9de1e08f4f622f77f",
+      "date": "2026-01-30T14:49:52Z",
       "message": "Initial plan",
       "author": "copilot-swe-agent[bot]",
       "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1581486a491672ed7308e57a0f6e861fdbb7633e"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1d2b660a4a6f02e7ad76e2f9de1e08f4f622f77f"
+    },
+    {
+      "hash": "e794204",
+      "full_hash": "e794204a541f6fdf1a511faa56e4dee522e76ad5",
+      "date": "2026-01-30T01:11:25+01:00",
+      "message": "Add live Season Tier leaderboard preview to Quick Entry (#223)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e794204a541f6fdf1a511faa56e4dee522e76ad5"
+    },
+    {
+      "hash": "86e199c",
+      "full_hash": "86e199cf66e0ee21512ff055b6e3c4dfa8b392dd",
+      "date": "2026-01-29T13:15:13+01:00",
+      "message": "fix: stat card value alignment on bey profile pages (#221)",
+      "author": "Copilot",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/86e199cf66e0ee21512ff055b6e3c4dfa8b392dd"
     },
     {
       "hash": "8c73251",
@@ -406,51 +451,6 @@
       "author": "Copilot",
       "category": "Feature",
       "github_url": "https://github.com/suptower/beybladex-elo-system/commit/fa182db700dd368355f676382c98decad10481da"
-    },
-    {
-      "hash": "14ab284",
-      "full_hash": "14ab2844cdd6a2914b4936f1a0feb3ce3f8656ba",
-      "date": "2026-01-03T16:47:54+01:00",
-      "message": "Implement dominance-based ELO scoring (v2) (#151)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/14ab2844cdd6a2914b4936f1a0feb3ce3f8656ba"
-    },
-    {
-      "hash": "39ddcce",
-      "full_hash": "39ddcce1fe95ffbc8df404be5c592463b99af86a",
-      "date": "2026-01-02T21:28:33+01:00",
-      "message": "feat: Add collapsible pre-match ELO analysis panel with enhanced predictions (#149)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/39ddcce1fe95ffbc8df404be5c592463b99af86a"
-    },
-    {
-      "hash": "80ab27d",
-      "full_hash": "80ab27d39b023e290fee9b86bdf6ebebbab9031e",
-      "date": "2025-12-27T20:31:40+01:00",
-      "message": "merge: add data from champions-league-I-tournament (#146)",
-      "author": "suptower",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/80ab27d39b023e290fee9b86bdf6ebebbab9031e"
-    },
-    {
-      "hash": "68a8006",
-      "full_hash": "68a80063f1d08832f3b2a671d5c0764b15de7654",
-      "date": "2025-12-12T19:24:19+01:00",
-      "message": "feat: add  data from q16-erl-I tournament (#145)",
-      "author": "suptower",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/68a80063f1d08832f3b2a671d5c0764b15de7654"
-    },
-    {
-      "hash": "749da77",
-      "full_hash": "749da77082fd0fa8812c847315957735ab6eca28",
-      "date": "2025-12-11T00:01:56+01:00",
-      "message": "fix(matches): m0058 data mismatch (#144)",
-      "author": "suptower",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/749da77082fd0fa8812c847315957735ab6eca28"
     }
   ]
 }
