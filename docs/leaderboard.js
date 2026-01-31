@@ -162,6 +162,9 @@ function loadLeaderboard(isAdvanced = false, matchIndex = null) {
     } else if (currentArena === "all_arenas") {
         // Load combined arena leaderboard
         csvPath = "./data/leaderboard_all_arenas.csv";
+    } else if (currentArena === "combined") {
+        // Load Combined/Global arena leaderboard (no advanced stats for now)
+        csvPath = "./data/leaderboard_combined.csv";
     } else if (currentArena === "drop_attack") {
         // Load Drop Attack arena leaderboard (advanced if requested)
         csvPath = isAdvanced 
@@ -857,12 +860,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Time Travel Mode is only available for Xtreme Stadium (Season/Global). Switching to current leaderboard.");
             }
             
-            // Disable advanced mode for unsupported arena views (all arenas comparison doesn't have advanced stats)
-            if (currentArena === "all" && isAdvancedMode) {
+            // Disable advanced mode for unsupported arena views (all arenas comparison and combined don't have advanced stats)
+            if ((currentArena === "all_arenas" || currentArena === "combined") && isAdvancedMode) {
                 isAdvancedMode = false;
                 const toggleInput = document.getElementById("leaderboardToggle");
                 if (toggleInput) toggleInput.checked = false;
-                alert("Advanced statistics are not available for the 'All Arenas' comparison view.");
+                const arenaName = currentArena === "all_arenas" ? "All Arenas" : "Combined/Global";
+                alert(`Advanced statistics are not available for the '${arenaName}' view.`);
             }
             
             // Reload leaderboard with selected arena
@@ -891,10 +895,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             
-            // Prevent switching to advanced mode for all arenas view
-            if (currentArena === "all" && e.target.checked) {
+            // Prevent switching to advanced mode for all arenas or combined view
+            if ((currentArena === "all_arenas" || currentArena === "combined") && e.target.checked) {
                 e.target.checked = false;
-                alert("Advanced statistics are not available for the 'All Arenas' comparison view.");
+                const arenaName = currentArena === "all_arenas" ? "All Arenas" : "Combined/Global";
+                alert(`Advanced statistics are not available for the '${arenaName}' view.`);
                 return;
             }
             

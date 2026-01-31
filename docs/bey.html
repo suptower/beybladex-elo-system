@@ -116,6 +116,7 @@
                     <select id="arenaPlotSelect" class="arena-plot-select">
                         <option value="xtreme" selected>Xtreme Stadium (Season/Global)</option>
                         <option value="drop_attack">Drop Attack Beystadium</option>
+                        <option value="combined">Combined/Global (All Matches)</option>
                     </select>
                 </div>
             </div>
@@ -428,6 +429,9 @@ async function loadData() {
                 const advancedData = parseCSV(advancedText);
                 allLeaderboardData = advancedData;
                 leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            } else if (currentArena === 'combined') {
+                // Combined arena - no advanced stats, use standard leaderboard
+                throw new Error('Use arena-specific leaderboard');
             } else {
                 // Use arena-specific leaderboard
                 throw new Error('Use arena-specific leaderboard');
