@@ -194,6 +194,12 @@ with open(HISTORY_FILE, newline="", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     matches = sorted(reader, key=lambda m: m["Date"])
     for row in matches:
+        # Only process Xtreme arena matches for advanced statistics
+        # Advanced stats should only reflect Season/Global (Xtreme) performance
+        elo_arena_updated = row.get("elo_arena_updated", "Xtreme")
+        if elo_arena_updated != "Xtreme":
+            continue
+            
         a, b = row["BeyA"], row["BeyB"]
         pre_a, pre_b = float(row["PreA"]), float(row["PreB"])
         post_a, post_b = float(row["PostA"]), float(row["PostB"])

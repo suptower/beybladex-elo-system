@@ -591,28 +591,39 @@ def run_elo_pipeline(pipeline_config):
     correct_elos = {bey: round(elo) for bey, elo in elos.items()}
 
     # Add all beys from beys_data.json that don't have match history yet
+    # Use Xtreme arena stats for the main leaderboard
     for bey_name in all_bey_blades:
         if bey_name not in [row["Name"] for row in tour_rows]:
+            xtreme_stats = arena_stats[ARENA_XTREME][bey_name]
             tour_rows.append({
                 "Platz": 0,  # Will be updated after sorting
                 "Name": bey_name,
                 "ELO": correct_elos.get(bey_name, START_ELO),
-                "Spiele": stats[bey_name]["matches"],
-                "Siege": stats[bey_name]["wins"],
-                "Niederlagen": stats[bey_name]["losses"],
+                "Spiele": xtreme_stats["matches"],
+                "Siege": xtreme_stats["wins"],
+                "Niederlagen": xtreme_stats["losses"],
                 "Winrate": "0.0%",
-                "Gewonnene Punkte": stats[bey_name]["for"],
-                "Verlorene Punkte": stats[bey_name]["against"],
-                "Differenz": stats[bey_name]["for"] - stats[bey_name]["against"],
+                "Gewonnene Punkte": xtreme_stats["for"],
+                "Verlorene Punkte": xtreme_stats["against"],
+                "Differenz": xtreme_stats["for"] - xtreme_stats["against"],
                 "Positionsdelta": "→ 0",
                 "ELOdelta": "0"
             })
 
-    # Update tour_rows with correct ELO values while preserving delta calculations
+    # Update tour_rows with correct ELO values and Xtreme stats while preserving delta calculations
     for row in tour_rows:
         bey_name = row["Name"]
         if bey_name in correct_elos:
             row["ELO"] = correct_elos[bey_name]
+        # Update stats to use Xtreme-only
+        xtreme_stats = arena_stats[ARENA_XTREME][bey_name]
+        row["Spiele"] = xtreme_stats["matches"]
+        row["Siege"] = xtreme_stats["wins"]
+        row["Niederlagen"] = xtreme_stats["losses"]
+        row["Winrate"] = f"{round(xtreme_stats['winrate'] * 100, 1)}%" if xtreme_stats["matches"] > 0 else "0.0%"
+        row["Gewonnene Punkte"] = xtreme_stats["for"]
+        row["Verlorene Punkte"] = xtreme_stats["against"]
+        row["Differenz"] = xtreme_stats["for"] - xtreme_stats["against"]
 
     # Resort by corrected ELO to ensure proper ranking
     tour_rows_sorted = sorted(tour_rows, key=lambda x: x["ELO"], reverse=True)
