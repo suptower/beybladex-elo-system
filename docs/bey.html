@@ -332,7 +332,7 @@ let allLeaderboardData = [];
 let allEloHistoryData = [];
 let rpgStatsData = null;
 let countersData = [];
-let currentArena = 'xtreme'; // Track current arena for plots
+let currentArena = localStorage.getItem('beyPageArena') || 'xtreme'; // Track current arena for plots, load from localStorage
 
 // Helper function to normalize bey names for comparison
 function normalizeBeyName(name) {
@@ -414,9 +414,16 @@ async function loadData() {
         
         // Load leaderboard data (arena-specific for stats display)
         try {
-            // Try advanced leaderboard first (only Xtreme has advanced stats)
+            // Try advanced leaderboard first for both arenas
             if (currentArena === 'xtreme') {
                 const advancedResponse = await fetch('data/advanced_leaderboard.csv');
+                const advancedText = await advancedResponse.text();
+                const advancedData = parseCSV(advancedText);
+                allLeaderboardData = advancedData;
+                leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            } else if (currentArena === 'drop_attack') {
+                // Try Drop Attack advanced leaderboard
+                const advancedResponse = await fetch('data/advanced_leaderboard_drop_attack.csv');
                 const advancedText = await advancedResponse.text();
                 const advancedData = parseCSV(advancedText);
                 allLeaderboardData = advancedData;
@@ -2232,47 +2239,11 @@ function renderSimilarPerformanceBeys(beys) {
     }).join('');
 }
 
-// Function to reload arena-specific data and update plots
+// Function to reload arena-specific data and update display
 async function switchArena(newArena) {
-    currentArena = newArena;
-    
-    // Show loading indicator for plots
-    const plotSection = document.getElementById('plotSection');
-    const positionPlotSection = document.getElementById('positionPlotSection');
-    
-    try {
-        // Reload timeseries data for the new arena
-        const arenaPath = currentArena === 'xtreme' ? 'elo_timeseries.csv' : `elo_timeseries_${currentArena}.csv`;
-        const eloTsResponse = await fetch(`data/${arenaPath}`);
-        const eloTsText = await eloTsResponse.text();
-        eloTimeseriesData = parseCSV(eloTsText);
-        
-        const posArenaPath = currentArena === 'xtreme' ? 'position_timeseries.csv' : `position_timeseries_${currentArena}.csv`;
-        const posTsResponse = await fetch(`data/${posArenaPath}`);
-        const posTsText = await posTsResponse.text();
-        positionTimeseriesData = parseCSV(posTsText);
-        
-        // Reload leaderboard data for the new arena
-        const leaderboardPath = currentArena === 'xtreme' ? 'leaderboard.csv' : `leaderboard_${currentArena}.csv`;
-        const standardResponse = await fetch(`data/${leaderboardPath}`);
-        const standardText = await standardResponse.text();
-        const standardData = parseCSV(standardText);
-        allLeaderboardData = standardData;
-        leaderboardData = findLeaderboardEntry(standardData, beyName);
-        
-        // Update ELO and stats display
-        updateKeyStats();
-        updateStatsSection();
-        updateHistorySection();
-        
-        // Update plots
-        updateELOPlot();
-        updatePositionPlot();
-        
-        console.log(`Switched to ${currentArena} arena`);
-    } catch (e) {
-        console.error('Error switching arena:', e);
-    }
+    // Save preference and reload page
+    localStorage.setItem('beyPageArena', newArena);
+    location.reload();
 }
 
 // Set up arena selector
@@ -2284,21 +2255,12 @@ function setupArenaSelector() {
         // Show the selector
         arenaPlotSelector.style.display = 'block';
         
+        // Set the dropdown to match current arena
+        arenaPlotSelect.value = currentArena;
+        
         // Add event listener
         arenaPlotSelect.addEventListener('change', (e) => {
             switchArena(e.target.value);
-        });
-        
-        // Load saved preference from localStorage
-        const savedArena = localStorage.getItem('beyPageArena');
-        if (savedArena && savedArena !== currentArena) {
-            arenaPlotSelect.value = savedArena;
-            switchArena(savedArena);
-        }
-        
-        // Save preference on change
-        arenaPlotSelect.addEventListener('change', (e) => {
-            localStorage.setItem('beyPageArena', e.target.value);
         });
     }
 }
