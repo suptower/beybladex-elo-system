@@ -8,7 +8,7 @@ let currentSeason = null;
 let roundsData = {}; // Mapping of match_id to rounds array
 let expandedMatches = new Set(); // Track which matches are expanded
 let xtremeEloData = {}; // Mapping of bey name to Xtreme ELO
-let collapsedSections = new Set(); // Track which sections are collapsed
+let collapsedSections = new Set(['qualification-pool']); // Track which sections are collapsed (qualification pool collapsed by default)
 
 // Finish type styling configuration
 const FINISH_TYPE_STYLES = {
