@@ -164,7 +164,7 @@ def calculate_score_with_dominance(sa, sb):
 
 
 def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, arena=None, match_type=None,
-               arena_elos=None, arena_stats=None):
+               arena_elos=None, arena_stats=None, season_id=None, tier=None, matchday=None):
     """
     Update ELO ratings for a match.
 
@@ -180,6 +180,9 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         match_type: Type of match (exhibition, season, etc.)
         arena_elos: Dict of arena-specific ELO ratings (arena -> bey -> elo)
         arena_stats: Dict of arena-specific stats (arena -> bey -> stats)
+        season_id: Season identifier (e.g., 'S1')
+        tier: Tier number (1-4)
+        matchday: Matchday number
 
     Logic:
         - Season matches: Always update Xtreme ELO only
@@ -262,7 +265,11 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         writer.writerow([
             match_id, date, a, b, sa, sb,
             round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2),
-            arena, elo_arena  # Add which arena's ELO was updated
+            arena, elo_arena,  # Add which arena's ELO was updated
+            match_type or 'exhibition',
+            season_id or '',
+            tier or '',
+            matchday or ''
         ])
 
     active_stats[a]["for"] += sa
@@ -500,7 +507,8 @@ def run_elo_pipeline(pipeline_config):
         writer = csv.writer(f_hist)
         writer.writerow([
             "MatchID", "Date", "BeyA", "BeyB", "ScoreA", "ScoreB",
-            "PreA", "PreB", "PostA", "PostB", "arena", "elo_arena_updated"
+            "PreA", "PreB", "PostA", "PostB", "arena", "elo_arena_updated",
+            "MatchType", "SeasonID", "Tier", "Matchday"
         ])
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
@@ -518,7 +526,10 @@ def run_elo_pipeline(pipeline_config):
                 m.get("arena", "Xtreme"),
                 m.get("MatchType", "exhibition"),
                 arena_elos,
-                arena_stats
+                arena_stats,
+                m.get("SeasonID", ""),
+                m.get("Tier", ""),
+                m.get("Matchday", "")
             )
 
         # Calculate winrates for global and all arenas
