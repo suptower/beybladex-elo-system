@@ -28,6 +28,21 @@ const COLUMN_ABBREVIATIONS = {
     'CredibilityLabel': 'Confidence'
 };
 
+// User-friendly names for All Arenas comparison table headers
+const ALL_ARENAS_HEADER_NAMES = {
+    'Platz': 'Rank',
+    'Name': 'Bey',
+    'ELO_Global': 'Combined ELO',
+    'ELO_Xtreme': 'Xtreme ELO',
+    'Matches_Xtreme': 'Xtreme Matches',
+    'Wins_Xtreme': 'Xtreme Wins',
+    'Winrate_Xtreme': 'Xtreme Win%',
+    'ELO_DropAttack': 'Drop Attack ELO',
+    'Matches_DropAttack': 'Drop Attack Matches',
+    'Wins_DropAttack': 'Drop Attack Wins',
+    'Winrate_DropAttack': 'Drop Attack Win%'
+};
+
 // Full descriptions for legend with detailed explanations
 const COLUMN_DESCRIPTIONS = {
     'Platz': { short: 'Rank/Position', long: 'Current ranking position in the leaderboard' },
@@ -222,8 +237,16 @@ function renderTable(headers, rows) {
     displayHeaders.forEach((h, index) => {
         const th = document.createElement("th");
         th.classList.add("sortable");
-        // Use abbreviated headers for advanced mode
-        th.textContent = (isAdvancedMode && index > 0) ? getAbbreviatedHeader(h) : h;
+        
+        // For All Arenas comparison view, use user-friendly names
+        let headerText = h;
+        if (currentArena === "all_arenas" && ALL_ARENAS_HEADER_NAMES[h]) {
+            headerText = ALL_ARENAS_HEADER_NAMES[h];
+        } else if (isAdvancedMode && index > 0) {
+            // Use abbreviated headers for advanced mode
+            headerText = getAbbreviatedHeader(h);
+        }
+        th.textContent = headerText;
 
         // Add arena data attribute for comparison view visual grouping
         if (currentArena === "all_arenas") {
