@@ -479,16 +479,45 @@ function displayMatchdays(matchdays) {
                         const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${match.bey_a}</a>`;
                         const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link">${match.bey_b}</a>`;
                         
+                        // Determine winner and loser
+                        const isAWinner = match.score_a > match.score_b;
+                        const isBWinner = match.score_b > match.score_a;
+                        
+                        // Get season and arena info
+                        const seasonId = match.season_id || currentSeason?.season_id || 'S?';
+                        const tierNum = match.tier || '?';
+                        const arena = match.arena || 'Xtreme';
+                        
+                        // Determine if it's a blowout (4+ point difference) or close match (1 point)
+                        const pointDiff = Math.abs(match.score_a - match.score_b);
+                        const isBlowout = pointDiff >= 3;
+                        const isClose = pointDiff === 1;
+                        
                         return `
                         <div class="match-card">
-                            <div class="match-info">
-                                <span class="tier-badge">Tier ${match.tier || '?'}</span>
+                            <div class="match-card-header">
+                                <div class="match-card-context">
+                                    <span class="match-card-context-item">${seasonId}</span>
+                                    <span class="match-card-context-separator">·</span>
+                                    <span class="match-card-context-item tier-badge-subtle">Tier ${tierNum}</span>
+                                    <span class="match-card-context-separator">·</span>
+                                    <span class="match-card-context-item">MD ${md}</span>
+                                    <span class="match-card-context-separator">·</span>
+                                    <span class="match-card-context-item">${arena}</span>
+                                </div>
                                 <span class="match-date">${match.date || ''}</span>
                             </div>
-                            <div class="match-result">
-                                <span class="bey ${match.score_a > match.score_b ? 'winner' : ''}">${beyALink}</span>
-                                <span class="score">${match.score_a} - ${match.score_b}</span>
-                                <span class="bey ${match.score_b > match.score_a ? 'winner' : ''}">${beyBLink}</span>
+                            <div class="match-card-body">
+                                <div class="match-result">
+                                    <span class="bey ${isAWinner ? 'winner' : 'loser'}">${beyALink}</span>
+                                    <span class="score">${match.score_a}<span class="score-separator"> - </span>${match.score_b}</span>
+                                    <span class="bey ${isBWinner ? 'winner' : 'loser'}">${beyBLink}</span>
+                                </div>
+                            </div>
+                            <div class="match-card-footer">
+                                <span class="match-id">${match.match_id || ''}</span>
+                                ${isBlowout ? '<span class="match-tag">🔥 Blowout</span>' : ''}
+                                ${isClose ? '<span class="match-tag">⚡ Close Match</span>' : ''}
                             </div>
                         </div>
                     `;
