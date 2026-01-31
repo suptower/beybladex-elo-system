@@ -167,7 +167,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
                arena_elos=None, arena_stats=None):
     """
     Update ELO ratings for a match.
-    
+
     Args:
         a, b: Bey names
         sa, sb: Scores
@@ -180,7 +180,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         match_type: Type of match (exhibition, season, etc.)
         arena_elos: Dict of arena-specific ELO ratings (arena -> bey -> elo)
         arena_stats: Dict of arena-specific stats (arena -> bey -> stats)
-    
+
     Logic:
         - Season matches: Always update Xtreme ELO only
         - Exhibition matches: Update arena-specific ELO only
@@ -188,14 +188,14 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     # Normalize arena name
     arena = normalize_arena_name(arena)
     match_type = match_type or 'exhibition'
-    
+
     # Determine which arena's ELO to update
     # Season matches always use Xtreme ELO regardless of actual arena
     if match_type == 'season' or match_type == 'relegation' or match_type == 'season_cup':
         elo_arena = ARENA_XTREME
     else:
         elo_arena = arena
-    
+
     # Get the appropriate ELO dict and stats dict
     if arena_elos is not None and elo_arena in arena_elos:
         active_elos = arena_elos[elo_arena]
@@ -204,7 +204,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         # Fallback to global (for backward compatibility)
         active_elos = elos
         active_stats = stats
-    
+
     ra, rb = active_elos[a], active_elos[b]
     ea, eb = expected(ra, rb), expected(rb, ra)
 
@@ -225,23 +225,23 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     # Also update global elos if this is Xtreme arena (for backward compatibility)
     if elo_arena == ARENA_XTREME and arena_elos is not None:
         elos[a], elos[b] = new_a, new_b
-    
+
     # ALWAYS update Combined arena for every match (regardless of which specific arena was used)
     if arena_elos is not None and ARENA_COMBINED in arena_elos and elo_arena != ARENA_COMBINED:
         # Get Combined arena ELOs and stats
         combined_elos = arena_elos[ARENA_COMBINED]
         combined_stats = arena_stats[ARENA_COMBINED] if arena_stats else stats
-        
+
         # Calculate Combined arena update
         rc_a, rc_b = combined_elos[a], combined_elos[b]
         ec_a, ec_b = expected(rc_a, rc_b), expected(rc_b, rc_a)
         Kc_a = dynamic_k(combined_stats[a]["matches"])
         Kc_b = dynamic_k(combined_stats[b]["matches"])
-        
+
         new_c_a = rc_a + Kc_a * (s_a - ec_a)
         new_c_b = rc_b + Kc_b * (s_b - ec_b)
         combined_elos[a], combined_elos[b] = new_c_a, new_c_b
-        
+
         # Update Combined arena stats
         combined_stats[a]["for"] += sa
         combined_stats[a]["against"] += sb
@@ -249,7 +249,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         combined_stats[b]["against"] += sa
         combined_stats[a]["matches"] += 1
         combined_stats[b]["matches"] += 1
-        
+
         if sa > sb:
             combined_stats[a]["wins"] += 1
             combined_stats[b]["losses"] += 1
@@ -449,7 +449,7 @@ def run_elo_pipeline(pipeline_config):
     # Initialize ELO + stats (global - for backward compatibility, represents Xtreme)
     elos = defaultdict(lambda: START_ELO)
     stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
-    
+
     # Initialize arena-specific ELO + stats
     arena_elos = {}
     arena_stats = {}
@@ -685,17 +685,17 @@ def run_elo_pipeline(pipeline_config):
         print(f"{YELLOW}Warning: Round data file not found at {rounds_json_path}{RESET}")
 
     print(f"{GREEN}Aktuelles Leaderboard geschrieben: {leaderboard_file}{RESET}")
-    
+
     # --- Generate Arena-Specific Leaderboards ---
     print(f"{CYAN}Generating arena-specific leaderboards...{RESET}")
     for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
         arena_file_name = arena.lower().replace(" ", "_")
         arena_leaderboard_file = f"./docs/data/leaderboard_{arena_file_name}.csv"
-        
+
         # Sort by arena-specific ELO
         arena_sorted_beys = sorted(arena_elos[arena].items(), key=lambda x: x[1], reverse=True)
         arena_rows = []
-        
+
         for pos, (bey, arena_elo) in enumerate(arena_sorted_beys, start=1):
             s = arena_stats[arena][bey]
             arena_rows.append({
@@ -710,25 +710,25 @@ def run_elo_pipeline(pipeline_config):
                 "Verlorene Punkte": s["against"],
                 "Differenz": s["for"] - s["against"]
             })
-        
+
         pd.DataFrame(arena_rows).to_csv(arena_leaderboard_file, index=False)
         print(f"{GREEN}  {arena} leaderboard written: {arena_leaderboard_file}{RESET}")
-    
+
     # --- Generate Combined Leaderboard with All Arena ELOs ---
     print(f"{CYAN}Generating combined leaderboard with all arena ELOs...{RESET}")
     combined_leaderboard_file = "./docs/data/leaderboard_all_arenas.csv"
-    
+
     # Use Xtreme ELO for primary sorting (global/season ELO)
     xtreme_sorted_beys = sorted(arena_elos[ARENA_XTREME].items(), key=lambda x: x[1], reverse=True)
     combined_rows = []
-    
+
     for pos, (bey, xtreme_elo) in enumerate(xtreme_sorted_beys, start=1):
         row = {
             "Platz": pos,
             "Name": bey,
             "ELO_Global": round(xtreme_elo),  # Xtreme is the global/season ELO
         }
-        
+
         # Add per-arena ELOs and stats
         for arena in SUPPORTED_ARENAS:
             arena_col_name = arena.replace(" ", "")
@@ -737,20 +737,20 @@ def run_elo_pipeline(pipeline_config):
             row[f"Matches_{arena_col_name}"] = s["matches"]
             row[f"Wins_{arena_col_name}"] = s["wins"]
             row[f"Winrate_{arena_col_name}"] = f"{round(s['winrate'] * 100, 1)}%" if s["matches"] > 0 else "0.0%"
-        
+
         combined_rows.append(row)
-    
+
     pd.DataFrame(combined_rows).to_csv(combined_leaderboard_file, index=False)
     print(f"{GREEN}Combined arena leaderboard written: {combined_leaderboard_file}{RESET}")
 
     # --- Time series (default - uses Xtreme only for backward compatibility) ---
     print(f"{CYAN}Generating ELO timeseries...{RESET}")
     df_hist = pd.read_csv(history_file, parse_dates=["Date"]).reset_index(drop=True)
-    
+
     # Filter to only Xtreme arena updates for default timeseries
     df_hist_xtreme = df_hist[df_hist["elo_arena_updated"] == ARENA_XTREME].copy()
     df_hist_xtreme["match_id"] = df_hist_xtreme.index + 1
-    
+
     df_a = pd.DataFrame({"Date": df_hist_xtreme["Date"], "Bey": df_hist_xtreme["BeyA"], "ELO": pd.to_numeric(
         df_hist_xtreme["PostA"], errors="coerce"), "match_id": df_hist_xtreme["match_id"]})
     df_b = pd.DataFrame({"Date": df_hist_xtreme["Date"], "Bey": df_hist_xtreme["BeyB"], "ELO": pd.to_numeric(
@@ -768,12 +768,12 @@ def run_elo_pipeline(pipeline_config):
     stacked = stacked.sort_values(["Bey", "MatchIndex"])
     stacked.to_csv(timeseries_file, index=False, encoding="utf-8")
     print(f"{GREEN}  Xtreme timeseries saved: {timeseries_file}{RESET}")
-    
+
     # --- Generate arena-specific timeseries ---
     for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
         arena_file_name = arena.lower().replace(" ", "_")
         arena_timeseries_file = f"./docs/data/elo_timeseries_{arena_file_name}.csv"
-        
+
         # For Combined arena, include ALL matches; for specific arenas, filter by arena
         if arena == ARENA_COMBINED:
             # Combined includes all matches regardless of which arena's ELO was updated
@@ -781,14 +781,20 @@ def run_elo_pipeline(pipeline_config):
         else:
             # Filter to only this arena's updates
             df_hist_arena = df_hist[df_hist["elo_arena_updated"] == arena].copy()
-        
+
         df_hist_arena["match_id"] = df_hist_arena.index + 1
-        
+
         df_a_arena = pd.DataFrame({"Date": df_hist_arena["Date"], "Bey": df_hist_arena["BeyA"], "ELO": pd.to_numeric(
             df_hist_arena["PostA"], errors="coerce"), "match_id": df_hist_arena["match_id"]})
-        df_b_arena = pd.DataFrame({"Date": df_hist_arena["Date"], "Bey": df_hist_arena["BeyB"], "ELO": pd.to_numeric(
-            df_hist_arena["PostB"], errors="coerce"), "match_id": df_hist_arena["match_id"]})
-        stacked_arena = pd.concat([df_a_arena, df_b_arena], ignore_index=True).sort_values(["Bey", "match_id"]).reset_index(drop=True)
+        df_b_arena = pd.DataFrame({
+            "Date": df_hist_arena["Date"],
+            "Bey": df_hist_arena["BeyB"],
+            "ELO": pd.to_numeric(df_hist_arena["PostB"], errors="coerce"),
+            "match_id": df_hist_arena["match_id"]
+        })
+        stacked_arena = pd.concat(
+            [df_a_arena, df_b_arena], ignore_index=True
+        ).sort_values(["Bey", "match_id"]).reset_index(drop=True)
         stacked_arena["MatchIndex"] = stacked_arena.groupby("Bey").cumcount() + 1
 
         initial_entries_arena = []
@@ -801,7 +807,7 @@ def run_elo_pipeline(pipeline_config):
         stacked_arena = stacked_arena.sort_values(["Bey", "MatchIndex"])
         stacked_arena.to_csv(arena_timeseries_file, index=False, encoding="utf-8")
         print(f"{GREEN}  {arena} timeseries saved: {arena_timeseries_file}{RESET}")
-    
+
     print(f"{GREEN}All timeseries files generated{RESET}")
 
     # --- Position Time Series ---
@@ -809,24 +815,38 @@ def run_elo_pipeline(pipeline_config):
 
     # Read the history to track positions after each match
     df_hist_full = pd.read_csv(history_file, parse_dates=["Date"])
-    
+
     # Generate position timeseries for each arena
-    for arena_idx, arena in enumerate([ARENA_XTREME] + [a for a in SUPPORTED_ARENAS if a != ARENA_XTREME]):
+    for arena_idx, arena in enumerate(
+        [ARENA_XTREME] + [a for a in SUPPORTED_ARENAS if a != ARENA_XTREME]
+    ):
         arena_file_name = arena.lower().replace(" ", "_")
-        arena_position_file = position_file if arena == ARENA_XTREME else f"./docs/data/position_timeseries_{arena_file_name}.csv"
-        
+        arena_position_file = (
+            position_file if arena == ARENA_XTREME
+            else f"./docs/data/position_timeseries_{arena_file_name}.csv"
+        )
+
         # Filter to only this arena's updates
         df_hist_arena = df_hist_full[df_hist_full["elo_arena_updated"] == arena].copy()
-        
+
         if len(df_hist_arena) == 0:
             # No matches for this arena, create empty file
-            pd.DataFrame(columns=["Event", "MatchIndex", "Played", "PassiveChange", "Date", "Bey", "ELO", "Position", "Spiele", "Siege", "Niederlagen", "Winrate"]).to_csv(arena_position_file, index=False, encoding="utf-8")
+            empty_columns = [
+                "Event", "MatchIndex", "Played", "PassiveChange", "Date",
+                "Bey", "ELO", "Position", "Spiele", "Siege", "Niederlagen", "Winrate"
+            ]
+            pd.DataFrame(columns=empty_columns).to_csv(
+                arena_position_file, index=False, encoding="utf-8"
+            )
             print(f"{YELLOW}  {arena} position timeseries: No matches, empty file created{RESET}")
             continue
 
         # Initialize tracking structures
         current_elos = defaultdict(lambda: START_ELO)
-        current_stats = defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+        current_stats = defaultdict(lambda: {
+            "wins": 0, "losses": 0, "for": 0, "against": 0,
+            "matches": 0, "winrate": 0.0
+        })
 
         # Load start ratings for private ladder
         if pipeline_start_elos is not None:
@@ -922,7 +942,7 @@ def run_elo_pipeline(pipeline_config):
         position_df = pd.DataFrame(position_rows)
         position_df.to_csv(arena_position_file, index=False, encoding="utf-8")
         print(f"{GREEN}  {arena} position timeseries saved: {arena_position_file}{RESET}")
-    
+
     print(f"{GREEN}All position timeseries files generated{RESET}")
 
 

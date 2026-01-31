@@ -196,7 +196,7 @@ with open(HISTORY_FILE, newline="", encoding="utf-8") as f:
     for row in matches:
         # Combined arena: Include ALL matches from all arenas
         # This provides a comprehensive cross-arena performance view
-            
+
         a, b = row["BeyA"], row["BeyB"]
         pre_a, pre_b = float(row["PreA"]), float(row["PreB"])
         post_a, post_b = float(row["PostA"]), float(row["PostB"])
