@@ -529,7 +529,7 @@ function displayRelegationMatches(matches) {
  * Display Qualification Pool
  */
 function displayQualificationPool(qualificationPool) {
-    const container = document.getElementById('qualification-pool-content');
+    const container = document.getElementById('qualification-pool');
     const sectionContainer = document.getElementById('qualification-pool-container');
     
     if (!qualificationPool || qualificationPool.length === 0) {
