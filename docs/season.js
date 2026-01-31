@@ -7,6 +7,7 @@
 let currentSeason = null;
 let roundsData = {}; // Mapping of match_id to rounds array
 let expandedMatches = new Set(); // Track which matches are expanded
+let xtremeEloData = {}; // Mapping of bey name to Xtreme ELO
 
 // Finish type styling configuration
 const FINISH_TYPE_STYLES = {
@@ -22,7 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const seasonId = urlParams.get('id');
     
     if (seasonId) {
-        loadRoundsData().then(() => {
+        // Load both rounds data and Xtreme ELO data before loading season
+        Promise.all([loadRoundsData(), loadXtremeEloData()]).then(() => {
             loadSeason(seasonId);
         });
     } else {
@@ -57,6 +59,42 @@ async function loadRoundsData() {
     } catch (error) {
         console.error('Error loading rounds data:', error);
         roundsData = {};
+    }
+}
+
+/**
+ * Load Xtreme stadium ELO data from leaderboard
+ */
+async function loadXtremeEloData() {
+    try {
+        const response = await fetch('data/leaderboard_xtreme.csv');
+        if (!response.ok) {
+            throw new Error('Failed to load Xtreme leaderboard');
+        }
+        
+        const csvText = await response.text();
+        const lines = csvText.trim().split('\n');
+        
+        // Skip header row
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i];
+            if (!line.trim()) continue;
+            
+            const values = line.split(',');
+            if (values.length >= 3) {
+                const beyName = values[1]; // Name is in second column
+                const elo = parseFloat(values[2]); // ELO is in third column
+                
+                if (beyName && !isNaN(elo)) {
+                    xtremeEloData[beyName] = elo;
+                }
+            }
+        }
+        
+        console.log(`Loaded Xtreme ELO data for ${Object.keys(xtremeEloData).length} Beys`);
+    } catch (error) {
+        console.error('Error loading Xtreme ELO data:', error);
+        xtremeEloData = {};
     }
 }
 
@@ -312,6 +350,9 @@ function createTableRow(entry, idx, tier) {
     // Create Bey link
     const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${entry.bey}</a>`;
     
+    // Use Xtreme ELO if available, otherwise fall back to entry.elo
+    const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
+    
     return `
         <tr class="${positionClass}">
             <td>${entry.position}${positionIndicator}</td>
@@ -323,7 +364,7 @@ function createTableRow(entry, idx, tier) {
             <td>${entry.points_for}</td>
             <td>${entry.points_against}</td>
             <td>${entry.point_diff > 0 ? '+' : ''}${entry.point_diff}</td>
-            <td>${Math.round(entry.elo)}</td>
+            <td>${Math.round(displayElo)}</td>
         </tr>
     `;
 }
