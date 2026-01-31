@@ -16,13 +16,10 @@ def offset_match_ids(input_file, output_file, offset):
         output_file: Path to the output CSV file
         offset: Integer offset to add to each match ID
     """
-    is_rounds_file = False
     with open(input_file, 'r', encoding='utf-8') as infile, \
          open(output_file, 'w', encoding='utf-8') as outfile:
         # Skip header
-        if infile.readline().strip().split(',')[1] == 'round_number':
-            is_rounds_file = True
-        #next(infile)
+        next(infile)
         for line in infile:
             parts = line.strip().split(',')
             if len(parts) < 2:
