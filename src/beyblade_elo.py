@@ -82,7 +82,9 @@ OVERKILL_WEIGHT = 0.25
 # Arena constants
 ARENA_XTREME = "Xtreme"
 ARENA_DROP_ATTACK = "Drop Attack"
+ARENA_COMBINED = "Combined"  # Tracks all matches from all arenas
 SUPPORTED_ARENAS = [ARENA_XTREME, ARENA_DROP_ATTACK]
+ALL_ARENAS = [ARENA_XTREME, ARENA_DROP_ATTACK, ARENA_COMBINED]  # Including combined
 
 # ------------ Arena normalization ------------
 
@@ -98,7 +100,11 @@ def normalize_arena_name(arena):
         "drop attack": ARENA_DROP_ATTACK,
         "Drop Attack": ARENA_DROP_ATTACK,
         "DropAttack": ARENA_DROP_ATTACK,
-        "drop_attack": ARENA_DROP_ATTACK
+        "drop_attack": ARENA_DROP_ATTACK,
+        "combined": ARENA_COMBINED,
+        "Combined": ARENA_COMBINED,
+        "global": ARENA_COMBINED,
+        "Global": ARENA_COMBINED
     }
     return arena_map.get(arena, arena)
 
@@ -219,6 +225,37 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     # Also update global elos if this is Xtreme arena (for backward compatibility)
     if elo_arena == ARENA_XTREME and arena_elos is not None:
         elos[a], elos[b] = new_a, new_b
+    
+    # ALWAYS update Combined arena for every match (regardless of which specific arena was used)
+    if arena_elos is not None and ARENA_COMBINED in arena_elos and elo_arena != ARENA_COMBINED:
+        # Get Combined arena ELOs and stats
+        combined_elos = arena_elos[ARENA_COMBINED]
+        combined_stats = arena_stats[ARENA_COMBINED] if arena_stats else stats
+        
+        # Calculate Combined arena update
+        rc_a, rc_b = combined_elos[a], combined_elos[b]
+        ec_a, ec_b = expected(rc_a, rc_b), expected(rc_b, rc_a)
+        Kc_a = dynamic_k(combined_stats[a]["matches"])
+        Kc_b = dynamic_k(combined_stats[b]["matches"])
+        
+        new_c_a = rc_a + Kc_a * (s_a - ec_a)
+        new_c_b = rc_b + Kc_b * (s_b - ec_b)
+        combined_elos[a], combined_elos[b] = new_c_a, new_c_b
+        
+        # Update Combined arena stats
+        combined_stats[a]["for"] += sa
+        combined_stats[a]["against"] += sb
+        combined_stats[b]["for"] += sb
+        combined_stats[b]["against"] += sa
+        combined_stats[a]["matches"] += 1
+        combined_stats[b]["matches"] += 1
+        
+        if sa > sb:
+            combined_stats[a]["wins"] += 1
+            combined_stats[b]["losses"] += 1
+        else:
+            combined_stats[b]["wins"] += 1
+            combined_stats[a]["losses"] += 1
 
     # Write to history file
     if writer is not None:
@@ -416,7 +453,7 @@ def run_elo_pipeline(pipeline_config):
     # Initialize arena-specific ELO + stats
     arena_elos = {}
     arena_stats = {}
-    for arena in SUPPORTED_ARENAS:
+    for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
         arena_elos[arena] = defaultdict(lambda: START_ELO)
         arena_stats[arena] = defaultdict(
             lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0}
@@ -435,8 +472,8 @@ def run_elo_pipeline(pipeline_config):
                         all_bey_blades.add(blade_name)
                         # Initialize in elos dict by accessing it (triggers defaultdict)
                         _ = elos[blade_name]
-                        # Initialize in all arena dicts
-                        for arena in SUPPORTED_ARENAS:
+                        # Initialize in all arena dicts (including Combined)
+                        for arena in ALL_ARENAS:
                             _ = arena_elos[arena][blade_name]
             print(f"{GREEN}Loaded {len(all_bey_blades)} beys from registry{RESET}")
         except FileNotFoundError:
@@ -452,7 +489,7 @@ def run_elo_pipeline(pipeline_config):
         for bey, elo in pipeline_start_elos.items():
             elos[bey] = elo
             # Copy starting ELOs to all arenas
-            for arena in SUPPORTED_ARENAS:
+            for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
                 arena_elos[arena][bey] = elo
 
     # --- Full history CSV ---
@@ -486,7 +523,7 @@ def run_elo_pipeline(pipeline_config):
 
         # Calculate winrates for global and all arenas
         calculate_winrates(stats)
-        for arena in SUPPORTED_ARENAS:
+        for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
             calculate_winrates(arena_stats[arena])
 
     # --- Turnier-basierte Leaderboards mit Positionsdelta ---
@@ -651,7 +688,7 @@ def run_elo_pipeline(pipeline_config):
     
     # --- Generate Arena-Specific Leaderboards ---
     print(f"{CYAN}Generating arena-specific leaderboards...{RESET}")
-    for arena in SUPPORTED_ARENAS:
+    for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
         arena_file_name = arena.lower().replace(" ", "_")
         arena_leaderboard_file = f"./docs/data/leaderboard_{arena_file_name}.csv"
         
@@ -733,12 +770,18 @@ def run_elo_pipeline(pipeline_config):
     print(f"{GREEN}  Xtreme timeseries saved: {timeseries_file}{RESET}")
     
     # --- Generate arena-specific timeseries ---
-    for arena in SUPPORTED_ARENAS:
+    for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
         arena_file_name = arena.lower().replace(" ", "_")
         arena_timeseries_file = f"./docs/data/elo_timeseries_{arena_file_name}.csv"
         
-        # Filter to only this arena's updates
-        df_hist_arena = df_hist[df_hist["elo_arena_updated"] == arena].copy()
+        # For Combined arena, include ALL matches; for specific arenas, filter by arena
+        if arena == ARENA_COMBINED:
+            # Combined includes all matches regardless of which arena's ELO was updated
+            df_hist_arena = df_hist.copy()
+        else:
+            # Filter to only this arena's updates
+            df_hist_arena = df_hist[df_hist["elo_arena_updated"] == arena].copy()
+        
         df_hist_arena["match_id"] = df_hist_arena.index + 1
         
         df_a_arena = pd.DataFrame({"Date": df_hist_arena["Date"], "Bey": df_hist_arena["BeyA"], "ELO": pd.to_numeric(
