@@ -965,3 +965,6 @@ function toggleSection(sectionId) {
         if (icon) icon.textContent = '▶';
     }
 }
+
+// Expose toggleSection to global scope for onclick handlers
+window.toggleSection = toggleSection;
