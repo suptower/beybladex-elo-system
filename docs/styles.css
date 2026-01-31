@@ -12024,6 +12024,57 @@ select:focus-visible {
     gap: 1rem;
 }
 
+#matchdays-container .bey-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
+    transition: var(--transition);
+}
+
+#matchdays-container .bey-container.winner .bey-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--accent);
+}
+
+#matchdays-container .bey-container.loser {
+    opacity: 0.6;
+}
+
+#matchdays-container .bey-container.loser .bey-name {
+    font-size: 0.95rem;
+}
+
+#matchdays-container .bey-name {
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
+}
+
+#matchdays-container .bey-elo {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-align: center;
+}
+
+#matchdays-container .elo-change {
+    font-weight: 600;
+    font-size: 0.7rem;
+}
+
+#matchdays-container .elo-change.positive {
+    color: #10b981;
+}
+
+#matchdays-container .elo-change.negative {
+    color: #ef4444;
+}
+
 #matchdays-container .match-result .bey {
     flex: 1;
     text-align: center;
@@ -12064,11 +12115,19 @@ select:focus-visible {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 #matchdays-container .match-card-footer .match-id {
     font-family: 'Courier New', monospace;
     opacity: 0.7;
+}
+
+#matchdays-container .match-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
 }
 
 #matchdays-container .match-tag {
@@ -12078,6 +12137,133 @@ select:focus-visible {
     font-weight: 600;
     background: var(--bg-subtle);
     color: var(--text-light);
+}
+
+/* Rounds section styling */
+#matchdays-container .match-card-rounds {
+    border-top: 1px solid var(--border);
+}
+
+#matchdays-container .rounds-toggle {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--bg-subtle);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    transition: var(--transition);
+}
+
+#matchdays-container .rounds-toggle:hover {
+    background: var(--border);
+}
+
+#matchdays-container .toggle-icon {
+    font-weight: 700;
+    font-size: 0.75rem;
+}
+
+#matchdays-container .rounds-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+#matchdays-container .rounds-content.expanded {
+    max-height: 1000px;
+    transition: max-height 0.5s ease-in;
+}
+
+#matchdays-container .rounds-list {
+    padding: 1rem;
+    background: var(--bg);
+}
+
+#matchdays-container .round-item {
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+
+#matchdays-container .round-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+#matchdays-container .round-number {
+    font-weight: 700;
+    font-size: 0.9rem;
+    min-width: 30px;
+}
+
+#matchdays-container .finish-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+#matchdays-container .finish-icon {
+    font-size: 0.9rem;
+}
+
+#matchdays-container .finish-label {
+    font-size: 0.75rem;
+}
+
+#matchdays-container .round-points {
+    margin-left: auto;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+#matchdays-container .round-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+#matchdays-container .round-winner {
+    font-weight: 600;
+    color: var(--text);
+}
+
+#matchdays-container .round-score {
+    font-weight: 700;
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+#matchdays-container .rounds-summary {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+#matchdays-container .finish-summary-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
 }
 
 .no-data-message {
@@ -12121,16 +12307,43 @@ select:focus-visible {
     
     #matchdays-container .match-card-context {
         flex-wrap: wrap;
+        font-size: 0.7rem;
     }
     
-    #matchdays-container .match-result .bey.winner {
+    #matchdays-container .bey-container.winner .bey-name {
         font-size: 1rem;
+    }
+    
+    #matchdays-container .bey-container.loser .bey-name {
+        font-size: 0.875rem;
+    }
+    
+    #matchdays-container .bey-name {
+        font-size: 0.9rem;
+    }
+    
+    #matchdays-container .bey-elo {
+        font-size: 0.7rem;
     }
     
     #matchdays-container .match-result .score {
         font-size: 1.25rem;
         padding: 0.375rem 0.75rem;
         min-width: 70px;
+    }
+    
+    #matchdays-container .round-header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    #matchdays-container .finish-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+    }
+    
+    #matchdays-container .finish-label {
+        display: none;
     }
     
     .match-participants {

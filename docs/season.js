@@ -5,6 +5,16 @@
  */
 
 let currentSeason = null;
+let roundsData = {}; // Mapping of match_id to rounds array
+let expandedMatches = new Set(); // Track which matches are expanded
+
+// Finish type styling configuration
+const FINISH_TYPE_STYLES = {
+    spin: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.15)', label: 'Spin', icon: '🔄', points: 1 },
+    burst: { color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.15)', label: 'Burst', icon: '💥', points: 2 },
+    pocket: { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', label: 'Pocket', icon: '🎯', points: 2 },
+    extreme: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Extreme', icon: '⚡', points: 3 }
+};
 
 // Load season data on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,11 +22,43 @@ document.addEventListener('DOMContentLoaded', function() {
     const seasonId = urlParams.get('id');
     
     if (seasonId) {
-        loadSeason(seasonId);
+        loadRoundsData().then(() => {
+            loadSeason(seasonId);
+        });
     } else {
         showError('No season ID provided');
     }
 });
+
+/**
+ * Load rounds data from matches_with_rounds.json
+ */
+async function loadRoundsData() {
+    try {
+        const response = await fetch('data/matches_with_rounds.json');
+        const data = await response.json();
+        
+        // Create a mapping of match_id to rounds and ELO values
+        if (data.matches) {
+            data.matches.forEach(match => {
+                if (match.rounds && match.rounds.length > 0) {
+                    roundsData[match.match_id] = {
+                        rounds: match.rounds,
+                        elo_a: match.elo_a,
+                        elo_b: match.elo_b,
+                        post_elo_a: match.post_elo_a,
+                        post_elo_b: match.post_elo_b
+                    };
+                }
+            });
+        }
+        
+        console.log(`Loaded rounds data for ${Object.keys(roundsData).length} matches`);
+    } catch (error) {
+        console.error('Error loading rounds data:', error);
+        roundsData = {};
+    }
+}
 
 /**
  * Load specific season data
@@ -493,13 +535,31 @@ function displayMatchdays(matchdays) {
                         const tierNum = match.tier || '?';
                         const arena = match.arena || 'Xtreme';
                         
+                        // Get rounds data and ELO values
+                        const matchData = roundsData[match.match_id];
+                        const hasRounds = matchData && matchData.rounds && matchData.rounds.length > 0;
+                        const isExpanded = expandedMatches.has(match.match_id);
+                        
+                        // Use ELO from roundsData if available, otherwise fall back to match data
+                        const eloA = matchData?.elo_a || match.elo_a || 1000;
+                        const eloB = matchData?.elo_b || match.elo_b || 1000;
+                        const postEloA = matchData?.post_elo_a;
+                        const postEloB = matchData?.post_elo_b;
+                        
+                        // Calculate ELO changes if post-ELO is available
+                        const eloChangeA = postEloA ? Math.round(postEloA - eloA) : null;
+                        const eloChangeB = postEloB ? Math.round(postEloB - eloB) : null;
+                        
                         // Determine if it's a blowout (3+ point difference) or close match (1 point)
                         const pointDiff = Math.abs(match.score_a - match.score_b);
                         const isBlowout = pointDiff >= 3 && !isTie;
                         const isClose = pointDiff === 1;
                         
+                        // Generate rounds HTML if available
+                        const roundsHtml = hasRounds ? createRoundsHtml(match, matchData.rounds) : '';
+                        
                         return `
-                        <div class="match-card">
+                        <div class="match-card" data-match-id="${match.match_id}">
                             <div class="match-card-header">
                                 <div class="match-card-context">
                                     <span class="match-card-context-item">${seasonId}</span>
@@ -514,17 +574,36 @@ function displayMatchdays(matchdays) {
                             </div>
                             <div class="match-card-body">
                                 <div class="match-result">
-                                    <span class="bey ${beyAClass}">${beyALink}</span>
+                                    <div class="bey-container ${beyAClass}">
+                                        <span class="bey-name">${beyALink}</span>
+                                        <span class="bey-elo">ELO: ${Math.round(eloA)}${eloChangeA !== null ? ` <span class="elo-change ${eloChangeA >= 0 ? 'positive' : 'negative'}">(${eloChangeA >= 0 ? '+' : ''}${eloChangeA})</span>` : ''}</span>
+                                    </div>
                                     <span class="score">${match.score_a}<span class="score-separator"> - </span>${match.score_b}</span>
-                                    <span class="bey ${beyBClass}">${beyBLink}</span>
+                                    <div class="bey-container ${beyBClass}">
+                                        <span class="bey-name">${beyBLink}</span>
+                                        <span class="bey-elo">ELO: ${Math.round(eloB)}${eloChangeB !== null ? ` <span class="elo-change ${eloChangeB >= 0 ? 'positive' : 'negative'}">(${eloChangeB >= 0 ? '+' : ''}${eloChangeB})</span>` : ''}</span>
+                                    </div>
                                 </div>
                             </div>
                             <div class="match-card-footer">
                                 <span class="match-id">${match.match_id || ''}</span>
-                                ${isTie ? '<span class="match-tag">Tie</span>' : ''}
-                                ${isBlowout ? '<span class="match-tag">Blowout</span>' : ''}
-                                ${isClose ? '<span class="match-tag">Close Match</span>' : ''}
+                                <div class="match-tags">
+                                    ${isTie ? '<span class="match-tag">Tie</span>' : ''}
+                                    ${isBlowout ? '<span class="match-tag">Blowout</span>' : ''}
+                                    ${isClose ? '<span class="match-tag">Close Match</span>' : ''}
+                                </div>
                             </div>
+                            ${hasRounds ? `
+                            <div class="match-card-rounds">
+                                <button class="rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMatchRounds('${match.match_id}')">
+                                    <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
+                                    <span class="toggle-text">${isExpanded ? 'Hide' : 'Show'} Round Details (${matchData.rounds.length})</span>
+                                </button>
+                                <div class="rounds-content ${isExpanded ? 'expanded' : ''}" id="rounds-${match.match_id}">
+                                    ${roundsHtml}
+                                </div>
+                            </div>
+                            ` : ''}
                         </div>
                     `;
                     }).join('')}
@@ -651,4 +730,94 @@ function showError(message) {
             <p><a href="seasons.html">← Back to Seasons Overview</a></p>
         </div>
     `;
+}
+
+/**
+ * Create rounds HTML for match card
+ */
+function createRoundsHtml(match, rounds) {
+    if (!rounds || rounds.length === 0) return '';
+    
+    let html = '<div class="rounds-list">';
+    let runningScoreA = 0;
+    let runningScoreB = 0;
+    
+    rounds.forEach((round, index) => {
+        const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
+        
+        // Update running score
+        if (round.winner === match.bey_a) {
+            runningScoreA += round.points_awarded;
+        } else if (round.winner === match.bey_b) {
+            runningScoreB += round.points_awarded;
+        }
+        
+        html += `
+            <div class="round-item">
+                <div class="round-header">
+                    <span class="round-number">R${round.round_number || index + 1}</span>
+                    <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
+                        <span class="finish-icon">${finishStyle.icon}</span>
+                        <span class="finish-label">${finishStyle.label}</span>
+                    </span>
+                    <span class="round-points">+${round.points_awarded}</span>
+                </div>
+                <div class="round-details">
+                    <span class="round-winner">${round.winner}</span>
+                    <span class="round-score">${runningScoreA} - ${runningScoreB}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Add finish type summary
+    const finishCounts = {};
+    rounds.forEach(round => {
+        const type = round.finish_type || 'spin';
+        finishCounts[type] = (finishCounts[type] || 0) + 1;
+    });
+    
+    html += '<div class="rounds-summary">';
+    Object.entries(finishCounts).forEach(([type, count]) => {
+        const style = FINISH_TYPE_STYLES[type] || FINISH_TYPE_STYLES.spin;
+        html += `
+            <span class="finish-summary-badge" style="background: ${style.bgColor}; color: ${style.color};">
+                ${style.icon} ${style.label}: ${count}
+            </span>
+        `;
+    });
+    html += '</div>';
+    
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Toggle match rounds visibility
+ */
+function toggleMatchRounds(matchId) {
+    const content = document.getElementById(`rounds-${matchId}`);
+    const toggle = document.querySelector(`[data-match-id="${matchId}"] .rounds-toggle`);
+    const icon = toggle?.querySelector('.toggle-icon');
+    const text = toggle?.querySelector('.toggle-text');
+    
+    if (expandedMatches.has(matchId)) {
+        expandedMatches.delete(matchId);
+        if (content) content.classList.remove('expanded');
+        if (toggle) toggle.classList.remove('expanded');
+        if (icon) icon.textContent = '▼';
+        if (text) {
+            const roundCount = content?.querySelectorAll('.round-item').length || 0;
+            text.textContent = `Show Round Details (${roundCount})`;
+        }
+    } else {
+        expandedMatches.add(matchId);
+        if (content) content.classList.add('expanded');
+        if (toggle) toggle.classList.add('expanded');
+        if (icon) icon.textContent = '▲';
+        if (text) {
+            const roundCount = content?.querySelectorAll('.round-item').length || 0;
+            text.textContent = `Hide Round Details (${roundCount})`;
+        }
+    }
 }
