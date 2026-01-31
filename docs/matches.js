@@ -116,13 +116,13 @@ function createMatchTypeBadge(matchType) {
 function formatTier(tier) {
     if (!tier) return '—';
     const tierNames = ['', 'I', 'II', 'III', 'IV'];
-    return `Tier ${tierNames[tier] || tier}`;
+    return `${tierNames[tier] || tier}`;
 }
 
 // Helper function to format matchday
 function formatMatchday(matchday) {
     if (!matchday) return '—';
-    return `MD ${matchday}`;
+    return `${matchday}`;
 }
 
 
@@ -744,8 +744,8 @@ function displayMatches() {
         if (match.seasonId || match.tier || match.matchday) {
             const metaParts = [];
             if (match.seasonId) metaParts.push(`<span class="meta-item">⚔️ ${match.seasonId}</span>`);
-            if (match.tier) metaParts.push(`<span class="meta-item">🏆 ${formatTier(match.tier)}</span>`);
-            if (match.matchday) metaParts.push(`<span class="meta-item">📅 ${formatMatchday(match.matchday)}</span>`);
+            if (match.tier) metaParts.push(`<span class="meta-item">🏆Tier ${formatTier(match.tier)}</span>`);
+            if (match.matchday) metaParts.push(`<span class="meta-item">📅 Matchday ${formatMatchday(match.matchday)}</span>`);
             metadataHtml = `<div class="card-metadata">${metaParts.join(' ')}</div>`;
         }
         
