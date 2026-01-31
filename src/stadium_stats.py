@@ -569,7 +569,7 @@ def generate_stadium_analytics():
     with open(STADIUM_ANALYTICS_JSON, 'w') as f:
         json.dump(analytics, f, indent=2)
 
-    print(f"{GREEN}✓ Stadium analytics saved to {STADIUM_ANALYTICS_JSON}{RESET}")
+    print(f"{GREEN}Stadium analytics saved to {STADIUM_ANALYTICS_JSON}{RESET}")
 
     # Print summary
     print(f"\n{BOLD}Stadium Summary:{RESET}")

@@ -22,7 +22,7 @@ def offset_match_ids(input_file, output_file, offset):
         # Skip header
         if infile.readline().strip().split(',')[1] == 'round_number':
             is_rounds_file = True
-        next(infile)
+        #next(infile)
         for line in infile:
             parts = line.strip().split(',')
             if len(parts) < 2:
@@ -33,9 +33,6 @@ def offset_match_ids(input_file, output_file, offset):
                 match_id = int(match_id)
                 new_match_id = match_id + offset
                 parts[0] = "M" + str(new_match_id).zfill(4)
-                if not is_rounds_file:
-                    # remove last column
-                    parts = parts[:-1]
                 outfile.write(','.join(parts) + '\n')
             except ValueError:
                 continue
