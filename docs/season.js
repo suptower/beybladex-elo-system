@@ -191,7 +191,6 @@ function displayOverview(season) {
     let totalPointDiff = 0;
     let closeMatches = 0; // 1 point difference
     let blowouts = 0; // 3+ point difference
-    let draws = 0;
     
     allMatches.forEach(match => {
         const scoreA = match.score_a || 0;
@@ -204,9 +203,7 @@ function displayOverview(season) {
         if (scoreB > 0) lowestScore = Math.min(lowestScore, scoreB);
         totalPointDiff += pointDiff;
         
-        if (scoreA === scoreB) {
-            draws++;
-        } else if (pointDiff === 1) {
+        if (pointDiff === 1) {
             closeMatches++;
         } else if (pointDiff >= 3) {
             blowouts++;
@@ -265,10 +262,6 @@ function displayOverview(season) {
                     <div class="stat-item">
                         <span class="stat-label">Blowouts</span>
                         <span class="stat-value">${blowouts}</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Draws</span>
-                        <span class="stat-value">${draws}</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Avg Point Diff</span>
