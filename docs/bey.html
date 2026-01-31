@@ -809,7 +809,10 @@ function renderRpgStats() {
     const rpgStatsContainer = document.getElementById('rpgStatsContainer');
     rpgStatsContainer.innerHTML = '';
     
-    if (!rpgStatsData || !rpgStatsData.stats) {
+    // Check if bey has any matches in current arena
+    const matches = leaderboardData ? (leaderboardData.Matches || leaderboardData.Spiele || 0) : 0;
+    
+    if (!rpgStatsData || !rpgStatsData.stats || matches === 0) {
         rpgStatsSection.style.display = 'none';
         return;
     }
@@ -1218,6 +1221,13 @@ function loadEloPlot() {
     const plotFrame = document.getElementById('eloPlotFrame');
     const plotImg = document.getElementById('eloPlot');
     
+    // Check if bey has any matches in current arena
+    const matches = leaderboardData ? (leaderboardData.Matches || leaderboardData.Spiele || 0) : 0;
+    if (matches === 0) {
+        plotSection.style.display = 'none';
+        return;
+    }
+    
     const bladeName = getBladeName();
     const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
     
@@ -1300,6 +1310,13 @@ function loadPositionPlot() {
     const plotSection = document.getElementById('positionPlotSection');
     const plotFrame = document.getElementById('positionPlotFrame');
     const plotImg = document.getElementById('positionPlot');
+    
+    // Check if bey has any matches in current arena
+    const matches = leaderboardData ? (leaderboardData.Matches || leaderboardData.Spiele || 0) : 0;
+    if (matches === 0) {
+        plotSection.style.display = 'none';
+        return;
+    }
     
     const bladeName = getBladeName();
     const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
