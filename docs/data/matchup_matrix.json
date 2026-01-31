@@ -4,7 +4,7 @@
       "name": "BlackShell",
       "elo": 931.0,
       "tier": "Unranked",
-      "archetype": "Unknown"
+      "archetype": "Tempo Controller"
     },
     {
       "name": "CerberusFlame",
@@ -16,13 +16,13 @@
       "name": "CobaltDragoon",
       "elo": 1057.0,
       "tier": "Unranked",
-      "archetype": "Meta Anchor"
+      "archetype": "Iron Wall"
     },
     {
       "name": "CobaltDrake",
       "elo": 949.0,
       "tier": "Unranked",
-      "archetype": "Iron Wall"
+      "archetype": "Berserker"
     },
     {
       "name": "CrimsonGaruda",
@@ -46,7 +46,7 @@
       "name": "DranDagger",
       "elo": 1020.0,
       "tier": "Unranked",
-      "archetype": "Iron Wall"
+      "archetype": "Adaptive Fighter"
     },
     {
       "name": "DranSword",
@@ -88,7 +88,7 @@
       "name": "ImpactDrake",
       "elo": 1119.0,
       "tier": "Unranked",
-      "archetype": "Meta Anchor"
+      "archetype": "Tempo Controller"
     },
     {
       "name": "KnightMail",
@@ -100,13 +100,13 @@
       "name": "LeonClaw",
       "elo": 975.0,
       "tier": "Unranked",
-      "archetype": "Iron Wall"
+      "archetype": "Adaptive Fighter"
     },
     {
       "name": "LeonCrest",
       "elo": 1037.0,
       "tier": "Unranked",
-      "archetype": "Iron Wall"
+      "archetype": "Adaptive Fighter"
     },
     {
       "name": "PegasusBlast",
@@ -130,7 +130,7 @@
       "name": "PhoenixWing",
       "elo": 1024.0,
       "tier": "Unranked",
-      "archetype": "Meta Anchor"
+      "archetype": "Iron Wall"
     },
     {
       "name": "RhinoReaper",
@@ -172,7 +172,7 @@
       "name": "SolEclipse",
       "elo": 1011.0,
       "tier": "Unranked",
-      "archetype": "Berserker"
+      "archetype": "Glass Cannon"
     },
     {
       "name": "TuskMammoth",
@@ -184,13 +184,19 @@
       "name": "TyrannoBeat",
       "elo": 933.0,
       "tier": "Unranked",
-      "archetype": "Unknown"
+      "archetype": "Chaser"
     },
     {
       "name": "UnicornSting",
       "elo": 984.0,
       "tier": "Unranked",
       "archetype": "Glass Cannon"
+    },
+    {
+      "name": "ValkyrieVolt",
+      "elo": 1000.0,
+      "tier": "Unranked",
+      "archetype": "Counter Shield"
     },
     {
       "name": "ViperTail",
@@ -214,7 +220,7 @@
       "name": "WhaleWave",
       "elo": 994.0,
       "tier": "Unranked",
-      "archetype": "Chaser"
+      "archetype": "Glass Cannon"
     },
     {
       "name": "WizardArc",
@@ -411,6 +417,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -638,6 +649,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -798,10 +814,10 @@
       },
       "PhoenixWing": {
         "winrate": 0.0,
-        "matches": 2,
+        "matches": 3,
         "wins": 0,
-        "losses": 2,
-        "avg_diff": -2.0
+        "losses": 3,
+        "avg_diff": -2.33
       },
       "RhinoReaper": {
         "winrate": null,
@@ -855,6 +871,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -931,9 +952,11 @@
         "avg_diff": null
       },
       "DranBuster": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 5.0
       },
       "DranDagger": {
         "winrate": null,
@@ -1011,10 +1034,10 @@
       },
       "PhoenixWing": {
         "winrate": 0.0,
-        "matches": 1,
+        "matches": 2,
         "wins": 0,
-        "losses": 1,
-        "avg_diff": -5.0
+        "losses": 2,
+        "avg_diff": -4.0
       },
       "RhinoReaper": {
         "winrate": null,
@@ -1064,6 +1087,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -1232,9 +1260,11 @@
         "avg_diff": null
       },
       "ScorpioSpear": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -3.0
       },
       "SharkEdge": {
         "winrate": 0.0,
@@ -1281,6 +1311,11 @@
         "losses": 1,
         "avg_diff": 0.0
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -1308,8 +1343,8 @@
       },
       "WizardArrow": {
         "winrate": 1.0,
-        "matches": 2,
-        "wins": 2,
+        "matches": 3,
+        "wins": 3,
         "losses": 0,
         "avg_diff": 4.0
       },
@@ -1425,9 +1460,11 @@
         "avg_diff": null
       },
       "PegasusBlast": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -2.0
       },
       "PerseusDark": {
         "winrate": 0.0,
@@ -1502,6 +1539,11 @@
         "losses": 0,
         "avg_diff": 3.0
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": 0.0,
         "matches": 1,
@@ -1563,9 +1605,11 @@
         "avg_diff": null
       },
       "CobaltDrake": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -5.0
       },
       "CrimsonGaruda": {
         "winrate": null,
@@ -1723,6 +1767,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -1805,9 +1854,11 @@
         "avg_diff": null
       },
       "DranSword": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 3.0
       },
       "FoxBrush": {
         "winrate": null,
@@ -1897,9 +1948,11 @@
         "avg_diff": null
       },
       "ScorpioSpear": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -2.0
       },
       "SharkEdge": {
         "winrate": null,
@@ -1922,9 +1975,11 @@
         "avg_diff": null
       },
       "TuskMammoth": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 2.0
       },
       "TyrannoBeat": {
         "winrate": null,
@@ -1937,6 +1992,13 @@
         "wins": 1,
         "losses": 1,
         "avg_diff": 1.0
+      },
+      "ValkyrieVolt": {
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -5.0
       },
       "ViperTail": {
         "winrate": 0.5,
@@ -1961,9 +2023,11 @@
         "avg_diff": null
       },
       "WizardArc": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -2.0
       },
       "WizardArrow": {
         "winrate": null,
@@ -2019,9 +2083,11 @@
         "avg_diff": null
       },
       "DranDagger": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -3.0
       },
       "DranSword": {
         "winrate": null,
@@ -2111,9 +2177,11 @@
         "avg_diff": 2.0
       },
       "SamuraiSaber": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -5.0
       },
       "ScorpioSpear": {
         "winrate": null,
@@ -2158,6 +2226,11 @@
         "wins": 1,
         "losses": 0,
         "avg_diff": 3.0
+      },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
       },
       "ViperTail": {
         "winrate": null,
@@ -2373,13 +2446,18 @@
         "avg_diff": null
       },
       "TyrannoBeat": {
-        "winrate": 1.0,
-        "matches": 1,
+        "winrate": 0.5,
+        "matches": 2,
         "wins": 1,
-        "losses": 0,
-        "avg_diff": 3.0
+        "losses": 1,
+        "avg_diff": -0.5
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -2617,6 +2695,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -2640,9 +2723,11 @@
         "avg_diff": 4.0
       },
       "WizardArc": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -5.0
       },
       "WizardArrow": {
         "winrate": null,
@@ -2752,9 +2837,11 @@
         "avg_diff": null
       },
       "LeonCrest": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 4.0
       },
       "PegasusBlast": {
         "winrate": null,
@@ -2834,6 +2921,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -2859,9 +2951,11 @@
         "avg_diff": -1.0
       },
       "WizardArc": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -4.0
       },
       "WizardArrow": {
         "winrate": null,
@@ -3041,6 +3135,11 @@
         "avg_diff": -3.0
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -3254,6 +3353,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -3473,11 +3577,11 @@
         "avg_diff": 3.0
       },
       "TuskMammoth": {
-        "winrate": 0.667,
-        "matches": 3,
+        "winrate": 0.5,
+        "matches": 4,
         "wins": 2,
-        "losses": 1,
-        "avg_diff": 1.67
+        "losses": 2,
+        "avg_diff": 0.25
       },
       "TyrannoBeat": {
         "winrate": null,
@@ -3485,6 +3589,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -3708,6 +3817,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -3923,6 +4037,11 @@
         "losses": 1,
         "avg_diff": -4.0
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -3939,9 +4058,11 @@
         "avg_diff": null
       },
       "WhaleWave": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -4.0
       },
       "WizardArc": {
         "winrate": null,
@@ -4026,9 +4147,11 @@
         "avg_diff": -2.0
       },
       "HellsChain": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -4.0
       },
       "HellsHammer": {
         "winrate": null,
@@ -4140,6 +4263,11 @@
         "losses": 0,
         "avg_diff": 3.0
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": 1.0,
         "matches": 1,
@@ -4209,9 +4337,11 @@
         "avg_diff": null
       },
       "DranBrave": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 2.0
       },
       "DranBuster": {
         "winrate": null,
@@ -4346,6 +4476,13 @@
         "winrate": null,
         "matches": 0,
         "avg_diff": null
+      },
+      "ValkyrieVolt": {
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -4.0
       },
       "ViperTail": {
         "winrate": 0.0,
@@ -4559,11 +4696,18 @@
         "avg_diff": null
       },
       "TyrannoBeat": {
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 4.0
+      },
+      "UnicornSting": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
       },
-      "UnicornSting": {
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -4584,11 +4728,11 @@
         "avg_diff": null
       },
       "WhaleWave": {
-        "winrate": 1.0,
-        "matches": 1,
+        "winrate": 0.5,
+        "matches": 2,
         "wins": 1,
-        "losses": 0,
-        "avg_diff": 5.0
+        "losses": 1,
+        "avg_diff": 2.0
       },
       "WizardArc": {
         "winrate": null,
@@ -4781,6 +4925,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -4834,17 +4983,17 @@
       },
       "CobaltDragoon": {
         "winrate": 1.0,
-        "matches": 2,
-        "wins": 2,
+        "matches": 3,
+        "wins": 3,
         "losses": 0,
-        "avg_diff": 2.0
+        "avg_diff": 2.33
       },
       "CobaltDrake": {
         "winrate": 1.0,
-        "matches": 1,
-        "wins": 1,
+        "matches": 2,
+        "wins": 2,
         "losses": 0,
-        "avg_diff": 5.0
+        "avg_diff": 4.0
       },
       "CrimsonGaruda": {
         "winrate": null,
@@ -4956,9 +5105,11 @@
         "avg_diff": null
       },
       "SamuraiSaber": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -4.0
       },
       "ScorpioSpear": {
         "winrate": 0.0,
@@ -4973,9 +5124,11 @@
         "avg_diff": null
       },
       "SharkScale": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -4.0
       },
       "SilverWolf": {
         "winrate": null,
@@ -5003,6 +5156,11 @@
         "wins": 1,
         "losses": 0,
         "avg_diff": 3.0
+      },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
       },
       "ViperTail": {
         "winrate": null,
@@ -5221,6 +5379,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -5307,9 +5470,11 @@
         "avg_diff": null
       },
       "DranSword": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 5.0
       },
       "FoxBrush": {
         "winrate": null,
@@ -5380,9 +5545,11 @@
         "avg_diff": -3.0
       },
       "PhoenixWing": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 4.0
       },
       "RhinoReaper": {
         "winrate": null,
@@ -5422,11 +5589,11 @@
         "avg_diff": null
       },
       "TuskMammoth": {
-        "winrate": 0.0,
-        "matches": 2,
-        "wins": 0,
+        "winrate": 0.333,
+        "matches": 3,
+        "wins": 1,
         "losses": 2,
-        "avg_diff": -2.0
+        "avg_diff": 0.0
       },
       "TyrannoBeat": {
         "winrate": null,
@@ -5437,6 +5604,13 @@
         "winrate": null,
         "matches": 0,
         "avg_diff": null
+      },
+      "ValkyrieVolt": {
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -5.0
       },
       "ViperTail": {
         "winrate": null,
@@ -5498,9 +5672,11 @@
         "avg_diff": null
       },
       "CrimsonGaruda": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 3.0
       },
       "DranBrave": {
         "winrate": null,
@@ -5515,9 +5691,11 @@
         "avg_diff": 3.0
       },
       "DranDagger": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 2.0
       },
       "DranSword": {
         "winrate": null,
@@ -5633,8 +5811,8 @@
       },
       "SolEclipse": {
         "winrate": 1.0,
-        "matches": 1,
-        "wins": 1,
+        "matches": 2,
+        "wins": 2,
         "losses": 0,
         "avg_diff": 5.0
       },
@@ -5651,6 +5829,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -5674,10 +5857,10 @@
       },
       "WhaleWave": {
         "winrate": 1.0,
-        "matches": 1,
-        "wins": 1,
+        "matches": 2,
+        "wins": 2,
         "losses": 0,
-        "avg_diff": 3.0
+        "avg_diff": 4.0
       },
       "WizardArc": {
         "winrate": null,
@@ -5844,9 +6027,9 @@
       },
       "SharkScale": {
         "winrate": 0.0,
-        "matches": 1,
+        "matches": 2,
         "wins": 0,
-        "losses": 1,
+        "losses": 2,
         "avg_diff": -4.0
       },
       "SilverWolf": {
@@ -5874,6 +6057,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -6027,9 +6215,11 @@
         "avg_diff": null
       },
       "PhoenixWing": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 4.0
       },
       "RhinoReaper": {
         "winrate": null,
@@ -6048,8 +6238,8 @@
       },
       "SharkEdge": {
         "winrate": 1.0,
-        "matches": 1,
-        "wins": 1,
+        "matches": 2,
+        "wins": 2,
         "losses": 0,
         "avg_diff": 4.0
       },
@@ -6078,14 +6268,23 @@
         "avg_diff": -3.0
       },
       "TyrannoBeat": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 5.0
       },
       "UnicornSting": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
+      },
+      "ValkyrieVolt": {
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -4.0
       },
       "ViperTail": {
         "winrate": null,
@@ -6298,6 +6497,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -6467,9 +6671,9 @@
       },
       "ScorpioSpear": {
         "winrate": 0.0,
-        "matches": 1,
+        "matches": 2,
         "wins": 0,
-        "losses": 1,
+        "losses": 2,
         "avg_diff": -5.0
       },
       "SharkEdge": {
@@ -6507,6 +6711,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -6592,9 +6801,11 @@
         "avg_diff": null
       },
       "DranDagger": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -2.0
       },
       "DranSword": {
         "winrate": null,
@@ -6631,11 +6842,11 @@
         "avg_diff": null
       },
       "ImpactDrake": {
-        "winrate": 0.333,
-        "matches": 3,
-        "wins": 1,
+        "winrate": 0.5,
+        "matches": 4,
+        "wins": 2,
         "losses": 2,
-        "avg_diff": -1.67
+        "avg_diff": -0.25
       },
       "KnightMail": {
         "winrate": 0.0,
@@ -6684,11 +6895,11 @@
         "avg_diff": -4.0
       },
       "SamuraiSaber": {
-        "winrate": 1.0,
-        "matches": 2,
+        "winrate": 0.667,
+        "matches": 3,
         "wins": 2,
-        "losses": 0,
-        "avg_diff": 2.0
+        "losses": 1,
+        "avg_diff": 0.0
       },
       "ScorpioSpear": {
         "winrate": 1.0,
@@ -6736,6 +6947,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": 1.0,
         "matches": 2,
@@ -6745,10 +6961,10 @@
       },
       "WeissTiger": {
         "winrate": 1.0,
-        "matches": 1,
-        "wins": 1,
+        "matches": 2,
+        "wins": 2,
         "losses": 0,
-        "avg_diff": 4.0
+        "avg_diff": 4.5
       },
       "WhaleFlame": {
         "winrate": null,
@@ -6831,11 +7047,11 @@
         "avg_diff": -2.0
       },
       "FoxBrush": {
-        "winrate": 0.0,
-        "matches": 1,
-        "wins": 0,
+        "winrate": 0.5,
+        "matches": 2,
+        "wins": 1,
         "losses": 1,
-        "avg_diff": -3.0
+        "avg_diff": 0.5
       },
       "GolemRock": {
         "winrate": null,
@@ -6887,9 +7103,11 @@
         "avg_diff": null
       },
       "PerseusDark": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -4.0
       },
       "PhoenixRudder": {
         "winrate": null,
@@ -6924,9 +7142,11 @@
         "avg_diff": null
       },
       "SharkScale": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 0.0,
+        "matches": 1,
+        "wins": 0,
+        "losses": 1,
+        "avg_diff": -5.0
       },
       "SilverWolf": {
         "winrate": null,
@@ -6949,6 +7169,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -7166,6 +7391,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -7204,6 +7434,216 @@
         "wins": 1,
         "losses": 0,
         "avg_diff": 3.0
+      }
+    },
+    "ValkyrieVolt": {
+      "BlackShell": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "CerberusFlame": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "CobaltDragoon": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "CobaltDrake": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "CrimsonGaruda": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "DranBrave": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "DranBuster": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "DranDagger": {
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 5.0
+      },
+      "DranSword": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "FoxBrush": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "GolemRock": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "HellsChain": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "HellsHammer": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "HellsReaper": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ImpactDrake": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "KnightMail": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "LeonClaw": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "LeonCrest": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "PegasusBlast": {
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 4.0
+      },
+      "PerseusDark": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "PhoenixRudder": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "PhoenixWing": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "RhinoReaper": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "SamuraiSaber": {
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 5.0
+      },
+      "ScorpioSpear": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "SharkEdge": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "SharkScale": {
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 4.0
+      },
+      "SilverWolf": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "SolEclipse": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "TuskMammoth": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "TyrannoBeat": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ViperTail": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "WeissTiger": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "WhaleFlame": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "WhaleWave": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "WizardArc": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "WizardArrow": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "WizardRod": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
       }
     },
     "ViperTail": {
@@ -7379,6 +7819,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -7583,10 +8028,10 @@
       },
       "TuskMammoth": {
         "winrate": 0.0,
-        "matches": 1,
+        "matches": 2,
         "wins": 0,
-        "losses": 1,
-        "avg_diff": -4.0
+        "losses": 2,
+        "avg_diff": -4.5
       },
       "TyrannoBeat": {
         "winrate": null,
@@ -7594,6 +8039,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -7803,6 +8253,11 @@
         "losses": 2,
         "avg_diff": -3.0
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -7929,9 +8384,11 @@
         "avg_diff": null
       },
       "LeonClaw": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 4.0
       },
       "LeonCrest": {
         "winrate": 0.0,
@@ -7946,11 +8403,11 @@
         "avg_diff": null
       },
       "PerseusDark": {
-        "winrate": 0.0,
-        "matches": 1,
-        "wins": 0,
+        "winrate": 0.5,
+        "matches": 2,
+        "wins": 1,
         "losses": 1,
-        "avg_diff": -5.0
+        "avg_diff": -2.0
       },
       "PhoenixRudder": {
         "winrate": null,
@@ -7976,10 +8433,10 @@
       },
       "ScorpioSpear": {
         "winrate": 0.0,
-        "matches": 1,
+        "matches": 2,
         "wins": 0,
-        "losses": 1,
-        "avg_diff": -3.0
+        "losses": 2,
+        "avg_diff": -4.0
       },
       "SharkEdge": {
         "winrate": null,
@@ -8018,6 +8475,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": null,
         "matches": 0,
@@ -8044,10 +8506,10 @@
       },
       "WizardArc": {
         "winrate": 1.0,
-        "matches": 1,
-        "wins": 1,
+        "matches": 2,
+        "wins": 2,
         "losses": 0,
-        "avg_diff": 3.0
+        "avg_diff": 2.5
       },
       "WizardArrow": {
         "winrate": null,
@@ -8099,9 +8561,11 @@
         "avg_diff": null
       },
       "DranDagger": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 2.0
       },
       "DranSword": {
         "winrate": null,
@@ -8114,14 +8578,18 @@
         "avg_diff": null
       },
       "GolemRock": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 5.0
       },
       "HellsChain": {
-        "winrate": null,
-        "matches": 0,
-        "avg_diff": null
+        "winrate": 1.0,
+        "matches": 1,
+        "wins": 1,
+        "losses": 0,
+        "avg_diff": 4.0
       },
       "HellsHammer": {
         "winrate": null,
@@ -8227,6 +8695,11 @@
         "matches": 0,
         "avg_diff": null
       },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
       "ViperTail": {
         "winrate": 0.0,
         "matches": 2,
@@ -8246,10 +8719,10 @@
       },
       "WhaleWave": {
         "winrate": 0.0,
-        "matches": 1,
+        "matches": 2,
         "wins": 0,
-        "losses": 1,
-        "avg_diff": -3.0
+        "losses": 2,
+        "avg_diff": -2.5
       },
       "WizardArc": {
         "winrate": null,
@@ -8292,9 +8765,9 @@
       },
       "CrimsonGaruda": {
         "winrate": 0.0,
-        "matches": 2,
+        "matches": 3,
         "wins": 0,
-        "losses": 2,
+        "losses": 3,
         "avg_diff": -4.0
       },
       "DranBrave": {
@@ -8436,6 +8909,11 @@
         "avg_diff": null
       },
       "UnicornSting": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
+      },
+      "ValkyrieVolt": {
         "winrate": null,
         "matches": 0,
         "avg_diff": null
@@ -8652,6 +9130,11 @@
         "wins": 0,
         "losses": 1,
         "avg_diff": -3.0
+      },
+      "ValkyrieVolt": {
+        "winrate": null,
+        "matches": 0,
+        "avg_diff": null
       },
       "ViperTail": {
         "winrate": null,

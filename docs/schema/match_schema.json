@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://github.com/suptower/beybladex-elo-system/docs/schema/match_schema.json",
   "title": "Beyblade Match Schema",
-  "description": "Schema for Beyblade match data with optional per-round finish type tracking",
+  "description": "Schema for Beyblade match data with optional per-round finish type tracking and arena-specific ELO",
   "type": "object",
   "required": ["date", "bey_a", "bey_b"],
   "properties": {
@@ -67,6 +67,12 @@
         }
       }
     },
+    "arena": {
+      "type": "string",
+      "enum": ["Xtreme", "Drop Attack"],
+      "default": "Xtreme",
+      "description": "Arena/stadium where the match was played. Defaults to 'Xtreme' for backward compatibility. Affects which arena-specific ELO is updated for exhibition matches. Season matches always update Xtreme ELO regardless of arena."
+    },
     "tournament_id": {
       "type": "string",
       "description": "Optional tournament identifier"
@@ -75,7 +81,7 @@
       "type": "string",
       "enum": ["exhibition", "season", "relegation", "season_cup"],
       "default": "exhibition",
-      "description": "Type of match: exhibition (default, all existing matches), season (league match), relegation (promotion/relegation decision match), season_cup (post-season cup)"
+      "description": "Type of match: exhibition (default, all existing matches and non-season matches), season (league match), relegation (promotion/relegation decision match), season_cup (post-season cup). Season, relegation, and season_cup matches always update Xtreme ELO only, regardless of arena. Exhibition matches update the arena-specific ELO."
     },
     "season_id": {
       "type": "string",
