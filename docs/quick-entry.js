@@ -363,12 +363,14 @@ function initializeUI() {
     const formatSelect = document.getElementById('formatSelect');
     const matchCountInput = document.getElementById('matchCount');
     const liveModeToggle = document.getElementById('liveModeToggle');
+    const arenaSelect = document.getElementById('arenaSelect');
     
     if (tournamentNameInput) tournamentNameInput.value = state.tournament.name || '';
     if (roundNumberInput) roundNumberInput.value = state.tournament.round || 1;
     if (formatSelect) formatSelect.value = state.tournament.format || 'swiss';
     if (matchCountInput) matchCountInput.value = state.matches.length || 8;
     if (liveModeToggle) liveModeToggle.checked = state.liveMode;
+    if (arenaSelect) arenaSelect.value = state.tournament.arena || 'Xtreme';
     
     // Render selected participants
     renderSelectedParticipants();
@@ -382,6 +384,7 @@ function setupEventListeners() {
     document.getElementById('tournamentName')?.addEventListener('input', handleTournamentChange);
     document.getElementById('roundNumber')?.addEventListener('input', handleTournamentChange);
     document.getElementById('formatSelect')?.addEventListener('change', handleTournamentChange);
+    document.getElementById('arenaSelect')?.addEventListener('change', handleTournamentChange);
     
     // Action buttons
     document.getElementById('generateMatchesBtn')?.addEventListener('click', generateMatches);
@@ -439,7 +442,16 @@ function handleTournamentChange() {
     state.tournament.name = document.getElementById('tournamentName')?.value || '';
     state.tournament.round = parseInt(document.getElementById('roundNumber')?.value) || 1;
     state.tournament.format = document.getElementById('formatSelect')?.value || 'swiss';
+    state.tournament.arena = document.getElementById('arenaSelect')?.value || 'Xtreme';
+    
+    // Update arena for all existing matches when it changes
+    const selectedArena = state.tournament.arena;
+    state.matches.forEach(match => {
+        match.arena = selectedArena;
+    });
+    
     saveToStorage();
+    renderMatches(); // Re-render to show updated arena info
 }
 
 function handleGlobalKeydown(e) {
@@ -466,12 +478,12 @@ function createEmptyRound(index) {
 
 // Create an empty match with rounds support
 function createEmptyMatch(index) {
-    // Get settings from the most recent match (if any)
+    // Get settings from the tournament or most recent match (if any)
     let matchType = 'exhibition';
     let seasonId = '';
     let tier = '';
     let matchday = '';
-    let arena = 'Xtreme';
+    let arena = state.tournament.arena || 'Xtreme';
     
     if (state.matches.length > 0) {
         const lastMatch = state.matches[state.matches.length - 1];
@@ -479,7 +491,10 @@ function createEmptyMatch(index) {
         seasonId = lastMatch.seasonId || '';
         tier = lastMatch.tier || '';
         matchday = lastMatch.matchday || '';
-        arena = lastMatch.arena || 'Xtreme';
+        // Only use lastMatch arena if tournament arena is not set
+        if (!state.tournament.arena) {
+            arena = lastMatch.arena || 'Xtreme';
+        }
     }
     
     return {

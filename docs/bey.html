@@ -109,6 +109,18 @@
                 </div>
             </div>
             
+            <!-- Arena Selector for Plots (moved higher for better visibility) -->
+            <div class="profile-section" id="arenaPlotSelector" style="display: none;">
+                <div class="arena-plot-selector-container">
+                    <label for="arenaPlotSelect" class="arena-plot-label">🏟️ View Stats & Plots for Arena:</label>
+                    <select id="arenaPlotSelect" class="arena-plot-select">
+                        <option value="xtreme" selected>Xtreme Stadium (Season/Global)</option>
+                        <option value="drop_attack">Drop Attack Beystadium</option>
+                        <option value="combined">Combined/Global (All Matches)</option>
+                    </select>
+                </div>
+            </div>
+            
             <!-- Key Stats Section (ELO and Power Index) -->
             <div class="profile-section" id="keyStatsSection" style="display: none;">
                 <div id="keyStatsGrid" class="key-stats-grid">
@@ -321,6 +333,7 @@ let allLeaderboardData = [];
 let allEloHistoryData = [];
 let rpgStatsData = null;
 let countersData = [];
+let currentArena = localStorage.getItem('beyPageArena') || 'xtreme'; // Track current arena for plots, load from localStorage
 
 // Helper function to normalize bey names for comparison
 function normalizeBeyName(name) {
@@ -400,16 +413,33 @@ async function loadData() {
         allBeysData = beys;
         beyData = findBeyByName(beys, beyName);
         
-        // Load leaderboard data (try advanced first, then standard)
+        // Load leaderboard data (arena-specific for stats display)
         try {
-            const advancedResponse = await fetch('data/advanced_leaderboard.csv');
-            const advancedText = await advancedResponse.text();
-            const advancedData = parseCSV(advancedText);
-            allLeaderboardData = advancedData;
-            leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            // Try advanced leaderboard first for both arenas
+            if (currentArena === 'xtreme') {
+                const advancedResponse = await fetch('data/advanced_leaderboard.csv');
+                const advancedText = await advancedResponse.text();
+                const advancedData = parseCSV(advancedText);
+                allLeaderboardData = advancedData;
+                leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            } else if (currentArena === 'drop_attack') {
+                // Try Drop Attack advanced leaderboard
+                const advancedResponse = await fetch('data/advanced_leaderboard_drop_attack.csv');
+                const advancedText = await advancedResponse.text();
+                const advancedData = parseCSV(advancedText);
+                allLeaderboardData = advancedData;
+                leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            } else if (currentArena === 'combined') {
+                // Combined arena - no advanced stats, use standard leaderboard
+                throw new Error('Use arena-specific leaderboard');
+            } else {
+                // Use arena-specific leaderboard
+                throw new Error('Use arena-specific leaderboard');
+            }
         } catch (e) {
-            // Fallback to standard leaderboard
-            const standardResponse = await fetch('data/leaderboard.csv');
+            // Fallback to arena-specific standard leaderboard
+            const arenaPath = currentArena === 'xtreme' ? 'leaderboard.csv' : `leaderboard_${currentArena}.csv`;
+            const standardResponse = await fetch(`data/${arenaPath}`);
             const standardText = await standardResponse.text();
             const standardData = parseCSV(standardText);
             allLeaderboardData = standardData;
@@ -445,7 +475,8 @@ async function loadData() {
         
         // Load ELO timeseries data
         try {
-            const eloTsResponse = await fetch('data/elo_timeseries.csv');
+            const arenaPath = currentArena === 'xtreme' ? 'elo_timeseries.csv' : `elo_timeseries_${currentArena}.csv`;
+            const eloTsResponse = await fetch(`data/${arenaPath}`);
             const eloTsText = await eloTsResponse.text();
             eloTimeseriesData = parseCSV(eloTsText);
         } catch (e) {
@@ -455,7 +486,8 @@ async function loadData() {
         
         // Load position timeseries data
         try {
-            const posTsResponse = await fetch('data/position_timeseries.csv');
+            const arenaPath = currentArena === 'xtreme' ? 'position_timeseries.csv' : `position_timeseries_${currentArena}.csv`;
+            const posTsResponse = await fetch(`data/${arenaPath}`);
             const posTsText = await posTsResponse.text();
             positionTimeseriesData = parseCSV(posTsText);
         } catch (e) {
@@ -781,7 +813,10 @@ function renderRpgStats() {
     const rpgStatsContainer = document.getElementById('rpgStatsContainer');
     rpgStatsContainer.innerHTML = '';
     
-    if (!rpgStatsData || !rpgStatsData.stats) {
+    // Check if bey has any matches in current arena
+    const matches = leaderboardData ? (leaderboardData.Matches || leaderboardData.Spiele || 0) : 0;
+    
+    if (!rpgStatsData || !rpgStatsData.stats || matches === 0) {
         rpgStatsSection.style.display = 'none';
         return;
     }
@@ -1190,6 +1225,13 @@ function loadEloPlot() {
     const plotFrame = document.getElementById('eloPlotFrame');
     const plotImg = document.getElementById('eloPlot');
     
+    // Check if bey has any matches in current arena
+    const matches = leaderboardData ? (leaderboardData.Matches || leaderboardData.Spiele || 0) : 0;
+    if (matches === 0) {
+        plotSection.style.display = 'none';
+        return;
+    }
+    
     const bladeName = getBladeName();
     const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
     
@@ -1272,6 +1314,13 @@ function loadPositionPlot() {
     const plotSection = document.getElementById('positionPlotSection');
     const plotFrame = document.getElementById('positionPlotFrame');
     const plotImg = document.getElementById('positionPlot');
+    
+    // Check if bey has any matches in current arena
+    const matches = leaderboardData ? (leaderboardData.Matches || leaderboardData.Spiele || 0) : 0;
+    if (matches === 0) {
+        plotSection.style.display = 'none';
+        return;
+    }
     
     const bladeName = getBladeName();
     const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
@@ -2211,11 +2260,40 @@ function renderSimilarPerformanceBeys(beys) {
     }).join('');
 }
 
+// Function to reload arena-specific data and update display
+async function switchArena(newArena) {
+    // Save preference and reload page
+    localStorage.setItem('beyPageArena', newArena);
+    location.reload();
+}
+
+// Set up arena selector
+function setupArenaSelector() {
+    const arenaPlotSelector = document.getElementById('arenaPlotSelector');
+    const arenaPlotSelect = document.getElementById('arenaPlotSelect');
+    
+    if (arenaPlotSelector && arenaPlotSelect) {
+        // Show the selector
+        arenaPlotSelector.style.display = 'block';
+        
+        // Set the dropdown to match current arena
+        arenaPlotSelect.value = currentArena;
+        
+        // Add event listener
+        arenaPlotSelect.addEventListener('change', (e) => {
+            switchArena(e.target.value);
+        });
+    }
+}
+
 // Initialize
 if (!beyName) {
     showError();
 } else {
-    loadData();
+    loadData().then(() => {
+        // Set up arena selector after data is loaded
+        setupArenaSelector();
+    });
 }
 </script>
 

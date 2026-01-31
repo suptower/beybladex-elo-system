@@ -810,6 +810,42 @@ body.dark .viewer-counter {
     margin-bottom: 2rem;
 }
 
+/* Arena Selector Styles */
+.arena-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.arena-label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.arena-select {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 250px;
+}
+
+.arena-select:hover {
+    border-color: var(--accent);
+}
+
+.arena-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
 .toggle-container {
     display: flex;
     justify-content: center;
@@ -3263,6 +3299,48 @@ body.dark .wiki-card-rank.rank-bronze {
 
 .profile-section {
     margin-bottom: 2rem;
+}
+
+/* Arena Plot Selector for Bey Pages */
+.arena-plot-selector-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+}
+
+.arena-plot-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.arena-plot-select {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 250px;
+}
+
+.arena-plot-select:hover {
+    border-color: var(--accent);
+}
+
+.arena-plot-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 .section-title {
@@ -12269,7 +12347,7 @@ select:focus-visible {
     background: rgba(139, 92, 246, 0.15);
 }
 
-.arena-badge.arena-dropattack {
+.arena-badge.arena-drop-attack {
     color: #f59e0b;
     background: rgba(245, 158, 11, 0.15);
 }
@@ -12278,7 +12356,7 @@ body.dark .arena-badge.arena-xtreme {
     background: rgba(139, 92, 246, 0.25);
 }
 
-body.dark .arena-badge.arena-dropattack {
+body.dark .arena-badge.arena-drop-attack {
     background: rgba(245, 158, 11, 0.25);
 }
 
@@ -12379,4 +12457,106 @@ body.dark .arena-badge.arena-dropattack {
     .match-score {
         font-size: 1rem;
     }
+}
+
+/* ============================================
+   ARENA COMPARISON TABLE STYLES
+============================================ */
+
+/* Arena comparison headers - add visual grouping */
+th[data-arena="xtreme"] {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.15) 100%) !important;
+    border-left: 2px solid #6366f1 !important;
+}
+
+th[data-arena="drop_attack"] {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(234, 88, 12, 0.15) 100%) !important;
+    border-left: 2px solid #f97316 !important;
+}
+
+th[data-arena="combined"] {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.15) 100%) !important;
+    border-left: 2px solid #10b981 !important;
+}
+
+/* Arena comparison cells - subtle background tinting */
+td[data-arena="xtreme"] {
+    background-color: rgba(99, 102, 241, 0.02);
+    border-left: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+td[data-arena="drop_attack"] {
+    background-color: rgba(249, 115, 22, 0.02);
+    border-left: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+td[data-arena="combined"] {
+    background-color: rgba(16, 185, 129, 0.02);
+    border-left: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* Dark mode adjustments for arena comparison */
+body.dark th[data-arena="xtreme"] {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.2) 100%) !important;
+}
+
+body.dark th[data-arena="drop_attack"] {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(234, 88, 12, 0.2) 100%) !important;
+}
+
+body.dark th[data-arena="combined"] {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.2) 100%) !important;
+}
+
+body.dark td[data-arena="xtreme"] {
+    background-color: rgba(99, 102, 241, 0.05);
+}
+
+body.dark td[data-arena="drop_attack"] {
+    background-color: rgba(249, 115, 22, 0.05);
+}
+
+body.dark td[data-arena="combined"] {
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+/* Arena group labels for comparison view */
+.arena-group-label {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 0.5rem;
+    border-bottom: 2px solid;
+}
+
+.arena-group-label.xtreme {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.2) 100%);
+    border-color: #6366f1;
+    color: #4f46e5;
+}
+
+.arena-group-label.drop-attack {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(234, 88, 12, 0.2) 100%);
+    border-color: #f97316;
+    color: #ea580c;
+}
+
+.arena-group-label.combined {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.2) 100%);
+    border-color: #10b981;
+    color: #059669;
+}
+
+body.dark .arena-group-label.xtreme {
+    color: #a5b4fc;
+}
+
+body.dark .arena-group-label.drop-attack {
+    color: #fdba74;
+}
+
+body.dark .arena-group-label.combined {
+    color: #6ee7b7;
 }

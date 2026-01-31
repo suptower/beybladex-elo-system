@@ -3,6 +3,7 @@ let leaderboardHeaders = [];
 let currentSort = { column: null, asc: true };
 let currentSearchQuery = ""; // Track the current search query
 let isAdvancedMode = false; // Track which leaderboard is being displayed
+let currentArena = "xtreme"; // Track currently selected arena
 
 // Historical match index tracking
 let historicalMode = false;
@@ -25,6 +26,21 @@ const COLUMN_ABBREVIATIONS = {
     'ELOTrend': 'Trend',
     'CredibilityScore': 'Cred',
     'CredibilityLabel': 'Confidence'
+};
+
+// User-friendly names for All Arenas comparison table headers
+const ALL_ARENAS_HEADER_NAMES = {
+    'Platz': 'Rank',
+    'Name': 'Bey',
+    'ELO_Global': 'Combined ELO',
+    'ELO_Xtreme': 'Xtreme ELO',
+    'Matches_Xtreme': 'Xtreme Matches',
+    'Wins_Xtreme': 'Xtreme Wins',
+    'Winrate_Xtreme': 'Xtreme Win%',
+    'ELO_DropAttack': 'Drop Attack ELO',
+    'Matches_DropAttack': 'Drop Attack Matches',
+    'Wins_DropAttack': 'Drop Attack Wins',
+    'Winrate_DropAttack': 'Drop Attack Win%'
 };
 
 // Full descriptions for legend with detailed explanations
@@ -158,11 +174,24 @@ function loadLeaderboard(isAdvanced = false, matchIndex = null) {
         // Load historical snapshot
         const paddedIndex = String(matchIndex).padStart(4, '0');
         csvPath = `./data/leaderboard_snapshots/leaderboard_${paddedIndex}.csv`;
+    } else if (currentArena === "all_arenas") {
+        // Load combined arena leaderboard
+        csvPath = "./data/leaderboard_all_arenas.csv";
+    } else if (currentArena === "combined") {
+        // Load Combined/Global arena leaderboard (with advanced stats support)
+        csvPath = isAdvanced
+            ? "./data/advanced_leaderboard_combined.csv"
+            : "./data/leaderboard_combined.csv";
+    } else if (currentArena === "drop_attack") {
+        // Load Drop Attack arena leaderboard (advanced if requested)
+        csvPath = isAdvanced 
+            ? "./data/advanced_leaderboard_drop_attack.csv" 
+            : "./data/leaderboard_drop_attack.csv";
     } else {
-        // Load current leaderboard (standard or advanced)
+        // Load current leaderboard (standard or advanced for Xtreme/default)
         csvPath = isAdvanced 
             ? "./data/advanced_leaderboard.csv" 
-            : "./data/leaderboard.csv";
+            : (currentArena === "xtreme" ? "./data/leaderboard_xtreme.csv" : "./data/leaderboard.csv");
     }
     
     fetch(csvPath)
@@ -208,8 +237,27 @@ function renderTable(headers, rows) {
     displayHeaders.forEach((h, index) => {
         const th = document.createElement("th");
         th.classList.add("sortable");
-        // Use abbreviated headers for advanced mode
-        th.textContent = (isAdvancedMode && index > 0) ? getAbbreviatedHeader(h) : h;
+        
+        // For All Arenas comparison view, use user-friendly names
+        let headerText = h;
+        if (currentArena === "all_arenas" && ALL_ARENAS_HEADER_NAMES[h]) {
+            headerText = ALL_ARENAS_HEADER_NAMES[h];
+        } else if (isAdvancedMode && index > 0) {
+            // Use abbreviated headers for advanced mode
+            headerText = getAbbreviatedHeader(h);
+        }
+        th.textContent = headerText;
+
+        // Add arena data attribute for comparison view visual grouping
+        if (currentArena === "all_arenas") {
+            if (h.includes("Xtreme")) {
+                th.setAttribute("data-arena", "xtreme");
+            } else if (h.includes("DropAttack")) {
+                th.setAttribute("data-arena", "drop_attack");
+            } else if (h.includes("Global")) {
+                th.setAttribute("data-arena", "combined");
+            }
+        }
 
         // Set sort indicator if this is the active column
         if (currentSort.column === index) {
@@ -233,6 +281,17 @@ function renderTable(headers, rows) {
 
         displayHeaders.forEach((h, colIndex) => {
             const td = document.createElement("td");
+            
+            // Add arena data attribute for comparison view visual grouping
+            if (currentArena === "all_arenas") {
+                if (h.includes("Xtreme")) {
+                    td.setAttribute("data-arena", "xtreme");
+                } else if (h.includes("DropAttack")) {
+                    td.setAttribute("data-arena", "drop_attack");
+                } else if (h.includes("Global")) {
+                    td.setAttribute("data-arena", "combined");
+                }
+            }
             
             // For advanced mode, use the actual Platz value from the data
             let value;
@@ -822,6 +881,44 @@ document.addEventListener("DOMContentLoaded", () => {
     if (searchInput) {
         searchInput.addEventListener("input", e => filterRows(e.target.value));
     }
+    
+    // Arena selector handler
+    const arenaSelector = document.getElementById("arenaSelector");
+    if (arenaSelector) {
+        // Load saved preference from localStorage
+        const savedArena = localStorage.getItem("selectedArena");
+        if (savedArena) {
+            arenaSelector.value = savedArena;
+            currentArena = savedArena;
+        }
+        
+        arenaSelector.addEventListener("change", (e) => {
+            currentArena = e.target.value;
+            // Save preference
+            localStorage.setItem("selectedArena", currentArena);
+            
+            // Disable historical mode for arena-specific views (except xtreme)
+            if (currentArena !== "xtreme" && historicalMode) {
+                historicalMode = false;
+                const historicalToggle = document.getElementById('historicalToggle');
+                if (historicalToggle) historicalToggle.checked = false;
+                const matchIndexContainer = document.getElementById('matchIndexContainer');
+                if (matchIndexContainer) matchIndexContainer.style.display = 'none';
+                alert("Time Travel Mode is only available for Xtreme Stadium (Season/Global). Switching to current leaderboard.");
+            }
+            
+            // Disable advanced mode for All Arenas comparison view (no combined advanced stats across arenas)
+            if (currentArena === "all_arenas" && isAdvancedMode) {
+                isAdvancedMode = false;
+                const toggleInput = document.getElementById("leaderboardToggle");
+                if (toggleInput) toggleInput.checked = false;
+                alert(`Advanced statistics are not available for the 'All Arenas' comparison view.`);
+            }
+            
+            // Reload leaderboard with selected arena
+            loadLeaderboard(isAdvancedMode);
+        });
+    }
 
     const toggleInput = document.getElementById("leaderboardToggle");
     if (toggleInput) {
@@ -841,6 +938,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (historicalMode && e.target.checked) {
                 e.target.checked = false;
                 alert("Advanced statistics are not available in Time Travel Mode. Please disable Time Travel Mode to view advanced statistics.");
+                return;
+            }
+            
+            // Prevent switching to advanced mode for all arenas comparison view
+            if (currentArena === "all_arenas" && e.target.checked) {
+                e.target.checked = false;
+                alert(`Advanced statistics are not available for the 'All Arenas' comparison view.`);
                 return;
             }
             

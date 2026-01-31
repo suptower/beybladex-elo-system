@@ -1,54 +1,46 @@
 {
   "metadata": {
-    "total_recommendations": 712,
+    "total_recommendations": 698,
     "top_n": 10,
     "categories": {
-      "low_data_exploration": 42,
-      "elo_clarity": 233,
+      "low_data_exploration": 36,
+      "elo_clarity": 231,
       "high_uncertainty": 10,
-      "meta_balance": 5,
-      "upset_testing": 422
+      "meta_balance": 4,
+      "upset_testing": 417
     }
   },
   "top_recommendations": [
     {
       "bey_a": "TuskMammoth",
-      "bey_b": "ValkyrieVolt",
-      "category": "meta_balance",
-      "info_value": 170.98,
-      "explanation": "TuskMammoth (24 matches) is frequently played while ValkyrieVolt (0 matches) is underrepresented. This matchup would improve meta balance.",
-      "existing_matches": 0
-    },
-    {
-      "bey_a": "TuskMammoth",
       "bey_b": "WyvernHover",
       "category": "meta_balance",
-      "info_value": 170.98,
-      "explanation": "TuskMammoth (24 matches) is frequently played while WyvernHover (0 matches) is underrepresented. This matchup would improve meta balance.",
+      "info_value": 171.21,
+      "explanation": "TuskMammoth (28 matches) is frequently played while WyvernHover (0 matches) is underrepresented. This matchup would improve meta balance.",
       "existing_matches": 0
     },
     {
       "bey_a": "SharkScale",
       "bey_b": "DranBrave",
       "category": "high_uncertainty",
-      "info_value": 113.62,
-      "explanation": "SharkScale has high ELO volatility (21.8). Playing against stable reference DranBrave would help stabilize rating.",
+      "info_value": 118.7,
+      "explanation": "SharkScale has high ELO volatility (24.4). Playing against stable reference DranBrave would help stabilize rating.",
       "existing_matches": 0
     },
     {
       "bey_a": "SolEclipse",
-      "bey_b": "DranBrave",
+      "bey_b": "HellsReaper",
       "category": "high_uncertainty",
-      "info_value": 112.2,
-      "explanation": "SolEclipse has high ELO volatility (21.1). Playing against stable reference DranBrave would help stabilize rating.",
+      "info_value": 113.2,
+      "explanation": "SolEclipse has high ELO volatility (21.6). Playing against stable reference HellsReaper would help stabilize rating.",
       "existing_matches": 0
     },
     {
       "bey_a": "DranBuster",
       "bey_b": "WizardRod",
       "category": "high_uncertainty",
-      "info_value": 108.72,
-      "explanation": "DranBuster has high ELO volatility (19.4). Playing against stable reference WizardRod would help stabilize rating.",
+      "info_value": 109.04,
+      "explanation": "DranBuster has high ELO volatility (19.5). Playing against stable reference WizardRod would help stabilize rating.",
       "existing_matches": 0
     },
     {
@@ -60,35 +52,43 @@
       "existing_matches": 0
     },
     {
-      "bey_a": "HellsChain",
-      "bey_b": "WizardRod",
-      "category": "high_uncertainty",
-      "info_value": 107.24,
-      "explanation": "HellsChain has high ELO volatility (18.6). Playing against stable reference WizardRod would help stabilize rating.",
-      "existing_matches": 0
-    },
-    {
       "bey_a": "DranDagger",
       "bey_b": "DranBrave",
       "category": "high_uncertainty",
-      "info_value": 107.16,
-      "explanation": "DranDagger has high ELO volatility (18.6). Playing against stable reference DranBrave would help stabilize rating.",
+      "info_value": 108.06,
+      "explanation": "DranDagger has high ELO volatility (19.0). Playing against stable reference DranBrave would help stabilize rating.",
       "existing_matches": 0
     },
     {
-      "bey_a": "PhoenixWing",
-      "bey_b": "DranBrave",
+      "bey_a": "WhaleWave",
+      "bey_b": "SharkEdge",
       "category": "high_uncertainty",
-      "info_value": 107.04,
-      "explanation": "PhoenixWing has high ELO volatility (18.5). Playing against stable reference DranBrave would help stabilize rating.",
+      "info_value": 107.8,
+      "explanation": "WhaleWave has high ELO volatility (18.9). Playing against stable reference SharkEdge would help stabilize rating.",
       "existing_matches": 0
     },
     {
-      "bey_a": "SharkScale",
-      "bey_b": "DranBuster",
+      "bey_a": "HellsChain",
+      "bey_b": "WizardRod",
+      "category": "high_uncertainty",
+      "info_value": 107.64,
+      "explanation": "HellsChain has high ELO volatility (18.8). Playing against stable reference WizardRod would help stabilize rating.",
+      "existing_matches": 0
+    },
+    {
+      "bey_a": "WizardArc",
+      "bey_b": "TyrannoBeat",
+      "category": "high_uncertainty",
+      "info_value": 107.5,
+      "explanation": "WizardArc has high ELO volatility (18.8). Playing against stable reference TyrannoBeat would help stabilize rating.",
+      "existing_matches": 0
+    },
+    {
+      "bey_a": "ValkyrieVolt",
+      "bey_b": "CobaltDrake",
       "category": "low_data_exploration",
-      "info_value": 101.67,
-      "explanation": "SharkScale has only 5 matches. Playing against DranBuster (ELO 969) would help establish ranking.",
+      "info_value": 102.0,
+      "explanation": "ValkyrieVolt has only 4 matches. Playing against CobaltDrake (ELO 949) would help establish ranking.",
       "existing_matches": 0
     }
   ],
@@ -96,42 +96,34 @@
     "meta_balance": [
       {
         "bey_a": "TuskMammoth",
-        "bey_b": "ValkyrieVolt",
-        "category": "meta_balance",
-        "info_value": 170.98,
-        "explanation": "TuskMammoth (24 matches) is frequently played while ValkyrieVolt (0 matches) is underrepresented. This matchup would improve meta balance.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "TuskMammoth",
         "bey_b": "WyvernHover",
         "category": "meta_balance",
-        "info_value": 170.98,
-        "explanation": "TuskMammoth (24 matches) is frequently played while WyvernHover (0 matches) is underrepresented. This matchup would improve meta balance.",
+        "info_value": 171.21,
+        "explanation": "TuskMammoth (28 matches) is frequently played while WyvernHover (0 matches) is underrepresented. This matchup would improve meta balance.",
         "existing_matches": 0
       },
       {
         "bey_a": "TuskMammoth",
-        "bey_b": "CobaltDrake",
+        "bey_b": "ValkyrieVolt",
         "category": "meta_balance",
-        "info_value": 88.92,
-        "explanation": "TuskMammoth (24 matches) is frequently played while CobaltDrake (5 matches) is underrepresented. This matchup would improve meta balance.",
+        "info_value": 95.0,
+        "explanation": "TuskMammoth (28 matches) is frequently played while ValkyrieVolt (4 matches) is underrepresented. This matchup would improve meta balance.",
         "existing_matches": 0
       },
       {
         "bey_a": "TuskMammoth",
         "bey_b": "WhaleFlame",
         "category": "meta_balance",
-        "info_value": 88.92,
-        "explanation": "TuskMammoth (24 matches) is frequently played while WhaleFlame (5 matches) is underrepresented. This matchup would improve meta balance.",
+        "info_value": 91.2,
+        "explanation": "TuskMammoth (28 matches) is frequently played while WhaleFlame (5 matches) is underrepresented. This matchup would improve meta balance.",
         "existing_matches": 0
       },
       {
         "bey_a": "TuskMammoth",
         "bey_b": "HellsHammer",
         "category": "meta_balance",
-        "info_value": 88.92,
-        "explanation": "TuskMammoth (24 matches) is frequently played while HellsHammer (5 matches) is underrepresented. This matchup would improve meta balance.",
+        "info_value": 91.2,
+        "explanation": "TuskMammoth (28 matches) is frequently played while HellsHammer (5 matches) is underrepresented. This matchup would improve meta balance.",
         "existing_matches": 0
       }
     ],
@@ -140,24 +132,24 @@
         "bey_a": "SharkScale",
         "bey_b": "DranBrave",
         "category": "high_uncertainty",
-        "info_value": 113.62,
-        "explanation": "SharkScale has high ELO volatility (21.8). Playing against stable reference DranBrave would help stabilize rating.",
+        "info_value": 118.7,
+        "explanation": "SharkScale has high ELO volatility (24.4). Playing against stable reference DranBrave would help stabilize rating.",
         "existing_matches": 0
       },
       {
         "bey_a": "SolEclipse",
-        "bey_b": "DranBrave",
+        "bey_b": "HellsReaper",
         "category": "high_uncertainty",
-        "info_value": 112.2,
-        "explanation": "SolEclipse has high ELO volatility (21.1). Playing against stable reference DranBrave would help stabilize rating.",
+        "info_value": 113.2,
+        "explanation": "SolEclipse has high ELO volatility (21.6). Playing against stable reference HellsReaper would help stabilize rating.",
         "existing_matches": 0
       },
       {
         "bey_a": "DranBuster",
         "bey_b": "WizardRod",
         "category": "high_uncertainty",
-        "info_value": 108.72,
-        "explanation": "DranBuster has high ELO volatility (19.4). Playing against stable reference WizardRod would help stabilize rating.",
+        "info_value": 109.04,
+        "explanation": "DranBuster has high ELO volatility (19.5). Playing against stable reference WizardRod would help stabilize rating.",
         "existing_matches": 0
       },
       {
@@ -169,27 +161,35 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "HellsChain",
-        "bey_b": "WizardRod",
-        "category": "high_uncertainty",
-        "info_value": 107.24,
-        "explanation": "HellsChain has high ELO volatility (18.6). Playing against stable reference WizardRod would help stabilize rating.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "DranDagger",
         "bey_b": "DranBrave",
         "category": "high_uncertainty",
-        "info_value": 107.16,
-        "explanation": "DranDagger has high ELO volatility (18.6). Playing against stable reference DranBrave would help stabilize rating.",
+        "info_value": 108.06,
+        "explanation": "DranDagger has high ELO volatility (19.0). Playing against stable reference DranBrave would help stabilize rating.",
         "existing_matches": 0
       },
       {
-        "bey_a": "PhoenixWing",
-        "bey_b": "DranBrave",
+        "bey_a": "WhaleWave",
+        "bey_b": "SharkEdge",
         "category": "high_uncertainty",
-        "info_value": 107.04,
-        "explanation": "PhoenixWing has high ELO volatility (18.5). Playing against stable reference DranBrave would help stabilize rating.",
+        "info_value": 107.8,
+        "explanation": "WhaleWave has high ELO volatility (18.9). Playing against stable reference SharkEdge would help stabilize rating.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsChain",
+        "bey_b": "WizardRod",
+        "category": "high_uncertainty",
+        "info_value": 107.64,
+        "explanation": "HellsChain has high ELO volatility (18.8). Playing against stable reference WizardRod would help stabilize rating.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WizardArc",
+        "bey_b": "TyrannoBeat",
+        "category": "high_uncertainty",
+        "info_value": 107.5,
+        "explanation": "WizardArc has high ELO volatility (18.8). Playing against stable reference TyrannoBeat would help stabilize rating.",
         "existing_matches": 0
       },
       {
@@ -202,60 +202,36 @@
       },
       {
         "bey_a": "PerseusDark",
-        "bey_b": "DranBrave",
+        "bey_b": "HellsReaper",
         "category": "high_uncertainty",
-        "info_value": 99.32,
-        "explanation": "PerseusDark has high ELO volatility (19.7). Playing against stable reference DranBrave would help stabilize rating.",
-        "existing_matches": 1
-      },
-      {
-        "bey_a": "UnicornSting",
-        "bey_b": "WizardRod",
-        "category": "high_uncertainty",
-        "info_value": 96.78,
-        "explanation": "UnicornSting has high ELO volatility (18.4). Playing against stable reference WizardRod would help stabilize rating.",
+        "info_value": 98.28,
+        "explanation": "PerseusDark has high ELO volatility (19.1). Playing against stable reference HellsReaper would help stabilize rating.",
         "existing_matches": 1
       }
     ],
     "low_data_exploration": [
       {
-        "bey_a": "SharkScale",
-        "bey_b": "DranBuster",
+        "bey_a": "ValkyrieVolt",
+        "bey_b": "CobaltDrake",
         "category": "low_data_exploration",
-        "info_value": 101.67,
-        "explanation": "SharkScale has only 5 matches. Playing against DranBuster (ELO 969) would help establish ranking.",
+        "info_value": 102.0,
+        "explanation": "ValkyrieVolt has only 4 matches. Playing against CobaltDrake (ELO 949) would help establish ranking.",
         "existing_matches": 0
       },
       {
-        "bey_a": "SharkScale",
-        "bey_b": "DranDagger",
+        "bey_a": "ValkyrieVolt",
+        "bey_b": "WyvernHover",
         "category": "low_data_exploration",
-        "info_value": 101.67,
-        "explanation": "SharkScale has only 5 matches. Playing against DranDagger (ELO 1020) would help establish ranking.",
+        "info_value": 102.0,
+        "explanation": "ValkyrieVolt has only 4 matches. Playing against WyvernHover (ELO 1000) would help establish ranking.",
         "existing_matches": 0
       },
       {
-        "bey_a": "CobaltDrake",
-        "bey_b": "WizardArrow",
+        "bey_a": "ValkyrieVolt",
+        "bey_b": "CerberusFlame",
         "category": "low_data_exploration",
-        "info_value": 101.67,
-        "explanation": "CobaltDrake has only 5 matches. Playing against WizardArrow (ELO 901) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "CobaltDrake",
-        "bey_b": "WhaleFlame",
-        "category": "low_data_exploration",
-        "info_value": 101.67,
-        "explanation": "CobaltDrake has only 5 matches. Playing against WhaleFlame (ELO 947) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "CobaltDrake",
-        "bey_b": "ValkyrieVolt",
-        "category": "low_data_exploration",
-        "info_value": 101.67,
-        "explanation": "CobaltDrake has only 5 matches. Playing against ValkyrieVolt (ELO 1000) would help establish ranking.",
+        "info_value": 102.0,
+        "explanation": "ValkyrieVolt has only 4 matches. Playing against CerberusFlame (ELO 1048) would help establish ranking.",
         "existing_matches": 0
       },
       {
@@ -307,139 +283,107 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "PegasusBlast",
-        "bey_b": "BlackShell",
+        "bey_a": "CobaltDrake",
+        "bey_b": "WizardArrow",
         "category": "low_data_exploration",
-        "info_value": 101.43,
-        "explanation": "PegasusBlast has only 6 matches. Playing against BlackShell (ELO 931) would help establish ranking.",
+        "info_value": 101.25,
+        "explanation": "CobaltDrake has only 7 matches. Playing against WizardArrow (ELO 901) would help establish ranking.",
         "existing_matches": 0
       },
       {
-        "bey_a": "PegasusBlast",
-        "bey_b": "LeonClaw",
+        "bey_a": "CobaltDrake",
+        "bey_b": "WhaleFlame",
         "category": "low_data_exploration",
-        "info_value": 101.43,
-        "explanation": "PegasusBlast has only 6 matches. Playing against LeonClaw (ELO 975) would help establish ranking.",
+        "info_value": 101.25,
+        "explanation": "CobaltDrake has only 7 matches. Playing against WhaleFlame (ELO 947) would help establish ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "CobaltDrake",
+        "bey_b": "ValkyrieVolt",
+        "category": "low_data_exploration",
+        "info_value": 101.25,
+        "explanation": "CobaltDrake has only 7 matches. Playing against ValkyrieVolt (ELO 1000) would help establish ranking.",
         "existing_matches": 0
       },
       {
         "bey_a": "WizardArrow",
         "bey_b": "SamuraiSaber",
         "category": "low_data_exploration",
-        "info_value": 101.43,
-        "explanation": "WizardArrow has only 6 matches. Playing against SamuraiSaber (ELO 888) would help establish ranking.",
+        "info_value": 101.25,
+        "explanation": "WizardArrow has only 7 matches. Playing against SamuraiSaber (ELO 888) would help establish ranking.",
         "existing_matches": 0
       },
       {
         "bey_a": "WizardArrow",
         "bey_b": "HellsHammer",
         "category": "low_data_exploration",
-        "info_value": 101.43,
-        "explanation": "WizardArrow has only 6 matches. Playing against HellsHammer (ELO 903) would help establish ranking.",
+        "info_value": 101.25,
+        "explanation": "WizardArrow has only 7 matches. Playing against HellsHammer (ELO 903) would help establish ranking.",
         "existing_matches": 0
       },
       {
         "bey_a": "WizardArrow",
         "bey_b": "CobaltDrake",
         "category": "low_data_exploration",
-        "info_value": 101.43,
-        "explanation": "WizardArrow has only 6 matches. Playing against CobaltDrake (ELO 949) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "WizardArc",
-        "bey_b": "SamuraiSaber",
-        "category": "low_data_exploration",
         "info_value": 101.25,
-        "explanation": "WizardArc has only 7 matches. Playing against SamuraiSaber (ELO 888) would help establish ranking.",
+        "explanation": "WizardArrow has only 7 matches. Playing against CobaltDrake (ELO 949) would help establish ranking.",
         "existing_matches": 0
       },
       {
-        "bey_a": "WizardArc",
-        "bey_b": "PegasusBlast",
+        "bey_a": "PegasusBlast",
+        "bey_b": "BlackShell",
         "category": "low_data_exploration",
-        "info_value": 101.25,
-        "explanation": "WizardArc has only 7 matches. Playing against PegasusBlast (ELO 925) would help establish ranking.",
+        "info_value": 101.11,
+        "explanation": "PegasusBlast has only 8 matches. Playing against BlackShell (ELO 931) would help establish ranking.",
         "existing_matches": 0
       },
       {
-        "bey_a": "WizardArc",
+        "bey_a": "PegasusBlast",
+        "bey_b": "LeonClaw",
+        "category": "low_data_exploration",
+        "info_value": 101.11,
+        "explanation": "PegasusBlast has only 8 matches. Playing against LeonClaw (ELO 975) would help establish ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SharkScale",
         "bey_b": "DranBuster",
         "category": "low_data_exploration",
-        "info_value": 101.25,
-        "explanation": "WizardArc has only 7 matches. Playing against DranBuster (ELO 969) would help establish ranking.",
+        "info_value": 101.0,
+        "explanation": "SharkScale has only 9 matches. Playing against DranBuster (ELO 969) would help establish ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SharkScale",
+        "bey_b": "DranDagger",
+        "category": "low_data_exploration",
+        "info_value": 101.0,
+        "explanation": "SharkScale has only 9 matches. Playing against DranDagger (ELO 1020) would help establish ranking.",
         "existing_matches": 0
       },
       {
         "bey_a": "SolEclipse",
         "bey_b": "PhoenixRudder",
         "category": "low_data_exploration",
-        "info_value": 101.11,
-        "explanation": "SolEclipse has only 8 matches. Playing against PhoenixRudder (ELO 962) would help establish ranking.",
+        "info_value": 101.0,
+        "explanation": "SolEclipse has only 9 matches. Playing against PhoenixRudder (ELO 962) would help establish ranking.",
         "existing_matches": 0
       },
       {
         "bey_a": "SolEclipse",
         "bey_b": "PerseusDark",
         "category": "low_data_exploration",
-        "info_value": 101.11,
-        "explanation": "SolEclipse has only 8 matches. Playing against PerseusDark (ELO 1011) would help establish ranking.",
+        "info_value": 101.0,
+        "explanation": "SolEclipse has only 9 matches. Playing against PerseusDark (ELO 1011) would help establish ranking.",
         "existing_matches": 0
       },
       {
         "bey_a": "SolEclipse",
         "bey_b": "CobaltDragoon",
         "category": "low_data_exploration",
-        "info_value": 101.11,
-        "explanation": "SolEclipse has only 8 matches. Playing against CobaltDragoon (ELO 1057) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "SamuraiSaber",
-        "bey_b": "WizardArrow",
-        "category": "low_data_exploration",
-        "info_value": 101.11,
-        "explanation": "SamuraiSaber has only 8 matches. Playing against WizardArrow (ELO 901) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "SamuraiSaber",
-        "bey_b": "WizardArrow",
-        "category": "low_data_exploration",
-        "info_value": 101.11,
-        "explanation": "SamuraiSaber has only 8 matches. Playing against WizardArrow (ELO 901) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "SamuraiSaber",
-        "bey_b": "TyrannoBeat",
-        "category": "low_data_exploration",
-        "info_value": 101.11,
-        "explanation": "SamuraiSaber has only 8 matches. Playing against TyrannoBeat (ELO 933) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "WeissTiger",
-        "bey_b": "UnicornSting",
-        "category": "low_data_exploration",
         "info_value": 101.0,
-        "explanation": "WeissTiger has only 9 matches. Playing against UnicornSting (ELO 984) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "WeissTiger",
-        "bey_b": "ViperTail",
-        "category": "low_data_exploration",
-        "info_value": 101.0,
-        "explanation": "WeissTiger has only 9 matches. Playing against ViperTail (ELO 1036) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "WeissTiger",
-        "bey_b": "GolemRock",
-        "category": "low_data_exploration",
-        "info_value": 101.0,
-        "explanation": "WeissTiger has only 9 matches. Playing against GolemRock (ELO 1082) would help establish ranking.",
+        "explanation": "SolEclipse has only 9 matches. Playing against CobaltDragoon (ELO 1057) would help establish ranking.",
         "existing_matches": 0
       },
       {
@@ -484,34 +428,10 @@
       },
       {
         "bey_a": "PhoenixRudder",
-        "bey_b": "SolEclipse",
+        "bey_b": "PerseusDark",
         "category": "low_data_exploration",
         "info_value": 101.0,
-        "explanation": "PhoenixRudder has only 9 matches. Playing against SolEclipse (ELO 1011) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "TyrannoBeat",
-        "bey_b": "SamuraiSaber",
-        "category": "low_data_exploration",
-        "info_value": 101.0,
-        "explanation": "TyrannoBeat has only 9 matches. Playing against SamuraiSaber (ELO 888) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "TyrannoBeat",
-        "bey_b": "BlackShell",
-        "category": "low_data_exploration",
-        "info_value": 101.0,
-        "explanation": "TyrannoBeat has only 9 matches. Playing against BlackShell (ELO 931) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "TyrannoBeat",
-        "bey_b": "UnicornSting",
-        "category": "low_data_exploration",
-        "info_value": 101.0,
-        "explanation": "TyrannoBeat has only 9 matches. Playing against UnicornSting (ELO 984) would help establish ranking.",
+        "explanation": "PhoenixRudder has only 9 matches. Playing against PerseusDark (ELO 1011) would help establish ranking.",
         "existing_matches": 0
       },
       {
@@ -539,19 +459,43 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SharkScale",
-        "bey_b": "CobaltDragoon",
+        "bey_a": "WeissTiger",
+        "bey_b": "UnicornSting",
         "category": "low_data_exploration",
-        "info_value": 91.67,
-        "explanation": "SharkScale has only 5 matches. Playing against CobaltDragoon (ELO 1057) would help establish ranking.",
-        "existing_matches": 1
+        "info_value": 100.91,
+        "explanation": "WeissTiger has only 10 matches. Playing against UnicornSting (ELO 984) would help establish ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WeissTiger",
+        "bey_b": "ViperTail",
+        "category": "low_data_exploration",
+        "info_value": 100.91,
+        "explanation": "WeissTiger has only 10 matches. Playing against ViperTail (ELO 1036) would help establish ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WeissTiger",
+        "bey_b": "GolemRock",
+        "category": "low_data_exploration",
+        "info_value": 100.91,
+        "explanation": "WeissTiger has only 10 matches. Playing against GolemRock (ELO 1082) would help establish ranking.",
+        "existing_matches": 0
       },
       {
         "bey_a": "PegasusBlast",
         "bey_b": "SamuraiSaber",
         "category": "low_data_exploration",
-        "info_value": 91.43,
-        "explanation": "PegasusBlast has only 6 matches. Playing against SamuraiSaber (ELO 888) would help establish ranking.",
+        "info_value": 91.11,
+        "explanation": "PegasusBlast has only 8 matches. Playing against SamuraiSaber (ELO 888) would help establish ranking.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "SharkScale",
+        "bey_b": "CobaltDragoon",
+        "category": "low_data_exploration",
+        "info_value": 91.0,
+        "explanation": "SharkScale has only 9 matches. Playing against CobaltDragoon (ELO 1057) would help establish ranking.",
         "existing_matches": 1
       }
     ],
@@ -645,11 +589,11 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SolEclipse",
-        "bey_b": "PerseusDark",
+        "bey_a": "PerseusDark",
+        "bey_b": "SolEclipse",
         "category": "elo_clarity",
         "info_value": 80.0,
-        "explanation": "SolEclipse and PerseusDark have similar ELO (0 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "explanation": "PerseusDark and SolEclipse have similar ELO (0 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -818,14 +762,6 @@
         "category": "elo_clarity",
         "info_value": 76.0,
         "explanation": "CrimsonGaruda and SilverWolf have similar ELO (4 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "PhoenixWing",
-        "bey_b": "SharkScale",
-        "category": "elo_clarity",
-        "info_value": 75.0,
-        "explanation": "PhoenixWing and SharkScale have similar ELO (5 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -1101,22 +1037,6 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SolEclipse",
-        "bey_b": "ValkyrieVolt",
-        "category": "elo_clarity",
-        "info_value": 69.0,
-        "explanation": "SolEclipse and ValkyrieVolt have similar ELO (11 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "SolEclipse",
-        "bey_b": "WyvernHover",
-        "category": "elo_clarity",
-        "info_value": 69.0,
-        "explanation": "SolEclipse and WyvernHover have similar ELO (11 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "PerseusDark",
         "bey_b": "ValkyrieVolt",
         "category": "elo_clarity",
@@ -1130,6 +1050,22 @@
         "category": "elo_clarity",
         "info_value": 69.0,
         "explanation": "PerseusDark and WyvernHover have similar ELO (11 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SolEclipse",
+        "bey_b": "ValkyrieVolt",
+        "category": "elo_clarity",
+        "info_value": 69.0,
+        "explanation": "SolEclipse and ValkyrieVolt have similar ELO (11 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SolEclipse",
+        "bey_b": "WyvernHover",
+        "category": "elo_clarity",
+        "info_value": 69.0,
+        "explanation": "SolEclipse and WyvernHover have similar ELO (11 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -1214,18 +1150,18 @@
       },
       {
         "bey_a": "PhoenixWing",
-        "bey_b": "SolEclipse",
-        "category": "elo_clarity",
-        "info_value": 67.0,
-        "explanation": "PhoenixWing and SolEclipse have similar ELO (13 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "PhoenixWing",
         "bey_b": "PerseusDark",
         "category": "elo_clarity",
         "info_value": 67.0,
         "explanation": "PhoenixWing and PerseusDark have similar ELO (13 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "PhoenixWing",
+        "bey_b": "SolEclipse",
+        "category": "elo_clarity",
+        "info_value": 67.0,
+        "explanation": "PhoenixWing and SolEclipse have similar ELO (13 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -1614,14 +1550,6 @@
       },
       {
         "bey_a": "SharkScale",
-        "bey_b": "ValkyrieVolt",
-        "category": "elo_clarity",
-        "info_value": 61.0,
-        "explanation": "SharkScale and ValkyrieVolt have similar ELO (19 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "SharkScale",
         "bey_b": "WyvernHover",
         "category": "elo_clarity",
         "info_value": 61.0,
@@ -1645,14 +1573,6 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "WhaleWave",
-        "bey_b": "LeonClaw",
-        "category": "elo_clarity",
-        "info_value": 61.0,
-        "explanation": "WhaleWave and LeonClaw have similar ELO (19 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "GolemRock",
         "bey_b": "CobaltDragoon",
         "category": "elo_clarity",
@@ -1661,12 +1581,12 @@
         "existing_matches": 1
       },
       {
-        "bey_a": "DranDagger",
-        "bey_b": "ValkyrieVolt",
+        "bey_a": "PhoenixWing",
+        "bey_b": "SharkScale",
         "category": "elo_clarity",
         "info_value": 60.0,
-        "explanation": "DranDagger and ValkyrieVolt have similar ELO (20 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
+        "explanation": "PhoenixWing and SharkScale have similar ELO (5 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 1
       },
       {
         "bey_a": "DranDagger",
@@ -1707,14 +1627,6 @@
         "info_value": 60.0,
         "explanation": "PerseusDark and KnightMail have similar ELO (5 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 1
-      },
-      {
-        "bey_a": "DranBuster",
-        "bey_b": "CobaltDrake",
-        "category": "elo_clarity",
-        "info_value": 60.0,
-        "explanation": "DranBuster and CobaltDrake have similar ELO (20 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
       },
       {
         "bey_a": "DranSword",
@@ -1846,18 +1758,18 @@
       },
       {
         "bey_a": "WeissTiger",
-        "bey_b": "SolEclipse",
-        "category": "elo_clarity",
-        "info_value": 57.0,
-        "explanation": "WeissTiger and SolEclipse have similar ELO (23 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "WeissTiger",
         "bey_b": "PerseusDark",
         "category": "elo_clarity",
         "info_value": 57.0,
         "explanation": "WeissTiger and PerseusDark have similar ELO (23 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WeissTiger",
+        "bey_b": "SolEclipse",
+        "category": "elo_clarity",
+        "info_value": 57.0,
+        "explanation": "WeissTiger and SolEclipse have similar ELO (23 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -2014,18 +1926,18 @@
       },
       {
         "bey_a": "LeonCrest",
-        "bey_b": "SolEclipse",
-        "category": "elo_clarity",
-        "info_value": 54.0,
-        "explanation": "LeonCrest and SolEclipse have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "LeonCrest",
         "bey_b": "PerseusDark",
         "category": "elo_clarity",
         "info_value": 54.0,
         "explanation": "LeonCrest and PerseusDark have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "LeonCrest",
+        "bey_b": "SolEclipse",
+        "category": "elo_clarity",
+        "info_value": 54.0,
+        "explanation": "LeonCrest and SolEclipse have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -2045,19 +1957,19 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SolEclipse",
-        "bey_b": "HellsChain",
-        "category": "elo_clarity",
-        "info_value": 54.0,
-        "explanation": "SolEclipse and HellsChain have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "PerseusDark",
         "bey_b": "CrimsonGaruda",
         "category": "elo_clarity",
         "info_value": 54.0,
         "explanation": "PerseusDark and CrimsonGaruda have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SolEclipse",
+        "bey_b": "HellsChain",
+        "category": "elo_clarity",
+        "info_value": 54.0,
+        "explanation": "SolEclipse and HellsChain have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -2077,11 +1989,11 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "ScorpioSpear",
-        "bey_b": "DranDagger",
+        "bey_a": "PerseusDark",
+        "bey_b": "UnicornSting",
         "category": "elo_clarity",
         "info_value": 53.0,
-        "explanation": "ScorpioSpear and DranDagger have similar ELO (27 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "explanation": "PerseusDark and UnicornSting have similar ELO (27 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -2090,14 +2002,6 @@
         "category": "elo_clarity",
         "info_value": 53.0,
         "explanation": "SolEclipse and UnicornSting have similar ELO (27 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "PerseusDark",
-        "bey_b": "UnicornSting",
-        "category": "elo_clarity",
-        "info_value": 53.0,
-        "explanation": "PerseusDark and UnicornSting have similar ELO (27 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -2285,14 +2189,6 @@
         "existing_matches": 1
       },
       {
-        "bey_a": "PerseusDark",
-        "bey_b": "WhaleWave",
-        "category": "elo_clarity",
-        "info_value": 48.0,
-        "explanation": "PerseusDark and WhaleWave have similar ELO (17 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 1
-      },
-      {
         "bey_a": "WeissTiger",
         "bey_b": "DranBrave",
         "category": "elo_clarity",
@@ -2306,6 +2202,22 @@
         "category": "elo_clarity",
         "info_value": 47.0,
         "explanation": "PerseusDark and RhinoReaper have similar ELO (18 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "SharkScale",
+        "bey_b": "ValkyrieVolt",
+        "category": "elo_clarity",
+        "info_value": 46.0,
+        "explanation": "SharkScale and ValkyrieVolt have similar ELO (19 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "WhaleWave",
+        "bey_b": "LeonClaw",
+        "category": "elo_clarity",
+        "info_value": 46.0,
+        "explanation": "WhaleWave and LeonClaw have similar ELO (19 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 1
       },
       {
@@ -2333,6 +2245,22 @@
         "existing_matches": 1
       },
       {
+        "bey_a": "DranDagger",
+        "bey_b": "ValkyrieVolt",
+        "category": "elo_clarity",
+        "info_value": 45.0,
+        "explanation": "DranDagger and ValkyrieVolt have similar ELO (20 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "DranBuster",
+        "bey_b": "CobaltDrake",
+        "category": "elo_clarity",
+        "info_value": 45.0,
+        "explanation": "DranBuster and CobaltDrake have similar ELO (20 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 1
+      },
+      {
         "bey_a": "WhaleFlame",
         "bey_b": "PegasusBlast",
         "category": "elo_clarity",
@@ -2357,14 +2285,6 @@
         "existing_matches": 1
       },
       {
-        "bey_a": "SharkScale",
-        "bey_b": "SharkEdge",
-        "category": "elo_clarity",
-        "info_value": 42.0,
-        "explanation": "SharkScale and SharkEdge have similar ELO (23 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
-        "existing_matches": 1
-      },
-      {
         "bey_a": "CobaltDrake",
         "bey_b": "PegasusBlast",
         "category": "elo_clarity",
@@ -2381,6 +2301,14 @@
         "existing_matches": 1
       },
       {
+        "bey_a": "PerseusDark",
+        "bey_b": "HellsChain",
+        "category": "elo_clarity",
+        "info_value": 39.0,
+        "explanation": "PerseusDark and HellsChain have similar ELO (26 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 1
+      },
+      {
         "bey_a": "SolEclipse",
         "bey_b": "CrimsonGaruda",
         "category": "elo_clarity",
@@ -2389,11 +2317,11 @@
         "existing_matches": 1
       },
       {
-        "bey_a": "PerseusDark",
-        "bey_b": "HellsChain",
+        "bey_a": "ScorpioSpear",
+        "bey_b": "DranDagger",
         "category": "elo_clarity",
-        "info_value": 39.0,
-        "explanation": "PerseusDark and HellsChain have similar ELO (26 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
+        "info_value": 38.0,
+        "explanation": "ScorpioSpear and DranDagger have similar ELO (27 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 1
       },
       {
@@ -2575,27 +2503,11 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "DranSword",
-        "bey_b": "SamuraiSaber",
-        "category": "upset_testing",
-        "info_value": 83.4,
-        "explanation": "DranSword (ELO 1055) vs SamuraiSaber (ELO 888) has 167 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "TuskMammoth",
         "bey_b": "PegasusBlast",
         "category": "upset_testing",
         "info_value": 83.0,
         "explanation": "TuskMammoth (ELO 1090) vs PegasusBlast (ELO 925) has 165 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "GolemRock",
-        "bey_b": "WizardArc",
-        "category": "upset_testing",
-        "info_value": 83.0,
-        "explanation": "GolemRock (ELO 1082) vs WizardArc (ELO 917) has 165 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -2764,14 +2676,6 @@
         "category": "upset_testing",
         "info_value": 77.2,
         "explanation": "LeonCrest (ELO 1037) vs WizardArrow (ELO 901) has 136 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "PhoenixWing",
-        "bey_b": "SamuraiSaber",
-        "category": "upset_testing",
-        "info_value": 77.2,
-        "explanation": "PhoenixWing (ELO 1024) vs SamuraiSaber (ELO 888) has 136 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -2951,19 +2855,19 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SolEclipse",
-        "bey_b": "SamuraiSaber",
-        "category": "upset_testing",
-        "info_value": 74.6,
-        "explanation": "SolEclipse (ELO 1011) vs SamuraiSaber (ELO 888) has 123 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "PerseusDark",
         "bey_b": "SamuraiSaber",
         "category": "upset_testing",
         "info_value": 74.6,
         "explanation": "PerseusDark (ELO 1011) vs SamuraiSaber (ELO 888) has 123 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SolEclipse",
+        "bey_b": "SamuraiSaber",
+        "category": "upset_testing",
+        "info_value": 74.6,
+        "explanation": "SolEclipse (ELO 1011) vs SamuraiSaber (ELO 888) has 123 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3167,14 +3071,6 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "ValkyrieVolt",
-        "bey_b": "SamuraiSaber",
-        "category": "upset_testing",
-        "info_value": 72.4,
-        "explanation": "ValkyrieVolt (ELO 1000) vs SamuraiSaber (ELO 888) has 112 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "WyvernHover",
         "bey_b": "SamuraiSaber",
         "category": "upset_testing",
@@ -3199,19 +3095,19 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SolEclipse",
-        "bey_b": "WizardArrow",
-        "category": "upset_testing",
-        "info_value": 72.0,
-        "explanation": "SolEclipse (ELO 1011) vs WizardArrow (ELO 901) has 110 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "PerseusDark",
         "bey_b": "WizardArrow",
         "category": "upset_testing",
         "info_value": 72.0,
         "explanation": "PerseusDark (ELO 1011) vs WizardArrow (ELO 901) has 110 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SolEclipse",
+        "bey_b": "WizardArrow",
+        "category": "upset_testing",
+        "info_value": 72.0,
+        "explanation": "SolEclipse (ELO 1011) vs WizardArrow (ELO 901) has 110 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3239,19 +3135,19 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SolEclipse",
-        "bey_b": "HellsHammer",
-        "category": "upset_testing",
-        "info_value": 71.6,
-        "explanation": "SolEclipse (ELO 1011) vs HellsHammer (ELO 903) has 108 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "PerseusDark",
         "bey_b": "HellsHammer",
         "category": "upset_testing",
         "info_value": 71.6,
         "explanation": "PerseusDark (ELO 1011) vs HellsHammer (ELO 903) has 108 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SolEclipse",
+        "bey_b": "HellsHammer",
+        "category": "upset_testing",
+        "info_value": 71.6,
+        "explanation": "SolEclipse (ELO 1011) vs HellsHammer (ELO 903) has 108 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3372,14 +3268,6 @@
         "category": "upset_testing",
         "info_value": 70.6,
         "explanation": "WeissTiger (ELO 1034) vs BlackShell (ELO 931) has 103 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "DranDagger",
-        "bey_b": "WizardArc",
-        "category": "upset_testing",
-        "info_value": 70.6,
-        "explanation": "DranDagger (ELO 1020) vs WizardArc (ELO 917) has 103 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3599,19 +3487,19 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SolEclipse",
-        "bey_b": "WizardArc",
-        "category": "upset_testing",
-        "info_value": 68.8,
-        "explanation": "SolEclipse (ELO 1011) vs WizardArc (ELO 917) has 94 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "PerseusDark",
         "bey_b": "WizardArc",
         "category": "upset_testing",
         "info_value": 68.8,
         "explanation": "PerseusDark (ELO 1011) vs WizardArc (ELO 917) has 94 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SolEclipse",
+        "bey_b": "WizardArc",
+        "category": "upset_testing",
+        "info_value": 68.8,
+        "explanation": "SolEclipse (ELO 1011) vs WizardArc (ELO 917) has 94 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3655,11 +3543,11 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "FoxBrush",
-        "bey_b": "TyrannoBeat",
+        "bey_a": "DranSword",
+        "bey_b": "SamuraiSaber",
         "category": "upset_testing",
         "info_value": 68.4,
-        "explanation": "FoxBrush (ELO 1100) vs TyrannoBeat (ELO 933) has 167 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "explanation": "DranSword (ELO 1055) vs SamuraiSaber (ELO 888) has 167 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
@@ -3668,14 +3556,6 @@
         "category": "upset_testing",
         "info_value": 68.2,
         "explanation": "PhoenixWing (ELO 1024) vs TyrannoBeat (ELO 933) has 91 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "DranBrave",
-        "bey_b": "PegasusBlast",
-        "category": "upset_testing",
-        "info_value": 68.2,
-        "explanation": "DranBrave (ELO 1016) vs PegasusBlast (ELO 925) has 91 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3703,6 +3583,14 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "GolemRock",
+        "bey_b": "WizardArc",
+        "category": "upset_testing",
+        "info_value": 68.0,
+        "explanation": "GolemRock (ELO 1082) vs WizardArc (ELO 917) has 165 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
         "bey_a": "LeonCrest",
         "bey_b": "WhaleFlame",
         "category": "upset_testing",
@@ -3728,18 +3616,18 @@
       },
       {
         "bey_a": "FoxBrush",
-        "bey_b": "SolEclipse",
-        "category": "upset_testing",
-        "info_value": 67.8,
-        "explanation": "FoxBrush (ELO 1100) vs SolEclipse (ELO 1011) has 89 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "FoxBrush",
         "bey_b": "PerseusDark",
         "category": "upset_testing",
         "info_value": 67.8,
         "explanation": "FoxBrush (ELO 1100) vs PerseusDark (ELO 1011) has 89 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "FoxBrush",
+        "bey_b": "SolEclipse",
+        "category": "upset_testing",
+        "info_value": 67.8,
+        "explanation": "FoxBrush (ELO 1100) vs SolEclipse (ELO 1011) has 89 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3863,11 +3751,11 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SharkScale",
-        "bey_b": "TyrannoBeat",
+        "bey_a": "PerseusDark",
+        "bey_b": "PegasusBlast",
         "category": "upset_testing",
         "info_value": 67.2,
-        "explanation": "SharkScale (ELO 1019) vs TyrannoBeat (ELO 933) has 86 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "explanation": "PerseusDark (ELO 1011) vs PegasusBlast (ELO 925) has 86 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3876,14 +3764,6 @@
         "category": "upset_testing",
         "info_value": 67.2,
         "explanation": "SolEclipse (ELO 1011) vs PegasusBlast (ELO 925) has 86 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "PerseusDark",
-        "bey_b": "PegasusBlast",
-        "category": "upset_testing",
-        "info_value": 67.2,
-        "explanation": "PerseusDark (ELO 1011) vs PegasusBlast (ELO 925) has 86 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -4064,18 +3944,18 @@
       },
       {
         "bey_a": "TuskMammoth",
-        "bey_b": "SolEclipse",
-        "category": "upset_testing",
-        "info_value": 65.8,
-        "explanation": "TuskMammoth (ELO 1090) vs SolEclipse (ELO 1011) has 79 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "TuskMammoth",
         "bey_b": "PerseusDark",
         "category": "upset_testing",
         "info_value": 65.8,
         "explanation": "TuskMammoth (ELO 1090) vs PerseusDark (ELO 1011) has 79 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "SolEclipse",
+        "category": "upset_testing",
+        "info_value": 65.8,
+        "explanation": "TuskMammoth (ELO 1090) vs SolEclipse (ELO 1011) has 79 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -4124,14 +4004,6 @@
         "category": "upset_testing",
         "info_value": 65.6,
         "explanation": "SolEclipse (ELO 1011) vs TyrannoBeat (ELO 933) has 78 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "PerseusDark",
-        "bey_b": "TyrannoBeat",
-        "category": "upset_testing",
-        "info_value": 65.6,
-        "explanation": "PerseusDark (ELO 1011) vs TyrannoBeat (ELO 933) has 78 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -4228,14 +4100,6 @@
         "category": "upset_testing",
         "info_value": 65.0,
         "explanation": "KnightMail (ELO 1006) vs BlackShell (ELO 931) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "ValkyrieVolt",
-        "bey_b": "PegasusBlast",
-        "category": "upset_testing",
-        "info_value": 65.0,
-        "explanation": "ValkyrieVolt (ELO 1000) vs PegasusBlast (ELO 925) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -4375,14 +4239,6 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "TuskMammoth",
-        "bey_b": "DranDagger",
-        "category": "upset_testing",
-        "info_value": 64.0,
-        "explanation": "TuskMammoth (ELO 1090) vs DranDagger (ELO 1020) has 70 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "DranSword",
         "bey_b": "HellsChain",
         "category": "upset_testing",
@@ -4484,14 +4340,6 @@
         "category": "upset_testing",
         "info_value": 63.6,
         "explanation": "RhinoReaper (ELO 993) vs PegasusBlast (ELO 925) has 68 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "HellsChain",
-        "bey_b": "WizardArc",
-        "category": "upset_testing",
-        "info_value": 63.6,
-        "explanation": "HellsChain (ELO 985) vs WizardArc (ELO 917) has 68 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -4639,19 +4487,19 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "SolEclipse",
-        "bey_b": "WhaleFlame",
-        "category": "upset_testing",
-        "info_value": 62.8,
-        "explanation": "SolEclipse (ELO 1011) vs WhaleFlame (ELO 947) has 64 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "PerseusDark",
         "bey_b": "WhaleFlame",
         "category": "upset_testing",
         "info_value": 62.8,
         "explanation": "PerseusDark (ELO 1011) vs WhaleFlame (ELO 947) has 64 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SolEclipse",
+        "bey_b": "WhaleFlame",
+        "category": "upset_testing",
+        "info_value": 62.8,
+        "explanation": "SolEclipse (ELO 1011) vs WhaleFlame (ELO 947) has 64 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -4751,14 +4599,6 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "ScorpioSpear",
-        "bey_b": "CrimsonGaruda",
-        "category": "upset_testing",
-        "info_value": 62.4,
-        "explanation": "ScorpioSpear (ELO 1047) vs CrimsonGaruda (ELO 985) has 62 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "PhoenixWing",
         "bey_b": "PhoenixRudder",
         "category": "upset_testing",
@@ -4789,6 +4629,14 @@
         "info_value": 62.2,
         "explanation": "ViperTail (ELO 1036) vs LeonClaw (ELO 975) has 61 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
+      },
+      {
+        "bey_a": "PhoenixWing",
+        "bey_b": "SamuraiSaber",
+        "category": "upset_testing",
+        "info_value": 62.2,
+        "explanation": "PhoenixWing (ELO 1024) vs SamuraiSaber (ELO 888) has 136 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
       },
       {
         "bey_a": "PhoenixRudder",
@@ -5056,14 +4904,6 @@
       },
       {
         "bey_a": "LeonCrest",
-        "bey_b": "HellsChain",
-        "category": "upset_testing",
-        "info_value": 60.4,
-        "explanation": "LeonCrest (ELO 1037) vs HellsChain (ELO 985) has 52 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "LeonCrest",
         "bey_b": "CrimsonGaruda",
         "category": "upset_testing",
         "info_value": 60.4,
@@ -5279,6 +5119,14 @@
         "existing_matches": 1
       },
       {
+        "bey_a": "ValkyrieVolt",
+        "bey_b": "SamuraiSaber",
+        "category": "upset_testing",
+        "info_value": 57.4,
+        "explanation": "ValkyrieVolt (ELO 1000) vs SamuraiSaber (ELO 888) has 112 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
         "bey_a": "ViperTail",
         "bey_b": "PegasusBlast",
         "category": "upset_testing",
@@ -5288,18 +5136,18 @@
       },
       {
         "bey_a": "ImpactDrake",
-        "bey_b": "SolEclipse",
-        "category": "upset_testing",
-        "info_value": 56.6,
-        "explanation": "ImpactDrake (ELO 1119) vs SolEclipse (ELO 1011) has 108 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 1
-      },
-      {
-        "bey_a": "ImpactDrake",
         "bey_b": "PerseusDark",
         "category": "upset_testing",
         "info_value": 56.6,
         "explanation": "ImpactDrake (ELO 1119) vs PerseusDark (ELO 1011) has 108 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "ImpactDrake",
+        "bey_b": "SolEclipse",
+        "category": "upset_testing",
+        "info_value": 56.6,
+        "explanation": "ImpactDrake (ELO 1119) vs SolEclipse (ELO 1011) has 108 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
@@ -5348,6 +5196,14 @@
         "category": "upset_testing",
         "info_value": 55.8,
         "explanation": "GolemRock (ELO 1082) vs WizardRod (ELO 978) has 104 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "DranDagger",
+        "bey_b": "WizardArc",
+        "category": "upset_testing",
+        "info_value": 55.6,
+        "explanation": "DranDagger (ELO 1020) vs WizardArc (ELO 917) has 103 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
@@ -5423,6 +5279,14 @@
         "existing_matches": 1
       },
       {
+        "bey_a": "DranBrave",
+        "bey_b": "PegasusBlast",
+        "category": "upset_testing",
+        "info_value": 53.2,
+        "explanation": "DranBrave (ELO 1016) vs PegasusBlast (ELO 925) has 91 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
         "bey_a": "KnightMail",
         "bey_b": "WizardArc",
         "category": "upset_testing",
@@ -5436,6 +5300,14 @@
         "category": "upset_testing",
         "info_value": 52.6,
         "explanation": "GolemRock (ELO 1082) vs WhaleWave (ELO 994) has 88 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "SharkScale",
+        "bey_b": "TyrannoBeat",
+        "category": "upset_testing",
+        "info_value": 52.2,
+        "explanation": "SharkScale (ELO 1019) vs TyrannoBeat (ELO 933) has 86 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
@@ -5511,19 +5383,19 @@
         "existing_matches": 1
       },
       {
+        "bey_a": "PerseusDark",
+        "bey_b": "TyrannoBeat",
+        "category": "upset_testing",
+        "info_value": 50.6,
+        "explanation": "PerseusDark (ELO 1011) vs TyrannoBeat (ELO 933) has 78 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
         "bey_a": "SilverWolf",
         "bey_b": "HellsHammer",
         "category": "upset_testing",
         "info_value": 50.6,
         "explanation": "SilverWolf (ELO 981) vs HellsHammer (ELO 903) has 78 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 1
-      },
-      {
-        "bey_a": "WhaleWave",
-        "bey_b": "WizardArc",
-        "category": "upset_testing",
-        "info_value": 50.4,
-        "explanation": "WhaleWave (ELO 994) vs WizardArc (ELO 917) has 77 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
@@ -5535,11 +5407,11 @@
         "existing_matches": 1
       },
       {
-        "bey_a": "PhoenixWing",
-        "bey_b": "CobaltDrake",
+        "bey_a": "ValkyrieVolt",
+        "bey_b": "PegasusBlast",
         "category": "upset_testing",
         "info_value": 50.0,
-        "explanation": "PhoenixWing (ELO 1024) vs CobaltDrake (ELO 949) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "explanation": "ValkyrieVolt (ELO 1000) vs PegasusBlast (ELO 925) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
@@ -5607,11 +5479,27 @@
         "existing_matches": 1
       },
       {
+        "bey_a": "TuskMammoth",
+        "bey_b": "DranDagger",
+        "category": "upset_testing",
+        "info_value": 49.0,
+        "explanation": "TuskMammoth (ELO 1090) vs DranDagger (ELO 1020) has 70 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
         "bey_a": "GolemRock",
         "bey_b": "HellsReaper",
         "category": "upset_testing",
         "info_value": 48.6,
         "explanation": "GolemRock (ELO 1082) vs HellsReaper (ELO 1014) has 68 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "HellsChain",
+        "bey_b": "WizardArc",
+        "category": "upset_testing",
+        "info_value": 48.6,
+        "explanation": "HellsChain (ELO 985) vs WizardArc (ELO 917) has 68 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
@@ -5636,6 +5524,14 @@
         "category": "upset_testing",
         "info_value": 47.4,
         "explanation": "DranSword (ELO 1055) vs RhinoReaper (ELO 993) has 62 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "ScorpioSpear",
+        "bey_b": "CrimsonGaruda",
+        "category": "upset_testing",
+        "info_value": 47.4,
+        "explanation": "ScorpioSpear (ELO 1047) vs CrimsonGaruda (ELO 985) has 62 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
@@ -5703,14 +5599,6 @@
         "existing_matches": 1
       },
       {
-        "bey_a": "TuskMammoth",
-        "bey_b": "WeissTiger",
-        "category": "upset_testing",
-        "info_value": 46.2,
-        "explanation": "TuskMammoth (ELO 1090) vs WeissTiger (ELO 1034) has 56 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 1
-      },
-      {
         "bey_a": "CerberusFlame",
         "bey_b": "RhinoReaper",
         "category": "upset_testing",
@@ -5732,14 +5620,6 @@
         "category": "upset_testing",
         "info_value": 45.8,
         "explanation": "HellsChain (ELO 985) vs BlackShell (ELO 931) has 54 ELO difference. Testing this matchup could reveal rating inaccuracies.",
-        "existing_matches": 1
-      },
-      {
-        "bey_a": "ScorpioSpear",
-        "bey_b": "WhaleWave",
-        "category": "upset_testing",
-        "info_value": 45.6,
-        "explanation": "ScorpioSpear (ELO 1047) vs WhaleWave (ELO 994) has 53 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
@@ -5772,6 +5652,14 @@
         "category": "upset_testing",
         "info_value": 45.4,
         "explanation": "CerberusFlame (ELO 1048) vs SharkEdge (ELO 996) has 52 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 1
+      },
+      {
+        "bey_a": "LeonCrest",
+        "bey_b": "HellsChain",
+        "category": "upset_testing",
+        "info_value": 45.4,
+        "explanation": "LeonCrest (ELO 1037) vs HellsChain (ELO 985) has 52 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 1
       },
       {
