@@ -175,6 +175,50 @@ function displayOverview(season) {
     const champion = season.league_champion || 'TBD';
     const cupWinner = season.cup_winner || 'TBD';
     
+    // Calculate additional statistics from match data
+    const matchdays = season.matchdays || {};
+    const allMatches = [];
+    Object.values(matchdays).forEach(matches => {
+        if (Array.isArray(matches)) {
+            allMatches.push(...matches);
+        }
+    });
+    
+    // Calculate comprehensive statistics
+    let totalPoints = 0;
+    let highestScore = 0;
+    let lowestScore = Infinity;
+    let totalPointDiff = 0;
+    let closeMatches = 0; // 1 point difference
+    let blowouts = 0; // 3+ point difference
+    let draws = 0;
+    
+    allMatches.forEach(match => {
+        const scoreA = match.score_a || 0;
+        const scoreB = match.score_b || 0;
+        const pointDiff = Math.abs(scoreA - scoreB);
+        
+        totalPoints += scoreA + scoreB;
+        highestScore = Math.max(highestScore, scoreA, scoreB);
+        if (scoreA > 0) lowestScore = Math.min(lowestScore, scoreA);
+        if (scoreB > 0) lowestScore = Math.min(lowestScore, scoreB);
+        totalPointDiff += pointDiff;
+        
+        if (scoreA === scoreB) {
+            draws++;
+        } else if (pointDiff === 1) {
+            closeMatches++;
+        } else if (pointDiff >= 3) {
+            blowouts++;
+        }
+    });
+    
+    const avgPointsPerMatch = allMatches.length > 0 ? (totalPoints / allMatches.length).toFixed(1) : 0;
+    const avgPointDiff = allMatches.length > 0 ? (totalPointDiff / allMatches.length).toFixed(1) : 0;
+    const closeMatchPct = allMatches.length > 0 ? ((closeMatches / allMatches.length) * 100).toFixed(0) : 0;
+    
+    if (lowestScore === Infinity) lowestScore = 0;
+    
     // Create champion link if not TBD
     const championHtml = champion !== 'TBD' 
         ? `<a href="bey.html?name=${encodeURIComponent(champion)}" class="bey-link">${champion}</a>`
@@ -196,14 +240,40 @@ function displayOverview(season) {
                 <p class="champion-note">Post-season tournament champion</p>
             </div>
             <div class="overview-card stats-card">
-                <h3>📊 Season Statistics</h3>
-                <div class="stat-row">
-                    <span>Total Matches:</span>
-                    <span>${stats.total_matches || 0}</span>
-                </div>
-                <div class="stat-row">
-                    <span>Total Points Scored:</span>
-                    <span>${stats.total_goals || 0}</span>
+                <h3>📊 Match Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Matches</span>
+                        <span class="stat-value">${allMatches.length}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Points</span>
+                        <span class="stat-value">${totalPoints}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Points/Match</span>
+                        <span class="stat-value">${avgPointsPerMatch}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Highest Score</span>
+                        <span class="stat-value">${highestScore}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Close Matches</span>
+                        <span class="stat-value">${closeMatches} (${closeMatchPct}%)</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Blowouts</span>
+                        <span class="stat-value">${blowouts}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Draws</span>
+                        <span class="stat-value">${draws}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Point Diff</span>
+                        <span class="stat-value">${avgPointDiff}</span>
+                    </div>
                 </div>
             </div>
         </div>

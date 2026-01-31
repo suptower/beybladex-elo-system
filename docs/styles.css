@@ -11546,6 +11546,39 @@ select:focus-visible {
     font-size: 1.1rem;
 }
 
+/* Stats grid for detailed statistics */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.75rem;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+}
+
+.stat-label {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-value {
+    color: var(--text);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
 /* League tables */
 .tier-section {
     margin-bottom: 3rem;
@@ -12288,6 +12321,19 @@ select:focus-visible {
     .pr-grid,
     .relegation-matches-list {
         grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .stat-item {
+        padding: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.25rem;
     }
     
     #matchdays-container .matches-grid {
