@@ -479,18 +479,23 @@ function displayMatchdays(matchdays) {
                         const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${match.bey_a}</a>`;
                         const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link">${match.bey_b}</a>`;
                         
-                        // Determine winner and loser
+                        // Determine winner, loser, or tie
                         const isAWinner = match.score_a > match.score_b;
                         const isBWinner = match.score_b > match.score_a;
+                        const isTie = match.score_a === match.score_b;
+                        
+                        // Get bey classes based on result
+                        const beyAClass = isTie ? '' : (isAWinner ? 'winner' : 'loser');
+                        const beyBClass = isTie ? '' : (isBWinner ? 'winner' : 'loser');
                         
                         // Get season and arena info
                         const seasonId = match.season_id || currentSeason?.season_id || 'S?';
                         const tierNum = match.tier || '?';
                         const arena = match.arena || 'Xtreme';
                         
-                        // Determine if it's a blowout (4+ point difference) or close match (1 point)
+                        // Determine if it's a blowout (3+ point difference) or close match (1 point)
                         const pointDiff = Math.abs(match.score_a - match.score_b);
-                        const isBlowout = pointDiff >= 3;
+                        const isBlowout = pointDiff >= 3 && !isTie;
                         const isClose = pointDiff === 1;
                         
                         return `
@@ -509,15 +514,16 @@ function displayMatchdays(matchdays) {
                             </div>
                             <div class="match-card-body">
                                 <div class="match-result">
-                                    <span class="bey ${isAWinner ? 'winner' : 'loser'}">${beyALink}</span>
+                                    <span class="bey ${beyAClass}">${beyALink}</span>
                                     <span class="score">${match.score_a}<span class="score-separator"> - </span>${match.score_b}</span>
-                                    <span class="bey ${isBWinner ? 'winner' : 'loser'}">${beyBLink}</span>
+                                    <span class="bey ${beyBClass}">${beyBLink}</span>
                                 </div>
                             </div>
                             <div class="match-card-footer">
                                 <span class="match-id">${match.match_id || ''}</span>
-                                ${isBlowout ? '<span class="match-tag">🔥 Blowout</span>' : ''}
-                                ${isClose ? '<span class="match-tag">⚡ Close Match</span>' : ''}
+                                ${isTie ? '<span class="match-tag">Tie</span>' : ''}
+                                ${isBlowout ? '<span class="match-tag">Blowout</span>' : ''}
+                                ${isClose ? '<span class="match-tag">Close Match</span>' : ''}
                             </div>
                         </div>
                     `;
