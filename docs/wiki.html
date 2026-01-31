@@ -81,6 +81,13 @@
             <input type="text" id="wikiSearch" placeholder="Search beyblades...">
         </div>
         
+        <div class="tournament-filter-container">
+            <label class="tournament-filter-label">
+                <input type="checkbox" id="tournamentWinnersFilter" class="tournament-checkbox">
+                <span class="tournament-filter-text">🏆 Tournament Winners Only</span>
+            </label>
+        </div>
+        
         <div class="filters-row">
             <div class="filter-group">
                 <label class="filter-label">Type</label>
@@ -140,7 +147,8 @@ let activeFilters = {
     type: 'all',
     system: 'all',
     ratchet: 'all',
-    bit: 'all'
+    bit: 'all',
+    tournamentWinnersOnly: false
 };
 
 // Helper function to normalize bey names for comparison
@@ -415,7 +423,15 @@ function applyFilters() {
             matchesBit = bey.bit === activeFilters.bit || bey.ratchet_integrated_bit === activeFilters.bit;
         }
         
-        return matchesSearch && matchesType && matchesSystem && matchesRatchet && matchesBit;
+        // Tournament Winners filter
+        let matchesTournamentWinner = true;
+        if (activeFilters.tournamentWinnersOnly) {
+            const normalizedBlade = normalizeBeyName(bey.blade);
+            const trophies = tournamentsData[normalizedBlade] || [];
+            matchesTournamentWinner = trophies.length > 0;
+        }
+        
+        return matchesSearch && matchesType && matchesSystem && matchesRatchet && matchesBit && matchesTournamentWinner;
     });
     
     // Sort the filtered results by code
@@ -450,6 +466,12 @@ document.getElementById('ratchetFilter').addEventListener('change', (e) => {
 
 document.getElementById('bitFilter').addEventListener('change', (e) => {
     activeFilters.bit = e.target.value;
+    applyFilters();
+});
+
+// Tournament Winners filter - checkbox
+document.getElementById('tournamentWinnersFilter').addEventListener('change', (e) => {
+    activeFilters.tournamentWinnersOnly = e.target.checked;
     applyFilters();
 });
 
