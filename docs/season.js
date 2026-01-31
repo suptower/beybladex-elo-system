@@ -8,6 +8,7 @@ let currentSeason = null;
 let roundsData = {}; // Mapping of match_id to rounds array
 let expandedMatches = new Set(); // Track which matches are expanded
 let xtremeEloData = {}; // Mapping of bey name to Xtreme ELO
+let collapsedSections = new Set(); // Track which sections are collapsed
 
 // Finish type styling configuration
 const FINISH_TYPE_STYLES = {
@@ -284,36 +285,42 @@ function displayTierTables(leagueTables) {
         if (!table || table.length === 0) continue;
         
         const tierNames = ['I', 'II', 'III', 'IV'];
+        const sectionId = `tier-${tier}-content`;
         
         html += `
             <div class="tier-section">
-                <h3>🏆 Tier ${tierNames[tier-1]}</h3>
-                <div class="table-responsive">
-                    <table class="league-table">
-                        <thead>
-                            <tr>
-                                <th>Pos</th>
-                                <th>Bey</th>
-                                <th>M</th>
-                                <th>W</th>
-                                <th>L</th>
-                                <th>SP</th>
-                                <th>PF</th>
-                                <th>PA</th>
-                                <th>PD</th>
-                                <th>ELO</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${table.map((entry, idx) => createTableRow(entry, idx, tier)).join('')}
-                        </tbody>
-                    </table>
+                <h3 class="collapsible-header" onclick="toggleSection('${sectionId}')" data-section-id="${sectionId}">
+                    <span class="section-toggle-icon">▼</span>
+                    <span>🏆 Tier ${tierNames[tier-1]}</span>
+                </h3>
+                <div id="${sectionId}" class="collapsible-content">
+                    <div class="table-responsive">
+                        <table class="league-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Bey</th>
+                                    <th>M</th>
+                                    <th>W</th>
+                                    <th>L</th>
+                                    <th>SP</th>
+                                    <th>PF</th>
+                                    <th>PA</th>
+                                    <th>PD</th>
+                                    <th>ELO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${table.map((entry, idx) => createTableRow(entry, idx, tier)).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-legend">
+                        <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
+                        <span><strong>PF</strong>=Points For, <strong>PA</strong>=Points Against, <strong>PD</strong>=Point Difference</span>
+                    </div>
+                    ${getPositionLegend(tier)}
                 </div>
-                <div class="table-legend">
-                    <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
-                    <span><strong>PF</strong>=Points For, <strong>PA</strong>=Points Against, <strong>PD</strong>=Point Difference</span>
-                </div>
-                ${getPositionLegend(tier)}
             </div>
         `;
     }
@@ -622,11 +629,17 @@ function displayMatchdays(matchdays) {
         const matches = matchdays[md];
         if (!matches || matches.length === 0) return;
         
+        const sectionId = `matchday-${md}-content`;
+        
         html += `
             <div class="matchday-section">
-                <h4>Matchday ${md}</h4>
-                <div class="matches-grid">
-                    ${matches.map(match => {
+                <h4 class="collapsible-header" onclick="toggleSection('${sectionId}')" data-section-id="${sectionId}">
+                    <span class="section-toggle-icon">▼</span>
+                    <span>Matchday ${md}</span>
+                </h4>
+                <div id="${sectionId}" class="collapsible-content">
+                    <div class="matches-grid">
+                        ${matches.map(match => {
                         const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${match.bey_a}</a>`;
                         const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link">${match.bey_b}</a>`;
                         
@@ -716,6 +729,7 @@ function displayMatchdays(matchdays) {
                         </div>
                     `;
                     }).join('')}
+                </div>
                 </div>
             </div>
         `;
@@ -926,5 +940,28 @@ function toggleMatchRounds(matchId, roundCount) {
         if (text) {
             text.textContent = `Hide Round Details (${roundCount})`;
         }
+    }
+}
+
+/**
+ * Toggle section visibility (for collapsible sections)
+ */
+function toggleSection(sectionId) {
+    const content = document.getElementById(sectionId);
+    const button = document.querySelector(`[data-section-id="${sectionId}"]`);
+    const icon = button?.querySelector('.section-toggle-icon');
+    
+    if (collapsedSections.has(sectionId)) {
+        // Expand
+        collapsedSections.delete(sectionId);
+        if (content) content.classList.remove('collapsed');
+        if (button) button.classList.remove('collapsed');
+        if (icon) icon.textContent = '▼';
+    } else {
+        // Collapse
+        collapsedSections.add(sectionId);
+        if (content) content.classList.add('collapsed');
+        if (button) button.classList.add('collapsed');
+        if (icon) icon.textContent = '▶';
     }
 }

@@ -11617,6 +11617,42 @@ select:focus-visible {
     border-bottom: 3px solid var(--accent);
 }
 
+/* Collapsible sections */
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.collapsible-header:hover {
+    opacity: 0.8;
+}
+
+.section-toggle-icon {
+    display: inline-block;
+    transition: transform 0.2s ease;
+    font-size: 0.875em;
+    color: var(--accent);
+}
+
+.collapsible-header.collapsed .section-toggle-icon {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    max-height: 10000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+    transition: max-height 0.3s ease;
+}
+
 /* Table responsive wrapper for horizontal scrolling */
 .table-responsive {
     overflow-x: auto;
