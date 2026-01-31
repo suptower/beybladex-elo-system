@@ -3301,6 +3301,48 @@ body.dark .wiki-card-rank.rank-bronze {
     margin-bottom: 2rem;
 }
 
+/* Arena Plot Selector for Bey Pages */
+.arena-plot-selector-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+}
+
+.arena-plot-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.arena-plot-select {
+    padding: 0.5rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    min-width: 250px;
+}
+
+.arena-plot-select:hover {
+    border-color: var(--accent);
+}
+
+.arena-plot-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
 .section-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -12305,7 +12347,7 @@ select:focus-visible {
     background: rgba(139, 92, 246, 0.15);
 }
 
-.arena-badge.arena-dropattack {
+.arena-badge.arena-drop-attack {
     color: #f59e0b;
     background: rgba(245, 158, 11, 0.15);
 }
@@ -12314,7 +12356,7 @@ body.dark .arena-badge.arena-xtreme {
     background: rgba(139, 92, 246, 0.25);
 }
 
-body.dark .arena-badge.arena-dropattack {
+body.dark .arena-badge.arena-drop-attack {
     background: rgba(245, 158, 11, 0.25);
 }
 

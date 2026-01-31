@@ -147,6 +147,17 @@
                 </div>
             </details>
             
+            <!-- Arena Selector for Plots -->
+            <div class="profile-section" id="arenaPlotSelector" style="display: none;">
+                <div class="arena-plot-selector-container">
+                    <label for="arenaPlotSelect" class="arena-plot-label">🏟️ View Stats & Plots for Arena:</label>
+                    <select id="arenaPlotSelect" class="arena-plot-select">
+                        <option value="xtreme" selected>Xtreme Stadium (Season/Global)</option>
+                        <option value="drop_attack">Drop Attack Beystadium</option>
+                    </select>
+                </div>
+            </div>
+            
             <!-- ELO History Section (collapsible, hidden by default) -->
             <details class="profile-section-details" id="plotSection" style="display: none;">
                 <summary class="section-summary">📈 ELO History</summary>
@@ -321,6 +332,7 @@ let allLeaderboardData = [];
 let allEloHistoryData = [];
 let rpgStatsData = null;
 let countersData = [];
+let currentArena = 'xtreme'; // Track current arena for plots
 
 // Helper function to normalize bey names for comparison
 function normalizeBeyName(name) {
@@ -400,16 +412,23 @@ async function loadData() {
         allBeysData = beys;
         beyData = findBeyByName(beys, beyName);
         
-        // Load leaderboard data (try advanced first, then standard)
+        // Load leaderboard data (arena-specific for stats display)
         try {
-            const advancedResponse = await fetch('data/advanced_leaderboard.csv');
-            const advancedText = await advancedResponse.text();
-            const advancedData = parseCSV(advancedText);
-            allLeaderboardData = advancedData;
-            leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            // Try advanced leaderboard first (only Xtreme has advanced stats)
+            if (currentArena === 'xtreme') {
+                const advancedResponse = await fetch('data/advanced_leaderboard.csv');
+                const advancedText = await advancedResponse.text();
+                const advancedData = parseCSV(advancedText);
+                allLeaderboardData = advancedData;
+                leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            } else {
+                // Use arena-specific leaderboard
+                throw new Error('Use arena-specific leaderboard');
+            }
         } catch (e) {
-            // Fallback to standard leaderboard
-            const standardResponse = await fetch('data/leaderboard.csv');
+            // Fallback to arena-specific standard leaderboard
+            const arenaPath = currentArena === 'xtreme' ? 'leaderboard.csv' : `leaderboard_${currentArena}.csv`;
+            const standardResponse = await fetch(`data/${arenaPath}`);
             const standardText = await standardResponse.text();
             const standardData = parseCSV(standardText);
             allLeaderboardData = standardData;
@@ -445,7 +464,8 @@ async function loadData() {
         
         // Load ELO timeseries data
         try {
-            const eloTsResponse = await fetch('data/elo_timeseries.csv');
+            const arenaPath = currentArena === 'xtreme' ? 'elo_timeseries.csv' : `elo_timeseries_${currentArena}.csv`;
+            const eloTsResponse = await fetch(`data/${arenaPath}`);
             const eloTsText = await eloTsResponse.text();
             eloTimeseriesData = parseCSV(eloTsText);
         } catch (e) {
@@ -455,7 +475,8 @@ async function loadData() {
         
         // Load position timeseries data
         try {
-            const posTsResponse = await fetch('data/position_timeseries.csv');
+            const arenaPath = currentArena === 'xtreme' ? 'position_timeseries.csv' : `position_timeseries_${currentArena}.csv`;
+            const posTsResponse = await fetch(`data/${arenaPath}`);
             const posTsText = await posTsResponse.text();
             positionTimeseriesData = parseCSV(posTsText);
         } catch (e) {
@@ -2211,11 +2232,85 @@ function renderSimilarPerformanceBeys(beys) {
     }).join('');
 }
 
+// Function to reload arena-specific data and update plots
+async function switchArena(newArena) {
+    currentArena = newArena;
+    
+    // Show loading indicator for plots
+    const plotSection = document.getElementById('plotSection');
+    const positionPlotSection = document.getElementById('positionPlotSection');
+    
+    try {
+        // Reload timeseries data for the new arena
+        const arenaPath = currentArena === 'xtreme' ? 'elo_timeseries.csv' : `elo_timeseries_${currentArena}.csv`;
+        const eloTsResponse = await fetch(`data/${arenaPath}`);
+        const eloTsText = await eloTsResponse.text();
+        eloTimeseriesData = parseCSV(eloTsText);
+        
+        const posArenaPath = currentArena === 'xtreme' ? 'position_timeseries.csv' : `position_timeseries_${currentArena}.csv`;
+        const posTsResponse = await fetch(`data/${posArenaPath}`);
+        const posTsText = await posTsResponse.text();
+        positionTimeseriesData = parseCSV(posTsText);
+        
+        // Reload leaderboard data for the new arena
+        const leaderboardPath = currentArena === 'xtreme' ? 'leaderboard.csv' : `leaderboard_${currentArena}.csv`;
+        const standardResponse = await fetch(`data/${leaderboardPath}`);
+        const standardText = await standardResponse.text();
+        const standardData = parseCSV(standardText);
+        allLeaderboardData = standardData;
+        leaderboardData = findLeaderboardEntry(standardData, beyName);
+        
+        // Update ELO and stats display
+        updateKeyStats();
+        updateStatsSection();
+        updateHistorySection();
+        
+        // Update plots
+        updateELOPlot();
+        updatePositionPlot();
+        
+        console.log(`Switched to ${currentArena} arena`);
+    } catch (e) {
+        console.error('Error switching arena:', e);
+    }
+}
+
+// Set up arena selector
+function setupArenaSelector() {
+    const arenaPlotSelector = document.getElementById('arenaPlotSelector');
+    const arenaPlotSelect = document.getElementById('arenaPlotSelect');
+    
+    if (arenaPlotSelector && arenaPlotSelect) {
+        // Show the selector
+        arenaPlotSelector.style.display = 'block';
+        
+        // Add event listener
+        arenaPlotSelect.addEventListener('change', (e) => {
+            switchArena(e.target.value);
+        });
+        
+        // Load saved preference from localStorage
+        const savedArena = localStorage.getItem('beyPageArena');
+        if (savedArena && savedArena !== currentArena) {
+            arenaPlotSelect.value = savedArena;
+            switchArena(savedArena);
+        }
+        
+        // Save preference on change
+        arenaPlotSelect.addEventListener('change', (e) => {
+            localStorage.setItem('beyPageArena', e.target.value);
+        });
+    }
+}
+
 // Initialize
 if (!beyName) {
     showError();
 } else {
-    loadData();
+    loadData().then(() => {
+        // Set up arena selector after data is loaded
+        setupArenaSelector();
+    });
 }
 </script>
 
