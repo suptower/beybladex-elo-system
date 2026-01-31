@@ -163,8 +163,10 @@ function loadLeaderboard(isAdvanced = false, matchIndex = null) {
         // Load combined arena leaderboard
         csvPath = "./data/leaderboard_all_arenas.csv";
     } else if (currentArena === "drop_attack") {
-        // Load Drop Attack arena leaderboard
-        csvPath = "./data/leaderboard_drop_attack.csv";
+        // Load Drop Attack arena leaderboard (advanced if requested)
+        csvPath = isAdvanced 
+            ? "./data/advanced_leaderboard_drop_attack.csv" 
+            : "./data/leaderboard_drop_attack.csv";
     } else {
         // Load current leaderboard (standard or advanced for Xtreme/default)
         csvPath = isAdvanced 
@@ -855,12 +857,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Time Travel Mode is only available for Xtreme Stadium (Season/Global). Switching to current leaderboard.");
             }
             
-            // Disable advanced mode for arena-specific views
-            if (currentArena !== "xtreme" && isAdvancedMode) {
+            // Disable advanced mode for unsupported arena views (all arenas comparison doesn't have advanced stats)
+            if (currentArena === "all" && isAdvancedMode) {
                 isAdvancedMode = false;
                 const toggleInput = document.getElementById("leaderboardToggle");
                 if (toggleInput) toggleInput.checked = false;
-                alert("Advanced statistics are only available for Xtreme Stadium (Season/Global).");
+                alert("Advanced statistics are not available for the 'All Arenas' comparison view.");
             }
             
             // Reload leaderboard with selected arena
@@ -889,10 +891,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             
-            // Prevent switching to advanced mode for non-xtreme arenas
-            if (currentArena !== "xtreme" && e.target.checked) {
+            // Prevent switching to advanced mode for all arenas view
+            if (currentArena === "all" && e.target.checked) {
                 e.target.checked = false;
-                alert("Advanced statistics are only available for Xtreme Stadium (Season/Global).");
+                alert("Advanced statistics are not available for the 'All Arenas' comparison view.");
                 return;
             }
             
