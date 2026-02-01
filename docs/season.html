@@ -106,8 +106,11 @@
 
         <!-- Qualification Pool -->
         <div id="qualification-pool-container" style="display: none;">
-            <h2 class="section-header">🎯 Qualification Tournament Pool</h2>
-            <div id="qualification-pool-content">
+            <h2 class="section-header collapsible-header" data-section-id="qualification-pool" onclick="toggleSection('qualification-pool')">
+                <span class="section-toggle-icon">▶</span>
+                🎯 Qualification Tournament Pool
+            </h2>
+            <div id="qualification-pool" class="collapsible-content collapsed">
                 <!-- Will be populated by JavaScript -->
             </div>
         </div>
