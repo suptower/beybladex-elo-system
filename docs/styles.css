@@ -12091,7 +12091,7 @@ select:focus-visible {
 
 /* Ensure card-bey winner styles work in season context */
 #matchdays-container .card-bey.winner {
-    background: var(--accent);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
 }
 
@@ -12104,15 +12104,15 @@ select:focus-visible {
 }
 
 #matchdays-container .card-bey.winner .bey-elo {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
 }
 
 #matchdays-container .card-bey.winner .elo-change {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
 }
 
 #matchdays-container .card-bey.winner .elo-change.positive {
-    color: #bbf7d0;
+    color: #d1fae5;
 }
 
 #matchdays-container .card-bey.winner .elo-change.negative {
@@ -12120,7 +12120,8 @@ select:focus-visible {
 }
 
 #matchdays-container .card-bey.loser {
-    opacity: 0.85;
+    background: var(--bg-secondary);
+    opacity: 0.75;
 }
 
 #matchdays-container .elo-change {
