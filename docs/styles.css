@@ -12124,7 +12124,7 @@ select:focus-visible {
     max-width: 100%;
     word-wrap: break-word;
     overflow-wrap: break-word;
-    hyphens: auto;
+    hyphens: manual;  /* Use manual to only break at soft hyphens, not auto-hyphenate */
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;

@@ -10,6 +10,15 @@ let expandedMatches = new Set(); // Track which matches are expanded
 let xtremeEloData = {}; // Mapping of bey name to Xtreme ELO
 let collapsedSections = new Set(['qualification-pool']); // Track which sections are collapsed (qualification pool collapsed by default)
 
+/**
+ * Add soft hyphens before capital letters in compound Bey names for better line breaking
+ * E.g., "CobaltDragoon" becomes "Cobalt&shy;Dragoon"
+ */
+function addSoftHyphens(name) {
+    // Add soft hyphen before every capital letter that follows a lowercase letter
+    return name.replace(/([a-z])([A-Z])/g, '$1&shy;$2');
+}
+
 // Finish type styling configuration
 const FINISH_TYPE_STYLES = {
     spin: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.15)', label: 'Spin', icon: '🔄', points: 1 },
@@ -215,10 +224,10 @@ function displayOverview(season) {
     
     // Create champion link if not TBD
     const championHtml = champion !== 'TBD' 
-        ? `<a href="bey.html?name=${encodeURIComponent(champion)}" class="bey-link">${champion}</a>`
+        ? `<a href="bey.html?name=${encodeURIComponent(champion)}" class="bey-link">${addSoftHyphens(champion)}</a>`
         : champion;
     const cupWinnerHtml = cupWinner !== 'TBD'
-        ? `<a href="bey.html?name=${encodeURIComponent(cupWinner)}" class="bey-link">${cupWinner}</a>`
+        ? `<a href="bey.html?name=${encodeURIComponent(cupWinner)}" class="bey-link">${addSoftHyphens(cupWinner)}</a>`
         : cupWinner;
     
     container.innerHTML = `
@@ -409,8 +418,8 @@ function createTableRow(entry, idx, tier) {
         positionIndicator = ' Q';
     }
     
-    // Create Bey link
-    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${entry.bey}</a>`;
+    // Create Bey link with soft hyphens
+    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
     
     // Use Xtreme ELO if available, otherwise fall back to entry.elo
     const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
@@ -449,7 +458,7 @@ function displayPromotionRelegation(data) {
                 <h4>⬆️ Automatic Promotions</h4>
                 <ul>
                     ${data.automatic_promotion.map(p => {
-                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(p.bey)}" class="bey-link">${p.bey}</a>`;
+                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(p.bey)}" class="bey-link">${addSoftHyphens(p.bey)}</a>`;
                         return `<li><strong>${beyLink}</strong> (Tier ${p.from_tier} → Tier ${p.to_tier})</li>`;
                     }).join('')}
                 </ul>
@@ -464,7 +473,7 @@ function displayPromotionRelegation(data) {
                 <h4>⬇️ Automatic Relegations</h4>
                 <ul>
                     ${data.automatic_relegation.map(r => {
-                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(r.bey)}" class="bey-link">${r.bey}</a>`;
+                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(r.bey)}" class="bey-link">${addSoftHyphens(r.bey)}</a>`;
                         return `<li><strong>${beyLink}</strong> (Tier ${r.from_tier} → Tier ${r.to_tier})</li>`;
                     }).join('')}
                 </ul>
@@ -494,8 +503,8 @@ function displayRelegationMatches(matches) {
     const html = `
         <div class="relegation-matches-list">
             ${matches.map(match => {
-                const higherBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.higher_bey)}" class="bey-link">${match.higher_bey}</a>`;
-                const lowerBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.lower_bey)}" class="bey-link">${match.lower_bey}</a>`;
+                const higherBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.higher_bey)}" class="bey-link">${addSoftHyphens(match.higher_bey)}</a>`;
+                const lowerBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.lower_bey)}" class="bey-link">${addSoftHyphens(match.lower_bey)}</a>`;
                 
                 return `
                 <div class="relegation-match-card">
@@ -545,7 +554,7 @@ function displayQualificationPool(qualificationPool) {
             <p class="qualification-intro">These Beys will compete in the Qualification Tournament. Top 4 finishers earn Tier III placement for the next season.</p>
             <div class="qualification-grid">
                 ${qualificationPool.map((entry, idx) => {
-                    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${entry.bey}</a>`;
+                    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
                     return `
                     <div class="qualification-card">
                         <div class="qualification-rank">${idx + 1}</div>
@@ -575,7 +584,7 @@ function displaySeasonCup(cupData) {
     let html = '';
     
     if (winner) {
-        const winnerLink = `<a href="bey.html?name=${encodeURIComponent(winner)}" class="bey-link">${winner}</a>`;
+        const winnerLink = `<a href="bey.html?name=${encodeURIComponent(winner)}" class="bey-link">${addSoftHyphens(winner)}</a>`;
         html += `
             <div class="cup-winner-banner">
                 <h3>🏆 Season Cup Champion: ${winnerLink}</h3>
@@ -640,8 +649,8 @@ function displayMatchdays(matchdays) {
                 <div id="${sectionId}" class="collapsible-content">
                     <div class="matches-grid">
                         ${matches.map(match => {
-                        const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${match.bey_a}</a>`;
-                        const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link">${match.bey_b}</a>`;
+                        const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${addSoftHyphens(match.bey_a)}</a>`;
+                        const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link">${addSoftHyphens(match.bey_b)}</a>`;
                         
                         // Determine winner, loser, or tie
                         const isAWinner = match.score_a > match.score_b;
@@ -783,8 +792,8 @@ function displayFixtures(fixturesData) {
                             </thead>
                             <tbody>
                                 ${fixtures.map(fixture => {
-                                    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${fixture.bey_a}</a>`;
-                                    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${fixture.bey_b}</a>`;
+                                    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_a)}</a>`;
+                                    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_b)}</a>`;
                                     
                                     return `
                                     <tr class="fixture-row">
@@ -818,8 +827,8 @@ function displayFixtures(fixturesData) {
                     </thead>
                     <tbody>
                         ${upcomingMatches.map(fixture => {
-                            const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${fixture.bey_a}</a>`;
-                            const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${fixture.bey_b}</a>`;
+                            const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_a)}</a>`;
+                            const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_b)}</a>`;
                             
                             return `
                             <tr class="fixture-row">
