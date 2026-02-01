@@ -709,18 +709,18 @@ function displayMatchdays(matchdays) {
                                 <span class="match-date">${match.date || ''}</span>
                             </div>
                             <div class="match-card-body">
-                                <div class="match-result">
-                                    <div class="bey-container ${beyAClass}">
-                                        <span class="bey-name">${beyALink}</span>
+                                <div class="card-match">
+                                    <div class="card-bey ${beyAClass}">
+                                        <div class="bey-name">${beyALink}</div>
+                                        <div class="bey-elo">${formatEloWithChange(eloA, eloChangeA)}</div>
+                                        <div class="bey-score">${match.score_a}</div>
                                     </div>
-                                    <span class="score">${match.score_a}<span class="score-separator"> - </span>${match.score_b}</span>
-                                    <div class="bey-container ${beyBClass}">
-                                        <span class="bey-name">${beyBLink}</span>
+                                    <div class="card-vs">VS</div>
+                                    <div class="card-bey ${beyBClass}">
+                                        <div class="bey-name">${beyBLink}</div>
+                                        <div class="bey-elo">${formatEloWithChange(eloB, eloChangeB)}</div>
+                                        <div class="bey-score">${match.score_b}</div>
                                     </div>
-                                </div>
-                                <div class="match-elo-row">
-                                    <span class="bey-elo">${formatEloWithChange(eloA, eloChangeA)}</span>
-                                    <span class="bey-elo">${formatEloWithChange(eloB, eloChangeB)}</span>
                                 </div>
                             </div>
                             <div class="match-card-footer">
