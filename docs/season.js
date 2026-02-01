@@ -697,12 +697,12 @@ function displayMatchdays(matchdays) {
                             <div class="match-card-body">
                                 <div class="match-result">
                                     <div class="bey-container ${beyAClass}">
-                                        <span class="bey-name" title="${match.bey_a}">${beyALink}</span>
+                                        <span class="bey-name">${beyALink}</span>
                                         <span class="bey-elo">${formatEloWithChange(eloA, eloChangeA)}</span>
                                     </div>
                                     <span class="score">${match.score_a}<span class="score-separator"> - </span>${match.score_b}</span>
                                     <div class="bey-container ${beyBClass}">
-                                        <span class="bey-name" title="${match.bey_b}">${beyBLink}</span>
+                                        <span class="bey-name">${beyBLink}</span>
                                         <span class="bey-elo">${formatEloWithChange(eloB, eloChangeB)}</span>
                                     </div>
                                 </div>
