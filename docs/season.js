@@ -5,6 +5,27 @@
  */
 
 let currentSeason = null;
+let roundsData = {}; // Mapping of match_id to rounds array
+let expandedMatches = new Set(); // Track which matches are expanded
+let xtremeEloData = {}; // Mapping of bey name to Xtreme ELO
+let collapsedSections = new Set(['qualification-pool']); // Track which sections are collapsed (qualification pool collapsed by default)
+
+/**
+ * Add soft hyphens before capital letters in compound Bey names for better line breaking
+ * E.g., "CobaltDragoon" becomes "Cobalt&shy;Dragoon"
+ */
+function addSoftHyphens(name) {
+    // Add soft hyphen before every capital letter that follows a lowercase letter
+    return name.replace(/([a-z])([A-Z])/g, '$1&shy;$2');
+}
+
+// Finish type styling configuration
+const FINISH_TYPE_STYLES = {
+    spin: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.15)', label: 'Spin', icon: '🔄', points: 1 },
+    burst: { color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.15)', label: 'Burst', icon: '💥', points: 2 },
+    pocket: { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', label: 'Pocket', icon: '🎯', points: 2 },
+    extreme: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Extreme', icon: '⚡', points: 3 }
+};
 
 // Load season data on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,11 +33,80 @@ document.addEventListener('DOMContentLoaded', function() {
     const seasonId = urlParams.get('id');
     
     if (seasonId) {
-        loadSeason(seasonId);
+        // Load both rounds data and Xtreme ELO data before loading season
+        Promise.all([loadRoundsData(), loadXtremeEloData()]).then(() => {
+            loadSeason(seasonId);
+        });
     } else {
         showError('No season ID provided');
     }
 });
+
+/**
+ * Load rounds data from matches_with_rounds.json
+ */
+async function loadRoundsData() {
+    try {
+        const response = await fetch('data/matches_with_rounds.json');
+        const data = await response.json();
+        
+        // Create a mapping of match_id to rounds and ELO values
+        if (data.matches) {
+            data.matches.forEach(match => {
+                if (match.rounds && match.rounds.length > 0) {
+                    roundsData[match.match_id] = {
+                        rounds: match.rounds,
+                        elo_a: match.elo_a,
+                        elo_b: match.elo_b,
+                        post_elo_a: match.post_elo_a,
+                        post_elo_b: match.post_elo_b
+                    };
+                }
+            });
+        }
+        
+        console.log(`Loaded rounds data for ${Object.keys(roundsData).length} matches`);
+    } catch (error) {
+        console.error('Error loading rounds data:', error);
+        roundsData = {};
+    }
+}
+
+/**
+ * Load Xtreme stadium ELO data from leaderboard
+ */
+async function loadXtremeEloData() {
+    try {
+        const response = await fetch('data/leaderboard_xtreme.csv');
+        if (!response.ok) {
+            throw new Error('Failed to load Xtreme leaderboard');
+        }
+        
+        const csvText = await response.text();
+        const lines = csvText.trim().split('\n');
+        
+        // Skip header row
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i];
+            if (!line.trim()) continue;
+            
+            const values = line.split(',');
+            if (values.length >= 3) {
+                const beyName = values[1]; // Name is in second column
+                const elo = parseFloat(values[2]); // ELO is in third column
+                
+                if (beyName && !isNaN(elo)) {
+                    xtremeEloData[beyName] = elo;
+                }
+            }
+        }
+        
+        console.log(`Loaded Xtreme ELO data for ${Object.keys(xtremeEloData).length} Beys`);
+    } catch (error) {
+        console.error('Error loading Xtreme ELO data:', error);
+        xtremeEloData = {};
+    }
+}
 
 /**
  * Load specific season data
@@ -95,12 +185,49 @@ function displayOverview(season) {
     const champion = season.league_champion || 'TBD';
     const cupWinner = season.cup_winner || 'TBD';
     
+    // Calculate additional statistics from match data
+    const matchdays = season.matchdays || {};
+    const allMatches = [];
+    Object.values(matchdays).forEach(matches => {
+        if (Array.isArray(matches)) {
+            allMatches.push(...matches);
+        }
+    });
+    
+    // Calculate comprehensive statistics
+    let totalPoints = 0;
+    let highestScore = 0;
+    let lowestScore = Infinity;
+    let totalPointDiff = 0;
+    let blowouts = 0; // 3+ point difference
+    
+    allMatches.forEach(match => {
+        const scoreA = match.score_a || 0;
+        const scoreB = match.score_b || 0;
+        const pointDiff = Math.abs(scoreA - scoreB);
+        
+        totalPoints += scoreA + scoreB;
+        highestScore = Math.max(highestScore, scoreA, scoreB);
+        if (scoreA > 0) lowestScore = Math.min(lowestScore, scoreA);
+        if (scoreB > 0) lowestScore = Math.min(lowestScore, scoreB);
+        totalPointDiff += pointDiff;
+        
+        if (pointDiff >= 3) {
+            blowouts++;
+        }
+    });
+    
+    const avgPointsPerMatch = allMatches.length > 0 ? (totalPoints / allMatches.length).toFixed(1) : 0;
+    const avgPointDiff = allMatches.length > 0 ? (totalPointDiff / allMatches.length).toFixed(1) : 0;
+    
+    if (lowestScore === Infinity) lowestScore = 0;
+    
     // Create champion link if not TBD
     const championHtml = champion !== 'TBD' 
-        ? `<a href="bey.html?name=${encodeURIComponent(champion)}" class="bey-link">${champion}</a>`
+        ? `<a href="bey.html?name=${encodeURIComponent(champion)}" class="bey-link">${addSoftHyphens(champion)}</a>`
         : champion;
     const cupWinnerHtml = cupWinner !== 'TBD'
-        ? `<a href="bey.html?name=${encodeURIComponent(cupWinner)}" class="bey-link">${cupWinner}</a>`
+        ? `<a href="bey.html?name=${encodeURIComponent(cupWinner)}" class="bey-link">${addSoftHyphens(cupWinner)}</a>`
         : cupWinner;
     
     container.innerHTML = `
@@ -116,14 +243,32 @@ function displayOverview(season) {
                 <p class="champion-note">Post-season tournament champion</p>
             </div>
             <div class="overview-card stats-card">
-                <h3>📊 Season Statistics</h3>
-                <div class="stat-row">
-                    <span>Total Matches:</span>
-                    <span>${stats.total_matches || 0}</span>
-                </div>
-                <div class="stat-row">
-                    <span>Total Points Scored:</span>
-                    <span>${stats.total_goals || 0}</span>
+                <h3>📊 Match Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Matches</span>
+                        <span class="stat-value">${allMatches.length}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Points</span>
+                        <span class="stat-value">${totalPoints}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Points/Match</span>
+                        <span class="stat-value">${avgPointsPerMatch}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Highest Score</span>
+                        <span class="stat-value">${highestScore}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Blowouts</span>
+                        <span class="stat-value">${blowouts}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Point Diff</span>
+                        <span class="stat-value">${avgPointDiff}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -149,36 +294,42 @@ function displayTierTables(leagueTables) {
         if (!table || table.length === 0) continue;
         
         const tierNames = ['I', 'II', 'III', 'IV'];
+        const sectionId = `tier-${tier}-content`;
         
         html += `
             <div class="tier-section">
-                <h3>🏆 Tier ${tierNames[tier-1]}</h3>
-                <div class="table-responsive">
-                    <table class="league-table">
-                        <thead>
-                            <tr>
-                                <th>Pos</th>
-                                <th>Bey</th>
-                                <th>M</th>
-                                <th>W</th>
-                                <th>L</th>
-                                <th>SP</th>
-                                <th>PF</th>
-                                <th>PA</th>
-                                <th>PD</th>
-                                <th>ELO</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${table.map((entry, idx) => createTableRow(entry, idx, tier)).join('')}
-                        </tbody>
-                    </table>
+                <h3 class="collapsible-header" onclick="toggleSection('${sectionId}')" data-section-id="${sectionId}">
+                    <span class="section-toggle-icon">▼</span>
+                    <span>🏆 Tier ${tierNames[tier-1]}</span>
+                </h3>
+                <div id="${sectionId}" class="collapsible-content">
+                    <div class="table-responsive">
+                        <table class="league-table">
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Bey</th>
+                                    <th>M</th>
+                                    <th>W</th>
+                                    <th>L</th>
+                                    <th>SP</th>
+                                    <th>PF</th>
+                                    <th>PA</th>
+                                    <th>PD</th>
+                                    <th>ELO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${table.map((entry, idx) => createTableRow(entry, idx, tier)).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="table-legend">
+                        <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
+                        <span><strong>PF</strong>=Points For, <strong>PA</strong>=Points Against, <strong>PD</strong>=Point Difference</span>
+                    </div>
+                    ${getPositionLegend(tier)}
                 </div>
-                <div class="table-legend">
-                    <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
-                    <span><strong>PF</strong>=Points For, <strong>PA</strong>=Points Against, <strong>PD</strong>=Point Difference</span>
-                </div>
-                ${getPositionLegend(tier)}
             </div>
         `;
     }
@@ -267,8 +418,11 @@ function createTableRow(entry, idx, tier) {
         positionIndicator = ' Q';
     }
     
-    // Create Bey link
-    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${entry.bey}</a>`;
+    // Create Bey link with soft hyphens
+    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
+    
+    // Use Xtreme ELO if available, otherwise fall back to entry.elo
+    const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
     
     return `
         <tr class="${positionClass}">
@@ -281,7 +435,7 @@ function createTableRow(entry, idx, tier) {
             <td>${entry.points_for}</td>
             <td>${entry.points_against}</td>
             <td>${entry.point_diff > 0 ? '+' : ''}${entry.point_diff}</td>
-            <td>${Math.round(entry.elo)}</td>
+            <td>${Math.round(displayElo)}</td>
         </tr>
     `;
 }
@@ -304,7 +458,7 @@ function displayPromotionRelegation(data) {
                 <h4>⬆️ Automatic Promotions</h4>
                 <ul>
                     ${data.automatic_promotion.map(p => {
-                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(p.bey)}" class="bey-link">${p.bey}</a>`;
+                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(p.bey)}" class="bey-link">${addSoftHyphens(p.bey)}</a>`;
                         return `<li><strong>${beyLink}</strong> (Tier ${p.from_tier} → Tier ${p.to_tier})</li>`;
                     }).join('')}
                 </ul>
@@ -319,7 +473,7 @@ function displayPromotionRelegation(data) {
                 <h4>⬇️ Automatic Relegations</h4>
                 <ul>
                     ${data.automatic_relegation.map(r => {
-                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(r.bey)}" class="bey-link">${r.bey}</a>`;
+                        const beyLink = `<a href="bey.html?name=${encodeURIComponent(r.bey)}" class="bey-link">${addSoftHyphens(r.bey)}</a>`;
                         return `<li><strong>${beyLink}</strong> (Tier ${r.from_tier} → Tier ${r.to_tier})</li>`;
                     }).join('')}
                 </ul>
@@ -349,8 +503,8 @@ function displayRelegationMatches(matches) {
     const html = `
         <div class="relegation-matches-list">
             ${matches.map(match => {
-                const higherBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.higher_bey)}" class="bey-link">${match.higher_bey}</a>`;
-                const lowerBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.lower_bey)}" class="bey-link">${match.lower_bey}</a>`;
+                const higherBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.higher_bey)}" class="bey-link">${addSoftHyphens(match.higher_bey)}</a>`;
+                const lowerBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.lower_bey)}" class="bey-link">${addSoftHyphens(match.lower_bey)}</a>`;
                 
                 return `
                 <div class="relegation-match-card">
@@ -384,7 +538,7 @@ function displayRelegationMatches(matches) {
  * Display Qualification Pool
  */
 function displayQualificationPool(qualificationPool) {
-    const container = document.getElementById('qualification-pool-content');
+    const container = document.getElementById('qualification-pool');
     const sectionContainer = document.getElementById('qualification-pool-container');
     
     if (!qualificationPool || qualificationPool.length === 0) {
@@ -400,7 +554,7 @@ function displayQualificationPool(qualificationPool) {
             <p class="qualification-intro">These Beys will compete in the Qualification Tournament. Top 4 finishers earn Tier III placement for the next season.</p>
             <div class="qualification-grid">
                 ${qualificationPool.map((entry, idx) => {
-                    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${entry.bey}</a>`;
+                    const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
                     return `
                     <div class="qualification-card">
                         <div class="qualification-rank">${idx + 1}</div>
@@ -430,7 +584,7 @@ function displaySeasonCup(cupData) {
     let html = '';
     
     if (winner) {
-        const winnerLink = `<a href="bey.html?name=${encodeURIComponent(winner)}" class="bey-link">${winner}</a>`;
+        const winnerLink = `<a href="bey.html?name=${encodeURIComponent(winner)}" class="bey-link">${addSoftHyphens(winner)}</a>`;
         html += `
             <div class="cup-winner-banner">
                 <h3>🏆 Season Cup Champion: ${winnerLink}</h3>
@@ -446,6 +600,19 @@ function displaySeasonCup(cupData) {
     `;
     
     container.innerHTML = html;
+}
+
+/**
+ * Format ELO display with optional change indicator
+ */
+function formatEloWithChange(elo, eloChange) {
+    const roundedElo = Math.round(elo);
+    if (eloChange === null) {
+        return `ELO: ${roundedElo}`;
+    }
+    const sign = eloChange >= 0 ? '+' : '';
+    const changeClass = eloChange >= 0 ? 'positive' : 'negative';
+    return `ELO: ${roundedElo} <span class="elo-change ${changeClass}">(${sign}${eloChange})</span>`;
 }
 
 /**
@@ -471,28 +638,114 @@ function displayMatchdays(matchdays) {
         const matches = matchdays[md];
         if (!matches || matches.length === 0) return;
         
+        const sectionId = `matchday-${md}-content`;
+        
         html += `
             <div class="matchday-section">
-                <h4>Matchday ${md}</h4>
-                <div class="matches-grid">
-                    ${matches.map(match => {
-                        const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${match.bey_a}</a>`;
-                        const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link">${match.bey_b}</a>`;
+                <h4 class="collapsible-header" onclick="toggleSection('${sectionId}')" data-section-id="${sectionId}">
+                    <span class="section-toggle-icon">▼</span>
+                    <span>Matchday ${md}</span>
+                </h4>
+                <div id="${sectionId}" class="collapsible-content">
+                    <div class="matches-grid">
+                        ${matches.map(match => {
+                        const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${addSoftHyphens(match.bey_a)}</a>`;
+                        const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link">${addSoftHyphens(match.bey_b)}</a>`;
+                        
+                        // Determine winner, loser, or tie
+                        const isAWinner = match.score_a > match.score_b;
+                        const isBWinner = match.score_b > match.score_a;
+                        const isTie = match.score_a === match.score_b;
+                        
+                        // Get bey classes based on result
+                        const beyAClass = isTie ? '' : (isAWinner ? 'winner' : 'loser');
+                        const beyBClass = isTie ? '' : (isBWinner ? 'winner' : 'loser');
+                        
+                        // Get season and arena info
+                        const seasonId = match.season_id || currentSeason?.season_id || 'S?';
+                        const tierNum = match.tier || '?';
+                        const arena = match.arena || 'Xtreme';
+                        
+                        // Get rounds data and ELO values
+                        const matchData = roundsData[match.match_id];
+                        const hasRounds = matchData && matchData.rounds && matchData.rounds.length > 0;
+                        const isExpanded = expandedMatches.has(match.match_id);
+                        
+                        // Use ELO from roundsData if available, otherwise fallback to Xtreme ELO
+                        // Skip match.elo_a/elo_b if they're default 1000 values
+                        const eloA = matchData?.elo_a || 
+                                    (match.elo_a && match.elo_a !== 1000 ? match.elo_a : null) || 
+                                    xtremeEloData[match.bey_a] || 1000;
+                        const eloB = matchData?.elo_b || 
+                                    (match.elo_b && match.elo_b !== 1000 ? match.elo_b : null) || 
+                                    xtremeEloData[match.bey_b] || 1000;
+                        const postEloA = matchData?.post_elo_a;
+                        const postEloB = matchData?.post_elo_b;
+                        
+                        // Calculate ELO changes if post-ELO is available
+                        const eloChangeA = postEloA ? Math.round(postEloA - eloA) : null;
+                        const eloChangeB = postEloB ? Math.round(postEloB - eloB) : null;
+                        
+                        // Determine if it's a blowout (3+ point difference) or close match (1 point)
+                        const pointDiff = Math.abs(match.score_a - match.score_b);
+                        const isBlowout = pointDiff >= 3 && !isTie;
+                        const isClose = pointDiff === 1;
+                        
+                        // Generate rounds HTML if available
+                        const roundsHtml = hasRounds ? createRoundsHtml(match, matchData.rounds) : '';
                         
                         return `
-                        <div class="match-card">
-                            <div class="match-info">
-                                <span class="tier-badge">Tier ${match.tier || '?'}</span>
+                        <div class="match-card" data-match-id="${match.match_id}">
+                            <div class="match-card-header">
+                                <div class="match-card-context">
+                                    <span class="match-card-context-item">${seasonId}</span>
+                                    <span class="match-card-context-separator">·</span>
+                                    <span class="match-card-context-item tier-badge-subtle">Tier ${tierNum}</span>
+                                    <span class="match-card-context-separator">·</span>
+                                    <span class="match-card-context-item">MD ${md}</span>
+                                    <span class="match-card-context-separator">·</span>
+                                    <span class="match-card-context-item">${arena}</span>
+                                </div>
                                 <span class="match-date">${match.date || ''}</span>
                             </div>
-                            <div class="match-result">
-                                <span class="bey ${match.score_a > match.score_b ? 'winner' : ''}">${beyALink}</span>
-                                <span class="score">${match.score_a} - ${match.score_b}</span>
-                                <span class="bey ${match.score_b > match.score_a ? 'winner' : ''}">${beyBLink}</span>
+                            <div class="match-card-body">
+                                <div class="card-match">
+                                    <div class="card-bey ${beyAClass}">
+                                        <div class="bey-name">${beyALink}</div>
+                                        <div class="bey-elo">${formatEloWithChange(eloA, eloChangeA)}</div>
+                                        <div class="bey-score">${match.score_a}</div>
+                                    </div>
+                                    <div class="card-vs">VS</div>
+                                    <div class="card-bey ${beyBClass}">
+                                        <div class="bey-name">${beyBLink}</div>
+                                        <div class="bey-elo">${formatEloWithChange(eloB, eloChangeB)}</div>
+                                        <div class="bey-score">${match.score_b}</div>
+                                    </div>
+                                </div>
                             </div>
+                            <div class="match-card-footer">
+                                <span class="match-id">${match.match_id || ''}</span>
+                                <div class="match-tags">
+                                    ${isTie ? '<span class="match-tag">Tie</span>' : ''}
+                                    ${isBlowout ? '<span class="match-tag">Blowout</span>' : ''}
+                                    ${isClose ? '<span class="match-tag">Close Match</span>' : ''}
+                                </div>
+                            </div>
+                            ${hasRounds ? `
+                            <div class="match-card-rounds">
+                                <button class="rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMatchRounds('${match.match_id}', ${matchData.rounds.length})">
+                                    <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
+                                    <span class="toggle-text">${isExpanded ? 'Hide' : 'Show'} Round Details (${matchData.rounds.length})</span>
+                                </button>
+                                <div class="rounds-content ${isExpanded ? 'expanded' : ''}" id="rounds-${match.match_id}">
+                                    ${roundsHtml}
+                                </div>
+                            </div>
+                            ` : ''}
                         </div>
                     `;
                     }).join('')}
+                </div>
                 </div>
             </div>
         `;
@@ -546,8 +799,8 @@ function displayFixtures(fixturesData) {
                             </thead>
                             <tbody>
                                 ${fixtures.map(fixture => {
-                                    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${fixture.bey_a}</a>`;
-                                    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${fixture.bey_b}</a>`;
+                                    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_a)}</a>`;
+                                    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_b)}</a>`;
                                     
                                     return `
                                     <tr class="fixture-row">
@@ -581,8 +834,8 @@ function displayFixtures(fixturesData) {
                     </thead>
                     <tbody>
                         ${upcomingMatches.map(fixture => {
-                            const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${fixture.bey_a}</a>`;
-                            const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${fixture.bey_b}</a>`;
+                            const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_a)}</a>`;
+                            const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_b)}</a>`;
                             
                             return `
                             <tr class="fixture-row">
@@ -617,3 +870,117 @@ function showError(message) {
         </div>
     `;
 }
+
+/**
+ * Create rounds HTML for match card
+ */
+function createRoundsHtml(match, rounds) {
+    if (!rounds || rounds.length === 0) return '';
+    
+    let html = '<div class="rounds-list">';
+    let runningScoreA = 0;
+    let runningScoreB = 0;
+    
+    rounds.forEach((round, index) => {
+        const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
+        
+        // Update running score
+        if (round.winner === match.bey_a) {
+            runningScoreA += round.points_awarded;
+        } else if (round.winner === match.bey_b) {
+            runningScoreB += round.points_awarded;
+        }
+        
+        html += `
+            <div class="round-item">
+                <div class="round-header">
+                    <span class="round-number">R${round.round_number || index + 1}</span>
+                    <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
+                        <span class="finish-icon">${finishStyle.icon}</span>
+                        <span class="finish-label">${finishStyle.label}</span>
+                    </span>
+                    <span class="round-points">+${round.points_awarded}</span>
+                </div>
+                <div class="round-details">
+                    <span class="round-winner">${round.winner}</span>
+                    <span class="round-score">${runningScoreA} - ${runningScoreB}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    // Add finish type summary
+    const finishCounts = {};
+    rounds.forEach(round => {
+        const type = round.finish_type || 'spin';
+        finishCounts[type] = (finishCounts[type] || 0) + 1;
+    });
+    
+    html += '<div class="rounds-summary">';
+    Object.entries(finishCounts).forEach(([type, count]) => {
+        const style = FINISH_TYPE_STYLES[type] || FINISH_TYPE_STYLES.spin;
+        html += `
+            <span class="finish-summary-badge" style="background: ${style.bgColor}; color: ${style.color};">
+                ${style.icon} ${style.label}: ${count}
+            </span>
+        `;
+    });
+    html += '</div>';
+    
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Toggle match rounds visibility
+ */
+function toggleMatchRounds(matchId, roundCount) {
+    const content = document.getElementById(`rounds-${matchId}`);
+    const toggle = document.querySelector(`[data-match-id="${matchId}"] .rounds-toggle`);
+    const icon = toggle?.querySelector('.toggle-icon');
+    const text = toggle?.querySelector('.toggle-text');
+    
+    if (expandedMatches.has(matchId)) {
+        expandedMatches.delete(matchId);
+        if (content) content.classList.remove('expanded');
+        if (toggle) toggle.classList.remove('expanded');
+        if (icon) icon.textContent = '▼';
+        if (text) {
+            text.textContent = `Show Round Details (${roundCount})`;
+        }
+    } else {
+        expandedMatches.add(matchId);
+        if (content) content.classList.add('expanded');
+        if (toggle) toggle.classList.add('expanded');
+        if (icon) icon.textContent = '▲';
+        if (text) {
+            text.textContent = `Hide Round Details (${roundCount})`;
+        }
+    }
+}
+
+/**
+ * Toggle section visibility (for collapsible sections)
+ */
+function toggleSection(sectionId) {
+    const content = document.getElementById(sectionId);
+    const button = document.querySelector(`[data-section-id="${sectionId}"]`);
+    const icon = button?.querySelector('.section-toggle-icon');
+    
+    if (collapsedSections.has(sectionId)) {
+        // Expand
+        collapsedSections.delete(sectionId);
+        if (content) content.classList.remove('collapsed');
+        if (button) button.classList.remove('collapsed');
+        if (icon) icon.textContent = '▼';
+    } else {
+        // Collapse
+        collapsedSections.add(sectionId);
+        if (content) content.classList.add('collapsed');
+        if (button) button.classList.add('collapsed');
+        if (icon) icon.textContent = '▶';
+    }
+}
+
+// Expose toggleSection to global scope for onclick handlers
+window.toggleSection = toggleSection;
