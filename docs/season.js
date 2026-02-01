@@ -671,9 +671,14 @@ function displayMatchdays(matchdays) {
                         const hasRounds = matchData && matchData.rounds && matchData.rounds.length > 0;
                         const isExpanded = expandedMatches.has(match.match_id);
                         
-                        // Use ELO from roundsData if available, otherwise fallback to Xtreme ELO or match data
-                        const eloA = matchData?.elo_a || match.elo_a || xtremeEloData[match.bey_a] || 1000;
-                        const eloB = matchData?.elo_b || match.elo_b || xtremeEloData[match.bey_b] || 1000;
+                        // Use ELO from roundsData if available, otherwise fallback to Xtreme ELO
+                        // Skip match.elo_a/elo_b if they're default 1000 values
+                        const eloA = matchData?.elo_a || 
+                                    (match.elo_a && match.elo_a !== 1000 ? match.elo_a : null) || 
+                                    xtremeEloData[match.bey_a] || 1000;
+                        const eloB = matchData?.elo_b || 
+                                    (match.elo_b && match.elo_b !== 1000 ? match.elo_b : null) || 
+                                    xtremeEloData[match.bey_b] || 1000;
                         const postEloA = matchData?.post_elo_a;
                         const postEloB = matchData?.post_elo_b;
                         
