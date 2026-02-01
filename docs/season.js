@@ -671,9 +671,9 @@ function displayMatchdays(matchdays) {
                         const hasRounds = matchData && matchData.rounds && matchData.rounds.length > 0;
                         const isExpanded = expandedMatches.has(match.match_id);
                         
-                        // Use ELO from roundsData if available, otherwise fall back to match data
-                        const eloA = matchData?.elo_a || match.elo_a || 1000;
-                        const eloB = matchData?.elo_b || match.elo_b || 1000;
+                        // Use ELO from roundsData if available, otherwise fallback to Xtreme ELO or match data
+                        const eloA = matchData?.elo_a || match.elo_a || xtremeEloData[match.bey_a] || 1000;
+                        const eloB = matchData?.elo_b || match.elo_b || xtremeEloData[match.bey_b] || 1000;
                         const postEloA = matchData?.post_elo_a;
                         const postEloB = matchData?.post_elo_b;
                         
@@ -707,13 +707,15 @@ function displayMatchdays(matchdays) {
                                 <div class="match-result">
                                     <div class="bey-container ${beyAClass}">
                                         <span class="bey-name">${beyALink}</span>
-                                        <span class="bey-elo">${formatEloWithChange(eloA, eloChangeA)}</span>
                                     </div>
                                     <span class="score">${match.score_a}<span class="score-separator"> - </span>${match.score_b}</span>
                                     <div class="bey-container ${beyBClass}">
                                         <span class="bey-name">${beyBLink}</span>
-                                        <span class="bey-elo">${formatEloWithChange(eloB, eloChangeB)}</span>
                                     </div>
+                                </div>
+                                <div class="match-elo-row">
+                                    <span class="bey-elo">${formatEloWithChange(eloA, eloChangeA)}</span>
+                                    <span class="bey-elo">${formatEloWithChange(eloB, eloChangeB)}</span>
                                 </div>
                             </div>
                             <div class="match-card-footer">

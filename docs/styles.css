@@ -12084,6 +12084,9 @@ select:focus-visible {
 
 #matchdays-container .match-card-body {
     padding: 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 #matchdays-container .match-result {
@@ -12093,15 +12096,20 @@ select:focus-visible {
     gap: 1rem;
 }
 
+#matchdays-container .match-elo-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 0.5rem;
+}
+
 #matchdays-container .bey-container {
     flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    gap: 0.25rem;
+    justify-content: center;
     min-width: 0;
-    min-height: 60px;
     transition: var(--transition);
 }
 
@@ -12126,16 +12134,13 @@ select:focus-visible {
     overflow-wrap: break-word;
     hyphens: manual;  /* Use manual to only break at soft hyphens, not auto-hyphenate */
     line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
 }
 
 #matchdays-container .bey-elo {
     font-size: 0.75rem;
     color: var(--text-light);
     text-align: center;
+    flex: 1;
 }
 
 #matchdays-container .elo-change {
@@ -12443,7 +12448,7 @@ select:focus-visible {
     }
     
     #matchdays-container .bey-container {
-        min-height: 50px;
+        /* Remove min-height on mobile since names are centered now */
     }
     
     #matchdays-container .bey-container.winner .bey-name {
@@ -12452,6 +12457,11 @@ select:focus-visible {
     
     #matchdays-container .bey-container.loser .bey-name {
         font-size: 0.875rem;
+    }
+    
+    #matchdays-container .match-elo-row {
+        font-size: 0.7rem;
+        padding: 0;
     }
     
     #matchdays-container .bey-name {
