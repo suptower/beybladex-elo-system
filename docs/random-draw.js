@@ -670,13 +670,34 @@ function exportAsJSON() {
  * Utility: Copy text to clipboard
  */
 function copyToClipboard(text) {
+    // Use modern Clipboard API if available
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(err => {
+            console.error('Failed to copy text: ', err);
+            // Fallback to older method
+            fallbackCopyToClipboard(text);
+        });
+    } else {
+        // Fallback for older browsers
+        fallbackCopyToClipboard(text);
+    }
+}
+
+/**
+ * Fallback copy method for older browsers
+ */
+function fallbackCopyToClipboard(text) {
     const textarea = document.createElement('textarea');
     textarea.value = text;
     textarea.style.position = 'fixed';
     textarea.style.opacity = '0';
     document.body.appendChild(textarea);
     textarea.select();
-    document.execCommand('copy');
+    try {
+        document.execCommand('copy');
+    } catch (err) {
+        console.error('Fallback: Failed to copy text: ', err);
+    }
     document.body.removeChild(textarea);
 }
 
