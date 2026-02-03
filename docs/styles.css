@@ -13116,24 +13116,25 @@ body.dark .arena-group-label.combined {
 .random-draw-hero h2 {
     margin: 0 0 0.5rem 0;
     font-size: 2rem;
-    color: var(--text-primary);
+    color: var(--text);
 }
 
 .random-draw-description {
     max-width: 800px;
     margin: 0 auto;
     font-size: 1.1rem;
-    color: var(--text-secondary);
+    color: var(--text-light);
     line-height: 1.6;
 }
 
 /* Controls Section */
 .random-draw-controls {
-    background: var(--bg-secondary);
+    background: var(--card);
     padding: 2rem;
     border-radius: 12px;
     margin-bottom: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--border);
 }
 
 .controls-grid {
@@ -13150,31 +13151,34 @@ body.dark .arena-group-label.combined {
 }
 
 .control-group label {
-    font-weight: 600;
-    color: var(--text-primary);
+    font-weight: 700;
+    color: var(--text);
     font-size: 0.95rem;
 }
 
 .control-input {
     padding: 0.75rem;
-    border: 2px solid var(--border-color);
+    border: 2px solid var(--border-dark);
     border-radius: 8px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
+    background: var(--bg-alt);
+    color: var(--text);
     font-size: 1rem;
     transition: all 0.2s;
+    font-weight: 500;
 }
 
 .control-input:focus {
     outline: none;
-    border-color: var(--accent-primary);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    border-color: var(--accent);
+    border-width: 3px;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .control-hint {
     font-size: 0.85rem;
-    color: var(--text-secondary);
+    color: var(--text-light);
     font-style: italic;
+    font-weight: 500;
 }
 
 .algorithm-options {
@@ -13183,7 +13187,7 @@ body.dark .arena-group-label.combined {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--border);
 }
 
 /* Action Buttons */
@@ -13218,23 +13222,24 @@ body.dark .arena-group-label.combined {
 }
 
 .btn-secondary {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 2px solid var(--border-color);
+    background: var(--card);
+    color: var(--text);
+    border: 2px solid var(--border-dark);
 }
 
 .btn-secondary:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--accent-primary);
+    background: var(--bg-subtle);
+    border-color: var(--accent);
 }
 
 /* Results Section */
 .random-draw-results {
-    background: var(--bg-secondary);
+    background: var(--card);
     padding: 2rem;
     border-radius: 12px;
     margin-bottom: 2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--border);
 }
 
 .results-header {
@@ -13248,7 +13253,7 @@ body.dark .arena-group-label.combined {
 
 .results-header h3 {
     margin: 0;
-    color: var(--text-primary);
+    color: var(--text);
 }
 
 .results-info {
@@ -13256,7 +13261,7 @@ body.dark .arena-group-label.combined {
     gap: 1rem;
     align-items: center;
     font-size: 0.95rem;
-    color: var(--text-secondary);
+    color: var(--text-light);
 }
 
 .results-info .separator {
@@ -13270,29 +13275,29 @@ body.dark .arena-group-label.combined {
 }
 
 .results-table th {
-    background: var(--bg-tertiary);
+    background: var(--bg-subtle);
     padding: 0.875rem;
     text-align: left;
     font-weight: 600;
-    color: var(--text-primary);
-    border-bottom: 2px solid var(--border-color);
+    color: var(--text);
+    border-bottom: 2px solid var(--border-dark);
 }
 
 .results-table td {
     padding: 0.875rem;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
 }
 
 .results-table tr:hover {
-    background: var(--bg-tertiary);
+    background: var(--bg-subtle);
 }
 
 .col-seed {
     width: 60px;
     text-align: center;
     font-weight: 600;
-    color: var(--accent-primary);
+    color: var(--accent);
 }
 
 .col-bey {
@@ -13300,7 +13305,7 @@ body.dark .arena-group-label.combined {
 }
 
 .col-bey a {
-    color: var(--accent-primary);
+    color: var(--accent);
     text-decoration: none;
     font-weight: 600;
 }
@@ -13337,15 +13342,16 @@ body.dark .arena-group-label.combined {
 
 /* Info Section */
 .random-draw-info {
-    background: var(--bg-secondary);
+    background: var(--card);
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--border);
 }
 
 .random-draw-info h3 {
     margin: 0 0 1.5rem 0;
-    color: var(--text-primary);
+    color: var(--text);
     text-align: center;
 }
 
@@ -13356,29 +13362,33 @@ body.dark .arena-group-label.combined {
 }
 
 .algorithm-card {
-    background: var(--bg-primary);
+    background: var(--bg-alt);
     padding: 1.5rem;
     border-radius: 8px;
-    border: 2px solid var(--border-color);
+    border: 3px solid var(--border-dark);
     transition: all 0.2s;
+    box-shadow: var(--shadow);
 }
 
 .algorithm-card:hover {
-    border-color: var(--accent-primary);
+    border-color: var(--accent);
+    border-width: 3px;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
 }
 
 .algorithm-card h4 {
     margin: 0 0 0.75rem 0;
-    color: var(--text-primary);
+    color: var(--text);
     font-size: 1.1rem;
+    font-weight: 700;
 }
 
 .algorithm-card p {
     margin: 0;
-    color: var(--text-secondary);
+    color: var(--text-light);
     line-height: 1.6;
+    font-weight: 500;
 }
 
 /* Responsive Design */
@@ -13434,7 +13444,28 @@ body.dark .arena-group-label.combined {
 
 /* Dark Mode Specific Adjustments */
 body.dark .random-draw-hero {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+}
+
+body.dark .random-draw-controls {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--border-dark);
+}
+
+body.dark .control-input {
+    border-color: var(--border-dark);
+    background: var(--bg);
+}
+
+body.dark .control-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.25);
+}
+
+body.dark .algorithm-card {
+    background: var(--bg);
+    border-color: var(--border-dark);
+    box-shadow: var(--shadow-md);
 }
 
 body.dark .btn-primary {
@@ -13446,5 +13477,6 @@ body.dark .btn-primary:hover {
 }
 
 body.dark .algorithm-card:hover {
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 6px 16px rgba(129, 140, 248, 0.4);
+    border-color: var(--accent);
 }
