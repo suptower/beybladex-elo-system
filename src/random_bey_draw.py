@@ -42,7 +42,7 @@ def load_bey_metadata(beys_data_path: str = './docs/data/beys_data.json') -> Dic
     """Load Bey metadata including types and descriptions."""
     with open(beys_data_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    
+
     # Create a mapping from blade name to metadata
     bey_metadata = {}
     for bey in data:
@@ -64,71 +64,71 @@ def load_rpg_stats(rpg_path: str = './docs/data/rpg_stats.json') -> Dict[str, Di
 def pure_random(beys: List[Dict], count: int, seed: Optional[int] = None) -> List[Dict]:
     """
     Pure Random Selection - Uniform random selection from all Beys.
-    
+
     Args:
         beys: List of Bey dictionaries
         count: Number of Beys to draw
         seed: Optional random seed for reproducibility
-    
+
     Returns:
         List of selected Beys
     """
     if seed is not None:
         random.seed(seed)
-    
+
     count = min(count, len(beys))
     return random.sample(beys, count)
 
 
 def ranking_bucket_balanced(
-    beys: List[Dict], 
-    count: int, 
+    beys: List[Dict],
+    count: int,
     buckets: int = 3,
     seed: Optional[int] = None
 ) -> List[Dict]:
     """
     Ranking Bucket Balanced - Draw evenly from rank ranges.
-    
+
     Splits leaderboard into buckets (e.g., Top, Mid, Bottom) and draws
     roughly equal numbers from each bucket.
-    
+
     Args:
         beys: List of Bey dictionaries (should be sorted by rank)
         count: Number of Beys to draw
         buckets: Number of ranking buckets to split into (default: 3)
         seed: Optional random seed for reproducibility
-    
+
     Returns:
         List of selected Beys
     """
     if seed is not None:
         random.seed(seed)
-    
+
     count = min(count, len(beys))
-    
+
     # Sort by rank to ensure proper bucketing
     sorted_beys = sorted(beys, key=lambda x: x['rank'])
-    
+
     # Handle edge case: more buckets than Beys
     effective_buckets = min(buckets, len(sorted_beys))
-    
+
     if effective_buckets == 0:
         return []
-    
+
     # Split into buckets
     bucket_size = len(sorted_beys) // effective_buckets
     bey_buckets = []
-    
+
     for i in range(effective_buckets):
         start = i * bucket_size
         end = start + bucket_size if i < effective_buckets - 1 else len(sorted_beys)
         if start < len(sorted_beys):
             bey_buckets.append(sorted_beys[start:end])
-    
+
     # Calculate how many to draw from each bucket
     base_per_bucket = count // len(bey_buckets)
     remainder = count % len(bey_buckets)
-    
+
     selected = []
     for i, bucket in enumerate(bey_buckets):
         if not bucket:
@@ -138,33 +138,33 @@ def ranking_bucket_balanced(
         bucket_count = min(bucket_count, len(bucket))
         if bucket_count > 0:
             selected.extend(random.sample(bucket, bucket_count))
-    
+
     return selected
 
 
 def weighted_by_elo(
-    beys: List[Dict], 
+    beys: List[Dict],
     count: int,
     weighting: str = 'linear',
     seed: Optional[int] = None
 ) -> List[Dict]:
     """
     Weighted by Elo - Higher Elo = higher selection probability.
-    
+
     Args:
         beys: List of Bey dictionaries
         count: Number of Beys to draw
         weighting: 'linear' or 'soft' (logarithmic)
         seed: Optional random seed for reproducibility
-    
+
     Returns:
         List of selected Beys
     """
     if seed is not None:
         random.seed(seed)
-    
+
     count = min(count, len(beys))
-    
+
     # Calculate weights based on Elo
     if weighting == 'soft':
         # Logarithmic weighting - reduces advantage of high Elo
@@ -172,24 +172,24 @@ def weighted_by_elo(
     else:  # linear
         # Linear weighting - direct proportion to Elo
         weights = [bey['elo'] for bey in beys]
-    
+
     # Ensure all weights are positive
     min_weight = min(weights)
     if min_weight <= 0:
         weights = [w - min_weight + 1 for w in weights]
-    
+
     # Use random.choices for weighted selection without replacement
     selected = []
     remaining_beys = beys.copy()
     remaining_weights = weights.copy()
-    
+
     for _ in range(count):
         chosen_bey = random.choices(remaining_beys, weights=remaining_weights, k=1)[0]
         idx = remaining_beys.index(chosen_bey)
         selected.append(chosen_bey)
         remaining_beys.pop(idx)
         remaining_weights.pop(idx)
-    
+
     return selected
 
 
@@ -203,7 +203,7 @@ def type_based_distribution(
 ) -> List[Dict]:
     """
     Type-Based Distribution - Ensures balanced mix of Bey types.
-    
+
     Args:
         beys: List of Bey dictionaries
         bey_metadata: Metadata including type information
@@ -211,45 +211,45 @@ def type_based_distribution(
         distribution: 'balanced' (equal from each) or 'proportional' (by availability)
         max_per_type: Optional maximum number per type
         seed: Optional random seed for reproducibility
-    
+
     Returns:
         List of selected Beys
     """
     if seed is not None:
         random.seed(seed)
-    
+
     count = min(count, len(beys))
-    
+
     # Group Beys by type
     beys_by_type = defaultdict(list)
     for bey in beys:
         bey_type = bey_metadata.get(bey['name'], {}).get('type', 'Unknown')
         beys_by_type[bey_type].append(bey)
-    
+
     types = list(beys_by_type.keys())
-    
+
     if distribution == 'balanced':
         # Try to draw equal numbers from each type
         per_type = count // len(types)
         remainder = count % len(types)
-        
+
         selected = []
         for i, bey_type in enumerate(types):
             type_beys = beys_by_type[bey_type]
             type_count = per_type + (1 if i < remainder else 0)
-            
+
             if max_per_type is not None:
                 type_count = min(type_count, max_per_type)
-            
+
             type_count = min(type_count, len(type_beys))
             selected.extend(random.sample(type_beys, type_count))
-        
+
         # If we didn't get enough due to constraints, fill from remaining
         if len(selected) < count:
             remaining = [b for b in beys if b not in selected]
             needed = count - len(selected)
             selected.extend(random.sample(remaining, min(needed, len(remaining))))
-    
+
     else:  # proportional
         # Draw proportionally to type availability
         selected = []
@@ -257,13 +257,13 @@ def type_based_distribution(
             type_beys = beys_by_type[bey_type]
             proportion = len(type_beys) / len(beys)
             type_count = round(count * proportion)
-            
+
             if max_per_type is not None:
                 type_count = min(type_count, max_per_type)
-            
+
             type_count = min(type_count, len(type_beys))
             selected.extend(random.sample(type_beys, type_count))
-        
+
         # Adjust to exact count
         if len(selected) < count:
             remaining = [b for b in beys if b not in selected]
@@ -271,7 +271,7 @@ def type_based_distribution(
             selected.extend(random.sample(remaining, min(needed, len(remaining))))
         elif len(selected) > count:
             selected = random.sample(selected, count)
-    
+
     return selected
 
 
@@ -283,61 +283,61 @@ def archetype_based_distribution(
 ) -> List[Dict]:
     """
     Archetype-Based Distribution - Ensures diversity across playstyles.
-    
+
     Args:
         beys: List of Bey dictionaries
         rpg_stats: RPG stats including archetype information
         count: Number of Beys to draw
         seed: Optional random seed for reproducibility
-    
+
     Returns:
         List of selected Beys
     """
     if seed is not None:
         random.seed(seed)
-    
+
     count = min(count, len(beys))
-    
+
     # Group Beys by archetype
     beys_by_archetype = defaultdict(list)
     beys_without_archetype = []
-    
+
     for bey in beys:
         if bey['name'] in rpg_stats:
             archetype_id = rpg_stats[bey['name']]['archetype']['id']
             beys_by_archetype[archetype_id].append(bey)
         else:
             beys_without_archetype.append(bey)
-    
+
     archetypes = list(beys_by_archetype.keys())
-    
+
     if not archetypes:
         # No archetype data, fall back to pure random
         return random.sample(beys, count)
-    
+
     # Try to draw evenly from each archetype
     per_archetype = count // len(archetypes)
     remainder = count % len(archetypes)
-    
+
     selected = []
     for i, archetype in enumerate(archetypes):
         archetype_beys = beys_by_archetype[archetype]
         archetype_count = per_archetype + (1 if i < remainder else 0)
         archetype_count = min(archetype_count, len(archetype_beys))
         selected.extend(random.sample(archetype_beys, archetype_count))
-    
+
     # Fill remaining from Beys without archetype if needed
     if len(selected) < count and beys_without_archetype:
         needed = count - len(selected)
         selected.extend(random.sample(beys_without_archetype, min(needed, len(beys_without_archetype))))
-    
+
     # If still not enough, fill from any remaining
     if len(selected) < count:
         remaining = [b for b in beys if b not in selected]
         needed = count - len(selected)
         if remaining:
             selected.extend(random.sample(remaining, min(needed, len(remaining))))
-    
+
     return selected
 
 
@@ -352,7 +352,7 @@ def custom_constraints(
 ) -> List[Dict]:
     """
     Custom Constraints - Advanced filtering with custom rules.
-    
+
     Args:
         beys: List of Bey dictionaries
         count: Number of Beys to draw
@@ -361,40 +361,40 @@ def custom_constraints(
         exclude: Set of Bey names to exclude
         include: Set of Bey names to force include
         seed: Optional random seed for reproducibility
-    
+
     Returns:
         List of selected Beys
     """
     if seed is not None:
         random.seed(seed)
-    
+
     exclude = exclude or set()
     include = include or set()
-    
+
     # Start with included Beys
     selected = [b for b in beys if b['name'] in include]
-    
+
     # Filter eligible Beys
     eligible = []
     for bey in beys:
         # Skip if already selected or excluded
         if bey in selected or bey['name'] in exclude:
             continue
-        
+
         # Apply Elo constraints
         if min_elo is not None and bey['elo'] < min_elo:
             continue
         if max_elo is not None and bey['elo'] > max_elo:
             continue
-        
+
         eligible.append(bey)
-    
+
     # Draw remaining from eligible
     remaining_count = count - len(selected)
     if remaining_count > 0 and eligible:
         additional = random.sample(eligible, min(remaining_count, len(eligible)))
         selected.extend(additional)
-    
+
     return selected[:count]
 
 
@@ -408,7 +408,7 @@ def draw_beys(
 ) -> List[Dict]:
     """
     Main entry point for drawing Beys using specified algorithm.
-    
+
     Args:
         algorithm: One of 'pure_random', 'ranking_bucket', 'weighted_elo',
                    'type_based', 'archetype_based', 'custom'
@@ -417,31 +417,31 @@ def draw_beys(
         beys_data_path: Path to Beys metadata JSON
         rpg_path: Path to RPG stats JSON
         **kwargs: Additional algorithm-specific parameters
-    
+
     Returns:
         List of selected Beys with metadata
     """
     # Load data
     beys = load_leaderboard_data(leaderboard_path)
-    
+
     # Execute algorithm
     if algorithm == 'pure_random':
         selected = pure_random(beys, count, kwargs.get('seed'))
-    
+
     elif algorithm == 'ranking_bucket':
         selected = ranking_bucket_balanced(
-            beys, count, 
+            beys, count,
             kwargs.get('buckets', 3),
             kwargs.get('seed')
         )
-    
+
     elif algorithm == 'weighted_elo':
         selected = weighted_by_elo(
             beys, count,
             kwargs.get('weighting', 'linear'),
             kwargs.get('seed')
         )
-    
+
     elif algorithm == 'type_based':
         bey_metadata = load_bey_metadata(beys_data_path)
         selected = type_based_distribution(
@@ -450,14 +450,14 @@ def draw_beys(
             kwargs.get('max_per_type'),
             kwargs.get('seed')
         )
-    
+
     elif algorithm == 'archetype_based':
         rpg_stats = load_rpg_stats(rpg_path)
         selected = archetype_based_distribution(
             beys, rpg_stats, count,
             kwargs.get('seed')
         )
-    
+
     elif algorithm == 'custom':
         selected = custom_constraints(
             beys, count,
@@ -467,20 +467,20 @@ def draw_beys(
             kwargs.get('include'),
             kwargs.get('seed')
         )
-    
+
     else:
         raise ValueError(f"Unknown algorithm: {algorithm}")
-    
+
     # Enhance with metadata if available
     try:
         bey_metadata = load_bey_metadata(beys_data_path)
         rpg_stats = load_rpg_stats(rpg_path)
-        
+
         for bey in selected:
             metadata = bey_metadata.get(bey['name'], {})
             bey['type'] = metadata.get('type', 'Unknown')
             bey['code'] = metadata.get('code', '')
-            
+
             if bey['name'] in rpg_stats:
                 archetype = rpg_stats[bey['name']]['archetype']
                 bey['archetype'] = archetype['name']
@@ -488,20 +488,20 @@ def draw_beys(
     except Exception:
         # If metadata loading fails, continue without it
         pass
-    
+
     return selected
 
 
 if __name__ == '__main__':
     """Command-line interface for testing."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description='Random Bey Draw Tool')
     parser.add_argument('-n', '--count', type=int, default=8,
                         help='Number of Beys to draw (default: 8)')
-    parser.add_argument('-a', '--algorithm', 
-                        choices=['pure_random', 'ranking_bucket', 'weighted_elo', 
-                                'type_based', 'archetype_based', 'custom'],
+    parser.add_argument('-a', '--algorithm',
+                        choices=['pure_random', 'ranking_bucket', 'weighted_elo',
+                                 'type_based', 'archetype_based', 'custom'],
                         default='pure_random',
                         help='Draw algorithm to use')
     parser.add_argument('--seed', type=int, help='Random seed for reproducibility')
@@ -509,7 +509,7 @@ if __name__ == '__main__':
                         help='Number of ranking buckets (for ranking_bucket)')
     parser.add_argument('--weighting', choices=['linear', 'soft'], default='linear',
                         help='Weighting type (for weighted_elo)')
-    parser.add_argument('--distribution', choices=['balanced', 'proportional'], 
+    parser.add_argument('--distribution', choices=['balanced', 'proportional'],
                         default='balanced',
                         help='Distribution type (for type_based)')
     parser.add_argument('--max-per-type', type=int,
@@ -518,9 +518,9 @@ if __name__ == '__main__':
     parser.add_argument('--max-elo', type=int, help='Maximum Elo (for custom)')
     parser.add_argument('--exclude', nargs='+', help='Beys to exclude (for custom)')
     parser.add_argument('--include', nargs='+', help='Beys to force include (for custom)')
-    
+
     args = parser.parse_args()
-    
+
     kwargs = {
         'seed': args.seed,
         'buckets': args.buckets,
@@ -532,12 +532,12 @@ if __name__ == '__main__':
         'exclude': set(args.exclude) if args.exclude else None,
         'include': set(args.include) if args.include else None,
     }
-    
+
     selected = draw_beys(args.algorithm, args.count, **kwargs)
-    
+
     print(f"\n🎲 Random Bey Draw - {args.algorithm}")
     print(f"Selected {len(selected)} Beys:\n")
-    
+
     for i, bey in enumerate(selected, 1):
         type_str = f" ({bey.get('type', 'Unknown')})" if 'type' in bey else ""
         archetype_str = f" - {bey.get('archetype_icon', '')} {bey.get('archetype', '')}" if 'archetype' in bey else ""
