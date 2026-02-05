@@ -1635,6 +1635,43 @@
       "has_match_data": true
     },
     {
+      "blade": "WolfHunt",
+      "ratchet": "0-60",
+      "bit": "Disk Ball",
+      "blade_type": "Unknown",
+      "bit_category": "Stamina",
+      "combo_name": "WolfHunt 0-60 Disk Ball",
+      "rating": {
+        "attack": 4.7,
+        "defense": 5.0,
+        "stamina": 7.0,
+        "control": 6.1,
+        "meta_impact": 5.7,
+        "overall": 57.1
+      },
+      "synergy": {
+        "score": 50.0,
+        "blade_bit": null,
+        "blade_ratchet": null,
+        "bit_ratchet": null,
+        "has_sufficient_data": false
+      },
+      "elo": 1000,
+      "power_index": 50.0,
+      "win_rate": 50.0,
+      "matches": 0,
+      "rank": 999,
+      "rpg_stats": null,
+      "beys": [
+        {
+          "name": "WolfHunt F0-60DB",
+          "code": "CX-10",
+          "blade": "WolfHunt"
+        }
+      ],
+      "has_match_data": false
+    },
+    {
       "blade": "WyvernHover",
       "ratchet": "3-85",
       "bit": "Needle",
@@ -2055,12 +2092,23 @@
         }
       },
       {
+        "name": "WolfHunt",
+        "type": "Unknown",
+        "stats": {}
+      },
+      {
         "name": "WyvernHover",
         "type": "Unknown",
         "stats": {}
       }
     ],
     "ratchets": [
+      {
+        "name": "0-60",
+        "height": null,
+        "protrusions": null,
+        "stats": {}
+      },
       {
         "name": "0-70",
         "height": 0,
@@ -2584,9 +2632,9 @@
     ]
   },
   "metadata": {
-    "total_combos": 40,
-    "total_blades": 40,
-    "total_ratchets": 21,
+    "total_combos": 41,
+    "total_blades": 41,
+    "total_ratchets": 22,
     "total_bits": 36
   }
 }
