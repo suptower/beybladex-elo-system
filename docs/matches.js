@@ -1155,7 +1155,7 @@ function createRoundsDetailRow(match) {
     row.dataset.matchId = match.matchId;
     
     const cell = document.createElement('td');
-    cell.colSpan = 11; // All columns + rounds column (including Match ID column)
+    cell.colSpan = 16; // All columns + rounds column (15 data columns + 1 rounds column)
     cell.className = 'rounds-detail-cell';
     
     // Build rounds table HTML
