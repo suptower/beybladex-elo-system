@@ -58,7 +58,7 @@ def plot_position_timeseries_clean(csv_path="./docs/data/position_timeseries.csv
 
         # Y-axis limits and ticks
         plt.ylim(max_rank + 0.5, 0.5)
-        plt.yticks([1, 5, 10, 15, 20, 25, 30, 36])
+        plt.yticks([1, 5, 10, 15, 20, 25, 30, 35, 40, 43])
 
         # Grid
         plt.grid(True, alpha=0.4)
