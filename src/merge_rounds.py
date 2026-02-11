@@ -211,6 +211,7 @@ def compute_scores_from_rounds(rounds: list[dict], bey_a: str, bey_b: str) -> tu
             score_b += points
         else:
             print(f"Warning: Round winner '{winner}' doesn't match '{bey_a}' or '{bey_b}'")
+            print(f"  Round data: {r}")
 
     return score_a, score_b
 
