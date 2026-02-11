@@ -517,11 +517,24 @@ def run_elo_pipeline(pipeline_config):
         snapshots_dir = pipeline_config.get("snapshots_dir", "./docs/data/leaderboard_snapshots")
         generate_match_snapshots(matches, input_file, snapshots_dir, pipeline_start_elos, all_bey_blades)
 
-        for m in matches:
+        # Identify tournament dates for tracking state at second-to-last date
+        if matches:
+            tournament_dates = sorted(set(m["Date"] for m in matches))
+            second_to_last_date = tournament_dates[-2] if len(tournament_dates) >= 2 else None
+        else:
+            second_to_last_date = None
+
+        # Track previous tournament state for delta calculations
+        prev_tournament_arena_elos = {}
+        prev_tournament_arena_positions = {}
+
+        for idx, m in enumerate(matches):
+            current_date = m["Date"]
+
             update_elo(
                 m["BeyA"], m["BeyB"],
                 int(m["ScoreA"]), int(m["ScoreB"]),
-                m["Date"], elos, stats, writer,
+                current_date, elos, stats, writer,
                 m.get("MatchID", ""),
                 m.get("arena", "Xtreme"),
                 m.get("MatchType", "exhibition"),
@@ -531,6 +544,24 @@ def run_elo_pipeline(pipeline_config):
                 m.get("Tier", ""),
                 m.get("Matchday", "")
             )
+
+            # Check if we just finished processing all matches from the second-to-last tournament date
+            if second_to_last_date and current_date == second_to_last_date:
+                # Check if next match is from a different date (or this is the last match)
+                is_last_match_of_date = (
+                    idx == len(matches) - 1 or
+                    matches[idx + 1]["Date"] != second_to_last_date
+                )
+
+                if is_last_match_of_date:
+                    # Save arena states for delta calculation
+                    for arena in ALL_ARENAS:
+                        prev_tournament_arena_elos[arena] = dict(arena_elos[arena])
+                        # Calculate positions at this point
+                        arena_sorted = sorted(arena_elos[arena].items(), key=lambda x: x[1], reverse=True)
+                        prev_tournament_arena_positions[arena] = {
+                            bey: pos for pos, (bey, _) in enumerate(arena_sorted, start=1)
+                        }
 
         # Calculate winrates for global and all arenas
         calculate_winrates(stats)
@@ -709,6 +740,30 @@ def run_elo_pipeline(pipeline_config):
 
         for pos, (bey, arena_elo) in enumerate(arena_sorted_beys, start=1):
             s = arena_stats[arena][bey]
+
+            # Calculate deltas relative to second-to-last tournament date
+            prev_pos = prev_tournament_arena_positions.get(arena, {}).get(bey, pos)
+            prev_elo = prev_tournament_arena_elos.get(arena, {}).get(bey, START_ELO)
+
+            pos_delta = prev_pos - pos  # Positive = moved up
+            elo_delta = round(arena_elo - prev_elo)
+
+            # Format position delta
+            if pos_delta > 0:
+                pos_delta_str = f"▲ {pos_delta}"
+            elif pos_delta < 0:
+                pos_delta_str = f"▼ {abs(pos_delta)}"
+            else:
+                pos_delta_str = "→ 0"
+
+            # Format ELO delta
+            if elo_delta > 0:
+                elo_delta_str = f"+{elo_delta}"
+            elif elo_delta < 0:
+                elo_delta_str = f"{elo_delta}"
+            else:
+                elo_delta_str = "0"
+
             arena_rows.append({
                 "Platz": pos,
                 "Name": bey,
@@ -719,7 +774,9 @@ def run_elo_pipeline(pipeline_config):
                 "Winrate": f"{round(s['winrate'] * 100, 1)}%" if s["matches"] > 0 else "0.0%",
                 "Gewonnene Punkte": s["for"],
                 "Verlorene Punkte": s["against"],
-                "Differenz": s["for"] - s["against"]
+                "Differenz": s["for"] - s["against"],
+                "Positionsdelta": pos_delta_str,
+                "ELOdelta": elo_delta_str
             })
 
         pd.DataFrame(arena_rows).to_csv(arena_leaderboard_file, index=False)
