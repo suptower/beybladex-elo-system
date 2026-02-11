@@ -523,15 +523,14 @@ def run_elo_pipeline(pipeline_config):
             second_to_last_date = tournament_dates[-2] if len(tournament_dates) >= 2 else None
         else:
             second_to_last_date = None
-        
+
         # Track previous tournament state for delta calculations
         prev_tournament_arena_elos = {}
         prev_tournament_arena_positions = {}
-        prev_match_date = None
-        
+
         for idx, m in enumerate(matches):
             current_date = m["Date"]
-            
+
             update_elo(
                 m["BeyA"], m["BeyB"],
                 int(m["ScoreA"]), int(m["ScoreB"]),
@@ -545,15 +544,15 @@ def run_elo_pipeline(pipeline_config):
                 m.get("Tier", ""),
                 m.get("Matchday", "")
             )
-            
+
             # Check if we just finished processing all matches from the second-to-last tournament date
             if second_to_last_date and current_date == second_to_last_date:
                 # Check if next match is from a different date (or this is the last match)
                 is_last_match_of_date = (
-                    idx == len(matches) - 1 or 
+                    idx == len(matches) - 1 or
                     matches[idx + 1]["Date"] != second_to_last_date
                 )
-                
+
                 if is_last_match_of_date:
                     # Save arena states for delta calculation
                     for arena in ALL_ARENAS:
@@ -741,14 +740,14 @@ def run_elo_pipeline(pipeline_config):
 
         for pos, (bey, arena_elo) in enumerate(arena_sorted_beys, start=1):
             s = arena_stats[arena][bey]
-            
+
             # Calculate deltas relative to second-to-last tournament date
             prev_pos = prev_tournament_arena_positions.get(arena, {}).get(bey, pos)
             prev_elo = prev_tournament_arena_elos.get(arena, {}).get(bey, START_ELO)
-            
+
             pos_delta = prev_pos - pos  # Positive = moved up
             elo_delta = round(arena_elo - prev_elo)
-            
+
             # Format position delta
             if pos_delta > 0:
                 pos_delta_str = f"▲ {pos_delta}"
@@ -756,7 +755,7 @@ def run_elo_pipeline(pipeline_config):
                 pos_delta_str = f"▼ {abs(pos_delta)}"
             else:
                 pos_delta_str = "→ 0"
-            
+
             # Format ELO delta
             if elo_delta > 0:
                 elo_delta_str = f"+{elo_delta}"
@@ -764,7 +763,7 @@ def run_elo_pipeline(pipeline_config):
                 elo_delta_str = f"{elo_delta}"
             else:
                 elo_delta_str = "0"
-            
+
             arena_rows.append({
                 "Platz": pos,
                 "Name": bey,
