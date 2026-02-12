@@ -1642,7 +1642,12 @@ function renderMatchCards() {
             <div class="match-card ${cardClass}" data-index="${index}">
                 <div class="match-card-header">
                     <span class="match-card-number">Match ${match.matchNumber}</span>
-                    <span class="match-card-winner">${renderWinnerIndicator(match)}</span>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <button class="match-card-fullscreen-btn" onclick="enterFullscreenMatch(${index})" title="Open in fullscreen">
+                            ⛶ Fullscreen
+                        </button>
+                        <span class="match-card-winner">${renderWinnerIndicator(match)}</span>
+                    </div>
                 </div>
                 <div class="match-card-content">
                     <div class="match-card-names">
@@ -2965,5 +2970,170 @@ function showPostMatchSummary(eloResult) {
     // You could show this in a toast or modal
     // For now, we'll just log it
     console.log('Post-match summary:', eloResult);
+}
+
+// ============================================
+// FULLSCREEN MODE FOR MOBILE
+// ============================================
+
+/**
+ * Enter fullscreen mode for a specific match
+ * Provides larger touch-friendly interface for mobile devices
+ */
+function enterFullscreenMatch(matchIndex) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    const overlay = document.getElementById('fullscreenMatchOverlay');
+    if (!overlay) return;
+    
+    const isComplete = match.winner && match.beyA && match.beyB;
+    const hasRounds = match.rounds && match.rounds.length > 0;
+    
+    // Get sorted beyblade names
+    const sortedBeyNames = [...state.beyblades].sort((a, b) => a.name.localeCompare(b.name)).map(bey => bey.name);
+    
+    // Build fullscreen content
+    overlay.innerHTML = `
+        <div class="fullscreen-header">
+            <span class="fullscreen-title">Match ${match.matchNumber}</span>
+            <button class="fullscreen-close-btn" onclick="exitFullscreenMatch()">
+                ✕ Exit
+            </button>
+        </div>
+        
+        <div class="fullscreen-match-content">
+            <!-- Bey A Selection -->
+            <div class="fullscreen-bey-section">
+                <label class="fullscreen-bey-label">Player A</label>
+                <select class="fullscreen-bey-select" onchange="updateBey(${matchIndex}, 'A', this.value)">
+                    <option value="">Select Bey...</option>
+                    ${sortedBeyNames.map(bey => 
+                        `<option value="${escapeHtml(bey)}" ${match.beyA === bey ? 'selected' : ''}>${escapeHtml(bey)}</option>`
+                    ).join('')}
+                </select>
+            </div>
+            
+            <!-- Scores Display -->
+            <div class="fullscreen-scores-section">
+                <div class="fullscreen-scores-display">
+                    <div class="fullscreen-score-value score-a ${match.winner === 'A' ? 'score-winner' : ''}">${match.scoreA}</div>
+                    <span class="fullscreen-score-separator">:</span>
+                    <div class="fullscreen-score-value score-b ${match.winner === 'B' ? 'score-winner' : ''}">${match.scoreB}</div>
+                </div>
+                ${isComplete ? `<div class="fullscreen-winner-display">🏆 Winner: ${match.winner === 'A' ? match.beyA : match.beyB}</div>` : ''}
+            </div>
+            
+            <!-- Bey B Selection -->
+            <div class="fullscreen-bey-section">
+                <label class="fullscreen-bey-label">Player B</label>
+                <select class="fullscreen-bey-select" onchange="updateBey(${matchIndex}, 'B', this.value)">
+                    <option value="">Select Bey...</option>
+                    ${sortedBeyNames.map(bey => 
+                        `<option value="${escapeHtml(bey)}" ${match.beyB === bey ? 'selected' : ''}>${escapeHtml(bey)}</option>`
+                    ).join('')}
+                </select>
+            </div>
+            
+            <!-- Rounds Section -->
+            <div class="fullscreen-rounds-section">
+                <div class="fullscreen-rounds-header">
+                    ⚔️ Rounds (${match.rounds?.length || 0})
+                </div>
+                
+                ${match.beyA && match.beyB ? renderFullscreenQuickAddButtons(matchIndex, match) : '<div style="padding: 1rem; text-align: center; color: var(--text-light);">Select both Beys to add rounds</div>'}
+                
+                ${hasRounds ? `
+                    <div class="fullscreen-rounds-list">
+                        ${renderFullscreenRoundsList(match, matchIndex)}
+                    </div>
+                ` : ''}
+            </div>
+            
+            <!-- Actions -->
+            <div class="fullscreen-actions">
+                <button class="fullscreen-action-btn btn-delete" onclick="deleteMatch(${matchIndex}); exitFullscreenMatch();">
+                    🗑️ Delete Match
+                </button>
+            </div>
+        </div>
+    `;
+    
+    // Show overlay
+    overlay.classList.add('active');
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Exit fullscreen mode and return to normal view
+ */
+function exitFullscreenMatch() {
+    const overlay = document.getElementById('fullscreenMatchOverlay');
+    if (!overlay) return;
+    
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Re-render matches to update any changes
+    renderMatches();
+}
+
+/**
+ * Render quick add buttons for fullscreen mode
+ */
+function renderFullscreenQuickAddButtons(matchIndex, match) {
+    const beyAName = match.beyA ? escapeHtml(match.beyA.substring(0, 10)) : 'A';
+    const beyBName = match.beyB ? escapeHtml(match.beyB.substring(0, 10)) : 'B';
+    
+    return `
+        <div class="fullscreen-quick-add">
+            ${Object.values(FINISH_TYPES).map(finish => `
+                <button class="fullscreen-quick-add-btn" onclick="addRoundQuick(${matchIndex}, 'A', '${finish.id}'); updateFullscreenRounds(${matchIndex});">
+                    <span class="btn-player">${beyAName}</span>
+                    <span class="btn-finish">${finish.emoji} ${finish.label}</span>
+                </button>
+                <button class="fullscreen-quick-add-btn" onclick="addRoundQuick(${matchIndex}, 'B', '${finish.id}'); updateFullscreenRounds(${matchIndex});">
+                    <span class="btn-player">${beyBName}</span>
+                    <span class="btn-finish">${finish.emoji} ${finish.label}</span>
+                </button>
+            `).join('')}
+        </div>
+    `;
+}
+
+/**
+ * Render rounds list for fullscreen mode
+ */
+function renderFullscreenRoundsList(match, matchIndex) {
+    if (!match.rounds || match.rounds.length === 0) {
+        return '<div style="padding: 1rem; text-align: center; color: var(--text-light);">No rounds recorded</div>';
+    }
+    
+    return match.rounds.map((round, roundIndex) => {
+        const winnerLabel = round.winner === 'A' ? (match.beyA || 'A') : (match.beyB || 'B');
+        const finishType = FINISH_TYPES[round.finishType?.toUpperCase()] || { label: round.finishType || 'Win' };
+        
+        return `
+            <div class="fullscreen-round-item">
+                <span class="round-number">R${round.roundIndex + 1}</span>
+                <span class="round-winner">${escapeHtml(winnerLabel)}</span>
+                <span class="round-finish">${escapeHtml(finishType.label)}</span>
+                <button class="round-remove-btn" onclick="removeRound(${matchIndex}, ${roundIndex}); updateFullscreenRounds(${matchIndex});">×</button>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Update the rounds section in fullscreen mode after changes
+ */
+function updateFullscreenRounds(matchIndex) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    // Re-render the entire fullscreen view to reflect changes
+    enterFullscreenMatch(matchIndex);
 }
 
