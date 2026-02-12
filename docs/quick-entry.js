@@ -3100,11 +3100,11 @@ function renderFullscreenQuickAddButtons(matchIndex, match) {
     return `
         <div class="fullscreen-quick-add">
             ${Object.values(FINISH_TYPES).map(finish => `
-                <button class="fullscreen-quick-add-btn" onclick="addRoundQuick(${matchIndex}, 'A', '${finish.id}'); updateFullscreenRounds(${matchIndex});">
+                <button class="fullscreen-quick-add-btn" onclick="addRound(${matchIndex}, 'A', '${finish.id}'); updateFullscreenRounds(${matchIndex});">
                     <span class="btn-player">${beyAName}</span>
                     <span class="btn-finish">${finish.emoji} ${finish.label}</span>
                 </button>
-                <button class="fullscreen-quick-add-btn" onclick="addRoundQuick(${matchIndex}, 'B', '${finish.id}'); updateFullscreenRounds(${matchIndex});">
+                <button class="fullscreen-quick-add-btn" onclick="addRound(${matchIndex}, 'B', '${finish.id}'); updateFullscreenRounds(${matchIndex});">
                     <span class="btn-player">${beyBName}</span>
                     <span class="btn-finish">${finish.emoji} ${finish.label}</span>
                 </button>
