@@ -49,15 +49,17 @@ MIN_MATCHES_FOR_STATS = 1
 ATTACK_WEIGHTS = {
     "burst_finish_rate": 0.30,
     "pocket_finish_rate": 0.15,
+    "stadium_exit_finish_rate": 0.05,  # Rare but impactful 2-point finish
     "extreme_finish_rate": 0.20,
-    "offensive_point_efficiency": 0.25,
+    "offensive_point_efficiency": 0.20,  # Reduced to accommodate stadium_exit
     "opening_dominance": 0.10,
 }
 
 DEFENSE_WEIGHTS = {
     "burst_resistance": 0.35,
-    "pocket_resistance": 0.25,
-    "extreme_resistance": 0.25,
+    "pocket_resistance": 0.20,
+    "stadium_exit_resistance": 0.10,  # Rare but worth tracking
+    "extreme_resistance": 0.20,
     "defensive_conversion": 0.15,
 }
 
@@ -277,6 +279,7 @@ def detect_archetype(
 
     burst_finish_rate = attack_metrics.get("burst_finish_rate", 0)
     pocket_finish_rate = attack_metrics.get("pocket_finish_rate", 0)
+    stadium_exit_finish_rate = attack_metrics.get("stadium_exit_finish_rate", 0)
     extreme_finish_rate = attack_metrics.get("extreme_finish_rate", 0)
     burst_resistance = defense_metrics.get("burst_resistance", 0.5)
     defensive_conversion = defense_metrics.get("defensive_conversion", 0.5)
@@ -310,15 +313,17 @@ def detect_archetype(
     else:
         archetype_scores["berserker"] = 0.0
 
-    # Chaser: Fast finisher, pocket/extreme focused
-    # Require: attack > threshold AND (pocket_finish OR extreme_finish > threshold)
+    # Chaser: Fast finisher, pocket/extreme/stadium_exit focused
+    # Require: attack > threshold AND (pocket_finish OR extreme_finish OR stadium_exit_finish > threshold)
     if (attack > CHASER_MIN_ATTACK and
             (pocket_finish_rate > CHASER_MIN_POCKET_FINISH or
+             stadium_exit_finish_rate > CHASER_MIN_POCKET_FINISH or  # Use same threshold as pocket
              extreme_finish_rate > CHASER_MIN_EXTREME_FINISH)):
         archetype_scores["chaser"] = (
             (attack / 5.0) * 0.25
-            + (pocket_finish_rate * 0.4)
-            + (extreme_finish_rate * 0.35)
+            + (pocket_finish_rate * 0.35)
+            + (stadium_exit_finish_rate * 0.10)  # Lower weight due to rarity
+            + (extreme_finish_rate * 0.30)
         )
     else:
         archetype_scores["chaser"] = 0.0
@@ -744,6 +749,7 @@ def calculate_attack_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str, 
     Metrics:
     - burst_finish_rate: % of round wins that are burst finishes
     - pocket_finish_rate: % of round wins that are pocket finishes
+    - stadium_exit_finish_rate: % of round wins that are stadium exit finishes
     - extreme_finish_rate: % of round wins that are extreme finishes
     - offensive_point_efficiency: Average points per round won
     - opening_dominance: % of first rounds won
@@ -758,11 +764,13 @@ def calculate_attack_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str, 
         if rounds_won > 0:
             burst_rate = stats.get("burst_wins", 0) / rounds_won
             pocket_rate = stats.get("pocket_wins", 0) / rounds_won
+            stadium_exit_rate = stats.get("stadium_exit_wins", 0) / rounds_won
             extreme_rate = stats.get("extreme_wins", 0) / rounds_won
             point_efficiency = stats.get("points_from_wins", 0) / rounds_won
         else:
             burst_rate = 0.0
             pocket_rate = 0.0
+            stadium_exit_rate = 0.0
             extreme_rate = 0.0
             point_efficiency = 0.0
 
@@ -774,6 +782,7 @@ def calculate_attack_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str, 
         metrics[bey] = {
             "burst_finish_rate": burst_rate,
             "pocket_finish_rate": pocket_rate,
+            "stadium_exit_finish_rate": stadium_exit_rate,
             "extreme_finish_rate": extreme_rate,
             "offensive_point_efficiency": point_efficiency,
             "opening_dominance": opening_dominance,
@@ -789,6 +798,7 @@ def calculate_defense_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str,
     Metrics:
     - burst_resistance: 1 - (burst losses / total rounds lost)
     - pocket_resistance: 1 - (pocket losses / total rounds lost)
+    - stadium_exit_resistance: 1 - (stadium exit losses / total rounds lost)
     - extreme_resistance: 1 - (extreme losses / total rounds lost)
     - defensive_conversion: Win rate after losing a round
     """
@@ -801,11 +811,13 @@ def calculate_defense_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str,
         if rounds_lost > 0:
             burst_resistance = 1.0 - (stats.get("burst_losses", 0) / rounds_lost)
             pocket_resistance = 1.0 - (stats.get("pocket_losses", 0) / rounds_lost)
+            stadium_exit_resistance = 1.0 - (stats.get("stadium_exit_losses", 0) / rounds_lost)
             extreme_resistance = 1.0 - (stats.get("extreme_losses", 0) / rounds_lost)
         else:
             # No losses means perfect resistance
             burst_resistance = 1.0
             pocket_resistance = 1.0
+            stadium_exit_resistance = 1.0
             extreme_resistance = 1.0
 
         # Defensive conversion: ability to win the next round after losing one
@@ -818,6 +830,7 @@ def calculate_defense_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str,
         metrics[bey] = {
             "burst_resistance": burst_resistance,
             "pocket_resistance": pocket_resistance,
+            "stadium_exit_resistance": stadium_exit_resistance,
             "extreme_resistance": extreme_resistance,
             "defensive_conversion": defensive_conversion,
         }
@@ -1041,6 +1054,7 @@ def calculate_attack_stat(metrics: dict, all_metrics: list[dict]) -> float:
     # Collect all values for percentile normalization
     all_burst = [m["burst_finish_rate"] for m in all_metrics]
     all_pocket = [m["pocket_finish_rate"] for m in all_metrics]
+    all_stadium_exit = [m["stadium_exit_finish_rate"] for m in all_metrics]
     all_extreme = [m["extreme_finish_rate"] for m in all_metrics]
     all_efficiency = [m["offensive_point_efficiency"] for m in all_metrics]
     all_opening = [m["opening_dominance"] for m in all_metrics]
@@ -1048,6 +1062,7 @@ def calculate_attack_stat(metrics: dict, all_metrics: list[dict]) -> float:
     # Normalize each metric
     norm_burst = percentile_normalize(metrics["burst_finish_rate"], all_burst)
     norm_pocket = percentile_normalize(metrics["pocket_finish_rate"], all_pocket)
+    norm_stadium_exit = percentile_normalize(metrics["stadium_exit_finish_rate"], all_stadium_exit)
     norm_extreme = percentile_normalize(metrics["extreme_finish_rate"], all_extreme)
     norm_efficiency = percentile_normalize(
         metrics["offensive_point_efficiency"], all_efficiency
@@ -1058,6 +1073,7 @@ def calculate_attack_stat(metrics: dict, all_metrics: list[dict]) -> float:
     raw_score = (
         ATTACK_WEIGHTS["burst_finish_rate"] * norm_burst
         + ATTACK_WEIGHTS["pocket_finish_rate"] * norm_pocket
+        + ATTACK_WEIGHTS["stadium_exit_finish_rate"] * norm_stadium_exit
         + ATTACK_WEIGHTS["extreme_finish_rate"] * norm_extreme
         + ATTACK_WEIGHTS["offensive_point_efficiency"] * norm_efficiency
         + ATTACK_WEIGHTS["opening_dominance"] * norm_opening
@@ -1070,11 +1086,13 @@ def calculate_defense_stat(metrics: dict, all_metrics: list[dict]) -> float:
     """Calculate the Defense stat (0-5) from defense metrics."""
     all_burst_res = [m["burst_resistance"] for m in all_metrics]
     all_pocket_res = [m["pocket_resistance"] for m in all_metrics]
+    all_stadium_exit_res = [m["stadium_exit_resistance"] for m in all_metrics]
     all_extreme_res = [m["extreme_resistance"] for m in all_metrics]
     all_conversion = [m["defensive_conversion"] for m in all_metrics]
 
     norm_burst = percentile_normalize(metrics["burst_resistance"], all_burst_res)
     norm_pocket = percentile_normalize(metrics["pocket_resistance"], all_pocket_res)
+    norm_stadium_exit = percentile_normalize(metrics["stadium_exit_resistance"], all_stadium_exit_res)
     norm_extreme = percentile_normalize(metrics["extreme_resistance"], all_extreme_res)
     norm_conversion = percentile_normalize(
         metrics["defensive_conversion"], all_conversion
@@ -1083,6 +1101,7 @@ def calculate_defense_stat(metrics: dict, all_metrics: list[dict]) -> float:
     raw_score = (
         DEFENSE_WEIGHTS["burst_resistance"] * norm_burst
         + DEFENSE_WEIGHTS["pocket_resistance"] * norm_pocket
+        + DEFENSE_WEIGHTS["stadium_exit_resistance"] * norm_stadium_exit
         + DEFENSE_WEIGHTS["extreme_resistance"] * norm_extreme
         + DEFENSE_WEIGHTS["defensive_conversion"] * norm_conversion
     )
