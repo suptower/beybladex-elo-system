@@ -133,3 +133,48 @@ def generate_dynamic_yticks(min_pos, max_pos):
     # Sort and return
     ticks = sorted(set(ticks))
     return ticks
+
+
+def calculate_dynamic_plot_dimensions(min_pos, max_pos):
+    """
+    Calculate appropriate plot height and y-axis limits based on actual data range.
+
+    Args:
+        min_pos: Minimum position value in the data
+        max_pos: Maximum position value in the data
+
+    Returns:
+        Tuple of (height, ylim_max, ylim_min) where:
+        - height: Figure height in inches
+        - ylim_max: Upper limit for y-axis (lower position number, at top)
+        - ylim_min: Lower limit for y-axis (higher position number, at bottom)
+    """
+    # Calculate the position range
+    pos_range = max_pos - min_pos
+
+    # Add some padding above and below the actual data
+    # Use smaller padding for small ranges, more for larger ranges
+    if pos_range <= 5:
+        padding = 1.0
+    elif pos_range <= 10:
+        padding = 1.5
+    elif pos_range <= 20:
+        padding = 2.0
+    else:
+        padding = 2.5
+
+    # Calculate y-axis limits with padding
+    # For position plots, lower numbers are better (at top), so ylim is (max, min)
+    ylim_min = max_pos + padding  # Bottom of chart (worse position)
+    ylim_max = max(0.5, min_pos - padding)  # Top of chart (better position)
+
+    # Always show position 1 for reference if it's close to the range
+    if min_pos <= 5:
+        ylim_max = 0.5
+
+    # Calculate height based on the visible range
+    visible_range = ylim_min - ylim_max
+    # Use 0.2 inches per position for better readability
+    height = max(3.0, min(12.0, visible_range * 0.2))
+
+    return height, ylim_max, ylim_min

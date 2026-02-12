@@ -12,7 +12,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from plot_styles import configure_light_mode, configure_dark_mode, generate_dynamic_yticks
+from plot_styles import configure_light_mode, configure_dark_mode, generate_dynamic_yticks, calculate_dynamic_plot_dimensions
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
@@ -265,7 +265,11 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
 
         # group_filtered = pd.DataFrame(filtered_rows).reset_index(drop=True)
 
-        height = max_rank * 0.15
+        # Calculate dynamic plot dimensions based on actual position range
+        min_pos = group["Position"].min()
+        max_pos = group["Position"].max()
+        height, ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
+
         plt.figure(figsize=(6, height))
         plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2, label="Position History")
 
@@ -320,11 +324,9 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
         plt.title(f"Positionsverlauf: {bey}")
         plt.xlabel("Match Index")
         plt.ylabel("Position")
-        plt.ylim(max_rank + 0.5, 0.5)
+        plt.ylim(ylim_min, ylim_max)
 
         # Generate dynamic yticks based on actual position range
-        min_pos = group["Position"].min()
-        max_pos = group["Position"].max()
         yticks = generate_dynamic_yticks(min_pos, max_pos)
         plt.yticks(yticks)
         plt.grid(True, which="major", axis="y", alpha=0.2, linestyle="--")

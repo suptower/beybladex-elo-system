@@ -11,7 +11,7 @@ import sys
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
-from plot_styles import generate_dynamic_yticks
+from plot_styles import generate_dynamic_yticks, calculate_dynamic_plot_dimensions
 
 
 def plot_position_timeseries_clean(csv_path="./docs/data/position_timeseries.csv", output_dir="./docs/plots/positions"):
@@ -41,8 +41,12 @@ def plot_position_timeseries_clean(csv_path="./docs/data/position_timeseries.csv
         if len(bey_data) == 0:
             continue
 
+        # Calculate dynamic plot dimensions based on actual position range
+        min_pos = bey_data["Position"].min()
+        max_pos = bey_data["Position"].max()
+        height, ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
+
         # Create plot
-        height = max_rank * 0.15
         plt.figure(figsize=(6, height))
 
         # Plot: x-axis = MatchIndex, y-axis = Position
@@ -62,11 +66,9 @@ def plot_position_timeseries_clean(csv_path="./docs/data/position_timeseries.csv
         plt.ylabel("Position")
 
         # Y-axis limits and ticks
-        plt.ylim(max_rank + 0.5, 0.5)
+        plt.ylim(ylim_min, ylim_max)
 
         # Generate dynamic yticks based on actual position range
-        min_pos = bey_data["Position"].min()
-        max_pos = bey_data["Position"].max()
         yticks = generate_dynamic_yticks(min_pos, max_pos)
         plt.yticks(yticks)
 
