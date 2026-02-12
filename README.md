@@ -36,7 +36,6 @@ beybladex-elo-system/
 │   ├── simulation.py           # Tournament simulation
 │   ├── elo_simulator.py        # Elo simulation tools
 │   ├── gen_plots.py            # Plot generation orchestrator
-│   ├── plot_positions.py       # Position plot generation
 │   ├── plot_styles.py          # Plot styling utilities
 │   ├── generate_version.py     # Git-based version generation
 │   ├── sheets_upload.py        # Google Sheets integration
