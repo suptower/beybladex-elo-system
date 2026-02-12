@@ -364,6 +364,7 @@ def calculate_finish_type_statistics_per_stadium(matches, rounds):
         'spin': 0,
         'burst': 0,
         'pocket': 0,
+        'stadium_exit': 0,
         'extreme': 0,
         'total_rounds': 0,
         'total_points': 0
@@ -389,12 +390,14 @@ def calculate_finish_type_statistics_per_stadium(matches, rounds):
                     'spin': stats['spin'],
                     'burst': stats['burst'],
                     'pocket': stats['pocket'],
+                    'stadium_exit': stats['stadium_exit'],
                     'extreme': stats['extreme']
                 },
                 'finish_percentages': {
                     'spin': round(stats['spin'] / stats['total_rounds'] * 100, 1),
                     'burst': round(stats['burst'] / stats['total_rounds'] * 100, 1),
                     'pocket': round(stats['pocket'] / stats['total_rounds'] * 100, 1),
+                    'stadium_exit': round(stats['stadium_exit'] / stats['total_rounds'] * 100, 1),
                     'extreme': round(stats['extreme'] / stats['total_rounds'] * 100, 1)
                 },
                 'total_rounds': stats['total_rounds'],
@@ -499,7 +502,7 @@ def calculate_comparative_analysis(bey_performance, archetype_effectiveness, fin
 
             # Compare finish types
             if stadium_a in finish_stats and stadium_b in finish_stats:
-                for finish_type in ['spin', 'burst', 'pocket', 'extreme']:
+                for finish_type in ['spin', 'burst', 'pocket', 'stadium_exit', 'extreme']:
                     pct_a = finish_stats[stadium_a]['finish_percentages'][finish_type]
                     pct_b = finish_stats[stadium_b]['finish_percentages'][finish_type]
                     comparison['finish_type_shifts'][finish_type] = round(pct_b - pct_a, 1)

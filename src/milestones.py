@@ -150,6 +150,7 @@ def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
     - spin_finishes: {bey: count}
     - burst_finishes: {bey: count}
     - pocket_finishes: {bey: count}
+    - stadium_exit_finishes: {bey: count}
     - extreme_finishes: {bey: count}
     - finish_diversity: {bey: evenness_score} where 100 is perfect distribution
     """
@@ -157,11 +158,12 @@ def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
         'spin': defaultdict(int),
         'burst': defaultdict(int),
         'pocket': defaultdict(int),
+        'stadium_exit': defaultdict(int),
         'extreme': defaultdict(int)
     }
 
     # Track all finish types per Bey
-    bey_finish_counts = defaultdict(lambda: {'spin': 0, 'burst': 0, 'pocket': 0, 'extreme': 0})
+    bey_finish_counts = defaultdict(lambda: {'spin': 0, 'burst': 0, 'pocket': 0, 'stadium_exit': 0, 'extreme': 0})
 
     for round_data in rounds:
         winner = round_data['winner']
@@ -172,7 +174,7 @@ def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
             bey_finish_counts[winner][finish_type] += 1
 
     # Calculate finish diversity score (evenness of distribution)
-    # Perfect distribution = 25% each = score of 100
+    # Perfect distribution = 20% each (5 types) = score of 100
     # Use coefficient of variation inverted and scaled to 0-100
     finish_diversity_scores = {}
     for bey, counts in bey_finish_counts.items():
@@ -198,6 +200,7 @@ def calculate_finish_stats(rounds: List[Dict[str, str]]) -> Dict[str, Any]:
         'spin_finishes': dict(finish_counts['spin']),
         'burst_finishes': dict(finish_counts['burst']),
         'pocket_finishes': dict(finish_counts['pocket']),
+        'stadium_exit_finishes': dict(finish_counts['stadium_exit']),
         'extreme_finishes': dict(finish_counts['extreme']),
         'finish_diversity': finish_diversity_scores
     }

@@ -621,10 +621,12 @@ def calculate_bey_round_stats(matches: list, rounds: list) -> dict[str, dict]:
         "rounds_lost": 0,
         "burst_wins": 0,
         "pocket_wins": 0,
+        "stadium_exit_wins": 0,
         "extreme_wins": 0,
         "spin_wins": 0,
         "burst_losses": 0,
         "pocket_losses": 0,
+        "stadium_exit_losses": 0,
         "extreme_losses": 0,
         "spin_losses": 0,
         "points_from_wins": 0,
@@ -716,6 +718,9 @@ def calculate_bey_round_stats(matches: list, rounds: list) -> dict[str, dict]:
             elif finish_type == "pocket":
                 bey_stats[winner]["pocket_wins"] += 1
                 bey_stats[loser]["pocket_losses"] += 1
+            elif finish_type == "stadium_exit":
+                bey_stats[winner]["stadium_exit_wins"] += 1
+                bey_stats[loser]["stadium_exit_losses"] += 1
             elif finish_type == "extreme":
                 bey_stats[winner]["extreme_wins"] += 1
                 bey_stats[loser]["extreme_losses"] += 1
