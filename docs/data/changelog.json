@@ -1,105 +1,51 @@
 {
-  "generated_at": "2026-02-12T13:56:19.325386+00:00",
+  "generated_at": "2026-02-12T18:12:39.271497+00:00",
   "commit_count": 50,
   "commits": [
     {
-      "hash": "03337b9",
-      "full_hash": "03337b9ede866c32fec578bfbe2cec8fd4281079",
-      "date": "2026-02-12T14:56:06+01:00",
-      "message": "fix: linting",
-      "author": "Arda K",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/03337b9ede866c32fec578bfbe2cec8fd4281079"
-    },
-    {
-      "hash": "0aeca45",
-      "full_hash": "0aeca451f8428b6d40e392979bd9f09e2d0177fc",
-      "date": "2026-02-12T14:55:19+01:00",
-      "message": "feat: integer x-axis fix",
-      "author": "Arda K",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/0aeca451f8428b6d40e392979bd9f09e2d0177fc"
-    },
-    {
-      "hash": "4866b95",
-      "full_hash": "4866b9574f2e60379ff30b770745f4b1a2ce9a9c",
-      "date": "2026-02-12T13:07:35Z",
-      "message": "Fix fractional positioning in plot_positions.py standalone script",
+      "hash": "fa29fbd",
+      "full_hash": "fa29fbd24cd538045f950cb9a63b9e3683f462b6",
+      "date": "2026-02-12T17:57:00Z",
+      "message": "Implement shared navigation menu system across all pages",
       "author": "copilot-swe-agent[bot]",
       "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/4866b9574f2e60379ff30b770745f4b1a2ce9a9c"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/fa29fbd24cd538045f950cb9a63b9e3683f462b6"
     },
     {
-      "hash": "f7584ba",
-      "full_hash": "f7584ba2f8f231a62f560bac5271be13ac95fb0d",
-      "date": "2026-02-12T12:55:08Z",
-      "message": "Fix fractional x-axis positioning for light mode plots",
-      "author": "copilot-swe-agent[bot]",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f7584ba2f8f231a62f560bac5271be13ac95fb0d"
-    },
-    {
-      "hash": "e8575f6",
-      "full_hash": "e8575f6045a497b5023f375f096e18ab00e6a774",
-      "date": "2026-02-12T13:47:53+01:00",
-      "message": "fix: static height + remove 1 as default tick",
-      "author": "Arda K",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e8575f6045a497b5023f375f096e18ab00e6a774"
-    },
-    {
-      "hash": "c3fb071",
-      "full_hash": "c3fb071083b676bd8ea7846040c43ce4fe0a3b08",
-      "date": "2026-02-12T12:18:21Z",
-      "message": "Address code review feedback - use named constants in tests",
-      "author": "copilot-swe-agent[bot]",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/c3fb071083b676bd8ea7846040c43ce4fe0a3b08"
-    },
-    {
-      "hash": "49ec594",
-      "full_hash": "49ec5942300e6b5c7a640afa9817dca79982c970",
-      "date": "2026-02-12T12:17:20Z",
-      "message": "Add dynamic plot height and y-axis limits based on data range",
-      "author": "copilot-swe-agent[bot]",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/49ec5942300e6b5c7a640afa9817dca79982c970"
-    },
-    {
-      "hash": "45d0535",
-      "full_hash": "45d05359b536c7a50193f44e8167c04db1f1bd63",
-      "date": "2026-02-12T00:09:05Z",
-      "message": "Address code review feedback - extract function to shared module",
-      "author": "copilot-swe-agent[bot]",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/45d05359b536c7a50193f44e8167c04db1f1bd63"
-    },
-    {
-      "hash": "84fdb7c",
-      "full_hash": "84fdb7cb7f3b38ec11feea5ee84184eba83fd3ba",
-      "date": "2026-02-12T00:06:38Z",
-      "message": "Fix whitespace linting issues",
-      "author": "copilot-swe-agent[bot]",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/84fdb7cb7f3b38ec11feea5ee84184eba83fd3ba"
-    },
-    {
-      "hash": "e126f68",
-      "full_hash": "e126f68be986a58e45785955c1bdb5e799704b35",
-      "date": "2026-02-12T00:05:41Z",
-      "message": "Implement dynamic yticks for static position plots",
-      "author": "copilot-swe-agent[bot]",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e126f68be986a58e45785955c1bdb5e799704b35"
-    },
-    {
-      "hash": "c83e331",
-      "full_hash": "c83e331db9322f6df52ade85a1e9b434d492d13c",
-      "date": "2026-02-11T23:59:53Z",
+      "hash": "1059a1d",
+      "full_hash": "1059a1dc3678749937408b89e02915b55f91f851",
+      "date": "2026-02-12T17:52:20Z",
       "message": "Initial plan",
       "author": "copilot-swe-agent[bot]",
       "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/c83e331db9322f6df52ade85a1e9b434d492d13c"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1059a1dc3678749937408b89e02915b55f91f851"
+    },
+    {
+      "hash": "cd90ecc",
+      "full_hash": "cd90eccd4cfc9d608768c1647b606f86694ea0a9",
+      "date": "2026-02-12T18:51:25+01:00",
+      "message": "feat: add stadium exit finish type (#246)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/cd90eccd4cfc9d608768c1647b606f86694ea0a9"
+    },
+    {
+      "hash": "128b314",
+      "full_hash": "128b314fef58c9e5e97cc1b18007911474610c27",
+      "date": "2026-02-12T16:55:47+01:00",
+      "message": "feat: Add archetype badges to wiki cards and archetype filtering (#244)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/128b314fef58c9e5e97cc1b18007911474610c27"
+    },
+    {
+      "hash": "740a6b0",
+      "full_hash": "740a6b0bf81b509b1519413a5f276fdfa269d749",
+      "date": "2026-02-12T14:59:12+01:00",
+      "message": "feat: dynamic yticks and plot dimensions for static position plots (#242)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/740a6b0bf81b509b1519413a5f276fdfa269d749"
     },
     {
       "hash": "98b3e41",
@@ -451,6 +397,60 @@
       "author": "Copilot",
       "category": "Feature",
       "github_url": "https://github.com/suptower/beybladex-elo-system/commit/287e41be0425b604348356bfa3cccac5449ddee1"
+    },
+    {
+      "hash": "e09a0e8",
+      "full_hash": "e09a0e82e331aca0a66a5f9692c40bf709712d87",
+      "date": "2026-01-06T01:21:35+01:00",
+      "message": "feat: archetype effectiveness dashboard (#174)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e09a0e82e331aca0a66a5f9692c40bf709712d87"
+    },
+    {
+      "hash": "1a69d5b",
+      "full_hash": "1a69d5ba0355d5495e1f0213ad097241a1bf5305",
+      "date": "2026-01-05T23:43:01+01:00",
+      "message": "Add matchup matrix for Bey-vs-Bey performance analysis (#173)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1a69d5ba0355d5495e1f0213ad097241a1bf5305"
+    },
+    {
+      "hash": "fe9b35d",
+      "full_hash": "fe9b35d0c82bcef6df09e062450c323e11458696",
+      "date": "2026-01-05T21:39:37+01:00",
+      "message": "feat: Add credibility score to quantify ELO rating reliability (#170)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/fe9b35d0c82bcef6df09e062450c323e11458696"
+    },
+    {
+      "hash": "6a33de6",
+      "full_hash": "6a33de6d9bc50c140e4ae3334c048d7a15845b5c",
+      "date": "2026-01-05T16:47:26+01:00",
+      "message": "feat: Add recommended matches system for data-driven match suggestions (#168)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/6a33de6d9bc50c140e4ae3334c048d7a15845b5c"
+    },
+    {
+      "hash": "349e77d",
+      "full_hash": "349e77d84608e3354e9b9b98516e6eda76d28726",
+      "date": "2026-01-05T15:10:37+01:00",
+      "message": "Add median and average reference lines to ELO and position history plots (#166)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/349e77d84608e3354e9b9b98516e6eda76d28726"
+    },
+    {
+      "hash": "5486ba8",
+      "full_hash": "5486ba8e92df6bb4fd999bfafed9b73b4e0b0c19",
+      "date": "2026-01-05T13:06:29+01:00",
+      "message": "feat: add milestones page for statistical records and achievements (#164)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/5486ba8e92df6bb4fd999bfafed9b73b4e0b0c19"
     }
   ]
 }
