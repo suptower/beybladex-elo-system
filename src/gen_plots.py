@@ -321,7 +321,8 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
             plt.legend(loc='best', fontsize=8)
 
         plt.gca().invert_yaxis()  # Higher positions (1st) should be at the top
-        plt.xticks(ticks=group["MatchIndex"].unique())
+        # Let matplotlib automatically determine x-axis ticks for fractional positioning
+        # (removed: plt.xticks(ticks=group["MatchIndex"].unique()))
         plt.title(f"Positionsverlauf: {bey}")
         plt.xlabel("Match Index")
         plt.ylabel("Position")
