@@ -3084,8 +3084,9 @@ function exitFullscreenMatch() {
  * Render quick add buttons for fullscreen mode
  */
 function renderFullscreenQuickAddButtons(matchIndex, match) {
-    const beyAName = match.beyA ? escapeHtml(match.beyA.substring(0, 10)) : 'A';
-    const beyBName = match.beyB ? escapeHtml(match.beyB.substring(0, 10)) : 'B';
+    const MAX_BEY_NAME_LENGTH_FULLSCREEN = 10; // Maximum characters to display for Bey names in fullscreen buttons
+    const beyAName = match.beyA ? escapeHtml(match.beyA.substring(0, MAX_BEY_NAME_LENGTH_FULLSCREEN)) : 'A';
+    const beyBName = match.beyB ? escapeHtml(match.beyB.substring(0, MAX_BEY_NAME_LENGTH_FULLSCREEN)) : 'B';
     
     return `
         <div class="fullscreen-quick-add">
@@ -3117,7 +3118,7 @@ function renderFullscreenRoundsList(match, matchIndex) {
         
         return `
             <div class="fullscreen-round-item">
-                <span class="round-number">R${round.roundIndex + 1}</span>
+                <span class="round-number">R${roundIndex + 1}</span>
                 <span class="round-winner">${escapeHtml(winnerLabel)}</span>
                 <span class="round-finish">${escapeHtml(finishType.label)}</span>
                 <button class="round-remove-btn" onclick="removeRound(${matchIndex}, ${roundIndex}); updateFullscreenRounds(${matchIndex});">×</button>
