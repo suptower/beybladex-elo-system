@@ -35,12 +35,11 @@
         // Define page titles and categories
         const pageInfo = {
             // Data pages
+            'leaderboard.html': { title: 'Leaderboard', category: 'Data' },
             'wiki.html': { title: 'Wiki', category: 'Data' },
             'beys.html': { title: 'Beys', category: 'Data' },
             'bey.html': { title: 'Bey Details', category: 'Data' },
-            'leaderboard.html': { title: 'Leaderboard', category: 'Data' },
             'matches.html': { title: 'Matches', category: 'Data' },
-            'upsets.html': { title: 'Upsets', category: 'Data' },
             'milestones.html': { title: 'Milestones', category: 'Data' },
             'tournaments.html': { title: 'Tournaments', category: 'Data' },
             'changelog.html': { title: 'Changelog', category: 'Data' },
@@ -49,22 +48,24 @@
             
             // Tools pages
             'compare.html': { title: 'Compare', category: 'Tools' },
-            'explorer.html': { title: 'Parts Explorer', category: 'Tools' },
-            'counters.html': { title: 'Counters', category: 'Tools' },
-            'simulator.html': { title: 'Simulator', category: 'Tools' },
-            'predictor.html': { title: 'Predictor', category: 'Tools' },
             'quick-entry.html': { title: 'Quick Entry', category: 'Tools' },
+            'explorer.html': { title: 'Parts Explorer', category: 'Tools' },
             
             // Analytics pages
             'analytics.html': { title: 'Analytics Tools', category: 'Analytics' },
             'plots.html': { title: 'Plots', category: 'Analytics' },
-            'parts.html': { title: 'Parts', category: 'Analytics' },
-            'synergy.html': { title: 'Synergy Heatmaps', category: 'Analytics' },
+            'upsets.html': { title: 'Upsets', category: 'Analytics' },
+            'parts.html': { title: 'Parts', category: 'Misc' },
+            'synergy.html': { title: 'Synergy Heatmaps', category: 'Misc' },
             'meta-balance.html': { title: 'Meta Balance', category: 'Analytics' },
             'matchup-matrix.html': { title: 'Matchup Matrix', category: 'Analytics' },
             'archetype-dashboard.html': { title: 'Archetype Dashboard', category: 'Analytics' },
             'recommended-matches.html': { title: 'Recommended Matches', category: 'Analytics' },
-            'gallery.html': { title: 'Gallery', category: 'Analytics' }
+            'gallery.html': { title: 'Gallery', category: 'Analytics' },
+            
+            'counters.html': { title: 'Counters', category: 'Analytics' },
+            'simulator.html': { title: 'Simulator', category: 'Misc' },
+            'predictor.html': { title: 'Predictor', category: 'Misc' }
         };
         
         const info = pageInfo[currentPage];
