@@ -3059,6 +3059,15 @@ function enterFullscreenMatch(matchIndex) {
         </div>
     `;
     
+    // Close hamburger menu if open (prevent z-index conflicts)
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
+    if (hamburger && navMenu && hamburger.classList.contains('active')) {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        hamburger.setAttribute('aria-expanded', 'false');
+    }
+    
     // Show overlay
     overlay.classList.add('active');
     

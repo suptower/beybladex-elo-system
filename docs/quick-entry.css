@@ -2460,3 +2460,9 @@ body.dark .season-row.relegation-zone:hover {
         display: none;
     }
 }
+
+/* Hide header when fullscreen overlay is active to prevent hamburger menu conflicts */
+body:has(.fullscreen-match-overlay.active) header {
+    pointer-events: none;
+    visibility: hidden;
+}
