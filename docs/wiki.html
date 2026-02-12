@@ -124,6 +124,13 @@
                     <option value="all">All Bits</option>
                 </select>
             </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Archetype</label>
+                <select id="archetypeFilter" class="filter-select">
+                    <option value="all">All Archetypes</option>
+                </select>
+            </div>
         </div>
     </div>
 
@@ -144,11 +151,14 @@ let beysData = [];
 let filteredBeys = [];
 let leaderboardData = {};
 let tournamentsData = {};
+let rpgStatsData = {};
+let archetypeMap = {}; // Lookup map for O(1) archetype access
 let activeFilters = {
     type: 'all',
     system: 'all',
     ratchet: 'all',
     bit: 'all',
+    archetype: 'all',
     tournamentWinnersOnly: false
 };
 
@@ -156,6 +166,12 @@ let activeFilters = {
 function normalizeBeyName(name) {
     if (!name) return '';
     return name.toLowerCase().replace(/[\s\-_]/g, '');
+}
+
+// Get archetype data for a bey (O(1) lookup after map is built)
+function getArchetypeData(beyBladeName) {
+    const normalizedBlade = normalizeBeyName(beyBladeName);
+    return archetypeMap[normalizedBlade] || null;
 }
 
 // Get ELO color class
@@ -230,6 +246,23 @@ async function loadAllData() {
             console.warn('Could not load tournaments data:', e);
         }
         
+        // Load RPG stats data for archetype information
+        try {
+            const rpgStatsResponse = await fetch('data/rpg_stats.json');
+            rpgStatsData = await rpgStatsResponse.json();
+            
+            // Build archetype lookup map for O(1) access
+            archetypeMap = {};
+            for (const [key, value] of Object.entries(rpgStatsData)) {
+                const normalizedKey = normalizeBeyName(key);
+                if (value.archetype) {
+                    archetypeMap[normalizedKey] = value.archetype;
+                }
+            }
+        } catch (e) {
+            console.warn('Could not load RPG stats data:', e);
+        }
+        
         filteredBeys = [...beysData];
         populateDynamicFilters();
         applyFilters();
@@ -243,15 +276,23 @@ async function loadAllData() {
 // Initialize data loading
 loadAllData();
 
-// Populate dynamic filters for ratchets and bits
+// Populate dynamic filters for ratchets, bits, and archetypes
 function populateDynamicFilters() {
     const ratchets = new Set();
     const bits = new Set();
+    const archetypes = new Map(); // Map to store archetype id -> name
     
     beysData.forEach(bey => {
         if (bey.ratchet) ratchets.add(bey.ratchet);
         if (bey.bit) bits.add(bey.bit);
         if (bey.ratchet_integrated_bit) bits.add(bey.ratchet_integrated_bit);
+        
+        // Get archetype for this bey using O(1) lookup
+        const archetypeData = getArchetypeData(bey.blade);
+        if (archetypeData && archetypeData.name) {
+            const archetypeId = archetypeData.id || archetypeData.name;
+            archetypes.set(archetypeId, archetypeData.name);
+        }
     });
     
     // Sort and add ratchet options
@@ -271,6 +312,17 @@ function populateDynamicFilters() {
         option.textContent = bit;
         bitSelect.appendChild(option);
     });
+    
+    // Sort and add archetype options
+    const archetypeSelect = document.getElementById('archetypeFilter');
+    Array.from(archetypes.entries())
+        .sort((a, b) => a[1].localeCompare(b[1]))
+        .forEach(([id, name]) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = name;
+            archetypeSelect.appendChild(option);
+        });
 }
 
 // Render beyblade cards
@@ -335,6 +387,18 @@ function renderBeys() {
             </div>`;
         }
         
+        // Generate archetype badge HTML
+        let archetypeHtml = '';
+        const archetypeData = getArchetypeData(bey.blade);
+        if (archetypeData && archetypeData.name) {
+            const categoryClass = archetypeData.category ? `archetype-category-${archetypeData.category}` : 'archetype-category-unknown';
+            archetypeHtml = `
+            <div class="wiki-card-archetype ${categoryClass}">
+                <span class="archetype-icon">${archetypeData.icon || '🎯'}</span>
+                <span class="archetype-name">${archetypeData.name}</span>
+            </div>`;
+        }
+        
         return `
         <div class="wiki-card wiki-card-clickable" data-type="${bey.type}" onclick="window.location.href='bey.html?name=${encodeURIComponent(bey.blade)}'">
             <div class="wiki-card-image">
@@ -348,6 +412,7 @@ function renderBeys() {
                 </div>
                 ${trophiesHtml}
                 ${bey.code ? `<p class="wiki-card-code ${lineClass}">${bey.code}</p>` : ''}
+                ${archetypeHtml}
                 ${statsHtml}
                 <p class="wiki-card-description">${bey.description}</p>
                 <div class="wiki-card-parts">
@@ -424,6 +489,17 @@ function applyFilters() {
             matchesBit = bey.bit === activeFilters.bit || bey.ratchet_integrated_bit === activeFilters.bit;
         }
         
+        // Archetype filter
+        let matchesArchetype = true;
+        if (activeFilters.archetype !== 'all') {
+            const archetypeData = getArchetypeData(bey.blade);
+            if (archetypeData && archetypeData.id) {
+                matchesArchetype = archetypeData.id === activeFilters.archetype;
+            } else {
+                matchesArchetype = false;
+            }
+        }
+        
         // Tournament Winners filter
         let matchesTournamentWinner = true;
         if (activeFilters.tournamentWinnersOnly) {
@@ -432,7 +508,7 @@ function applyFilters() {
             matchesTournamentWinner = trophies.length > 0;
         }
         
-        return matchesSearch && matchesType && matchesSystem && matchesRatchet && matchesBit && matchesTournamentWinner;
+        return matchesSearch && matchesType && matchesSystem && matchesRatchet && matchesBit && matchesArchetype && matchesTournamentWinner;
     });
     
     // Sort the filtered results by code
@@ -467,6 +543,11 @@ document.getElementById('ratchetFilter').addEventListener('change', (e) => {
 
 document.getElementById('bitFilter').addEventListener('change', (e) => {
     activeFilters.bit = e.target.value;
+    applyFilters();
+});
+
+document.getElementById('archetypeFilter').addEventListener('change', (e) => {
+    activeFilters.archetype = e.target.value;
     applyFilters();
 });
 

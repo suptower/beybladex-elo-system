@@ -2,6 +2,8 @@
 let allMatches = [];
 let filteredMatches = [];
 let beysData = [];
+let rpgStatsData = {};
+let archetypeMap = {}; // Lookup map for O(1) archetype access
 let roundsData = {}; // Mapping of match_id to rounds array
 let currentSort = { column: 0, asc: false }; // Default: Match ID descending (Match ID is now column index 0)
 let currentPage = 1;
@@ -79,9 +81,41 @@ async function loadBeysDataForFilters() {
     }
 }
 
+// Load RPG stats data for archetype filtering
+async function loadRpgStatsData() {
+    try {
+        const response = await fetch('data/rpg_stats.json');
+        rpgStatsData = await response.json();
+        
+        // Build archetype lookup map for O(1) access
+        archetypeMap = {};
+        for (const [key, value] of Object.entries(rpgStatsData)) {
+            const normalizedKey = normalizeBeyName(key);
+            if (value.archetype) {
+                archetypeMap[normalizedKey] = value.archetype;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading RPG stats data:', error);
+        rpgStatsData = {};
+    }
+}
+
 // Get bey info by name (blade name)
 function getBeyInfo(bladeName) {
     return beysData.find(b => b.blade === bladeName) || null;
+}
+
+// Helper function to normalize bey names for comparison
+function normalizeBeyName(name) {
+    if (!name) return '';
+    return name.toLowerCase().replace(/[\s\-_]/g, '');
+}
+
+// Get archetype data for a bey (O(1) lookup after map is built)
+function getArchetypeData(beyBladeName) {
+    const normalizedBlade = normalizeBeyName(beyBladeName);
+    return archetypeMap[normalizedBlade] || null;
 }
 
 // Finish type styling configuration
@@ -278,6 +312,26 @@ function populateFilters() {
         bitSelect.appendChild(option);
     });
     
+    // Archetype filter
+    const archetypes = new Map(); // Map to store archetype id -> name
+    beys.forEach(beyName => {
+        const archetypeData = getArchetypeData(beyName);
+        if (archetypeData && archetypeData.name) {
+            const archetypeId = archetypeData.id || archetypeData.name;
+            archetypes.set(archetypeId, archetypeData.name);
+        }
+    });
+    
+    const archetypeSelect = document.getElementById('archetypeFilter');
+    Array.from(archetypes.entries())
+        .sort((a, b) => a[1].localeCompare(b[1]))
+        .forEach(([id, name]) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = name;
+            archetypeSelect.appendChild(option);
+        });
+    
     // Season filter
     const seasons = [...new Set(allMatches.map(m => m.seasonId).filter(Boolean))].sort();
     const seasonSelect = document.getElementById('seasonFilter');
@@ -308,6 +362,7 @@ function getFilterValues() {
         blade: document.getElementById('bladeFilter').value,
         ratchet: document.getElementById('ratchetFilter').value,
         bit: document.getElementById('bitFilter').value,
+        archetype: document.getElementById('archetypeFilter').value,
         arena: document.getElementById('arenaFilter').value,
         minEloDiff: parseInt(document.getElementById('minEloDiff').value) || 0,
         maxEloDiff: parseInt(document.getElementById('maxEloDiff').value) || Infinity,
@@ -368,6 +423,22 @@ function applyFilters() {
             }
             
             if (!matchesPart) return false;
+        }
+        
+        // Archetype filter
+        if (filters.archetype !== 'all') {
+            let matchesArchetype = false;
+            const archetypeA = getArchetypeData(match.beyA);
+            const archetypeB = getArchetypeData(match.beyB);
+            
+            if (archetypeA && archetypeA.id === filters.archetype) {
+                matchesArchetype = true;
+            }
+            if (archetypeB && archetypeB.id === filters.archetype) {
+                matchesArchetype = true;
+            }
+            
+            if (!matchesArchetype) return false;
         }
         
         // Arena filter
@@ -1113,6 +1184,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load beys data first for part filtering
     await loadBeysDataForFilters();
     
+    // Load RPG stats data for archetype filtering
+    await loadRpgStatsData();
+    
     // Load rounds data before loading matches
     await loadRoundsData();
     
@@ -1126,6 +1200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('bladeFilter').addEventListener('change', applyFilters);
     document.getElementById('ratchetFilter').addEventListener('change', applyFilters);
     document.getElementById('bitFilter').addEventListener('change', applyFilters);
+    document.getElementById('archetypeFilter').addEventListener('change', applyFilters);
     document.getElementById('arenaFilter').addEventListener('change', applyFilters);
     document.getElementById('minEloDiff').addEventListener('input', applyFilters);
     document.getElementById('maxEloDiff').addEventListener('input', applyFilters);
