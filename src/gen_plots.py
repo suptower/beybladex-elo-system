@@ -282,6 +282,8 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
             ax = plt.gca()
             xlim = ax.get_xlim()
 
+            ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))  # Ensure x-axis shows integer match indices
+
             # Plot average line (dashed)
             plt.axhline(avg_pos, label=f'Average: #{int(round(avg_pos))}',
                         **AVERAGE_LINE_STYLE)

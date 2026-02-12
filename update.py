@@ -26,7 +26,6 @@ Pipeline Stages:
 
 3. Visualization (runs by default, use --skip-plots to skip)
    - Plot Generation (gen_plots.py)
-   - Position Plots (plot_positions.py)
 
 4. Export (optional, requires explicit flags)
    - PDF Leaderboard (export_leaderboard_pdf.py)
@@ -71,7 +70,6 @@ SCRIPT_STADIUM_STATS = "./src/stadium_stats.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
-SCRIPT_PLOT_POSITIONS = "./src/plot_positions.py"
 
 # Export
 SCRIPT_SHEETS_UPLOAD = "./src/sheets_upload.py"
@@ -398,14 +396,6 @@ def run_visualizations(verbose=False):
         stream_output=True
     )
     results.append(("Plot Generation", success, duration))
-
-    # Position plots
-    success, duration = run_script(
-        SCRIPT_PLOT_POSITIONS,
-        "Position Plots",
-        verbose=verbose
-    )
-    results.append(("Position Plots", success, duration))
 
     return results
 
