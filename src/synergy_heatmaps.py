@@ -38,10 +38,11 @@ SYNERGY_WEIGHTS = {
 
 # Finish type quality scores (higher = better finish)
 FINISH_QUALITY = {
-    "extreme": 1.0,   # 3 points - best finish
-    "burst": 0.8,     # 2 points - strong finish
-    "pocket": 0.6,    # 2 points - good finish
-    "spin": 0.4       # 1 point - standard finish
+    "extreme": 1.0,        # 3 points - best finish
+    "burst": 0.8,          # 2 points - strong finish
+    "stadium_exit": 0.7,   # 2 points - strong finish
+    "pocket": 0.6,         # 2 points - good finish
+    "spin": 0.4            # 1 point - standard finish
 }
 
 # Stat complementarity constants

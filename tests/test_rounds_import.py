@@ -43,6 +43,10 @@ class TestValidFinishTypes:
         """extreme should be a valid finish type."""
         assert "extreme" in VALID_FINISH_TYPES
 
+    def test_valid_finish_types_contains_stadium_exit(self):
+        """stadium_exit should be a valid finish type."""
+        assert "stadium_exit" in VALID_FINISH_TYPES
+
     def test_default_finish_type_is_spin(self):
         """Default finish type should be spin."""
         assert DEFAULT_FINISH_TYPE == "spin"
@@ -63,6 +67,7 @@ class TestLoadFinishWeights:
         assert weights.get("spin") == 1
         assert weights.get("pocket") == 2
         assert weights.get("burst") == 2
+        assert weights.get("stadium_exit") == 2
         assert weights.get("extreme") == 3
 
     def test_load_missing_config(self):
