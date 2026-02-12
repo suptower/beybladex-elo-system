@@ -152,6 +152,7 @@ let filteredBeys = [];
 let leaderboardData = {};
 let tournamentsData = {};
 let rpgStatsData = {};
+let archetypeMap = {}; // Lookup map for O(1) archetype access
 let activeFilters = {
     type: 'all',
     system: 'all',
@@ -167,15 +168,10 @@ function normalizeBeyName(name) {
     return name.toLowerCase().replace(/[\s\-_]/g, '');
 }
 
-// Get archetype data for a bey
+// Get archetype data for a bey (O(1) lookup after map is built)
 function getArchetypeData(beyBladeName) {
     const normalizedBlade = normalizeBeyName(beyBladeName);
-    for (const [key, value] of Object.entries(rpgStatsData)) {
-        if (normalizeBeyName(key) === normalizedBlade) {
-            return value.archetype || null;
-        }
-    }
-    return null;
+    return archetypeMap[normalizedBlade] || null;
 }
 
 // Get ELO color class
@@ -254,6 +250,15 @@ async function loadAllData() {
         try {
             const rpgStatsResponse = await fetch('data/rpg_stats.json');
             rpgStatsData = await rpgStatsResponse.json();
+            
+            // Build archetype lookup map for O(1) access
+            archetypeMap = {};
+            for (const [key, value] of Object.entries(rpgStatsData)) {
+                const normalizedKey = normalizeBeyName(key);
+                if (value.archetype) {
+                    archetypeMap[normalizedKey] = value.archetype;
+                }
+            }
         } catch (e) {
             console.warn('Could not load RPG stats data:', e);
         }
@@ -282,16 +287,11 @@ function populateDynamicFilters() {
         if (bey.bit) bits.add(bey.bit);
         if (bey.ratchet_integrated_bit) bits.add(bey.ratchet_integrated_bit);
         
-        // Get archetype for this bey
-        const normalizedBlade = normalizeBeyName(bey.blade);
-        for (const [key, value] of Object.entries(rpgStatsData)) {
-            if (normalizeBeyName(key) === normalizedBlade) {
-                if (value.archetype && value.archetype.name) {
-                    const archetypeId = value.archetype.id || value.archetype.name;
-                    archetypes.set(archetypeId, value.archetype.name);
-                }
-                break;
-            }
+        // Get archetype for this bey using O(1) lookup
+        const archetypeData = getArchetypeData(bey.blade);
+        if (archetypeData && archetypeData.name) {
+            const archetypeId = archetypeData.id || archetypeData.name;
+            archetypes.set(archetypeId, archetypeData.name);
         }
     });
     

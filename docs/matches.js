@@ -3,6 +3,7 @@ let allMatches = [];
 let filteredMatches = [];
 let beysData = [];
 let rpgStatsData = {};
+let archetypeMap = {}; // Lookup map for O(1) archetype access
 let roundsData = {}; // Mapping of match_id to rounds array
 let currentSort = { column: 0, asc: false }; // Default: Match ID descending (Match ID is now column index 0)
 let currentPage = 1;
@@ -85,6 +86,15 @@ async function loadRpgStatsData() {
     try {
         const response = await fetch('data/rpg_stats.json');
         rpgStatsData = await response.json();
+        
+        // Build archetype lookup map for O(1) access
+        archetypeMap = {};
+        for (const [key, value] of Object.entries(rpgStatsData)) {
+            const normalizedKey = normalizeBeyName(key);
+            if (value.archetype) {
+                archetypeMap[normalizedKey] = value.archetype;
+            }
+        }
     } catch (error) {
         console.error('Error loading RPG stats data:', error);
         rpgStatsData = {};
@@ -102,15 +112,10 @@ function normalizeBeyName(name) {
     return name.toLowerCase().replace(/[\s\-_]/g, '');
 }
 
-// Get archetype data for a bey
+// Get archetype data for a bey (O(1) lookup after map is built)
 function getArchetypeData(beyBladeName) {
     const normalizedBlade = normalizeBeyName(beyBladeName);
-    for (const [key, value] of Object.entries(rpgStatsData)) {
-        if (normalizeBeyName(key) === normalizedBlade) {
-            return value.archetype || null;
-        }
-    }
-    return null;
+    return archetypeMap[normalizedBlade] || null;
 }
 
 // Finish type styling configuration
