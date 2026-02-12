@@ -14,7 +14,7 @@ class TestDynamicYticks:
         """Test yticks for a small position range."""
         # Range of 4 positions (27-30)
         yticks = generate_dynamic_yticks(27, 30, 43)
-        
+
         # Should include 1 (always), min, max, and positions in between
         assert 1 in yticks
         assert 27 in yticks
@@ -26,7 +26,7 @@ class TestDynamicYticks:
         """Test yticks for a medium position range."""
         # Range of 16 positions (1-17)
         yticks = generate_dynamic_yticks(1, 17, 43)
-        
+
         # Should include 1 (best position), max, and intermediate values
         assert 1 in yticks
         assert 17 in yticks
@@ -39,7 +39,7 @@ class TestDynamicYticks:
         """Test yticks for a large position range."""
         # Range of 39 positions (4-43)
         yticks = generate_dynamic_yticks(4, 43, 43)
-        
+
         # Should include 1 (always), min, max
         assert 1 in yticks
         assert 4 in yticks
@@ -53,7 +53,7 @@ class TestDynamicYticks:
         """Test yticks when bey has visited all positions."""
         # Full range from 1 to 43
         yticks = generate_dynamic_yticks(1, 43, 43)
-        
+
         # Should include 1 and 43
         assert 1 in yticks
         assert 43 in yticks
@@ -64,7 +64,7 @@ class TestDynamicYticks:
         """Test yticks for positions that don't start at 1."""
         # Range from 17-33 (medium-low tier beys)
         yticks = generate_dynamic_yticks(17, 33, 43)
-        
+
         # Should always include position 1 for reference
         assert 1 in yticks
         # Should include actual min and max
@@ -87,7 +87,7 @@ class TestDynamicYticks:
         """Test yticks for very small range (e.g., 3 positions)."""
         # Range of 3 positions
         yticks = generate_dynamic_yticks(27, 30, 43)
-        
+
         # Should include 1, and all positions in the range
         assert 1 in yticks
         assert 27 in yticks
@@ -98,7 +98,7 @@ class TestDynamicYticks:
         """Test yticks for beys that only exist in high (bad) positions."""
         # Range from 35-42
         yticks = generate_dynamic_yticks(35, 42, 43)
-        
+
         # Should include 1 for reference
         assert 1 in yticks
         # Should include the actual range
@@ -111,7 +111,7 @@ class TestDynamicYticks:
         """Test yticks for consistently top-performing beys."""
         # Range from 1-5 (very good bey)
         yticks = generate_dynamic_yticks(1, 5, 43)
-        
+
         # Should include all positions in this small range
         assert 1 in yticks
         assert 5 in yticks
