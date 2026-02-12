@@ -38,9 +38,10 @@ function shuffleArray(array) {
 // FINISH TYPES (for round-level data)
 // ============================================
 const FINISH_TYPES = {
-    SPIN: { id: 'spin', label: 'Spin', points: 1, emoji: '🌀' },
+    SPIN: { id: 'spin', label: 'Spin', points: 1, emoji: '🔄' },
     BURST: { id: 'burst', label: 'Burst', points: 2, emoji: '💥' },
     POCKET: { id: 'pocket', label: 'Pocket', points: 2, emoji: '🎯' },
+    STADIUM_EXIT: { id: 'stadium_exit', label: 'Stadium Exit', points: 2, emoji: '🥏' },
     EXTREME: { id: 'extreme', label: 'Extreme', points: 3, emoji: '⚡' }
 };
 
@@ -1228,7 +1229,7 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
     
     // Build finish type predictions
     const finishIcons = {
-        spin: '🌀',
+        spin: '🔄',
         burst: '💥',
         pocket: '🎯',
         extreme: '⚡'
@@ -1484,16 +1485,18 @@ function renderQuickAddButtons(matchIndex, match) {
         <div class="quick-add-rounds">
             <div class="quick-add-group">
                 <span class="quick-add-label">${beyAName} wins:</span>
-                <button class="quick-add-btn spin-a" onclick="addRound(${matchIndex}, 'A', 'spin')" title="Spin Finish (+1)">🌀</button>
+                <button class="quick-add-btn spin-a" onclick="addRound(${matchIndex}, 'A', 'spin')" title="Spin Finish (+1)">🔄</button>
                 <button class="quick-add-btn burst-a" onclick="addRound(${matchIndex}, 'A', 'burst')" title="Burst Finish (+2)">💥</button>
                 <button class="quick-add-btn pocket-a" onclick="addRound(${matchIndex}, 'A', 'pocket')" title="Pocket Finish (+2)">🎯</button>
+                <button class="quick-add-btn stadium-exit-a" onclick="addRound(${matchIndex}, 'A', 'stadium_exit')" title="Stadium Exit (+2)">🥏</button>
                 <button class="quick-add-btn extreme-a" onclick="addRound(${matchIndex}, 'A', 'extreme')" title="Extreme Finish (+3)">⚡</button>
             </div>
             <div class="quick-add-group">
                 <span class="quick-add-label">${beyBName} wins:</span>
-                <button class="quick-add-btn spin-b" onclick="addRound(${matchIndex}, 'B', 'spin')" title="Spin Finish (+1)">🌀</button>
+                <button class="quick-add-btn spin-b" onclick="addRound(${matchIndex}, 'B', 'spin')" title="Spin Finish (+1)">🔄</button>
                 <button class="quick-add-btn burst-b" onclick="addRound(${matchIndex}, 'B', 'burst')" title="Burst Finish (+2)">💥</button>
                 <button class="quick-add-btn pocket-b" onclick="addRound(${matchIndex}, 'B', 'pocket')" title="Pocket Finish (+2)">🎯</button>
+                <button class="quick-add-btn stadium-exit-b" onclick="addRound(${matchIndex}, 'B', 'stadium_exit')" title="Stadium Exit (+2)">🥏</button>
                 <button class="quick-add-btn extreme-b" onclick="addRound(${matchIndex}, 'B', 'extreme')" title="Extreme Finish (+3)">⚡</button>
             </div>
         </div>
@@ -1606,9 +1609,10 @@ function renderMatchTable() {
                         <div class="rounds-panel-header">
                             <h4>Rounds for Match ${match.matchNumber}</h4>
                             <div class="finish-legend">
-                                <span>🌀 Spin (+1)</span>
+                                <span>🔄 Spin (+1)</span>
                                 <span>💥 Burst (+2)</span>
                                 <span>🎯 Pocket (+2)</span>
+                                <span>🥏 Stadium Exit (+2)</span>
                                 <span>⚡ Extreme (+3)</span>
                             </div>
                         </div>

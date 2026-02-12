@@ -173,6 +173,7 @@ class TestCalculateAttackStat:
         metrics = {
             "burst_finish_rate": 0.5,
             "pocket_finish_rate": 0.3,
+            "stadium_exit_finish_rate": 0.1,
             "extreme_finish_rate": 0.2,
             "offensive_point_efficiency": 2.0,
             "opening_dominance": 0.8,
@@ -182,6 +183,7 @@ class TestCalculateAttackStat:
             {
                 "burst_finish_rate": 0.1,
                 "pocket_finish_rate": 0.1,
+                "stadium_exit_finish_rate": 0.0,
                 "extreme_finish_rate": 0.0,
                 "offensive_point_efficiency": 1.0,
                 "opening_dominance": 0.2,
@@ -195,6 +197,7 @@ class TestCalculateAttackStat:
         metrics = {
             "burst_finish_rate": 0.0,
             "pocket_finish_rate": 0.0,
+            "stadium_exit_finish_rate": 0.0,
             "extreme_finish_rate": 0.0,
             "offensive_point_efficiency": 1.0,
             "opening_dominance": 0.0,
@@ -204,6 +207,7 @@ class TestCalculateAttackStat:
             {
                 "burst_finish_rate": 0.5,
                 "pocket_finish_rate": 0.3,
+                "stadium_exit_finish_rate": 0.1,
                 "extreme_finish_rate": 0.2,
                 "offensive_point_efficiency": 2.0,
                 "opening_dominance": 0.8,
@@ -217,6 +221,7 @@ class TestCalculateAttackStat:
         metrics = {
             "burst_finish_rate": 0.3,
             "pocket_finish_rate": 0.2,
+            "stadium_exit_finish_rate": 0.05,
             "extreme_finish_rate": 0.1,
             "offensive_point_efficiency": 1.5,
             "opening_dominance": 0.5,
@@ -234,6 +239,7 @@ class TestCalculateDefenseStat:
         metrics = {
             "burst_resistance": 1.0,
             "pocket_resistance": 1.0,
+            "stadium_exit_resistance": 1.0,
             "extreme_resistance": 1.0,
             "defensive_conversion": 0.8,
         }
@@ -242,6 +248,7 @@ class TestCalculateDefenseStat:
             {
                 "burst_resistance": 0.5,
                 "pocket_resistance": 0.5,
+                "stadium_exit_resistance": 0.5,
                 "extreme_resistance": 0.5,
                 "defensive_conversion": 0.2,
             },
@@ -254,6 +261,7 @@ class TestCalculateDefenseStat:
         metrics = {
             "burst_resistance": 0.7,
             "pocket_resistance": 0.7,
+            "stadium_exit_resistance": 0.8,
             "extreme_resistance": 0.8,
             "defensive_conversion": 0.5,
         }

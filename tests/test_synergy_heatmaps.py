@@ -61,7 +61,7 @@ class TestFinishQualityScores:
 
     def test_required_finish_types(self):
         """Should have all required finish types."""
-        required = {"extreme", "burst", "pocket", "spin"}
+        required = {"extreme", "burst", "pocket", "stadium_exit", "spin"}
         assert required == set(FINISH_QUALITY.keys())
 
 
