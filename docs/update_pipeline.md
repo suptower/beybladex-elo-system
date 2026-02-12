@@ -46,7 +46,6 @@ The pipeline is organized into four main stages that run in order:
 | Script | Description | Output Files |
 |--------|-------------|--------------|
 | `gen_plots.py` | ELO trends, heatmaps, bar charts | `docs/plots/` directory |
-| `plot_positions.py` | Position timeline plots | `docs/plots/positions/` directory |
 
 ### Stage 4: Exports (Optional)
 
