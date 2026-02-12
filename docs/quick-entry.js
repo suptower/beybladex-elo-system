@@ -3059,7 +3059,7 @@ function enterFullscreenMatch(matchIndex) {
         </div>
     `;
     
-    // Close hamburger menu if open (prevent z-index conflicts)
+    // Close hamburger menu if open to ensure clean state before entering fullscreen
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('navMenu');
     if (hamburger && navMenu && hamburger.classList.contains('active')) {

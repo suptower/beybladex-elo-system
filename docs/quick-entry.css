@@ -2461,7 +2461,9 @@ body.dark .season-row.relegation-zone:hover {
     }
 }
 
-/* Hide header when fullscreen overlay is active to prevent hamburger menu conflicts */
+/* Hide header when fullscreen overlay is active to prevent hamburger menu conflicts
+   Note: :has() requires modern browsers (Chrome 105+, Safari 15.4+, Firefox 121+)
+   Gracefully degrades - older browsers will still have functional fullscreen with exit button */
 body:has(.fullscreen-match-overlay.active) header {
     pointer-events: none;
     visibility: hidden;
