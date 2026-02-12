@@ -10,6 +10,10 @@ from plot_styles import calculate_dynamic_plot_dimensions
 class TestDynamicPlotDimensions:
     """Tests for dynamic plot dimension calculation."""
 
+    # Maximum reasonable visible range for small data ranges
+    MAX_VISIBLE_RANGE_SMALL = 10
+    MAX_VISIBLE_RANGE_TOP = 10
+
     def test_small_range(self):
         """Test dimensions for a small position range."""
         # Range of 3 positions (27-30)
@@ -20,9 +24,9 @@ class TestDynamicPlotDimensions:
         # Y-limits should be close to data range with small padding
         assert ylim_max < 27
         assert ylim_min > 30
-        # Visible range should be reasonable
+        # Visible range should be reasonable (data + padding shouldn't exceed threshold)
         visible_range = ylim_min - ylim_max
-        assert visible_range < 10
+        assert visible_range < self.MAX_VISIBLE_RANGE_SMALL
 
     def test_top_positions(self):
         """Test dimensions for top-tier positions (1-5)."""
@@ -34,7 +38,7 @@ class TestDynamicPlotDimensions:
         assert height >= 3.0
         # Should show small range
         visible_range = ylim_min - ylim_max
-        assert visible_range < 10
+        assert visible_range < self.MAX_VISIBLE_RANGE_TOP
 
     def test_mid_range_positions(self):
         """Test dimensions for mid-range positions."""
