@@ -44,7 +44,8 @@ def plot_position_timeseries_clean(csv_path="./docs/data/position_timeseries.csv
         # Calculate dynamic plot dimensions based on actual position range
         min_pos = bey_data["Position"].min()
         max_pos = bey_data["Position"].max()
-        height, ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
+        height = max_rank * 0.15
+        ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
 
         # Create plot
         plt.figure(figsize=(6, height))

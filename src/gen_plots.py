@@ -268,7 +268,8 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
         # Calculate dynamic plot dimensions based on actual position range
         min_pos = group["Position"].min()
         max_pos = group["Position"].max()
-        height, ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
+        height = max_rank * 0.15
+        ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
 
         plt.figure(figsize=(6, height))
         plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2, label="Position History")
