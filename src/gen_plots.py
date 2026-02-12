@@ -12,8 +12,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
-from plot_styles import configure_light_mode, configure_dark_mode, generate_dynamic_yticks, calculate_dynamic_plot_dimensions
-
+from plot_styles import configure_light_mode, configure_dark_mode
+from plot_styles import generate_dynamic_yticks, calculate_dynamic_plot_dimensions
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 

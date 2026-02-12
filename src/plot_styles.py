@@ -173,8 +173,4 @@ def calculate_dynamic_plot_dimensions(min_pos, max_pos):
     if min_pos <= 5:
         ylim_max = 0.5
 
-    # Calculate height based on the visible range
-    visible_range = ylim_min - ylim_max
-
-
     return ylim_max, ylim_min
