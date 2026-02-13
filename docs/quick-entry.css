@@ -2454,8 +2454,8 @@ body.dark .season-row.relegation-zone:hover {
     margin-bottom: 1rem;
 }
 
-/* Show fullscreen button only on mobile */
-@media (min-width: 769px) {
+/* Show fullscreen button only on mobile and tablet devices, hide on desktop */
+@media (min-width: 1025px) {
     .match-card-fullscreen-btn {
         display: none;
     }
