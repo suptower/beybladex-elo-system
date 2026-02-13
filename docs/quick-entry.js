@@ -45,6 +45,9 @@ const FINISH_TYPES = {
     EXTREME: { id: 'extreme', label: 'Extreme', points: 3, emoji: '⚡' }
 };
 
+// Fallback image for missing bey images (SVG placeholder)
+const BEY_IMAGE_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23444'/%3E%3Ctext x='50' y='50' text-anchor='middle' dominant-baseline='middle' fill='white' font-size='40'%3E?%3C/text%3E%3C/svg%3E";
+
 // ============================================
 // ELO CALCULATION CONSTANTS
 // ============================================
@@ -3196,14 +3199,15 @@ function openBeyPicker(matchIndex, player) {
                 ${sortedBeys.map(bey => {
                     const imagePath = `./data/beys/${bey.name}.png`;
                     const isSelected = currentSelection === bey.name;
+                    const escapedName = escapeHtml(bey.name);
                     return `
                         <div class="bey-picker-item ${isSelected ? 'selected' : ''}" 
-                             onclick="selectBeyFromPicker(${matchIndex}, '${player}', '${escapeHtml(bey.name)}')"
-                             data-bey-name="${escapeHtml(bey.name).toLowerCase()}">
+                             onclick="selectBeyFromPicker(${matchIndex}, '${player}', '${bey.name}')"
+                             data-bey-name="${escapedName.toLowerCase()}">
                             <div class="bey-picker-item-image">
-                                <img src="${imagePath}" alt="${escapeHtml(bey.name)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'%3E%3Crect width=\\'100\\' height=\\'100\\' fill=\\'%23444\\'/%3E%3Ctext x=\\'50\\' y=\\'50\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' fill=\\'white\\' font-size=\\'40\\'%3E?%3C/text%3E%3C/svg%3E'">
+                                <img src="${imagePath}" alt="${escapedName}" onerror="this.src='${BEY_IMAGE_FALLBACK}'">
                             </div>
-                            <div class="bey-picker-item-name">${escapeHtml(bey.name)}</div>
+                            <div class="bey-picker-item-name">${escapedName}</div>
                             ${isSelected ? '<div class="bey-picker-item-check">✓</div>' : ''}
                         </div>
                     `;
