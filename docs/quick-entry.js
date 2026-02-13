@@ -3114,17 +3114,38 @@ function renderFullscreenQuickAddButtons(matchIndex, match) {
     return `
         <div class="fullscreen-quick-add">
             ${Object.values(FINISH_TYPES).map(finish => `
-                <button class="fullscreen-quick-add-btn" onclick="addRound(${matchIndex}, 'A', '${finish.id}'); updateFullscreenRounds(${matchIndex});">
+                <button class="fullscreen-quick-add-btn" onclick="handleFullscreenRoundClick(this, ${matchIndex}, 'A', '${finish.id}');">
                     <span class="btn-player">${beyAName}</span>
                     <span class="btn-finish">${finish.emoji} ${finish.label}</span>
                 </button>
-                <button class="fullscreen-quick-add-btn" onclick="addRound(${matchIndex}, 'B', '${finish.id}'); updateFullscreenRounds(${matchIndex});">
+                <button class="fullscreen-quick-add-btn" onclick="handleFullscreenRoundClick(this, ${matchIndex}, 'B', '${finish.id}');">
                     <span class="btn-player">${beyBName}</span>
                     <span class="btn-finish">${finish.emoji} ${finish.label}</span>
                 </button>
             `).join('')}
         </div>
     `;
+}
+
+/**
+ * Handle fullscreen round button click with visual feedback
+ */
+function handleFullscreenRoundClick(button, matchIndex, winner, finishType) {
+    // Add success class for visual feedback
+    button.classList.add('btn-success');
+    
+    // Add the round
+    addRound(matchIndex, winner, finishType);
+    
+    // Remove success class after animation completes
+    setTimeout(() => {
+        button.classList.remove('btn-success');
+    }, 400);
+    
+    // Update fullscreen view after a brief delay to show the feedback
+    setTimeout(() => {
+        updateFullscreenRounds(matchIndex);
+    }, 100);
 }
 
 /**
