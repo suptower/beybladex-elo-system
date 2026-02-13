@@ -6,19 +6,20 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "bey_count": 4,
+      "bey_count": 5,
       "beys": [
         "ImpactDrake",
         "TuskMammoth",
         "GolemRock",
-        "KnightMail"
+        "KnightMail",
+        "SamuraiSaber"
       ],
-      "avg_elo": 1084.25,
-      "elo_std": 43.12,
-      "avg_winrate": 0.6702,
-      "avg_dominance": 1.07,
-      "upset_rate": 0.197,
-      "total_matches": 66
+      "avg_elo": 1045.8,
+      "elo_std": 97.8,
+      "avg_winrate": 0.6132,
+      "avg_dominance": 0.25,
+      "upset_rate": 0.1831,
+      "total_matches": 71
     },
     "adaptive_fighter": {
       "id": "adaptive_fighter",
@@ -30,18 +31,36 @@
       "beys": [
         "FoxBrush",
         "ScorpioSpear",
-        "DranSword",
+        "LeonCrest",
         "WeissTiger",
+        "DranSword",
         "LeonClaw",
-        "ViperTail",
         "DranDagger"
       ],
-      "avg_elo": 1032.29,
-      "elo_std": 37.95,
-      "avg_winrate": 0.5727,
-      "avg_dominance": 0.31,
-      "upset_rate": 0.2899,
-      "total_matches": 69
+      "avg_elo": 1043.57,
+      "elo_std": 32.9,
+      "avg_winrate": 0.5983,
+      "avg_dominance": 0.5,
+      "upset_rate": 0.3636,
+      "total_matches": 77
+    },
+    "meta_anchor": {
+      "id": "meta_anchor",
+      "name": "Meta Anchor",
+      "category": "balance",
+      "icon": "\u2b50",
+      "color": "#eab308",
+      "bey_count": 2,
+      "beys": [
+        "CobaltDragoon",
+        "PhoenixWing"
+      ],
+      "avg_elo": 1034.5,
+      "elo_std": 57.28,
+      "avg_winrate": 0.5556,
+      "avg_dominance": 0.36,
+      "upset_rate": 0.3913,
+      "total_matches": 23
     },
     "counter_shield": {
       "id": "counter_shield",
@@ -54,29 +73,36 @@
         "SharkScale",
         "ValkyrieVolt"
       ],
-      "avg_elo": 1068,
-      "elo_std": 19.8,
-      "avg_winrate": 0.7692,
-      "avg_dominance": 2.49,
-      "upset_rate": 0.2353,
-      "total_matches": 17
+      "avg_elo": 1072,
+      "elo_std": 1.41,
+      "avg_winrate": 0.7333,
+      "avg_dominance": 2.25,
+      "upset_rate": 0.1905,
+      "total_matches": 21
     },
-    "meta_anchor": {
-      "id": "meta_anchor",
-      "name": "Meta Anchor",
-      "category": "balance",
-      "icon": "\u2b50",
-      "color": "#eab308",
-      "bey_count": 1,
+    "endurance_core": {
+      "id": "endurance_core",
+      "name": "Endurance Core",
+      "category": "stamina",
+      "icon": "\ud83d\udcaa",
+      "color": "#10b981",
+      "bey_count": 8,
       "beys": [
-        "CobaltDragoon"
+        "CerberusFlame",
+        "WyvernHover",
+        "HellsChain",
+        "WizardRod",
+        "WhaleFlame",
+        "WizardArc",
+        "HellsHammer",
+        "WizardArrow"
       ],
-      "avg_elo": 1081,
-      "elo_std": 0,
-      "avg_winrate": 0.7059,
-      "avg_dominance": 1.71,
-      "upset_rate": 0.1538,
-      "total_matches": 13
+      "avg_elo": 958.88,
+      "elo_std": 51.95,
+      "avg_winrate": 0.3704,
+      "avg_dominance": -1.27,
+      "upset_rate": 0.2778,
+      "total_matches": 36
     },
     "iron_wall": {
       "id": "iron_wall",
@@ -84,23 +110,20 @@
       "category": "defense",
       "icon": "\ud83d\udee1\ufe0f",
       "color": "#3b82f6",
-      "bey_count": 8,
+      "bey_count": 5,
       "beys": [
-        "LeonCrest",
         "PerseusDark",
-        "HellsReaper",
         "DranBrave",
-        "PhoenixWing",
-        "SilverWolf",
-        "PhoenixRudder",
-        "BlackShell"
+        "HellsReaper",
+        "SharkEdge",
+        "PhoenixRudder"
       ],
-      "avg_elo": 1000.12,
-      "elo_std": 39.0,
-      "avg_winrate": 0.4727,
-      "avg_dominance": -0.4,
-      "upset_rate": 0.6545,
-      "total_matches": 55
+      "avg_elo": 1004,
+      "elo_std": 28.43,
+      "avg_winrate": 0.4937,
+      "avg_dominance": -0.23,
+      "upset_rate": 0.55,
+      "total_matches": 40
     },
     "spin_tank": {
       "id": "spin_tank",
@@ -110,38 +133,15 @@
       "color": "#14b8a6",
       "bey_count": 2,
       "beys": [
-        "WyvernHover",
-        "RhinoReaper"
+        "RhinoReaper",
+        "SilverWolf"
       ],
-      "avg_elo": 1022.5,
-      "elo_std": 20.51,
-      "avg_winrate": 0.5789,
-      "avg_dominance": 0.69,
-      "upset_rate": 0.5455,
-      "total_matches": 11
-    },
-    "endurance_core": {
-      "id": "endurance_core",
-      "name": "Endurance Core",
-      "category": "stamina",
-      "icon": "\ud83d\udcaa",
-      "color": "#10b981",
-      "bey_count": 7,
-      "beys": [
-        "CerberusFlame",
-        "HellsChain",
-        "WizardRod",
-        "WhaleFlame",
-        "WizardArc",
-        "HellsHammer",
-        "WizardArrow"
-      ],
-      "avg_elo": 950.71,
-      "elo_std": 48.38,
-      "avg_winrate": 0.3425,
-      "avg_dominance": -1.54,
-      "upset_rate": 0.2759,
-      "total_matches": 29
+      "avg_elo": 991.5,
+      "elo_std": 14.85,
+      "avg_winrate": 0.4483,
+      "avg_dominance": -0.31,
+      "upset_rate": 0.6154,
+      "total_matches": 13
     },
     "glass_cannon": {
       "id": "glass_cannon",
@@ -149,40 +149,21 @@
       "category": "offense",
       "icon": "\ud83d\udca5",
       "color": "#ef4444",
-      "bey_count": 7,
+      "bey_count": 6,
       "beys": [
-        "UnicornSting",
         "SolEclipse",
+        "UnicornSting",
         "DranBuster",
         "WhaleWave",
-        "CrimsonGaruda",
-        "PegasusBlast",
-        "SamuraiSaber"
+        "CobaltDrake",
+        "PegasusBlast"
       ],
-      "avg_elo": 953.71,
-      "elo_std": 36.56,
-      "avg_winrate": 0.35,
-      "avg_dominance": -1.14,
-      "upset_rate": 0.4444,
-      "total_matches": 36
-    },
-    "berserker": {
-      "id": "berserker",
-      "name": "Berserker",
-      "category": "offense",
-      "icon": "\u2694\ufe0f",
-      "color": "#dc2626",
-      "bey_count": 2,
-      "beys": [
-        "SharkEdge",
-        "CobaltDrake"
-      ],
-      "avg_elo": 967,
-      "elo_std": 25.46,
-      "avg_winrate": 0.3913,
-      "avg_dominance": -1.36,
-      "upset_rate": 0.5,
-      "total_matches": 10
+      "avg_elo": 964,
+      "elo_std": 26.62,
+      "avg_winrate": 0.3692,
+      "avg_dominance": -1.08,
+      "upset_rate": 0.4194,
+      "total_matches": 31
     },
     "chaser": {
       "id": "chaser",
@@ -190,55 +171,231 @@
       "category": "offense",
       "icon": "\ud83c\udfaf",
       "color": "#f97316",
-      "bey_count": 1,
+      "bey_count": 3,
       "beys": [
+        "ViperTail",
+        "CrimsonGaruda",
         "TyrannoBeat"
       ],
-      "avg_elo": 933,
-      "elo_std": 0,
-      "avg_winrate": 0.2222,
-      "avg_dominance": -1.67,
-      "upset_rate": 0.0,
-      "total_matches": 3
+      "avg_elo": 963,
+      "elo_std": 32.79,
+      "avg_winrate": 0.3902,
+      "avg_dominance": -0.85,
+      "upset_rate": 0.5556,
+      "total_matches": 18
     }
   },
   "matchup_matrix": {
-    "adaptive_fighter": {
+    "chaser": {
       "endurance_core": {
-        "winrate": 0.75,
-        "wins": 12,
+        "winrate": 0.6667,
+        "wins": 8,
         "losses": 4,
-        "total": 16
+        "total": 12
       },
-      "glass_cannon": {
-        "winrate": 0.7619,
-        "wins": 16,
+      "adaptive_fighter": {
+        "winrate": 0.3333,
+        "wins": 4,
+        "losses": 8,
+        "total": 12
+      },
+      "tempo_controller": {
+        "winrate": 0.0,
+        "wins": 0,
         "losses": 5,
-        "total": 21
-      },
-      "spin_tank": {
-        "winrate": 0.6,
-        "wins": 3,
-        "losses": 2,
         "total": 5
       },
       "iron_wall": {
-        "winrate": 0.5909,
-        "wins": 13,
+        "winrate": 0.3333,
+        "wins": 1,
+        "losses": 2,
+        "total": 3
+      },
+      "spin_tank": {
+        "winrate": 0.5,
+        "wins": 1,
+        "losses": 1,
+        "total": 2
+      },
+      "glass_cannon": {
+        "winrate": 0.375,
+        "wins": 3,
+        "losses": 5,
+        "total": 8
+      },
+      "chaser": {
+        "winrate": 0.5,
+        "wins": 1,
+        "losses": 1,
+        "total": 2
+      },
+      "counter_shield": {
+        "winrate": 0.0,
+        "wins": 0,
+        "losses": 1,
+        "total": 1
+      },
+      "meta_anchor": {
+        "winrate": 0.0,
+        "wins": 0,
+        "losses": 1,
+        "total": 1
+      }
+    },
+    "endurance_core": {
+      "chaser": {
+        "winrate": 0.3333,
+        "wins": 4,
+        "losses": 8,
+        "total": 12
+      },
+      "adaptive_fighter": {
+        "winrate": 0.4118,
+        "wins": 7,
+        "losses": 10,
+        "total": 17
+      },
+      "meta_anchor": {
+        "winrate": 0.4286,
+        "wins": 3,
+        "losses": 4,
+        "total": 7
+      },
+      "spin_tank": {
+        "winrate": 0.5,
+        "wins": 4,
+        "losses": 4,
+        "total": 8
+      },
+      "iron_wall": {
+        "winrate": 0.3571,
+        "wins": 5,
         "losses": 9,
-        "total": 22
+        "total": 14
+      },
+      "glass_cannon": {
+        "winrate": 0.3846,
+        "wins": 5,
+        "losses": 8,
+        "total": 13
       },
       "tempo_controller": {
-        "winrate": 0.3077,
-        "wins": 8,
-        "losses": 18,
-        "total": 26
+        "winrate": 0.3,
+        "wins": 3,
+        "losses": 7,
+        "total": 10
+      },
+      "endurance_core": {
+        "winrate": 0.5,
+        "wins": 3,
+        "losses": 3,
+        "total": 6
+      },
+      "counter_shield": {
+        "winrate": 0.0,
+        "wins": 0,
+        "losses": 2,
+        "total": 2
+      }
+    },
+    "tempo_controller": {
+      "tempo_controller": {
+        "winrate": 0.5,
+        "wins": 14,
+        "losses": 14,
+        "total": 28
+      },
+      "adaptive_fighter": {
+        "winrate": 0.6562,
+        "wins": 21,
+        "losses": 11,
+        "total": 32
+      },
+      "chaser": {
+        "winrate": 1.0,
+        "wins": 5,
+        "losses": 0,
+        "total": 5
+      },
+      "iron_wall": {
+        "winrate": 0.6471,
+        "wins": 11,
+        "losses": 6,
+        "total": 17
+      },
+      "glass_cannon": {
+        "winrate": 0.625,
+        "wins": 5,
+        "losses": 3,
+        "total": 8
+      },
+      "endurance_core": {
+        "winrate": 0.7,
+        "wins": 7,
+        "losses": 3,
+        "total": 10
+      },
+      "spin_tank": {
+        "winrate": 0.0,
+        "wins": 0,
+        "losses": 2,
+        "total": 2
+      },
+      "meta_anchor": {
+        "winrate": 0.4,
+        "wins": 4,
+        "losses": 6,
+        "total": 10
+      },
+      "counter_shield": {
+        "winrate": 0.25,
+        "wins": 1,
+        "losses": 3,
+        "total": 4
+      }
+    },
+    "adaptive_fighter": {
+      "tempo_controller": {
+        "winrate": 0.3438,
+        "wins": 11,
+        "losses": 21,
+        "total": 32
+      },
+      "endurance_core": {
+        "winrate": 0.5882,
+        "wins": 10,
+        "losses": 7,
+        "total": 17
       },
       "chaser": {
         "winrate": 0.6667,
-        "wins": 2,
+        "wins": 8,
+        "losses": 4,
+        "total": 12
+      },
+      "glass_cannon": {
+        "winrate": 0.8,
+        "wins": 16,
+        "losses": 4,
+        "total": 20
+      },
+      "spin_tank": {
+        "winrate": 0.75,
+        "wins": 3,
         "losses": 1,
-        "total": 3
+        "total": 4
+      },
+      "iron_wall": {
+        "winrate": 0.5833,
+        "wins": 7,
+        "losses": 5,
+        "total": 12
+      },
+      "meta_anchor": {
+        "winrate": 0.8571,
+        "wins": 6,
+        "losses": 1,
+        "total": 7
       },
       "adaptive_fighter": {
         "winrate": 0.5,
@@ -246,473 +403,261 @@
         "losses": 12,
         "total": 24
       },
-      "berserker": {
-        "winrate": 1.0,
-        "wins": 2,
-        "losses": 0,
-        "total": 2
-      },
       "counter_shield": {
-        "winrate": 0.3333,
-        "wins": 1,
-        "losses": 2,
-        "total": 3
-      },
-      "meta_anchor": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 2,
-        "total": 2
+        "winrate": 0.4,
+        "wins": 2,
+        "losses": 3,
+        "total": 5
       }
     },
-    "endurance_core": {
-      "adaptive_fighter": {
-        "winrate": 0.25,
-        "wins": 4,
-        "losses": 12,
+    "iron_wall": {
+      "iron_wall": {
+        "winrate": 0.5,
+        "wins": 8,
+        "losses": 8,
         "total": 16
       },
-      "chaser": {
+      "meta_anchor": {
         "winrate": 0.3333,
         "wins": 1,
         "losses": 2,
         "total": 3
       },
-      "iron_wall": {
-        "winrate": 0.55,
-        "wins": 11,
-        "losses": 9,
-        "total": 20
-      },
-      "meta_anchor": {
-        "winrate": 0.25,
-        "wins": 1,
-        "losses": 3,
-        "total": 4
-      },
       "glass_cannon": {
+        "winrate": 0.6667,
+        "wins": 6,
+        "losses": 3,
+        "total": 9
+      },
+      "adaptive_fighter": {
+        "winrate": 0.4167,
+        "wins": 5,
+        "losses": 7,
+        "total": 12
+      },
+      "endurance_core": {
+        "winrate": 0.6429,
+        "wins": 9,
+        "losses": 5,
+        "total": 14
+      },
+      "spin_tank": {
+        "winrate": 0.6,
+        "wins": 3,
+        "losses": 2,
+        "total": 5
+      },
+      "tempo_controller": {
         "winrate": 0.3529,
         "wins": 6,
         "losses": 11,
         "total": 17
       },
-      "spin_tank": {
-        "winrate": 0.3333,
-        "wins": 1,
-        "losses": 2,
-        "total": 3
-      },
-      "tempo_controller": {
-        "winrate": 0.3333,
-        "wins": 3,
-        "losses": 6,
-        "total": 9
-      },
-      "endurance_core": {
-        "winrate": 0.5,
+      "chaser": {
+        "winrate": 0.6667,
         "wins": 2,
-        "losses": 2,
-        "total": 4
-      },
-      "berserker": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 3,
+        "losses": 1,
         "total": 3
       },
       "counter_shield": {
         "winrate": 0.0,
         "wins": 0,
-        "losses": 1,
-        "total": 1
-      }
-    },
-    "tempo_controller": {
-      "glass_cannon": {
-        "winrate": 0.9,
-        "wins": 9,
-        "losses": 1,
-        "total": 10
-      },
-      "iron_wall": {
-        "winrate": 0.7143,
-        "wins": 15,
-        "losses": 6,
-        "total": 21
-      },
-      "adaptive_fighter": {
-        "winrate": 0.6923,
-        "wins": 18,
-        "losses": 8,
-        "total": 26
-      },
-      "tempo_controller": {
-        "winrate": 0.5,
-        "wins": 9,
-        "losses": 9,
-        "total": 18
-      },
-      "endurance_core": {
-        "winrate": 0.6667,
-        "wins": 6,
-        "losses": 3,
-        "total": 9
-      },
-      "meta_anchor": {
-        "winrate": 0.25,
-        "wins": 1,
-        "losses": 3,
+        "losses": 4,
         "total": 4
-      },
-      "spin_tank": {
-        "winrate": 0.5,
-        "wins": 1,
-        "losses": 1,
-        "total": 2
-      },
-      "berserker": {
-        "winrate": 0.6667,
-        "wins": 4,
-        "losses": 2,
-        "total": 6
-      },
-      "counter_shield": {
-        "winrate": 0.3333,
-        "wins": 1,
-        "losses": 2,
-        "total": 3
       }
     },
     "glass_cannon": {
-      "tempo_controller": {
-        "winrate": 0.1,
-        "wins": 1,
-        "losses": 9,
-        "total": 10
-      },
       "adaptive_fighter": {
-        "winrate": 0.2381,
-        "wins": 5,
+        "winrate": 0.2,
+        "wins": 4,
         "losses": 16,
-        "total": 21
+        "total": 20
       },
       "iron_wall": {
         "winrate": 0.3333,
-        "wins": 6,
-        "losses": 12,
-        "total": 18
-      },
-      "endurance_core": {
-        "winrate": 0.6471,
-        "wins": 11,
-        "losses": 6,
-        "total": 17
-      },
-      "glass_cannon": {
-        "winrate": 0.5,
-        "wins": 6,
-        "losses": 6,
-        "total": 12
-      },
-      "berserker": {
-        "winrate": 0.3333,
-        "wins": 2,
-        "losses": 4,
-        "total": 6
-      },
-      "chaser": {
-        "winrate": 1.0,
         "wins": 3,
-        "losses": 0,
-        "total": 3
-      },
-      "spin_tank": {
-        "winrate": 1.0,
-        "wins": 2,
-        "losses": 0,
-        "total": 2
-      },
-      "counter_shield": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 5,
-        "total": 5
-      }
-    },
-    "iron_wall": {
-      "tempo_controller": {
-        "winrate": 0.2857,
-        "wins": 6,
-        "losses": 15,
-        "total": 21
-      },
-      "iron_wall": {
-        "winrate": 0.5,
-        "wins": 10,
-        "losses": 10,
-        "total": 20
+        "losses": 6,
+        "total": 9
       },
       "endurance_core": {
-        "winrate": 0.45,
-        "wins": 9,
-        "losses": 11,
-        "total": 20
+        "winrate": 0.6154,
+        "wins": 8,
+        "losses": 5,
+        "total": 13
       },
-      "glass_cannon": {
-        "winrate": 0.6667,
-        "wins": 12,
-        "losses": 6,
-        "total": 18
-      },
-      "adaptive_fighter": {
-        "winrate": 0.4091,
-        "wins": 9,
-        "losses": 13,
-        "total": 22
+      "tempo_controller": {
+        "winrate": 0.375,
+        "wins": 3,
+        "losses": 5,
+        "total": 8
       },
       "meta_anchor": {
-        "winrate": 0.6667,
-        "wins": 4,
-        "losses": 2,
-        "total": 6
-      },
-      "spin_tank": {
         "winrate": 0.2,
         "wins": 1,
         "losses": 4,
         "total": 5
       },
-      "berserker": {
+      "chaser": {
+        "winrate": 0.625,
+        "wins": 5,
+        "losses": 3,
+        "total": 8
+      },
+      "spin_tank": {
         "winrate": 0.75,
         "wins": 3,
         "losses": 1,
         "total": 4
       },
-      "counter_shield": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 2,
-        "total": 2
-      },
-      "chaser": {
-        "winrate": 1.0,
-        "wins": 1,
-        "losses": 0,
-        "total": 1
-      }
-    },
-    "chaser": {
-      "endurance_core": {
-        "winrate": 0.6667,
-        "wins": 2,
-        "losses": 1,
-        "total": 3
-      },
-      "adaptive_fighter": {
-        "winrate": 0.3333,
-        "wins": 1,
-        "losses": 2,
-        "total": 3
-      },
-      "spin_tank": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 1,
-        "total": 1
-      },
       "glass_cannon": {
-        "winrate": 0.0,
-        "wins": 0,
+        "winrate": 0.5,
+        "wins": 3,
         "losses": 3,
-        "total": 3
+        "total": 6
       },
       "counter_shield": {
         "winrate": 0.0,
         "wins": 0,
-        "losses": 1,
-        "total": 1
-      },
-      "iron_wall": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 1,
-        "total": 1
+        "losses": 4,
+        "total": 4
       }
     },
     "meta_anchor": {
-      "berserker": {
-        "winrate": 1.0,
-        "wins": 2,
-        "losses": 0,
-        "total": 2
+      "endurance_core": {
+        "winrate": 0.5714,
+        "wins": 4,
+        "losses": 3,
+        "total": 7
       },
       "iron_wall": {
-        "winrate": 0.3333,
+        "winrate": 0.6667,
         "wins": 2,
+        "losses": 1,
+        "total": 3
+      },
+      "meta_anchor": {
+        "winrate": 0.5,
+        "wins": 4,
         "losses": 4,
-        "total": 6
-      },
-      "endurance_core": {
-        "winrate": 0.75,
-        "wins": 3,
-        "losses": 1,
-        "total": 4
-      },
-      "tempo_controller": {
-        "winrate": 0.75,
-        "wins": 3,
-        "losses": 1,
-        "total": 4
-      },
-      "counter_shield": {
-        "winrate": 1.0,
-        "wins": 1,
-        "losses": 0,
-        "total": 1
+        "total": 8
       },
       "adaptive_fighter": {
-        "winrate": 1.0,
-        "wins": 2,
-        "losses": 0,
-        "total": 2
-      }
-    },
-    "berserker": {
-      "meta_anchor": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 2,
-        "total": 2
+        "winrate": 0.1429,
+        "wins": 1,
+        "losses": 6,
+        "total": 7
+      },
+      "tempo_controller": {
+        "winrate": 0.6,
+        "wins": 6,
+        "losses": 4,
+        "total": 10
       },
       "glass_cannon": {
-        "winrate": 0.6667,
-        "wins": 4,
-        "losses": 2,
-        "total": 6
-      },
-      "spin_tank": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 1,
-        "total": 1
-      },
-      "tempo_controller": {
-        "winrate": 0.3333,
-        "wins": 2,
-        "losses": 4,
-        "total": 6
-      },
-      "endurance_core": {
-        "winrate": 1.0,
-        "wins": 3,
-        "losses": 0,
-        "total": 3
-      },
-      "iron_wall": {
-        "winrate": 0.25,
-        "wins": 1,
-        "losses": 3,
-        "total": 4
-      },
-      "adaptive_fighter": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 2,
-        "total": 2
-      },
-      "counter_shield": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 3,
-        "total": 3
-      }
-    },
-    "spin_tank": {
-      "adaptive_fighter": {
-        "winrate": 0.4,
-        "wins": 2,
-        "losses": 3,
-        "total": 5
-      },
-      "endurance_core": {
-        "winrate": 0.6667,
-        "wins": 2,
-        "losses": 1,
-        "total": 3
-      },
-      "berserker": {
-        "winrate": 1.0,
-        "wins": 1,
-        "losses": 0,
-        "total": 1
-      },
-      "tempo_controller": {
-        "winrate": 0.5,
-        "wins": 1,
-        "losses": 1,
-        "total": 2
-      },
-      "chaser": {
-        "winrate": 1.0,
-        "wins": 1,
-        "losses": 0,
-        "total": 1
-      },
-      "iron_wall": {
         "winrate": 0.8,
         "wins": 4,
         "losses": 1,
         "total": 5
       },
-      "glass_cannon": {
-        "winrate": 0.0,
-        "wins": 0,
+      "counter_shield": {
+        "winrate": 0.3333,
+        "wins": 1,
         "losses": 2,
-        "total": 2
-      }
-    },
-    "counter_shield": {
-      "glass_cannon": {
-        "winrate": 1.0,
-        "wins": 5,
-        "losses": 0,
-        "total": 5
-      },
-      "adaptive_fighter": {
-        "winrate": 0.6667,
-        "wins": 2,
-        "losses": 1,
         "total": 3
-      },
-      "tempo_controller": {
-        "winrate": 0.6667,
-        "wins": 2,
-        "losses": 1,
-        "total": 3
-      },
-      "berserker": {
-        "winrate": 1.0,
-        "wins": 3,
-        "losses": 0,
-        "total": 3
-      },
-      "meta_anchor": {
-        "winrate": 0.0,
-        "wins": 0,
-        "losses": 1,
-        "total": 1
       },
       "chaser": {
         "winrate": 1.0,
         "wins": 1,
         "losses": 0,
         "total": 1
+      }
+    },
+    "spin_tank": {
+      "endurance_core": {
+        "winrate": 0.5,
+        "wins": 4,
+        "losses": 4,
+        "total": 8
+      },
+      "adaptive_fighter": {
+        "winrate": 0.25,
+        "wins": 1,
+        "losses": 3,
+        "total": 4
       },
       "iron_wall": {
+        "winrate": 0.4,
+        "wins": 2,
+        "losses": 3,
+        "total": 5
+      },
+      "tempo_controller": {
         "winrate": 1.0,
         "wins": 2,
         "losses": 0,
         "total": 2
+      },
+      "chaser": {
+        "winrate": 0.5,
+        "wins": 1,
+        "losses": 1,
+        "total": 2
+      },
+      "glass_cannon": {
+        "winrate": 0.25,
+        "wins": 1,
+        "losses": 3,
+        "total": 4
+      },
+      "spin_tank": {
+        "winrate": 0.5,
+        "wins": 1,
+        "losses": 1,
+        "total": 2
+      },
+      "counter_shield": {
+        "winrate": 0.0,
+        "wins": 0,
+        "losses": 1,
+        "total": 1
+      }
+    },
+    "counter_shield": {
+      "glass_cannon": {
+        "winrate": 1.0,
+        "wins": 4,
+        "losses": 0,
+        "total": 4
+      },
+      "adaptive_fighter": {
+        "winrate": 0.6,
+        "wins": 3,
+        "losses": 2,
+        "total": 5
+      },
+      "tempo_controller": {
+        "winrate": 0.75,
+        "wins": 3,
+        "losses": 1,
+        "total": 4
+      },
+      "iron_wall": {
+        "winrate": 1.0,
+        "wins": 4,
+        "losses": 0,
+        "total": 4
+      },
+      "meta_anchor": {
+        "winrate": 0.6667,
+        "wins": 2,
+        "losses": 1,
+        "total": 3
+      },
+      "chaser": {
+        "winrate": 1.0,
+        "wins": 1,
+        "losses": 0,
+        "total": 1
       },
       "counter_shield": {
         "winrate": 0.5,
@@ -721,6 +666,12 @@
         "total": 2
       },
       "endurance_core": {
+        "winrate": 1.0,
+        "wins": 2,
+        "losses": 0,
+        "total": 2
+      },
+      "spin_tank": {
         "winrate": 1.0,
         "wins": 1,
         "losses": 0,
@@ -730,40 +681,40 @@
   },
   "meta_insights": {
     "dominant_archetype": {
-      "id": "tempo_controller",
-      "name": "Tempo Controller",
-      "avg_elo": 1084.25,
+      "id": "counter_shield",
+      "name": "Counter Shield",
+      "avg_elo": 1072,
       "reason": "Highest average ELO rating"
     },
     "most_reliable": {
-      "id": "meta_anchor",
-      "name": "Meta Anchor",
-      "avg_winrate": 0.7059,
-      "upset_rate": 0.1538,
+      "id": "counter_shield",
+      "name": "Counter Shield",
+      "avg_winrate": 0.7333,
+      "upset_rate": 0.1905,
       "reason": "High winrate with low upset rate"
     },
     "most_volatile": {
-      "id": "iron_wall",
-      "name": "Iron Wall",
-      "upset_rate": 0.6545,
+      "id": "spin_tank",
+      "name": "Spin Tank",
+      "upset_rate": 0.6154,
       "reason": "Highest upset rate"
     },
     "highest_winrate": {
       "id": "counter_shield",
       "name": "Counter Shield",
-      "avg_winrate": 0.7692,
+      "avg_winrate": 0.7333,
       "reason": "Best overall win percentage"
     },
     "most_active": {
       "id": "adaptive_fighter",
       "name": "Adaptive Fighter",
-      "total_matches": 69,
+      "total_matches": 77,
       "reason": "Most matches played"
     }
   },
   "summary": {
-    "total_archetypes": 10,
-    "total_beys_classified": 41,
-    "total_matches_analyzed": 309
+    "total_archetypes": 9,
+    "total_beys_classified": 40,
+    "total_matches_analyzed": 330
   }
 }
