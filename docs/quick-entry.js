@@ -250,13 +250,13 @@ async function loadRecommendedMatches() {
         // Collect all recommendations from all categories
         const allRecommendations = [];
         if (data.by_category) {
-            for (const category in data.by_category) {
+            for (const category of Object.keys(data.by_category)) {
                 allRecommendations.push(...data.by_category[category]);
             }
         }
         
         // Sort all recommendations by information value (descending)
-        allRecommendations.sort((a, b) => b.info_value - a.info_value);
+        allRecommendations.sort((a, b) => (b.info_value || 0) - (a.info_value || 0));
         
         // Store all sorted recommendations
         state.recommendedMatches = allRecommendations;
