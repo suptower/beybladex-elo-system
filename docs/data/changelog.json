@@ -1,24 +1,60 @@
 {
-  "generated_at": "2026-02-12T18:12:39.271497+00:00",
+  "generated_at": "2026-02-13T20:26:55.820547+00:00",
   "commit_count": 50,
   "commits": [
     {
-      "hash": "fa29fbd",
-      "full_hash": "fa29fbd24cd538045f950cb9a63b9e3683f462b6",
-      "date": "2026-02-12T17:57:00Z",
-      "message": "Implement shared navigation menu system across all pages",
+      "hash": "18b75ee",
+      "full_hash": "18b75ee77021a12cc01ab197a4270a474a03a60c",
+      "date": "2026-02-13T12:34:45Z",
+      "message": "Address code review: Use Object.keys() and add info_value safety check",
       "author": "copilot-swe-agent[bot]",
       "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/fa29fbd24cd538045f950cb9a63b9e3683f462b6"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/18b75ee77021a12cc01ab197a4270a474a03a60c"
     },
     {
-      "hash": "1059a1d",
-      "full_hash": "1059a1dc3678749937408b89e02915b55f91f851",
-      "date": "2026-02-12T17:52:20Z",
+      "hash": "05ec9ce",
+      "full_hash": "05ec9cef83a4a7ea064a7e8c36bb9a3514c2252f",
+      "date": "2026-02-13T12:32:25Z",
+      "message": "Fix: Load all recommendations sorted by info_value instead of just top 10",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/05ec9cef83a4a7ea064a7e8c36bb9a3514c2252f"
+    },
+    {
+      "hash": "1cfd2fb",
+      "full_hash": "1cfd2fb9b36d0dbadaf540677ed9e678ada307ad",
+      "date": "2026-02-13T12:29:57Z",
       "message": "Initial plan",
       "author": "copilot-swe-agent[bot]",
       "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1059a1dc3678749937408b89e02915b55f91f851"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1cfd2fb9b36d0dbadaf540677ed9e678ada307ad"
+    },
+    {
+      "hash": "f3b8598",
+      "full_hash": "f3b8598a5c1cc9c20fb2679c72e961704433517f",
+      "date": "2026-02-13T13:28:17+01:00",
+      "message": "fix(navigation): archetype dashboard appeared twice",
+      "author": "Arda K",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f3b8598a5c1cc9c20fb2679c72e961704433517f"
+    },
+    {
+      "hash": "cb65ba9",
+      "full_hash": "cb65ba9203af926e8f05ea1f2b3c64fdcde613df",
+      "date": "2026-02-13T13:00:34+01:00",
+      "message": "feat: Add fullscreen mode with custom bey picker for touch devices + fix hamburger menu bug (#250)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/cb65ba9203af926e8f05ea1f2b3c64fdcde613df"
+    },
+    {
+      "hash": "418d55e",
+      "full_hash": "418d55e2b9833036503feb1ef2791bd9b0bf5aad",
+      "date": "2026-02-12T20:08:14+01:00",
+      "message": "Centralize navigation menu to eliminate inconsistencies across pages (#249)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/418d55e2b9833036503feb1ef2791bd9b0bf5aad"
     },
     {
       "hash": "cd90ecc",
@@ -415,42 +451,6 @@
       "author": "Copilot",
       "category": "Other",
       "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1a69d5ba0355d5495e1f0213ad097241a1bf5305"
-    },
-    {
-      "hash": "fe9b35d",
-      "full_hash": "fe9b35d0c82bcef6df09e062450c323e11458696",
-      "date": "2026-01-05T21:39:37+01:00",
-      "message": "feat: Add credibility score to quantify ELO rating reliability (#170)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/fe9b35d0c82bcef6df09e062450c323e11458696"
-    },
-    {
-      "hash": "6a33de6",
-      "full_hash": "6a33de6d9bc50c140e4ae3334c048d7a15845b5c",
-      "date": "2026-01-05T16:47:26+01:00",
-      "message": "feat: Add recommended matches system for data-driven match suggestions (#168)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/6a33de6d9bc50c140e4ae3334c048d7a15845b5c"
-    },
-    {
-      "hash": "349e77d",
-      "full_hash": "349e77d84608e3354e9b9b98516e6eda76d28726",
-      "date": "2026-01-05T15:10:37+01:00",
-      "message": "Add median and average reference lines to ELO and position history plots (#166)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/349e77d84608e3354e9b9b98516e6eda76d28726"
-    },
-    {
-      "hash": "5486ba8",
-      "full_hash": "5486ba8e92df6bb4fd999bfafed9b73b4e0b0c19",
-      "date": "2026-01-05T13:06:29+01:00",
-      "message": "feat: add milestones page for statistical records and achievements (#164)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/5486ba8e92df6bb4fd999bfafed9b73b4e0b0c19"
     }
   ]
 }
