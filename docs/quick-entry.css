@@ -1262,7 +1262,8 @@
     display: none;
 }
 
-/* Hide desktop bottom button since we're always showing card view */
+/* Hide desktop bottom button (designed for table view) since we're always showing card view
+   The mobile button variant is styled for card layouts and is always visible */
 .bottom-add-match-wrapper:not(.bottom-add-match-mobile) {
     display: none;
 }
