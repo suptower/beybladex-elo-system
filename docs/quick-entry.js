@@ -1597,6 +1597,7 @@ function renderMatchTable() {
                         <button class="row-action-btn rounds-btn ${hasRounds ? 'has-rounds' : ''}" onclick="toggleRoundsPanel(${index})" title="Rounds (${match.rounds?.length || 0})">
                             <span class="rounds-count">⚔️${match.rounds?.length || 0}</span>
                         </button>
+                        <button class="row-action-btn fullscreen-btn" onclick="enterFullscreenMatch(${index})" aria-label="Fullscreen mode" title="Fullscreen">⛶</button>
                         <button class="row-action-btn delete-btn" onclick="deleteMatch(${index})" aria-label="Delete match" title="Delete">🗑️</button>
                     </div>
                 </td>
