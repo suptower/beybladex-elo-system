@@ -2454,12 +2454,8 @@ body.dark .season-row.relegation-zone:hover {
     margin-bottom: 1rem;
 }
 
-/* Show fullscreen button only on mobile and tablet devices, hide on desktop */
-@media (min-width: 1025px) {
-    .match-card-fullscreen-btn {
-        display: none;
-    }
-}
+/* Fullscreen button is now available on all screen sizes including desktop
+   This allows users with high-resolution tablets and touch-enabled desktops to use fullscreen mode */
 
 /* Hide header when fullscreen overlay is active to prevent hamburger menu conflicts
    Note: :has() requires modern browsers (Chrome 105+, Safari 15.4+, Firefox 121+)
