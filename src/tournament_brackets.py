@@ -259,10 +259,14 @@ def generate_single_elimination_bracket(participants, matchups):
             next_round.append(f"Winner of {round_matches[-1]['match_id']}")
         
         if round_matches:
-            round_name = "Finals" if len(current_round) == 2 else \
-                        "Semi-Finals" if len(current_round) == 4 else \
-                        "Quarter-Finals" if len(current_round) == 8 else \
-                        f"Round of {len(current_round)}"
+            if len(current_round) == 2:
+                round_name = "Finals"
+            elif len(current_round) == 4:
+                round_name = "Semi-Finals"
+            elif len(current_round) == 8:
+                round_name = "Quarter-Finals"
+            else:
+                round_name = f"Round of {len(current_round)}"
             
             rounds.append({
                 "round": round_num,
@@ -296,9 +300,10 @@ def recommend_tournament_type(low_data_beys, beys):
     n = len(low_data_beys)
     
     if n < CONFIG["min_participants"]:
+        min_required = CONFIG['min_participants']
         return {
             "recommended": None,
-            "reason": f"Not enough low-data beys ({n}). Minimum {CONFIG['min_participants']} needed.",
+            "reason": f"Not enough low-data beys ({n}). Minimum {min_required} needed.",
             "alternatives": ["Use individual match recommendations instead"]
         }
     
@@ -310,8 +315,9 @@ def recommend_tournament_type(low_data_beys, beys):
         total_matches = n * (n - 1) // 2
         return {
             "recommended": "round_robin",
-            "reason": f"Round-robin is ideal for {n} participants. "
-                     f"Each bey will play {n-1} matches, totaling {total_matches} matches.",
+            "reason": (f"Round-robin is ideal for {n} participants. "
+                       f"Each bey will play {n - 1} matches, "
+                       f"totaling {total_matches} matches."),
             "benefits": [
                 "Every bey plays every other bey",
                 "Maximum data collection per bey",
@@ -327,8 +333,9 @@ def recommend_tournament_type(low_data_beys, beys):
         
         return {
             "recommended": "single_elimination",
-            "reason": f"Single elimination is best for {n} participants. "
-                     f"Bracket size: {bracket_size}, winner plays {matches_per_winner} matches.",
+            "reason": (f"Single elimination is best for {n} participants. "
+                       f"Bracket size: {bracket_size}, "
+                       f"winner plays {matches_per_winner} matches."),
             "benefits": [
                 "Efficient for large participant counts",
                 "Creates exciting playoff-style competition",
@@ -456,12 +463,14 @@ def run_tournament_bracket_pipeline():
             })
         
         # Create output structure
+        all_matches = [s['matches'] for s in beys.values()]
+        low_data_matches = [beys[n]['matches'] for n in low_data_beys]
         output = {
             "metadata": {
                 "total_beys": len(beys),
                 "low_data_beys": len(low_data_beys),
-                "average_matches_all": statistics.mean([s['matches'] for s in beys.values()]),
-                "average_matches_low_data": statistics.mean([beys[n]['matches'] for n in low_data_beys]),
+                "average_matches_all": statistics.mean(all_matches),
+                "average_matches_low_data": statistics.mean(low_data_matches),
                 "recommendation": recommendation
             },
             "low_data_bey_list": [
@@ -488,7 +497,7 @@ def run_tournament_bracket_pipeline():
         print(f"  Low-data beys: {len(low_data_beys)}")
         print(f"  Recommended format: {recommendation.get('recommended', 'N/A')}")
         print(f"  {recommendation.get('reason', '')}")
-        print(f"\n  Low-data beys (sorted by match count):")
+        print("\n  Low-data beys (sorted by match count):")
         for bey in low_data_beys[:10]:  # Show top 10
             stats = beys[bey]
             print(f"    - {bey}: {stats['matches']} matches (ELO: {stats['elo']:.0f})")
