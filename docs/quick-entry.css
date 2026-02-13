@@ -964,7 +964,7 @@
 /* ============================================
    MOBILE MATCH CARDS
    ============================================ */
-.match-cards-container { display: none; flex-direction: column; gap: 0.75rem; width: 100%; }
+.match-cards-container { display: flex; flex-direction: column; gap: 0.75rem; width: 100%; }
 .match-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; width: 100%; box-sizing: border-box; }
 .match-card.incomplete { border-color: rgba(245, 158, 11, 0.4); }
 .match-card.complete { 
@@ -1254,21 +1254,17 @@
 }
 
 .bottom-add-match-wrapper.bottom-add-match-mobile {
+    display: flex;
+}
+
+/* Always hide table view in favor of card view with fullscreen buttons */
+.match-table-wrapper {
     display: none;
 }
 
-@media (max-width: 1024px) {
-    .match-table-wrapper { display: none; }
-    .match-cards-container { display: flex; }
-    
-    /* Hide desktop bottom button, show mobile bottom button */
-    .bottom-add-match-wrapper:not(.bottom-add-match-mobile) {
-        display: none;
-    }
-    
-    .bottom-add-match-wrapper.bottom-add-match-mobile {
-        display: flex;
-    }
+/* Hide desktop bottom button since we're always showing card view */
+.bottom-add-match-wrapper:not(.bottom-add-match-mobile) {
+    display: none;
 }
 
 @media (max-width: 768px) {
