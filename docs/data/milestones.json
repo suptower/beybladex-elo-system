@@ -6,6 +6,10 @@
         "value": 7
       },
       {
+        "bey": "ValkyrieVolt",
+        "value": 7
+      },
+      {
         "bey": "TuskMammoth",
         "value": 6
       },
@@ -16,10 +20,6 @@
       {
         "bey": "LeonCrest",
         "value": 6
-      },
-      {
-        "bey": "GolemRock",
-        "value": 5
       }
     ],
     "longest_losing_streak": [
@@ -28,12 +28,12 @@
         "value": 8
       },
       {
-        "bey": "WizardArrow",
-        "value": 7
+        "bey": "PhoenixWing",
+        "value": 8
       },
       {
-        "bey": "PhoenixWing",
-        "value": 6
+        "bey": "WizardArrow",
+        "value": 7
       },
       {
         "bey": "CerberusFlame",
@@ -47,50 +47,50 @@
     "most_total_wins": [
       {
         "bey": "TuskMammoth",
-        "value": 25
+        "value": 26
       },
       {
         "bey": "ImpactDrake",
-        "value": 18
+        "value": 19
       },
       {
         "bey": "GolemRock",
         "value": 15
       },
       {
-        "bey": "FoxBrush",
-        "value": 14
+        "bey": "ScorpioSpear",
+        "value": 15
       },
       {
-        "bey": "ScorpioSpear",
+        "bey": "FoxBrush",
         "value": 14
       }
     ],
     "highest_win_rate": [
       {
-        "bey": "TuskMammoth",
-        "value": 71.42857142857143,
-        "matches": 35
-      },
-      {
         "bey": "ScorpioSpear",
-        "value": 70.0,
-        "matches": 20
+        "value": 71.42857142857143,
+        "matches": 21
       },
       {
         "bey": "ImpactDrake",
-        "value": 69.23076923076923,
-        "matches": 26
+        "value": 70.37037037037037,
+        "matches": 27
+      },
+      {
+        "bey": "TuskMammoth",
+        "value": 70.27027027027027,
+        "matches": 37
+      },
+      {
+        "bey": "CobaltDragoon",
+        "value": 65.0,
+        "matches": 20
       },
       {
         "bey": "FoxBrush",
-        "value": 63.63636363636363,
-        "matches": 22
-      },
-      {
-        "bey": "GolemRock",
-        "value": 62.5,
-        "matches": 24
+        "value": 60.86956521739131,
+        "matches": 23
       }
     ]
   },
@@ -98,19 +98,19 @@
     "most_spin_finishes": [
       {
         "bey": "CerberusFlame",
-        "value": 33
+        "value": 35
+      },
+      {
+        "bey": "RhinoReaper",
+        "value": 27
+      },
+      {
+        "bey": "TuskMammoth",
+        "value": 25
       },
       {
         "bey": "WizardRod",
         "value": 25
-      },
-      {
-        "bey": "TuskMammoth",
-        "value": 24
-      },
-      {
-        "bey": "RhinoReaper",
-        "value": 24
       },
       {
         "bey": "GolemRock",
@@ -123,42 +123,42 @@
         "value": 16
       },
       {
+        "bey": "SharkEdge",
+        "value": 13
+      },
+      {
         "bey": "GolemRock",
         "value": 13
       },
       {
-        "bey": "SharkEdge",
-        "value": 11
-      },
-      {
         "bey": "SharkScale",
-        "value": 11
+        "value": 12
       },
       {
         "bey": "HellsChain",
-        "value": 9
+        "value": 10
       }
     ],
     "most_pocket_finishes": [
       {
         "bey": "TuskMammoth",
-        "value": 24
+        "value": 25
       },
       {
         "bey": "ImpactDrake",
-        "value": 18
+        "value": 19
+      },
+      {
+        "bey": "ValkyrieVolt",
+        "value": 17
+      },
+      {
+        "bey": "DranBrave",
+        "value": 16
       },
       {
         "bey": "CobaltDragoon",
         "value": 15
-      },
-      {
-        "bey": "DranBrave",
-        "value": 14
-      },
-      {
-        "bey": "DranDagger",
-        "value": 12
       }
     ],
     "most_extreme_finishes": [
@@ -172,7 +172,7 @@
       },
       {
         "bey": "TuskMammoth",
-        "value": 6
+        "value": 7
       },
       {
         "bey": "CobaltDragoon",
@@ -193,21 +193,25 @@
         "value": 97.2
       },
       {
-        "bey": "LeonCrest",
-        "value": 96.6
-      },
-      {
         "bey": "FoxBrush",
-        "value": 96.6
+        "value": 96.8
       },
       {
         "bey": "WhaleWave",
-        "value": 96.6
+        "value": 96.2
+      },
+      {
+        "bey": "CobaltDrake",
+        "value": 96.0
       }
     ]
   },
   "elo_performance_extremes": {
     "highest_elo_ever": [
+      {
+        "bey": "ValkyrieVolt",
+        "value": 1164.07
+      },
       {
         "bey": "ImpactDrake",
         "value": 1142.01
@@ -221,15 +225,17 @@
         "value": 1120.94
       },
       {
-        "bey": "ValkyrieVolt",
-        "value": 1109.15
-      },
-      {
         "bey": "ScorpioSpear",
         "value": 1095.17
       }
     ],
     "biggest_elo_upclimb": [
+      {
+        "bey": "ValkyrieVolt",
+        "climb": 180.51999999999998,
+        "from_elo": 983.55,
+        "to_elo": 1164.07
+      },
       {
         "bey": "SamuraiSaber",
         "climb": 156.54000000000008,
@@ -244,21 +250,15 @@
       },
       {
         "bey": "WizardArc",
-        "climb": 127.28000000000009,
+        "climb": 150.0200000000001,
         "from_elo": 917.43,
-        "to_elo": 1044.71
+        "to_elo": 1067.45
       },
       {
         "bey": "TuskMammoth",
-        "climb": 120.65000000000009,
-        "from_elo": 1000.29,
-        "to_elo": 1120.94
-      },
-      {
-        "bey": "ScorpioSpear",
-        "climb": 117.88000000000011,
-        "from_elo": 977.29,
-        "to_elo": 1095.17
+        "climb": 138.06000000000006,
+        "from_elo": 982.32,
+        "to_elo": 1120.38
       }
     ],
     "biggest_elo_downfall": [
@@ -275,6 +275,12 @@
         "to_elo": 980.0
       },
       {
+        "bey": "TuskMammoth",
+        "fall": 138.62,
+        "from_elo": 1120.94,
+        "to_elo": 982.32
+      },
+      {
         "bey": "DranSword",
         "fall": 132.07999999999993,
         "from_elo": 1084.58,
@@ -285,12 +291,6 @@
         "fall": 125.60000000000014,
         "from_elo": 1109.15,
         "to_elo": 983.55
-      },
-      {
-        "bey": "GolemRock",
-        "fall": 107.31999999999994,
-        "from_elo": 1082.32,
-        "to_elo": 975.0
       }
     ]
   },
@@ -298,22 +298,22 @@
     "best_upsetter": [
       {
         "bey": "LeonCrest",
-        "value": 8
+        "value": 9
       },
       {
         "bey": "PhoenixWing",
         "value": 7
       },
       {
-        "bey": "SharkEdge",
-        "value": 5
-      },
-      {
-        "bey": "LeonClaw",
-        "value": 5
-      },
-      {
         "bey": "CrimsonGaruda",
+        "value": 6
+      },
+      {
+        "bey": "DranBrave",
+        "value": 6
+      },
+      {
+        "bey": "SharkEdge",
         "value": 5
       }
     ],
@@ -356,7 +356,7 @@
       },
       {
         "bey": "TuskMammoth",
-        "value": 5
+        "value": 6
       },
       {
         "bey": "FoxBrush",
@@ -374,22 +374,22 @@
     "giant_killer_top10": [
       {
         "bey": "TuskMammoth",
-        "value": 13
+        "value": 14
       },
       {
         "bey": "ImpactDrake",
-        "value": 10
+        "value": 11
       },
       {
         "bey": "DranSword",
         "value": 8
       },
       {
-        "bey": "FoxBrush",
-        "value": 7
+        "bey": "ScorpioSpear",
+        "value": 8
       },
       {
-        "bey": "ScorpioSpear",
+        "bey": "FoxBrush",
         "value": 7
       }
     ]
@@ -398,33 +398,33 @@
     "most_matches_played": [
       {
         "bey": "TuskMammoth",
-        "value": 35
+        "value": 37
       },
       {
         "bey": "ImpactDrake",
-        "value": 26
+        "value": 27
       },
       {
         "bey": "GolemRock",
+        "value": 25
+      },
+      {
+        "bey": "PhoenixWing",
         "value": 24
       },
       {
         "bey": "FoxBrush",
-        "value": 22
-      },
-      {
-        "bey": "PhoenixWing",
-        "value": 22
+        "value": 23
       }
     ],
     "most_time_in_top_5": [
       {
         "bey": "TuskMammoth",
-        "value": 28
+        "value": 29
       },
       {
         "bey": "ImpactDrake",
-        "value": 22
+        "value": 23
       },
       {
         "bey": "FoxBrush",
@@ -442,37 +442,29 @@
     "most_time_in_top_10": [
       {
         "bey": "TuskMammoth",
-        "value": 28
+        "value": 29
       },
       {
         "bey": "ImpactDrake",
-        "value": 23
+        "value": 24
       },
       {
         "bey": "FoxBrush",
-        "value": 21
+        "value": 22
       },
       {
         "bey": "CerberusFlame",
-        "value": 20
+        "value": 21
       },
       {
-        "bey": "CobaltDragoon",
-        "value": 16
+        "bey": "DranSword",
+        "value": 17
       }
     ],
     "most_stable_bey": [
       {
-        "bey": "LeonClaw",
-        "value": 129.10882653061222
-      },
-      {
         "bey": "KnightMail",
-        "value": 136.18336835937487
-      },
-      {
-        "bey": "WyvernHover",
-        "value": 163.46810000000013
+        "value": 128.78258892733555
       },
       {
         "bey": "WhaleFlame",
@@ -481,13 +473,21 @@
       {
         "bey": "DranBuster",
         "value": 187.95875041322313
+      },
+      {
+        "bey": "WyvernHover",
+        "value": 189.02190399999984
+      },
+      {
+        "bey": "HellsChain",
+        "value": 197.55261388888889
       }
     ]
   },
   "metadata": {
-    "generated_at": "2026-02-12T00:32:42.867902",
-    "total_matches": 311,
-    "total_rounds": 1064,
+    "generated_at": "2026-02-13T21:53:17.926481",
+    "total_matches": 334,
+    "total_rounds": 1135,
     "min_matches_for_winrate": 20
   }
 }

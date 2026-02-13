@@ -1,56 +1,56 @@
 {
-  "generated_at": "2026-02-12T00:32:43.091507",
+  "generated_at": "2026-02-13T21:53:18.152042",
   "stadium_overview": {
     "Xtreme Stadium": {
-      "total_matches": 276,
-      "average_match_score": 5.72,
+      "total_matches": 291,
+      "average_match_score": 5.68,
       "match_score_distribution": {
         "min": 4,
         "max": 12,
-        "median": 6.0,
+        "median": 6,
         "stdev": 1.46
       },
       "matches_per_season": {
-        "S1": 45
+        "S1": 60
       },
       "matches_per_tier": {
-        "3": 15,
-        "2": 15,
-        "1": 15
+        "3": 20,
+        "2": 20,
+        "1": 20
       },
       "matches_per_type": {
         "exhibition": 231,
-        "season": 45
+        "season": 60
       }
     },
     "Drop Attack Beystadium": {
-      "total_matches": 35,
-      "average_match_score": 5.51,
+      "total_matches": 43,
+      "average_match_score": 5.65,
       "match_score_distribution": {
         "min": 4,
         "max": 12,
         "median": 5,
-        "stdev": 1.77
+        "stdev": 1.89
       },
       "matches_per_season": {},
       "matches_per_tier": {},
       "matches_per_type": {
-        "exhibition": 35
+        "exhibition": 43
       }
     }
   },
   "bey_performance": {
     "Xtreme Stadium": {
       "ViperTail": {
-        "matches": 15,
+        "matches": 16,
         "wins": 7,
-        "losses": 8,
-        "winrate": 0.467,
+        "losses": 9,
+        "winrate": 0.438,
         "points_for": 43,
-        "points_against": 45,
-        "point_differential": -2,
-        "avg_points_per_match": 2.87,
-        "avg_elo_change": 0.27
+        "points_against": 49,
+        "point_differential": -6,
+        "avg_points_per_match": 2.69,
+        "avg_elo_change": -0.1
       },
       "WizardArc": {
         "matches": 7,
@@ -75,15 +75,15 @@
         "avg_elo_change": -13.98
       },
       "TuskMammoth": {
-        "matches": 31,
-        "wins": 23,
+        "matches": 32,
+        "wins": 24,
         "losses": 8,
-        "winrate": 0.742,
-        "points_for": 110,
-        "points_against": 75,
-        "point_differential": 35,
-        "avg_points_per_match": 3.55,
-        "avg_elo_change": 3.61
+        "winrate": 0.75,
+        "points_for": 116,
+        "points_against": 77,
+        "point_differential": 39,
+        "avg_points_per_match": 3.62,
+        "avg_elo_change": 3.76
       },
       "BlackShell": {
         "matches": 9,
@@ -97,59 +97,59 @@
         "avg_elo_change": -7.62
       },
       "GolemRock": {
-        "matches": 23,
+        "matches": 24,
         "wins": 15,
-        "losses": 8,
-        "winrate": 0.652,
+        "losses": 9,
+        "winrate": 0.625,
         "points_for": 74,
-        "points_against": 49,
-        "point_differential": 25,
-        "avg_points_per_match": 3.22,
-        "avg_elo_change": 3.06
+        "points_against": 53,
+        "point_differential": 21,
+        "avg_points_per_match": 3.08,
+        "avg_elo_change": 2.73
       },
       "LeonCrest": {
-        "matches": 15,
-        "wins": 9,
+        "matches": 16,
+        "wins": 10,
         "losses": 6,
-        "winrate": 0.6,
-        "points_for": 50,
+        "winrate": 0.625,
+        "points_for": 54,
         "points_against": 39,
-        "point_differential": 11,
-        "avg_points_per_match": 3.33,
-        "avg_elo_change": 3.77
+        "point_differential": 15,
+        "avg_points_per_match": 3.38,
+        "avg_elo_change": 3.9
       },
       "ImpactDrake": {
-        "matches": 24,
-        "wins": 17,
+        "matches": 25,
+        "wins": 18,
         "losses": 7,
-        "winrate": 0.708,
-        "points_for": 93,
+        "winrate": 0.72,
+        "points_for": 97,
         "points_against": 51,
-        "point_differential": 42,
+        "point_differential": 46,
         "avg_points_per_match": 3.88,
-        "avg_elo_change": 5.22
+        "avg_elo_change": 5.21
       },
       "DranBrave": {
-        "matches": 19,
-        "wins": 10,
+        "matches": 20,
+        "wins": 11,
         "losses": 9,
-        "winrate": 0.526,
-        "points_for": 56,
-        "points_against": 50,
-        "point_differential": 6,
-        "avg_points_per_match": 2.95,
-        "avg_elo_change": 0.63
+        "winrate": 0.55,
+        "points_for": 60,
+        "points_against": 52,
+        "point_differential": 8,
+        "avg_points_per_match": 3.0,
+        "avg_elo_change": 0.84
       },
       "HellsReaper": {
-        "matches": 15,
+        "matches": 16,
         "wins": 8,
-        "losses": 7,
-        "winrate": 0.533,
+        "losses": 8,
+        "winrate": 0.5,
         "points_for": 45,
-        "points_against": 38,
-        "point_differential": 7,
-        "avg_points_per_match": 3.0,
-        "avg_elo_change": 1.47
+        "points_against": 42,
+        "point_differential": 3,
+        "avg_points_per_match": 2.81,
+        "avg_elo_change": 1.0
       },
       "HellsHammer": {
         "matches": 5,
@@ -163,70 +163,70 @@
         "avg_elo_change": -19.33
       },
       "DranSword": {
-        "matches": 18,
+        "matches": 19,
         "wins": 11,
-        "losses": 7,
-        "winrate": 0.611,
+        "losses": 8,
+        "winrate": 0.579,
         "points_for": 54,
-        "points_against": 51,
-        "point_differential": 3,
-        "avg_points_per_match": 3.0,
-        "avg_elo_change": 2.64
+        "points_against": 55,
+        "point_differential": -1,
+        "avg_points_per_match": 2.84,
+        "avg_elo_change": 2.19
       },
       "DranDagger": {
-        "matches": 15,
-        "wins": 7,
+        "matches": 16,
+        "wins": 8,
         "losses": 8,
-        "winrate": 0.467,
-        "points_for": 40,
-        "points_against": 47,
-        "point_differential": -7,
-        "avg_points_per_match": 2.67,
-        "avg_elo_change": -1.45
+        "winrate": 0.5,
+        "points_for": 44,
+        "points_against": 48,
+        "point_differential": -4,
+        "avg_points_per_match": 2.75,
+        "avg_elo_change": -1.01
       },
       "CrimsonGaruda": {
-        "matches": 15,
-        "wins": 6,
+        "matches": 16,
+        "wins": 7,
         "losses": 9,
-        "winrate": 0.4,
-        "points_for": 35,
+        "winrate": 0.438,
+        "points_for": 39,
         "points_against": 47,
-        "point_differential": -12,
-        "avg_points_per_match": 2.33,
-        "avg_elo_change": -3.25
+        "point_differential": -8,
+        "avg_points_per_match": 2.44,
+        "avg_elo_change": -2.63
       },
       "LeonClaw": {
-        "matches": 13,
-        "wins": 7,
+        "matches": 14,
+        "wins": 8,
         "losses": 6,
-        "winrate": 0.538,
-        "points_for": 39,
+        "winrate": 0.571,
+        "points_for": 43,
         "points_against": 40,
-        "point_differential": -1,
-        "avg_points_per_match": 3.0,
-        "avg_elo_change": 0.41
+        "point_differential": 3,
+        "avg_points_per_match": 3.07,
+        "avg_elo_change": 1.2
       },
       "UnicornSting": {
-        "matches": 15,
+        "matches": 16,
         "wins": 8,
-        "losses": 7,
-        "winrate": 0.533,
+        "losses": 8,
+        "winrate": 0.5,
         "points_for": 39,
-        "points_against": 38,
-        "point_differential": 1,
-        "avg_points_per_match": 2.6,
-        "avg_elo_change": -0.52
+        "points_against": 42,
+        "point_differential": -3,
+        "avg_points_per_match": 2.44,
+        "avg_elo_change": -0.85
       },
       "FoxBrush": {
-        "matches": 21,
+        "matches": 22,
         "wins": 14,
-        "losses": 7,
-        "winrate": 0.667,
-        "points_for": 68,
-        "points_against": 52,
-        "point_differential": 16,
-        "avg_points_per_match": 3.24,
-        "avg_elo_change": 4.19
+        "losses": 8,
+        "winrate": 0.636,
+        "points_for": 70,
+        "points_against": 58,
+        "point_differential": 12,
+        "avg_points_per_match": 3.18,
+        "avg_elo_change": 3.61
       },
       "DranBuster": {
         "matches": 10,
@@ -240,15 +240,15 @@
         "avg_elo_change": -3.08
       },
       "HellsChain": {
-        "matches": 15,
-        "wins": 7,
+        "matches": 16,
+        "wins": 8,
         "losses": 8,
-        "winrate": 0.467,
-        "points_for": 47,
+        "winrate": 0.5,
+        "points_for": 51,
         "points_against": 42,
-        "point_differential": 5,
-        "avg_points_per_match": 3.13,
-        "avg_elo_change": -0.57
+        "point_differential": 9,
+        "avg_points_per_match": 3.19,
+        "avg_elo_change": -0.19
       },
       "TyrannoBeat": {
         "matches": 9,
@@ -262,15 +262,15 @@
         "avg_elo_change": -7.4
       },
       "PhoenixWing": {
-        "matches": 17,
+        "matches": 18,
         "wins": 8,
-        "losses": 9,
-        "winrate": 0.471,
-        "points_for": 47,
-        "points_against": 56,
-        "point_differential": -9,
-        "avg_points_per_match": 2.76,
-        "avg_elo_change": -0.0
+        "losses": 10,
+        "winrate": 0.444,
+        "points_for": 48,
+        "points_against": 60,
+        "point_differential": -12,
+        "avg_points_per_match": 2.67,
+        "avg_elo_change": -0.31
       },
       "WizardArrow": {
         "matches": 6,
@@ -284,103 +284,103 @@
         "avg_elo_change": -16.56
       },
       "SharkEdge": {
-        "matches": 18,
-        "wins": 8,
+        "matches": 19,
+        "wins": 9,
         "losses": 10,
-        "winrate": 0.444,
-        "points_for": 46,
-        "points_against": 59,
-        "point_differential": -13,
-        "avg_points_per_match": 2.56,
-        "avg_elo_change": -0.82
+        "winrate": 0.474,
+        "points_for": 50,
+        "points_against": 60,
+        "point_differential": -10,
+        "avg_points_per_match": 2.63,
+        "avg_elo_change": -0.52
       },
       "CobaltDragoon": {
-        "matches": 17,
+        "matches": 18,
         "wins": 12,
-        "losses": 5,
-        "winrate": 0.706,
+        "losses": 6,
+        "winrate": 0.667,
         "points_for": 65,
-        "points_against": 36,
-        "point_differential": 29,
-        "avg_points_per_match": 3.82,
-        "avg_elo_change": 4.78
+        "points_against": 40,
+        "point_differential": 25,
+        "avg_points_per_match": 3.61,
+        "avg_elo_change": 4.16
       },
       "PerseusDark": {
-        "matches": 14,
-        "wins": 7,
-        "losses": 7,
-        "winrate": 0.5,
-        "points_for": 41,
-        "points_against": 40,
-        "point_differential": 1,
-        "avg_points_per_match": 2.93,
-        "avg_elo_change": 1.64
-      },
-      "WhaleWave": {
-        "matches": 14,
-        "wins": 5,
-        "losses": 9,
-        "winrate": 0.357,
-        "points_for": 33,
-        "points_against": 47,
-        "point_differential": -14,
-        "avg_points_per_match": 2.36,
-        "avg_elo_change": -2.47
-      },
-      "SilverWolf": {
-        "matches": 12,
-        "wins": 5,
-        "losses": 7,
-        "winrate": 0.417,
-        "points_for": 34,
-        "points_against": 38,
-        "point_differential": -4,
-        "avg_points_per_match": 2.83,
-        "avg_elo_change": -0.49
-      },
-      "WizardRod": {
-        "matches": 14,
-        "wins": 6,
-        "losses": 8,
-        "winrate": 0.429,
-        "points_for": 40,
-        "points_against": 46,
-        "point_differential": -6,
-        "avg_points_per_match": 2.86,
-        "avg_elo_change": -2.41
-      },
-      "WeissTiger": {
-        "matches": 12,
-        "wins": 7,
-        "losses": 5,
-        "winrate": 0.583,
-        "points_for": 37,
-        "points_against": 26,
-        "point_differential": 11,
-        "avg_points_per_match": 3.08,
-        "avg_elo_change": 3.92
-      },
-      "RhinoReaper": {
         "matches": 15,
         "wins": 8,
         "losses": 7,
         "winrate": 0.533,
-        "points_for": 50,
-        "points_against": 48,
-        "point_differential": 2,
-        "avg_points_per_match": 3.33,
-        "avg_elo_change": 0.51
+        "points_for": 45,
+        "points_against": 40,
+        "point_differential": 5,
+        "avg_points_per_match": 3.0,
+        "avg_elo_change": 2.33
+      },
+      "WhaleWave": {
+        "matches": 15,
+        "wins": 5,
+        "losses": 10,
+        "winrate": 0.333,
+        "points_for": 34,
+        "points_against": 51,
+        "point_differential": -17,
+        "avg_points_per_match": 2.27,
+        "avg_elo_change": -2.96
+      },
+      "SilverWolf": {
+        "matches": 13,
+        "wins": 5,
+        "losses": 8,
+        "winrate": 0.385,
+        "points_for": 34,
+        "points_against": 42,
+        "point_differential": -8,
+        "avg_points_per_match": 2.62,
+        "avg_elo_change": -1.49
+      },
+      "WizardRod": {
+        "matches": 15,
+        "wins": 6,
+        "losses": 9,
+        "winrate": 0.4,
+        "points_for": 40,
+        "points_against": 50,
+        "point_differential": -10,
+        "avg_points_per_match": 2.67,
+        "avg_elo_change": -2.99
+      },
+      "WeissTiger": {
+        "matches": 13,
+        "wins": 8,
+        "losses": 5,
+        "winrate": 0.615,
+        "points_for": 41,
+        "points_against": 29,
+        "point_differential": 12,
+        "avg_points_per_match": 3.15,
+        "avg_elo_change": 4.29
+      },
+      "RhinoReaper": {
+        "matches": 16,
+        "wins": 8,
+        "losses": 8,
+        "winrate": 0.5,
+        "points_for": 53,
+        "points_against": 53,
+        "point_differential": 0,
+        "avg_points_per_match": 3.31,
+        "avg_elo_change": 0.15
       },
       "ScorpioSpear": {
-        "matches": 16,
-        "wins": 10,
+        "matches": 17,
+        "wins": 11,
         "losses": 6,
-        "winrate": 0.625,
-        "points_for": 52,
+        "winrate": 0.647,
+        "points_for": 56,
         "points_against": 36,
-        "point_differential": 16,
-        "avg_points_per_match": 3.25,
-        "avg_elo_change": 3.59
+        "point_differential": 20,
+        "avg_points_per_match": 3.29,
+        "avg_elo_change": 3.75
       },
       "PhoenixRudder": {
         "matches": 9,
@@ -394,26 +394,26 @@
         "avg_elo_change": -4.21
       },
       "CerberusFlame": {
-        "matches": 21,
-        "wins": 10,
+        "matches": 22,
+        "wins": 11,
         "losses": 11,
-        "winrate": 0.476,
-        "points_for": 51,
+        "winrate": 0.5,
+        "points_for": 55,
         "points_against": 59,
-        "point_differential": -8,
-        "avg_points_per_match": 2.43,
-        "avg_elo_change": 1.41
+        "point_differential": -4,
+        "avg_points_per_match": 2.5,
+        "avg_elo_change": 1.6
       },
       "KnightMail": {
-        "matches": 16,
+        "matches": 17,
         "wins": 8,
-        "losses": 8,
-        "winrate": 0.5,
-        "points_for": 47,
-        "points_against": 42,
-        "point_differential": 5,
-        "avg_points_per_match": 2.94,
-        "avg_elo_change": 1.9
+        "losses": 9,
+        "winrate": 0.471,
+        "points_for": 49,
+        "points_against": 46,
+        "point_differential": 3,
+        "avg_points_per_match": 2.88,
+        "avg_elo_change": 1.5
       },
       "PegasusBlast": {
         "matches": 6,
@@ -438,15 +438,15 @@
         "avg_elo_change": -10.53
       },
       "SolEclipse": {
-        "matches": 12,
-        "wins": 5,
+        "matches": 13,
+        "wins": 6,
         "losses": 7,
-        "winrate": 0.417,
-        "points_for": 35,
-        "points_against": 39,
-        "point_differential": -4,
-        "avg_points_per_match": 2.92,
-        "avg_elo_change": -1.14
+        "winrate": 0.462,
+        "points_for": 39,
+        "points_against": 40,
+        "point_differential": -1,
+        "avg_points_per_match": 3.0,
+        "avg_elo_change": -0.11
       },
       "CobaltDrake": {
         "matches": 5,
@@ -460,37 +460,37 @@
         "avg_elo_change": -10.13
       },
       "SharkScale": {
-        "matches": 9,
+        "matches": 10,
         "wins": 7,
-        "losses": 2,
-        "winrate": 0.778,
-        "points_for": 37,
-        "points_against": 17,
-        "point_differential": 20,
-        "avg_points_per_match": 4.11,
-        "avg_elo_change": 9.08
+        "losses": 3,
+        "winrate": 0.7,
+        "points_for": 40,
+        "points_against": 21,
+        "point_differential": 19,
+        "avg_points_per_match": 4.0,
+        "avg_elo_change": 7.3
       },
       "ValkyrieVolt": {
-        "matches": 4,
-        "wins": 3,
+        "matches": 5,
+        "wins": 4,
         "losses": 1,
-        "winrate": 0.75,
-        "points_for": 15,
-        "points_against": 4,
-        "point_differential": 11,
-        "avg_points_per_match": 3.75,
-        "avg_elo_change": 13.39
+        "winrate": 0.8,
+        "points_for": 20,
+        "points_against": 7,
+        "point_differential": 13,
+        "avg_points_per_match": 4.0,
+        "avg_elo_change": 14.18
       },
       "WyvernHover": {
-        "matches": 4,
+        "matches": 5,
         "wins": 3,
-        "losses": 1,
-        "winrate": 0.75,
-        "points_for": 12,
-        "points_against": 7,
-        "point_differential": 5,
-        "avg_points_per_match": 3.0,
-        "avg_elo_change": 9.15
+        "losses": 2,
+        "winrate": 0.6,
+        "points_for": 13,
+        "points_against": 11,
+        "point_differential": 2,
+        "avg_points_per_match": 2.6,
+        "avg_elo_change": 3.25
       },
       "EmperorMight": {
         "matches": 2,
@@ -518,64 +518,64 @@
     "Xtreme Stadium_rankings": {
       "best_performers": [
         {
-          "bey": "SharkScale",
-          "matches": 9,
-          "wins": 7,
-          "losses": 2,
-          "winrate": 0.778,
-          "points_for": 37,
-          "points_against": 17,
-          "point_differential": 20,
-          "avg_points_per_match": 4.11,
-          "avg_elo_change": 9.08
-        },
-        {
           "bey": "ValkyrieVolt",
-          "matches": 4,
-          "wins": 3,
+          "matches": 5,
+          "wins": 4,
           "losses": 1,
-          "winrate": 0.75,
-          "points_for": 15,
-          "points_against": 4,
-          "point_differential": 11,
-          "avg_points_per_match": 3.75,
-          "avg_elo_change": 13.39
-        },
-        {
-          "bey": "WyvernHover",
-          "matches": 4,
-          "wins": 3,
-          "losses": 1,
-          "winrate": 0.75,
-          "points_for": 12,
+          "winrate": 0.8,
+          "points_for": 20,
           "points_against": 7,
-          "point_differential": 5,
-          "avg_points_per_match": 3.0,
-          "avg_elo_change": 9.15
+          "point_differential": 13,
+          "avg_points_per_match": 4.0,
+          "avg_elo_change": 14.18
         },
         {
           "bey": "TuskMammoth",
-          "matches": 31,
-          "wins": 23,
+          "matches": 32,
+          "wins": 24,
           "losses": 8,
-          "winrate": 0.742,
-          "points_for": 110,
-          "points_against": 75,
-          "point_differential": 35,
-          "avg_points_per_match": 3.55,
-          "avg_elo_change": 3.61
+          "winrate": 0.75,
+          "points_for": 116,
+          "points_against": 77,
+          "point_differential": 39,
+          "avg_points_per_match": 3.62,
+          "avg_elo_change": 3.76
         },
         {
           "bey": "ImpactDrake",
-          "matches": 24,
-          "wins": 17,
+          "matches": 25,
+          "wins": 18,
           "losses": 7,
-          "winrate": 0.708,
-          "points_for": 93,
+          "winrate": 0.72,
+          "points_for": 97,
           "points_against": 51,
-          "point_differential": 42,
+          "point_differential": 46,
           "avg_points_per_match": 3.88,
-          "avg_elo_change": 5.22
+          "avg_elo_change": 5.21
+        },
+        {
+          "bey": "SharkScale",
+          "matches": 10,
+          "wins": 7,
+          "losses": 3,
+          "winrate": 0.7,
+          "points_for": 40,
+          "points_against": 21,
+          "point_differential": 19,
+          "avg_points_per_match": 4.0,
+          "avg_elo_change": 7.3
+        },
+        {
+          "bey": "CobaltDragoon",
+          "matches": 18,
+          "wins": 12,
+          "losses": 6,
+          "winrate": 0.667,
+          "points_for": 65,
+          "points_against": 40,
+          "point_differential": 25,
+          "avg_points_per_match": 3.61,
+          "avg_elo_change": 4.16
         }
       ],
       "worst_performers": [
@@ -654,15 +654,15 @@
         "avg_elo_change": -1.65
       },
       "ValkyrieVolt": {
-        "matches": 4,
-        "wins": 4,
+        "matches": 7,
+        "wins": 7,
         "losses": 0,
         "winrate": 1.0,
-        "points_for": 22,
-        "points_against": 4,
-        "point_differential": 18,
-        "avg_points_per_match": 5.5,
-        "avg_elo_change": 27.29
+        "points_for": 40,
+        "points_against": 9,
+        "point_differential": 31,
+        "avg_points_per_match": 5.71,
+        "avg_elo_change": 23.44
       },
       "DranBrave": {
         "matches": 1,
@@ -698,15 +698,15 @@
         "avg_elo_change": 2.03
       },
       "TuskMammoth": {
-        "matches": 4,
+        "matches": 5,
         "wins": 2,
-        "losses": 2,
-        "winrate": 0.5,
+        "losses": 3,
+        "winrate": 0.4,
         "points_for": 12,
-        "points_against": 9,
-        "point_differential": 3,
-        "avg_points_per_match": 3.0,
-        "avg_elo_change": 0.92
+        "points_against": 13,
+        "point_differential": -1,
+        "avg_points_per_match": 2.4,
+        "avg_elo_change": -3.54
       },
       "DranSword": {
         "matches": 2,
@@ -720,26 +720,26 @@
         "avg_elo_change": -23.75
       },
       "SamuraiSaber": {
-        "matches": 4,
+        "matches": 5,
         "wins": 3,
-        "losses": 1,
-        "winrate": 0.75,
-        "points_for": 13,
-        "points_against": 5,
-        "point_differential": 8,
-        "avg_points_per_match": 3.25,
-        "avg_elo_change": 9.87
+        "losses": 2,
+        "winrate": 0.6,
+        "points_for": 15,
+        "points_against": 11,
+        "point_differential": 4,
+        "avg_points_per_match": 3.0,
+        "avg_elo_change": 1.25
       },
       "PhoenixWing": {
-        "matches": 5,
+        "matches": 6,
         "wins": 2,
-        "losses": 3,
-        "winrate": 0.4,
+        "losses": 4,
+        "winrate": 0.333,
         "points_for": 10,
-        "points_against": 14,
-        "point_differential": -4,
-        "avg_points_per_match": 2.0,
-        "avg_elo_change": -3.92
+        "points_against": 19,
+        "point_differential": -9,
+        "avg_points_per_match": 1.67,
+        "avg_elo_change": -6.25
       },
       "CobaltDragoon": {
         "matches": 2,
@@ -753,15 +753,15 @@
         "avg_elo_change": -0.86
       },
       "CobaltDrake": {
-        "matches": 3,
-        "wins": 1,
-        "losses": 2,
-        "winrate": 0.333,
-        "points_for": 8,
-        "points_against": 9,
-        "point_differential": -1,
-        "avg_points_per_match": 2.67,
-        "avg_elo_change": -5.66
+        "matches": 6,
+        "wins": 3,
+        "losses": 3,
+        "winrate": 0.5,
+        "points_for": 20,
+        "points_against": 16,
+        "point_differential": 4,
+        "avg_points_per_match": 3.33,
+        "avg_elo_change": 3.32
       },
       "DranBuster": {
         "matches": 1,
@@ -885,15 +885,15 @@
         "avg_elo_change": 3.62
       },
       "LeonClaw": {
-        "matches": 1,
+        "matches": 2,
         "wins": 0,
-        "losses": 1,
+        "losses": 2,
         "winrate": 0.0,
         "points_for": 0,
-        "points_against": 4,
-        "point_differential": -4,
+        "points_against": 8,
+        "point_differential": -8,
         "avg_points_per_match": 0.0,
-        "avg_elo_change": -20.0
+        "avg_elo_change": -18.35
       },
       "WhaleWave": {
         "matches": 4,
@@ -907,15 +907,15 @@
         "avg_elo_change": 4.65
       },
       "WizardArc": {
-        "matches": 4,
-        "wins": 3,
-        "losses": 1,
-        "winrate": 0.75,
-        "points_for": 16,
-        "points_against": 7,
-        "point_differential": 9,
-        "avg_points_per_match": 4.0,
-        "avg_elo_change": 9.49
+        "matches": 7,
+        "wins": 5,
+        "losses": 2,
+        "winrate": 0.714,
+        "points_for": 27,
+        "points_against": 17,
+        "point_differential": 10,
+        "avg_points_per_match": 3.86,
+        "avg_elo_change": 6.57
       },
       "GolemRock": {
         "matches": 1,
@@ -929,15 +929,15 @@
         "avg_elo_change": -25.0
       },
       "LeonCrest": {
-        "matches": 1,
-        "wins": 0,
-        "losses": 1,
-        "winrate": 0.0,
-        "points_for": 0,
-        "points_against": 4,
-        "point_differential": -4,
-        "avg_points_per_match": 0.0,
-        "avg_elo_change": -20.0
+        "matches": 4,
+        "wins": 1,
+        "losses": 3,
+        "winrate": 0.25,
+        "points_for": 7,
+        "points_against": 13,
+        "point_differential": -6,
+        "avg_points_per_match": 1.75,
+        "avg_elo_change": -7.67
       },
       "HellsChain": {
         "matches": 2,
@@ -977,15 +977,15 @@
       "best_performers": [
         {
           "bey": "ValkyrieVolt",
-          "matches": 4,
-          "wins": 4,
+          "matches": 7,
+          "wins": 7,
           "losses": 0,
           "winrate": 1.0,
-          "points_for": 22,
-          "points_against": 4,
-          "point_differential": 18,
-          "avg_points_per_match": 5.5,
-          "avg_elo_change": 27.29
+          "points_for": 40,
+          "points_against": 9,
+          "point_differential": 31,
+          "avg_points_per_match": 5.71,
+          "avg_elo_change": 23.44
         },
         {
           "bey": "ScorpioSpear",
@@ -1012,18 +1012,6 @@
           "avg_elo_change": 15.0
         },
         {
-          "bey": "SamuraiSaber",
-          "matches": 4,
-          "wins": 3,
-          "losses": 1,
-          "winrate": 0.75,
-          "points_for": 13,
-          "points_against": 5,
-          "point_differential": 8,
-          "avg_points_per_match": 3.25,
-          "avg_elo_change": 9.87
-        },
-        {
           "bey": "SharkScale",
           "matches": 4,
           "wins": 3,
@@ -1034,23 +1022,47 @@
           "point_differential": 9,
           "avg_points_per_match": 4.25,
           "avg_elo_change": 6.19
+        },
+        {
+          "bey": "WhaleWave",
+          "matches": 4,
+          "wins": 3,
+          "losses": 1,
+          "winrate": 0.75,
+          "points_for": 15,
+          "points_against": 13,
+          "point_differential": 2,
+          "avg_points_per_match": 3.75,
+          "avg_elo_change": 4.65
         }
       ],
       "worst_performers": [
         {
-          "bey": "WizardArrow",
+          "bey": "WeissTiger",
           "matches": 1,
           "wins": 0,
           "losses": 1,
           "winrate": 0.0,
           "points_for": 0,
-          "points_against": 4,
-          "point_differential": -4,
+          "points_against": 5,
+          "point_differential": -5,
           "avg_points_per_match": 0.0,
-          "avg_elo_change": -20.0
+          "avg_elo_change": -24.98
         },
         {
-          "bey": "LeonClaw",
+          "bey": "SolEclipse",
+          "matches": 1,
+          "wins": 0,
+          "losses": 1,
+          "winrate": 0.0,
+          "points_for": 0,
+          "points_against": 5,
+          "point_differential": -5,
+          "avg_points_per_match": 0.0,
+          "avg_elo_change": -25.0
+        },
+        {
+          "bey": "WizardArrow",
           "matches": 1,
           "wins": 0,
           "losses": 1,
@@ -1074,18 +1086,6 @@
           "avg_elo_change": -25.0
         },
         {
-          "bey": "LeonCrest",
-          "matches": 1,
-          "wins": 0,
-          "losses": 1,
-          "winrate": 0.0,
-          "points_for": 0,
-          "points_against": 4,
-          "point_differential": -4,
-          "avg_points_per_match": 0.0,
-          "avg_elo_change": -20.0
-        },
-        {
           "bey": "WolfHunt",
           "matches": 1,
           "wins": 0,
@@ -1102,455 +1102,462 @@
   },
   "archetype_effectiveness": {
     "Xtreme Stadium": {
-      "Adaptive Fighter": {
-        "matches": 110,
-        "wins": 63,
-        "winrate": 0.573,
-        "avg_dominance": 0.33,
-        "total_dominance": 36,
+      "Chaser": {
+        "matches": 41,
+        "wins": 16,
+        "winrate": 0.39,
+        "avg_dominance": -0.71,
+        "total_dominance": -29,
         "vs_archetype": {
           "Endurance Core": {
-            "winrate": 0.8,
-            "matches": 15
+            "winrate": 0.636,
+            "matches": 11
           },
-          "Glass Cannon": {
-            "winrate": 0.812,
-            "matches": 16
+          "Adaptive Fighter": {
+            "winrate": 0.3,
+            "matches": 10
           },
-          "Spin Tank": {
-            "winrate": 0.6,
+          "Tempo Controller": {
+            "winrate": 0.0,
             "matches": 5
           },
           "Iron Wall": {
-            "winrate": 0.591,
-            "matches": 22
+            "winrate": 0.5,
+            "matches": 2
           },
-          "Tempo Controller": {
-            "winrate": 0.292,
-            "matches": 24
+          "Spin Tank": {
+            "winrate": 0.5,
+            "matches": 2
+          },
+          "Glass Cannon": {
+            "winrate": 0.375,
+            "matches": 8
           },
           "Chaser": {
-            "winrate": 1.0,
-            "matches": 2
-          },
-          "Adaptive Fighter": {
-            "winrate": 0.5,
-            "matches": 20
-          },
-          "Berserker": {
-            "winrate": 1.0,
-            "matches": 2
-          },
-          "Counter Shield": {
             "winrate": 0.5,
             "matches": 2
           },
           "Meta Anchor": {
             "winrate": 0.0,
-            "matches": 2
+            "matches": 1
           }
         }
       },
       "Endurance Core": {
-        "matches": 73,
-        "wins": 25,
-        "winrate": 0.342,
-        "avg_dominance": -0.92,
-        "total_dominance": -67,
+        "matches": 81,
+        "wins": 30,
+        "winrate": 0.37,
+        "avg_dominance": -0.75,
+        "total_dominance": -61,
         "vs_archetype": {
-          "Adaptive Fighter": {
-            "winrate": 0.2,
-            "matches": 15
-          },
           "Chaser": {
-            "winrate": 0.333,
-            "matches": 3
+            "winrate": 0.364,
+            "matches": 11
           },
-          "Iron Wall": {
-            "winrate": 0.526,
-            "matches": 19
+          "Adaptive Fighter": {
+            "winrate": 0.286,
+            "matches": 14
           },
           "Meta Anchor": {
-            "winrate": 0.25,
-            "matches": 4
-          },
-          "Glass Cannon": {
-            "winrate": 0.4,
-            "matches": 15
+            "winrate": 0.429,
+            "matches": 7
           },
           "Spin Tank": {
-            "winrate": 0.333,
-            "matches": 3
+            "winrate": 0.5,
+            "matches": 8
+          },
+          "Iron Wall": {
+            "winrate": 0.357,
+            "matches": 14
+          },
+          "Glass Cannon": {
+            "winrate": 0.364,
+            "matches": 11
           },
           "Tempo Controller": {
-            "winrate": 0.25,
-            "matches": 8
+            "winrate": 0.222,
+            "matches": 9
           },
           "Endurance Core": {
             "winrate": 0.5,
-            "matches": 2
+            "matches": 4
           },
-          "Berserker": {
-            "winrate": 0.0,
-            "matches": 3
+          "Unknown": {
+            "winrate": 1.0,
+            "matches": 2
           },
           "Counter Shield": {
             "winrate": 0.0,
             "matches": 1
-          }
-        }
-      },
-      "Glass Cannon": {
-        "matches": 80,
-        "wins": 28,
-        "winrate": 0.35,
-        "avg_dominance": -0.93,
-        "total_dominance": -74,
-        "vs_archetype": {
-          "Tempo Controller": {
-            "winrate": 0.0,
-            "matches": 9
-          },
-          "Adaptive Fighter": {
-            "winrate": 0.188,
-            "matches": 16
-          },
-          "Iron Wall": {
-            "winrate": 0.2,
-            "matches": 15
-          },
-          "Endurance Core": {
-            "winrate": 0.6,
-            "matches": 15
-          },
-          "Glass Cannon": {
-            "winrate": 0.5,
-            "matches": 12
-          },
-          "Berserker": {
-            "winrate": 0.4,
-            "matches": 5
-          },
-          "Chaser": {
-            "winrate": 1.0,
-            "matches": 3
-          },
-          "Spin Tank": {
-            "winrate": 1.0,
-            "matches": 2
-          },
-          "Counter Shield": {
-            "winrate": 0.0,
-            "matches": 3
           }
         }
       },
       "Tempo Controller": {
-        "matches": 94,
-        "wins": 63,
-        "winrate": 0.67,
-        "avg_dominance": 1.14,
-        "total_dominance": 107,
+        "matches": 106,
+        "wins": 65,
+        "winrate": 0.613,
+        "avg_dominance": 0.81,
+        "total_dominance": 86,
         "vs_archetype": {
-          "Glass Cannon": {
-            "winrate": 1.0,
-            "matches": 9
-          },
-          "Iron Wall": {
-            "winrate": 0.714,
-            "matches": 21
-          },
-          "Adaptive Fighter": {
-            "winrate": 0.708,
-            "matches": 24
-          },
           "Tempo Controller": {
             "winrate": 0.5,
-            "matches": 16
-          },
-          "Endurance Core": {
-            "winrate": 0.75,
-            "matches": 8
-          },
-          "Meta Anchor": {
-            "winrate": 0.25,
-            "matches": 4
-          },
-          "Spin Tank": {
-            "winrate": 0.5,
-            "matches": 2
-          },
-          "Berserker": {
-            "winrate": 0.6,
-            "matches": 5
-          },
-          "Counter Shield": {
-            "winrate": 0.333,
-            "matches": 3
+            "matches": 24
           },
           "Unknown": {
             "winrate": 1.0,
-            "matches": 2
-          }
-        }
-      },
-      "Iron Wall": {
-        "matches": 110,
-        "wins": 52,
-        "winrate": 0.473,
-        "avg_dominance": -0.21,
-        "total_dominance": -23,
-        "vs_archetype": {
-          "Tempo Controller": {
-            "winrate": 0.286,
-            "matches": 21
-          },
-          "Iron Wall": {
-            "winrate": 0.5,
-            "matches": 20
-          },
-          "Endurance Core": {
-            "winrate": 0.474,
-            "matches": 19
-          },
-          "Glass Cannon": {
-            "winrate": 0.8,
-            "matches": 15
-          },
-          "Adaptive Fighter": {
-            "winrate": 0.409,
-            "matches": 22
-          },
-          "Meta Anchor": {
-            "winrate": 0.75,
-            "matches": 4
-          },
-          "Spin Tank": {
-            "winrate": 0.2,
-            "matches": 5
-          },
-          "Berserker": {
-            "winrate": 0.667,
-            "matches": 3
-          },
-          "Counter Shield": {
-            "winrate": 0.0,
-            "matches": 1
-          }
-        }
-      },
-      "Chaser": {
-        "matches": 9,
-        "wins": 2,
-        "winrate": 0.222,
-        "avg_dominance": -1.67,
-        "total_dominance": -15,
-        "vs_archetype": {
-          "Endurance Core": {
-            "winrate": 0.667,
             "matches": 3
           },
           "Adaptive Fighter": {
-            "winrate": 0.0,
-            "matches": 2
-          },
-          "Spin Tank": {
-            "winrate": 0.0,
-            "matches": 1
-          },
-          "Glass Cannon": {
-            "winrate": 0.0,
-            "matches": 3
-          }
-        }
-      },
-      "Berserker": {
-        "matches": 23,
-        "wins": 9,
-        "winrate": 0.391,
-        "avg_dominance": -1.0,
-        "total_dominance": -23,
-        "vs_archetype": {
-          "Meta Anchor": {
-            "winrate": 0.0,
-            "matches": 2
-          },
-          "Glass Cannon": {
-            "winrate": 0.6,
-            "matches": 5
-          },
-          "Spin Tank": {
-            "winrate": 0.0,
-            "matches": 1
-          },
-          "Tempo Controller": {
-            "winrate": 0.4,
-            "matches": 5
-          },
-          "Endurance Core": {
-            "winrate": 1.0,
-            "matches": 3
-          },
-          "Iron Wall": {
-            "winrate": 0.333,
-            "matches": 3
-          },
-          "Adaptive Fighter": {
-            "winrate": 0.0,
-            "matches": 2
-          },
-          "Counter Shield": {
-            "winrate": 0.0,
-            "matches": 2
-          }
-        }
-      },
-      "Meta Anchor": {
-        "matches": 17,
-        "wins": 12,
-        "winrate": 0.706,
-        "avg_dominance": 1.71,
-        "total_dominance": 29,
-        "vs_archetype": {
-          "Berserker": {
-            "winrate": 1.0,
-            "matches": 2
-          },
-          "Iron Wall": {
-            "winrate": 0.25,
-            "matches": 4
-          },
-          "Endurance Core": {
-            "winrate": 0.75,
-            "matches": 4
-          },
-          "Tempo Controller": {
-            "winrate": 0.75,
-            "matches": 4
-          },
-          "Counter Shield": {
-            "winrate": 1.0,
-            "matches": 1
-          },
-          "Adaptive Fighter": {
-            "winrate": 1.0,
-            "matches": 2
-          }
-        }
-      },
-      "Spin Tank": {
-        "matches": 19,
-        "wins": 11,
-        "winrate": 0.579,
-        "avg_dominance": 0.37,
-        "total_dominance": 7,
-        "vs_archetype": {
-          "Adaptive Fighter": {
-            "winrate": 0.4,
-            "matches": 5
-          },
-          "Endurance Core": {
-            "winrate": 0.667,
-            "matches": 3
-          },
-          "Berserker": {
-            "winrate": 1.0,
-            "matches": 1
-          },
-          "Tempo Controller": {
-            "winrate": 0.5,
-            "matches": 2
+            "winrate": 0.679,
+            "matches": 28
           },
           "Chaser": {
             "winrate": 1.0,
-            "matches": 1
-          },
-          "Iron Wall": {
-            "winrate": 0.8,
             "matches": 5
           },
-          "Glass Cannon": {
-            "winrate": 0.0,
-            "matches": 2
-          }
-        }
-      },
-      "Counter Shield": {
-        "matches": 13,
-        "wins": 10,
-        "winrate": 0.769,
-        "avg_dominance": 2.38,
-        "total_dominance": 31,
-        "vs_archetype": {
-          "Glass Cannon": {
-            "winrate": 1.0,
-            "matches": 3
+          "Iron Wall": {
+            "winrate": 0.647,
+            "matches": 17
           },
-          "Adaptive Fighter": {
-            "winrate": 0.5,
-            "matches": 2
-          },
-          "Tempo Controller": {
+          "Glass Cannon": {
             "winrate": 0.667,
-            "matches": 3
+            "matches": 6
           },
-          "Berserker": {
-            "winrate": 1.0,
+          "Endurance Core": {
+            "winrate": 0.778,
+            "matches": 9
+          },
+          "Spin Tank": {
+            "winrate": 0.0,
             "matches": 2
           },
           "Meta Anchor": {
-            "winrate": 0.0,
-            "matches": 1
+            "winrate": 0.333,
+            "matches": 9
           },
-          "Iron Wall": {
-            "winrate": 1.0,
-            "matches": 1
-          },
-          "Endurance Core": {
-            "winrate": 1.0,
-            "matches": 1
+          "Counter Shield": {
+            "winrate": 0.333,
+            "matches": 3
           }
         }
       },
       "Unknown": {
-        "matches": 4,
-        "wins": 1,
-        "winrate": 0.25,
-        "avg_dominance": -2.0,
+        "matches": 13,
+        "wins": 3,
+        "winrate": 0.231,
+        "avg_dominance": -2.23,
+        "total_dominance": -29,
+        "vs_archetype": {
+          "Tempo Controller": {
+            "winrate": 0.0,
+            "matches": 3
+          },
+          "Adaptive Fighter": {
+            "winrate": 0.333,
+            "matches": 3
+          },
+          "Glass Cannon": {
+            "winrate": 0.5,
+            "matches": 2
+          },
+          "Spin Tank": {
+            "winrate": 0.0,
+            "matches": 1
+          },
+          "Endurance Core": {
+            "winrate": 0.0,
+            "matches": 2
+          },
+          "Unknown": {
+            "winrate": 0.5,
+            "matches": 2
+          }
+        }
+      },
+      "Adaptive Fighter": {
+        "matches": 117,
+        "wins": 70,
+        "winrate": 0.598,
+        "avg_dominance": 0.49,
+        "total_dominance": 57,
+        "vs_archetype": {
+          "Tempo Controller": {
+            "winrate": 0.321,
+            "matches": 28
+          },
+          "Endurance Core": {
+            "winrate": 0.714,
+            "matches": 14
+          },
+          "Chaser": {
+            "winrate": 0.7,
+            "matches": 10
+          },
+          "Glass Cannon": {
+            "winrate": 0.875,
+            "matches": 16
+          },
+          "Spin Tank": {
+            "winrate": 0.75,
+            "matches": 4
+          },
+          "Iron Wall": {
+            "winrate": 0.583,
+            "matches": 12
+          },
+          "Meta Anchor": {
+            "winrate": 0.857,
+            "matches": 7
+          },
+          "Unknown": {
+            "winrate": 0.667,
+            "matches": 3
+          },
+          "Adaptive Fighter": {
+            "winrate": 0.5,
+            "matches": 20
+          },
+          "Counter Shield": {
+            "winrate": 0.667,
+            "matches": 3
+          }
+        }
+      },
+      "Iron Wall": {
+        "matches": 79,
+        "wins": 39,
+        "winrate": 0.494,
+        "avg_dominance": -0.1,
         "total_dominance": -8,
         "vs_archetype": {
+          "Iron Wall": {
+            "winrate": 0.5,
+            "matches": 16
+          },
+          "Meta Anchor": {
+            "winrate": 0.333,
+            "matches": 3
+          },
+          "Glass Cannon": {
+            "winrate": 0.857,
+            "matches": 7
+          },
+          "Adaptive Fighter": {
+            "winrate": 0.417,
+            "matches": 12
+          },
+          "Endurance Core": {
+            "winrate": 0.643,
+            "matches": 14
+          },
+          "Spin Tank": {
+            "winrate": 0.6,
+            "matches": 5
+          },
+          "Tempo Controller": {
+            "winrate": 0.353,
+            "matches": 17
+          },
+          "Chaser": {
+            "winrate": 0.5,
+            "matches": 2
+          },
+          "Counter Shield": {
+            "winrate": 0.0,
+            "matches": 3
+          }
+        }
+      },
+      "Glass Cannon": {
+        "matches": 65,
+        "wins": 24,
+        "winrate": 0.369,
+        "avg_dominance": -0.82,
+        "total_dominance": -53,
+        "vs_archetype": {
+          "Adaptive Fighter": {
+            "winrate": 0.125,
+            "matches": 16
+          },
+          "Iron Wall": {
+            "winrate": 0.143,
+            "matches": 7
+          },
+          "Endurance Core": {
+            "winrate": 0.636,
+            "matches": 11
+          },
+          "Tempo Controller": {
+            "winrate": 0.333,
+            "matches": 6
+          },
+          "Meta Anchor": {
+            "winrate": 0.25,
+            "matches": 4
+          },
+          "Chaser": {
+            "winrate": 0.625,
+            "matches": 8
+          },
           "Unknown": {
             "winrate": 0.5,
             "matches": 2
           },
-          "Tempo Controller": {
+          "Spin Tank": {
+            "winrate": 0.75,
+            "matches": 4
+          },
+          "Glass Cannon": {
+            "winrate": 0.5,
+            "matches": 4
+          },
+          "Counter Shield": {
             "winrate": 0.0,
+            "matches": 3
+          }
+        }
+      },
+      "Meta Anchor": {
+        "matches": 36,
+        "wins": 20,
+        "winrate": 0.556,
+        "avg_dominance": 0.36,
+        "total_dominance": 13,
+        "vs_archetype": {
+          "Endurance Core": {
+            "winrate": 0.571,
+            "matches": 7
+          },
+          "Iron Wall": {
+            "winrate": 0.667,
+            "matches": 3
+          },
+          "Meta Anchor": {
+            "winrate": 0.5,
+            "matches": 4
+          },
+          "Adaptive Fighter": {
+            "winrate": 0.143,
+            "matches": 7
+          },
+          "Tempo Controller": {
+            "winrate": 0.667,
+            "matches": 9
+          },
+          "Glass Cannon": {
+            "winrate": 0.75,
+            "matches": 4
+          },
+          "Counter Shield": {
+            "winrate": 1.0,
+            "matches": 1
+          },
+          "Chaser": {
+            "winrate": 1.0,
+            "matches": 1
+          }
+        }
+      },
+      "Spin Tank": {
+        "matches": 29,
+        "wins": 13,
+        "winrate": 0.448,
+        "avg_dominance": -0.28,
+        "total_dominance": -8,
+        "vs_archetype": {
+          "Endurance Core": {
+            "winrate": 0.5,
+            "matches": 8
+          },
+          "Adaptive Fighter": {
+            "winrate": 0.25,
+            "matches": 4
+          },
+          "Iron Wall": {
+            "winrate": 0.4,
+            "matches": 5
+          },
+          "Tempo Controller": {
+            "winrate": 1.0,
             "matches": 2
+          },
+          "Chaser": {
+            "winrate": 0.5,
+            "matches": 2
+          },
+          "Unknown": {
+            "winrate": 1.0,
+            "matches": 1
+          },
+          "Glass Cannon": {
+            "winrate": 0.25,
+            "matches": 4
+          },
+          "Spin Tank": {
+            "winrate": 0.5,
+            "matches": 2
+          },
+          "Counter Shield": {
+            "winrate": 0.0,
+            "matches": 1
+          }
+        }
+      },
+      "Counter Shield": {
+        "matches": 15,
+        "wins": 11,
+        "winrate": 0.733,
+        "avg_dominance": 2.13,
+        "total_dominance": 32,
+        "vs_archetype": {
+          "Glass Cannon": {
+            "winrate": 1.0,
+            "matches": 3
+          },
+          "Adaptive Fighter": {
+            "winrate": 0.333,
+            "matches": 3
+          },
+          "Tempo Controller": {
+            "winrate": 0.667,
+            "matches": 3
+          },
+          "Iron Wall": {
+            "winrate": 1.0,
+            "matches": 3
+          },
+          "Meta Anchor": {
+            "winrate": 0.0,
+            "matches": 1
+          },
+          "Endurance Core": {
+            "winrate": 1.0,
+            "matches": 1
+          },
+          "Spin Tank": {
+            "winrate": 1.0,
+            "matches": 1
           }
         }
       }
     },
     "Drop Attack Beystadium": {
       "Adaptive Fighter": {
-        "matches": 14,
-        "wins": 6,
-        "winrate": 0.429,
-        "avg_dominance": -0.71,
-        "total_dominance": -10,
+        "matches": 19,
+        "wins": 7,
+        "winrate": 0.368,
+        "avg_dominance": -1.05,
+        "total_dominance": -20,
         "vs_archetype": {
           "Counter Shield": {
             "winrate": 0.0,
-            "matches": 1
-          },
-          "Glass Cannon": {
-            "winrate": 0.6,
-            "matches": 5
-          },
-          "Chaser": {
-            "winrate": 0.0,
-            "matches": 1
+            "matches": 2
           },
           "Tempo Controller": {
+            "winrate": 0.5,
+            "matches": 4
+          },
+          "Chaser": {
             "winrate": 0.5,
             "matches": 2
           },
@@ -1558,63 +1565,67 @@
             "winrate": 0.5,
             "matches": 4
           },
+          "Glass Cannon": {
+            "winrate": 0.5,
+            "matches": 4
+          },
           "Endurance Core": {
             "winrate": 0.0,
-            "matches": 1
+            "matches": 3
           }
         }
       },
       "Counter Shield": {
-        "matches": 8,
-        "wins": 7,
-        "winrate": 0.875,
-        "avg_dominance": 3.38,
-        "total_dominance": 27,
+        "matches": 11,
+        "wins": 10,
+        "winrate": 0.909,
+        "avg_dominance": 3.64,
+        "total_dominance": 40,
         "vs_archetype": {
           "Adaptive Fighter": {
             "winrate": 1.0,
-            "matches": 1
-          },
-          "Berserker": {
-            "winrate": 1.0,
-            "matches": 1
-          },
-          "Glass Cannon": {
-            "winrate": 1.0,
             "matches": 2
-          },
-          "Chaser": {
-            "winrate": 1.0,
-            "matches": 1
           },
           "Iron Wall": {
             "winrate": 1.0,
             "matches": 1
           },
+          "Glass Cannon": {
+            "winrate": 1.0,
+            "matches": 1
+          },
+          "Chaser": {
+            "winrate": 1.0,
+            "matches": 1
+          },
+          "Tempo Controller": {
+            "winrate": 1.0,
+            "matches": 1
+          },
+          "Meta Anchor": {
+            "winrate": 1.0,
+            "matches": 2
+          },
           "Counter Shield": {
             "winrate": 0.5,
             "matches": 2
+          },
+          "Endurance Core": {
+            "winrate": 1.0,
+            "matches": 1
           }
         }
       },
       "Iron Wall": {
-        "matches": 9,
-        "wins": 3,
-        "winrate": 0.333,
-        "avg_dominance": -0.78,
-        "total_dominance": -7,
+        "matches": 4,
+        "wins": 1,
+        "winrate": 0.25,
+        "avg_dominance": -0.75,
+        "total_dominance": -3,
         "vs_archetype": {
           "Glass Cannon": {
             "winrate": 0.0,
-            "matches": 3
-          },
-          "Meta Anchor": {
-            "winrate": 0.5,
             "matches": 2
-          },
-          "Berserker": {
-            "winrate": 1.0,
-            "matches": 1
           },
           "Counter Shield": {
             "winrate": 0.0,
@@ -1622,107 +1633,98 @@
           },
           "Chaser": {
             "winrate": 1.0,
-            "matches": 1
-          },
-          "Endurance Core": {
-            "winrate": 0.0,
             "matches": 1
           }
         }
       },
       "Glass Cannon": {
         "matches": 14,
-        "wins": 8,
-        "winrate": 0.571,
-        "avg_dominance": -0.07,
-        "total_dominance": -1,
+        "wins": 7,
+        "winrate": 0.5,
+        "avg_dominance": -0.43,
+        "total_dominance": -6,
         "vs_archetype": {
           "Iron Wall": {
             "winrate": 1.0,
-            "matches": 3
+            "matches": 2
           },
-          "Adaptive Fighter": {
-            "winrate": 0.4,
-            "matches": 5
-          },
-          "Berserker": {
-            "winrate": 0.0,
-            "matches": 1
+          "Glass Cannon": {
+            "winrate": 0.5,
+            "matches": 2
           },
           "Counter Shield": {
             "winrate": 0.0,
+            "matches": 1
+          },
+          "Meta Anchor": {
+            "winrate": 0.0,
+            "matches": 1
+          },
+          "Adaptive Fighter": {
+            "winrate": 0.5,
+            "matches": 4
+          },
+          "Endurance Core": {
+            "winrate": 0.5,
             "matches": 2
           },
           "Tempo Controller": {
-            "winrate": 1.0,
-            "matches": 1
-          },
-          "Endurance Core": {
-            "winrate": 1.0,
+            "winrate": 0.5,
             "matches": 2
           }
         }
       },
       "Tempo Controller": {
-        "matches": 7,
-        "wins": 3,
-        "winrate": 0.429,
-        "avg_dominance": -0.43,
+        "matches": 13,
+        "wins": 6,
+        "winrate": 0.462,
+        "avg_dominance": -0.23,
         "total_dominance": -3,
         "vs_archetype": {
           "Tempo Controller": {
             "winrate": 0.5,
-            "matches": 2
-          },
-          "Glass Cannon": {
-            "winrate": 0.0,
-            "matches": 1
+            "matches": 4
           },
           "Adaptive Fighter": {
             "winrate": 0.5,
-            "matches": 2
+            "matches": 4
+          },
+          "Counter Shield": {
+            "winrate": 0.0,
+            "matches": 1
+          },
+          "Meta Anchor": {
+            "winrate": 1.0,
+            "matches": 1
           },
           "Endurance Core": {
             "winrate": 0.0,
             "matches": 1
           },
-          "Berserker": {
-            "winrate": 1.0,
-            "matches": 1
-          }
-        }
-      },
-      "Meta Anchor": {
-        "matches": 2,
-        "wins": 1,
-        "winrate": 0.5,
-        "avg_dominance": -0.5,
-        "total_dominance": -1,
-        "vs_archetype": {
-          "Iron Wall": {
+          "Glass Cannon": {
             "winrate": 0.5,
             "matches": 2
           }
         }
       },
-      "Berserker": {
-        "matches": 4,
-        "wins": 1,
-        "winrate": 0.25,
+      "Meta Anchor": {
+        "matches": 8,
+        "wins": 3,
+        "winrate": 0.375,
         "avg_dominance": -1.25,
-        "total_dominance": -5,
+        "total_dominance": -10,
         "vs_archetype": {
+          "Meta Anchor": {
+            "winrate": 0.5,
+            "matches": 4
+          },
           "Glass Cannon": {
             "winrate": 1.0,
             "matches": 1
           },
           "Counter Shield": {
             "winrate": 0.0,
-            "matches": 1
-          },
-          "Iron Wall": {
-            "winrate": 0.0,
-            "matches": 1
+            "matches": 2
           },
           "Tempo Controller": {
             "winrate": 0.0,
@@ -1731,18 +1733,22 @@
         }
       },
       "Chaser": {
-        "matches": 3,
-        "wins": 1,
-        "winrate": 0.333,
-        "avg_dominance": -1.67,
-        "total_dominance": -5,
+        "matches": 5,
+        "wins": 2,
+        "winrate": 0.4,
+        "avg_dominance": -0.8,
+        "total_dominance": -4,
         "vs_archetype": {
           "Adaptive Fighter": {
-            "winrate": 1.0,
-            "matches": 1
+            "winrate": 0.5,
+            "matches": 2
           },
           "Counter Shield": {
             "winrate": 0.0,
+            "matches": 1
+          },
+          "Endurance Core": {
+            "winrate": 1.0,
             "matches": 1
           },
           "Iron Wall": {
@@ -1752,30 +1758,34 @@
         }
       },
       "Endurance Core": {
-        "matches": 7,
-        "wins": 4,
-        "winrate": 0.571,
-        "avg_dominance": 0.71,
-        "total_dominance": 5,
+        "matches": 10,
+        "wins": 6,
+        "winrate": 0.6,
+        "avg_dominance": 0.6,
+        "total_dominance": 6,
         "vs_archetype": {
-          "Glass Cannon": {
+          "Chaser": {
             "winrate": 0.0,
-            "matches": 2
+            "matches": 1
           },
           "Tempo Controller": {
             "winrate": 1.0,
             "matches": 1
           },
-          "Iron Wall": {
+          "Adaptive Fighter": {
             "winrate": 1.0,
-            "matches": 1
+            "matches": 3
           },
           "Endurance Core": {
             "winrate": 0.5,
             "matches": 2
           },
-          "Adaptive Fighter": {
-            "winrate": 1.0,
+          "Glass Cannon": {
+            "winrate": 0.5,
+            "matches": 2
+          },
+          "Counter Shield": {
+            "winrate": 0.0,
             "matches": 1
           }
         }
@@ -1798,51 +1808,55 @@
   "finish_type_statistics": {
     "Xtreme Stadium": {
       "finish_counts": {
-        "spin": 437,
-        "burst": 185,
-        "pocket": 246,
-        "extreme": 93
+        "spin": 454,
+        "burst": 196,
+        "pocket": 260,
+        "stadium_exit": 0,
+        "extreme": 96
       },
       "finish_percentages": {
-        "spin": 45.5,
-        "burst": 19.3,
-        "pocket": 25.6,
-        "extreme": 9.7
+        "spin": 45.1,
+        "burst": 19.5,
+        "pocket": 25.8,
+        "stadium_exit": 0.0,
+        "extreme": 9.5
       },
-      "total_rounds": 961,
+      "total_rounds": 1006,
       "avg_points_per_round": 1.64
     },
     "Drop Attack Beystadium": {
       "finish_counts": {
-        "spin": 22,
-        "burst": 21,
-        "pocket": 51,
-        "extreme": 9
+        "spin": 28,
+        "burst": 22,
+        "pocket": 66,
+        "stadium_exit": 0,
+        "extreme": 13
       },
       "finish_percentages": {
-        "spin": 21.4,
-        "burst": 20.4,
-        "pocket": 49.5,
-        "extreme": 8.7
+        "spin": 21.7,
+        "burst": 17.1,
+        "pocket": 51.2,
+        "stadium_exit": 0.0,
+        "extreme": 10.1
       },
-      "total_rounds": 103,
-      "avg_points_per_round": 1.87
+      "total_rounds": 129,
+      "avg_points_per_round": 1.88
     }
   },
   "elo_behavior": {
     "Xtreme Stadium": {
-      "avg_elo_change": 14.29,
-      "elo_volatility": 6.01,
-      "upset_frequency": 37.7,
-      "dominant_win_frequency": 45.7,
-      "total_matches": 276
+      "avg_elo_change": 13.97,
+      "elo_volatility": 6.07,
+      "upset_frequency": 37.8,
+      "dominant_win_frequency": 46.4,
+      "total_matches": 291
     },
     "Drop Attack Beystadium": {
-      "avg_elo_change": 21.26,
-      "elo_volatility": 5.36,
-      "upset_frequency": 17.1,
-      "dominant_win_frequency": 62.9,
-      "total_matches": 35
+      "avg_elo_change": 20.92,
+      "elo_volatility": 5.51,
+      "upset_frequency": 18.6,
+      "dominant_win_frequency": 62.8,
+      "total_matches": 43
     }
   },
   "comparative_analysis": [
@@ -1850,52 +1864,52 @@
       "stadium_a": "Xtreme Stadium",
       "stadium_b": "Drop Attack Beystadium",
       "bey_winrate_deltas": {
-        "WizardArc": 0.607,
-        "SamuraiSaber": 0.75,
-        "TuskMammoth": -0.242,
-        "GolemRock": -0.652,
-        "LeonCrest": -0.6,
-        "ImpactDrake": -0.208,
-        "DranBrave": -0.526,
-        "DranSword": -0.611,
-        "DranDagger": -0.067,
-        "CrimsonGaruda": 0.1,
-        "LeonClaw": -0.538,
-        "FoxBrush": -0.667,
+        "WizardArc": 0.571,
+        "SamuraiSaber": 0.6,
+        "TuskMammoth": -0.35,
+        "GolemRock": -0.625,
+        "LeonCrest": -0.375,
+        "ImpactDrake": -0.22,
+        "DranBrave": -0.55,
+        "DranSword": -0.579,
+        "DranDagger": -0.1,
+        "CrimsonGaruda": 0.062,
+        "LeonClaw": -0.571,
+        "FoxBrush": -0.636,
         "DranBuster": -0.3,
         "TyrannoBeat": 0.111,
-        "PhoenixWing": -0.071,
-        "SharkEdge": -0.444,
-        "CobaltDragoon": -0.206,
-        "WhaleWave": 0.393,
-        "WeissTiger": -0.583,
-        "ScorpioSpear": 0.375,
+        "PhoenixWing": -0.111,
+        "SharkEdge": -0.474,
+        "CobaltDragoon": -0.167,
+        "WhaleWave": 0.417,
+        "WeissTiger": -0.615,
+        "ScorpioSpear": 0.353,
         "PegasusBlast": 0.333,
-        "SolEclipse": -0.417,
-        "CobaltDrake": 0.133,
-        "ValkyrieVolt": 0.25,
+        "SolEclipse": -0.462,
+        "CobaltDrake": 0.3,
+        "SharkScale": 0.05,
+        "ValkyrieVolt": 0.2,
         "EmperorMight": 1.0,
         "WolfHunt": -0.5
       },
       "archetype_shifts": {
-        "Adaptive Fighter": -0.144,
-        "Endurance Core": 0.229,
-        "Glass Cannon": 0.221,
-        "Tempo Controller": -0.241,
-        "Iron Wall": -0.14,
-        "Chaser": 0.111,
-        "Berserker": -0.141,
-        "Meta Anchor": -0.206,
-        "Counter Shield": 0.106,
-        "Unknown": 0.25
+        "Endurance Core": 0.23,
+        "Tempo Controller": -0.151,
+        "Unknown": 0.269,
+        "Adaptive Fighter": -0.23,
+        "Iron Wall": -0.244,
+        "Glass Cannon": 0.131,
+        "Meta Anchor": -0.181,
+        "Counter Shield": 0.176
       },
       "finish_type_shifts": {
-        "spin": -24.1,
-        "burst": 1.1,
-        "pocket": 23.9,
-        "extreme": -1.0
+        "spin": -23.4,
+        "burst": -2.4,
+        "pocket": 25.4,
+        "stadium_exit": 0.0,
+        "extreme": 0.6
       },
-      "elo_volatility_delta": -0.65
+      "elo_volatility_delta": -0.56
     }
   ]
 }
