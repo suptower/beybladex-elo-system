@@ -28,6 +28,10 @@
                 
                 // Replace the old menu with the new one
                 existingNavMenu.replaceWith(newNavMenu);
+                
+                // Dispatch event to notify that navigation has been loaded
+                // This allows hamburger.js to reinitialize event listeners
+                document.dispatchEvent(new CustomEvent('navigationLoaded'));
             } else {
                 console.warn('Nav menu element (#navMenu) not found');
             }

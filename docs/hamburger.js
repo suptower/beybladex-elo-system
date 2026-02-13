@@ -1,6 +1,4 @@
 // Hamburger menu functionality - shared across all pages
-const hamburger = document.getElementById('hamburger');
-const navMenu = document.getElementById('navMenu');
 
 // Detect if we're on mobile (based on screen width)
 function isMobile() {
@@ -33,6 +31,8 @@ function closeAllDropdowns() {
 
 // Close mobile menu
 function closeMobileMenu() {
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
     if (hamburger && navMenu) {
         hamburger.classList.remove('active');
         navMenu.classList.remove('active');
@@ -66,7 +66,36 @@ function toggleDropdown(dropdown, forceState) {
     }
 }
 
-if (hamburger && navMenu) {
+// Store handlers so we can remove them before re-adding
+let hamburgerClickHandler = null;
+let documentClickHandler = null;
+let documentKeydownHandler = null;
+let windowResizeHandler = null;
+
+// Initialize hamburger menu functionality
+function initializeHamburgerMenu() {
+    // Get fresh references to elements
+    const hamburger = document.getElementById('hamburger');
+    const navMenu = document.getElementById('navMenu');
+    
+    if (!hamburger || !navMenu) {
+        return;  // Elements not ready yet
+    }
+    
+    // Remove existing event listeners if they exist
+    if (hamburgerClickHandler) {
+        hamburger.removeEventListener('click', hamburgerClickHandler);
+    }
+    if (documentClickHandler) {
+        document.removeEventListener('click', documentClickHandler);
+    }
+    if (documentKeydownHandler) {
+        document.removeEventListener('keydown', documentKeydownHandler);
+    }
+    if (windowResizeHandler) {
+        window.removeEventListener('resize', windowResizeHandler);
+    }
+    
     // Set initial ARIA attributes
     hamburger.setAttribute('aria-expanded', 'false');
     hamburger.setAttribute('aria-controls', 'navMenu');
@@ -95,12 +124,16 @@ if (hamburger && navMenu) {
     });
 
     // Toggle menu on hamburger click
-    hamburger.addEventListener('click', (e) => {
+    hamburgerClickHandler = (e) => {
         e.stopPropagation();
-        const isOpening = !hamburger.classList.contains('active');
-        hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
-        hamburger.setAttribute('aria-expanded', isOpening ? 'true' : 'false');
+        const ham = document.getElementById('hamburger');
+        const menu = document.getElementById('navMenu');
+        if (!ham || !menu) return;
+        
+        const isOpening = !ham.classList.contains('active');
+        ham.classList.toggle('active');
+        menu.classList.toggle('active');
+        ham.setAttribute('aria-expanded', isOpening ? 'true' : 'false');
         
         // Close dropdowns when closing menu
         if (!isOpening) {
@@ -111,15 +144,19 @@ if (hamburger && navMenu) {
         if (isMobile()) {
             document.body.style.overflow = isOpening ? 'hidden' : '';
         }
-    });
+    };
+    hamburger.addEventListener('click', hamburgerClickHandler);
 
     // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+    documentClickHandler = (e) => {
+        const ham = document.getElementById('hamburger');
+        const menu = document.getElementById('navMenu');
+        if (ham && menu && !ham.contains(e.target) && !menu.contains(e.target)) {
             closeMobileMenu();
             document.body.style.overflow = '';
         }
-    });
+    };
+    document.addEventListener('click', documentClickHandler);
 
     // Handle link clicks
     navMenu.querySelectorAll('a').forEach(link => {
@@ -140,21 +177,26 @@ if (hamburger && navMenu) {
     });
     
     // Handle window resize - close menu if resizing to desktop
-    window.addEventListener('resize', () => {
-        if (!isMobile() && navMenu.classList.contains('active')) {
+    windowResizeHandler = () => {
+        const menu = document.getElementById('navMenu');
+        if (!isMobile() && menu && menu.classList.contains('active')) {
             closeMobileMenu();
             document.body.style.overflow = '';
         }
-    });
+    };
+    window.addEventListener('resize', windowResizeHandler);
     
     // Handle keyboard navigation
-    document.addEventListener('keydown', (e) => {
+    documentKeydownHandler = (e) => {
+        const menu = document.getElementById('navMenu');
+        const ham = document.getElementById('hamburger');
+        
         // Escape key - close menu or dropdown
         if (e.key === 'Escape') {
-            if (navMenu.classList.contains('active')) {
+            if (menu && menu.classList.contains('active')) {
                 closeMobileMenu();
                 document.body.style.overflow = '';
-                hamburger.focus();
+                if (ham) ham.focus();
             } else {
                 // Close any open dropdowns
                 closeAllDropdowns();
@@ -188,7 +230,8 @@ if (hamburger && navMenu) {
                 toggleDropdown(dropdown);
             }
         }
-    });
+    };
+    document.addEventListener('keydown', documentKeydownHandler);
     
     // For touch devices at desktop breakpoints: close dropdowns when clicking outside
     if (isTouchDevice()) {
@@ -205,3 +248,13 @@ if (hamburger && navMenu) {
         });
     }
 }
+
+// Initialize on DOM ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeHamburgerMenu);
+} else {
+    initializeHamburgerMenu();
+}
+
+// Re-initialize when navigation menu is dynamically loaded
+document.addEventListener('navigationLoaded', initializeHamburgerMenu);
