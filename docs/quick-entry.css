@@ -2468,3 +2468,319 @@ body:has(.fullscreen-match-overlay.active) header {
     pointer-events: none;
     visibility: hidden;
 }
+
+/* ============================================
+   BEY PICKER MODAL STYLES
+   ============================================ */
+
+/* Container for the bey picker modal */
+.bey-picker-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10001; /* Above fullscreen overlay (10000) */
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.bey-picker-container.active {
+    display: flex;
+}
+
+/* Backdrop/overlay */
+.bey-picker-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Modal itself */
+.bey-picker-modal {
+    position: relative;
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease-out;
+    z-index: 1;
+}
+
+/* Header */
+.bey-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 2px solid var(--border);
+    background: var(--bg);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.bey-picker-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+}
+
+.bey-picker-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius);
+    transition: var(--transition);
+    line-height: 1;
+}
+
+.bey-picker-close:hover {
+    background: var(--border);
+    color: var(--text);
+}
+
+/* Search bar */
+.bey-picker-search {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+}
+
+.bey-picker-search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    transition: var(--transition);
+}
+
+.bey-picker-search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.bey-picker-search-input::placeholder {
+    color: var(--text-light);
+}
+
+/* Grid of beys */
+.bey-picker-grid {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    background: var(--bg);
+}
+
+/* Individual bey item */
+.bey-picker-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 0.5rem;
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.bey-picker-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent);
+}
+
+.bey-picker-item.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.bey-picker-item.selected .bey-picker-item-name {
+    color: white;
+    font-weight: 700;
+}
+
+/* Bey image */
+.bey-picker-item-image {
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.bey-picker-item-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+/* Bey name */
+.bey-picker-item-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+/* Check mark for selected item */
+.bey-picker-item-check {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Footer */
+.bey-picker-footer {
+    padding: 1rem 1.5rem;
+    border-top: 2px solid var(--border);
+    background: var(--bg);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.bey-picker-cancel {
+    padding: 0.75rem 1.5rem;
+    background: var(--border);
+    color: var(--text);
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.bey-picker-cancel:hover {
+    background: var(--text-light);
+    color: var(--card);
+}
+
+/* Fullscreen bey picker button (replaces dropdown) */
+.fullscreen-bey-picker-btn {
+    width: 100%;
+    min-height: 80px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-family: 'Inter', sans-serif;
+}
+
+.fullscreen-bey-picker-btn:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.fullscreen-bey-picker-img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.fullscreen-bey-picker-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+    text-align: left;
+}
+
+.fullscreen-bey-picker-placeholder {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 480px) {
+    .bey-picker-modal {
+        width: 95%;
+        max-height: 85vh;
+    }
+    
+    .bey-picker-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+    
+    .bey-picker-item {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .bey-picker-item-image {
+        height: 60px;
+    }
+    
+    .bey-picker-item-name {
+        font-size: 0.625rem;
+    }
+}

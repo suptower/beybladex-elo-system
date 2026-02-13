@@ -3006,12 +3006,17 @@ function enterFullscreenMatch(matchIndex) {
             <!-- Bey A Selection -->
             <div class="fullscreen-bey-section">
                 <label class="fullscreen-bey-label">Player A</label>
-                <select class="fullscreen-bey-select" onchange="updateBey(${matchIndex}, 'A', this.value)">
-                    <option value="">Select Bey...</option>
-                    ${sortedBeyNames.map(bey => 
-                        `<option value="${escapeHtml(bey)}" ${match.beyA === bey ? 'selected' : ''}>${escapeHtml(bey)}</option>`
-                    ).join('')}
-                </select>
+                <button class="fullscreen-bey-picker-btn" onclick="openBeyPicker(${matchIndex}, 'A')">
+                    ${match.beyA ? `
+                        <img src="./data/beys/${match.beyA}.png" 
+                             alt="${escapeHtml(match.beyA)}" 
+                             class="fullscreen-bey-picker-img"
+                             onerror="this.style.display='none'">
+                        <span class="fullscreen-bey-picker-name">${escapeHtml(match.beyA)}</span>
+                    ` : `
+                        <span class="fullscreen-bey-picker-placeholder">📸 Tap to Select Bey</span>
+                    `}
+                </button>
             </div>
             
             <!-- Scores Display -->
@@ -3027,12 +3032,17 @@ function enterFullscreenMatch(matchIndex) {
             <!-- Bey B Selection -->
             <div class="fullscreen-bey-section">
                 <label class="fullscreen-bey-label">Player B</label>
-                <select class="fullscreen-bey-select" onchange="updateBey(${matchIndex}, 'B', this.value)">
-                    <option value="">Select Bey...</option>
-                    ${sortedBeyNames.map(bey => 
-                        `<option value="${escapeHtml(bey)}" ${match.beyB === bey ? 'selected' : ''}>${escapeHtml(bey)}</option>`
-                    ).join('')}
-                </select>
+                <button class="fullscreen-bey-picker-btn" onclick="openBeyPicker(${matchIndex}, 'B')">
+                    ${match.beyB ? `
+                        <img src="./data/beys/${match.beyB}.png" 
+                             alt="${escapeHtml(match.beyB)}" 
+                             class="fullscreen-bey-picker-img"
+                             onerror="this.style.display='none'">
+                        <span class="fullscreen-bey-picker-name">${escapeHtml(match.beyB)}</span>
+                    ` : `
+                        <span class="fullscreen-bey-picker-placeholder">📸 Tap to Select Bey</span>
+                    `}
+                </button>
             </div>
             
             <!-- Rounds Section -->
@@ -3145,5 +3155,136 @@ function updateFullscreenRounds(matchIndex) {
     
     // Re-render the entire fullscreen view to reflect changes
     enterFullscreenMatch(matchIndex);
+}
+
+// ============================================
+// BEY PICKER MODAL (for touch-friendly selection)
+// ============================================
+
+/**
+ * Open the bey picker modal for selecting a bey
+ * @param {number} matchIndex - Index of the match
+ * @param {string} player - 'A' or 'B' to indicate which player's bey is being selected
+ */
+function openBeyPicker(matchIndex, player) {
+    const match = state.matches[matchIndex];
+    if (!match) return;
+    
+    const currentSelection = player === 'A' ? match.beyA : match.beyB;
+    
+    // Get bey data with images
+    const sortedBeys = [...state.beyblades].sort((a, b) => a.name.localeCompare(b.name));
+    
+    // Create modal HTML
+    const modalHTML = `
+        <div class="bey-picker-backdrop" onclick="closeBeyPicker()"></div>
+        <div class="bey-picker-modal">
+            <div class="bey-picker-header">
+                <h3 class="bey-picker-title">Select Bey for Player ${player}</h3>
+                <button class="bey-picker-close" onclick="closeBeyPicker()">✕</button>
+            </div>
+            <div class="bey-picker-search">
+                <input 
+                    type="text" 
+                    id="beyPickerSearch" 
+                    class="bey-picker-search-input" 
+                    placeholder="Search beys..." 
+                    oninput="filterBeyPicker(this.value)"
+                />
+            </div>
+            <div class="bey-picker-grid" id="beyPickerGrid">
+                ${sortedBeys.map(bey => {
+                    const imagePath = `./data/beys/${bey.name}.png`;
+                    const isSelected = currentSelection === bey.name;
+                    return `
+                        <div class="bey-picker-item ${isSelected ? 'selected' : ''}" 
+                             onclick="selectBeyFromPicker(${matchIndex}, '${player}', '${escapeHtml(bey.name)}')"
+                             data-bey-name="${escapeHtml(bey.name).toLowerCase()}">
+                            <div class="bey-picker-item-image">
+                                <img src="${imagePath}" alt="${escapeHtml(bey.name)}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 100 100\\'%3E%3Crect width=\\'100\\' height=\\'100\\' fill=\\'%23444\\'/%3E%3Ctext x=\\'50\\' y=\\'50\\' text-anchor=\\'middle\\' dominant-baseline=\\'middle\\' fill=\\'white\\' font-size=\\'40\\'%3E?%3C/text%3E%3C/svg%3E'">
+                            </div>
+                            <div class="bey-picker-item-name">${escapeHtml(bey.name)}</div>
+                            ${isSelected ? '<div class="bey-picker-item-check">✓</div>' : ''}
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+            <div class="bey-picker-footer">
+                <button class="bey-picker-cancel" onclick="closeBeyPicker()">Cancel</button>
+            </div>
+        </div>
+    `;
+    
+    // Create or get the picker container
+    let pickerContainer = document.getElementById('beyPickerContainer');
+    if (!pickerContainer) {
+        pickerContainer = document.createElement('div');
+        pickerContainer.id = 'beyPickerContainer';
+        pickerContainer.className = 'bey-picker-container';
+        document.body.appendChild(pickerContainer);
+    }
+    
+    pickerContainer.innerHTML = modalHTML;
+    pickerContainer.classList.add('active');
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+    
+    // Focus search input after a brief delay for smooth animation
+    setTimeout(() => {
+        const searchInput = document.getElementById('beyPickerSearch');
+        if (searchInput) searchInput.focus();
+    }, 100);
+}
+
+/**
+ * Close the bey picker modal
+ */
+function closeBeyPicker() {
+    const pickerContainer = document.getElementById('beyPickerContainer');
+    if (pickerContainer) {
+        pickerContainer.classList.remove('active');
+        // Restore body scroll if fullscreen is still active, otherwise let exitFullscreenMatch handle it
+        const overlay = document.getElementById('fullscreenMatchOverlay');
+        if (overlay && overlay.classList.contains('active')) {
+            document.body.style.overflow = 'hidden'; // Keep scroll disabled while fullscreen is active
+        } else {
+            document.body.style.overflow = '';
+        }
+    }
+}
+
+/**
+ * Select a bey from the picker and update the match
+ * @param {number} matchIndex - Index of the match
+ * @param {string} player - 'A' or 'B'
+ * @param {string} beyName - Name of the selected bey
+ */
+function selectBeyFromPicker(matchIndex, player, beyName) {
+    updateBey(matchIndex, player, beyName);
+    closeBeyPicker();
+    // Refresh the fullscreen view to show the updated selection
+    enterFullscreenMatch(matchIndex);
+}
+
+/**
+ * Filter bey picker grid based on search input
+ * @param {string} searchTerm - The search term entered by user
+ */
+function filterBeyPicker(searchTerm) {
+    const grid = document.getElementById('beyPickerGrid');
+    if (!grid) return;
+    
+    const items = grid.querySelectorAll('.bey-picker-item');
+    const lowerSearch = searchTerm.toLowerCase().trim();
+    
+    items.forEach(item => {
+        const beyName = item.getAttribute('data-bey-name');
+        if (beyName && beyName.includes(lowerSearch)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
 }
 
