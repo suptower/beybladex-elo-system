@@ -473,18 +473,6 @@ function createMatchCard(match, md) {
     
     return `
         <div class="match-card" data-match-id="${match.match_id}">
-            <div class="match-card-header">
-                <div class="match-card-context">
-                    <span class="match-card-context-item">${seasonId}</span>
-                    <span class="match-card-context-separator">·</span>
-                    <span class="match-card-context-item tier-badge-subtle">Tier ${tierNum}</span>
-                    <span class="match-card-context-separator">·</span>
-                    <span class="match-card-context-item">MD ${md}</span>
-                    <span class="match-card-context-separator">·</span>
-                    <span class="match-card-context-item">${arena}</span>
-                </div>
-                <span class="match-date">${match.date || ''}</span>
-            </div>
             <div class="match-card-body">
                 <div class="card-match">
                     <div class="card-bey ${beyAClass}">
@@ -500,23 +488,26 @@ function createMatchCard(match, md) {
                     </div>
                 </div>
             </div>
+            ${(isTie || isBlowout || isClose || hasRounds) ? `
             <div class="match-card-footer">
-                <span class="match-id">${match.match_id || ''}</span>
+                ${(isTie || isBlowout || isClose) ? `
                 <div class="match-tags">
                     ${isTie ? '<span class="match-tag">Tie</span>' : ''}
                     ${isBlowout ? '<span class="match-tag">Blowout</span>' : ''}
-                    ${isClose ? '<span class="match-tag">Close Match</span>' : ''}
+                    ${isClose ? '<span class="match-tag">Close</span>' : ''}
                 </div>
-            </div>
-            ${hasRounds ? `
-            <div class="match-card-rounds">
+                ` : '<div></div>'}
+                ${hasRounds ? `
                 <button class="rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMatchRounds('${match.match_id}', ${matchData.rounds.length})">
                     <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
-                    <span class="toggle-text">${isExpanded ? 'Hide' : 'Show'} Round Details (${matchData.rounds.length})</span>
+                    <span class="toggle-text">${matchData.rounds.length} ${matchData.rounds.length === 1 ? 'round' : 'rounds'}</span>
                 </button>
-                <div class="rounds-content ${isExpanded ? 'expanded' : ''}" id="rounds-${match.match_id}">
-                    ${roundsHtml}
-                </div>
+                ` : ''}
+            </div>
+            ` : ''}
+            ${hasRounds ? `
+            <div class="rounds-content ${isExpanded ? 'expanded' : ''}" id="rounds-${match.match_id}">
+                ${roundsHtml}
             </div>
             ` : ''}
         </div>
@@ -1184,7 +1175,7 @@ function toggleMatchRounds(matchId, roundCount) {
         if (toggle) toggle.classList.remove('expanded');
         if (icon) icon.textContent = '▼';
         if (text) {
-            text.textContent = `Show Round Details (${roundCount})`;
+            text.textContent = `${roundCount} ${roundCount === 1 ? 'round' : 'rounds'}`;
         }
     } else {
         expandedMatches.add(matchId);
@@ -1213,7 +1204,7 @@ function toggleMatchRounds(matchId, roundCount) {
         if (toggle) toggle.classList.add('expanded');
         if (icon) icon.textContent = '▲';
         if (text) {
-            text.textContent = `Hide Round Details (${roundCount})`;
+            text.textContent = `${roundCount} ${roundCount === 1 ? 'round' : 'rounds'}`;
         }
     }
 }
