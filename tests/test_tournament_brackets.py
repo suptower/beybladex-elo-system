@@ -84,9 +84,9 @@ class TestRoundRobinBracketGeneration:
         """Should generate valid round-robin for even number of participants."""
         participants = ["BeyA", "BeyB", "BeyC", "BeyD"]
         matchups = {}
-        
+
         bracket = generate_round_robin_bracket(participants, matchups)
-        
+
         assert bracket["format"] == "round_robin"
         assert len(bracket["participants"]) == 4
         assert bracket["total_rounds"] == 3  # n-1 rounds for n participants
@@ -96,9 +96,9 @@ class TestRoundRobinBracketGeneration:
         """Should handle odd number of participants with byes."""
         participants = ["BeyA", "BeyB", "BeyC"]
         matchups = {}
-        
+
         bracket = generate_round_robin_bracket(participants, matchups)
-        
+
         assert bracket["format"] == "round_robin"
         assert len(bracket["participants"]) == 3
         assert "BYE" not in bracket["participants"]
@@ -107,9 +107,9 @@ class TestRoundRobinBracketGeneration:
         """Should include existing match counts in bracket."""
         participants = ["BeyA", "BeyB"]
         matchups = {("BeyA", "BeyB"): 2}
-        
+
         bracket = generate_round_robin_bracket(participants, matchups)
-        
+
         # Check that existing matches are recorded
         match = bracket["rounds"][0]["matches"][0]
         assert match["existing_matches"] == 2
@@ -123,16 +123,16 @@ class TestRoundRobinBracketGeneration:
         """Should ensure all participants play each other once."""
         participants = ["BeyA", "BeyB", "BeyC", "BeyD"]
         matchups = {}
-        
+
         bracket = generate_round_robin_bracket(participants, matchups)
-        
+
         # Collect all matchups
         all_matchups = set()
         for round_data in bracket["rounds"]:
             for match in round_data["matches"]:
                 pair = tuple(sorted([match["bey_a"], match["bey_b"]]))
                 all_matchups.add(pair)
-        
+
         # Should have n*(n-1)/2 unique pairs
         assert len(all_matchups) == 6  # 4*3/2
 
@@ -144,9 +144,9 @@ class TestSingleEliminationBracketGeneration:
         """Should generate valid bracket for power of 2 participants."""
         participants = ["BeyA", "BeyB", "BeyC", "BeyD"]
         matchups = {}
-        
+
         bracket = generate_single_elimination_bracket(participants, matchups)
-        
+
         assert bracket["format"] == "single_elimination"
         assert len(bracket["participants"]) == 4
         # 4 participants = 2 rounds (semis + finals)
@@ -157,9 +157,9 @@ class TestSingleEliminationBracketGeneration:
         """Should pad to next power of 2 with byes."""
         participants = ["BeyA", "BeyB", "BeyC"]
         matchups = {}
-        
+
         bracket = generate_single_elimination_bracket(participants, matchups)
-        
+
         assert bracket["format"] == "single_elimination"
         assert len(bracket["participants"]) == 3
         # Should work with 4-participant bracket (1 bye)
@@ -168,9 +168,9 @@ class TestSingleEliminationBracketGeneration:
         """Should have correct round names."""
         participants = ["BeyA", "BeyB", "BeyC", "BeyD"]
         matchups = {}
-        
+
         bracket = generate_single_elimination_bracket(participants, matchups)
-        
+
         round_names = [r["name"] for r in bracket["rounds"]]
         assert "Semi-Finals" in round_names
         assert "Finals" in round_names
@@ -179,9 +179,9 @@ class TestSingleEliminationBracketGeneration:
         """Should include existing match counts in bracket."""
         participants = ["BeyA", "BeyB", "BeyC", "BeyD"]
         matchups = {("BeyA", "BeyB"): 1}
-        
+
         bracket = generate_single_elimination_bracket(participants, matchups)
-        
+
         # Find the match between BeyA and BeyB
         for round_data in bracket["rounds"]:
             for match in round_data["matches"]:
@@ -197,14 +197,14 @@ class TestSingleEliminationBracketGeneration:
         """Should generate unique match IDs."""
         participants = ["BeyA", "BeyB", "BeyC", "BeyD", "BeyE", "BeyF", "BeyG", "BeyH"]
         matchups = {}
-        
+
         bracket = generate_single_elimination_bracket(participants, matchups)
-        
+
         match_ids = []
         for round_data in bracket["rounds"]:
             for match in round_data["matches"]:
                 match_ids.append(match["match_id"])
-        
+
         assert len(match_ids) == len(set(match_ids))  # All unique
 
 
@@ -218,9 +218,9 @@ class TestTournamentRecommendation:
             "BeyA": {"matches": 3},
             "BeyB": {"matches": 4},
         }
-        
+
         rec = recommend_tournament_type(low_data_beys, beys)
-        
+
         assert rec["recommended"] is None
         assert "Not enough" in rec["reason"]
 
@@ -228,9 +228,9 @@ class TestTournamentRecommendation:
         """Should recommend round-robin for small groups."""
         low_data_beys = ["BeyA", "BeyB", "BeyC", "BeyD", "BeyE"]
         beys = {name: {"matches": 3} for name in low_data_beys}
-        
+
         rec = recommend_tournament_type(low_data_beys, beys)
-        
+
         assert rec["recommended"] == "round_robin"
         assert "benefits" in rec
 
@@ -238,9 +238,9 @@ class TestTournamentRecommendation:
         """Should recommend single elimination for large groups."""
         low_data_beys = [f"Bey{i}" for i in range(15)]
         beys = {name: {"matches": 3} for name in low_data_beys}
-        
+
         rec = recommend_tournament_type(low_data_beys, beys)
-        
+
         assert rec["recommended"] == "single_elimination"
         assert "benefits" in rec
 
@@ -248,9 +248,9 @@ class TestTournamentRecommendation:
         """Should include explanatory reason."""
         low_data_beys = ["BeyA", "BeyB", "BeyC", "BeyD"]
         beys = {name: {"matches": 3} for name in low_data_beys}
-        
+
         rec = recommend_tournament_type(low_data_beys, beys)
-        
+
         assert "reason" in rec
         assert len(rec["reason"]) > 0
 
@@ -270,9 +270,9 @@ class TestScheduleGeneration:
                 }
             ]
         }
-        
+
         schedule = generate_tournament_schedule(bracket)
-        
+
         assert len(schedule) > 0
         assert "date" in schedule[0]
         assert "bey_a" in schedule[0]
@@ -292,9 +292,9 @@ class TestScheduleGeneration:
                 }
             ]
         }
-        
+
         schedule = generate_tournament_schedule(bracket)
-        
+
         assert len(schedule) == 2
         assert schedule[0]["date"] != schedule[1]["date"]
 
@@ -308,9 +308,9 @@ class TestScheduleGeneration:
                 }
             ]
         }
-        
+
         schedule = generate_tournament_schedule(bracket, "2025-06-01")
-        
+
         assert schedule[0]["date"] == "2025-06-01"
 
     def test_handles_empty_bracket(self):
@@ -327,7 +327,7 @@ class TestBracketDataStructure:
         """Round-robin bracket should have required fields."""
         participants = ["BeyA", "BeyB", "BeyC", "BeyD"]
         bracket = generate_round_robin_bracket(participants, {})
-        
+
         required = {"format", "participants", "total_rounds", "total_matches", "rounds"}
         assert required == set(bracket.keys())
 
@@ -335,7 +335,7 @@ class TestBracketDataStructure:
         """Single elimination bracket should have required fields."""
         participants = ["BeyA", "BeyB", "BeyC", "BeyD"]
         bracket = generate_single_elimination_bracket(participants, {})
-        
+
         required = {"format", "participants", "total_rounds", "total_matches", "rounds"}
         assert required == set(bracket.keys())
 
@@ -343,7 +343,7 @@ class TestBracketDataStructure:
         """Matches should have participant information."""
         participants = ["BeyA", "BeyB"]
         bracket = generate_round_robin_bracket(participants, {})
-        
+
         match = bracket["rounds"][0]["matches"][0]
         assert "bey_a" in match
         assert "bey_b" in match
@@ -354,7 +354,7 @@ class TestBracketDataStructure:
         for n in [4, 5, 6, 7, 8]:
             participants = [f"Bey{i}" for i in range(n)]
             bracket = generate_round_robin_bracket(participants, {})
-            
+
             expected_matches = n * (n - 1) // 2
             assert bracket["total_matches"] == expected_matches
 
@@ -363,6 +363,6 @@ class TestBracketDataStructure:
         for n in [4, 8, 16]:
             participants = [f"Bey{i}" for i in range(n)]
             bracket = generate_single_elimination_bracket(participants, {})
-            
+
             expected_matches = n - 1
             assert bracket["total_matches"] == expected_matches
