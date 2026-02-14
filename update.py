@@ -20,6 +20,7 @@ Pipeline Stages:
    - Combo Explorer (combo_explorer.py)
    - Milestones (milestones.py)
    - Recommended Matches (recommended_matches.py)
+   - Tournament Brackets (tournament_brackets.py)
    - Matchup Matrix (matchup_matrix.py)
    - Archetype Analytics (archetype_analytics.py)
    - Stadium Statistics (stadium_stats.py)
@@ -63,6 +64,7 @@ SCRIPT_COUNTER_CHECKER = "./src/counter_checker.py"
 SCRIPT_COMBO_EXPLORER = "./src/combo_explorer.py"
 SCRIPT_MILESTONES = "./src/milestones.py"
 SCRIPT_RECOMMENDED_MATCHES = "./src/recommended_matches.py"
+SCRIPT_TOURNAMENT_BRACKETS = "./src/tournament_brackets.py"
 SCRIPT_MATCHUP_MATRIX = "./src/matchup_matrix.py"
 SCRIPT_ARCHETYPE_ANALYTICS = "./src/archetype_analytics.py"
 SCRIPT_SEASON_PROCESSING = "./src/season_processing.py"
@@ -347,6 +349,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Recommended Matches", success, duration))
+
+    # Tournament Brackets (depends on leaderboard, matches)
+    success, duration = run_script(
+        SCRIPT_TOURNAMENT_BRACKETS,
+        "Tournament Brackets for Low-Data Beys",
+        verbose=verbose
+    )
+    results.append(("Tournament Brackets", success, duration))
 
     # Matchup Matrix (depends on matches, leaderboard, rpg_stats)
     success, duration = run_script(
