@@ -11890,11 +11890,13 @@ select:focus-visible {
 .tier-table-column {
     display: flex;
     flex-direction: column;
+    min-width: 0; /* Allow table to shrink */
 }
 
 .tier-matches-column {
     display: flex;
     flex-direction: column;
+    min-width: 0; /* Allow matches to shrink */
 }
 
 .tier-subsection-header {
@@ -11963,6 +11965,12 @@ select:focus-visible {
     max-height: 800px;
 }
 
+.tier-matches-container .matches-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1200px) {
     .tier-content-grid {
@@ -11972,6 +11980,12 @@ select:focus-visible {
     
     .tier-matches-container {
         max-height: 600px;
+    }
+    
+    /* Ensure table scrolls horizontally on mobile */
+    .tier-table-column .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
@@ -11991,6 +12005,11 @@ select:focus-visible {
     
     .tier-matches-container {
         max-height: 500px;
+    }
+    
+    /* Better spacing for match cards on mobile */
+    .tier-matches-container .matches-grid {
+        gap: 1rem;
     }
 }
 

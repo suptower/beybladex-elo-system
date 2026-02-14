@@ -468,8 +468,8 @@ function createMatchCard(match, md) {
     const isBlowout = pointDiff >= 3 && !isTie;
     const isClose = pointDiff === 1;
     
-    // Generate rounds HTML if available
-    const roundsHtml = hasRounds ? createRoundsHtml(match, matchData.rounds) : '';
+    // Only generate rounds HTML if expanded (optimization)
+    const roundsHtml = (hasRounds && isExpanded) ? createRoundsHtml(match, matchData.rounds) : '';
     
     return `
         <div class="match-card" data-match-id="${match.match_id}">
@@ -1188,6 +1188,27 @@ function toggleMatchRounds(matchId, roundCount) {
         }
     } else {
         expandedMatches.add(matchId);
+        
+        // Generate rounds HTML on first expand if not already present
+        if (content && content.innerHTML.trim() === '') {
+            const matchData = roundsData[matchId];
+            if (matchData && matchData.rounds) {
+                // Find the match data to pass to createRoundsHtml
+                const matchCard = document.querySelector(`[data-match-id="${matchId}"]`);
+                if (matchCard) {
+                    // Get match info from DOM or reconstruct it
+                    const match = {
+                        match_id: matchId,
+                        bey_a: matchCard.querySelector('.card-bey:first-child .bey-link')?.textContent.replace(/\u00AD/g, '') || '',
+                        bey_b: matchCard.querySelector('.card-bey:last-child .bey-link')?.textContent.replace(/\u00AD/g, '') || '',
+                        score_a: parseInt(matchCard.querySelector('.card-bey:first-child .bey-score')?.textContent || '0'),
+                        score_b: parseInt(matchCard.querySelector('.card-bey:last-child .bey-score')?.textContent || '0')
+                    };
+                    content.innerHTML = createRoundsHtml(match, matchData.rounds);
+                }
+            }
+        }
+        
         if (content) content.classList.add('expanded');
         if (toggle) toggle.classList.add('expanded');
         if (icon) icon.textContent = '▲';
