@@ -424,7 +424,7 @@ function displayTierMatches(matchdays, tier, matchday) {
 }
 
 /**
- * Create a match card
+ * Create a match card matching the matches.html style
  */
 function createMatchCard(match, md) {
     const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${addSoftHyphens(match.bey_a)}</a>`;
@@ -435,14 +435,17 @@ function createMatchCard(match, md) {
     const isBWinner = match.score_b > match.score_a;
     const isTie = match.score_a === match.score_b;
     
+    const winner = isTie ? 'Tie' : (isAWinner ? match.bey_a : match.bey_b);
+    
     // Get bey classes based on result
-    const beyAClass = isTie ? '' : (isAWinner ? 'winner' : 'loser');
-    const beyBClass = isTie ? '' : (isBWinner ? 'winner' : 'loser');
+    const beyAClass = isTie ? '' : (isAWinner ? 'winner' : '');
+    const beyBClass = isTie ? '' : (isBWinner ? 'winner' : '');
     
     // Get season and arena info
     const seasonId = match.season_id || currentSeason?.season_id || 'S?';
     const tierNum = match.tier || '?';
     const arena = match.arena || 'Xtreme';
+    const date = match.date || '';
     
     // Get rounds data and ELO values
     const matchData = roundsData[match.match_id];
@@ -459,55 +462,57 @@ function createMatchCard(match, md) {
     const postEloA = matchData?.post_elo_a;
     const postEloB = matchData?.post_elo_b;
     
-    // Calculate ELO changes if post-ELO is available
+    // Calculate ELO changes and difference
     const eloChangeA = postEloA ? Math.round(postEloA - eloA) : null;
     const eloChangeB = postEloB ? Math.round(postEloB - eloB) : null;
+    const eloDiff = Math.abs(Math.round(eloA) - Math.round(eloB));
     
-    // Determine if it's a blowout (3+ point difference) or close match (1 point)
-    const pointDiff = Math.abs(match.score_a - match.score_b);
-    const isBlowout = pointDiff >= 3 && !isTie;
-    const isClose = pointDiff === 1;
+    // Create ELO delta badges
+    const deltaBadgeA = eloChangeA !== null ? `<span class="elo-delta-badge ${eloChangeA >= 0 ? 'delta-elo-up' : 'delta-elo-down'}">${eloChangeA >= 0 ? '+' : ''}${eloChangeA}</span>` : '';
+    const deltaBadgeB = eloChangeB !== null ? `<span class="elo-delta-badge ${eloChangeB >= 0 ? 'delta-elo-up' : 'delta-elo-down'}">${eloChangeB >= 0 ? '+' : ''}${eloChangeB}</span>` : '';
+    
+    // Arena badge
+    const arenaBadge = arena === 'Xtreme' ? '⚡X' : '🎯DA';
+    const arenaTitle = arena === 'Xtreme' ? 'Xtreme Stadium' : 'Drop Attack Beystadium';
     
     // Only generate rounds HTML if expanded (optimization)
     const roundsHtml = (hasRounds && isExpanded) ? createRoundsHtml(match, matchData.rounds) : '';
     
     return `
-        <div class="match-card" data-match-id="${match.match_id}">
-            <div class="match-card-body">
-                <div class="card-match">
-                    <div class="card-bey ${beyAClass}">
-                        <div class="bey-name">${beyALink}</div>
-                        <div class="bey-elo">${formatEloWithChange(eloA, eloChangeA)}</div>
-                        <div class="bey-score">${match.score_a}</div>
-                    </div>
-                    <div class="card-vs">VS</div>
-                    <div class="card-bey ${beyBClass}">
-                        <div class="bey-name">${beyBLink}</div>
-                        <div class="bey-elo">${formatEloWithChange(eloB, eloChangeB)}</div>
-                        <div class="bey-score">${match.score_b}</div>
-                    </div>
+        <div class="matches-card" data-match-id="${match.match_id}">
+            <div class="card-header">
+                <span class="card-match-id match-id" title="Click to copy" onclick="copyMatchId('${match.match_id}')">${match.match_id}</span>
+                <span class="card-date">${date}</span>
+                <span class="arena-badge arena-${arena.toLowerCase().replace(/\s+/g, '-')}" title="${arenaTitle}">${arenaBadge}</span>
+                <span class="match-elo-diff" title="ELO Difference">Δ${eloDiff} ELO</span>
+            </div>
+            <div class="card-match">
+                <div class="card-bey ${beyAClass}">
+                    <div class="bey-name">${beyALink}</div>
+                    <div class="bey-elo-change">${deltaBadgeA}</div>
+                    <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${Math.round(eloA)}</div>
+                    <div class="bey-score ${isAWinner ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.score_a}</div>
+                </div>
+                <div class="card-vs">VS</div>
+                <div class="card-bey ${beyBClass}">
+                    <div class="bey-name">${beyBLink}</div>
+                    <div class="bey-elo-change">${deltaBadgeB}</div>
+                    <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${Math.round(eloB)}</div>
+                    <div class="bey-score ${isBWinner ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.score_b}</div>
                 </div>
             </div>
-            ${(isTie || isBlowout || isClose || hasRounds) ? `
-            <div class="match-card-footer">
-                ${(isTie || isBlowout || isClose) ? `
-                <div class="match-tags">
-                    ${isTie ? '<span class="match-tag">Tie</span>' : ''}
-                    ${isBlowout ? '<span class="match-tag">Blowout</span>' : ''}
-                    ${isClose ? '<span class="match-tag">Close</span>' : ''}
-                </div>
-                ` : '<div></div>'}
-                ${hasRounds ? `
-                <button class="rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMatchRounds('${match.match_id}', ${matchData.rounds.length})">
-                    <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
-                    <span class="toggle-text">${matchData.rounds.length} ${matchData.rounds.length === 1 ? 'round' : 'rounds'}</span>
-                </button>
-                ` : ''}
+            <div class="card-footer">
+                Winner: <strong>${isTie ? 'Tie' : `<a href="bey.html?name=${encodeURIComponent(winner)}" class="bey-link">${addSoftHyphens(winner)}</a>`}</strong>
             </div>
-            ` : ''}
             ${hasRounds ? `
-            <div class="rounds-content ${isExpanded ? 'expanded' : ''}" id="rounds-${match.match_id}">
-                ${roundsHtml}
+            <div class="card-rounds-section">
+                <button class="card-rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMatchRounds('${match.match_id}', ${matchData.rounds.length})">
+                    <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
+                    Show Rounds (${matchData.rounds.length})
+                </button>
+                <div class="card-rounds-content ${isExpanded ? 'expanded' : ''}" id="rounds-${match.match_id}">
+                    ${roundsHtml}
+                </div>
             </div>
             ` : ''}
         </div>
@@ -1234,3 +1239,43 @@ function toggleSection(sectionId) {
 
 // Expose toggleSection to global scope for onclick handlers
 window.toggleSection = toggleSection;
+
+/**
+ * Copy match ID to clipboard
+ */
+function copyMatchId(matchId) {
+    const showCopiedFeedback = () => {
+        const elements = document.querySelectorAll(`.match-id`);
+        elements.forEach(el => {
+            if (el.textContent === matchId) {
+                el.classList.add('copied');
+                setTimeout(() => el.classList.remove('copied'), 1000);
+            }
+        });
+    };
+
+    // Use modern clipboard API if available, fallback to legacy method
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(matchId).then(showCopiedFeedback).catch(err => {
+            console.error('Failed to copy match ID:', err);
+        });
+    } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = matchId;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showCopiedFeedback();
+        } catch (err) {
+            console.error('Failed to copy match ID:', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+// Expose copyMatchId to global scope for onclick handlers
+window.copyMatchId = copyMatchId;
