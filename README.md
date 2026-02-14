@@ -157,6 +157,7 @@ python src/simulation.py -n 16 -f single-elimination --append
 | `tournaments.json` | Tournament metadata |
 | `milestones.json` | Statistical records and achievements |
 | `recommended_matches.json` | Match recommendations |
+| `tournament_brackets.json` | **NEW:** Tournament bracket recommendations for low-data beys |
 | `upset_analysis.csv` | Upset match analysis |
 | `upset_matches.csv` | Individual upset records |
 | `matches_with_rounds.json` | Matches with round-level data |
@@ -481,6 +482,64 @@ Visit the Seasons section on the website to view:
 - Relegation match outcomes
 - Season Cup brackets
 - Matchday schedules
+
+## Tournament Bracket Recommendations for Low-Data Beys
+
+The system automatically identifies Beyblades with low match counts and generates tournament bracket recommendations to help gather more data efficiently.
+
+### Features
+
+- **Automatic Low-Data Detection**: Identifies beys below the 40th percentile in match counts
+- **Smart Tournament Recommendations**: Suggests the best tournament format based on participant count
+- **Ready-to-Use Brackets**: Generates complete tournament brackets with matchups
+- **Multiple Formats**: Supports both Round-Robin and Single Elimination tournaments
+- **Schedule Generation**: Creates dated schedules ready for import
+
+### How It Works
+
+The system analyzes the current leaderboard to identify beys that need more matches:
+
+1. **Identification**: Beys with fewer matches than the 40th percentile are flagged
+2. **Recommendation**: Based on the number of low-data beys:
+   - **4-8 beys**: Round-robin tournament (everyone plays everyone)
+   - **9+ beys**: Single elimination bracket (efficient for large groups)
+3. **Bracket Generation**: Creates complete tournament structures with:
+   - All matchups organized by rounds
+   - Existing match counts for each pairing
+   - Ready-to-use schedules
+
+### Generated Data
+
+All tournament bracket data is saved to `docs/data/tournament_brackets.json`:
+
+- **Metadata**: Number of low-data beys, recommendations, and statistics
+- **Low-Data Bey List**: Complete list with match counts, ELO, and rankings
+- **Brackets**: Complete tournament structures:
+  - Single Elimination: Full bracket with match IDs and progression
+  - Round-Robin: All matchups organized by rounds
+  - Focused Round-Robin: Small group of lowest-data beys (if applicable)
+- **Schedules**: Dated match schedules ready for tournament execution
+
+### Running Manually
+
+To generate tournament brackets separately:
+
+```bash
+python src/tournament_brackets.py
+```
+
+Brackets are automatically generated as part of the main pipeline:
+
+```bash
+python update.py  # Includes tournament bracket generation
+```
+
+### Use Cases
+
+- **New Bey Integration**: Quickly gather data for newly added Beyblades
+- **Data Balance**: Ensure all beys have sufficient match data for accurate rankings
+- **Tournament Planning**: Get ready-to-use tournament structures for community events
+- **Meta Exploration**: Focus matches on under-represented beys
 
 ## Google Sheets Integration
 
