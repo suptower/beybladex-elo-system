@@ -11870,6 +11870,130 @@ select:focus-visible {
     background: #f97316;
 }
 
+/* New tier section with side-by-side layout */
+.tier-section-new {
+    margin-bottom: 2rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+}
+
+.tier-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.tier-table-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.tier-matches-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.tier-subsection-header {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.matchday-navigator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+}
+
+.matchday-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    text-align: center;
+    flex: 1;
+}
+
+.matchday-nav-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1.25rem;
+    font-weight: 700;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+}
+
+.matchday-nav-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: scale(1.05);
+}
+
+.matchday-nav-btn:disabled {
+    background: var(--border);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.nav-arrow {
+    font-size: 1rem;
+}
+
+.tier-matches-container {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 800px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .tier-content-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .tier-matches-container {
+        max-height: 600px;
+    }
+}
+
+@media (max-width: 768px) {
+    .matchday-navigator {
+        padding: 0.75rem;
+    }
+    
+    .matchday-title {
+        font-size: 1rem;
+    }
+    
+    .matchday-nav-btn {
+        padding: 0.4rem 0.8rem;
+        min-width: 2.5rem;
+    }
+    
+    .tier-matches-container {
+        max-height: 500px;
+    }
+}
+
 /* Promotion/Relegation */
 .pr-grid {
     display: grid;
