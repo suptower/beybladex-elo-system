@@ -137,6 +137,20 @@ async function loadSeason(seasonId) {
 }
 
 /**
+ * Initialize selected matchdays for each tier
+ */
+function initializeSelectedMatchdays(matchdays) {
+    selectedMatchdays = {}; // Reset
+    
+    for (let tier = 1; tier <= 4; tier++) {
+        const tierMatchdays = getTierMatchdays(matchdays, tier);
+        if (tierMatchdays.length > 0) {
+            selectedMatchdays[tier] = tierMatchdays[0]; // Start with first matchday
+        }
+    }
+}
+
+/**
  * Display season overview and all components
  */
 function displaySeason(seasonId, season) {
@@ -144,6 +158,9 @@ function displaySeason(seasonId, season) {
     document.getElementById('season-title').textContent = seasonId;
     document.getElementById('season-subtitle').textContent = 
         `${season.start_date ? new Date(season.start_date).toLocaleDateString() : ''} - ${season.end_date ? new Date(season.end_date).toLocaleDateString() : 'Ongoing'}`;
+    
+    // Initialize matchday selections
+    initializeSelectedMatchdays(season.matchdays || {});
     
     // Display overview
     displayOverview(season);
@@ -301,12 +318,6 @@ function displayTierTables(leagueTables) {
         
         // Get all matchdays for this tier
         const tierMatchdays = getTierMatchdays(matchdays, tier);
-        
-        // Initialize selected matchday if not set
-        if (!selectedMatchdays[tier] && tierMatchdays.length > 0) {
-            selectedMatchdays[tier] = tierMatchdays[0];
-        }
-        
         const currentMatchday = selectedMatchdays[tier] || tierMatchdays[0] || 1;
         
         html += `
@@ -513,6 +524,38 @@ function createMatchCard(match, md) {
 }
 
 /**
+ * Update matches and navigator for a specific tier
+ */
+function updateTierMatches(tier) {
+    const matchdays = currentSeason?.matchdays || {};
+    const tierMatchdays = getTierMatchdays(matchdays, tier);
+    const currentMatchday = selectedMatchdays[tier] || tierMatchdays[0] || 1;
+    
+    // Update matchday title
+    const titleElement = document.querySelector(`#tier-${tier}-content .matchday-title`);
+    if (titleElement) {
+        titleElement.textContent = `Matchday ${currentMatchday}`;
+    }
+    
+    // Update navigation buttons
+    const prevBtn = document.querySelector(`#tier-${tier}-content .matchday-nav-btn:first-of-type`);
+    const nextBtn = document.querySelector(`#tier-${tier}-content .matchday-nav-btn:last-of-type`);
+    
+    if (prevBtn) {
+        prevBtn.disabled = currentMatchday <= tierMatchdays[0];
+    }
+    if (nextBtn) {
+        nextBtn.disabled = currentMatchday >= tierMatchdays[tierMatchdays.length - 1];
+    }
+    
+    // Update matches
+    const matchesContainer = document.getElementById(`tier-${tier}-matches`);
+    if (matchesContainer) {
+        matchesContainer.innerHTML = displayTierMatches(matchdays, tier, currentMatchday);
+    }
+}
+
+/**
  * Change matchday for a specific tier
  */
 function changeMatchday(tier, direction) {
@@ -527,9 +570,8 @@ function changeMatchday(tier, direction) {
     if (newIdx >= 0 && newIdx < tierMatchdays.length) {
         selectedMatchdays[tier] = tierMatchdays[newIdx];
         
-        // Re-render just the tier section
-        const container = document.getElementById('tier-tables');
-        displayTierTables(currentSeason.league_tables || {});
+        // Update only this tier's matches
+        updateTierMatches(tier);
     }
 }
 
