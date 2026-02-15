@@ -757,7 +757,7 @@ function getPositionLegend(tier) {
         html += `
             <div class="position-legend-item">
                 <div class="position-legend-indicator qualification"></div>
-                <span>Relegation Match (8th)</span>
+                <span>Relegation Playoff (8th)</span>
             </div>
             <div class="position-legend-item">
                 <div class="position-legend-indicator relegation"></div>
