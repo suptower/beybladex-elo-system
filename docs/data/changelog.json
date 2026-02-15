@@ -1,33 +1,177 @@
 {
-  "generated_at": "2026-02-13T20:26:55.820547+00:00",
+  "generated_at": "2026-02-15T19:16:27.135438+00:00",
   "commit_count": 50,
   "commits": [
     {
-      "hash": "18b75ee",
-      "full_hash": "18b75ee77021a12cc01ab197a4270a474a03a60c",
-      "date": "2026-02-13T12:34:45Z",
-      "message": "Address code review: Use Object.keys() and add info_value safety check",
+      "hash": "048132a",
+      "full_hash": "048132a89556e0d3280d9387ed575ea74ae23cb0",
+      "date": "2026-02-15T20:16:05+01:00",
+      "message": "fix: linting",
+      "author": "Arda K",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/048132a89556e0d3280d9387ed575ea74ae23cb0"
+    },
+    {
+      "hash": "33ae0e7",
+      "full_hash": "33ae0e76433138221c1a659609ad613ca59786f8",
+      "date": "2026-02-15T20:11:51+01:00",
+      "message": "fix: naming conventions",
+      "author": "Arda K",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/33ae0e76433138221c1a659609ad613ca59786f8"
+    },
+    {
+      "hash": "ed42f61",
+      "full_hash": "ed42f616c516fbf9f0edb6b010cedef9407d7233",
+      "date": "2026-02-15T18:12:17Z",
+      "message": "Add table snapshot navigation with matchday selector and position delta",
       "author": "copilot-swe-agent[bot]",
       "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/18b75ee77021a12cc01ab197a4270a474a03a60c"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/ed42f616c516fbf9f0edb6b010cedef9407d7233"
     },
     {
-      "hash": "05ec9ce",
-      "full_hash": "05ec9cef83a4a7ea064a7e8c36bb9a3514c2252f",
-      "date": "2026-02-13T12:32:25Z",
-      "message": "Fix: Load all recommendations sorted by info_value instead of just top 10",
+      "hash": "d884158",
+      "full_hash": "d884158bdec29ff93f404893276523984e80b472",
+      "date": "2026-02-15T17:49:52Z",
+      "message": "Add table snapshots generator to Python pipeline",
       "author": "copilot-swe-agent[bot]",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/05ec9cef83a4a7ea064a7e8c36bb9a3514c2252f"
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/d884158bdec29ff93f404893276523984e80b472"
     },
     {
-      "hash": "1cfd2fb",
-      "full_hash": "1cfd2fb9b36d0dbadaf540677ed9e678ada307ad",
-      "date": "2026-02-13T12:29:57Z",
+      "hash": "784a9da",
+      "full_hash": "784a9da57831090955f76e44bb78401a2d5d82e9",
+      "date": "2026-02-15T17:47:43Z",
+      "message": "Switch score and name order for right bey (4 CobaltDragoon)",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/784a9da57831090955f76e44bb78401a2d5d82e9"
+    },
+    {
+      "hash": "49d1b11",
+      "full_hash": "49d1b1154663607b3047220306d9ebc7846107ce",
+      "date": "2026-02-15T17:21:57Z",
+      "message": "Align right bey name to the right side",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/49d1b1154663607b3047220306d9ebc7846107ce"
+    },
+    {
+      "hash": "e5c5433",
+      "full_hash": "e5c5433c50b0f5cc32fe763acfd8bfb020253354",
+      "date": "2026-02-15T16:49:39Z",
+      "message": "Fix mobile text overflow and make bey names stretch to fill width",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e5c5433c50b0f5cc32fe763acfd8bfb020253354"
+    },
+    {
+      "hash": "8f2733b",
+      "full_hash": "8f2733b05a16b6610a7fd5e05e3321526aeb54e9",
+      "date": "2026-02-15T15:50:56Z",
+      "message": "Make match cards more compact with horizontal layout and adjust grid ratio",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/8f2733b05a16b6610a7fd5e05e3321526aeb54e9"
+    },
+    {
+      "hash": "b06663d",
+      "full_hash": "b06663df2ad747bf2e7ce94c6b92f61a4fbd2ccf",
+      "date": "2026-02-15T16:47:38+01:00",
+      "message": "style: adapted round points",
+      "author": "Arda K",
+      "category": "Style",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/b06663df2ad747bf2e7ce94c6b92f61a4fbd2ccf"
+    },
+    {
+      "hash": "e1d09b5",
+      "full_hash": "e1d09b5e973947728e26b654fa0b13721795605e",
+      "date": "2026-02-14T20:40:52Z",
+      "message": "Update match cards to match matches.html style",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e1d09b5e973947728e26b654fa0b13721795605e"
+    },
+    {
+      "hash": "cf2f3d1",
+      "full_hash": "cf2f3d1950f6b99acb9910adb268a42f1180b08f",
+      "date": "2026-02-14T12:08:35Z",
+      "message": "Make match cards more compact and improve rounds button styling",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/cf2f3d1950f6b99acb9910adb268a42f1180b08f"
+    },
+    {
+      "hash": "56eb2e8",
+      "full_hash": "56eb2e8ee09d92b2419de6928fce5a535f5bcc23",
+      "date": "2026-02-14T11:58:28Z",
+      "message": "Fix mobile table scrolling, match card spacing, and rounds expansion",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/56eb2e8ee09d92b2419de6928fce5a535f5bcc23"
+    },
+    {
+      "hash": "d3c2d30",
+      "full_hash": "d3c2d30fff7acc56c04b043a2ed0c03992daba35",
+      "date": "2026-02-14T11:38:28Z",
+      "message": "Improve performance with targeted tier updates and initialization",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/d3c2d30fff7acc56c04b043a2ed0c03992daba35"
+    },
+    {
+      "hash": "4521d92",
+      "full_hash": "4521d925f24c41bcd2b4d820c813792015383eb7",
+      "date": "2026-02-14T11:36:00Z",
+      "message": "Implement tier-specific matchday navigation with side-by-side layout",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/4521d925f24c41bcd2b4d820c813792015383eb7"
+    },
+    {
+      "hash": "7898bc6",
+      "full_hash": "7898bc6ce3679504d2f4a72c1db069fe20984d7a",
+      "date": "2026-02-14T11:29:54Z",
       "message": "Initial plan",
       "author": "copilot-swe-agent[bot]",
       "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1cfd2fb9b36d0dbadaf540677ed9e678ada307ad"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/7898bc6ce3679504d2f4a72c1db069fe20984d7a"
+    },
+    {
+      "hash": "881d5fd",
+      "full_hash": "881d5fd4a4090addfc81c877a87a3197b25de41e",
+      "date": "2026-02-14T12:28:00+01:00",
+      "message": "chore: add season tier mockup",
+      "author": "Arda K",
+      "category": "Chore",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/881d5fd4a4090addfc81c877a87a3197b25de41e"
+    },
+    {
+      "hash": "1be8d22",
+      "full_hash": "1be8d2286a240d79d76f79eb725f84355df64db1",
+      "date": "2026-02-14T11:45:18+01:00",
+      "message": "feat: add tournament bracket generator for low-data beys (#255)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1be8d2286a240d79d76f79eb725f84355df64db1"
+    },
+    {
+      "hash": "16d702a",
+      "full_hash": "16d702aff77a4e483d7c7d443edf3663c5e8c766",
+      "date": "2026-02-13T22:25:25+01:00",
+      "message": "feat: add data of season 1 matchday 4 (#253)",
+      "author": "suptower",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/16d702aff77a4e483d7c7d443edf3663c5e8c766"
+    },
+    {
+      "hash": "0a19a13",
+      "full_hash": "0a19a138e99d94bf1661838a5cca61614b71292d",
+      "date": "2026-02-13T21:29:49+01:00",
+      "message": "feat: unlimited recommend match pairings (#252)",
+      "author": "Copilot",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/0a19a138e99d94bf1661838a5cca61614b71292d"
     },
     {
       "hash": "f3b8598",
@@ -307,150 +451,6 @@
       "author": "Copilot",
       "category": "Other",
       "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1c7b7101e7a43b1d3d1bff0d516cf82f477795ad"
-    },
-    {
-      "hash": "f1b38b0",
-      "full_hash": "f1b38b05aec9ed541e3dec131a65266210a9f02c",
-      "date": "2026-01-08T20:28:20+01:00",
-      "message": "feat: add head-to-head comparison tool for direct Beyblade matchup analysis (#195)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f1b38b05aec9ed541e3dec131a65266210a9f02c"
-    },
-    {
-      "hash": "a28c708",
-      "full_hash": "a28c708c1a42717997ab66f8b97991b2d48f8331",
-      "date": "2026-01-08T18:33:34+01:00",
-      "message": "feat: Replace static ELO plots with interactive Plotly visualizations (#193)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/a28c708c1a42717997ab66f8b97991b2d48f8331"
-    },
-    {
-      "hash": "6bf2983",
-      "full_hash": "6bf29830b14cf0f2cf63e9ded9040c167b37f885",
-      "date": "2026-01-08T00:07:05+01:00",
-      "message": "Enhance navigation and accessibility across site (#191)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/6bf29830b14cf0f2cf63e9ded9040c167b37f885"
-    },
-    {
-      "hash": "bc858df",
-      "full_hash": "bc858df42b6eae607b99ffcd976ab5b0124804ba",
-      "date": "2026-01-07T22:25:04+01:00",
-      "message": "Add comprehensive feature brainstorming document (38 potential enhancements) (#189)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/bc858df42b6eae607b99ffcd976ab5b0124804ba"
-    },
-    {
-      "hash": "a60c50f",
-      "full_hash": "a60c50ffc9af9073ba2c7d7e2744bf75c7a01d26",
-      "date": "2026-01-07T21:56:16+01:00",
-      "message": "Fix inconsistent Analytics dropdown navigation across pages (#187)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/a60c50ffc9af9073ba2c7d7e2744bf75c7a01d26"
-    },
-    {
-      "hash": "55eca0b",
-      "full_hash": "55eca0b2f12b2bb9d5f0f36a83b9c8e85861d77f",
-      "date": "2026-01-07T12:28:51+01:00",
-      "message": "chore: Update changelog [skip ci] (#185)",
-      "author": "suptower",
-      "category": "Chore",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/55eca0b2f12b2bb9d5f0f36a83b9c8e85861d77f"
-    },
-    {
-      "hash": "f60dd1b",
-      "full_hash": "f60dd1bd3600a03c83329d94bc8f6d145727284e",
-      "date": "2026-01-07T12:26:20+01:00",
-      "message": "fix: remove on push workflow",
-      "author": "Arda K",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f60dd1bd3600a03c83329d94bc8f6d145727284e"
-    },
-    {
-      "hash": "5a245e7",
-      "full_hash": "5a245e7c6bf00afc2414d2b7e9b9a09dd9956392",
-      "date": "2026-01-07T12:23:38+01:00",
-      "message": "fix: set upstream on workflow push",
-      "author": "Arda K",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/5a245e7c6bf00afc2414d2b7e9b9a09dd9956392"
-    },
-    {
-      "hash": "2c8fb61",
-      "full_hash": "2c8fb618f6effc2c26c6a1d08e86027e797eef5c",
-      "date": "2026-01-07T12:18:03+01:00",
-      "message": "fix: push changelog on new branch",
-      "author": "Arda K",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/2c8fb618f6effc2c26c6a1d08e86027e797eef5c"
-    },
-    {
-      "hash": "2ae4b93",
-      "full_hash": "2ae4b93631c79752b4cfb446283f35e9f3e4fcc8",
-      "date": "2026-01-06T21:44:24+01:00",
-      "message": "fix: Add write permission to generate_changelog workflow (#184)",
-      "author": "Copilot",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/2ae4b93631c79752b4cfb446283f35e9f3e4fcc8"
-    },
-    {
-      "hash": "ac629ec",
-      "full_hash": "ac629ec0ef78d26f3ef3ad46607a1bf328198367",
-      "date": "2026-01-06T20:52:52+01:00",
-      "message": "feat: Add auto-generated changelog page from git commit history (#182)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/ac629ec0ef78d26f3ef3ad46607a1bf328198367"
-    },
-    {
-      "hash": "b8a1002",
-      "full_hash": "b8a10024db3609d34af7db0df0ad973f6d31bffc",
-      "date": "2026-01-06T20:12:22+01:00",
-      "message": "docs: Update README with complete project structure and current features (#180)",
-      "author": "Copilot",
-      "category": "Documentation",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/b8a10024db3609d34af7db0df0ad973f6d31bffc"
-    },
-    {
-      "hash": "8ed53bf",
-      "full_hash": "8ed53bf3605dedf4da26dc2cb1daf66a19317945",
-      "date": "2026-01-06T19:50:08+01:00",
-      "message": "Integrate recommended matches with pre-match analysis in quick entry (#178)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/8ed53bf3605dedf4da26dc2cb1daf66a19317945"
-    },
-    {
-      "hash": "287e41b",
-      "full_hash": "287e41be0425b604348356bfa3cccac5449ddee1",
-      "date": "2026-01-06T16:26:07+01:00",
-      "message": "feat: client-side live ELO leaderboard with real-time updates (#176)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/287e41be0425b604348356bfa3cccac5449ddee1"
-    },
-    {
-      "hash": "e09a0e8",
-      "full_hash": "e09a0e82e331aca0a66a5f9692c40bf709712d87",
-      "date": "2026-01-06T01:21:35+01:00",
-      "message": "feat: archetype effectiveness dashboard (#174)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e09a0e82e331aca0a66a5f9692c40bf709712d87"
-    },
-    {
-      "hash": "1a69d5b",
-      "full_hash": "1a69d5ba0355d5495e1f0213ad097241a1bf5305",
-      "date": "2026-01-05T23:43:01+01:00",
-      "message": "Add matchup matrix for Bey-vs-Bey performance analysis (#173)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1a69d5ba0355d5495e1f0213ad097241a1bf5305"
     }
   ]
 }
