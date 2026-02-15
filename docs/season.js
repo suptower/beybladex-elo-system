@@ -340,8 +340,8 @@ function displayTierTables(leagueTables) {
                                             <th>W</th>
                                             <th>L</th>
                                             <th>SP</th>
-                                            <th>BPW</th>
-                                            <th>BPL</th>
+                                            <th>RPW</th>
+                                            <th>RPL</th>
                                             <th>RPD</th>
                                             <th>ELO</th>
                                         </tr>
@@ -353,7 +353,7 @@ function displayTierTables(leagueTables) {
                             </div>
                             <div class="table-legend">
                                 <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
-                                <span><strong>BPW</strong>=Beyblade Points Won, <strong>BPL</strong>=Beyblade Points Lost, <strong>RPD</strong>=Round Points Difference</span>
+                                <span><strong>RPW</strong>=Round Points Won, <strong>RPL</strong>=Round Points Lost, <strong>RPD</strong>=Round Points Difference</span>
                             </div>
                             ${getPositionLegend(tier)}
                         </div>
