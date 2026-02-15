@@ -36,6 +36,9 @@ from season_manager import (  # noqa: E402
     generate_season_archive,
     load_season_data
 )
+from table_snapshots import (  # noqa: E402
+    generate_all_table_snapshots
+)
 
 
 # Default paths
@@ -317,6 +320,14 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
     if not league_tables:
         print(f"{YELLOW}  No league tables generated for {season_id}{RESET}")
         return None
+
+    # Generate table snapshots for matchday-by-matchday view
+    if season_matches:
+        try:
+            generate_all_table_snapshots(matches, season_id, data_dir)
+            print(f"{GREEN}  Table snapshots generated{RESET}")
+        except Exception as e:
+            print(f"{YELLOW}  Warning: Could not generate table snapshots: {e}{RESET}")
 
     # Load season data for additional info
     season_data = load_season_data(season_id, data_dir) or {}
