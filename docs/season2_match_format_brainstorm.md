@@ -236,6 +236,143 @@
 
 ---
 
+### Option 9: Swiss + Placement Matches (Community Suggestion)
+
+**Structure:** 5-round Swiss followed by final placement matches  
+**Match Count:** 90 matches total (33% reduction)
+
+**How it works:**
+- **Phase 1 - Swiss Rounds:** 5 rounds of Swiss-system pairing
+  - 5 rounds × 5 matches/round × 3 tiers = 75 matches
+  - Each bey plays 5 matches against performance-matched opponents
+- **Phase 2 - Placement Matches:** Direct matchups for final placement
+  - 1st vs 2nd, 3rd vs 4th, 5th vs 6th, 7th vs 8th, 9th vs 10th
+  - 5 matches × 3 tiers = 15 matches
+  - Determines exact final standings
+
+**Advantages:**
+- ✅ Combines efficiency of Swiss with precision of direct matchups
+- ✅ Placement matches resolve any Swiss ambiguity
+- ✅ Every final position determined by head-to-head
+- ✅ 6 total matches per bey (5 Swiss + 1 placement)
+- ✅ Creates exciting "finals" for every placement pair
+
+**Disadvantages:**
+- ❌ Placement matches predetermined by Swiss standings
+- ❌ Limited reduction compared to pure Swiss (33% vs 60%)
+- ❌ Lower-ranked placement matches may lack excitement
+- ❌ Two-phase complexity
+
+**Statistical Reliability:** Excellent - combines Swiss seeding with direct resolution
+
+**Key Innovation:** Uses Swiss to efficiently seed placement brackets, then resolves with guaranteed head-to-heads
+
+---
+
+### Option 10: Pod System + Placement Matches (Community Suggestion)
+
+**Structure:** Two pods with round-robin, then placement matches  
+**Match Count:** 75 matches total (44% reduction)
+
+**How it works:**
+- **Phase 1 - Pod Round-Robin:** Complete round-robin within each pod
+  - 2 pods of 5 beys per tier
+  - 10 matches per pod (5 beys × 4 opponents ÷ 2)
+  - 2 pods × 10 matches × 3 tiers = 60 matches
+  - Each bey plays 4 matches within pod
+- **Phase 2 - Placement Matches:** Inter-pod matchups by rank
+  - Pod A 1st vs Pod B 1st → 1st/2nd place
+  - Pod A 2nd vs Pod B 2nd → 3rd/4th place
+  - Pod A 3rd vs Pod B 3rd → 5th/6th place
+  - Pod A 4th vs Pod B 4th → 7th/8th place
+  - Pod A 5th vs Pod B 5th → 9th/10th place
+  - 5 matches × 3 tiers = 15 matches
+- **Total matches per bey:** 5 (4 pod + 1 placement)
+
+**Advantages:**
+- ✅ Stronger reduction than Swiss+Placement (44% vs 33%)
+- ✅ Complete head-to-head data within pods
+- ✅ Clean placement resolution with direct matchups
+- ✅ Pods create mini-league atmosphere
+- ✅ Balanced pods ensure fair competition
+
+**Disadvantages:**
+- ❌ Pod balance crucial - unfair seeding ruins format
+- ❌ Limited cross-pod exposure (only 1 match)
+- ❌ Pod assignment can feel arbitrary
+- ❌ 5 matches per bey might be insufficient data
+
+**Statistical Reliability:** Good - pod data complete, cross-pod resolved directly
+
+**Key Innovation:** Combines completeness of round-robin (within pods) with efficiency of limited cross-pod play
+
+---
+
+## Community Suggestions Analysis
+
+The two new community-suggested formats (Options 9 & 10) introduce an interesting hybrid concept: using efficient preliminary systems followed by decisive placement matches.
+
+### Placement Match Philosophy
+
+Both suggestions recognize that:
+1. **Efficient seeding** can be done with Swiss or pods (fewer matches)
+2. **Final precision** requires direct head-to-head matchups
+3. **Compromise between reduction and certainty** achieves both goals
+
+### Option 9 vs Option 10 Comparison
+
+| Aspect | Swiss+Placement (9) | Pod+Placement (10) |
+|--------|---------------------|-------------------|
+| Total Matches | 90 | 75 |
+| Reduction | 33% | 44% |
+| Matches per Bey | 6 | 5 |
+| Data Quality | Diverse opponents | Complete pod data |
+| Placement Certainty | Direct H2H | Direct H2H |
+| Complexity | Medium | Medium |
+
+**Option 9 (Swiss+Placement) advantages:**
+- More matches per bey (6 vs 5) = better data
+- Swiss provides better competitive matchups
+- Smoother difficulty progression
+
+**Option 10 (Pod+Placement) advantages:**
+- Greater match reduction (44% vs 33%)
+- Complete round-robin within pods
+- Simpler to understand (no pairing algorithm)
+
+### Placement Match Considerations
+
+**Pros of Placement Matches:**
+- ✅ Eliminates tiebreaker ambiguity
+- ✅ Every position determined by direct matchup
+- ✅ Creates "finals" atmosphere for all ranks
+- ✅ Resolves Swiss/pod uncertainty definitively
+
+**Cons of Placement Matches:**
+- ❌ Predetermined matchups (less flexibility than relegation matches)
+- ❌ 9th vs 10th may lack competitive interest
+- ❌ Doesn't allow for upsets to change seeding order significantly
+- ❌ Requires full completion of preliminary phase first
+
+### Strategic Assessment
+
+These hybrid approaches offer a **middle path** between:
+- Pure Swiss (maximum efficiency, some ambiguity)
+- Full round-robin (maximum precision, high match count)
+
+**Best use cases:**
+- When exact placement precision is mandatory (all 10 positions must be definitively ranked)
+- When 5-6 matches per bey is acceptable data volume
+- When exciting placement finals are valued
+
+**Comparison to pure formats:**
+- Less efficient than pure Swiss (90/75 vs 54 matches)
+- More efficient than round-robin (90/75 vs 135 matches)
+- More decisive than pure Swiss (guaranteed H2H resolution)
+- Similar precision to round-robin (direct matchups decide)
+
+---
+
 ## Comparative Analysis
 
 | Option | Total Matches | Reduction | Complexity | Precision | Fairness |
@@ -248,6 +385,8 @@
 | **5. Matchday** | 105-120 | 13-22% | High | Moderate | Medium |
 | **6. Groups+Crossover** | 87 | 35% | Medium | Good | Good |
 | **8. Phased** | 85-100 | 25-37% | High | High | Good |
+| **9. Swiss+Placement** | 90 | 33% | Medium | Excellent | Good |
+| **10. Pod+Placement** | 75 | 44% | Medium | Excellent | Good |
 
 ---
 

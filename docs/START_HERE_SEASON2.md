@@ -61,6 +61,10 @@ Read: **[season2_implementation_guide.md](./season2_implementation_guide.md)**
 | 6 | Groups+Crossover | 87 | 35% | Moderate option |
 | 7 | Phased Reduction | 85-100 | 25-37% | High complexity |
 | 8 | Elimination Hybrid | 33 | 76% | Not viable |
+| **9** | **Swiss+Placement** | **90** | **33%** | 🌟 **Strong hybrid** |
+| **10** | **Pod+Placement** | **75** | **44%** | 🌟 **Solid alternative** |
+
+**New:** Options 9 & 10 are community-suggested hybrids combining efficient preliminary formats with decisive placement matches.
 
 ---
 
@@ -68,7 +72,7 @@ Read: **[season2_implementation_guide.md](./season2_implementation_guide.md)**
 
 This brainstorming phase includes:
 
-- ✅ **8 alternative formats** thoroughly researched
+- ✅ **10 alternative formats** thoroughly researched (including 2 community suggestions)
 - ✅ **Mathematical validation** with statistical analysis
 - ✅ **Comparative analysis** across all options
 - ✅ **Implementation guides** with code examples

@@ -5,19 +5,21 @@ This directory contains comprehensive research and brainstorming for Season 2 ma
 ## 📄 Documents
 
 ### 1. [season2_match_format_brainstorm.md](./season2_match_format_brainstorm.md)
-**Main brainstorming document** with 8 alternative match format ideas.
+**Main brainstorming document** with 10 alternative match format ideas.
 
 **Contents:**
 - Current situation analysis (135 matches)
-- 8 detailed format alternatives with pros/cons
+- 10 detailed format alternatives with pros/cons (including 2 community suggestions)
 - Comparative analysis table
-- Top 3 recommendations
+- Top 3 recommendations + 2 new hybrid alternatives
 - Implementation considerations
 
 **Key Recommendations:**
 - 🥇 **Swiss 6-Round System** (54 matches, 60% reduction)
 - 🥈 **Smaller Tiers with Double RR** (84 matches, 38% reduction)
 - 🥉 **Pod System** (72 matches, 47% reduction)
+- 🌟 **Swiss + Placement** (90 matches, 33% reduction) - Community suggestion
+- 🌟 **Pod + Placement** (75 matches, 44% reduction) - Community suggestion
 
 ---
 
@@ -89,9 +91,13 @@ This directory contains comprehensive research and brainstorming for Season 2 ma
 |--------|---------|-----------|-----------|------------|
 | **Current (RR)** | 135 | - | Excellent | Low |
 | **Swiss 6R** | 54 | 60% | Good | Medium |
+| **Swiss+Placement** | 90 | 33% | Excellent | Medium |
+| **Pod+Placement** | 75 | 44% | Excellent | Medium |
 | **Smaller Tiers** | 84 | 38% | Excellent | Low |
 | **Pod System** | 72 | 47% | Good | Medium |
 | **Top-Heavy** | 110 | 19% | Variable | Low |
+
+**New Options:** Swiss+Placement and Pod+Placement combine efficient preliminary rounds with decisive head-to-head placement finals.
 
 ---
 

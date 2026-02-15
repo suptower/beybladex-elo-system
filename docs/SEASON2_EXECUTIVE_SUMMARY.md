@@ -106,10 +106,20 @@ Creates increasingly competitive matches!
 | Format | Matches | Reduction | Pros | Cons | Verdict |
 |--------|---------|-----------|------|------|---------|
 | **Swiss 6R** | 54 | 60% | Best efficiency, proven | Some matchups missing | ⭐ **RECOMMENDED** |
+| Swiss+Placement | 90 | 33% | Decisive H2H finals | Moderate reduction | Strong alternative |
+| Pod+Placement | 75 | 44% | Complete pod data, H2H | Pod balancing critical | Solid hybrid |
 | Smaller Tiers | 84 | 38% | Complete data | Less inclusive | Conservative backup |
 | Pod System | 72 | 47% | Playoff excitement | Pod balance issues | Interesting but complex |
 | Top-Heavy | 110 | 19% | T1 precision | Inconsistent | Minimal benefit |
 | Matchday-Based | 105-120 | 13-22% | Flexible | Schedule bias | Too minimal |
+
+**New Community Suggestions:**
+- **Swiss+Placement (90 matches):** 5-round Swiss followed by placement finals (1v2, 3v4, etc.)
+  - Combines Swiss efficiency with guaranteed H2H resolution
+  - Every position decided by direct matchup
+- **Pod+Placement (75 matches):** Pod round-robin followed by inter-pod placement matches
+  - Complete data within pods, cross-pod resolution
+  - 44% reduction with excellent precision
 
 **Why Not Others?**
 - **Smaller Tiers:** Excludes beys from league
