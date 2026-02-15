@@ -12060,6 +12060,15 @@ select:focus-visible {
     overflow: hidden;
 }
 
+.season-compact-bey-left {
+    justify-content: flex-start;
+}
+
+.season-compact-bey-right {
+    justify-content: flex-end;
+    flex-direction: row-reverse;
+}
+
 .season-compact-bey.winner {
     background: var(--accent);
     color: white;

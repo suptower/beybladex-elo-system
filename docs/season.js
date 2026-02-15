@@ -487,13 +487,13 @@ function createMatchCard(match, md) {
                 <span class="match-elo-diff" title="ELO Difference">Δ${eloDiff}</span>
             </div>
             <div class="season-card-match-compact">
-                <div class="season-compact-bey ${beyAClass}">
+                <div class="season-compact-bey season-compact-bey-left ${beyAClass}">
                     <span class="compact-bey-name">${beyALink}</span>
                     <span class="compact-bey-elo-change">${deltaBadgeA}</span>
                     <span class="compact-bey-score">${match.score_a}</span>
                 </div>
                 <span class="compact-vs">vs.</span>
-                <div class="season-compact-bey ${beyBClass}">
+                <div class="season-compact-bey season-compact-bey-right ${beyBClass}">
                     <span class="compact-bey-score">${match.score_b}</span>
                     <span class="compact-bey-elo-change">${deltaBadgeB}</span>
                     <span class="compact-bey-name">${beyBLink}</span>
