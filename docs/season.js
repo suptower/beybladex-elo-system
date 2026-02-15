@@ -10,6 +10,8 @@ let expandedMatches = new Set(); // Track which matches are expanded
 let xtremeEloData = {}; // Mapping of bey name to Xtreme ELO
 let collapsedSections = new Set(['qualification-pool']); // Track which sections are collapsed (qualification pool collapsed by default)
 let selectedMatchdays = {}; // Track selected matchday for each tier (tier -> matchday number)
+let selectedTableSnapshots = {}; // Track selected table snapshot matchday for each tier (tier -> matchday number)
+let tableSnapshotsData = {}; // Store loaded snapshot data (tier -> array of snapshots)
 
 /**
  * Add soft hyphens before capital letters in compound Bey names for better line breaking
@@ -111,6 +113,70 @@ async function loadXtremeEloData() {
 }
 
 /**
+ * Load table snapshots CSV data for a specific tier
+ */
+async function loadTableSnapshots(seasonId, tier) {
+    try {
+        const response = await fetch(`data/table_snapshots_${seasonId}_tier${tier}.csv`);
+        if (!response.ok) {
+            console.log(`No table snapshots found for ${seasonId} Tier ${tier}`);
+            return [];
+        }
+        
+        const csvText = await response.text();
+        const lines = csvText.trim().split('\n');
+        
+        const snapshots = {};
+        
+        // Skip header row
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            const values = line.split(',');
+            if (values.length >= 12) {
+                const matchday = parseInt(values[0]);
+                const position = parseInt(values[1]);
+                const bey = values[2];
+                const matches = parseInt(values[3]);
+                const wins = parseInt(values[4]);
+                const losses = parseInt(values[5]);
+                const seasonPoints = parseInt(values[6]);
+                const pointsFor = parseInt(values[7]);
+                const pointsAgainst = parseInt(values[8]);
+                const pointDiff = parseInt(values[9]);
+                const elo = parseFloat(values[10]);
+                const positionDelta = parseInt(values[11]);
+                
+                if (!snapshots[matchday]) {
+                    snapshots[matchday] = [];
+                }
+                
+                snapshots[matchday].push({
+                    position,
+                    bey,
+                    matches,
+                    wins,
+                    losses,
+                    season_points: seasonPoints,
+                    points_for: pointsFor,
+                    points_against: pointsAgainst,
+                    point_diff: pointDiff,
+                    elo,
+                    position_delta: positionDelta
+                });
+            }
+        }
+        
+        console.log(`Loaded table snapshots for ${seasonId} Tier ${tier}: ${Object.keys(snapshots).length} matchdays`);
+        return snapshots;
+    } catch (error) {
+        console.error(`Error loading table snapshots for ${seasonId} Tier ${tier}:`, error);
+        return [];
+    }
+}
+
+/**
  * Load specific season data
  */
 async function loadSeason(seasonId) {
@@ -151,9 +217,27 @@ function initializeSelectedMatchdays(matchdays) {
 }
 
 /**
+ * Load table snapshots for all tiers
+ */
+async function loadAllTableSnapshots(seasonId) {
+    tableSnapshotsData = {};
+    selectedTableSnapshots = {};
+    
+    for (let tier = 1; tier <= 4; tier++) {
+        const snapshots = await loadTableSnapshots(seasonId, tier);
+        if (snapshots && Object.keys(snapshots).length > 0) {
+            tableSnapshotsData[tier] = snapshots;
+            // Initialize to last matchday (final standings) by default
+            const matchdays = Object.keys(snapshots).map(Number).sort((a, b) => b - a);
+            selectedTableSnapshots[tier] = matchdays[0]; // Start with final standings
+        }
+    }
+}
+
+/**
  * Display season overview and all components
  */
-function displaySeason(seasonId, season) {
+async function displaySeason(seasonId, season) {
     // Update title
     document.getElementById('season-title').textContent = seasonId;
     document.getElementById('season-subtitle').textContent = 
@@ -161,6 +245,9 @@ function displaySeason(seasonId, season) {
     
     // Initialize matchday selections
     initializeSelectedMatchdays(season.matchdays || {});
+    
+    // Load table snapshots for all tiers
+    await loadAllTableSnapshots(seasonId);
     
     // Display overview
     displayOverview(season);
@@ -320,6 +407,12 @@ function displayTierTables(leagueTables) {
         const tierMatchdays = getTierMatchdays(matchdays, tier);
         const currentMatchday = selectedMatchdays[tier] || tierMatchdays[0] || 1;
         
+        // Get table snapshot data if available
+        const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
+        const snapshotMatchdays = hasSnapshots ? Object.keys(tableSnapshotsData[tier]).map(Number).sort((a, b) => a - b) : [];
+        const currentSnapshotMatchday = selectedTableSnapshots[tier] || snapshotMatchdays[snapshotMatchdays.length - 1] || null;
+        const displayTable = hasSnapshots && currentSnapshotMatchday ? tableSnapshotsData[tier][currentSnapshotMatchday] : table;
+        
         html += `
             <div class="tier-section-new">
                 <h3 class="collapsible-header" onclick="toggleSection('${sectionId}')" data-section-id="${sectionId}">
@@ -329,12 +422,26 @@ function displayTierTables(leagueTables) {
                 <div id="${sectionId}" class="collapsible-content">
                     <div class="tier-content-grid">
                         <div class="tier-table-column">
-                            <h4 class="tier-subsection-header">📊 Table</h4>
+                            <div class="table-header-with-nav">
+                                <h4 class="tier-subsection-header">📊 Table</h4>
+                                ${hasSnapshots ? `
+                                    <div class="table-snapshot-navigator">
+                                        <button class="snapshot-nav-btn" onclick="changeTableSnapshot(${tier}, -1)" ${currentSnapshotMatchday <= snapshotMatchdays[0] ? 'disabled' : ''}>
+                                            <span class="nav-arrow">◀</span>
+                                        </button>
+                                        <span class="snapshot-matchday-label">MD ${currentSnapshotMatchday}</span>
+                                        <button class="snapshot-nav-btn" onclick="changeTableSnapshot(${tier}, 1)" ${currentSnapshotMatchday >= snapshotMatchdays[snapshotMatchdays.length - 1] ? 'disabled' : ''}>
+                                            <span class="nav-arrow">▶</span>
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
                             <div class="table-responsive">
                                 <table class="league-table">
                                     <thead>
                                         <tr>
                                             <th>Pos</th>
+                                            ${hasSnapshots ? '<th>Δ</th>' : ''}
                                             <th>Bey</th>
                                             <th>M</th>
                                             <th>W</th>
@@ -347,7 +454,7 @@ function displayTierTables(leagueTables) {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${table.map((entry, idx) => createTableRow(entry, idx, tier)).join('')}
+                                        ${displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots)).join('')}
                                     </tbody>
                                 </table>
                             </div>
@@ -567,6 +674,65 @@ function changeMatchday(tier, direction) {
 }
 
 /**
+ * Change table snapshot matchday for a tier
+ */
+function changeTableSnapshot(tier, direction) {
+    const snapshots = tableSnapshotsData[tier];
+    if (!snapshots) return;
+    
+    const snapshotMatchdays = Object.keys(snapshots).map(Number).sort((a, b) => a - b);
+    const currentIdx = snapshotMatchdays.indexOf(selectedTableSnapshots[tier]);
+    const newIdx = currentIdx + direction;
+    
+    if (newIdx >= 0 && newIdx < snapshotMatchdays.length) {
+        selectedTableSnapshots[tier] = snapshotMatchdays[newIdx];
+        
+        // Update only this tier's table
+        updateTierTable(tier);
+    }
+}
+
+/**
+ * Update only the table for a specific tier
+ */
+function updateTierTable(tier) {
+    const snapshots = tableSnapshotsData[tier];
+    if (!snapshots) return;
+    
+    const currentSnapshotMatchday = selectedTableSnapshots[tier];
+    const displayTable = snapshots[currentSnapshotMatchday];
+    
+    if (!displayTable) return;
+    
+    const snapshotMatchdays = Object.keys(snapshots).map(Number).sort((a, b) => a - b);
+    const hasSnapshots = true;
+    
+    // Update table body
+    const tbody = document.querySelector(`#tier-${tier}-content .league-table tbody`);
+    if (tbody) {
+        tbody.innerHTML = displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots)).join('');
+    }
+    
+    // Update navigation buttons
+    const navContainer = document.querySelector(`#tier-${tier}-content .table-snapshot-navigator`);
+    if (navContainer) {
+        const prevBtn = navContainer.querySelector('.snapshot-nav-btn:first-child');
+        const nextBtn = navContainer.querySelector('.snapshot-nav-btn:last-child');
+        const label = navContainer.querySelector('.snapshot-matchday-label');
+        
+        if (prevBtn) {
+            prevBtn.disabled = currentSnapshotMatchday <= snapshotMatchdays[0];
+        }
+        if (nextBtn) {
+            nextBtn.disabled = currentSnapshotMatchday >= snapshotMatchdays[snapshotMatchdays.length - 1];
+        }
+        if (label) {
+            label.textContent = `MD ${currentSnapshotMatchday}`;
+        }
+    }
+}
+
+/**
  * Get position legend for tier
  */
 function getPositionLegend(tier) {
@@ -617,7 +783,7 @@ function getPositionLegend(tier) {
 /**
  * Create table row with position indicators
  */
-function createTableRow(entry, idx, tier) {
+function createTableRow(entry, idx, tier, hasSnapshots = false) {
     let positionClass = '';
     let positionIndicator = '';
     
@@ -653,9 +819,31 @@ function createTableRow(entry, idx, tier) {
     // Use Xtreme ELO if available, otherwise fall back to entry.elo
     const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
     
+    // Format position delta if snapshots are available
+    let deltaCell = '';
+    if (hasSnapshots && entry.position_delta !== undefined) {
+        const delta = entry.position_delta;
+        let deltaClass = '';
+        let deltaSymbol = '';
+        
+        if (delta > 0) {
+            deltaClass = 'delta-up';
+            deltaSymbol = `↑${delta}`;
+        } else if (delta < 0) {
+            deltaClass = 'delta-down';
+            deltaSymbol = `↓${Math.abs(delta)}`;
+        } else {
+            deltaClass = 'delta-same';
+            deltaSymbol = '━';
+        }
+        
+        deltaCell = `<td class="position-delta ${deltaClass}">${deltaSymbol}</td>`;
+    }
+    
     return `
         <tr class="${positionClass}">
             <td>${entry.position}${positionIndicator}</td>
+            ${deltaCell}
             <td class="bey-name"><strong>${beyLink}</strong></td>
             <td>${entry.matches}</td>
             <td>${entry.wins}</td>
