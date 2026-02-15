@@ -11882,7 +11882,7 @@ select:focus-visible {
 
 .tier-content-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.5fr 1fr;
     gap: 2rem;
     margin-top: 1rem;
 }
@@ -12011,6 +12011,91 @@ select:focus-visible {
     .tier-matches-container .matches-grid {
         gap: 1rem;
     }
+}
+
+/* Compact season match cards */
+.season-match-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.season-match-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+}
+
+.season-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.65rem;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.season-card-match-compact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.season-compact-bey {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+
+.season-compact-bey.winner {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+}
+
+.season-compact-bey.winner .bey-link {
+    color: white;
+    font-weight: 600;
+}
+
+.season-compact-bey.winner .bey-link:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.season-compact-bey.winner .elo-delta-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.compact-bey-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.compact-bey-score {
+    font-size: 1.25rem;
+    font-weight: 700;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.compact-bey-elo-change {
+    font-size: 0.75rem;
+}
+
+.compact-vs {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.85rem;
 }
 
 /* Promotion/Relegation */

@@ -424,7 +424,7 @@ function displayTierMatches(matchdays, tier, matchday) {
 }
 
 /**
- * Create a match card matching the matches.html style
+ * Create a compact match card with horizontal layout
  */
 function createMatchCard(match, md) {
     const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${addSoftHyphens(match.bey_a)}</a>`;
@@ -479,30 +479,25 @@ function createMatchCard(match, md) {
     const roundsHtml = (hasRounds && isExpanded) ? createRoundsHtml(match, matchData.rounds) : '';
     
     return `
-        <div class="matches-card" data-match-id="${match.match_id}">
-            <div class="card-header">
+        <div class="season-match-card" data-match-id="${match.match_id}">
+            <div class="season-card-header">
                 <span class="card-match-id match-id" title="Click to copy" onclick="copyMatchId('${match.match_id}')">${match.match_id}</span>
                 <span class="card-date">${date}</span>
                 <span class="arena-badge arena-${arena.toLowerCase().replace(/\s+/g, '-')}" title="${arenaTitle}">${arenaBadge}</span>
-                <span class="match-elo-diff" title="ELO Difference">Δ${eloDiff} ELO</span>
+                <span class="match-elo-diff" title="ELO Difference">Δ${eloDiff}</span>
             </div>
-            <div class="card-match">
-                <div class="card-bey ${beyAClass}">
-                    <div class="bey-name">${beyALink}</div>
-                    <div class="bey-elo-change">${deltaBadgeA}</div>
-                    <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${Math.round(eloA)}</div>
-                    <div class="bey-score ${isAWinner ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.score_a}</div>
+            <div class="season-card-match-compact">
+                <div class="season-compact-bey ${beyAClass}">
+                    <span class="compact-bey-name">${beyALink}</span>
+                    <span class="compact-bey-elo-change">${deltaBadgeA}</span>
+                    <span class="compact-bey-score">${match.score_a}</span>
                 </div>
-                <div class="card-vs">VS</div>
-                <div class="card-bey ${beyBClass}">
-                    <div class="bey-name">${beyBLink}</div>
-                    <div class="bey-elo-change">${deltaBadgeB}</div>
-                    <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${Math.round(eloB)}</div>
-                    <div class="bey-score ${isBWinner ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.score_b}</div>
+                <span class="compact-vs">vs.</span>
+                <div class="season-compact-bey ${beyBClass}">
+                    <span class="compact-bey-score">${match.score_b}</span>
+                    <span class="compact-bey-elo-change">${deltaBadgeB}</span>
+                    <span class="compact-bey-name">${beyBLink}</span>
                 </div>
-            </div>
-            <div class="card-footer">
-                Winner: <strong>${isTie ? 'Tie' : `<a href="bey.html?name=${encodeURIComponent(winner)}" class="bey-link">${addSoftHyphens(winner)}</a>`}</strong>
             </div>
             ${hasRounds ? `
             <div class="card-rounds-section">
