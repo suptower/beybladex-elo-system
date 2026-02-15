@@ -9,6 +9,9 @@ let roundsData = {}; // Mapping of match_id to rounds array
 let expandedMatches = new Set(); // Track which matches are expanded
 let xtremeEloData = {}; // Mapping of bey name to Xtreme ELO
 let collapsedSections = new Set(['qualification-pool']); // Track which sections are collapsed (qualification pool collapsed by default)
+let selectedMatchdays = {}; // Track selected matchday for each tier (tier -> matchday number)
+let selectedTableSnapshots = {}; // Track selected table snapshot matchday for each tier (tier -> matchday number)
+let tableSnapshotsData = {}; // Store loaded snapshot data (tier -> array of snapshots)
 
 /**
  * Add soft hyphens before capital letters in compound Bey names for better line breaking
@@ -110,6 +113,70 @@ async function loadXtremeEloData() {
 }
 
 /**
+ * Load table snapshots CSV data for a specific tier
+ */
+async function loadTableSnapshots(seasonId, tier) {
+    try {
+        const response = await fetch(`data/table_snapshots_${seasonId}_tier${tier}.csv`);
+        if (!response.ok) {
+            console.log(`No table snapshots found for ${seasonId} Tier ${tier}`);
+            return [];
+        }
+        
+        const csvText = await response.text();
+        const lines = csvText.trim().split('\n');
+        
+        const snapshots = {};
+        
+        // Skip header row
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            const values = line.split(',');
+            if (values.length >= 12) {
+                const matchday = parseInt(values[0]);
+                const position = parseInt(values[1]);
+                const bey = values[2];
+                const matches = parseInt(values[3]);
+                const wins = parseInt(values[4]);
+                const losses = parseInt(values[5]);
+                const seasonPoints = parseInt(values[6]);
+                const pointsFor = parseInt(values[7]);
+                const pointsAgainst = parseInt(values[8]);
+                const pointDiff = parseInt(values[9]);
+                const elo = parseFloat(values[10]);
+                const positionDelta = parseInt(values[11]);
+                
+                if (!snapshots[matchday]) {
+                    snapshots[matchday] = [];
+                }
+                
+                snapshots[matchday].push({
+                    position,
+                    bey,
+                    matches,
+                    wins,
+                    losses,
+                    season_points: seasonPoints,
+                    points_for: pointsFor,
+                    points_against: pointsAgainst,
+                    point_diff: pointDiff,
+                    elo,
+                    position_delta: positionDelta
+                });
+            }
+        }
+        
+        console.log(`Loaded table snapshots for ${seasonId} Tier ${tier}: ${Object.keys(snapshots).length} matchdays`);
+        return snapshots;
+    } catch (error) {
+        console.error(`Error loading table snapshots for ${seasonId} Tier ${tier}:`, error);
+        return [];
+    }
+}
+
+/**
  * Load specific season data
  */
 async function loadSeason(seasonId) {
@@ -136,13 +203,51 @@ async function loadSeason(seasonId) {
 }
 
 /**
+ * Initialize selected matchdays for each tier
+ */
+function initializeSelectedMatchdays(matchdays) {
+    selectedMatchdays = {}; // Reset
+    
+    for (let tier = 1; tier <= 4; tier++) {
+        const tierMatchdays = getTierMatchdays(matchdays, tier);
+        if (tierMatchdays.length > 0) {
+            selectedMatchdays[tier] = tierMatchdays[0]; // Start with first matchday
+        }
+    }
+}
+
+/**
+ * Load table snapshots for all tiers
+ */
+async function loadAllTableSnapshots(seasonId) {
+    tableSnapshotsData = {};
+    selectedTableSnapshots = {};
+    
+    for (let tier = 1; tier <= 4; tier++) {
+        const snapshots = await loadTableSnapshots(seasonId, tier);
+        if (snapshots && Object.keys(snapshots).length > 0) {
+            tableSnapshotsData[tier] = snapshots;
+            // Initialize to last matchday (final standings) by default
+            const matchdays = Object.keys(snapshots).map(Number).sort((a, b) => b - a);
+            selectedTableSnapshots[tier] = matchdays[0]; // Start with final standings
+        }
+    }
+}
+
+/**
  * Display season overview and all components
  */
-function displaySeason(seasonId, season) {
+async function displaySeason(seasonId, season) {
     // Update title
     document.getElementById('season-title').textContent = seasonId;
     document.getElementById('season-subtitle').textContent = 
         `${season.start_date ? new Date(season.start_date).toLocaleDateString() : ''} - ${season.end_date ? new Date(season.end_date).toLocaleDateString() : 'Ongoing'}`;
+    
+    // Initialize matchday selections
+    initializeSelectedMatchdays(season.matchdays || {});
+    
+    // Load table snapshots for all tiers
+    await loadAllTableSnapshots(seasonId);
     
     // Display overview
     displayOverview(season);
@@ -170,10 +275,8 @@ function displaySeason(seasonId, season) {
         displaySeasonCup(season.season_cup);
     }
     
-    // Display matchdays
-    if (season.matchdays) {
-        displayMatchdays(season.matchdays);
-    }
+    // Hide matchdays section - matches are now displayed per tier
+    document.getElementById('matchdays-container').style.display = 'none';
 }
 
 /**
@@ -277,7 +380,7 @@ function displayOverview(season) {
 }
 
 /**
- * Display tier tables
+ * Display tier tables with integrated matchday view
  */
 function displayTierTables(leagueTables) {
     const container = document.getElementById('tier-tables');
@@ -286,6 +389,9 @@ function displayTierTables(leagueTables) {
         container.innerHTML = '<p class="no-data">No league tables available</p>';
         return;
     }
+    
+    // Get matchdays data from current season
+    const matchdays = currentSeason?.matchdays || {};
     
     let html = '';
     
@@ -297,45 +403,333 @@ function displayTierTables(leagueTables) {
         const tierNames = ['I', 'II', 'III', 'IV'];
         const sectionId = `tier-${tier}-content`;
         
+        // Get all matchdays for this tier
+        const tierMatchdays = getTierMatchdays(matchdays, tier);
+        const currentMatchday = selectedMatchdays[tier] || tierMatchdays[0] || 1;
+        
+        // Get table snapshot data if available
+        const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
+        const snapshotMatchdays = hasSnapshots ? Object.keys(tableSnapshotsData[tier]).map(Number).sort((a, b) => a - b) : [];
+        const currentSnapshotMatchday = selectedTableSnapshots[tier] || snapshotMatchdays[snapshotMatchdays.length - 1] || null;
+        const displayTable = hasSnapshots && currentSnapshotMatchday ? tableSnapshotsData[tier][currentSnapshotMatchday] : table;
+        
         html += `
-            <div class="tier-section">
+            <div class="tier-section-new">
                 <h3 class="collapsible-header" onclick="toggleSection('${sectionId}')" data-section-id="${sectionId}">
                     <span class="section-toggle-icon">▼</span>
                     <span>🏆 Tier ${tierNames[tier-1]}</span>
                 </h3>
                 <div id="${sectionId}" class="collapsible-content">
-                    <div class="table-responsive">
-                        <table class="league-table">
-                            <thead>
-                                <tr>
-                                    <th>Pos</th>
-                                    <th>Bey</th>
-                                    <th>M</th>
-                                    <th>W</th>
-                                    <th>L</th>
-                                    <th>SP</th>
-                                    <th>PF</th>
-                                    <th>PA</th>
-                                    <th>PD</th>
-                                    <th>ELO</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${table.map((entry, idx) => createTableRow(entry, idx, tier)).join('')}
-                            </tbody>
-                        </table>
+                    <div class="tier-content-grid">
+                        <div class="tier-table-column">
+                            <div class="table-header-with-nav">
+                                <h4 class="tier-subsection-header">📊 Table</h4>
+                                ${hasSnapshots ? `
+                                    <div class="table-snapshot-navigator">
+                                        <button class="snapshot-nav-btn" onclick="changeTableSnapshot(${tier}, -1)" ${currentSnapshotMatchday <= snapshotMatchdays[0] ? 'disabled' : ''}>
+                                            <span class="nav-arrow">◀</span>
+                                        </button>
+                                        <span class="snapshot-matchday-label">MD ${currentSnapshotMatchday}</span>
+                                        <button class="snapshot-nav-btn" onclick="changeTableSnapshot(${tier}, 1)" ${currentSnapshotMatchday >= snapshotMatchdays[snapshotMatchdays.length - 1] ? 'disabled' : ''}>
+                                            <span class="nav-arrow">▶</span>
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="table-responsive">
+                                <table class="league-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Pos</th>
+                                            ${hasSnapshots ? '<th>Δ</th>' : ''}
+                                            <th>Bey</th>
+                                            <th>M</th>
+                                            <th>W</th>
+                                            <th>L</th>
+                                            <th>SP</th>
+                                            <th>RPW</th>
+                                            <th>RPL</th>
+                                            <th>RPD</th>
+                                            <th>ELO</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots)).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="table-legend">
+                                <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
+                                <span><strong>RPW</strong>=Round Points Won, <strong>RPL</strong>=Round Points Lost, <strong>RPD</strong>=Round Points Difference</span>
+                            </div>
+                            ${getPositionLegend(tier)}
+                        </div>
+                        <div class="tier-matches-column">
+                            ${tierMatchdays.length > 0 ? `
+                                <div class="matchday-navigator">
+                                    <button class="matchday-nav-btn" onclick="changeMatchday(${tier}, -1)" ${currentMatchday <= tierMatchdays[0] ? 'disabled' : ''}>
+                                        <span class="nav-arrow">◀</span>
+                                    </button>
+                                    <h4 class="matchday-title">Matchday ${currentMatchday}</h4>
+                                    <button class="matchday-nav-btn" onclick="changeMatchday(${tier}, 1)" ${currentMatchday >= tierMatchdays[tierMatchdays.length - 1] ? 'disabled' : ''}>
+                                        <span class="nav-arrow">▶</span>
+                                    </button>
+                                </div>
+                                <div class="tier-matches-container" id="tier-${tier}-matches">
+                                    ${displayTierMatches(matchdays, tier, currentMatchday)}
+                                </div>
+                            ` : '<p class="no-data">No match data available</p>'}
+                        </div>
                     </div>
-                    <div class="table-legend">
-                        <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
-                        <span><strong>PF</strong>=Points For, <strong>PA</strong>=Points Against, <strong>PD</strong>=Point Difference</span>
-                    </div>
-                    ${getPositionLegend(tier)}
                 </div>
             </div>
         `;
     }
     
     container.innerHTML = html;
+}
+
+/**
+ * Get all matchdays available for a specific tier
+ */
+function getTierMatchdays(matchdays, tier) {
+    const tierMatchdays = new Set();
+    
+    Object.keys(matchdays).forEach(md => {
+        const matches = matchdays[md];
+        if (Array.isArray(matches)) {
+            matches.forEach(match => {
+                if (match.tier === tier) {
+                    tierMatchdays.add(parseInt(md));
+                }
+            });
+        }
+    });
+    
+    return Array.from(tierMatchdays).sort((a, b) => a - b);
+}
+
+/**
+ * Display matches for a specific tier and matchday
+ */
+function displayTierMatches(matchdays, tier, matchday) {
+    const matches = matchdays[matchday.toString()] || [];
+    const tierMatches = matches.filter(match => match.tier === tier);
+    
+    if (tierMatches.length === 0) {
+        return '<p class="no-data">No matches for this matchday</p>';
+    }
+    
+    let html = '<div class="matches-grid">';
+    
+    tierMatches.forEach(match => {
+        html += createMatchCard(match, matchday);
+    });
+    
+    html += '</div>';
+    return html;
+}
+
+/**
+ * Create a compact match card with horizontal layout
+ */
+function createMatchCard(match, md) {
+    const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link">${addSoftHyphens(match.bey_a)}</a>`;
+    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link">${addSoftHyphens(match.bey_b)}</a>`;
+    
+    // Determine winner, loser, or tie
+    const isAWinner = match.score_a > match.score_b;
+    const isBWinner = match.score_b > match.score_a;
+    const isTie = match.score_a === match.score_b;
+    
+    const winner = isTie ? 'Tie' : (isAWinner ? match.bey_a : match.bey_b);
+    
+    // Get bey classes based on result
+    const beyAClass = isTie ? '' : (isAWinner ? 'winner' : '');
+    const beyBClass = isTie ? '' : (isBWinner ? 'winner' : '');
+    
+    // Get season and arena info
+    const seasonId = match.season_id || currentSeason?.season_id || 'S?';
+    const tierNum = match.tier || '?';
+    const arena = match.arena || 'Xtreme';
+    const date = match.date || '';
+    
+    // Get rounds data and ELO values
+    const matchData = roundsData[match.match_id];
+    const hasRounds = matchData && matchData.rounds && matchData.rounds.length > 0;
+    const isExpanded = expandedMatches.has(match.match_id);
+    
+    // Use ELO from roundsData if available, otherwise fallback to Xtreme ELO
+    const eloA = matchData?.elo_a || 
+                (match.elo_a && match.elo_a !== 1000 ? match.elo_a : null) || 
+                xtremeEloData[match.bey_a] || 1000;
+    const eloB = matchData?.elo_b || 
+                (match.elo_b && match.elo_b !== 1000 ? match.elo_b : null) || 
+                xtremeEloData[match.bey_b] || 1000;
+    const postEloA = matchData?.post_elo_a;
+    const postEloB = matchData?.post_elo_b;
+    
+    // Calculate ELO changes and difference
+    const eloChangeA = postEloA ? Math.round(postEloA - eloA) : null;
+    const eloChangeB = postEloB ? Math.round(postEloB - eloB) : null;
+    const eloDiff = Math.abs(Math.round(eloA) - Math.round(eloB));
+    
+    // Create ELO delta badges
+    const deltaBadgeA = eloChangeA !== null ? `<span class="elo-delta-badge ${eloChangeA >= 0 ? 'delta-elo-up' : 'delta-elo-down'}">${eloChangeA >= 0 ? '+' : ''}${eloChangeA}</span>` : '';
+    const deltaBadgeB = eloChangeB !== null ? `<span class="elo-delta-badge ${eloChangeB >= 0 ? 'delta-elo-up' : 'delta-elo-down'}">${eloChangeB >= 0 ? '+' : ''}${eloChangeB}</span>` : '';
+    
+    // Arena badge
+    const arenaBadge = arena === 'Xtreme' ? '⚡X' : '🎯DA';
+    const arenaTitle = arena === 'Xtreme' ? 'Xtreme Stadium' : 'Drop Attack Beystadium';
+    
+    // Only generate rounds HTML if expanded (optimization)
+    const roundsHtml = (hasRounds && isExpanded) ? createRoundsHtml(match, matchData.rounds) : '';
+    
+    return `
+        <div class="season-match-card" data-match-id="${match.match_id}">
+            <div class="season-card-header">
+                <span class="card-match-id match-id" title="Click to copy" onclick="copyMatchId('${match.match_id}')">${match.match_id}</span>
+                <span class="card-date">${date}</span>
+                <span class="arena-badge arena-${arena.toLowerCase().replace(/\s+/g, '-')}" title="${arenaTitle}">${arenaBadge}</span>
+                <span class="match-elo-diff" title="ELO Difference">Δ${eloDiff}</span>
+            </div>
+            <div class="season-card-match-compact">
+                <div class="season-compact-bey season-compact-bey-left ${beyAClass}">
+                    <span class="compact-bey-name">${beyALink}</span>
+                    <span class="compact-bey-elo-change">${deltaBadgeA}</span>
+                    <span class="compact-bey-score">${match.score_a}</span>
+                </div>
+                <span class="compact-vs">vs.</span>
+                <div class="season-compact-bey season-compact-bey-right ${beyBClass}">
+                    <span class="compact-bey-name">${beyBLink}</span>
+                    <span class="compact-bey-elo-change">${deltaBadgeB}</span>
+                    <span class="compact-bey-score">${match.score_b}</span>
+                </div>
+            </div>
+            ${hasRounds ? `
+            <div class="card-rounds-section">
+                <button class="card-rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMatchRounds('${match.match_id}', ${matchData.rounds.length})">
+                    <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
+                    Show Rounds (${matchData.rounds.length})
+                </button>
+                <div class="card-rounds-content ${isExpanded ? 'expanded' : ''}" id="rounds-${match.match_id}">
+                    ${roundsHtml}
+                </div>
+            </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+/**
+ * Update matches and navigator for a specific tier
+ */
+function updateTierMatches(tier) {
+    const matchdays = currentSeason?.matchdays || {};
+    const tierMatchdays = getTierMatchdays(matchdays, tier);
+    const currentMatchday = selectedMatchdays[tier] || tierMatchdays[0] || 1;
+    
+    // Update matchday title
+    const titleElement = document.querySelector(`#tier-${tier}-content .matchday-title`);
+    if (titleElement) {
+        titleElement.textContent = `Matchday ${currentMatchday}`;
+    }
+    
+    // Update navigation buttons
+    const prevBtn = document.querySelector(`#tier-${tier}-content .matchday-nav-btn:first-of-type`);
+    const nextBtn = document.querySelector(`#tier-${tier}-content .matchday-nav-btn:last-of-type`);
+    
+    if (prevBtn) {
+        prevBtn.disabled = currentMatchday <= tierMatchdays[0];
+    }
+    if (nextBtn) {
+        nextBtn.disabled = currentMatchday >= tierMatchdays[tierMatchdays.length - 1];
+    }
+    
+    // Update matches
+    const matchesContainer = document.getElementById(`tier-${tier}-matches`);
+    if (matchesContainer) {
+        matchesContainer.innerHTML = displayTierMatches(matchdays, tier, currentMatchday);
+    }
+}
+
+/**
+ * Change matchday for a specific tier
+ */
+function changeMatchday(tier, direction) {
+    const matchdays = currentSeason?.matchdays || {};
+    const tierMatchdays = getTierMatchdays(matchdays, tier);
+    
+    if (tierMatchdays.length === 0) return;
+    
+    const currentIdx = tierMatchdays.indexOf(selectedMatchdays[tier]);
+    const newIdx = currentIdx + direction;
+    
+    if (newIdx >= 0 && newIdx < tierMatchdays.length) {
+        selectedMatchdays[tier] = tierMatchdays[newIdx];
+        
+        // Update only this tier's matches
+        updateTierMatches(tier);
+    }
+}
+
+/**
+ * Change table snapshot matchday for a tier
+ */
+function changeTableSnapshot(tier, direction) {
+    const snapshots = tableSnapshotsData[tier];
+    if (!snapshots) return;
+    
+    const snapshotMatchdays = Object.keys(snapshots).map(Number).sort((a, b) => a - b);
+    const currentIdx = snapshotMatchdays.indexOf(selectedTableSnapshots[tier]);
+    const newIdx = currentIdx + direction;
+    
+    if (newIdx >= 0 && newIdx < snapshotMatchdays.length) {
+        selectedTableSnapshots[tier] = snapshotMatchdays[newIdx];
+        
+        // Update only this tier's table
+        updateTierTable(tier);
+    }
+}
+
+/**
+ * Update only the table for a specific tier
+ */
+function updateTierTable(tier) {
+    const snapshots = tableSnapshotsData[tier];
+    if (!snapshots) return;
+    
+    const currentSnapshotMatchday = selectedTableSnapshots[tier];
+    const displayTable = snapshots[currentSnapshotMatchday];
+    
+    if (!displayTable) return;
+    
+    const snapshotMatchdays = Object.keys(snapshots).map(Number).sort((a, b) => a - b);
+    const hasSnapshots = true;
+    
+    // Update table body
+    const tbody = document.querySelector(`#tier-${tier}-content .league-table tbody`);
+    if (tbody) {
+        tbody.innerHTML = displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots)).join('');
+    }
+    
+    // Update navigation buttons
+    const navContainer = document.querySelector(`#tier-${tier}-content .table-snapshot-navigator`);
+    if (navContainer) {
+        const prevBtn = navContainer.querySelector('.snapshot-nav-btn:first-child');
+        const nextBtn = navContainer.querySelector('.snapshot-nav-btn:last-child');
+        const label = navContainer.querySelector('.snapshot-matchday-label');
+        
+        if (prevBtn) {
+            prevBtn.disabled = currentSnapshotMatchday <= snapshotMatchdays[0];
+        }
+        if (nextBtn) {
+            nextBtn.disabled = currentSnapshotMatchday >= snapshotMatchdays[snapshotMatchdays.length - 1];
+        }
+        if (label) {
+            label.textContent = `MD ${currentSnapshotMatchday}`;
+        }
+    }
 }
 
 /**
@@ -363,7 +757,7 @@ function getPositionLegend(tier) {
         html += `
             <div class="position-legend-item">
                 <div class="position-legend-indicator qualification"></div>
-                <span>Relegation Match (8th)</span>
+                <span>Relegation Playoff (8th)</span>
             </div>
             <div class="position-legend-item">
                 <div class="position-legend-indicator relegation"></div>
@@ -389,7 +783,7 @@ function getPositionLegend(tier) {
 /**
  * Create table row with position indicators
  */
-function createTableRow(entry, idx, tier) {
+function createTableRow(entry, idx, tier, hasSnapshots = false) {
     let positionClass = '';
     let positionIndicator = '';
     
@@ -425,9 +819,31 @@ function createTableRow(entry, idx, tier) {
     // Use Xtreme ELO if available, otherwise fall back to entry.elo
     const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
     
+    // Format position delta if snapshots are available
+    let deltaCell = '';
+    if (hasSnapshots && entry.position_delta !== undefined) {
+        const delta = entry.position_delta;
+        let deltaClass = '';
+        let deltaSymbol = '';
+        
+        if (delta > 0) {
+            deltaClass = 'delta-up';
+            deltaSymbol = `↑${delta}`;
+        } else if (delta < 0) {
+            deltaClass = 'delta-down';
+            deltaSymbol = `↓${Math.abs(delta)}`;
+        } else {
+            deltaClass = 'delta-same';
+            deltaSymbol = '━';
+        }
+        
+        deltaCell = `<td class="position-delta ${deltaClass}">${deltaSymbol}</td>`;
+    }
+    
     return `
         <tr class="${positionClass}">
             <td>${entry.position}${positionIndicator}</td>
+            ${deltaCell}
             <td class="bey-name"><strong>${beyLink}</strong></td>
             <td>${entry.matches}</td>
             <td>${entry.wins}</td>
@@ -947,15 +1363,36 @@ function toggleMatchRounds(matchId, roundCount) {
         if (toggle) toggle.classList.remove('expanded');
         if (icon) icon.textContent = '▼';
         if (text) {
-            text.textContent = `Show Round Details (${roundCount})`;
+            text.textContent = `${roundCount} ${roundCount === 1 ? 'round' : 'rounds'}`;
         }
     } else {
         expandedMatches.add(matchId);
+        
+        // Generate rounds HTML on first expand if not already present
+        if (content && content.innerHTML.trim() === '') {
+            const matchData = roundsData[matchId];
+            if (matchData && matchData.rounds) {
+                // Find the match data to pass to createRoundsHtml
+                const matchCard = document.querySelector(`[data-match-id="${matchId}"]`);
+                if (matchCard) {
+                    // Get match info from DOM or reconstruct it
+                    const match = {
+                        match_id: matchId,
+                        bey_a: matchCard.querySelector('.card-bey:first-child .bey-link')?.textContent.replace(/\u00AD/g, '') || '',
+                        bey_b: matchCard.querySelector('.card-bey:last-child .bey-link')?.textContent.replace(/\u00AD/g, '') || '',
+                        score_a: parseInt(matchCard.querySelector('.card-bey:first-child .bey-score')?.textContent || '0'),
+                        score_b: parseInt(matchCard.querySelector('.card-bey:last-child .bey-score')?.textContent || '0')
+                    };
+                    content.innerHTML = createRoundsHtml(match, matchData.rounds);
+                }
+            }
+        }
+        
         if (content) content.classList.add('expanded');
         if (toggle) toggle.classList.add('expanded');
         if (icon) icon.textContent = '▲';
         if (text) {
-            text.textContent = `Hide Round Details (${roundCount})`;
+            text.textContent = `${roundCount} ${roundCount === 1 ? 'round' : 'rounds'}`;
         }
     }
 }
@@ -985,3 +1422,43 @@ function toggleSection(sectionId) {
 
 // Expose toggleSection to global scope for onclick handlers
 window.toggleSection = toggleSection;
+
+/**
+ * Copy match ID to clipboard
+ */
+function copyMatchId(matchId) {
+    const showCopiedFeedback = () => {
+        const elements = document.querySelectorAll(`.match-id`);
+        elements.forEach(el => {
+            if (el.textContent === matchId) {
+                el.classList.add('copied');
+                setTimeout(() => el.classList.remove('copied'), 1000);
+            }
+        });
+    };
+
+    // Use modern clipboard API if available, fallback to legacy method
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(matchId).then(showCopiedFeedback).catch(err => {
+            console.error('Failed to copy match ID:', err);
+        });
+    } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = matchId;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showCopiedFeedback();
+        } catch (err) {
+            console.error('Failed to copy match ID:', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+// Expose copyMatchId to global scope for onclick handlers
+window.copyMatchId = copyMatchId;

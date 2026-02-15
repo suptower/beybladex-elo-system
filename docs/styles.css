@@ -11870,6 +11870,356 @@ select:focus-visible {
     background: #f97316;
 }
 
+/* New tier section with side-by-side layout */
+.tier-section-new {
+    margin-bottom: 2rem;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+}
+
+.tier-content-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+.tier-table-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Allow table to shrink */
+}
+
+.tier-matches-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Allow matches to shrink */
+}
+
+.tier-subsection-header {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.matchday-navigator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-alt);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border);
+}
+
+.matchday-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    text-align: center;
+    flex: 1;
+}
+
+.matchday-nav-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-size: 1.25rem;
+    font-weight: 700;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+}
+
+.matchday-nav-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: scale(1.05);
+}
+
+.matchday-nav-btn:disabled {
+    background: var(--border);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.nav-arrow {
+    font-size: 1rem;
+}
+
+/* Table snapshot navigator styles */
+.table-header-with-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.table-snapshot-navigator {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--bg-alt);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+}
+
+.snapshot-matchday-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    min-width: 3.5rem;
+    text-align: center;
+}
+
+.snapshot-nav-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+}
+
+.snapshot-nav-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: scale(1.05);
+}
+
+.snapshot-nav-btn:disabled {
+    background: var(--border);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Position delta column styles */
+.position-delta {
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+.position-delta.delta-up {
+    color: #10b981; /* Green for moving up */
+}
+
+.position-delta.delta-down {
+    color: #ef4444; /* Red for moving down */
+}
+
+.position-delta.delta-same {
+    color: var(--text-light); /* Gray for no change */
+}
+
+.tier-matches-container {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 800px;
+}
+
+.tier-matches-container .matches-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .tier-content-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .tier-matches-container {
+        max-height: 600px;
+    }
+    
+    /* Ensure table scrolls horizontally on mobile */
+    .tier-table-column .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 768px) {
+    .matchday-navigator {
+        padding: 0.75rem;
+    }
+    
+    .matchday-title {
+        font-size: 1rem;
+    }
+    
+    .matchday-nav-btn {
+        padding: 0.4rem 0.8rem;
+        min-width: 2.5rem;
+    }
+    
+    .tier-matches-container {
+        max-height: 500px;
+    }
+    
+    /* Better spacing for match cards on mobile */
+    .tier-matches-container .matches-grid {
+        gap: 1rem;
+    }
+}
+
+/* Compact season match cards */
+.season-match-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.season-match-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+}
+
+.season-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.65rem;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.season-card-match-compact {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    width: 100%;
+}
+
+.season-compact-bey {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    transition: var(--transition);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.season-compact-bey-left {
+    justify-content: flex-start;
+}
+
+.season-compact-bey-right {
+    justify-content: flex-end;
+    flex-direction: row-reverse;
+}
+
+.season-compact-bey.winner {
+    background: var(--accent);
+    color: white;
+    font-weight: 600;
+}
+
+.season-compact-bey.winner .bey-link {
+    color: white;
+    font-weight: 600;
+}
+
+.season-compact-bey.winner .bey-link:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.season-compact-bey.winner .elo-delta-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.compact-bey-name {
+    font-weight: 500;
+    font-size: 0.95rem;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.compact-bey-score {
+    font-size: 1.25rem;
+    font-weight: 700;
+    min-width: 1.5rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.compact-bey-elo-change {
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
+.compact-vs {
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+/* Mobile adjustments for compact cards */
+@media (max-width: 768px) {
+    .season-card-match-compact {
+        gap: 0.5rem;
+    }
+    
+    .season-compact-bey {
+        padding: 0.35rem 0.5rem;
+        gap: 0.35rem;
+    }
+    
+    .compact-bey-name {
+        font-size: 0.85rem;
+    }
+    
+    .compact-bey-score {
+        font-size: 1.1rem;
+        min-width: 1.25rem;
+    }
+    
+    .compact-bey-elo-change {
+        font-size: 0.7rem;
+    }
+    
+    .compact-vs {
+        font-size: 0.75rem;
+    }
+}
+
 /* Promotion/Relegation */
 .pr-grid {
     display: grid;
@@ -12146,10 +12496,10 @@ select:focus-visible {
 }
 
 #matchdays-container .match-card-body {
-    padding: 1.5rem 1rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 /* Ensure card-bey winner styles work in season context */
@@ -12201,7 +12551,7 @@ select:focus-visible {
 }
 
 #matchdays-container .match-card-footer {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
     border-top: 1px solid var(--border);
     font-size: 0.75rem;
     color: var(--text-light);
@@ -12210,6 +12560,7 @@ select:focus-visible {
     align-items: center;
     flex-wrap: wrap;
     gap: 0.5rem;
+    background: var(--bg-subtle);
 }
 
 #matchdays-container .match-card-footer .match-id {
@@ -12234,30 +12585,43 @@ select:focus-visible {
 
 /* Rounds section styling */
 #matchdays-container .match-card-rounds {
-    border-top: 1px solid var(--border);
+    /* No border needed - rounds toggle is in footer */
 }
 
 #matchdays-container .rounds-toggle {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    background: var(--bg-subtle);
-    border: none;
+    padding: 0.35rem 0.75rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: var(--text);
+    gap: 0.35rem;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
     transition: var(--transition);
+    font-weight: 500;
 }
 
 #matchdays-container .rounds-toggle:hover {
-    background: var(--border);
+    background: var(--bg);
+    border-color: var(--accent);
+    color: var(--text);
+}
+
+#matchdays-container .rounds-toggle.expanded {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+#matchdays-container .rounds-toggle.expanded:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 #matchdays-container .toggle-icon {
-    font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
 }
 
 #matchdays-container .rounds-content {
