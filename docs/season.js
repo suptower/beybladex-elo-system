@@ -494,9 +494,9 @@ function createMatchCard(match, md) {
                 </div>
                 <span class="compact-vs">vs.</span>
                 <div class="season-compact-bey season-compact-bey-right ${beyBClass}">
-                    <span class="compact-bey-score">${match.score_b}</span>
-                    <span class="compact-bey-elo-change">${deltaBadgeB}</span>
                     <span class="compact-bey-name">${beyBLink}</span>
+                    <span class="compact-bey-elo-change">${deltaBadgeB}</span>
+                    <span class="compact-bey-score">${match.score_b}</span>
                 </div>
             </div>
             ${hasRounds ? `
