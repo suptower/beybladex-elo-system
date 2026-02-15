@@ -1,16 +1,40 @@
 {
   "metadata": {
-    "total_recommendations": 772,
+    "total_recommendations": 874,
     "top_n": 10,
     "categories": {
-      "low_data_exploration": 42,
-      "elo_clarity": 223,
+      "low_data_exploration": 36,
+      "elo_clarity": 271,
       "high_uncertainty": 11,
-      "meta_balance": 5,
-      "upset_testing": 491
+      "meta_balance": 8,
+      "upset_testing": 548
     }
   },
   "top_recommendations": [
+    {
+      "bey_a": "TuskMammoth",
+      "bey_b": "TyrannoRoar",
+      "category": "meta_balance",
+      "info_value": 172.65,
+      "explanation": "TuskMammoth (32 matches) is frequently played while TyrannoRoar (0 matches) is underrepresented. This matchup would improve meta balance.",
+      "existing_matches": 0
+    },
+    {
+      "bey_a": "TuskMammoth",
+      "bey_b": "HellsBrave",
+      "category": "meta_balance",
+      "info_value": 172.65,
+      "explanation": "TuskMammoth (32 matches) is frequently played while HellsBrave (0 matches) is underrepresented. This matchup would improve meta balance.",
+      "existing_matches": 0
+    },
+    {
+      "bey_a": "TuskMammoth",
+      "bey_b": "ClockMirage",
+      "category": "meta_balance",
+      "info_value": 172.65,
+      "explanation": "TuskMammoth (32 matches) is frequently played while ClockMirage (0 matches) is underrepresented. This matchup would improve meta balance.",
+      "existing_matches": 0
+    },
     {
       "bey_a": "WolfHunt",
       "bey_b": "HellsReaper",
@@ -66,33 +90,75 @@
       "info_value": 103.84,
       "explanation": "HellsChain has high ELO volatility (16.9). Playing against stable reference SharkEdge would help stabilize rating.",
       "existing_matches": 0
-    },
-    {
-      "bey_a": "ValkyrieVolt",
-      "bey_b": "DranBrave",
-      "category": "low_data_exploration",
-      "info_value": 101.67,
-      "explanation": "ValkyrieVolt has only 5 matches. Playing against DranBrave (ELO 1017) would help establish ranking.",
-      "existing_matches": 0
-    },
-    {
-      "bey_a": "WyvernHover",
-      "bey_b": "EmperorMight",
-      "category": "low_data_exploration",
-      "info_value": 101.67,
-      "explanation": "WyvernHover has only 5 matches. Playing against EmperorMight (ELO 967) would help establish ranking.",
-      "existing_matches": 0
-    },
-    {
-      "bey_a": "WyvernHover",
-      "bey_b": "GolemRock",
-      "category": "low_data_exploration",
-      "info_value": 101.67,
-      "explanation": "WyvernHover has only 5 matches. Playing against GolemRock (ELO 1065) would help establish ranking.",
-      "existing_matches": 0
     }
   ],
   "by_category": {
+    "meta_balance": [
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "TyrannoRoar",
+        "category": "meta_balance",
+        "info_value": 172.65,
+        "explanation": "TuskMammoth (32 matches) is frequently played while TyrannoRoar (0 matches) is underrepresented. This matchup would improve meta balance.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "HellsBrave",
+        "category": "meta_balance",
+        "info_value": 172.65,
+        "explanation": "TuskMammoth (32 matches) is frequently played while HellsBrave (0 matches) is underrepresented. This matchup would improve meta balance.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "ClockMirage",
+        "category": "meta_balance",
+        "info_value": 172.65,
+        "explanation": "TuskMammoth (32 matches) is frequently played while ClockMirage (0 matches) is underrepresented. This matchup would improve meta balance.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "CobaltDrake",
+        "category": "meta_balance",
+        "info_value": 92.84,
+        "explanation": "TuskMammoth (32 matches) is frequently played while CobaltDrake (5 matches) is underrepresented. This matchup would improve meta balance.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "WhaleFlame",
+        "category": "meta_balance",
+        "info_value": 92.84,
+        "explanation": "TuskMammoth (32 matches) is frequently played while WhaleFlame (5 matches) is underrepresented. This matchup would improve meta balance.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "HellsHammer",
+        "category": "meta_balance",
+        "info_value": 92.84,
+        "explanation": "TuskMammoth (32 matches) is frequently played while HellsHammer (5 matches) is underrepresented. This matchup would improve meta balance.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "PegasusBlast",
+        "category": "meta_balance",
+        "info_value": 90.06,
+        "explanation": "TuskMammoth (32 matches) is frequently played while PegasusBlast (6 matches) is underrepresented. This matchup would improve meta balance.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "WizardArrow",
+        "category": "meta_balance",
+        "info_value": 90.06,
+        "explanation": "TuskMammoth (32 matches) is frequently played while WizardArrow (6 matches) is underrepresented. This matchup would improve meta balance.",
+        "existing_matches": 0
+      }
+    ],
     "high_uncertainty": [
       {
         "bey_a": "WolfHunt",
@@ -433,22 +499,6 @@
         "existing_matches": 0
       },
       {
-        "bey_a": "DranBuster",
-        "bey_b": "WizardArc",
-        "category": "low_data_exploration",
-        "info_value": 100.91,
-        "explanation": "DranBuster has only 10 matches. Playing against WizardArc (ELO 917) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "DranBuster",
-        "bey_b": "EmperorMight",
-        "category": "low_data_exploration",
-        "info_value": 100.91,
-        "explanation": "DranBuster has only 10 matches. Playing against EmperorMight (ELO 967) would help establish ranking.",
-        "existing_matches": 0
-      },
-      {
         "bey_a": "ValkyrieVolt",
         "bey_b": "SharkScale",
         "category": "low_data_exploration",
@@ -486,38 +536,6 @@
         "category": "low_data_exploration",
         "info_value": 91.43,
         "explanation": "PegasusBlast has only 6 matches. Playing against SamuraiSaber (ELO 888) would help establish ranking.",
-        "existing_matches": 1
-      },
-      {
-        "bey_a": "SharkScale",
-        "bey_b": "KnightMail",
-        "category": "low_data_exploration",
-        "info_value": 90.91,
-        "explanation": "SharkScale has only 10 matches. Playing against KnightMail (ELO 1026) would help establish ranking.",
-        "existing_matches": 1
-      },
-      {
-        "bey_a": "SharkScale",
-        "bey_b": "CobaltDragoon",
-        "category": "low_data_exploration",
-        "info_value": 90.91,
-        "explanation": "SharkScale has only 10 matches. Playing against CobaltDragoon (ELO 1075) would help establish ranking.",
-        "existing_matches": 1
-      },
-      {
-        "bey_a": "SharkScale",
-        "bey_b": "TuskMammoth",
-        "category": "low_data_exploration",
-        "info_value": 90.91,
-        "explanation": "SharkScale has only 10 matches. Playing against TuskMammoth (ELO 1120) would help establish ranking.",
-        "existing_matches": 1
-      },
-      {
-        "bey_a": "DranBuster",
-        "bey_b": "DranBrave",
-        "category": "low_data_exploration",
-        "info_value": 90.91,
-        "explanation": "DranBuster has only 10 matches. Playing against DranBrave (ELO 1017) would help establish ranking.",
         "existing_matches": 1
       }
     ],
@@ -1123,6 +1141,30 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "ImpactDrake",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 76.0,
+        "explanation": "ImpactDrake (ELO 1130) vs TyrannoRoar (ELO 1000) has 130 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ImpactDrake",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 76.0,
+        "explanation": "ImpactDrake (ELO 1130) vs HellsBrave (ELO 1000) has 130 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ImpactDrake",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 76.0,
+        "explanation": "ImpactDrake (ELO 1130) vs ClockMirage (ELO 1000) has 130 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "LeonCrest",
         "bey_b": "TyrannoBeat",
         "category": "upset_testing",
@@ -1280,6 +1322,30 @@
         "category": "upset_testing",
         "info_value": 74.2,
         "explanation": "TuskMammoth (ELO 1120) vs SolEclipse (ELO 999) has 121 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 74.0,
+        "explanation": "TuskMammoth (ELO 1120) vs TyrannoRoar (ELO 1000) has 120 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 74.0,
+        "explanation": "TuskMammoth (ELO 1120) vs HellsBrave (ELO 1000) has 120 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TuskMammoth",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 74.0,
+        "explanation": "TuskMammoth (ELO 1120) vs ClockMirage (ELO 1000) has 120 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -1520,6 +1586,30 @@
         "category": "upset_testing",
         "info_value": 72.6,
         "explanation": "WyvernHover (ELO 1016) vs HellsHammer (ELO 903) has 113 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "SamuraiSaber",
+        "category": "upset_testing",
+        "info_value": 72.4,
+        "explanation": "TyrannoRoar (ELO 1000) vs SamuraiSaber (ELO 888) has 112 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "SamuraiSaber",
+        "category": "upset_testing",
+        "info_value": 72.4,
+        "explanation": "HellsBrave (ELO 1000) vs SamuraiSaber (ELO 888) has 112 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "SamuraiSaber",
+        "category": "upset_testing",
+        "info_value": 72.4,
+        "explanation": "ClockMirage (ELO 1000) vs SamuraiSaber (ELO 888) has 112 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -1811,6 +1901,30 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "WizardArrow",
+        "category": "upset_testing",
+        "info_value": 69.8,
+        "explanation": "TyrannoRoar (ELO 1000) vs WizardArrow (ELO 901) has 99 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "WizardArrow",
+        "category": "upset_testing",
+        "info_value": 69.8,
+        "explanation": "HellsBrave (ELO 1000) vs WizardArrow (ELO 901) has 99 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "WizardArrow",
+        "category": "upset_testing",
+        "info_value": 69.8,
+        "explanation": "ClockMirage (ELO 1000) vs WizardArrow (ELO 901) has 99 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "GolemRock",
         "bey_b": "EmperorMight",
         "category": "upset_testing",
@@ -1856,6 +1970,30 @@
         "category": "upset_testing",
         "info_value": 69.4,
         "explanation": "ScorpioSpear (ELO 1064) vs EmperorMight (ELO 967) has 97 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "HellsHammer",
+        "category": "upset_testing",
+        "info_value": 69.4,
+        "explanation": "TyrannoRoar (ELO 1000) vs HellsHammer (ELO 903) has 97 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "HellsHammer",
+        "category": "upset_testing",
+        "info_value": 69.4,
+        "explanation": "HellsBrave (ELO 1000) vs HellsHammer (ELO 903) has 97 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "HellsHammer",
+        "category": "upset_testing",
+        "info_value": 69.4,
+        "explanation": "ClockMirage (ELO 1000) vs HellsHammer (ELO 903) has 97 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -2315,6 +2453,30 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "WizardArc",
+        "category": "upset_testing",
+        "info_value": 66.6,
+        "explanation": "TyrannoRoar (ELO 1000) vs WizardArc (ELO 917) has 83 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "WizardArc",
+        "category": "upset_testing",
+        "info_value": 66.6,
+        "explanation": "HellsBrave (ELO 1000) vs WizardArc (ELO 917) has 83 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "WizardArc",
+        "category": "upset_testing",
+        "info_value": 66.6,
+        "explanation": "ClockMirage (ELO 1000) vs WizardArc (ELO 917) has 83 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "UnicornSting",
         "bey_b": "HellsHammer",
         "category": "upset_testing",
@@ -2368,6 +2530,30 @@
         "category": "upset_testing",
         "info_value": 66.2,
         "explanation": "DranDagger (ELO 984) vs HellsHammer (ELO 903) has 81 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "FoxBrush",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 66.0,
+        "explanation": "FoxBrush (ELO 1080) vs TyrannoRoar (ELO 1000) has 80 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "FoxBrush",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 66.0,
+        "explanation": "FoxBrush (ELO 1080) vs HellsBrave (ELO 1000) has 80 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "FoxBrush",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 66.0,
+        "explanation": "FoxBrush (ELO 1080) vs ClockMirage (ELO 1000) has 80 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -2547,6 +2733,30 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "CobaltDragoon",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 65.0,
+        "explanation": "CobaltDragoon (ELO 1075) vs TyrannoRoar (ELO 1000) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "CobaltDragoon",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 65.0,
+        "explanation": "CobaltDragoon (ELO 1075) vs HellsBrave (ELO 1000) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "CobaltDragoon",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 65.0,
+        "explanation": "CobaltDragoon (ELO 1075) vs ClockMirage (ELO 1000) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "SharkScale",
         "bey_b": "ViperTail",
         "category": "upset_testing",
@@ -2576,6 +2786,30 @@
         "category": "upset_testing",
         "info_value": 65.0,
         "explanation": "DranSword (ELO 1042) vs EmperorMight (ELO 967) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "PegasusBlast",
+        "category": "upset_testing",
+        "info_value": 65.0,
+        "explanation": "TyrannoRoar (ELO 1000) vs PegasusBlast (ELO 925) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "PegasusBlast",
+        "category": "upset_testing",
+        "info_value": 65.0,
+        "explanation": "HellsBrave (ELO 1000) vs PegasusBlast (ELO 925) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "PegasusBlast",
+        "category": "upset_testing",
+        "info_value": 65.0,
+        "explanation": "ClockMirage (ELO 1000) vs PegasusBlast (ELO 925) has 75 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -2632,6 +2866,30 @@
         "category": "upset_testing",
         "info_value": 64.6,
         "explanation": "CobaltDragoon (ELO 1075) vs RhinoReaper (ELO 1002) has 73 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SharkScale",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 64.6,
+        "explanation": "SharkScale (ELO 1073) vs TyrannoRoar (ELO 1000) has 73 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SharkScale",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 64.6,
+        "explanation": "SharkScale (ELO 1073) vs HellsBrave (ELO 1000) has 73 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "SharkScale",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 64.6,
+        "explanation": "SharkScale (ELO 1073) vs ClockMirage (ELO 1000) has 73 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -2732,6 +2990,30 @@
       },
       {
         "bey_a": "ValkyrieVolt",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 64.2,
+        "explanation": "ValkyrieVolt (ELO 1071) vs TyrannoRoar (ELO 1000) has 71 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ValkyrieVolt",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 64.2,
+        "explanation": "ValkyrieVolt (ELO 1071) vs HellsBrave (ELO 1000) has 71 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ValkyrieVolt",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 64.2,
+        "explanation": "ValkyrieVolt (ELO 1071) vs ClockMirage (ELO 1000) has 71 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ValkyrieVolt",
         "bey_b": "PegasusBlast",
         "category": "upset_testing",
         "info_value": 64.2,
@@ -2808,6 +3090,30 @@
         "category": "upset_testing",
         "info_value": 63.8,
         "explanation": "WyvernHover (ELO 1016) vs WhaleFlame (ELO 947) has 69 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "BlackShell",
+        "category": "upset_testing",
+        "info_value": 63.8,
+        "explanation": "TyrannoRoar (ELO 1000) vs BlackShell (ELO 931) has 69 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "BlackShell",
+        "category": "upset_testing",
+        "info_value": 63.8,
+        "explanation": "HellsBrave (ELO 1000) vs BlackShell (ELO 931) has 69 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "BlackShell",
+        "category": "upset_testing",
+        "info_value": 63.8,
+        "explanation": "ClockMirage (ELO 1000) vs BlackShell (ELO 931) has 69 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -2939,6 +3245,30 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "TyrannoBeat",
+        "category": "upset_testing",
+        "info_value": 63.4,
+        "explanation": "TyrannoRoar (ELO 1000) vs TyrannoBeat (ELO 933) has 67 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "TyrannoBeat",
+        "category": "upset_testing",
+        "info_value": 63.4,
+        "explanation": "HellsBrave (ELO 1000) vs TyrannoBeat (ELO 933) has 67 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "TyrannoBeat",
+        "category": "upset_testing",
+        "info_value": 63.4,
+        "explanation": "ClockMirage (ELO 1000) vs TyrannoBeat (ELO 933) has 67 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "ViperTail",
         "bey_b": "BlackShell",
         "category": "upset_testing",
@@ -3035,6 +3365,30 @@
         "existing_matches": 1
       },
       {
+        "bey_a": "GolemRock",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 63.0,
+        "explanation": "GolemRock (ELO 1065) vs TyrannoRoar (ELO 1000) has 65 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "GolemRock",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 63.0,
+        "explanation": "GolemRock (ELO 1065) vs HellsBrave (ELO 1000) has 65 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "GolemRock",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 63.0,
+        "explanation": "GolemRock (ELO 1065) vs ClockMirage (ELO 1000) has 65 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "ViperTail",
         "bey_b": "TyrannoBeat",
         "category": "upset_testing",
@@ -3064,6 +3418,30 @@
         "category": "upset_testing",
         "info_value": 62.8,
         "explanation": "FoxBrush (ELO 1080) vs WyvernHover (ELO 1016) has 64 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ScorpioSpear",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 62.8,
+        "explanation": "ScorpioSpear (ELO 1064) vs TyrannoRoar (ELO 1000) has 64 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ScorpioSpear",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 62.8,
+        "explanation": "ScorpioSpear (ELO 1064) vs HellsBrave (ELO 1000) has 64 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ScorpioSpear",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 62.8,
+        "explanation": "ScorpioSpear (ELO 1064) vs ClockMirage (ELO 1000) has 64 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3120,6 +3498,30 @@
         "category": "upset_testing",
         "info_value": 62.4,
         "explanation": "ScorpioSpear (ELO 1064) vs RhinoReaper (ELO 1002) has 62 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "LeonCrest",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 62.4,
+        "explanation": "LeonCrest (ELO 1062) vs TyrannoRoar (ELO 1000) has 62 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "LeonCrest",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 62.4,
+        "explanation": "LeonCrest (ELO 1062) vs HellsBrave (ELO 1000) has 62 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "LeonCrest",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 62.4,
+        "explanation": "LeonCrest (ELO 1062) vs ClockMirage (ELO 1000) has 62 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -3467,6 +3869,30 @@
         "existing_matches": 1
       },
       {
+        "bey_a": "WeissTiger",
+        "bey_b": "TyrannoRoar",
+        "category": "upset_testing",
+        "info_value": 61.2,
+        "explanation": "WeissTiger (ELO 1056) vs TyrannoRoar (ELO 1000) has 56 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WeissTiger",
+        "bey_b": "HellsBrave",
+        "category": "upset_testing",
+        "info_value": 61.2,
+        "explanation": "WeissTiger (ELO 1056) vs HellsBrave (ELO 1000) has 56 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WeissTiger",
+        "bey_b": "ClockMirage",
+        "category": "upset_testing",
+        "info_value": 61.2,
+        "explanation": "WeissTiger (ELO 1056) vs ClockMirage (ELO 1000) has 56 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "WolfHunt",
         "bey_b": "CobaltDrake",
         "category": "upset_testing",
@@ -3611,6 +4037,30 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "WhaleFlame",
+        "category": "upset_testing",
+        "info_value": 60.6,
+        "explanation": "TyrannoRoar (ELO 1000) vs WhaleFlame (ELO 947) has 53 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "WhaleFlame",
+        "category": "upset_testing",
+        "info_value": 60.6,
+        "explanation": "HellsBrave (ELO 1000) vs WhaleFlame (ELO 947) has 53 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "WhaleFlame",
+        "category": "upset_testing",
+        "info_value": 60.6,
+        "explanation": "ClockMirage (ELO 1000) vs WhaleFlame (ELO 947) has 53 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "UnicornSting",
         "bey_b": "TyrannoBeat",
         "category": "upset_testing",
@@ -3688,6 +4138,30 @@
         "category": "upset_testing",
         "info_value": 60.2,
         "explanation": "CerberusFlame (ELO 1035) vs DranDagger (ELO 984) has 51 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "CobaltDrake",
+        "category": "upset_testing",
+        "info_value": 60.2,
+        "explanation": "TyrannoRoar (ELO 1000) vs CobaltDrake (ELO 949) has 51 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "CobaltDrake",
+        "category": "upset_testing",
+        "info_value": 60.2,
+        "explanation": "HellsBrave (ELO 1000) vs CobaltDrake (ELO 949) has 51 ELO difference. Testing this matchup could reveal rating inaccuracies.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "CobaltDrake",
+        "category": "upset_testing",
+        "info_value": 60.2,
+        "explanation": "ClockMirage (ELO 1000) vs CobaltDrake (ELO 949) has 51 ELO difference. Testing this matchup could reveal rating inaccuracies.",
         "existing_matches": 0
       },
       {
@@ -4629,6 +5103,30 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "HellsBrave",
+        "category": "elo_clarity",
+        "info_value": 80.0,
+        "explanation": "TyrannoRoar and HellsBrave have similar ELO (0 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "ClockMirage",
+        "category": "elo_clarity",
+        "info_value": 80.0,
+        "explanation": "TyrannoRoar and ClockMirage have similar ELO (0 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "ClockMirage",
+        "category": "elo_clarity",
+        "info_value": 80.0,
+        "explanation": "HellsBrave and ClockMirage have similar ELO (0 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "DranBrave",
         "bey_b": "WyvernHover",
         "category": "elo_clarity",
@@ -4653,11 +5151,83 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "SolEclipse",
+        "category": "elo_clarity",
+        "info_value": 79.0,
+        "explanation": "TyrannoRoar and SolEclipse have similar ELO (1 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "SolEclipse",
+        "category": "elo_clarity",
+        "info_value": 79.0,
+        "explanation": "HellsBrave and SolEclipse have similar ELO (1 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "SolEclipse",
+        "category": "elo_clarity",
+        "info_value": 79.0,
+        "explanation": "ClockMirage and SolEclipse have similar ELO (1 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "ViperTail",
         "bey_b": "HellsChain",
         "category": "elo_clarity",
         "info_value": 79.0,
         "explanation": "ViperTail and HellsChain have similar ELO (1 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "RhinoReaper",
+        "bey_b": "TyrannoRoar",
+        "category": "elo_clarity",
+        "info_value": 78.0,
+        "explanation": "RhinoReaper and TyrannoRoar have similar ELO (2 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "RhinoReaper",
+        "bey_b": "HellsBrave",
+        "category": "elo_clarity",
+        "info_value": 78.0,
+        "explanation": "RhinoReaper and HellsBrave have similar ELO (2 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "RhinoReaper",
+        "bey_b": "ClockMirage",
+        "category": "elo_clarity",
+        "info_value": 78.0,
+        "explanation": "RhinoReaper and ClockMirage have similar ELO (2 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "ViperTail",
+        "category": "elo_clarity",
+        "info_value": 78.0,
+        "explanation": "TyrannoRoar and ViperTail have similar ELO (2 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "ViperTail",
+        "category": "elo_clarity",
+        "info_value": 78.0,
+        "explanation": "HellsBrave and ViperTail have similar ELO (2 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "ViperTail",
+        "category": "elo_clarity",
+        "info_value": 78.0,
+        "explanation": "ClockMirage and ViperTail have similar ELO (2 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -4722,6 +5292,30 @@
         "category": "elo_clarity",
         "info_value": 77.0,
         "explanation": "RhinoReaper and SolEclipse have similar ELO (3 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "HellsChain",
+        "category": "elo_clarity",
+        "info_value": 77.0,
+        "explanation": "TyrannoRoar and HellsChain have similar ELO (3 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "HellsChain",
+        "category": "elo_clarity",
+        "info_value": 77.0,
+        "explanation": "HellsBrave and HellsChain have similar ELO (3 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "HellsChain",
+        "category": "elo_clarity",
+        "info_value": 77.0,
+        "explanation": "ClockMirage and HellsChain have similar ELO (3 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -4805,6 +5399,30 @@
         "existing_matches": 1
       },
       {
+        "bey_a": "WolfHunt",
+        "bey_b": "TyrannoRoar",
+        "category": "elo_clarity",
+        "info_value": 75.0,
+        "explanation": "WolfHunt and TyrannoRoar have similar ELO (5 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WolfHunt",
+        "bey_b": "HellsBrave",
+        "category": "elo_clarity",
+        "info_value": 75.0,
+        "explanation": "WolfHunt and HellsBrave have similar ELO (5 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WolfHunt",
+        "bey_b": "ClockMirage",
+        "category": "elo_clarity",
+        "info_value": 75.0,
+        "explanation": "WolfHunt and ClockMirage have similar ELO (5 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "RhinoReaper",
         "bey_b": "HellsChain",
         "category": "elo_clarity",
@@ -4850,6 +5468,30 @@
         "category": "elo_clarity",
         "info_value": 74.0,
         "explanation": "WolfHunt and SolEclipse have similar ELO (6 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "PhoenixWing",
+        "category": "elo_clarity",
+        "info_value": 74.0,
+        "explanation": "TyrannoRoar and PhoenixWing have similar ELO (6 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "PhoenixWing",
+        "category": "elo_clarity",
+        "info_value": 74.0,
+        "explanation": "HellsBrave and PhoenixWing have similar ELO (6 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "PhoenixWing",
+        "category": "elo_clarity",
+        "info_value": 74.0,
+        "explanation": "ClockMirage and PhoenixWing have similar ELO (6 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -5018,6 +5660,30 @@
         "category": "elo_clarity",
         "info_value": 70.0,
         "explanation": "KnightMail and WyvernHover have similar ELO (10 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "SharkEdge",
+        "category": "elo_clarity",
+        "info_value": 70.0,
+        "explanation": "TyrannoRoar and SharkEdge have similar ELO (10 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "SharkEdge",
+        "category": "elo_clarity",
+        "info_value": 70.0,
+        "explanation": "HellsBrave and SharkEdge have similar ELO (10 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "SharkEdge",
+        "category": "elo_clarity",
+        "info_value": 70.0,
+        "explanation": "ClockMirage and SharkEdge have similar ELO (10 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -5197,6 +5863,30 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "UnicornSting",
+        "category": "elo_clarity",
+        "info_value": 66.0,
+        "explanation": "TyrannoRoar and UnicornSting have similar ELO (14 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "UnicornSting",
+        "category": "elo_clarity",
+        "info_value": 66.0,
+        "explanation": "HellsBrave and UnicornSting have similar ELO (14 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "UnicornSting",
+        "category": "elo_clarity",
+        "info_value": 66.0,
+        "explanation": "ClockMirage and UnicornSting have similar ELO (14 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "SilverWolf",
         "bey_b": "EmperorMight",
         "category": "elo_clarity",
@@ -5301,6 +5991,78 @@
         "existing_matches": 0
       },
       {
+        "bey_a": "HellsReaper",
+        "bey_b": "TyrannoRoar",
+        "category": "elo_clarity",
+        "info_value": 64.0,
+        "explanation": "HellsReaper and TyrannoRoar have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsReaper",
+        "bey_b": "HellsBrave",
+        "category": "elo_clarity",
+        "info_value": 64.0,
+        "explanation": "HellsReaper and HellsBrave have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsReaper",
+        "bey_b": "ClockMirage",
+        "category": "elo_clarity",
+        "info_value": 64.0,
+        "explanation": "HellsReaper and ClockMirage have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WyvernHover",
+        "bey_b": "TyrannoRoar",
+        "category": "elo_clarity",
+        "info_value": 64.0,
+        "explanation": "WyvernHover and TyrannoRoar have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WyvernHover",
+        "bey_b": "HellsBrave",
+        "category": "elo_clarity",
+        "info_value": 64.0,
+        "explanation": "WyvernHover and HellsBrave have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "WyvernHover",
+        "bey_b": "ClockMirage",
+        "category": "elo_clarity",
+        "info_value": 64.0,
+        "explanation": "WyvernHover and ClockMirage have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "DranDagger",
+        "category": "elo_clarity",
+        "info_value": 64.0,
+        "explanation": "TyrannoRoar and DranDagger have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "DranDagger",
+        "category": "elo_clarity",
+        "info_value": 64.0,
+        "explanation": "HellsBrave and DranDagger have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "DranDagger",
+        "category": "elo_clarity",
+        "info_value": 64.0,
+        "explanation": "ClockMirage and DranDagger have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
         "bey_a": "SolEclipse",
         "bey_b": "ViperTail",
         "category": "elo_clarity",
@@ -5346,6 +6108,54 @@
         "category": "elo_clarity",
         "info_value": 64.0,
         "explanation": "WizardArc and WizardArrow have similar ELO (16 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "DranBrave",
+        "bey_b": "TyrannoRoar",
+        "category": "elo_clarity",
+        "info_value": 63.0,
+        "explanation": "DranBrave and TyrannoRoar have similar ELO (17 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "DranBrave",
+        "bey_b": "HellsBrave",
+        "category": "elo_clarity",
+        "info_value": 63.0,
+        "explanation": "DranBrave and HellsBrave have similar ELO (17 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "DranBrave",
+        "bey_b": "ClockMirage",
+        "category": "elo_clarity",
+        "info_value": 63.0,
+        "explanation": "DranBrave and ClockMirage have similar ELO (17 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "LeonClaw",
+        "bey_b": "TyrannoRoar",
+        "category": "elo_clarity",
+        "info_value": 63.0,
+        "explanation": "LeonClaw and TyrannoRoar have similar ELO (17 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "LeonClaw",
+        "bey_b": "HellsBrave",
+        "category": "elo_clarity",
+        "info_value": 63.0,
+        "explanation": "LeonClaw and HellsBrave have similar ELO (17 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "LeonClaw",
+        "bey_b": "ClockMirage",
+        "category": "elo_clarity",
+        "info_value": 63.0,
+        "explanation": "LeonClaw and ClockMirage have similar ELO (17 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -5482,6 +6292,30 @@
         "category": "elo_clarity",
         "info_value": 61.0,
         "explanation": "WolfHunt and UnicornSting have similar ELO (19 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "TyrannoRoar",
+        "bey_b": "SilverWolf",
+        "category": "elo_clarity",
+        "info_value": 61.0,
+        "explanation": "TyrannoRoar and SilverWolf have similar ELO (19 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "HellsBrave",
+        "bey_b": "SilverWolf",
+        "category": "elo_clarity",
+        "info_value": 61.0,
+        "explanation": "HellsBrave and SilverWolf have similar ELO (19 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "ClockMirage",
+        "bey_b": "SilverWolf",
+        "category": "elo_clarity",
+        "info_value": 61.0,
+        "explanation": "ClockMirage and SilverWolf have similar ELO (19 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -5722,6 +6556,30 @@
         "category": "elo_clarity",
         "info_value": 54.0,
         "explanation": "DranSword and WyvernHover have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "KnightMail",
+        "bey_b": "TyrannoRoar",
+        "category": "elo_clarity",
+        "info_value": 54.0,
+        "explanation": "KnightMail and TyrannoRoar have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "KnightMail",
+        "bey_b": "HellsBrave",
+        "category": "elo_clarity",
+        "info_value": 54.0,
+        "explanation": "KnightMail and HellsBrave have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
+        "existing_matches": 0
+      },
+      {
+        "bey_a": "KnightMail",
+        "bey_b": "ClockMirage",
+        "category": "elo_clarity",
+        "info_value": 54.0,
+        "explanation": "KnightMail and ClockMirage have similar ELO (26 difference) but have only played 0 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 0
       },
       {
@@ -6235,48 +7093,6 @@
         "info_value": 35.0,
         "explanation": "TyrannoBeat and HellsHammer have similar ELO (30 difference) but have only played 1 time(s). Direct matchup would clarify ranking.",
         "existing_matches": 1
-      }
-    ],
-    "meta_balance": [
-      {
-        "bey_a": "TuskMammoth",
-        "bey_b": "CobaltDrake",
-        "category": "meta_balance",
-        "info_value": 93.12,
-        "explanation": "TuskMammoth (32 matches) is frequently played while CobaltDrake (5 matches) is underrepresented. This matchup would improve meta balance.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "TuskMammoth",
-        "bey_b": "WhaleFlame",
-        "category": "meta_balance",
-        "info_value": 93.12,
-        "explanation": "TuskMammoth (32 matches) is frequently played while WhaleFlame (5 matches) is underrepresented. This matchup would improve meta balance.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "TuskMammoth",
-        "bey_b": "HellsHammer",
-        "category": "meta_balance",
-        "info_value": 93.12,
-        "explanation": "TuskMammoth (32 matches) is frequently played while HellsHammer (5 matches) is underrepresented. This matchup would improve meta balance.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "TuskMammoth",
-        "bey_b": "PegasusBlast",
-        "category": "meta_balance",
-        "info_value": 90.23,
-        "explanation": "TuskMammoth (32 matches) is frequently played while PegasusBlast (6 matches) is underrepresented. This matchup would improve meta balance.",
-        "existing_matches": 0
-      },
-      {
-        "bey_a": "TuskMammoth",
-        "bey_b": "WizardArrow",
-        "category": "meta_balance",
-        "info_value": 90.23,
-        "explanation": "TuskMammoth (32 matches) is frequently played while WizardArrow (6 matches) is underrepresented. This matchup would improve meta balance.",
-        "existing_matches": 0
       }
     ]
   }

@@ -1506,6 +1506,43 @@
       "has_match_data": true
     },
     {
+      "blade": "HellsBrave",
+      "ratchet": "3-60",
+      "bit": "Gear Flat",
+      "blade_type": "Unknown",
+      "bit_category": "Attack",
+      "combo_name": "HellsBrave 3-60 Gear Flat",
+      "rating": {
+        "attack": 7.0,
+        "defense": 6.0,
+        "stamina": 5.7,
+        "control": 5.7,
+        "meta_impact": 6.1,
+        "overall": 60.9
+      },
+      "synergy": {
+        "score": 50.0,
+        "blade_bit": null,
+        "blade_ratchet": null,
+        "bit_ratchet": null,
+        "has_sufficient_data": false
+      },
+      "elo": 1000,
+      "power_index": 50.0,
+      "win_rate": 50.0,
+      "matches": 0,
+      "rank": 999,
+      "rpg_stats": null,
+      "beys": [
+        {
+          "name": "HellsBrave J3-60GF",
+          "code": "UX-15",
+          "blade": "HellsBrave"
+        }
+      ],
+      "has_match_data": false
+    },
+    {
       "blade": "HellsHammer",
       "ratchet": "3-70",
       "bit": "Hexa",
@@ -1678,6 +1715,80 @@
       "has_match_data": true
     },
     {
+      "blade": "ClockMirage",
+      "ratchet": "9-65",
+      "bit": "Ball",
+      "blade_type": "Unknown",
+      "bit_category": "Stamina",
+      "combo_name": "ClockMirage 9-65 Ball",
+      "rating": {
+        "attack": 5.0,
+        "defense": 5.0,
+        "stamina": 6.7,
+        "control": 6.0,
+        "meta_impact": 5.7,
+        "overall": 56.8
+      },
+      "synergy": {
+        "score": 50.0,
+        "blade_bit": null,
+        "blade_ratchet": null,
+        "bit_ratchet": null,
+        "has_sufficient_data": false
+      },
+      "elo": 1000,
+      "power_index": 50.0,
+      "win_rate": 50.0,
+      "matches": 0,
+      "rank": 999,
+      "rpg_stats": null,
+      "beys": [
+        {
+          "name": "ClockMirage 9-65B",
+          "code": "UX-16",
+          "blade": "ClockMirage"
+        }
+      ],
+      "has_match_data": false
+    },
+    {
+      "blade": "TyrannoRoar",
+      "ratchet": "1-70",
+      "bit": "Level",
+      "blade_type": "Unknown",
+      "bit_category": "Balance",
+      "combo_name": "TyrannoRoar 1-70 Level",
+      "rating": {
+        "attack": 5.7,
+        "defense": 5.0,
+        "stamina": 5.7,
+        "control": 5.9,
+        "meta_impact": 5.6,
+        "overall": 55.7
+      },
+      "synergy": {
+        "score": 50.0,
+        "blade_bit": null,
+        "blade_ratchet": null,
+        "bit_ratchet": null,
+        "has_sufficient_data": false
+      },
+      "elo": 1000,
+      "power_index": 50.0,
+      "win_rate": 50.0,
+      "matches": 0,
+      "rank": 999,
+      "rpg_stats": null,
+      "beys": [
+        {
+          "name": "TyrannoRoar 1-70L",
+          "code": "UX-15",
+          "blade": "TyrannoRoar"
+        }
+      ],
+      "has_match_data": false
+    },
+    {
       "blade": "WyvernHover",
       "ratchet": "3-85",
       "bit": "Needle",
@@ -1785,6 +1896,11 @@
         }
       },
       {
+        "name": "ClockMirage",
+        "type": "Unknown",
+        "stats": {}
+      },
+      {
         "name": "CobaltDragoon",
         "type": "Attack",
         "stats": {
@@ -1860,6 +1976,11 @@
           "spin_control": 4.5,
           "deflection_ability": 4.8
         }
+      },
+      {
+        "name": "HellsBrave",
+        "type": "Unknown",
+        "stats": {}
       },
       {
         "name": "HellsChain",
@@ -2021,6 +2142,11 @@
         }
       },
       {
+        "name": "TyrannoRoar",
+        "type": "Unknown",
+        "stats": {}
+      },
+      {
         "name": "UnicornSting",
         "type": "Balance",
         "stats": {
@@ -2134,6 +2260,12 @@
           "lock_stability": 3.0,
           "weight_efficiency": 4.0
         }
+      },
+      {
+        "name": "1-70",
+        "height": null,
+        "protrusions": null,
+        "stats": {}
       },
       {
         "name": "2-60",
@@ -2310,6 +2442,12 @@
           "lock_stability": 4.5,
           "weight_efficiency": 2.5
         }
+      },
+      {
+        "name": "9-65",
+        "height": null,
+        "protrusions": null,
+        "stats": {}
       },
       {
         "name": "9-70",
@@ -2638,9 +2776,9 @@
     ]
   },
   "metadata": {
-    "total_combos": 41,
-    "total_blades": 41,
-    "total_ratchets": 22,
+    "total_combos": 44,
+    "total_blades": 44,
+    "total_ratchets": 24,
     "total_bits": 36
   }
 }
