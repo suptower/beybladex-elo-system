@@ -64,43 +64,51 @@
             background: var(--card-bg);
             border: 2px solid var(--border-color);
             border-radius: 12px;
-            padding: 20px;
+            padding: 24px;
             transition: all 0.3s ease;
+            text-align: center;
         }
 
         .award-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
             border-color: var(--accent-color);
         }
 
         .award-header {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
         .award-icon {
-            font-size: 32px;
+            font-size: 40px;
+            line-height: 1;
         }
 
         .award-title {
-            font-size: 18px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .award-winner {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
             color: var(--text-color);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            line-height: 1.2;
         }
 
         .award-value {
             font-size: 16px;
-            color: var(--text-muted);
+            color: var(--text-color);
+            opacity: 0.8;
+            font-weight: 600;
         }
 
         .leaderboards-section {
@@ -116,24 +124,28 @@
         }
 
         .leaderboard-tab {
-            padding: 12px 20px;
+            padding: 14px 20px;
             background: transparent;
             border: none;
-            color: var(--text-muted);
+            color: var(--text-color);
+            opacity: 0.6;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .leaderboard-tab:hover {
-            color: var(--text-color);
+            opacity: 0.9;
             border-bottom-color: var(--accent-color);
         }
 
         .leaderboard-tab.active {
             color: var(--accent-color);
+            opacity: 1;
             border-bottom-color: var(--accent-color);
         }
 
@@ -156,66 +168,82 @@
         .leaderboard-table th {
             background: var(--accent-color);
             color: white;
-            padding: 15px;
+            padding: 16px 20px;
             text-align: left;
             font-weight: 700;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .leaderboard-table td {
-            padding: 12px 15px;
+            padding: 16px 20px;
             border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
         }
 
-        .leaderboard-table tr:hover {
+        .leaderboard-table tbody tr:hover {
             background: var(--hover-bg);
+        }
+
+        .leaderboard-table tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .rank-badge {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 30px;
-            height: 30px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            font-weight: 700;
-            font-size: 14px;
+            font-weight: 800;
+            font-size: 16px;
         }
 
-        .rank-1 { background: gold; color: black; }
-        .rank-2 { background: silver; color: black; }
-        .rank-3 { background: #cd7f32; color: white; }
-        .rank-other { background: var(--border-color); color: var(--text-color); }
+        .rank-1 { background: #FFD700; color: #000; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4); }
+        .rank-2 { background: #C0C0C0; color: #000; box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4); }
+        .rank-3 { background: #CD7F32; color: #fff; box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4); }
+        .rank-other { background: var(--border-color); color: var(--text-color); font-weight: 700; }
 
         .bey-link {
-            color: var(--accent-color);
+            color: var(--text-color);
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 16px;
         }
 
         .bey-link:hover {
+            color: var(--accent-color);
             text-decoration: underline;
         }
 
         .metric-value {
-            font-weight: 700;
+            font-weight: 800;
             color: var(--text-color);
+            font-size: 17px;
+            text-align: right;
         }
 
         .section-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--border-color);
         }
 
         .section-icon {
-            font-size: 32px;
+            font-size: 36px;
+            line-height: 1;
         }
 
         .section-title {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 800;
             color: var(--text-color);
+            letter-spacing: -0.5px;
         }
 
         .loading {
@@ -469,13 +497,13 @@
 
             return `
                 <tr>
-                    <td>
+                    <td style="text-align: center;">
                         <span class="rank-badge ${rankClass}">${entry.rank}</span>
                     </td>
                     <td>
                         <span class="bey-link">${entry.bey}</span>
                     </td>
-                    <td>
+                    <td style="text-align: right;">
                         <span class="metric-value">${valueDisplay}</span>
                     </td>
                 </tr>
@@ -486,9 +514,9 @@
             <table class="leaderboard-table">
                 <thead>
                     <tr>
-                        <th>Rank</th>
+                        <th style="width: 80px;">Rank</th>
                         <th>Bey</th>
-                        <th>Value</th>
+                        <th style="width: 120px; text-align: right;">Value</th>
                     </tr>
                 </thead>
                 <tbody>
