@@ -69,6 +69,7 @@ SCRIPT_MATCHUP_MATRIX = "./src/matchup_matrix.py"
 SCRIPT_ARCHETYPE_ANALYTICS = "./src/archetype_analytics.py"
 SCRIPT_SEASON_PROCESSING = "./src/season_processing.py"
 SCRIPT_STADIUM_STATS = "./src/stadium_stats.py"
+SCRIPT_SEASON_STATISTICS = "./src/season_statistics.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
@@ -389,6 +390,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Stadium Statistics", success, duration))
+    
+    # Season Statistics (depends on matches, rounds)
+    success, duration = run_script(
+        SCRIPT_SEASON_STATISTICS,
+        "Season Statistics & Analytics",
+        verbose=verbose
+    )
+    results.append(("Season Statistics", success, duration))
 
     return results
 
