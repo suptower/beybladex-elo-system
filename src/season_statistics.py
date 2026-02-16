@@ -325,6 +325,11 @@ class SeasonStatistics:
         with open(self.matches_file, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
+                # Only consider matches with MatchType = "season"
+                match_type = row.get("MatchType", "").lower()
+                if match_type != "season":
+                    continue
+
                 # Apply filters
                 if season_id and row.get("SeasonID") != season_id:
                     continue
@@ -332,16 +337,8 @@ class SeasonStatistics:
                     if int(row.get("Tier", 0)) != tier:
                         continue
 
-                # Determine phase
-                match_type = row.get("MatchType", "exhibition").lower()
-                if match_type == "season":
-                    phase = "Swiss"
-                elif match_type == "season_cup":
-                    phase = "Playoffs"
-                elif match_type == "relegation":
-                    phase = "Placement"
-                else:
-                    phase = "Exhibition"
+                # Season matches are Swiss phase
+                phase = "Swiss"
 
                 # Determine winner
                 score_a = int(row.get("ScoreA", 0))
