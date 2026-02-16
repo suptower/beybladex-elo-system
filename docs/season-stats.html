@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Season Statistics - BeybladeX ELO System</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+    <style>
+        .stats-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .phase-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .phase-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--accent-color);
+            background: transparent;
+            color: var(--text-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .phase-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .phase-btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .awards-section {
+            margin-bottom: 40px;
+        }
+
+        .awards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .award-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .award-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent-color);
+        }
+
+        .award-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .award-icon {
+            font-size: 32px;
+        }
+
+        .award-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .award-winner {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .award-value {
+            font-size: 16px;
+            color: var(--text-muted);
+        }
+
+        .leaderboards-section {
+            margin-bottom: 40px;
+        }
+
+        .leaderboard-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .leaderboard-tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-tab:hover {
+            color: var(--text-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .leaderboard-tab.active {
+            color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+        }
+
+        .leaderboard-content {
+            display: none;
+        }
+
+        .leaderboard-content.active {
+            display: block;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+        }
+
+        .leaderboard-table th {
+            background: var(--accent-color);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .leaderboard-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .leaderboard-table tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .rank-1 { background: gold; color: black; }
+        .rank-2 { background: silver; color: black; }
+        .rank-3 { background: #cd7f32; color: white; }
+        .rank-other { background: var(--border-color); color: var(--text-color); }
+
+        .bey-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .bey-link:hover {
+            text-decoration: underline;
+        }
+
+        .metric-value {
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .section-icon {
+            font-size: 32px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-color);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 2px solid #fcc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #c00;
+        }
+
+        .info-box {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-stat {
+            text-align: center;
+            padding: 15px;
+            background: var(--hover-bg);
+            border-radius: 8px;
+        }
+
+        .summary-stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent-color);
+        }
+
+        .summary-stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Season Statistics</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="stats-container">
+        <div class="header-section">
+            <h1>📊 Advanced Season Statistics</h1>
+            <p class="subtitle">Round-Level Performance Analytics & Awards</p>
+        </div>
+
+        <div class="info-box">
+            <h3>About Season Statistics</h3>
+            <p>
+                This page displays comprehensive statistics derived from round-level data, including finish types,
+                efficiency metrics, clutch performances, and advanced performance indices. Awards are automatically
+                generated based on statistical excellence across various categories.
+            </p>
+        </div>
+
+        <div class="phase-selector">
+            <button class="phase-btn active" data-phase="all">All Matches</button>
+            <button class="phase-btn" data-phase="swiss">Swiss Phase Only</button>
+            <button class="phase-btn" data-phase="playoffs">Playoffs Only</button>
+        </div>
+
+        <div id="stats-content">
+            <div class="loading">Loading statistics...</div>
+        </div>
+    </div>
+</main>
+
+<script>
+    let currentPhase = 'all';
+    let statsData = null;
+
+    // Load statistics data
+    async function loadStats(phase) {
+        try {
+            const filename = phase === 'all' 
+                ? 'data/season_statistics.json'
+                : `data/season_statistics_${phase}.json`;
+            
+            const response = await fetch(filename);
+            if (!response.ok) {
+                throw new Error(`Failed to load ${filename}`);
+            }
+            
+            statsData = await response.json();
+            currentPhase = phase;
+            renderStats();
+        } catch (error) {
+            console.error('Error loading stats:', error);
+            document.getElementById('stats-content').innerHTML = `
+                <div class="error-message">
+                    <strong>Error:</strong> Failed to load statistics data for ${phase} phase.
+                    ${phase !== 'all' ? '<br>This phase may not have any matches yet.' : ''}
+                </div>
+            `;
+        }
+    }
+
+    // Render statistics
+    function renderStats() {
+        if (!statsData) return;
+
+        const container = document.getElementById('stats-content');
+        container.innerHTML = '';
+
+        // Render awards section
+        if (statsData.awards && Object.keys(statsData.awards).length > 0) {
+            const awardsSection = document.createElement('div');
+            awardsSection.className = 'awards-section';
+            awardsSection.innerHTML = `
+                <div class="section-header">
+                    <span class="section-icon">🏆</span>
+                    <h2 class="section-title">Season Awards</h2>
+                </div>
+                <div class="awards-grid">
+                    ${renderAwards()}
+                </div>
+            `;
+            container.appendChild(awardsSection);
+        }
+
+        // Render leaderboards section
+        if (statsData.leaderboards && Object.keys(statsData.leaderboards).length > 0) {
+            const leaderboardsSection = document.createElement('div');
+            leaderboardsSection.className = 'leaderboards-section';
+            leaderboardsSection.innerHTML = `
+                <div class="section-header">
+                    <span class="section-icon">📈</span>
+                    <h2 class="section-title">Statistical Leaderboards</h2>
+                </div>
+                ${renderLeaderboards()}
+            `;
+            container.appendChild(leaderboardsSection);
+            
+            // Initialize leaderboard tabs
+            initLeaderboardTabs();
+        }
+    }
+
+    // Render awards
+    function renderAwards() {
+        const awards = statsData.awards;
+        return Object.entries(awards).map(([key, award]) => `
+            <div class="award-card">
+                <div class="award-header">
+                    <span class="award-icon">${award.icon}</span>
+                    <span class="award-title">${award.title}</span>
+                </div>
+                <div class="award-winner">${award.winner}</div>
+                <div class="award-value">${award.value} ${award.metric}</div>
+            </div>
+        `).join('');
+    }
+
+    // Render leaderboards
+    function renderLeaderboards() {
+        const leaderboards = statsData.leaderboards;
+        const leaderboardNames = {
+            'match_win_rate': 'Match Win Rate',
+            'points_differential': 'Points Differential',
+            'round_differential': 'Round Differential',
+            'offensive_power_index': 'Offensive Power Index',
+            'dominance_index': 'Dominance Index',
+            'points_per_round': 'Points Per Round',
+            'aggression_ratio': 'Aggression Ratio',
+            'defensive_stability': 'Defensive Stability',
+            'clutch_win_rate': 'Clutch Win Rate',
+            'volatility': 'Volatility (Lower is Better)'
+        };
+
+        const tabs = Object.keys(leaderboards).map((key, index) => `
+            <button class="leaderboard-tab ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
+                ${leaderboardNames[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            </button>
+        `).join('');
+
+        const contents = Object.entries(leaderboards).map(([key, leaders], index) => `
+            <div class="leaderboard-content ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
+                ${renderLeaderboardTable(leaders, key)}
+            </div>
+        `).join('');
+
+        return `
+            <div class="leaderboard-tabs">
+                ${tabs}
+            </div>
+            <div class="leaderboard-contents">
+                ${contents}
+            </div>
+        `;
+    }
+
+    // Render leaderboard table
+    function renderLeaderboardTable(leaders, metricKey) {
+        if (!leaders || leaders.length === 0) {
+            return '<p>No data available for this metric.</p>';
+        }
+
+        const rows = leaders.map(entry => {
+            const rankClass = entry.rank === 1 ? 'rank-1' : 
+                             entry.rank === 2 ? 'rank-2' : 
+                             entry.rank === 3 ? 'rank-3' : 'rank-other';
+            
+            let valueDisplay = entry.value;
+            if (typeof entry.value === 'number') {
+                valueDisplay = entry.value.toFixed(2);
+            }
+
+            return `
+                <tr>
+                    <td>
+                        <span class="rank-badge ${rankClass}">${entry.rank}</span>
+                    </td>
+                    <td>
+                        <span class="bey-link">${entry.bey}</span>
+                    </td>
+                    <td>
+                        <span class="metric-value">${valueDisplay}</span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        return `
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Bey</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        `;
+    }
+
+    // Initialize leaderboard tabs
+    function initLeaderboardTabs() {
+        const tabs = document.querySelectorAll('.leaderboard-tab');
+        const contents = document.querySelectorAll('.leaderboard-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const leaderboard = tab.dataset.leaderboard;
+
+                // Update active states
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.querySelector(`.leaderboard-content[data-leaderboard="${leaderboard}"]`).classList.add('active');
+            });
+        });
+    }
+
+    // Phase selector
+    document.querySelectorAll('.phase-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            loadStats(btn.dataset.phase);
+        });
+    });
+
+    // Initial load
+    loadStats('all');
+</script>
+
+</body>
+</html>
