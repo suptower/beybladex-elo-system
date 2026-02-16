@@ -24,8 +24,8 @@ import json
 import os
 import statistics
 from collections import defaultdict
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, asdict
+from typing import Dict, List, Optional
+from dataclasses import dataclass
 
 # Colors for output
 RESET = "\033[0m"
@@ -74,10 +74,10 @@ class Match:
 
 class BeySeasonStats:
     """Container for all statistics for a single Bey in a season."""
-    
+
     def __init__(self, bey_name: str):
         self.bey_name = bey_name
-        
+
         # Basic Performance Metrics
         self.matches_played = 0
         self.matches_won = 0
@@ -87,77 +87,77 @@ class BeySeasonStats:
         self.total_rounds_played = 0
         self.rounds_won = 0
         self.rounds_lost = 0
-        
+
         # Finish-Type Statistics
         self.burst_wins = 0
         self.pocket_wins = 0
         self.extreme_wins = 0
         self.spin_wins = 0
-        
+
         self.burst_losses = 0
         self.pocket_losses = 0
         self.extreme_losses = 0
         self.spin_losses = 0
-        
+
         # Clutch & Comeback Metrics
         self.clutch_matches_won = 0  # Won at 2-2 or in final deciding round
         self.comeback_wins = 0  # Won after being down 0-1 or 0-2
         self.reverse_sweeps = 0  # Won 3-2 after being down 0-2
-        
+
         # Raw data for variance calculation
         self.points_per_match = []
         self.round_diff_per_match = []
-    
+
     @property
     def match_win_rate(self) -> float:
         """Calculate match win rate percentage."""
         if self.matches_played == 0:
             return 0.0
         return (self.matches_won / self.matches_played) * 100
-    
+
     @property
     def points_differential(self) -> int:
         """Calculate points differential."""
         return self.total_points_scored - self.total_points_conceded
-    
+
     @property
     def round_differential(self) -> int:
         """Calculate round differential."""
         return self.rounds_won - self.rounds_lost
-    
+
     @property
     def points_per_round(self) -> float:
         """Calculate Points Per Round (PPR)."""
         if self.total_rounds_played == 0:
             return 0.0
         return self.total_points_scored / self.total_rounds_played
-    
+
     @property
     def avg_rounds_per_match(self) -> float:
         """Calculate average rounds per match."""
         if self.matches_played == 0:
             return 0.0
         return self.total_rounds_played / self.matches_played
-    
+
     @property
     def avg_points_per_match(self) -> float:
         """Calculate average points scored per match."""
         if self.matches_played == 0:
             return 0.0
         return self.total_points_scored / self.matches_played
-    
+
     @property
     def total_finishes(self) -> int:
         """Calculate total finishes."""
         return self.burst_wins + self.pocket_wins + self.extreme_wins + self.spin_wins
-    
+
     @property
     def burst_win_rate(self) -> float:
         """Calculate burst win rate as percentage of total wins."""
         if self.rounds_won == 0:
             return 0.0
         return (self.burst_wins / self.rounds_won) * 100
-    
+
     @property
     def aggression_ratio(self) -> float:
         """Calculate aggression ratio: (Extreme + Pocket + Burst) / Total Wins."""
@@ -165,21 +165,21 @@ class BeySeasonStats:
             return 0.0
         aggressive_wins = self.extreme_wins + self.pocket_wins + self.burst_wins
         return (aggressive_wins / self.rounds_won) * 100
-    
+
     @property
     def defensive_stability_index(self) -> float:
         """Calculate defensive stability index: 1 - (Bursts Suffered / Total Rounds)."""
         if self.total_rounds_played == 0:
             return 1.0
         return 1.0 - (self.burst_losses / self.total_rounds_played)
-    
+
     @property
     def clutch_win_rate(self) -> float:
         """Calculate clutch win rate."""
         if self.matches_played == 0:
             return 0.0
         return (self.clutch_matches_won / self.matches_played) * 100
-    
+
     @property
     def offensive_power_index(self) -> float:
         """
@@ -189,7 +189,7 @@ class BeySeasonStats:
         """
         if self.matches_played == 0:
             return 0.0
-        
+
         weighted_score = (
             3 * self.burst_wins +
             2.5 * self.extreme_wins +
@@ -197,7 +197,7 @@ class BeySeasonStats:
             1 * self.spin_wins
         )
         return weighted_score / self.matches_played
-    
+
     @property
     def dominance_index(self, ppr_weight: float = 1.5) -> float:
         """
@@ -206,10 +206,10 @@ class BeySeasonStats:
         """
         if self.matches_played == 0:
             return 0.0
-        
+
         points_diff_per_match = self.points_differential / self.matches_played
         return points_diff_per_match + (self.points_per_round * ppr_weight)
-    
+
     @property
     def volatility_index(self) -> float:
         """
@@ -219,12 +219,12 @@ class BeySeasonStats:
         if len(self.points_per_match) <= 1:
             return 0.0
         return statistics.stdev(self.points_per_match)
-    
+
     def to_dict(self) -> Dict:
         """Convert stats to dictionary for export."""
         return {
             "bey_name": self.bey_name,
-            
+
             # Basic Performance
             "matches_played": self.matches_played,
             "matches_won": self.matches_won,
@@ -237,12 +237,12 @@ class BeySeasonStats:
             "rounds_won": self.rounds_won,
             "rounds_lost": self.rounds_lost,
             "round_differential": self.round_differential,
-            
+
             # Efficiency Metrics
             "points_per_round": round(self.points_per_round, 3),
             "avg_rounds_per_match": round(self.avg_rounds_per_match, 2),
             "avg_points_per_match": round(self.avg_points_per_match, 2),
-            
+
             # Finish-Type Statistics
             "burst_wins": self.burst_wins,
             "pocket_wins": self.pocket_wins,
@@ -255,20 +255,19 @@ class BeySeasonStats:
             "total_finishes": self.total_finishes,
             "burst_win_rate": round(self.burst_win_rate, 2),
             "aggression_ratio": round(self.aggression_ratio, 2),
-            
+
             # Defensive Metrics
             "bursts_suffered": self.burst_losses,
             "pocket_outs_suffered": self.pocket_losses,
             "extreme_finishes_suffered": self.extreme_losses,
-            "spin_losses": self.spin_losses,
             "defensive_stability_index": round(self.defensive_stability_index, 3),
-            
+
             # Clutch & Comeback Metrics
             "clutch_matches_won": self.clutch_matches_won,
             "clutch_win_rate": round(self.clutch_win_rate, 2),
             "comeback_wins": self.comeback_wins,
             "reverse_sweeps": self.reverse_sweeps,
-            
+
             # Advanced Indices
             "offensive_power_index": round(self.offensive_power_index, 2),
             "dominance_index": round(self.dominance_index, 2),
@@ -278,51 +277,51 @@ class BeySeasonStats:
 
 class SeasonStatistics:
     """Main class for computing and managing season statistics."""
-    
+
     def __init__(self, matches_file: str = DEFAULT_MATCHES_FILE,
                  rounds_file: str = DEFAULT_ROUNDS_FILE):
         self.matches_file = matches_file
         self.rounds_file = rounds_file
-        
+
         # Data storage
         self.matches: List[Match] = []
         self.rounds: List[Round] = []
-        
+
         # Statistics by phase and tier
         self.stats: Dict[str, Dict[str, BeySeasonStats]] = {
             "all": {},      # All matches combined
             "swiss": {},    # Regular season (Swiss) only
-            "playoffs": {}, # Playoffs only
+            "playoffs": {},  # Playoffs only
         }
-    
+
     def load_data(self, season_id: Optional[str] = None,
                   tier: Optional[int] = None) -> None:
         """
         Load matches and rounds data from CSV files.
-        
+
         Args:
             season_id: Optional season filter
             tier: Optional tier filter
         """
         print(f"{YELLOW}Loading match and round data...{RESET}")
-        
+
         # Load matches
         self.matches = self._load_matches(season_id, tier)
         print(f"{GREEN}Loaded {len(self.matches)} matches{RESET}")
-        
+
         # Load rounds
         self.rounds = self._load_rounds(self.matches)
         print(f"{GREEN}Loaded {len(self.rounds)} rounds{RESET}")
-    
+
     def _load_matches(self, season_id: Optional[str] = None,
                       tier: Optional[int] = None) -> List[Match]:
         """Load matches from CSV file with optional filters."""
         matches = []
-        
+
         if not os.path.exists(self.matches_file):
             print(f"{YELLOW}Warning: Matches file not found: {self.matches_file}{RESET}")
             return matches
-        
+
         with open(self.matches_file, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -332,7 +331,7 @@ class SeasonStatistics:
                 if tier is not None and row.get("Tier"):
                     if int(row.get("Tier", 0)) != tier:
                         continue
-                
+
                 # Determine phase
                 match_type = row.get("MatchType", "exhibition").lower()
                 if match_type == "season":
@@ -343,14 +342,14 @@ class SeasonStatistics:
                     phase = "Placement"
                 else:
                     phase = "Exhibition"
-                
+
                 # Determine winner
                 score_a = int(row.get("ScoreA", 0))
                 score_b = int(row.get("ScoreB", 0))
                 bey_a = row.get("BeyA", "")
                 bey_b = row.get("BeyB", "")
                 winner = bey_a if score_a > score_b else bey_b
-                
+
                 match = Match(
                     match_id=row.get("MatchID", ""),
                     tier=int(row.get("Tier")) if row.get("Tier") else None,
@@ -365,38 +364,38 @@ class SeasonStatistics:
                     season_id=row.get("SeasonID")
                 )
                 matches.append(match)
-        
+
         return matches
-    
+
     def _load_rounds(self, matches: List[Match]) -> List[Round]:
         """Load rounds from CSV file, filtered by loaded matches."""
         rounds = []
-        
+
         if not os.path.exists(self.rounds_file):
             print(f"{YELLOW}Warning: Rounds file not found: {self.rounds_file}{RESET}")
             return rounds
-        
+
         # Get set of match IDs we care about
         match_ids = {m.match_id for m in matches}
-        
+
         with open(self.rounds_file, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 match_id = row.get("match_id", "")
-                
+
                 # Only load rounds for matches we loaded
                 if match_id not in match_ids:
                     continue
-                
+
                 winner = row.get("winner", "")
                 finish_type = row.get("finish_type", "spin").upper()
                 points = int(row.get("points_awarded", 1))
                 round_num = int(row.get("round_number", 0))
-                
+
                 # Determine loser - for now we don't have this in CSV
                 # We'll need to infer from match data
                 loser = ""  # Will be filled during processing
-                
+
                 round_obj = Round(
                     round_id=f"{match_id}_R{round_num}",
                     match_id=match_id,
@@ -410,7 +409,7 @@ class SeasonStatistics:
                     round_duration=None
                 )
                 rounds.append(round_obj)
-        
+
         # Fill in bey_a, bey_b, and loser from match data
         match_dict = {m.match_id: m for m in matches}
         for round_obj in rounds:
@@ -419,73 +418,73 @@ class SeasonStatistics:
                 round_obj.bey_a = match.bey_a
                 round_obj.bey_b = match.bey_b
                 round_obj.loser = match.bey_a if round_obj.winner == match.bey_b else match.bey_b
-        
+
         return rounds
-    
+
     def compute_statistics(self) -> None:
         """Compute all statistics from loaded data."""
         print(f"{CYAN}Computing statistics...{RESET}")
-        
+
         # Compute for all phases
         self._compute_phase_stats("all", self.matches, self.rounds)
-        
+
         # Compute for Swiss only (Regular Season)
         swiss_matches = [m for m in self.matches if m.phase == "Swiss"]
         swiss_rounds = [r for r in self.rounds if r.match_id in {m.match_id for m in swiss_matches}]
         self._compute_phase_stats("swiss", swiss_matches, swiss_rounds)
-        
+
         # Compute for Playoffs only
         playoff_matches = [m for m in self.matches if m.phase == "Playoffs"]
         playoff_rounds = [r for r in self.rounds if r.match_id in {m.match_id for m in playoff_matches}]
         self._compute_phase_stats("playoffs", playoff_matches, playoff_rounds)
-        
+
         print(f"{GREEN}Statistics computed successfully{RESET}")
-    
+
     def _compute_phase_stats(self, phase: str, matches: List[Match], rounds: List[Round]) -> None:
         """Compute statistics for a specific phase."""
         stats_dict = {}
-        
+
         # Group rounds by match
         rounds_by_match = defaultdict(list)
         for r in rounds:
             rounds_by_match[r.match_id].append(r)
-        
+
         # Process each match
         for match in matches:
             match_rounds = rounds_by_match[match.match_id]
-            
+
             # Initialize stats for both beys if needed
             for bey in [match.bey_a, match.bey_b]:
                 if bey not in stats_dict:
                     stats_dict[bey] = BeySeasonStats(bey)
-            
+
             stats_a = stats_dict[match.bey_a]
             stats_b = stats_dict[match.bey_b]
-            
+
             # Update basic match stats
             stats_a.matches_played += 1
             stats_b.matches_played += 1
-            
+
             stats_a.total_points_scored += match.final_score_a
             stats_a.total_points_conceded += match.final_score_b
             stats_b.total_points_scored += match.final_score_b
             stats_b.total_points_conceded += match.final_score_a
-            
+
             if match.winner == match.bey_a:
                 stats_a.matches_won += 1
                 stats_b.matches_lost += 1
             else:
                 stats_b.matches_won += 1
                 stats_a.matches_lost += 1
-            
+
             # Track points per match for volatility
             stats_a.points_per_match.append(match.final_score_a)
             stats_b.points_per_match.append(match.final_score_b)
-            
+
             # Process rounds for detailed stats
             rounds_won_a = 0
             rounds_won_b = 0
-            
+
             for round_obj in match_rounds:
                 # Update round counts
                 if round_obj.winner == match.bey_a:
@@ -496,10 +495,10 @@ class SeasonStatistics:
                     stats_b.rounds_won += 1
                     stats_a.rounds_lost += 1
                     rounds_won_b += 1
-                
+
                 stats_a.total_rounds_played += 1
                 stats_b.total_rounds_played += 1
-                
+
                 # Update finish type stats
                 finish = round_obj.finish_type.upper()
                 if round_obj.winner == match.bey_a:
@@ -530,38 +529,39 @@ class SeasonStatistics:
                     elif finish == "SPIN":
                         stats_b.spin_wins += 1
                         stats_a.spin_losses += 1
-            
+
             # Clutch and comeback detection
             self._detect_clutch_and_comebacks(match, match_rounds, stats_a, stats_b)
-            
+
             # Track round differential per match
             stats_a.round_diff_per_match.append(rounds_won_a - rounds_won_b)
             stats_b.round_diff_per_match.append(rounds_won_b - rounds_won_a)
-        
+
         self.stats[phase] = stats_dict
-    
-    def _detect_clutch_and_comebacks(self, match: Match, rounds: List[Round],
-                                      stats_a: BeySeasonStats, stats_b: BeySeasonStats) -> None:
+
+    def _detect_clutch_and_comebacks(
+            self, match: Match, rounds: List[Round],
+            stats_a: BeySeasonStats, stats_b: BeySeasonStats) -> None:
         """Detect clutch wins and comebacks."""
         if not rounds:
             return
-        
+
         # Track score progression
         score_a, score_b = 0, 0
         score_history = [(0, 0)]
-        
+
         for round_obj in sorted(rounds, key=lambda r: r.round_number):
             if round_obj.winner == match.bey_a:
                 score_a += round_obj.points_awarded
             else:
                 score_b += round_obj.points_awarded
             score_history.append((score_a, score_b))
-        
+
         # Check if match was won at 2-2 or in a deciding final round
         # (Clutch match)
         final_score_a = match.final_score_a
         final_score_b = match.final_score_b
-        
+
         # Common winning scores: 3-2, 4-2, 4-3, etc.
         # Clutch if the losing side had a chance to tie or win
         if match.winner == match.bey_a:
@@ -570,7 +570,7 @@ class SeasonStatistics:
         else:
             if final_score_a >= final_score_b - 1:  # Close match
                 stats_b.clutch_matches_won += 1
-        
+
         # Detect comeback wins (won after being down 0-1 or 0-2)
         # Look at score after first 1-2 rounds
         if len(score_history) >= 2:
@@ -579,40 +579,40 @@ class SeasonStatistics:
                 stats_a.comeback_wins += 1
             elif match.winner == match.bey_b and early_score_b < early_score_a:
                 stats_b.comeback_wins += 1
-        
+
         # Detect reverse sweeps (won 3+ after being down 0-2)
         if len(score_history) >= 3:
             # Check if down 0-2 at some point
             was_down_0_2_a = False
             was_down_0_2_b = False
-            
+
             for i in range(len(score_history)):
                 sa, sb = score_history[i]
                 if sa == 0 and sb >= 2:
                     was_down_0_2_a = True
                 if sb == 0 and sa >= 2:
                     was_down_0_2_b = True
-            
+
             if match.winner == match.bey_a and was_down_0_2_a and final_score_a >= 3:
                 stats_a.reverse_sweeps += 1
             elif match.winner == match.bey_b and was_down_0_2_b and final_score_b >= 3:
                 stats_b.reverse_sweeps += 1
-    
+
     def generate_leaderboards(self, phase: str = "all") -> Dict[str, List[Dict]]:
         """
         Generate leaderboards for various metrics.
-        
+
         Args:
             phase: "all", "swiss", or "playoffs"
-        
+
         Returns:
             Dictionary of leaderboards by metric
         """
         if phase not in self.stats:
             return {}
-        
+
         stats_list = list(self.stats[phase].values())
-        
+
         leaderboards = {
             "match_win_rate": sorted(stats_list, key=lambda s: s.match_win_rate, reverse=True),
             "points_differential": sorted(stats_list, key=lambda s: s.points_differential, reverse=True),
@@ -625,31 +625,31 @@ class SeasonStatistics:
             "clutch_win_rate": sorted(stats_list, key=lambda s: s.clutch_win_rate, reverse=True),
             "volatility": sorted(stats_list, key=lambda s: s.volatility_index),  # Lower is better
         }
-        
+
         return leaderboards
-    
+
     def generate_awards(self, phase: str = "all", min_matches: int = 5) -> Dict[str, Dict]:
         """
         Generate season awards based on statistics.
-        
+
         Args:
             phase: "all", "swiss", or "playoffs"
             min_matches: Minimum matches required for award eligibility
-        
+
         Returns:
             Dictionary of awards with winners and their stats
         """
         if phase not in self.stats:
             return {}
-        
+
         # Filter by minimum matches
         eligible_beys = [s for s in self.stats[phase].values() if s.matches_played >= min_matches]
-        
+
         if not eligible_beys:
             return {}
-        
+
         awards = {}
-        
+
         # Most Dominant Bey (Highest Dominance Index)
         if eligible_beys:
             winner = max(eligible_beys, key=lambda s: s.dominance_index)
@@ -660,7 +660,7 @@ class SeasonStatistics:
                 "value": round(winner.dominance_index, 2),
                 "metric": "Dominance Index"
             }
-        
+
         # Burst King (Most Burst Wins)
         burst_eligible = [s for s in eligible_beys if s.burst_wins > 0]
         if burst_eligible:
@@ -672,7 +672,7 @@ class SeasonStatistics:
                 "value": winner.burst_wins,
                 "metric": "Burst Wins"
             }
-        
+
         # Stamina Master (Most Spin Wins)
         spin_eligible = [s for s in eligible_beys if s.spin_wins > 0]
         if spin_eligible:
@@ -684,7 +684,7 @@ class SeasonStatistics:
                 "value": winner.spin_wins,
                 "metric": "Spin Wins"
             }
-        
+
         # Aggression Award (Highest Aggression Ratio)
         aggression_eligible = [s for s in eligible_beys if s.aggression_ratio > 0]
         if aggression_eligible:
@@ -696,7 +696,7 @@ class SeasonStatistics:
                 "value": round(winner.aggression_ratio, 2),
                 "metric": "Aggression Ratio %"
             }
-        
+
         # Iron Wall (Fewest Bursts Suffered per match)
         if eligible_beys:
             winner = min(eligible_beys, key=lambda s: s.burst_losses / max(s.matches_played, 1))
@@ -707,7 +707,7 @@ class SeasonStatistics:
                 "value": round(winner.burst_losses / winner.matches_played, 2),
                 "metric": "Bursts Suffered per Match"
             }
-        
+
         # Efficiency Award (Highest PPR)
         ppr_eligible = [s for s in eligible_beys if s.points_per_round > 0]
         if ppr_eligible:
@@ -719,7 +719,7 @@ class SeasonStatistics:
                 "value": round(winner.points_per_round, 3),
                 "metric": "Points Per Round"
             }
-        
+
         # Clutch Performer (Highest Clutch Win Rate)
         clutch_eligible = [s for s in eligible_beys if s.clutch_matches_won > 0]
         if clutch_eligible:
@@ -731,9 +731,9 @@ class SeasonStatistics:
                 "value": round(winner.clutch_win_rate, 2),
                 "metric": "Clutch Win Rate %"
             }
-        
+
         # Statistical Leaders
-        
+
         # Highest Match Win Rate
         if eligible_beys:
             winner = max(eligible_beys, key=lambda s: s.match_win_rate)
@@ -744,7 +744,7 @@ class SeasonStatistics:
                 "value": round(winner.match_win_rate, 2),
                 "metric": "Match Win Rate %"
             }
-        
+
         # Best Points Differential
         if eligible_beys:
             winner = max(eligible_beys, key=lambda s: s.points_differential)
@@ -755,7 +755,7 @@ class SeasonStatistics:
                 "value": winner.points_differential,
                 "metric": "Points Differential"
             }
-        
+
         # Best Round Differential
         if eligible_beys:
             winner = max(eligible_beys, key=lambda s: s.round_differential)
@@ -766,7 +766,7 @@ class SeasonStatistics:
                 "value": winner.round_differential,
                 "metric": "Round Differential"
             }
-        
+
         # Highest Offensive Power Index
         if eligible_beys:
             winner = max(eligible_beys, key=lambda s: s.offensive_power_index)
@@ -777,7 +777,7 @@ class SeasonStatistics:
                 "value": round(winner.offensive_power_index, 2),
                 "metric": "Offensive Power Index"
             }
-        
+
         # Most Consistent (Lowest Volatility)
         volatility_eligible = [s for s in eligible_beys if len(s.points_per_match) > 1]
         if volatility_eligible:
@@ -789,14 +789,14 @@ class SeasonStatistics:
                 "value": round(winner.volatility_index, 2),
                 "metric": "Volatility Index (lower is better)"
             }
-        
+
         return awards
-    
+
     def export_to_json(self, output_file: str, phase: str = "all",
                        include_awards: bool = True) -> None:
         """
         Export statistics to JSON file.
-        
+
         Args:
             output_file: Output file path
             phase: "all", "swiss", or "playoffs"
@@ -805,14 +805,14 @@ class SeasonStatistics:
         if phase not in self.stats:
             print(f"{YELLOW}No stats found for phase: {phase}{RESET}")
             return
-        
+
         data = {
             "phase": phase,
             "statistics": {bey: stats.to_dict() for bey, stats in self.stats[phase].items()},
             "leaderboards": {},
             "awards": {}
         }
-        
+
         # Generate leaderboards
         leaderboards = self.generate_leaderboards(phase)
         # Map leaderboard keys to property names
@@ -831,24 +831,30 @@ class SeasonStatistics:
         for metric, leaders in leaderboards.items():
             prop_name = metric_map.get(metric, metric)
             data["leaderboards"][metric] = [
-                {"rank": i + 1, "bey": s.bey_name, "value": round(getattr(s, prop_name), 3) if isinstance(getattr(s, prop_name), float) else getattr(s, prop_name)}
+                {
+                    "rank": i + 1,
+                    "bey": s.bey_name,
+                    "value": round(getattr(s, prop_name), 3)
+                    if isinstance(getattr(s, prop_name), float)
+                    else getattr(s, prop_name)
+                }
                 for i, s in enumerate(leaders[:10])  # Top 10
             ]
-        
+
         # Generate awards if requested
         if include_awards:
             data["awards"] = self.generate_awards(phase)
-        
+
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        
+
         print(f"{GREEN}Exported statistics to {output_file}{RESET}")
-    
+
     def export_to_csv(self, output_file: str, phase: str = "all") -> None:
         """
         Export statistics to CSV file.
-        
+
         Args:
             output_file: Output file path
             phase: "all", "swiss", or "playoffs"
@@ -856,31 +862,31 @@ class SeasonStatistics:
         if phase not in self.stats:
             print(f"{YELLOW}No stats found for phase: {phase}{RESET}")
             return
-        
+
         # Get all stats as dicts
         stats_dicts = [stats.to_dict() for stats in self.stats[phase].values()]
-        
+
         if not stats_dicts:
             print(f"{YELLOW}No statistics to export{RESET}")
             return
-        
+
         # Sort by dominance index
         stats_dicts.sort(key=lambda x: x["dominance_index"], reverse=True)
-        
+
         # Write CSV
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=stats_dicts[0].keys())
             writer.writeheader()
             writer.writerows(stats_dicts)
-        
+
         print(f"{GREEN}Exported statistics to {output_file}{RESET}")
 
 
 def main():
     """Main entry point for season statistics generation."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Generate advanced season statistics")
     parser.add_argument("--season", type=str, help="Filter by season ID")
     parser.add_argument("--tier", type=int, help="Filter by tier")
@@ -891,46 +897,46 @@ def main():
                         help="Output directory for generated files")
     parser.add_argument("--min-matches", type=int, default=5,
                         help="Minimum matches for award eligibility")
-    
+
     args = parser.parse_args()
-    
+
     print(f"{BOLD}{CYAN}Advanced Season Statistics Generator{RESET}")
     print(f"{CYAN}{'=' * 60}{RESET}\n")
-    
+
     # Initialize statistics engine
     stats = SeasonStatistics()
-    
+
     # Load data
     stats.load_data(season_id=args.season, tier=args.tier)
-    
+
     if not stats.matches:
         print(f"{YELLOW}No matches found{RESET}")
         return
-    
+
     # Compute statistics
     stats.compute_statistics()
-    
+
     # Export statistics
     phase_suffix = f"_{args.phase}" if args.phase != "all" else ""
     season_suffix = f"_{args.season}" if args.season else ""
     tier_suffix = f"_tier{args.tier}" if args.tier else ""
-    
+
     # Export JSON
     json_file = os.path.join(args.output_dir, f"season_statistics{season_suffix}{tier_suffix}{phase_suffix}.json")
     stats.export_to_json(json_file, phase=args.phase, include_awards=True)
-    
+
     # Export CSV
     csv_file = os.path.join(args.output_dir, f"season_statistics{season_suffix}{tier_suffix}{phase_suffix}.csv")
     stats.export_to_csv(csv_file, phase=args.phase)
-    
+
     # Display awards
     print(f"\n{BOLD}{CYAN}Season Awards ({args.phase.upper()}){RESET}")
     print(f"{CYAN}{'=' * 60}{RESET}\n")
-    
+
     awards = stats.generate_awards(phase=args.phase, min_matches=args.min_matches)
     for award_key, award in awards.items():
         print(f"{award['icon']} {BOLD}{award['title']}{RESET}: {award['winner']} ({award['value']} {award['metric']})")
-    
+
     print(f"\n{GREEN}{BOLD}✓ Season statistics generated successfully!{RESET}")
 
 
