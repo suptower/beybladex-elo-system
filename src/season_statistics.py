@@ -790,7 +790,7 @@ class SeasonStatistics:
         return awards
 
     def export_to_json(self, output_file: str, phase: str = "all",
-                       include_awards: bool = True) -> None:
+                       include_awards: bool = True, min_matches: int = 5) -> None:
         """
         Export statistics to JSON file.
 
@@ -798,6 +798,7 @@ class SeasonStatistics:
             output_file: Output file path
             phase: "all", "swiss", or "playoffs"
             include_awards: Whether to include awards
+            min_matches: Minimum matches for award eligibility
         """
         if phase not in self.stats:
             print(f"{YELLOW}No stats found for phase: {phase}{RESET}")
@@ -840,7 +841,7 @@ class SeasonStatistics:
 
         # Generate awards if requested
         if include_awards:
-            data["awards"] = self.generate_awards(phase)
+            data["awards"] = self.generate_awards(phase, min_matches=min_matches)
 
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         with open(output_file, "w", encoding="utf-8") as f:
@@ -920,7 +921,7 @@ def main():
 
     # Export JSON
     json_file = os.path.join(args.output_dir, f"season_statistics{season_suffix}{tier_suffix}{phase_suffix}.json")
-    stats.export_to_json(json_file, phase=args.phase, include_awards=True)
+    stats.export_to_json(json_file, phase=args.phase, include_awards=True, min_matches=args.min_matches)
 
     # Export CSV
     csv_file = os.path.join(args.output_dir, f"season_statistics{season_suffix}{tier_suffix}{phase_suffix}.csv")

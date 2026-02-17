@@ -16,62 +16,80 @@
         .stats-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 16px;
         }
 
-        .phase-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+        @media (min-width: 768px) {
+            .stats-container {
+                padding: 20px;
+            }
         }
 
-        .phase-btn {
-            padding: 12px 24px;
-            border: 2px solid var(--accent-color);
-            background: transparent;
+        .season-selector {
+            margin-bottom: 24px;
+        }
+
+        .season-selector label {
+            display: block;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
             color: var(--text-color);
+        }
+
+        .season-select {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
-            cursor: pointer;
+            background: var(--card-bg);
+            color: var(--text-color);
             font-size: 16px;
             font-weight: 600;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .phase-btn:hover {
-            background: var(--accent-color);
-            color: white;
-            transform: translateY(-2px);
+        .season-select:hover {
+            border-color: var(--accent-color);
         }
 
-        .phase-btn.active {
-            background: var(--accent-color);
-            color: white;
+        .season-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
         }
 
         .awards-section {
-            margin-bottom: 40px;
+            margin-bottom: 32px;
         }
 
         .awards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
             margin-top: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .awards-grid {
+                gap: 20px;
+            }
         }
 
         .award-card {
             background: var(--card-bg);
             border: 2px solid var(--border-color);
             border-radius: 12px;
-            padding: 24px;
+            padding: 20px;
             transition: all 0.3s ease;
             text-align: center;
         }
 
         .award-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
             border-color: var(--accent-color);
         }
 
@@ -80,16 +98,16 @@
             flex-direction: column;
             align-items: center;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
         }
 
         .award-icon {
-            font-size: 40px;
+            font-size: 36px;
             line-height: 1;
         }
 
         .award-title {
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 700;
             color: var(--accent-color);
             text-transform: uppercase;
@@ -97,15 +115,15 @@
         }
 
         .award-winner {
-            font-size: 26px;
+            font-size: 22px;
             font-weight: 800;
             color: var(--text-color);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             line-height: 1.2;
         }
 
         .award-value {
-            font-size: 16px;
+            font-size: 15px;
             color: var(--text-color);
             opacity: 0.8;
             font-weight: 600;
@@ -115,27 +133,50 @@
             margin-bottom: 40px;
         }
 
+        .leaderboard-tabs-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
         .leaderboard-tabs {
             display: flex;
-            gap: 5px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            gap: 4px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            padding-bottom: 2px;
             border-bottom: 2px solid var(--border-color);
         }
 
+        .leaderboard-tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .leaderboard-tabs::-webkit-scrollbar-track {
+            background: var(--border-color);
+        }
+
+        .leaderboard-tabs::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
+
         .leaderboard-tab {
-            padding: 14px 20px;
+            padding: 12px 16px;
             background: transparent;
             border: none;
             color: var(--text-color);
             opacity: 0.6;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.3px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .leaderboard-tab:hover {
@@ -157,6 +198,17 @@
             display: block;
         }
 
+        .stat-explanation {
+            background: var(--hover-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+
         .leaderboard-table {
             width: 100%;
             background: var(--card-bg);
@@ -168,18 +220,33 @@
         .leaderboard-table th {
             background: var(--accent-color);
             color: white;
-            padding: 16px 20px;
+            padding: 14px 16px;
             text-align: left;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
+        @media (min-width: 768px) {
+            .leaderboard-table th {
+                padding: 16px 20px;
+                font-size: 15px;
+            }
+        }
+
         .leaderboard-table td {
-            padding: 16px 20px;
+            padding: 14px 16px;
             border-bottom: 1px solid var(--border-color);
             vertical-align: middle;
+            font-size: 14px;
+        }
+
+        @media (min-width: 768px) {
+            .leaderboard-table td {
+                padding: 16px 20px;
+                font-size: 15px;
+            }
         }
 
         .leaderboard-table tbody tr:hover {
@@ -194,11 +261,19 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             font-weight: 800;
-            font-size: 16px;
+            font-size: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .rank-badge {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
         }
 
         .rank-1 { background: #FFD700; color: #000; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4); }
@@ -210,7 +285,13 @@
             color: var(--text-color);
             text-decoration: none;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .bey-link {
+                font-size: 16px;
+            }
         }
 
         .bey-link:hover {
@@ -221,8 +302,14 @@
         .metric-value {
             font-weight: 800;
             color: var(--text-color);
-            font-size: 17px;
+            font-size: 16px;
             text-align: right;
+        }
+
+        @media (min-width: 768px) {
+            .metric-value {
+                font-size: 17px;
+            }
         }
 
         .section-header {
@@ -235,15 +322,27 @@
         }
 
         .section-icon {
-            font-size: 36px;
+            font-size: 32px;
             line-height: 1;
         }
 
+        @media (min-width: 768px) {
+            .section-icon {
+                font-size: 36px;
+            }
+        }
+
         .section-title {
-            font-size: 30px;
+            font-size: 26px;
             font-weight: 800;
             color: var(--text-color);
             letter-spacing: -0.5px;
+        }
+
+        @media (min-width: 768px) {
+            .section-title {
+                font-size: 30px;
+            }
         }
 
         .loading {
@@ -266,39 +365,25 @@
             background: var(--card-bg);
             border: 2px solid var(--accent-color);
             border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .info-box {
+                padding: 20px;
+            }
         }
 
         .info-box h3 {
             color: var(--accent-color);
             margin-bottom: 10px;
+            font-size: 18px;
         }
 
-        .stats-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .summary-stat {
-            text-align: center;
-            padding: 15px;
-            background: var(--hover-bg);
-            border-radius: 8px;
-        }
-
-        .summary-stat-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent-color);
-        }
-
-        .summary-stat-label {
+        .info-box p {
             font-size: 14px;
-            color: var(--text-muted);
-            margin-top: 5px;
+            line-height: 1.6;
         }
     </style>
 </head>
@@ -330,23 +415,24 @@
 <main id="main-content">
     <div class="stats-container">
         <div class="header-section">
-            <h1>📊 Advanced Season Statistics</h1>
+            <h1>📊 Season Statistics</h1>
             <p class="subtitle">Round-Level Performance Analytics & Awards</p>
         </div>
 
         <div class="info-box">
             <h3>About Season Statistics</h3>
             <p>
-                This page displays comprehensive statistics derived from round-level data, including finish types,
+                This page displays comprehensive statistics derived from round-level data for each season, including finish types,
                 efficiency metrics, clutch performances, and advanced performance indices. Awards are automatically
                 generated based on statistical excellence across various categories.
             </p>
         </div>
 
-        <div class="phase-selector">
-            <button class="phase-btn active" data-phase="all">All Matches</button>
-            <button class="phase-btn" data-phase="swiss">Swiss Phase Only</button>
-            <button class="phase-btn" data-phase="playoffs">Playoffs Only</button>
+        <div class="season-selector">
+            <label for="season-select">Select Season:</label>
+            <select id="season-select" class="season-select">
+                <option value="">Loading seasons...</option>
+            </select>
         </div>
 
         <div id="stats-content">
@@ -356,30 +442,68 @@
 </main>
 
 <script>
-    let currentPhase = 'all';
+    let currentSeason = 'S1'; // Default season
     let statsData = null;
+    let availableSeasons = [];
 
-    // Load statistics data
-    async function loadStats(phase) {
+    // Stat explanations
+    const statExplanations = {
+        'match_win_rate': 'Percentage of matches won out of total matches played.',
+        'points_differential': 'Total points scored minus total points conceded across all matches.',
+        'round_differential': 'Total rounds won minus total rounds lost across all matches.',
+        'offensive_power_index': 'Weighted finish scoring: Burst (3pts), Extreme (2.5pts), Pocket (2pts), Spin (1pt), divided by matches played.',
+        'dominance_index': 'Combined metric: (Points Differential per Match) + (Points Per Round × 1.5)',
+        'points_per_round': 'Average points scored per round played.',
+        'aggression_ratio': 'Percentage of wins achieved through aggressive finishes (Burst, Extreme, Pocket).',
+        'defensive_stability': 'Measure of defensive strength: 1 - (Bursts Suffered / Total Rounds Played)',
+        'clutch_win_rate': 'Percentage of matches won in close/deciding rounds.',
+        'volatility': 'Standard deviation of points per match - lower values indicate more consistent performance.'
+    };
+
+    // Detect available seasons from CSV or use default
+    async function loadAvailableSeasons() {
         try {
-            const filename = phase === 'all' 
-                ? 'data/season_statistics.json'
-                : `data/season_statistics_${phase}.json`;
+            // Try to fetch available seasons from a JSON file or use default
+            // For now, we'll use a default list
+            availableSeasons = ['S1']; // Can be expanded based on actual data
             
-            const response = await fetch(filename);
-            if (!response.ok) {
-                throw new Error(`Failed to load ${filename}`);
+            const select = document.getElementById('season-select');
+            select.innerHTML = availableSeasons.map(season => 
+                `<option value="${season}">${season === 'S1' ? 'Season 1' : 'Season ' + season.substring(1)}</option>`
+            ).join('');
+            
+            // Set default season
+            select.value = currentSeason;
+        } catch (error) {
+            console.error('Error loading seasons:', error);
+        }
+    }
+
+    // Load statistics data for selected season
+    async function loadStats(season) {
+        try {
+            currentSeason = season;
+            const filename = `data/season_statistics_${season}.json`;
+            
+            // Try loading season-specific file, fallback to default
+            let response;
+            try {
+                response = await fetch(filename);
+                if (!response.ok) throw new Error('Season-specific file not found');
+            } catch {
+                // Fallback to default season_statistics.json
+                response = await fetch('data/season_statistics.json');
+                if (!response.ok) throw new Error('Failed to load statistics');
             }
             
             statsData = await response.json();
-            currentPhase = phase;
             renderStats();
         } catch (error) {
             console.error('Error loading stats:', error);
             document.getElementById('stats-content').innerHTML = `
                 <div class="error-message">
-                    <strong>Error:</strong> Failed to load statistics data for ${phase} phase.
-                    ${phase !== 'all' ? '<br>This phase may not have any matches yet.' : ''}
+                    <strong>Error:</strong> Failed to load statistics data for ${season}.
+                    <br>Make sure the season data has been generated.
                 </div>
             `;
         }
@@ -436,9 +560,29 @@
                     <span class="award-title">${award.title}</span>
                 </div>
                 <div class="award-winner">${award.winner}</div>
-                <div class="award-value">${award.value} ${award.metric}</div>
+                <div class="award-value">${formatValue(award.value, award.metric)}</div>
             </div>
         `).join('');
+    }
+
+    // Format value based on metric type
+    function formatValue(value, metric) {
+        const lowerMetric = metric.toLowerCase();
+        
+        // Integer metrics
+        if (lowerMetric.includes('differential') || 
+            lowerMetric.includes('wins') || 
+            lowerMetric.includes('suffered')) {
+            return `${Math.round(value)} ${metric}`;
+        }
+        
+        // Percentage metrics
+        if (lowerMetric.includes('rate') || lowerMetric.includes('ratio')) {
+            return `${value.toFixed(1)}% ${metric.replace(' %', '')}`;
+        }
+        
+        // Default: 2 decimal places
+        return `${value.toFixed(2)} ${metric}`;
     }
 
     // Render leaderboards
@@ -454,7 +598,7 @@
             'aggression_ratio': 'Aggression Ratio',
             'defensive_stability': 'Defensive Stability',
             'clutch_win_rate': 'Clutch Win Rate',
-            'volatility': 'Volatility (Lower is Better)'
+            'volatility': 'Volatility'
         };
 
         const tabs = Object.keys(leaderboards).map((key, index) => `
@@ -470,8 +614,10 @@
         `).join('');
 
         return `
-            <div class="leaderboard-tabs">
-                ${tabs}
+            <div class="leaderboard-tabs-container">
+                <div class="leaderboard-tabs">
+                    ${tabs}
+                </div>
             </div>
             <div class="leaderboard-contents">
                 ${contents}
@@ -485,13 +631,24 @@
             return '<p>No data available for this metric.</p>';
         }
 
+        // Add explanation if available
+        const explanation = statExplanations[metricKey];
+        const explanationHTML = explanation ? 
+            `<div class="stat-explanation">ℹ️ ${explanation}</div>` : '';
+
         const rows = leaders.map(entry => {
             const rankClass = entry.rank === 1 ? 'rank-1' : 
                              entry.rank === 2 ? 'rank-2' : 
                              entry.rank === 3 ? 'rank-3' : 'rank-other';
             
             let valueDisplay = entry.value;
-            if (typeof entry.value === 'number') {
+            
+            // Format integers for appropriate metrics
+            if (metricKey.includes('differential') || 
+                metricKey.includes('wins') || 
+                metricKey.includes('losses')) {
+                valueDisplay = Math.round(entry.value);
+            } else if (typeof entry.value === 'number') {
                 valueDisplay = entry.value.toFixed(2);
             }
 
@@ -511,6 +668,7 @@
         }).join('');
 
         return `
+            ${explanationHTML}
             <table class="leaderboard-table">
                 <thead>
                     <tr>
@@ -541,21 +699,22 @@
 
                 tab.classList.add('active');
                 document.querySelector(`.leaderboard-content[data-leaderboard="${leaderboard}"]`).classList.add('active');
+                
+                // Scroll tab into view on mobile
+                tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             });
         });
     }
 
-    // Phase selector
-    document.querySelectorAll('.phase-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.phase-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            loadStats(btn.dataset.phase);
-        });
+    // Season selector
+    document.getElementById('season-select').addEventListener('change', (e) => {
+        loadStats(e.target.value);
     });
 
     // Initial load
-    loadStats('all');
+    loadAvailableSeasons().then(() => {
+        loadStats(currentSeason);
+    });
 </script>
 
 </body>
