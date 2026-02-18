@@ -1,8 +1,9 @@
 """
 Advanced Season Statistics & Analytics System
 
-This module implements comprehensive statistics tracking and analytics for the Beyblade league season.
-It supports round-level data tracking, advanced performance metrics, and season awards generation.
+This module implements comprehensive statistics tracking and analytics for the
+Beyblade league season. It supports round-level data tracking, advanced
+performance metrics, and season awards generation.
 
 Features:
 - Round-level data tracking and aggregation
@@ -432,7 +433,10 @@ class SeasonStatistics:
 
         # Compute for Playoffs only
         playoff_matches = [m for m in self.matches if m.phase == "Playoffs"]
-        playoff_rounds = [r for r in self.rounds if r.match_id in {m.match_id for m in playoff_matches}]
+        playoff_rounds = [
+            r for r in self.rounds
+            if r.match_id in {m.match_id for m in playoff_matches}
+        ]
         self._compute_phase_stats("playoffs", playoff_matches, playoff_rounds)
 
         print(f"{GREEN}Statistics computed successfully{RESET}")
@@ -612,13 +616,22 @@ class SeasonStatistics:
 
         leaderboards = {
             "match_win_rate": sorted(stats_list, key=lambda s: s.match_win_rate, reverse=True),
-            "points_differential": sorted(stats_list, key=lambda s: s.points_differential, reverse=True),
-            "round_differential": sorted(stats_list, key=lambda s: s.round_differential, reverse=True),
-            "offensive_power_index": sorted(stats_list, key=lambda s: s.offensive_power_index, reverse=True),
+            "points_differential": sorted(
+                stats_list, key=lambda s: s.points_differential, reverse=True
+            ),
+            "round_differential": sorted(
+                stats_list, key=lambda s: s.round_differential, reverse=True
+            ),
+            "offensive_power_index": sorted(
+                stats_list, key=lambda s: s.offensive_power_index, reverse=True
+            ),
             "dominance_index": sorted(stats_list, key=lambda s: s.dominance_index, reverse=True),
             "points_per_round": sorted(stats_list, key=lambda s: s.points_per_round, reverse=True),
             "aggression_ratio": sorted(stats_list, key=lambda s: s.aggression_ratio, reverse=True),
-            "defensive_stability": sorted(stats_list, key=lambda s: s.defensive_stability_index, reverse=True),
+            "defensive_stability": sorted(
+                stats_list, key=lambda s: s.defensive_stability_index,
+                reverse=True
+            ),
             "clutch_win_rate": sorted(stats_list, key=lambda s: s.clutch_win_rate, reverse=True),
             "volatility": sorted(stats_list, key=lambda s: s.volatility_index),  # Lower is better
         }
@@ -920,11 +933,20 @@ def main():
     tier_suffix = f"_tier{args.tier}" if args.tier else ""
 
     # Export JSON
-    json_file = os.path.join(args.output_dir, f"season_statistics{season_suffix}{tier_suffix}{phase_suffix}.json")
-    stats.export_to_json(json_file, phase=args.phase, include_awards=True, min_matches=args.min_matches)
+    json_file = os.path.join(
+        args.output_dir,
+        f"season_statistics{season_suffix}{tier_suffix}{phase_suffix}.json"
+    )
+    stats.export_to_json(
+        json_file, phase=args.phase, include_awards=True,
+        min_matches=args.min_matches
+    )
 
     # Export CSV
-    csv_file = os.path.join(args.output_dir, f"season_statistics{season_suffix}{tier_suffix}{phase_suffix}.csv")
+    csv_file = os.path.join(
+        args.output_dir,
+        f"season_statistics{season_suffix}{tier_suffix}{phase_suffix}.csv"
+    )
     stats.export_to_csv(csv_file, phase=args.phase)
 
     # Display awards
@@ -933,7 +955,11 @@ def main():
 
     awards = stats.generate_awards(phase=args.phase, min_matches=args.min_matches)
     for award_key, award in awards.items():
-        print(f"{award['icon']} {BOLD}{award['title']}{RESET}: {award['winner']} ({award['value']} {award['metric']})")
+        award_text = (
+            f"{award['icon']} {BOLD}{award['title']}{RESET}: "
+            f"{award['winner']} ({award['value']} {award['metric']})"
+        )
+        print(award_text)
 
     print(f"\n{GREEN}{BOLD}✓ Season statistics generated successfully!{RESET}")
 

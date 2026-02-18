@@ -249,7 +249,10 @@ class TestSeasonStatistics:
         rounds_file = os.path.join(temp_dir, "rounds.csv")
         with open(rounds_file, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
-            writer.writerow(["match_id", "round_number", "winner", "finish_type", "points_awarded", "notes"])
+            writer.writerow([
+                "match_id", "round_number", "winner", "finish_type",
+                "points_awarded", "notes"
+            ])
             # Match M001: BeyA wins 4-2
             writer.writerow(["M001", "1", "BeyA", "burst", "2", ""])
             writer.writerow(["M001", "2", "BeyA", "pocket", "2", ""])
