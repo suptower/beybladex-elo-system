@@ -250,7 +250,7 @@ async function displaySeason(seasonId, season) {
     await loadAllTableSnapshots(seasonId);
     
     // Display overview
-    displayOverview(season);
+    displayOverview(season, seasonId);
     
     // Display tier tables
     displayTierTables(season.league_tables || {});
@@ -282,7 +282,7 @@ async function displaySeason(seasonId, season) {
 /**
  * Display season overview stats
  */
-function displayOverview(season) {
+function displayOverview(season, seasonId) {
     const container = document.getElementById('season-overview');
     
     const stats = season.statistics || {};
@@ -374,6 +374,9 @@ function displayOverview(season) {
                         <span class="stat-value">${avgPointDiff}</span>
                     </div>
                 </div>
+                <a href="season-stats.html?season=${seasonId}" class="view-stats-button">
+                    <span class="button-icon">📈</span> View Advanced Statistics
+                </a>
             </div>
         </div>
     `;

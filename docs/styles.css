@@ -11642,6 +11642,35 @@ select:focus-visible {
     line-height: 1;
 }
 
+/* View Statistics Button */
+.view-stats-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+    color: white;
+    text-decoration: none;
+    border-radius: var(--radius);
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    width: 100%;
+    justify-content: center;
+}
+
+.view-stats-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+    background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+}
+
+.view-stats-button .button-icon {
+    font-size: 1.1rem;
+}
+
 /* League tables */
 .tier-section {
     margin-bottom: 2rem;
