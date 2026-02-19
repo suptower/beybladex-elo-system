@@ -72,37 +72,42 @@
             </div>
         </div>
 
-        <div id="alltime-standings-container" style="display: none;">
-            <h2>📈 All Time Standings</h2>
-            <p class="subtitle" style="margin-bottom: 1rem;">Aggregated stats for every Bey that has competed across all seasons and tiers.</p>
-            <div class="table-responsive">
-                <table class="league-table" id="alltime-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Bey</th>
-                            <th title="Seasons competed in">Seasons</th>
-                            <th title="Matches played">MP</th>
-                            <th title="Wins">W</th>
-                            <th title="Losses">L</th>
-                            <th title="Win Rate">Win%</th>
-                            <th title="Season Points">Pts</th>
-                            <th title="Points For">PF</th>
-                            <th title="Points Against">PA</th>
-                            <th title="Point Difference">PD</th>
-                        </tr>
-                    </thead>
-                    <tbody id="alltime-tbody">
-                        <!-- Populated by seasons.js -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
         <div id="seasons-container">
             <h2>Season History</h2>
             <div id="seasons-list">
                 <!-- Seasons will be loaded here dynamically -->
+            </div>
+        </div>
+
+        <div id="alltime-standings-container" style="display: none;">
+            <h2 class="collapsible-header collapsed section-header" data-section-id="alltime-content" onclick="toggleAlltimeSection()">
+                <span class="section-toggle-icon">▶</span>
+                📈 All Time Standings
+            </h2>
+            <div id="alltime-content" class="collapsible-content collapsed">
+                <p class="subtitle" style="margin: 0.5rem 0 1rem;">Aggregated stats for every Bey that has competed across all seasons and tiers. Click a column header to sort.</p>
+                <div class="table-responsive">
+                    <table class="league-table" id="alltime-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="sortable" data-sort-key="bey" title="Bey name">Bey</th>
+                                <th class="sortable" data-sort-key="seasons" title="Seasons competed in">Seasons</th>
+                                <th class="sortable" data-sort-key="matches" title="Matches played">MP</th>
+                                <th class="sortable" data-sort-key="wins" title="Wins">W</th>
+                                <th class="sortable" data-sort-key="losses" title="Losses">L</th>
+                                <th class="sortable" data-sort-key="win_rate" title="Win Rate">Win%</th>
+                                <th class="sortable" data-sort-key="season_points" title="Season Points">Pts</th>
+                                <th class="sortable" data-sort-key="points_for" title="Points For">PF</th>
+                                <th class="sortable" data-sort-key="points_against" title="Points Against">PA</th>
+                                <th class="sortable" data-sort-key="point_diff" title="Point Difference">PD</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alltime-tbody">
+                            <!-- Populated by seasons.js -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 

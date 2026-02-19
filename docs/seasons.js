@@ -3,6 +3,11 @@
  * Loads and displays seasonal league data on the seasons overview page.
  */
 
+// All-time standings state
+let allTimeRows = [];
+let allTimeSortKey = 'season_points';
+let allTimeSortAsc = false;
+
 // Load season data on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadSeasons();
@@ -84,28 +89,92 @@ function buildAllTimeStandings(seasons) {
         }
     }
 
-    // Sort: wins desc, then win rate desc, then alphabetical
-    const rows = Object.values(totals).sort((a, b) => {
-        if (b.wins !== a.wins) return b.wins - a.wins;
-        const wrA = a.matches > 0 ? a.wins / a.matches : 0;
-        const wrB = b.matches > 0 ? b.wins / b.matches : 0;
-        if (wrB !== wrA) return wrB - wrA;
-        return a.bey.localeCompare(b.bey);
+    // Convert to flat array, add derived fields
+    allTimeRows = Object.values(totals).map(entry => ({
+        ...entry,
+        seasons_count: entry.seasons.size,
+        win_rate: entry.matches > 0 ? entry.wins / entry.matches : 0,
+        point_diff: entry.points_for - entry.points_against
+    }));
+
+    if (allTimeRows.length === 0) return;
+
+    // Wire up header click handlers
+    const thead = document.querySelector('#alltime-table thead tr');
+    if (thead) {
+        thead.querySelectorAll('th[data-sort-key]').forEach(th => {
+            th.addEventListener('click', () => sortAlltimeTable(th.dataset.sortKey));
+        });
+    }
+
+    // Initial render with default sort (Pts desc)
+    renderAlltimeRows();
+
+    const container = document.getElementById('alltime-standings-container');
+    if (container) container.style.display = 'block';
+}
+
+/**
+ * Sort the all-time table by the given key, toggling direction if already sorted by that key.
+ */
+function sortAlltimeTable(key) {
+    if (allTimeSortKey === key) {
+        allTimeSortAsc = !allTimeSortAsc;
+    } else {
+        allTimeSortKey = key;
+        // Numeric columns default desc; Bey name defaults asc
+        allTimeSortAsc = (key === 'bey');
+    }
+    renderAlltimeRows();
+}
+
+/**
+ * Toggle the all-time standings section open/closed.
+ */
+function toggleAlltimeSection() {
+    const content = document.getElementById('alltime-content');
+    const header = document.querySelector('[data-section-id="alltime-content"]');
+    const icon = header && header.querySelector('.section-toggle-icon');
+
+    const isCollapsed = content && content.classList.contains('collapsed');
+    if (isCollapsed) {
+        if (content) content.classList.remove('collapsed');
+        if (header) header.classList.remove('collapsed');
+        if (icon) icon.textContent = '▼';
+    } else {
+        if (content) content.classList.add('collapsed');
+        if (header) header.classList.add('collapsed');
+        if (icon) icon.textContent = '▶';
+    }
+}
+
+/**
+ * Re-render the all-time tbody based on current sort state.
+ */
+function renderAlltimeRows() {
+    const sorted = [...allTimeRows].sort((a, b) => {
+        const key = allTimeSortKey;
+        let valA = key === 'bey' ? a.bey : (key === 'seasons' ? a.seasons_count : a[key]);
+        let valB = key === 'bey' ? b.bey : (key === 'seasons' ? b.seasons_count : b[key]);
+
+        if (typeof valA === 'string') {
+            return allTimeSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return allTimeSortAsc ? valA - valB : valB - valA;
     });
 
     const tbody = document.getElementById('alltime-tbody');
     if (!tbody) return;
-    if (rows.length === 0) return;
 
-    tbody.innerHTML = rows.map((entry, idx) => {
-        const winRate = entry.matches > 0 ? ((entry.wins / entry.matches) * 100).toFixed(1) : '0.0';
-        const pointDiff = entry.points_for - entry.points_against;
+    tbody.innerHTML = sorted.map((entry, idx) => {
+        const winRate = (entry.win_rate * 100).toFixed(1);
+        const pd = entry.point_diff;
         const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
         return `
             <tr>
                 <td>${idx + 1}</td>
                 <td class="bey-name"><strong>${beyLink}</strong></td>
-                <td>${entry.seasons.size}</td>
+                <td>${entry.seasons_count}</td>
                 <td>${entry.matches}</td>
                 <td>${entry.wins}</td>
                 <td>${entry.losses}</td>
@@ -113,13 +182,18 @@ function buildAllTimeStandings(seasons) {
                 <td><strong>${entry.season_points}</strong></td>
                 <td>${entry.points_for}</td>
                 <td>${entry.points_against}</td>
-                <td>${pointDiff > 0 ? '+' : ''}${pointDiff}</td>
+                <td>${pd > 0 ? '+' : ''}${pd}</td>
             </tr>
         `;
     }).join('');
 
-    const container = document.getElementById('alltime-standings-container');
-    if (container) container.style.display = 'block';
+    // Update header indicators
+    document.querySelectorAll('#alltime-table th.sortable').forEach(th => {
+        th.classList.remove('sorted-asc', 'sorted-desc');
+        if (th.dataset.sortKey === allTimeSortKey) {
+            th.classList.add(allTimeSortAsc ? 'sorted-asc' : 'sorted-desc');
+        }
+    });
 }
 
 /**
