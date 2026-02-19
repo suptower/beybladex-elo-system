@@ -8,22 +8,51 @@ let allTimeRows = [];
 let allTimeSortKey = 'season_points';
 let allTimeSortAsc = false;
 
+// Global leaderboard ELO map (bey name → ELO)
+let globalEloData = {};
+
 // Load season data on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadSeasons();
 });
 
 /**
+ * Load global ELO data from the leaderboard CSV.
+ */
+async function loadGlobalEloData() {
+    try {
+        const response = await fetch('data/leaderboard_xtreme.csv');
+        if (!response.ok) throw new Error('Failed to load leaderboard');
+        const csvText = await response.text();
+        const lines = csvText.trim().split('\n');
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',');
+            if (values.length >= 3) {
+                const name = values[1];
+                const elo = parseFloat(values[2]);
+                if (name && !isNaN(elo)) globalEloData[name] = elo;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading global ELO data:', error);
+        globalEloData = {};
+    }
+}
+
+/**
  * Load all seasons from season_data.json
  */
 async function loadSeasons() {
     try {
-        const response = await fetch('data/season_data.json');
-        if (!response.ok) {
+        const [seasonResponse] = await Promise.all([
+            fetch('data/season_data.json'),
+            loadGlobalEloData()
+        ]);
+        if (!seasonResponse.ok) {
             throw new Error('Failed to load season data');
         }
         
-        const data = await response.json();
+        const data = await seasonResponse.json();
         const seasons = data.seasons || {};
         
         displaySeasons(seasons);
@@ -76,7 +105,7 @@ function buildAllTimeStandings(seasons) {
             for (const entry of table) {
                 const bey = entry.bey;
                 if (!totals[bey]) {
-                    totals[bey] = { bey, seasons: new Set(), matches: 0, wins: 0, losses: 0, season_points: 0, points_for: 0, points_against: 0, elo: 0 };
+                    totals[bey] = { bey, seasons: new Set(), matches: 0, wins: 0, losses: 0, season_points: 0, points_for: 0, points_against: 0 };
                 }
                 totals[bey].seasons.add(seasonId);
                 totals[bey].matches += entry.matches || 0;
@@ -85,18 +114,17 @@ function buildAllTimeStandings(seasons) {
                 totals[bey].season_points += entry.season_points || 0;
                 totals[bey].points_for += entry.points_for || 0;
                 totals[bey].points_against += entry.points_against || 0;
-                // Keep the most recent season's ELO
-                if (entry.elo !== undefined) totals[bey].elo = entry.elo;
             }
         }
     }
 
-    // Convert to flat array, add derived fields
+    // Convert to flat array, add derived fields (use global leaderboard ELO)
     const flat = Object.values(totals).map(entry => ({
         ...entry,
         seasons_count: entry.seasons.size,
         win_rate: entry.matches > 0 ? entry.wins / entry.matches : 0,
-        point_diff: entry.points_for - entry.points_against
+        point_diff: entry.points_for - entry.points_against,
+        elo: globalEloData[entry.bey] !== undefined ? globalEloData[entry.bey] : 0
     }));
 
     // Assign fixed rank based on default sort (Pts desc)
