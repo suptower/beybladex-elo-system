@@ -3,22 +3,56 @@
  * Loads and displays seasonal league data on the seasons overview page.
  */
 
+// All-time standings state
+let allTimeRows = [];
+let allTimeSortKey = 'season_points';
+let allTimeSortAsc = false;
+
+// Global leaderboard ELO map (bey name → ELO)
+let globalEloData = {};
+
 // Load season data on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadSeasons();
 });
 
 /**
+ * Load global ELO data from the leaderboard CSV.
+ */
+async function loadGlobalEloData() {
+    try {
+        const response = await fetch('data/leaderboard_xtreme.csv');
+        if (!response.ok) throw new Error('Failed to load leaderboard');
+        const csvText = await response.text();
+        const lines = csvText.trim().split('\n');
+        for (let i = 1; i < lines.length; i++) {
+            const values = lines[i].split(',');
+            if (values.length >= 3) {
+                const name = values[1];
+                const elo = parseFloat(values[2]);
+                if (name && !isNaN(elo)) globalEloData[name] = elo;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading global ELO data:', error);
+        globalEloData = {};
+    }
+}
+
+/**
  * Load all seasons from season_data.json
  */
 async function loadSeasons() {
     try {
-        const response = await fetch('data/season_data.json');
-        if (!response.ok) {
+        const [seasonResponse] = await Promise.all([
+            fetch('data/season_data.json'),
+            loadGlobalEloData()
+        ]);
+        if (!seasonResponse.ok) {
             throw new Error('Failed to load season data');
         }
         
-        const data = await response.json();
+        const data = await seasonResponse.json();
         const seasons = data.seasons || {};
         
         displaySeasons(seasons);
@@ -46,6 +80,157 @@ function displaySeasons(seasons) {
         const season = seasons[seasonId];
         return createSeasonCard(seasonId, season);
     }).join('');
+
+    buildAllTimeStandings(seasons);
+}
+
+/**
+ * Add soft hyphens before capital letters to allow line breaks in long Bey names
+ */
+function addSoftHyphens(name) {
+    return name.replace(/([a-z])([A-Z])/g, '$1&shy;$2');
+}
+
+/**
+ * Build and display the all-time standings table by aggregating stats
+ * from every season and every tier.
+ */
+function buildAllTimeStandings(seasons) {
+    const totals = {};
+
+    for (const seasonId of Object.keys(seasons).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))) {
+        const leagueTables = seasons[seasonId].league_tables || {};
+        for (const tier of Object.keys(leagueTables)) {
+            const table = leagueTables[tier] || [];
+            for (const entry of table) {
+                const bey = entry.bey;
+                if (!totals[bey]) {
+                    totals[bey] = { bey, seasons: new Set(), matches: 0, wins: 0, losses: 0, season_points: 0, points_for: 0, points_against: 0 };
+                }
+                totals[bey].seasons.add(seasonId);
+                totals[bey].matches += entry.matches || 0;
+                totals[bey].wins += entry.wins || 0;
+                totals[bey].losses += entry.losses || 0;
+                totals[bey].season_points += entry.season_points || 0;
+                totals[bey].points_for += entry.points_for || 0;
+                totals[bey].points_against += entry.points_against || 0;
+            }
+        }
+    }
+
+    // Convert to flat array, add derived fields (use global leaderboard ELO)
+    const flat = Object.values(totals).map(entry => ({
+        ...entry,
+        seasons_count: entry.seasons.size,
+        win_rate: entry.matches > 0 ? entry.wins / entry.matches : 0,
+        point_diff: entry.points_for - entry.points_against,
+        elo: globalEloData[entry.bey] !== undefined ? globalEloData[entry.bey] : 0
+    }));
+
+    // Assign fixed rank based on default sort (Pts desc)
+    const defaultSorted = [...flat].sort((a, b) => b.season_points - a.season_points);
+    defaultSorted.forEach((entry, idx) => { entry.allTimeRank = idx + 1; });
+
+    allTimeRows = flat;
+
+    if (allTimeRows.length === 0) return;
+
+    // Wire up header click handlers
+    const thead = document.querySelector('#alltime-table thead tr');
+    if (thead) {
+        thead.querySelectorAll('th[data-sort-key]').forEach(th => {
+            th.addEventListener('click', () => sortAlltimeTable(th.dataset.sortKey));
+        });
+    }
+
+    // Initial render with default sort (Pts desc)
+    renderAlltimeRows();
+
+    const container = document.getElementById('alltime-standings-container');
+    if (container) container.style.display = 'block';
+}
+
+/**
+ * Sort the all-time table by the given key, toggling direction if already sorted by that key.
+ */
+function sortAlltimeTable(key) {
+    if (allTimeSortKey === key) {
+        allTimeSortAsc = !allTimeSortAsc;
+    } else {
+        allTimeSortKey = key;
+        // Numeric columns default desc; Bey name defaults asc
+        allTimeSortAsc = (key === 'bey');
+    }
+    renderAlltimeRows();
+}
+
+/**
+ * Toggle the all-time standings section open/closed.
+ */
+function toggleAlltimeSection() {
+    const content = document.getElementById('alltime-content');
+    const header = document.querySelector('[data-section-id="alltime-content"]');
+    const icon = header && header.querySelector('.section-toggle-icon');
+
+    const isCollapsed = content && content.classList.contains('collapsed');
+    if (isCollapsed) {
+        if (content) content.classList.remove('collapsed');
+        if (header) header.classList.remove('collapsed');
+        if (icon) icon.textContent = '▼';
+    } else {
+        if (content) content.classList.add('collapsed');
+        if (header) header.classList.add('collapsed');
+        if (icon) icon.textContent = '▶';
+    }
+}
+
+/**
+ * Re-render the all-time tbody based on current sort state.
+ */
+function renderAlltimeRows() {
+    const sorted = [...allTimeRows].sort((a, b) => {
+        const key = allTimeSortKey;
+        let valA = key === 'bey' ? a.bey : (key === 'seasons' ? a.seasons_count : a[key]);
+        let valB = key === 'bey' ? b.bey : (key === 'seasons' ? b.seasons_count : b[key]);
+
+        if (typeof valA === 'string') {
+            return allTimeSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return allTimeSortAsc ? valA - valB : valB - valA;
+    });
+
+    const tbody = document.getElementById('alltime-tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = sorted.map((entry) => {
+        const winRate = (entry.win_rate * 100).toFixed(1);
+        const pd = entry.point_diff;
+        const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
+        return `
+            <tr>
+                <td>${entry.allTimeRank}</td>
+                <td class="bey-name"><strong>${beyLink}</strong></td>
+                <td>${entry.seasons_count}</td>
+                <td>${entry.matches}</td>
+                <td>${entry.wins}</td>
+                <td>${entry.losses}</td>
+                <td>${winRate}%</td>
+                <td><strong>${entry.season_points}</strong></td>
+                <td>${entry.points_for}</td>
+                <td>${entry.points_against}</td>
+                <td>${pd > 0 ? '+' : ''}${pd}</td>
+                <td>${Math.round(entry.elo)}</td>
+            </tr>
+        `;
+    }).join('');
+
+    // Update header indicators
+    document.querySelectorAll('#alltime-table th.sortable').forEach(th => {
+        th.classList.remove('sorted-asc', 'sorted-desc');
+        if (th.dataset.sortKey === allTimeSortKey) {
+            th.classList.add(allTimeSortAsc ? 'sorted-asc' : 'sorted-desc');
+        }
+    });
 }
 
 /**

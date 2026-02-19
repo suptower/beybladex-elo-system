@@ -13940,3 +13940,25 @@ body.dark .algorithm-card:hover {
     box-shadow: 0 6px 16px rgba(129, 140, 248, 0.4);
     border-color: var(--accent);
 }
+
+/* All-time standings legend */
+.alltime-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.alltime-legend strong {
+    color: var(--text);
+    margin-right: 0.25rem;
+}
+
+.alltime-legend abbr {
+    text-decoration: underline dotted;
+    cursor: help;
+    color: var(--accent);
+    font-weight: 600;
+}
