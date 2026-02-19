@@ -390,7 +390,7 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Stadium Statistics", success, duration))
-    
+
     # Season Statistics (depends on matches, rounds)
     success, duration = run_script(
         SCRIPT_SEASON_STATISTICS,
