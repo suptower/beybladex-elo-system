@@ -86,6 +86,19 @@
             </h2>
             <div id="alltime-content" class="collapsible-content collapsed">
                 <p class="subtitle" style="margin: 0.5rem 0 1rem;">Aggregated stats for every Bey that has competed across all seasons and tiers. Click a column header to sort.</p>
+                <div class="alltime-legend">
+                    <strong>Legend:</strong>
+                    <span><abbr title="Rank (based on Season Points)">#</abbr> Rank</span>
+                    <span><abbr title="Matches Played">MP</abbr> Matches Played</span>
+                    <span><abbr title="Wins">W</abbr> Wins</span>
+                    <span><abbr title="Losses">L</abbr> Losses</span>
+                    <span><abbr title="Win Rate">Win%</abbr> Win Rate</span>
+                    <span><abbr title="Season Points">Pts</abbr> Season Points</span>
+                    <span><abbr title="Points For (total rounds won)">PF</abbr> Points For</span>
+                    <span><abbr title="Points Against (total rounds lost)">PA</abbr> Points Against</span>
+                    <span><abbr title="Points Difference (PF − PA)">PD</abbr> Points Diff</span>
+                    <span><abbr title="ELO Rating from the most recent season">ELO</abbr> ELO Rating</span>
+                </div>
                 <div class="table-responsive">
                     <table class="league-table" id="alltime-table">
                         <thead>
@@ -101,6 +114,7 @@
                                 <th class="sortable" data-sort-key="points_for" title="Points For">PF</th>
                                 <th class="sortable" data-sort-key="points_against" title="Points Against">PA</th>
                                 <th class="sortable" data-sort-key="point_diff" title="Point Difference">PD</th>
+                                <th class="sortable" data-sort-key="elo" title="ELO Rating (most recent season)">ELO</th>
                             </tr>
                         </thead>
                         <tbody id="alltime-tbody">

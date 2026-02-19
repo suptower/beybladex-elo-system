@@ -69,14 +69,14 @@ function addSoftHyphens(name) {
 function buildAllTimeStandings(seasons) {
     const totals = {};
 
-    for (const seasonId of Object.keys(seasons)) {
+    for (const seasonId of Object.keys(seasons).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))) {
         const leagueTables = seasons[seasonId].league_tables || {};
         for (const tier of Object.keys(leagueTables)) {
             const table = leagueTables[tier] || [];
             for (const entry of table) {
                 const bey = entry.bey;
                 if (!totals[bey]) {
-                    totals[bey] = { bey, seasons: new Set(), matches: 0, wins: 0, losses: 0, season_points: 0, points_for: 0, points_against: 0 };
+                    totals[bey] = { bey, seasons: new Set(), matches: 0, wins: 0, losses: 0, season_points: 0, points_for: 0, points_against: 0, elo: 0 };
                 }
                 totals[bey].seasons.add(seasonId);
                 totals[bey].matches += entry.matches || 0;
@@ -85,17 +85,25 @@ function buildAllTimeStandings(seasons) {
                 totals[bey].season_points += entry.season_points || 0;
                 totals[bey].points_for += entry.points_for || 0;
                 totals[bey].points_against += entry.points_against || 0;
+                // Keep the most recent season's ELO
+                if (entry.elo !== undefined) totals[bey].elo = entry.elo;
             }
         }
     }
 
     // Convert to flat array, add derived fields
-    allTimeRows = Object.values(totals).map(entry => ({
+    const flat = Object.values(totals).map(entry => ({
         ...entry,
         seasons_count: entry.seasons.size,
         win_rate: entry.matches > 0 ? entry.wins / entry.matches : 0,
         point_diff: entry.points_for - entry.points_against
     }));
+
+    // Assign fixed rank based on default sort (Pts desc)
+    const defaultSorted = [...flat].sort((a, b) => b.season_points - a.season_points);
+    defaultSorted.forEach((entry, idx) => { entry.allTimeRank = idx + 1; });
+
+    allTimeRows = flat;
 
     if (allTimeRows.length === 0) return;
 
@@ -166,13 +174,13 @@ function renderAlltimeRows() {
     const tbody = document.getElementById('alltime-tbody');
     if (!tbody) return;
 
-    tbody.innerHTML = sorted.map((entry, idx) => {
+    tbody.innerHTML = sorted.map((entry) => {
         const winRate = (entry.win_rate * 100).toFixed(1);
         const pd = entry.point_diff;
         const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
         return `
             <tr>
-                <td>${idx + 1}</td>
+                <td>${entry.allTimeRank}</td>
                 <td class="bey-name"><strong>${beyLink}</strong></td>
                 <td>${entry.seasons_count}</td>
                 <td>${entry.matches}</td>
@@ -183,6 +191,7 @@ function renderAlltimeRows() {
                 <td>${entry.points_for}</td>
                 <td>${entry.points_against}</td>
                 <td>${pd > 0 ? '+' : ''}${pd}</td>
+                <td>${Math.round(entry.elo)}</td>
             </tr>
         `;
     }).join('');
