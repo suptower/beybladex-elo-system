@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Season Statistics - BeybladeX ELO System</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+    <style>
+        .stats-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .stats-container {
+                padding: 20px;
+            }
+        }
+
+        .season-selector {
+            margin-bottom: 24px;
+        }
+
+        .season-selector label {
+            display: block;
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .season-select {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .season-select:hover {
+            border-color: var(--accent-color);
+        }
+
+        .season-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .awards-section {
+            margin-bottom: 32px;
+        }
+
+        .awards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .awards-grid {
+                gap: 20px;
+            }
+        }
+
+        .award-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .award-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-color);
+        }
+
+        .award-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .award-icon {
+            font-size: 36px;
+            line-height: 1;
+        }
+
+        .award-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .award-winner {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-color);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .award-value {
+            font-size: 15px;
+            color: var(--text-color);
+            opacity: 0.8;
+            font-weight: 600;
+        }
+
+        .leaderboards-section {
+            margin-bottom: 40px;
+        }
+
+        .leaderboard-tabs-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .leaderboard-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            padding: 8px 8px 0 8px;
+            background: var(--bg-subtle);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .leaderboard-tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .leaderboard-tabs::-webkit-scrollbar-track {
+            background: var(--border-color);
+        }
+
+        .leaderboard-tabs::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
+        }
+
+        .leaderboard-tab {
+            padding: 14px 20px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-bottom: 3px solid transparent;
+            border-radius: 8px 8px 0 0;
+            color: var(--text-color);
+            opacity: 0.7;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        @media (min-width: 768px) {
+            .leaderboard-tab {
+                padding: 16px 24px;
+                font-size: 14px;
+            }
+        }
+
+        .leaderboard-tab:hover {
+            opacity: 1;
+            background: var(--hover-bg);
+            border-bottom-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .leaderboard-tab.active {
+            color: var(--accent-color);
+            opacity: 1;
+            background: var(--card-bg);
+            border-color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+        }
+
+        .leaderboard-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-color);
+        }
+
+        .leaderboard-content {
+            display: none;
+        }
+
+        .leaderboard-content.active {
+            display: block;
+        }
+
+        .stat-explanation {
+            background: var(--hover-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: var(--text-color);
+            opacity: 0.9;
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+        }
+
+        .leaderboard-table th {
+            background: var(--accent-color);
+            color: white;
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (min-width: 768px) {
+            .leaderboard-table th {
+                padding: 16px 20px;
+                font-size: 15px;
+            }
+        }
+
+        .leaderboard-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        @media (min-width: 768px) {
+            .leaderboard-table td {
+                padding: 16px 20px;
+                font-size: 15px;
+            }
+        }
+
+        .leaderboard-table tbody tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .leaderboard-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .rank-badge {
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+            }
+        }
+
+        .rank-1 { background: #FFD700; color: #000; box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4); }
+        .rank-2 { background: #C0C0C0; color: #000; box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4); }
+        .rank-3 { background: #CD7F32; color: #fff; box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4); }
+        .rank-other { background: var(--border-color); color: var(--text-color); font-weight: 700; }
+
+        .bey-link {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .bey-link {
+                font-size: 16px;
+            }
+        }
+
+        .bey-link:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        .metric-value {
+            font-weight: 800;
+            color: var(--text-color);
+            font-size: 16px;
+            text-align: right;
+        }
+
+        @media (min-width: 768px) {
+            .metric-value {
+                font-size: 17px;
+            }
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid var(--border-color);
+        }
+
+        .section-icon {
+            font-size: 32px;
+            line-height: 1;
+        }
+
+        @media (min-width: 768px) {
+            .section-icon {
+                font-size: 36px;
+            }
+        }
+
+        .section-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-color);
+            letter-spacing: -0.5px;
+        }
+
+        @media (min-width: 768px) {
+            .section-title {
+                font-size: 30px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 18px;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 2px solid #fcc;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #c00;
+        }
+
+        .info-box {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .info-box {
+                padding: 20px;
+            }
+        }
+
+        .info-box h3 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Season Statistics</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="stats-container">
+        <div class="header-section">
+            <h1>📊 Season Statistics</h1>
+            <p class="subtitle">Round-Level Performance Analytics & Awards</p>
+        </div>
+
+        <div class="info-box">
+            <h3>About Season Statistics</h3>
+            <p>
+                This page displays comprehensive statistics derived from round-level data for each season, including finish types,
+                efficiency metrics, clutch performances, and advanced performance indices. Awards are automatically
+                generated based on statistical excellence across various categories.
+            </p>
+        </div>
+
+        <div class="season-selector">
+            <label for="season-select">Select Season:</label>
+            <select id="season-select" class="season-select">
+                <option value="">Loading seasons...</option>
+            </select>
+        </div>
+
+        <div id="stats-content">
+            <div class="loading">Loading statistics...</div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Get season from URL parameter or default to S1
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentSeason = urlParams.get('season') || 'S1';
+    let statsData = null;
+    let availableSeasons = [];
+
+    // Stat explanations
+    const statExplanations = {
+        'match_win_rate': 'Percentage of matches won out of total matches played.',
+        'points_differential': 'Total points scored minus total points conceded across all matches.',
+        'round_differential': 'Total rounds won minus total rounds lost across all matches.',
+        'offensive_power_index': 'Weighted finish scoring: Burst (3pts), Extreme (2.5pts), Pocket (2pts), Spin (1pt), divided by matches played.',
+        'dominance_index': 'Combined metric: (Points Differential per Match) + (Points Per Round × 1.5)',
+        'points_per_round': 'Average points scored per round played.',
+        'aggression_ratio': 'Percentage of wins achieved through aggressive finishes (Burst, Extreme, Pocket).',
+        'defensive_stability': 'Measure of defensive strength: 1 - (Bursts Suffered / Total Rounds Played)',
+        'clutch_win_rate': 'Percentage of matches won in close/deciding rounds.',
+        'volatility': 'Standard deviation of points per match - lower values indicate more consistent performance.'
+    };
+
+    // Detect available seasons from CSV or use default
+    async function loadAvailableSeasons() {
+        try {
+            // Try to fetch available seasons from a JSON file or use default
+            // For now, we'll use a default list
+            availableSeasons = ['S1']; // Can be expanded based on actual data
+            
+            const select = document.getElementById('season-select');
+            select.innerHTML = availableSeasons.map(season => 
+                `<option value="${season}">${season === 'S1' ? 'Season 1' : 'Season ' + season.substring(1)}</option>`
+            ).join('');
+            
+            // Set default season
+            select.value = currentSeason;
+        } catch (error) {
+            console.error('Error loading seasons:', error);
+        }
+    }
+
+    // Load statistics data for selected season
+    async function loadStats(season) {
+        try {
+            currentSeason = season;
+            const filename = `data/season_statistics_${season}.json`;
+            
+            // Try loading season-specific file, fallback to default
+            let response;
+            try {
+                response = await fetch(filename);
+                if (!response.ok) throw new Error('Season-specific file not found');
+            } catch {
+                // Fallback to default season_statistics.json
+                response = await fetch('data/season_statistics.json');
+                if (!response.ok) throw new Error('Failed to load statistics');
+            }
+            
+            statsData = await response.json();
+            renderStats();
+        } catch (error) {
+            console.error('Error loading stats:', error);
+            document.getElementById('stats-content').innerHTML = `
+                <div class="error-message">
+                    <strong>Error:</strong> Failed to load statistics data for ${season}.
+                    <br>Make sure the season data has been generated.
+                </div>
+            `;
+        }
+    }
+
+    // Render statistics
+    function renderStats() {
+        if (!statsData) return;
+
+        const container = document.getElementById('stats-content');
+        container.innerHTML = '';
+
+        // Render awards section
+        if (statsData.awards && Object.keys(statsData.awards).length > 0) {
+            const awardsSection = document.createElement('div');
+            awardsSection.className = 'awards-section';
+            awardsSection.innerHTML = `
+                <div class="section-header">
+                    <span class="section-icon">🏆</span>
+                    <h2 class="section-title">Season Awards</h2>
+                </div>
+                <div class="awards-grid">
+                    ${renderAwards()}
+                </div>
+            `;
+            container.appendChild(awardsSection);
+        }
+
+        // Render leaderboards section
+        if (statsData.leaderboards && Object.keys(statsData.leaderboards).length > 0) {
+            const leaderboardsSection = document.createElement('div');
+            leaderboardsSection.className = 'leaderboards-section';
+            leaderboardsSection.innerHTML = `
+                <div class="section-header">
+                    <span class="section-icon">📈</span>
+                    <h2 class="section-title">Statistical Leaderboards</h2>
+                </div>
+                ${renderLeaderboards()}
+            `;
+            container.appendChild(leaderboardsSection);
+            
+            // Initialize leaderboard tabs
+            initLeaderboardTabs();
+        }
+    }
+
+    // Render awards
+    function renderAwards() {
+        const awards = statsData.awards;
+        return Object.entries(awards).map(([key, award]) => `
+            <div class="award-card">
+                <div class="award-header">
+                    <span class="award-icon">${award.icon}</span>
+                    <span class="award-title">${award.title}</span>
+                </div>
+                <div class="award-winner">${award.winner}</div>
+                <div class="award-value">${formatValue(award.value, award.metric)}</div>
+            </div>
+        `).join('');
+    }
+
+    // Format value based on metric type
+    function formatValue(value, metric) {
+        const lowerMetric = metric.toLowerCase();
+        
+        // Integer metrics
+        if (lowerMetric.includes('differential') || 
+            lowerMetric.includes('wins') || 
+            lowerMetric.includes('suffered')) {
+            return `${Math.round(value)} ${metric}`;
+        }
+        
+        // Percentage metrics
+        if (lowerMetric.includes('rate') || lowerMetric.includes('ratio')) {
+            return `${value.toFixed(1)}% ${metric.replace(' %', '')}`;
+        }
+        
+        // Default: 2 decimal places
+        return `${value.toFixed(2)} ${metric}`;
+    }
+
+    // Render leaderboards
+    function renderLeaderboards() {
+        const leaderboards = statsData.leaderboards;
+        const leaderboardNames = {
+            'match_win_rate': 'Match Win Rate',
+            'points_differential': 'Points Differential',
+            'round_differential': 'Round Differential',
+            'offensive_power_index': 'Offensive Power Index',
+            'dominance_index': 'Dominance Index',
+            'points_per_round': 'Points Per Round',
+            'aggression_ratio': 'Aggression Ratio',
+            'defensive_stability': 'Defensive Stability',
+            'clutch_win_rate': 'Clutch Win Rate',
+            'volatility': 'Volatility'
+        };
+
+        const tabs = Object.keys(leaderboards).map((key, index) => `
+            <button class="leaderboard-tab ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
+                ${leaderboardNames[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+            </button>
+        `).join('');
+
+        const contents = Object.entries(leaderboards).map(([key, leaders], index) => `
+            <div class="leaderboard-content ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
+                ${renderLeaderboardTable(leaders, key)}
+            </div>
+        `).join('');
+
+        return `
+            <div class="leaderboard-tabs-container">
+                <div class="leaderboard-tabs">
+                    ${tabs}
+                </div>
+            </div>
+            <div class="leaderboard-contents">
+                ${contents}
+            </div>
+        `;
+    }
+
+    // Render leaderboard table
+    function renderLeaderboardTable(leaders, metricKey) {
+        if (!leaders || leaders.length === 0) {
+            return '<p>No data available for this metric.</p>';
+        }
+
+        // Add explanation if available
+        const explanation = statExplanations[metricKey];
+        const explanationHTML = explanation ? 
+            `<div class="stat-explanation">ℹ️ ${explanation}</div>` : '';
+
+        const rows = leaders.map(entry => {
+            const rankClass = entry.rank === 1 ? 'rank-1' : 
+                             entry.rank === 2 ? 'rank-2' : 
+                             entry.rank === 3 ? 'rank-3' : 'rank-other';
+            
+            let valueDisplay = entry.value;
+            
+            // Format integers for appropriate metrics
+            if (metricKey.includes('differential') || 
+                metricKey.includes('wins') || 
+                metricKey.includes('losses')) {
+                valueDisplay = Math.round(entry.value);
+            } else if (typeof entry.value === 'number') {
+                valueDisplay = entry.value.toFixed(2);
+            }
+
+            return `
+                <tr>
+                    <td style="text-align: center;">
+                        <span class="rank-badge ${rankClass}">${entry.rank}</span>
+                    </td>
+                    <td>
+                        <span class="bey-link">${entry.bey}</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <span class="metric-value">${valueDisplay}</span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        return `
+            ${explanationHTML}
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Rank</th>
+                        <th>Bey</th>
+                        <th style="width: 120px; text-align: right;">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        `;
+    }
+
+    // Initialize leaderboard tabs
+    function initLeaderboardTabs() {
+        const tabs = document.querySelectorAll('.leaderboard-tab');
+        const contents = document.querySelectorAll('.leaderboard-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const leaderboard = tab.dataset.leaderboard;
+
+                // Update active states
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.querySelector(`.leaderboard-content[data-leaderboard="${leaderboard}"]`).classList.add('active');
+                
+                // Scroll tab into view on mobile
+                tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            });
+        });
+    }
+
+    // Season selector
+    document.getElementById('season-select').addEventListener('change', (e) => {
+        loadStats(e.target.value);
+    });
+
+    // Initial load
+    loadAvailableSeasons().then(() => {
+        loadStats(currentSeason);
+    });
+</script>
+
+</body>
+</html>
