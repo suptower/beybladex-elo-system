@@ -46,6 +46,80 @@ function displaySeasons(seasons) {
         const season = seasons[seasonId];
         return createSeasonCard(seasonId, season);
     }).join('');
+
+    buildAllTimeStandings(seasons);
+}
+
+/**
+ * Add soft hyphens before capital letters to allow line breaks in long Bey names
+ */
+function addSoftHyphens(name) {
+    return name.replace(/([a-z])([A-Z])/g, '$1&shy;$2');
+}
+
+/**
+ * Build and display the all-time standings table by aggregating stats
+ * from every season and every tier.
+ */
+function buildAllTimeStandings(seasons) {
+    const totals = {};
+
+    for (const seasonId of Object.keys(seasons)) {
+        const leagueTables = seasons[seasonId].league_tables || {};
+        for (const tier of Object.keys(leagueTables)) {
+            const table = leagueTables[tier] || [];
+            for (const entry of table) {
+                const bey = entry.bey;
+                if (!totals[bey]) {
+                    totals[bey] = { bey, seasons: new Set(), matches: 0, wins: 0, losses: 0, season_points: 0, points_for: 0, points_against: 0 };
+                }
+                totals[bey].seasons.add(seasonId);
+                totals[bey].matches += entry.matches || 0;
+                totals[bey].wins += entry.wins || 0;
+                totals[bey].losses += entry.losses || 0;
+                totals[bey].season_points += entry.season_points || 0;
+                totals[bey].points_for += entry.points_for || 0;
+                totals[bey].points_against += entry.points_against || 0;
+            }
+        }
+    }
+
+    // Sort: wins desc, then win rate desc, then alphabetical
+    const rows = Object.values(totals).sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        const wrA = a.matches > 0 ? a.wins / a.matches : 0;
+        const wrB = b.matches > 0 ? b.wins / b.matches : 0;
+        if (wrB !== wrA) return wrB - wrA;
+        return a.bey.localeCompare(b.bey);
+    });
+
+    const tbody = document.getElementById('alltime-tbody');
+    if (!tbody) return;
+    if (rows.length === 0) return;
+
+    tbody.innerHTML = rows.map((entry, idx) => {
+        const winRate = entry.matches > 0 ? ((entry.wins / entry.matches) * 100).toFixed(1) : '0.0';
+        const pointDiff = entry.points_for - entry.points_against;
+        const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
+        return `
+            <tr>
+                <td>${idx + 1}</td>
+                <td class="bey-name"><strong>${beyLink}</strong></td>
+                <td>${entry.seasons.size}</td>
+                <td>${entry.matches}</td>
+                <td>${entry.wins}</td>
+                <td>${entry.losses}</td>
+                <td>${winRate}%</td>
+                <td><strong>${entry.season_points}</strong></td>
+                <td>${entry.points_for}</td>
+                <td>${entry.points_against}</td>
+                <td>${pointDiff > 0 ? '+' : ''}${pointDiff}</td>
+            </tr>
+        `;
+    }).join('');
+
+    const container = document.getElementById('alltime-standings-container');
+    if (container) container.style.display = 'block';
 }
 
 /**

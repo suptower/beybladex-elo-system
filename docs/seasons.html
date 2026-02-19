@@ -72,6 +72,33 @@
             </div>
         </div>
 
+        <div id="alltime-standings-container" style="display: none;">
+            <h2>📈 All Time Standings</h2>
+            <p class="subtitle" style="margin-bottom: 1rem;">Aggregated stats for every Bey that has competed across all seasons and tiers.</p>
+            <div class="table-responsive">
+                <table class="league-table" id="alltime-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Bey</th>
+                            <th title="Seasons competed in">Seasons</th>
+                            <th title="Matches played">MP</th>
+                            <th title="Wins">W</th>
+                            <th title="Losses">L</th>
+                            <th title="Win Rate">Win%</th>
+                            <th title="Season Points">Pts</th>
+                            <th title="Points For">PF</th>
+                            <th title="Points Against">PA</th>
+                            <th title="Point Difference">PD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alltime-tbody">
+                        <!-- Populated by seasons.js -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div id="seasons-container">
             <h2>Season History</h2>
             <div id="seasons-list">
