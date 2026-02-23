@@ -2822,3 +2822,37 @@ body:has(.fullscreen-match-overlay.active) header {
         font-size: 0.625rem;
     }
 }
+
+/* ============================================
+   DARK MODE OVERRIDES - Beyblade X Color Scheme
+   ============================================ */
+body.dark .analysis-section.recommendation-info {
+    background: linear-gradient(135deg, rgba(162, 255, 31, 0.08), rgba(133, 212, 24, 0.04));
+    border-color: rgba(162, 255, 31, 0.25);
+}
+
+body.dark .recommendation-explanation {
+    border-top-color: rgba(162, 255, 31, 0.15);
+}
+
+body.dark .action-btn-recommended {
+    background: linear-gradient(135deg, rgba(162, 255, 31, 0.12), rgba(133, 212, 24, 0.08));
+    border-color: rgba(162, 255, 31, 0.25);
+}
+
+body.dark .match-season-fields {
+    background: linear-gradient(135deg, rgba(162, 255, 31, 0.04), rgba(133, 212, 24, 0.04));
+    border-color: rgba(162, 255, 31, 0.12);
+}
+
+body.dark .fullscreen-bey-select:focus {
+    box-shadow: 0 0 0 3px rgba(162, 255, 31, 0.15);
+}
+
+body.dark .bey-picker-search-input:focus {
+    box-shadow: 0 0 0 3px rgba(162, 255, 31, 0.15);
+}
+
+body.dark .fullscreen-bey-picker-btn:hover {
+    box-shadow: 0 0 0 3px rgba(162, 255, 31, 0.15);
+}
