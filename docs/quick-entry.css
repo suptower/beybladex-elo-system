@@ -2827,32 +2827,32 @@ body:has(.fullscreen-match-overlay.active) header {
    DARK MODE OVERRIDES - Beyblade X Color Scheme
    ============================================ */
 body.dark .analysis-section.recommendation-info {
-    background: linear-gradient(135deg, rgba(162, 255, 31, 0.08), rgba(133, 212, 24, 0.04));
-    border-color: rgba(162, 255, 31, 0.25);
+    background: linear-gradient(135deg, rgba(123, 198, 24, 0.07), rgba(101, 168, 20, 0.04));
+    border-color: rgba(123, 198, 24, 0.2);
 }
 
 body.dark .recommendation-explanation {
-    border-top-color: rgba(162, 255, 31, 0.15);
+    border-top-color: rgba(123, 198, 24, 0.12);
 }
 
 body.dark .action-btn-recommended {
-    background: linear-gradient(135deg, rgba(162, 255, 31, 0.12), rgba(133, 212, 24, 0.08));
-    border-color: rgba(162, 255, 31, 0.25);
+    background: linear-gradient(135deg, rgba(123, 198, 24, 0.1), rgba(101, 168, 20, 0.07));
+    border-color: rgba(123, 198, 24, 0.2);
 }
 
 body.dark .match-season-fields {
-    background: linear-gradient(135deg, rgba(162, 255, 31, 0.04), rgba(133, 212, 24, 0.04));
-    border-color: rgba(162, 255, 31, 0.12);
+    background: linear-gradient(135deg, rgba(123, 198, 24, 0.04), rgba(101, 168, 20, 0.04));
+    border-color: rgba(123, 198, 24, 0.1);
 }
 
 body.dark .fullscreen-bey-select:focus {
-    box-shadow: 0 0 0 3px rgba(162, 255, 31, 0.15);
+    box-shadow: 0 0 0 3px rgba(123, 198, 24, 0.12);
 }
 
 body.dark .bey-picker-search-input:focus {
-    box-shadow: 0 0 0 3px rgba(162, 255, 31, 0.15);
+    box-shadow: 0 0 0 3px rgba(123, 198, 24, 0.12);
 }
 
 body.dark .fullscreen-bey-picker-btn:hover {
-    box-shadow: 0 0 0 3px rgba(162, 255, 31, 0.15);
+    box-shadow: 0 0 0 3px rgba(123, 198, 24, 0.12);
 }
