@@ -405,7 +405,7 @@ def plot_elo_histogram(
     # Plot histogram
     counts, bins, patches = ax.hist(
         elo_values, bins=DEFAULT_BINS, density=True, alpha=0.7,
-        color="#3b82f6" if dark_mode else "#2563eb",
+        color="#7bc618" if dark_mode else "#2563eb",
         edgecolor="white" if dark_mode else "#1e40af",
         label="ELO Distribution"
     )
@@ -762,8 +762,8 @@ def create_elo_density_interactive(
             color: #1a1a1a;
         }}
         body.dark {{
-            background-color: #0f172a;
-            color: #f1f5f9;
+            background-color: #0a0a0a;
+            color: #e2e2e2;
         }}
         .header {{
             display: flex;
@@ -802,7 +802,7 @@ def create_elo_density_interactive(
             background-color: #e5e7eb;
         }}
         body.dark .theme-toggle label {{
-            background-color: #334155;
+            background-color: #222222;
         }}
         .theme-toggle input {{
             display: none;
@@ -824,11 +824,11 @@ def create_elo_density_interactive(
             color: #1a1a1a;
         }}
         body.dark .view-btn {{
-            background-color: #334155;
-            color: #f1f5f9;
+            background-color: #222222;
+            color: #e2e2e2;
         }}
         .view-btn.active {{
-            background-color: #3b82f6;
+            background-color: #7bc618;
             color: white;
         }}
         .back-link {{
@@ -842,8 +842,8 @@ def create_elo_density_interactive(
             background-color: #e5e7eb;
         }}
         body.dark .back-link {{
-            color: #f1f5f9;
-            background-color: #334155;
+            color: #e2e2e2;
+            background-color: #222222;
         }}
         #plotDiv {{
             width: 100%;
@@ -875,7 +875,7 @@ def create_elo_density_interactive(
             background-color: #f3f4f6;
         }}
         body.dark .stats-panel {{
-            background-color: #1e293b;
+            background-color: #121212;
         }}
         .stat-item {{
             text-align: center;
@@ -883,7 +883,7 @@ def create_elo_density_interactive(
         .stat-value {{
             font-size: 1.5em;
             font-weight: bold;
-            color: #3b82f6;
+            color: #7bc618;
         }}
         .stat-label {{
             font-size: 0.85em;
@@ -1097,7 +1097,7 @@ def create_elo_density_interactive(
                 type: 'bar',
                 name: 'Distribution',
                 marker: {{
-                    color: '#3b82f6',
+                    color: '#7bc618',
                     opacity: 0.7
                 }}
             }};
@@ -1118,17 +1118,17 @@ def create_elo_density_interactive(
                 title: `ELO Distribution at Match ${{snap.match_index}}`,
                 xaxis: {{
                     title: 'ELO Rating',
-                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    color: isDark ? '#e2e2e2' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 }},
                 yaxis: {{
                     title: 'Density',
-                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    color: isDark ? '#e2e2e2' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 }},
-                paper_bgcolor: isDark ? '#0f172a' : '#ffffff',
-                plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                font: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }},
+                paper_bgcolor: isDark ? '#0a0a0a' : '#ffffff',
+                plot_bgcolor: isDark ? '#121212' : '#ffffff',
+                font: {{ color: isDark ? '#e2e2e2' : '#1a1a1a' }},
                 showlegend: true,
                 legend: {{ x: 0.8, y: 0.95 }},
                 shapes: [
@@ -1211,17 +1211,17 @@ def create_elo_density_interactive(
                 title: 'ELO Distribution Evolution Over Time',
                 xaxis: {{
                     title: 'ELO Rating',
-                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    color: isDark ? '#e2e2e2' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 }},
                 yaxis: {{
                     title: 'Density',
-                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    color: isDark ? '#e2e2e2' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 }},
-                paper_bgcolor: isDark ? '#0f172a' : '#ffffff',
-                plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                font: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }},
+                paper_bgcolor: isDark ? '#0a0a0a' : '#ffffff',
+                plot_bgcolor: isDark ? '#121212' : '#ffffff',
+                font: {{ color: isDark ? '#e2e2e2' : '#1a1a1a' }},
                 showlegend: true,
                 legend: {{ x: 1.02, y: 1 }}
             }};
@@ -1241,8 +1241,8 @@ def create_elo_density_interactive(
                 colorscale: 'Viridis',
                 colorbar: {{
                     title: 'Density',
-                    tickfont: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }},
-                    titlefont: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }}
+                    tickfont: {{ color: isDark ? '#e2e2e2' : '#1a1a1a' }},
+                    titlefont: {{ color: isDark ? '#e2e2e2' : '#1a1a1a' }}
                 }}
             }};
 
@@ -1250,17 +1250,17 @@ def create_elo_density_interactive(
                 title: 'ELO Density Heatmap Over Time',
                 xaxis: {{
                     title: 'Match Index (Time)',
-                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    color: isDark ? '#e2e2e2' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 }},
                 yaxis: {{
                     title: 'ELO Rating',
-                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    color: isDark ? '#e2e2e2' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 }},
-                paper_bgcolor: isDark ? '#0f172a' : '#ffffff',
-                plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                font: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }}
+                paper_bgcolor: isDark ? '#0a0a0a' : '#ffffff',
+                plot_bgcolor: isDark ? '#121212' : '#ffffff',
+                font: {{ color: isDark ? '#e2e2e2' : '#1a1a1a' }}
             }};
 
             Plotly.react('plotDiv', [trace], layout, config);
@@ -1276,7 +1276,7 @@ def create_elo_density_interactive(
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Mean ELO',
-                line: {{ color: '#3b82f6', width: 2 }}
+                line: {{ color: '#7bc618', width: 2 }}
             }};
 
             const trace2 = {{
@@ -1302,12 +1302,12 @@ def create_elo_density_interactive(
                 title: 'Meta Evolution Statistics',
                 xaxis: {{
                     title: 'Match Index',
-                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    color: isDark ? '#e2e2e2' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 }},
                 yaxis: {{
                     title: 'ELO',
-                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    color: isDark ? '#e2e2e2' : '#1a1a1a',
                     gridcolor: 'rgba(128,128,128,0.2)'
                 }},
                 yaxis2: {{
@@ -1317,9 +1317,9 @@ def create_elo_density_interactive(
                     color: '#8b5cf6',
                     gridcolor: 'rgba(128,128,128,0.1)'
                 }},
-                paper_bgcolor: isDark ? '#0f172a' : '#ffffff',
-                plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
-                font: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }},
+                paper_bgcolor: isDark ? '#0a0a0a' : '#ffffff',
+                plot_bgcolor: isDark ? '#121212' : '#ffffff',
+                font: {{ color: isDark ? '#e2e2e2' : '#1a1a1a' }},
                 showlegend: true,
                 legend: {{ x: 0.02, y: 0.98 }},
                 shapes: [{{

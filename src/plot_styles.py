@@ -26,22 +26,27 @@ def configure_dark_mode():
     plt.style.use('dark_background')
     plt.rcParams["figure.figsize"] = (10, 6)
     plt.rcParams["axes.grid"] = True
-    plt.rcParams["figure.facecolor"] = "#0f172a"
-    plt.rcParams["axes.facecolor"] = "#1e293b"
-    plt.rcParams["axes.edgecolor"] = "#334155"
-    plt.rcParams["axes.labelcolor"] = "#f1f5f9"
-    plt.rcParams["text.color"] = "#f1f5f9"
-    plt.rcParams["xtick.color"] = "#f1f5f9"
-    plt.rcParams["ytick.color"] = "#f1f5f9"
-    plt.rcParams["grid.color"] = "#334155"
-    plt.rcParams["grid.alpha"] = 0.3
+    plt.rcParams["figure.facecolor"] = "#0a0a0a"
+    plt.rcParams["axes.facecolor"] = "#121212"
+    plt.rcParams["axes.edgecolor"] = "#222222"
+    plt.rcParams["axes.labelcolor"] = "#e2e2e2"
+    plt.rcParams["text.color"] = "#e2e2e2"
+    plt.rcParams["xtick.color"] = "#e2e2e2"
+    plt.rcParams["ytick.color"] = "#e2e2e2"
+    plt.rcParams["grid.color"] = "#222222"
+    plt.rcParams["grid.alpha"] = 0.4
+    # Apply Beyblade X green-accented color cycle
+    sns.set_palette(get_color_palette(dark_mode=True))
 
 
 def get_color_palette(dark_mode=False):
     """Get color palette appropriate for the mode."""
     if dark_mode:
-        # Brighter, more vibrant colors for dark mode
-        return sns.color_palette("bright")
+        # Green-accented palette for the Beyblade X dark theme
+        return sns.color_palette([
+            "#7bc618", "#22c55e", "#3b82f6", "#f59e0b",
+            "#ef4444", "#a78bfa", "#06b6d4", "#fb923c",
+        ])
     else:
         # Standard colors for light mode
         return sns.color_palette("deep")
@@ -49,7 +54,7 @@ def get_color_palette(dark_mode=False):
 
 def get_text_color(dark_mode=False):
     """Get appropriate text color for the mode."""
-    return 'white' if dark_mode else 'black'
+    return '#e2e2e2' if dark_mode else 'black'
 
 
 def get_heatmap_cmap(dark_mode=False):
@@ -66,12 +71,22 @@ def get_diverging_cmap(dark_mode=False):
 
 def get_bg_color(dark_mode=False):
     """Get appropriate background color for Plotly plots."""
-    return '#1e293b' if dark_mode else 'white'
+    return '#0a0a0a' if dark_mode else 'white'
+
+
+def get_plot_bg_color(dark_mode=False):
+    """Get appropriate plot area background color for Plotly plots."""
+    return '#121212' if dark_mode else 'white'
 
 
 def get_grid_color(dark_mode=False):
     """Get appropriate grid color for Plotly plots."""
-    return '#334155' if dark_mode else '#e5e7eb'
+    return '#222222' if dark_mode else '#e5e7eb'
+
+
+def get_accent_color(dark_mode=False):
+    """Get appropriate accent/highlight color."""
+    return '#7bc618' if dark_mode else '#6366f1'
 
 
 def generate_dynamic_yticks(min_pos, max_pos):
