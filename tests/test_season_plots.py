@@ -241,3 +241,10 @@ class TestManifest:
         assert "dark_plots" in tier_data
         assert len(tier_data["plots"]) == 6
         assert len(tier_data["dark_plots"]) == 6
+        # Combined (all-tiers) section
+        assert "combined" in manifest
+        combined_data = manifest["combined"]
+        assert "plots" in combined_data
+        assert "dark_plots" in combined_data
+        assert len(combined_data["plots"]) == 3
+        assert len(combined_data["dark_plots"]) == 3

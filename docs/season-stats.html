@@ -936,9 +936,12 @@
     const PLOT_TITLES = {
         'bump_chart': '📊 Position Progression (Bump Chart)',
         'cumulative_points': '📈 Cumulative Season Points',
+        'finish_distribution_all_tiers': '🎯 Finish Type Distribution (All Tiers)',
         'finish_distribution': '🎯 Finish Type Distribution',
         'h2h_matrix': '🔥 Head-to-Head Win Rate Matrix',
+        'points_per_match_all_tiers': '📦 Points Per Match Distribution (All Tiers)',
         'points_per_match': '📦 Points Per Match Distribution',
+        'radar_chart_all_tiers': '🕸️ Bey Profile Radar (All Tiers)',
         'radar_chart': '🕸️ Bey Profile (Radar Chart)',
     };
 
@@ -978,10 +981,13 @@
                 return;
             }
 
-            // Build tier tabs
-            tierSelector.innerHTML = tiers.map((t, i) => `
+            // Build tier tabs (individual tiers + "All Tiers" combined tab)
+            const allTabs = tiers.map((t, i) => `
                 <button class="tier-tab ${i === 0 ? 'active' : ''}" data-tier="${t}">Tier ${t}</button>
-            `).join('');
+            `).join('') + (plotsManifest.combined
+                ? `<button class="tier-tab" data-tier="combined">🌐 All Tiers</button>`
+                : '');
+            tierSelector.innerHTML = allTabs;
 
             tierSelector.querySelectorAll('.tier-tab').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1007,7 +1013,9 @@
         currentTier = tier;
         const plotsGrid = document.getElementById('plotsGrid');
         const dark = isDarkMode();
-        const tierData = plotsManifest && plotsManifest.tiers[tier];
+        const tierData = plotsManifest && (
+            tier === 'combined' ? plotsManifest.combined : plotsManifest.tiers[tier]
+        );
 
         if (!tierData) {
             plotsGrid.innerHTML = '<div class="plots-error">No plots available for this tier.</div>';
@@ -1015,7 +1023,9 @@
         }
 
         const plots = dark ? tierData.dark_plots : tierData.plots;
-        const basePath = `plots/season/${season}/tier${tier}/`;
+        const basePath = tier === 'combined'
+            ? `plots/season/${season}/combined/`
+            : `plots/season/${season}/tier${tier}/`;
 
         plotsGrid.innerHTML = plots.map(filename => {
             const title = getPlotTitle(filename);

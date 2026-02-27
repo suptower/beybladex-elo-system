@@ -510,6 +510,233 @@ def plot_radar_chart(season_stats_json, tier_beys, tier, outdir, season_id, dark
 
 
 # ---------------------------------------------------------------------------
+# Combined (all-tiers) plots
+# ---------------------------------------------------------------------------
+
+def plot_combined_finish_distribution(season_matches, season_rounds, tiers, outdir, season_id, dark_mode=False):
+    """
+    Stacked bar chart of finish-type wins for every bey across all tiers.
+    Beys are grouped by tier with vertical dividers.
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    finish_types = list(FINISH_COLORS.keys())
+
+    all_beys = []
+    tier_boundaries = []  # x-index where each tier starts
+    bey_tier_labels = []
+
+    for tier in sorted(tiers):
+        tier_int = int(tier)
+        t_beys = sorted(
+            set(season_matches[season_matches["Tier"] == tier]["BeyA"])
+            | set(season_matches[season_matches["Tier"] == tier]["BeyB"])
+        )
+        tier_boundaries.append((len(all_beys), tier_int, len(t_beys)))
+        all_beys.extend(t_beys)
+        bey_tier_labels.extend([tier_int] * len(t_beys))
+
+    if not all_beys:
+        return
+
+    all_match_ids = set(season_matches["MatchID"])
+    all_rounds = season_rounds[season_rounds["match_id"].isin(all_match_ids)].copy()
+
+    data: dict = {ft: [] for ft in finish_types}
+    for bey in all_beys:
+        bey_wins = all_rounds[all_rounds["winner"] == bey]
+        for ft in finish_types:
+            data[ft].append(len(bey_wins[bey_wins["finish_type"] == ft]))
+
+    fig, ax = plt.subplots(figsize=(max(10, len(all_beys) * 0.75), 6))
+
+    bottom = np.zeros(len(all_beys))
+    x = np.arange(len(all_beys))
+    for ft in finish_types:
+        values = np.array(data[ft])
+        ax.bar(x, values, bottom=bottom, label=ft.capitalize(),
+               color=FINISH_COLORS[ft], alpha=0.85)
+        bottom += values
+
+    # Tier dividers and labels
+    for start_idx, tier_int, size in tier_boundaries:
+        if start_idx > 0:
+            ax.axvline(start_idx - 0.5, color="gray", linewidth=1.2, linestyle="--", alpha=0.6)
+        mid = start_idx + size / 2 - 0.5
+        ax.text(mid, ax.get_ylim()[1] * 0.97, f"Tier {tier_int}",
+                ha="center", va="top", fontsize=9, fontweight="bold", alpha=0.7)
+
+    ax.set_xlabel("Bey")
+    ax.set_ylabel("Round Wins")
+    ax.set_title(f"{season_id} – All Tiers – Finish Type Distribution")
+    ax.set_xticks(x)
+    ax.set_xticklabels(all_beys, rotation=40, ha="right", fontsize=7)
+    ax.legend(loc="upper right", fontsize=8)
+    ax.grid(True, axis="y", alpha=0.3)
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, "finish_distribution_all_tiers.png")
+    dark_p = os.path.join(outdir, "dark", "finish_distribution_all_tiers_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+def plot_combined_points_per_match(season_matches, tiers, outdir, season_id, dark_mode=False):
+    """
+    Boxplot of points-per-match for every bey across all tiers, colored by tier.
+    Beys are ordered by tier then by median points descending within each tier.
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    records = []
+    for tier in sorted(tiers):
+        tier_int = int(tier)
+        tier_matches = season_matches[season_matches["Tier"] == tier]
+        for _, row in tier_matches.iterrows():
+            records.append({"bey": row["BeyA"], "points": int(row["ScoreA"]), "tier": f"Tier {tier_int}"})
+            records.append({"bey": row["BeyB"], "points": int(row["ScoreB"]), "tier": f"Tier {tier_int}"})
+
+    if not records:
+        return
+
+    df = pd.DataFrame(records)
+
+    # Order: by tier, then by median descending within tier
+    order = []
+    tier_boundaries = []
+    for tier in sorted(tiers):
+        tier_int = int(tier)
+        label = f"Tier {tier_int}"
+        tier_df = df[df["tier"] == label]
+        tier_order = tier_df.groupby("bey")["points"].median().sort_values(ascending=False).index.tolist()
+        tier_boundaries.append((len(order), tier_int, len(tier_order)))
+        order.extend(tier_order)
+
+    palette = sns.color_palette("Set2", len(tiers))
+    tier_colors = {f"Tier {int(t)}": palette[i] for i, t in enumerate(sorted(tiers))}
+    # Build a bey→tier-label lookup to avoid repeated DataFrame filtering
+    bey_to_tier_label = {r["bey"]: r["tier"] for r in records}
+    bey_colors = [tier_colors[bey_to_tier_label[b]] for b in order]
+
+    fig, ax = plt.subplots(figsize=(max(10, len(order) * 0.85), 6))
+    sns.boxplot(data=df, x="bey", y="points", order=order, hue="bey",
+                legend=False, ax=ax, palette=bey_colors, linewidth=1.2)
+
+    # Tier dividers and labels
+    for start_idx, tier_int, size in tier_boundaries:
+        if start_idx > 0:
+            ax.axvline(start_idx - 0.5, color="gray", linewidth=1.2, linestyle="--", alpha=0.6)
+        mid = start_idx + size / 2 - 0.5
+        ax.text(mid, ax.get_ylim()[1] * 0.97, f"Tier {tier_int}",
+                ha="center", va="top", fontsize=9, fontweight="bold", alpha=0.7)
+
+    plt.xticks(rotation=40, ha="right", fontsize=7)
+    ax.set_xlabel("Bey")
+    ax.set_ylabel("Points Per Match")
+    ax.set_title(f"{season_id} – All Tiers – Points Per Match Distribution")
+    ax.grid(True, axis="y", alpha=0.3)
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, "points_per_match_all_tiers.png")
+    dark_p = os.path.join(outdir, "dark", "points_per_match_all_tiers_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+def plot_combined_radar_chart(season_stats_json, all_beys_by_tier, outdir, season_id, dark_mode=False):
+    """
+    Radar chart showing all beys across all tiers on a single chart.
+    Each tier's beys are drawn with the same hue family to aid readability.
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    stats_dict = season_stats_json.get("statistics", {})
+    if not stats_dict:
+        return
+
+    metrics = [
+        ("match_win_rate", "Win Rate", 100.0),
+        ("points_per_round", "PPR", None),
+        ("burst_win_rate", "Burst %", 100.0),
+        ("defensive_stability_index", "Defense", 1.0),
+        ("clutch_win_rate", "Clutch", 100.0),
+    ]
+
+    # Flatten all beys from all tiers that have stats
+    flat_beys = []
+    bey_tier_map = {}
+    for tier, beys in sorted(all_beys_by_tier.items()):
+        for b in beys:
+            if b in stats_dict:
+                flat_beys.append(b)
+                bey_tier_map[b] = int(tier)
+
+    if not flat_beys:
+        return
+
+    # Collect raw values across all beys for normalisation
+    raw: dict = {key: [] for key, _, _ in metrics}
+    for bey in flat_beys:
+        s = stats_dict[bey]
+        for key, _, _ in metrics:
+            raw[key].append(float(s.get(key, 0)))
+
+    def normalise(values, max_val):
+        if max_val is not None:
+            return [v / max_val for v in values]
+        m = max(values) if values and max(values) > 0 else 1
+        return [v / m for v in values]
+
+    normalised: dict = {}
+    for key, _, max_val in metrics:
+        normalised[key] = normalise(raw[key], max_val)
+
+    num_metrics = len(metrics)
+    angles = np.linspace(0, 2 * np.pi, num_metrics, endpoint=False).tolist()
+    angles += angles[:1]
+
+    # Distinct tier colour palettes (one palette name per tier, cycling through options)
+    _palette_names = ["tab10", "Set1", "Dark2", "tab20"]
+    unique_tiers = sorted(set(bey_tier_map.values()))
+    tier_palettes = {
+        t: sns.color_palette(_palette_names[i % len(_palette_names)], 10)
+        for i, t in enumerate(unique_tiers)
+    }
+    tier_counts: dict = {t: 0 for t in unique_tiers}
+
+    fig, ax = plt.subplots(figsize=(9, 9), subplot_kw=dict(polar=True))
+
+    for i, bey in enumerate(flat_beys):
+        t = bey_tier_map[bey]
+        color = tier_palettes[t][tier_counts[t] % 10]
+        tier_counts[t] += 1
+        values = [normalised[key][i] for key, _, _ in metrics]
+        values += values[:1]
+        ax.plot(angles, values, linewidth=1.5, label=f"{bey} (T{t})", color=color)
+        ax.fill(angles, values, alpha=0.05, color=color)
+
+    ax.set_xticks(angles[:-1])
+    ax.set_xticklabels([label for _, label, _ in metrics], fontsize=9)
+    ax.set_ylim(0, 1)
+    ax.set_yticks([0.25, 0.5, 0.75, 1.0])
+    ax.set_yticklabels(["25%", "50%", "75%", "100%"], fontsize=7)
+    ax.set_title(f"{season_id} – All Tiers – Bey Profile (Radar)", pad=20)
+    ax.legend(loc="upper right", bbox_to_anchor=(1.5, 1.2), fontsize=6, ncol=2)
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, "radar_chart_all_tiers.png")
+    dark_p = os.path.join(outdir, "dark", "radar_chart_all_tiers_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
 # Master runner
 # ---------------------------------------------------------------------------
 
@@ -536,6 +763,9 @@ def generate_season_plots():
 
         tiers = sorted(s_matches["Tier"].dropna().unique())
 
+        # Per-tier beys mapping used later for combined radar chart
+        all_beys_by_tier: dict = {}
+
         for tier in tiers:
             tier_int = int(tier)
             outdir = os.path.join(BASE_OUTPUT_DIR, season_id, f"tier{tier_int}")
@@ -545,6 +775,7 @@ def generate_season_plots():
                 set(s_matches[s_matches["Tier"] == tier]["BeyA"])
                 | set(s_matches[s_matches["Tier"] == tier]["BeyB"])
             )
+            all_beys_by_tier[tier] = tier_beys
 
             for dark_mode in [False, True]:
                 plot_bump_chart(s_matches, tier, outdir, season_id, dark_mode)
@@ -555,6 +786,15 @@ def generate_season_plots():
                 plot_radar_chart(season_stats_s, tier_beys, tier_int, outdir, season_id, dark_mode)
 
             print(f"  Season {season_id} – Tier {tier_int}: plots saved to {outdir}")
+
+        # Combined (all-tiers) plots
+        combined_outdir = os.path.join(BASE_OUTPUT_DIR, season_id, "combined")
+        ensure_dirs(combined_outdir)
+        for dark_mode in [False, True]:
+            plot_combined_finish_distribution(s_matches, s_rounds, tiers, combined_outdir, season_id, dark_mode)
+            plot_combined_points_per_match(s_matches, tiers, combined_outdir, season_id, dark_mode)
+            plot_combined_radar_chart(season_stats_s, all_beys_by_tier, combined_outdir, season_id, dark_mode)
+        print(f"  Season {season_id} – Combined (all tiers): plots saved to {combined_outdir}")
 
         # Write a JSON manifest so the frontend knows which plots are available
         manifest = {
@@ -579,6 +819,18 @@ def generate_season_plots():
                     ],
                 }
                 for t in sorted(s_matches["Tier"].dropna().unique())
+            },
+            "combined": {
+                "plots": [
+                    "finish_distribution_all_tiers.png",
+                    "points_per_match_all_tiers.png",
+                    "radar_chart_all_tiers.png",
+                ],
+                "dark_plots": [
+                    "dark/finish_distribution_all_tiers_dark.png",
+                    "dark/points_per_match_all_tiers_dark.png",
+                    "dark/radar_chart_all_tiers_dark.png",
+                ],
             },
         }
         manifest_dir = os.path.join(BASE_OUTPUT_DIR, season_id)
