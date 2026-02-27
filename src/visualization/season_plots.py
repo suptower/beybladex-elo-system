@@ -47,6 +47,20 @@ FINISH_COLORS = {
     "stadium_exit": "#a78bfa",
 }
 
+# Human-readable finish type labels
+FINISH_LABELS = {
+    "burst": "Burst",
+    "extreme": "Extreme",
+    "pocket": "Pocket",
+    "spin": "Spin",
+    "stadium_exit": "Stadium Exit",
+}
+
+
+def finish_label(ft: str) -> str:
+    """Return a human-readable label for a finish type key."""
+    return FINISH_LABELS.get(ft, ft.replace("_", " ").title())
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -312,7 +326,7 @@ def plot_finish_distribution(season_matches, season_rounds, tier, outdir, season
     for ft in finish_types:
         values = np.array(data[ft])
         ax.bar(beys, values, bottom=bottom,
-               label=ft.capitalize(), color=FINISH_COLORS[ft], alpha=0.85)
+               label=finish_label(ft), color=FINISH_COLORS[ft], alpha=0.85)
         bottom += values
 
     ax.set_xlabel("Bey")
@@ -557,7 +571,7 @@ def plot_combined_finish_distribution(season_matches, season_rounds, tiers, outd
     x = np.arange(len(all_beys))
     for ft in finish_types:
         values = np.array(data[ft])
-        ax.bar(x, values, bottom=bottom, label=ft.capitalize(),
+        ax.bar(x, values, bottom=bottom, label=finish_label(ft),
                color=FINISH_COLORS[ft], alpha=0.85)
         bottom += values
 
@@ -737,6 +751,531 @@ def plot_combined_radar_chart(season_stats_json, all_beys_by_tier, outdir, seaso
 
 
 # ---------------------------------------------------------------------------
+# 7. Round Differential Over Time (per tier)
+# ---------------------------------------------------------------------------
+
+def plot_round_differential(season_matches, tier, outdir, season_id, dark_mode=False):
+    """Cumulative round differential (rounds won minus rounds lost) per matchday."""
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    tier_int = int(tier)
+    tier_matches = season_matches[season_matches["Tier"] == tier].copy()
+    if tier_matches.empty:
+        return
+
+    matchdays = sorted(tier_matches["Matchday"].unique())
+    beys = sorted(set(tier_matches["BeyA"]) | set(tier_matches["BeyB"]))
+
+    cum_diff: dict = {bey: [] for bey in beys}
+    for md in matchdays:
+        md_matches = tier_matches[tier_matches["Matchday"] <= md]
+        for bey in beys:
+            diff = 0
+            for _, row in md_matches.iterrows():
+                sa, sb = int(row["ScoreA"]), int(row["ScoreB"])
+                if row["BeyA"] == bey:
+                    diff += sa - sb
+                elif row["BeyB"] == bey:
+                    diff += sb - sa
+            cum_diff[bey].append(diff)
+
+    palette = sns.color_palette("tab20", len(beys))
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for i, bey in enumerate(beys):
+        ax.plot(matchdays, cum_diff[bey], marker="o", linewidth=2,
+                markersize=4, label=bey, color=palette[i])
+    ax.axhline(0, color="gray", linewidth=0.8, linestyle="--", alpha=0.5)
+    ax.set_xlabel("Matchday")
+    ax.set_ylabel("Cumulative Round Differential")
+    ax.set_title(f"{season_id} – Tier {tier_int} – Round Differential Over Time")
+    ax.set_xticks(matchdays)
+    ax.legend(fontsize=7, ncol=2, loc="upper left")
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, f"round_differential_tier{tier_int}.png")
+    dark_p = os.path.join(outdir, "dark", f"round_differential_tier{tier_int}_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
+# 8. Finish Type Evolution (stacked area per matchday, per tier)
+# ---------------------------------------------------------------------------
+
+def plot_finish_type_evolution(season_matches, season_rounds, tier, outdir, season_id, dark_mode=False):
+    """
+    Stacked area chart showing cumulative finish type counts per matchday for a tier.
+    Shows how the meta of finish types evolves over the season.
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    tier_int = int(tier)
+    tier_match_ids = set(season_matches[season_matches["Tier"] == tier]["MatchID"])
+    tier_rounds = season_rounds[season_rounds["match_id"].isin(tier_match_ids)].copy()
+    if tier_rounds.empty:
+        return
+
+    # Merge matchday onto rounds
+    md_map = season_matches.set_index("MatchID")["Matchday"].to_dict()
+    tier_rounds["matchday"] = tier_rounds["match_id"].map(md_map)
+
+    matchdays = sorted(tier_rounds["matchday"].dropna().unique())
+    finish_types = list(FINISH_COLORS.keys())
+
+    # Cumulative counts per finish type per matchday
+    cum_counts: dict = {ft: [] for ft in finish_types}
+    for md in matchdays:
+        md_rounds = tier_rounds[tier_rounds["matchday"] <= md]
+        for ft in finish_types:
+            cum_counts[ft].append(len(md_rounds[md_rounds["finish_type"] == ft]))
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.stackplot(
+        matchdays,
+        [cum_counts[ft] for ft in finish_types],
+        labels=[finish_label(ft) for ft in finish_types],
+        colors=[FINISH_COLORS[ft] for ft in finish_types],
+        alpha=0.75,
+    )
+    ax.set_xlabel("Matchday")
+    ax.set_ylabel("Cumulative Round Wins")
+    ax.set_title(f"{season_id} – Tier {tier_int} – Finish Type Evolution")
+    ax.set_xticks(matchdays)
+    ax.legend(fontsize=8, loc="upper left")
+    ax.grid(True, alpha=0.2)
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, f"finish_type_evolution_tier{tier_int}.png")
+    dark_p = os.path.join(outdir, "dark", f"finish_type_evolution_tier{tier_int}_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
+# 9. Rolling Volatility Plot (per tier)
+# ---------------------------------------------------------------------------
+
+def plot_rolling_volatility(season_matches, tier, outdir, season_id, dark_mode=False,
+                             window: int = 3):
+    """
+    Rolling standard deviation of season points scored per match (default window = 3 matchdays).
+    High values indicate inconsistent performance.
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    tier_int = int(tier)
+    tier_matches = season_matches[season_matches["Tier"] == tier].copy()
+    if tier_matches.empty:
+        return
+
+    matchdays = sorted(tier_matches["Matchday"].unique())
+    if len(matchdays) < window:
+        return
+
+    beys = sorted(set(tier_matches["BeyA"]) | set(tier_matches["BeyB"]))
+
+    # Collect per-matchday points for each bey
+    md_points: dict = {bey: [] for bey in beys}
+    for md in matchdays:
+        md_matches = tier_matches[tier_matches["Matchday"] == md]
+        for bey in beys:
+            pts = 0
+            count = 0
+            for _, row in md_matches.iterrows():
+                sa, sb = int(row["ScoreA"]), int(row["ScoreB"])
+                if row["BeyA"] == bey:
+                    pts += 3 if sa > sb else (1 if sa == sb else 0)
+                    count += 1
+                elif row["BeyB"] == bey:
+                    pts += 3 if sb > sa else (1 if sa == sb else 0)
+                    count += 1
+            # Use NaN when bey has no matches on this matchday to show a gap in the plot
+            md_points[bey].append(pts / count if count else np.nan)
+
+    palette = sns.color_palette("tab20", len(beys))
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for i, bey in enumerate(beys):
+        series = pd.Series(md_points[bey])
+        rolling_vol = series.rolling(window=window, min_periods=2).std()
+        valid = [md for j, md in enumerate(matchdays) if not np.isnan(rolling_vol.iloc[j])]
+        vals = rolling_vol.dropna().tolist()
+        if valid:
+            ax.plot(valid, vals, marker="o", linewidth=2, markersize=4,
+                    label=bey, color=palette[i], alpha=0.85)
+
+    ax.set_xlabel("Matchday")
+    ax.set_ylabel(f"Rolling Volatility (σ, window={window})")
+    ax.set_title(f"{season_id} – Tier {tier_int} – Rolling Volatility (window={window})")
+    ax.set_xticks(matchdays)
+    ax.legend(fontsize=7, ncol=2, loc="upper left")
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, f"rolling_volatility_tier{tier_int}.png")
+    dark_p = os.path.join(outdir, "dark", f"rolling_volatility_tier{tier_int}_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
+# 10. Efficiency vs Win Rate Scatter (per tier)
+# ---------------------------------------------------------------------------
+
+def plot_efficiency_vs_winrate(season_stats_json, tier_beys, tier, outdir, season_id,
+                                dark_mode=False):
+    """
+    Scatter plot: X = Points Per Round (PPR), Y = Match Win Rate.
+    Identifies over- and under-performers relative to the tier average.
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    stats_dict = season_stats_json.get("statistics", {})
+    beys = [b for b in tier_beys if b in stats_dict]
+    if len(beys) < 2:
+        return
+
+    pprs = [float(stats_dict[b].get("points_per_round", 0)) for b in beys]
+    wrs = [float(stats_dict[b].get("match_win_rate", 0)) for b in beys]
+
+    palette = sns.color_palette("tab10", len(beys))
+    fig, ax = plt.subplots(figsize=(8, 6))
+
+    for i, (bey, ppr, wr) in enumerate(zip(beys, pprs, wrs)):
+        ax.scatter(ppr, wr, color=palette[i], s=80, zorder=3)
+        ax.annotate(bey, (ppr, wr), textcoords="offset points",
+                    xytext=(6, 3), fontsize=7, color=palette[i])
+
+    # Average lines
+    ax.axvline(np.mean(pprs), color="gray", linewidth=0.9, linestyle="--", alpha=0.6,
+               label="Avg PPR")
+    ax.axhline(np.mean(wrs), color="gray", linewidth=0.9, linestyle=":", alpha=0.6,
+               label="Avg Win Rate")
+
+    ax.set_xlabel("Points Per Round (PPR)")
+    ax.set_ylabel("Match Win Rate (%)")
+    ax.set_title(f"{season_id} – Tier {tier} – Efficiency vs Win Rate")
+    ax.legend(fontsize=8)
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, f"efficiency_vs_winrate_tier{tier}.png")
+    dark_p = os.path.join(outdir, "dark", f"efficiency_vs_winrate_tier{tier}_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
+# 11. Expected vs Actual Wins (per tier)
+# ---------------------------------------------------------------------------
+
+def plot_expected_vs_actual(season_matches, season_stats_json, tier_beys, tier,
+                             outdir, season_id, dark_mode=False):
+    """
+    Bar chart comparing expected wins (based on opponent difficulty) vs actual wins.
+    Expected wins = Σ (opponent_final_rank / n_beys) for each match played.
+    Positive difference = overperformer, negative = underperformer.
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    tier_int = int(tier)
+    stats_dict = season_stats_json.get("statistics", {})
+    tier_matches = season_matches[season_matches["Tier"] == tier].copy()
+    if tier_matches.empty:
+        return
+
+    beys = [b for b in tier_beys if b in stats_dict]
+    if not beys:
+        return
+
+    # Compute final win-rate as proxy for strength
+    win_rates = {b: float(stats_dict[b].get("match_win_rate", 50)) / 100.0 for b in beys}
+
+    # For each bey, sum opponent win-rates as "expected opponents strength" → expected wins
+    actual_wins: dict = {}
+    expected_wins: dict = {}
+    for bey in beys:
+        actual = 0
+        expected = 0.0
+        for _, row in tier_matches.iterrows():
+            a, b_opp = row["BeyA"], row["BeyB"]
+            sa, sb = int(row["ScoreA"]), int(row["ScoreB"])
+            if bey == a:
+                opponent = b_opp
+                won = 1 if sa > sb else 0
+            elif bey == b_opp:
+                opponent = a
+                won = 1 if sb > sa else 0
+            else:
+                continue
+            actual += won
+            opp_wr = win_rates.get(opponent, 0.5)
+            expected += 1 - opp_wr  # probability of winning against that opponent
+        actual_wins[bey] = actual
+        expected_wins[bey] = expected
+
+    # Sort beys by difference (overperformers first)
+    diffs = {b: actual_wins[b] - expected_wins[b] for b in beys}
+    sorted_beys = sorted(beys, key=lambda b: diffs[b], reverse=True)
+
+    x = np.arange(len(sorted_beys))
+    width = 0.35
+    actuals = [actual_wins[b] for b in sorted_beys]
+    expecteds = [expected_wins[b] for b in sorted_beys]
+    diff_vals = [diffs[b] for b in sorted_beys]
+    colors = ["#22c55e" if d >= 0 else "#ef4444" for d in diff_vals]
+
+    fig, ax = plt.subplots(figsize=(max(8, len(sorted_beys) * 0.9), 6))
+    ax.bar(x - width / 2, actuals, width, label="Actual Wins", color="#3b82f6", alpha=0.85)
+    ax.bar(x + width / 2, expecteds, width, label="Expected Wins", color="#f59e0b", alpha=0.85)
+    y_range = max(max(actuals, default=1), max(expecteds, default=1))
+    offset = y_range * 0.03
+    for xi, d in zip(x, diff_vals):
+        ax.annotate(f"{d:+.1f}", (xi, max(actuals[xi], expecteds[xi]) + offset),
+                    ha="center", fontsize=7, color=colors[xi])
+
+    ax.set_xlabel("Bey")
+    ax.set_ylabel("Wins")
+    ax.set_title(f"{season_id} – Tier {tier_int} – Expected vs Actual Wins")
+    ax.set_xticks(x)
+    ax.set_xticklabels(sorted_beys, rotation=40, ha="right", fontsize=8)
+    ax.legend(fontsize=8)
+    ax.grid(True, axis="y", alpha=0.3)
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, f"expected_vs_actual_tier{tier_int}.png")
+    dark_p = os.path.join(outdir, "dark", f"expected_vs_actual_tier{tier_int}_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
+# 12. Cutline Pressure Plot (per tier)
+# ---------------------------------------------------------------------------
+
+def plot_cutline_pressure(season_matches, tier, outdir, season_id, dark_mode=False,
+                           promotion_spots: int = 2, relegation_spots: int = 2):
+    """
+    Distance to promotion / relegation cutlines over matchdays.
+    Positive = distance above cutline (safe), negative = distance below (danger).
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    tier_int = int(tier)
+    standings = build_position_table(season_matches, tier)
+    if not standings:
+        return
+
+    matchdays = sorted(standings.keys())
+    all_beys = sorted({b for md_dict in standings.values() for b in md_dict})
+    n = len(all_beys)
+    # Skip if there aren't enough beys to have distinct promotion and relegation zones
+    if n <= promotion_spots + relegation_spots:
+        return
+
+    promotion_cutline = promotion_spots          # rank ≤ this → promoted
+    relegation_cutline = n - relegation_spots + 1  # rank ≥ this → relegated
+
+    palette = sns.color_palette("tab20", n)
+    fig, ax = plt.subplots(figsize=(10, max(5, n * 0.55)))
+
+    for i, bey in enumerate(all_beys):
+        positions = [standings[md].get(bey, np.nan) for md in matchdays]
+        # Distance from promotion cutline (positive = above safe, negative = in danger)
+        prom_dist = [promotion_cutline - p if not np.isnan(p) else np.nan for p in positions]
+        ax.plot(matchdays, prom_dist, marker="o", linewidth=1.5, markersize=4,
+                color=palette[i], label=bey, alpha=0.85)
+
+    ax.axhline(0, color="#22c55e", linewidth=1.5, linestyle="--", alpha=0.8,
+               label=f"Promotion cutline (top {promotion_spots})")
+    ax.axhline(-(relegation_cutline - promotion_cutline - 1), color="#ef4444",
+               linewidth=1.5, linestyle="--", alpha=0.8,
+               label=f"Relegation danger (bottom {relegation_spots})")
+
+    ax.set_xlabel("Matchday")
+    ax.set_ylabel("Distance from Promotion Cutline (ranks)")
+    ax.set_title(f"{season_id} – Tier {tier_int} – Cutline Pressure")
+    ax.set_xticks(matchdays)
+    ax.legend(fontsize=6, ncol=2, loc="upper right")
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, f"cutline_pressure_tier{tier_int}.png")
+    dark_p = os.path.join(outdir, "dark", f"cutline_pressure_tier{tier_int}_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
+# 13. Dominance Timeline (per tier)
+# ---------------------------------------------------------------------------
+
+def plot_dominance_timeline(season_matches, tier, outdir, season_id, dark_mode=False):
+    """
+    Strip chart showing which bey held rank 1 at each matchday.
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    tier_int = int(tier)
+    standings = build_position_table(season_matches, tier)
+    if not standings:
+        return
+
+    matchdays = sorted(standings.keys())
+    leaders = [min(standings[md], key=lambda b: standings[md][b]) for md in matchdays]
+
+    all_beys = sorted({b for md_dict in standings.values() for b in md_dict})
+    palette = {b: c for b, c in zip(all_beys, sns.color_palette("tab20", len(all_beys)))}
+
+    fig, ax = plt.subplots(figsize=(max(8, len(matchdays) * 0.7), 3))
+
+    for md, leader in zip(matchdays, leaders):
+        ax.bar(md, 1, color=palette[leader], width=0.6, alpha=0.85)
+        ax.text(md, 0.5, leader, ha="center", va="center", fontsize=6.5,
+                rotation=90, color="white", fontweight="bold")
+
+    # Legend
+    from matplotlib.patches import Patch
+    legend_elements = [Patch(facecolor=palette[b], label=b) for b in all_beys
+                       if b in leaders]
+    ax.legend(handles=legend_elements, fontsize=7, loc="upper right",
+              bbox_to_anchor=(1.25, 1.0), ncol=1)
+
+    ax.set_xlim(min(matchdays) - 0.5, max(matchdays) + 0.5)
+    ax.set_xticks(matchdays)
+    ax.set_xlabel("Matchday")
+    ax.set_yticks([])
+    ax.set_title(f"{season_id} – Tier {tier_int} – Dominance Timeline (Rank 1 holder)")
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, f"dominance_timeline_tier{tier_int}.png")
+    dark_p = os.path.join(outdir, "dark", f"dominance_timeline_tier{tier_int}_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
+# 14. Tier Comparison Plots (combined – compares tiers against each other)
+# ---------------------------------------------------------------------------
+
+def plot_tier_comparison(season_matches, season_rounds, season_stats_json,
+                          all_beys_by_tier, outdir, season_id, dark_mode=False):
+    """
+    4-panel figure comparing key metrics across tiers:
+    - Average PPR per tier
+    - Win rate spread (box plot) per tier
+    - Finish distribution per tier (stacked bar)
+    - Average volatility index per tier
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    stats_dict = season_stats_json.get("statistics", {})
+    tiers = sorted(all_beys_by_tier.keys(), key=lambda t: int(t))
+    if not tiers:
+        return
+
+    tier_labels = [f"Tier {int(t)}" for t in tiers]
+    palette = sns.color_palette("Set2", len(tiers))
+
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    fig.suptitle(f"{season_id} – Tier Comparison", fontsize=13, fontweight="bold")
+
+    # --- Panel 1: Average PPR per tier ---
+    avg_pprs = []
+    for t in tiers:
+        pprs = [float(stats_dict[b].get("points_per_round", 0))
+                for b in all_beys_by_tier[t] if b in stats_dict]
+        avg_pprs.append(np.mean(pprs) if pprs else 0)
+
+    ax1 = axes[0, 0]
+    bars = ax1.bar(tier_labels, avg_pprs, color=palette, alpha=0.85)
+    for bar, val in zip(bars, avg_pprs):
+        ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.01,
+                 f"{val:.2f}", ha="center", va="bottom", fontsize=8)
+    ax1.set_ylabel("Average PPR")
+    ax1.set_title("Average Points Per Round")
+    ax1.grid(True, axis="y", alpha=0.3)
+
+    # --- Panel 2: Win Rate spread (boxplot) per tier ---
+    ax2 = axes[0, 1]
+    wr_data = []
+    for t in tiers:
+        wrs = [float(stats_dict[b].get("match_win_rate", 0))
+               for b in all_beys_by_tier[t] if b in stats_dict]
+        wr_data.append(wrs)
+    ax2.boxplot(wr_data, tick_labels=tier_labels, patch_artist=True,
+                boxprops=dict(facecolor="lightblue", alpha=0.7),
+                medianprops=dict(color="navy", linewidth=2))
+    ax2.set_ylabel("Match Win Rate (%)")
+    ax2.set_title("Win Rate Spread")
+    ax2.grid(True, axis="y", alpha=0.3)
+
+    # --- Panel 3: Finish type distribution per tier (stacked bar) ---
+    ax3 = axes[1, 0]
+    finish_types = list(FINISH_COLORS.keys())
+    ft_counts: dict = {ft: [] for ft in finish_types}
+    for t in tiers:
+        t_match_ids = set(season_matches[season_matches["Tier"] == t]["MatchID"])
+        t_rounds = season_rounds[season_rounds["match_id"].isin(t_match_ids)]
+        total = len(t_rounds) if len(t_rounds) > 0 else 1
+        for ft in finish_types:
+            ft_counts[ft].append(len(t_rounds[t_rounds["finish_type"] == ft]) / total * 100)
+
+    x_pos = np.arange(len(tiers))
+    bottom = np.zeros(len(tiers))
+    for ft in finish_types:
+        vals = np.array(ft_counts[ft])
+        ax3.bar(x_pos, vals, bottom=bottom, label=finish_label(ft),
+                color=FINISH_COLORS[ft], alpha=0.85)
+        bottom += vals
+    ax3.set_xticks(x_pos)
+    ax3.set_xticklabels(tier_labels)
+    ax3.set_ylabel("% of Rounds")
+    ax3.set_title("Finish Distribution (%)")
+    ax3.legend(fontsize=7, loc="upper right")
+    ax3.grid(True, axis="y", alpha=0.3)
+
+    # --- Panel 4: Average volatility index per tier ---
+    ax4 = axes[1, 1]
+    avg_vols = []
+    for t in tiers:
+        vols = [float(stats_dict[b].get("volatility_index", 0))
+                for b in all_beys_by_tier[t] if b in stats_dict]
+        avg_vols.append(np.mean(vols) if vols else 0)
+
+    bars4 = ax4.bar(tier_labels, avg_vols, color=palette, alpha=0.85)
+    for bar, val in zip(bars4, avg_vols):
+        ax4.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.001,
+                 f"{val:.3f}", ha="center", va="bottom", fontsize=8)
+    ax4.set_ylabel("Average Volatility Index")
+    ax4.set_title("Performance Volatility")
+    ax4.grid(True, axis="y", alpha=0.3)
+
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, "tier_comparison.png")
+    dark_p = os.path.join(outdir, "dark", "tier_comparison_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
 # Master runner
 # ---------------------------------------------------------------------------
 
@@ -784,6 +1323,13 @@ def generate_season_plots():
                 plot_h2h_matrix(s_matches, tier, outdir, season_id, dark_mode)
                 plot_points_per_match(s_matches, tier, outdir, season_id, dark_mode)
                 plot_radar_chart(season_stats_s, tier_beys, tier_int, outdir, season_id, dark_mode)
+                plot_round_differential(s_matches, tier, outdir, season_id, dark_mode)
+                plot_finish_type_evolution(s_matches, s_rounds, tier, outdir, season_id, dark_mode)
+                plot_rolling_volatility(s_matches, tier, outdir, season_id, dark_mode)
+                plot_efficiency_vs_winrate(season_stats_s, tier_beys, tier_int, outdir, season_id, dark_mode)
+                plot_expected_vs_actual(s_matches, season_stats_s, tier_beys, tier, outdir, season_id, dark_mode)
+                plot_cutline_pressure(s_matches, tier, outdir, season_id, dark_mode)
+                plot_dominance_timeline(s_matches, tier, outdir, season_id, dark_mode)
 
             print(f"  Season {season_id} – Tier {tier_int}: plots saved to {outdir}")
 
@@ -794,6 +1340,8 @@ def generate_season_plots():
             plot_combined_finish_distribution(s_matches, s_rounds, tiers, combined_outdir, season_id, dark_mode)
             plot_combined_points_per_match(s_matches, tiers, combined_outdir, season_id, dark_mode)
             plot_combined_radar_chart(season_stats_s, all_beys_by_tier, combined_outdir, season_id, dark_mode)
+            plot_tier_comparison(s_matches, s_rounds, season_stats_s, all_beys_by_tier,
+                                 combined_outdir, season_id, dark_mode)
         print(f"  Season {season_id} – Combined (all tiers): plots saved to {combined_outdir}")
 
         # Write a JSON manifest so the frontend knows which plots are available
@@ -808,6 +1356,13 @@ def generate_season_plots():
                         f"h2h_matrix_tier{int(t)}.png",
                         f"points_per_match_tier{int(t)}.png",
                         f"radar_chart_tier{int(t)}.png",
+                        f"round_differential_tier{int(t)}.png",
+                        f"finish_type_evolution_tier{int(t)}.png",
+                        f"rolling_volatility_tier{int(t)}.png",
+                        f"efficiency_vs_winrate_tier{int(t)}.png",
+                        f"expected_vs_actual_tier{int(t)}.png",
+                        f"cutline_pressure_tier{int(t)}.png",
+                        f"dominance_timeline_tier{int(t)}.png",
                     ],
                     "dark_plots": [
                         f"dark/bump_chart_tier{int(t)}_dark.png",
@@ -816,6 +1371,13 @@ def generate_season_plots():
                         f"dark/h2h_matrix_tier{int(t)}_dark.png",
                         f"dark/points_per_match_tier{int(t)}_dark.png",
                         f"dark/radar_chart_tier{int(t)}_dark.png",
+                        f"dark/round_differential_tier{int(t)}_dark.png",
+                        f"dark/finish_type_evolution_tier{int(t)}_dark.png",
+                        f"dark/rolling_volatility_tier{int(t)}_dark.png",
+                        f"dark/efficiency_vs_winrate_tier{int(t)}_dark.png",
+                        f"dark/expected_vs_actual_tier{int(t)}_dark.png",
+                        f"dark/cutline_pressure_tier{int(t)}_dark.png",
+                        f"dark/dominance_timeline_tier{int(t)}_dark.png",
                     ],
                 }
                 for t in sorted(s_matches["Tier"].dropna().unique())
@@ -825,11 +1387,13 @@ def generate_season_plots():
                     "finish_distribution_all_tiers.png",
                     "points_per_match_all_tiers.png",
                     "radar_chart_all_tiers.png",
+                    "tier_comparison.png",
                 ],
                 "dark_plots": [
                     "dark/finish_distribution_all_tiers_dark.png",
                     "dark/points_per_match_all_tiers_dark.png",
                     "dark/radar_chart_all_tiers_dark.png",
+                    "dark/tier_comparison_dark.png",
                 ],
             },
         }
