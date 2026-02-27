@@ -660,6 +660,24 @@
                 </div>
             </div>
         </details>
+
+        <!-- Season vs Global Comparison Section -->
+        <details class="profile-section-details" id="comparisonPlotsSection" style="display: none;">
+            <summary class="section-summary" style="font-size:20px;font-weight:800;cursor:pointer;padding:12px 0;list-style:none;display:flex;align-items:center;gap:8px;">
+                🆚 Season vs Global Performance
+            </summary>
+            <div style="margin-top:8px;margin-bottom:12px;">
+                <p style="font-size:14px;opacity:0.75;margin:0 0 12px 0;">
+                    Compares each Bey's within-tier season performance to its global Elo ranking. Uses
+                    <strong>PDI</strong> (Season Percentile − Global Percentile) and
+                    <strong>PvE</strong> (Actual Wins − Expected Wins) to identify overperformers,
+                    underperformers, and tier-strength differentials.
+                </p>
+            </div>
+            <div id="comparisonPlotsGrid" class="plots-grid">
+                <div class="plots-loading">Loading comparison plots…</div>
+            </div>
+        </details>
     </div>
 </main>
 
@@ -918,12 +936,15 @@
     document.getElementById('season-select').addEventListener('change', (e) => {
         loadStats(e.target.value);
         loadSeasonPlots(e.target.value);
+        comparisonManifest = null;
+        loadComparisonPlots(e.target.value);
     });
 
     // Initial load
     loadAvailableSeasons().then(() => {
         loadStats(currentSeason);
         loadSeasonPlots(currentSeason);
+        loadComparisonPlots(currentSeason);
     });
 
     // -------------------------------------------------------------------------
@@ -1056,7 +1077,94 @@
             if (currentTier && plotsManifest) {
                 renderTierPlots(currentTier, currentSeason);
             }
+            renderComparisonPlots(currentSeason);
         });
+    }
+
+    // -------------------------------------------------------------------------
+    // Season vs Global Comparison Plots
+    // -------------------------------------------------------------------------
+
+    const COMPARISON_PLOT_TITLES = {
+        'percentile_scatter': '🎯 Global vs Season Percentile',
+        'pdi_bar': '📊 Performance Delta Index (PDI)',
+        'exp_vs_actual_wins': '🎲 Expected vs Actual Wins',
+        'tier_strength': '🏆 Tier Strength Overview',
+    };
+
+    function getComparisonPlotTitle(filename) {
+        for (const [key, title] of Object.entries(COMPARISON_PLOT_TITLES)) {
+            if (filename.includes(key)) return title;
+        }
+        return filename.replace(/_/g, ' ').replace(/\.png$/, '');
+    }
+
+    async function loadComparisonPlots(season) {
+        const section = document.getElementById('comparisonPlotsSection');
+        const grid = document.getElementById('comparisonPlotsGrid');
+
+        grid.innerHTML = '<div class="plots-loading">Loading comparison plots…</div>';
+        section.style.display = 'none';
+
+        try {
+            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            if (!resp.ok) throw new Error('Manifest not found');
+            const manifest = await resp.json();
+
+            if (!manifest.comparison) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            renderComparisonPlots(season);
+
+        } catch (e) {
+            section.style.display = 'none';
+        }
+    }
+
+    let comparisonManifest = null;
+
+    async function renderComparisonPlots(season) {
+        const section = document.getElementById('comparisonPlotsSection');
+        const grid = document.getElementById('comparisonPlotsGrid');
+
+        try {
+            if (!comparisonManifest) {
+                const resp = await fetch(`plots/season/${season}/manifest.json`);
+                if (!resp.ok) throw new Error('Manifest not found');
+                const manifest = await resp.json();
+                comparisonManifest = manifest.comparison || null;
+            }
+
+            if (!comparisonManifest) {
+                section.style.display = 'none';
+                return;
+            }
+
+            const dark = isDarkMode();
+            const plots = dark ? comparisonManifest.dark_plots : comparisonManifest.plots;
+            const basePath = comparisonManifest.base_path || 'plots/season/comparison/';
+
+            grid.innerHTML = plots.map(filename => {
+                const title = getComparisonPlotTitle(filename);
+                const src = basePath + filename;
+                return `
+                    <div class="plot-card">
+                        <div class="plot-card-title">${title}</div>
+                        <img src="${src}" alt="${title}" loading="lazy"
+                             onerror="this.parentElement.style.display='none'"
+                             onclick="openLightbox(this.src, this.alt, this)">
+                    </div>
+                `;
+            }).join('');
+
+            section.style.display = 'block';
+
+        } catch (e) {
+            section.style.display = 'none';
+        }
     }
 
     // -------------------------------------------------------------------------

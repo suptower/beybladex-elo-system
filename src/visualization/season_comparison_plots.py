@@ -331,6 +331,35 @@ def write_manifest(out_dir: str, plots: list) -> None:
         json.dump(combined, f, indent=2)
 
 
+def update_season_manifest(
+    season_id: str,
+    light_plots: list,
+    season_plots_base: str = "./docs/plots/season",
+) -> None:
+    """
+    Update the season's manifest.json to include the comparison section.
+    The base_path stored in the manifest is relative to the docs/ root.
+    """
+    manifest_path = os.path.join(season_plots_base, season_id, "manifest.json")
+    if not os.path.exists(manifest_path):
+        return
+
+    with open(manifest_path, encoding="utf-8") as f:
+        try:
+            manifest = json.load(f)
+        except json.JSONDecodeError:
+            return
+
+    manifest["comparison"] = {
+        "base_path": "plots/season/comparison/",
+        "plots": light_plots,
+        "dark_plots": [f"dark/{p.replace('.png', '_dark.png')}" for p in light_plots],
+    }
+
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+
 # ---------------------------------------------------------------------------
 # Main runner
 # ---------------------------------------------------------------------------
@@ -357,6 +386,7 @@ def generate_comparison_plots(
 
     for season_id, season_data in seasons.items():
         tier_data = season_data.get("tiers", {})
+        season_light_plots: list = []
 
         for dark_mode in (False, True):
             sfx = _suffix(dark_mode)
@@ -383,6 +413,12 @@ def generate_comparison_plots(
             if tier_data:
                 plot_tier_strength(tier_data, out_dir, season_id, dark_mode)
                 generated.append(f"tier_strength_s{season_id}{sfx}.png")
+
+        # Collect light-mode filenames for this season to update the season manifest
+        season_light_plots = [p for p in generated if not p.endswith("_dark.png")]
+
+        # Update this season's manifest.json so the frontend can discover the plots
+        update_season_manifest(season_id, season_light_plots)
 
     write_manifest(out_dir, [p for p in generated if not p.endswith("_dark.png")])
     print(f"Season comparison plots saved to: {out_dir}")
