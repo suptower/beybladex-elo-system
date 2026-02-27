@@ -861,7 +861,7 @@ def plot_finish_type_evolution(season_matches, season_rounds, tier, outdir, seas
 # ---------------------------------------------------------------------------
 
 def plot_rolling_volatility(season_matches, tier, outdir, season_id, dark_mode=False,
-                             window: int = 3):
+                            window: int = 3):
     """
     Rolling standard deviation of season points scored per match (default window = 3 matchdays).
     High values indicate inconsistent performance.
@@ -929,7 +929,7 @@ def plot_rolling_volatility(season_matches, tier, outdir, season_id, dark_mode=F
 # ---------------------------------------------------------------------------
 
 def plot_efficiency_vs_winrate(season_stats_json, tier_beys, tier, outdir, season_id,
-                                dark_mode=False):
+                               dark_mode=False):
     """
     Scatter plot: X = Points Per Round (PPR), Y = Match Win Rate.
     Identifies over- and under-performers relative to the tier average.
@@ -978,7 +978,7 @@ def plot_efficiency_vs_winrate(season_stats_json, tier_beys, tier, outdir, seaso
 # ---------------------------------------------------------------------------
 
 def plot_expected_vs_actual(season_matches, season_stats_json, tier_beys, tier,
-                             outdir, season_id, dark_mode=False):
+                            outdir, season_id, dark_mode=False):
     """
     Bar chart comparing expected wins (based on opponent difficulty) vs actual wins.
     Expected wins = Σ (opponent_final_rank / n_beys) for each match played.
@@ -1064,7 +1064,7 @@ def plot_expected_vs_actual(season_matches, season_stats_json, tier_beys, tier,
 # ---------------------------------------------------------------------------
 
 def plot_cutline_pressure(season_matches, tier, outdir, season_id, dark_mode=False,
-                           promotion_spots: int = 2, relegation_spots: int = 2):
+                          promotion_spots: int = 2, relegation_spots: int = 2):
     """
     Distance to promotion / relegation cutlines over matchdays.
     Positive = distance above cutline (safe), negative = distance below (danger).
@@ -1173,7 +1173,7 @@ def plot_dominance_timeline(season_matches, tier, outdir, season_id, dark_mode=F
 # ---------------------------------------------------------------------------
 
 def plot_tier_comparison(season_matches, season_rounds, season_stats_json,
-                          all_beys_by_tier, outdir, season_id, dark_mode=False):
+                         all_beys_by_tier, outdir, season_id, dark_mode=False):
     """
     4-panel figure comparing key metrics across tiers:
     - Average PPR per tier
