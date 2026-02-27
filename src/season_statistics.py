@@ -963,6 +963,34 @@ def main():
 
     print(f"\n{GREEN}{BOLD}Season statistics generated successfully!{RESET}")
 
+    # When called without --season, also generate per-season files for each
+    # unique season found in the data, so the frontend can load season-specific
+    # statistics (e.g. season_statistics_S1.json).
+    if not args.season and not args.tier:
+        season_ids = sorted({m.season_id for m in stats.matches if m.season_id})
+        if season_ids:
+            print(f"\n{CYAN}Generating per-season files: {', '.join(season_ids)}{RESET}")
+            for season_id in season_ids:
+                per_season_stats = SeasonStatistics()
+                per_season_stats.load_data(season_id=season_id)
+                if not per_season_stats.matches:
+                    continue
+                per_season_stats.compute_statistics()
+                json_out = os.path.join(
+                    args.output_dir,
+                    f"season_statistics_{season_id}{phase_suffix}.json"
+                )
+                csv_out = os.path.join(
+                    args.output_dir,
+                    f"season_statistics_{season_id}{phase_suffix}.csv"
+                )
+                per_season_stats.export_to_json(
+                    json_out, phase=args.phase, include_awards=True,
+                    min_matches=args.min_matches
+                )
+                per_season_stats.export_to_csv(csv_out, phase=args.phase)
+                print(f"  {GREEN}✓{RESET} {season_id}: {json_out}")
+
 
 if __name__ == "__main__":
     main()
