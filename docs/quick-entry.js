@@ -51,8 +51,23 @@ const BEY_IMAGE_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2
 // ============================================
 // ELO CALCULATION CONSTANTS
 // ============================================
-const K_FACTOR = 32; // K-factor for ELO calculation (Swiss tournament standard)
+// Dynamic K-factor matching the Python engine (beyblade_elo.py)
+const K_LEARNING    = 40; // < 6 matches played
+const K_INTERMEDIATE = 24; // 6–14 matches played
+const K_EXPERIENCED  = 12; // 15+ matches played
 const DEFAULT_ELO = 1000; // Default ELO rating for new players
+
+/**
+ * Return the K-factor for a bey based on total matches played (including
+ * the baseline matches already recorded in leaderboard.csv).
+ */
+function dynamicK(beyName) {
+    const bey = state.beyblades.find(b => b.name === beyName);
+    const totalMatches = bey ? bey.matches : 0;
+    if (totalMatches < 6)  return K_LEARNING;
+    if (totalMatches < 15) return K_INTERMEDIATE;
+    return K_EXPERIENCED;
+}
 
 // Score prediction thresholds
 const SCORE_PREDICTION_THRESHOLDS = {
@@ -96,11 +111,13 @@ function calculateExpectedScore(eloA, eloB) {
  * @param {number} elo - Current ELO rating
  * @param {number} opponentElo - Opponent's ELO rating
  * @param {number} actualScore - Actual score (1 for win, 0 for loss, 0.5 for draw)
+ * @param {string} [beyName] - Bey name used to look up the dynamic K-factor
  * @returns {number} ELO change (can be positive or negative)
  */
-function calculateEloChange(elo, opponentElo, actualScore) {
+function calculateEloChange(elo, opponentElo, actualScore, beyName) {
     const expectedScore = calculateExpectedScore(elo, opponentElo);
-    return Math.round(K_FACTOR * (actualScore - expectedScore));
+    const k = beyName ? dynamicK(beyName) : K_EXPERIENCED;
+    return Math.round(k * (actualScore - expectedScore));
 }
 
 // ============================================
@@ -1192,10 +1209,10 @@ function renderAnalysisPanel(matchIndex, idPrefix = 'analysisPanel') {
     const probB = 1 - probA;
     
     // Calculate expected ELO changes
-    const eloChangeAWin = calculateEloChange(eloA, eloB, 1);
-    const eloChangeALoss = calculateEloChange(eloA, eloB, 0);
-    const eloChangeBWin = calculateEloChange(eloB, eloA, 1);
-    const eloChangeBLoss = calculateEloChange(eloB, eloA, 0);
+    const eloChangeAWin = calculateEloChange(eloA, eloB, 1, match.beyA);
+    const eloChangeALoss = calculateEloChange(eloA, eloB, 0, match.beyA);
+    const eloChangeBWin = calculateEloChange(eloB, eloA, 1, match.beyB);
+    const eloChangeBLoss = calculateEloChange(eloB, eloA, 0, match.beyB);
     
     // Get head-to-head record
     const h2h = getHeadToHead(match.beyA, match.beyB);
@@ -2677,18 +2694,18 @@ function calculateSeasonTierStandings() {
         const tier = parseInt(tierNum);
         tierStandings[tier] = {};
         
-        // Initialize each bey in the tier
+        // Initialize each bey in the tier from existing season standings
         currentSeason.league_tables[tierNum].forEach(entry => {
             tierStandings[tier][entry.bey] = {
                 bey: entry.bey,
                 tier: tier,
-                matches: 0,
-                wins: 0,
-                losses: 0,
-                seasonPoints: 0,
-                pointsFor: 0,
-                pointsAgainst: 0,
-                pointDiff: 0,
+                matches: entry.matches || 0,
+                wins: entry.wins || 0,
+                losses: entry.losses || 0,
+                seasonPoints: entry.season_points || 0,
+                pointsFor: entry.points_for || 0,
+                pointsAgainst: entry.points_against || 0,
+                pointDiff: entry.point_diff || 0,
                 elo: entry.elo || state.baselineElos[entry.bey] || 1000
             };
         });
