@@ -411,9 +411,192 @@
             font-size: 14px;
             line-height: 1.6;
         }
+
+        /* Season Plots Section */
+        .plots-section {
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        .plots-tier-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .tier-tab {
+            padding: 10px 20px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            opacity: 0.7;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .tier-tab:hover {
+            opacity: 1;
+            border-color: var(--accent-color);
+        }
+
+        .tier-tab.active {
+            color: var(--accent-color);
+            opacity: 1;
+            border-color: var(--accent-color);
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+        }
+
+        .plots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        @media (min-width: 900px) {
+            .plots-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .plot-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .plot-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .plot-card-title {
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plot-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .plots-loading {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .plots-error {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+            background: var(--hover-bg);
+            border-radius: 8px;
+            border: 1px dashed var(--border-color);
+        }
+
+        /* Plot image zoom cursor */
+        .plot-card img {
+            cursor: zoom-in;
+        }
+
+        /* Lightbox overlay */
+        #lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.88);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #lightbox.active {
+            display: flex;
+        }
+
+        #lightbox img {
+            max-width: 95vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+            cursor: zoom-out;
+        }
+
+        #lightbox-caption {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.55);
+            padding: 6px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        #lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 32px;
+            color: #fff;
+            cursor: pointer;
+            line-height: 1;
+            background: none;
+            border: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        #lightbox-close:hover {
+            opacity: 1;
+        }
+
+        /* Tier badge in leaderboard filter */
+        .tier-filter-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Empty / no-data message */
+        .empty-message {
+            padding: 12px 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-caption">
+    <button id="lightbox-close" aria-label="Close">&times;</button>
+    <img id="lightbox-img" src="" alt="" tabindex="0">
+    <div id="lightbox-caption"></div>
+</div>
 
 <a href="#main-content" class="skip-to-content">Skip to main content</a>
 
@@ -464,6 +647,19 @@
         <div id="stats-content">
             <div class="loading">Loading statistics...</div>
         </div>
+
+        <!-- Advanced Statistics & Plots Section -->
+        <details class="profile-section-details" id="advancedPlotsSection" style="display: none;">
+            <summary class="section-summary" style="font-size:20px;font-weight:800;cursor:pointer;padding:12px 0;list-style:none;display:flex;align-items:center;gap:8px;">
+                📈 Advanced Statistics &amp; Plots
+            </summary>
+            <div style="margin-top:16px;">
+                <div class="plots-tier-selector" id="plotsTierSelector"></div>
+                <div id="plotsGrid" class="plots-grid">
+                    <div class="plots-loading">Select a tier above to view plots.</div>
+                </div>
+            </div>
+        </details>
     </div>
 </main>
 
@@ -488,11 +684,22 @@
         'volatility': 'Standard deviation of points per match - lower values indicate more consistent performance.'
     };
 
+    const leaderboardNames = {
+        'match_win_rate': 'Match Win Rate',
+        'points_differential': 'Points Differential',
+        'round_differential': 'Round Differential',
+        'offensive_power_index': 'Offensive Power Index',
+        'dominance_index': 'Dominance Index',
+        'points_per_round': 'Points Per Round',
+        'aggression_ratio': 'Aggression Ratio',
+        'defensive_stability': 'Defensive Stability',
+        'clutch_win_rate': 'Clutch Win Rate',
+        'volatility': 'Volatility'
+    };
+
     // Detect available seasons from CSV or use default
     async function loadAvailableSeasons() {
         try {
-            // Try to fetch available seasons from a JSON file or use default
-            // For now, we'll use a default list
             availableSeasons = ['S1']; // Can be expanded based on actual data
             
             const select = document.getElementById('season-select');
@@ -500,7 +707,6 @@
                 `<option value="${season}">${season === 'S1' ? 'Season 1' : 'Season ' + season.substring(1)}</option>`
             ).join('');
             
-            // Set default season
             select.value = currentSeason;
         } catch (error) {
             console.error('Error loading seasons:', error);
@@ -513,13 +719,11 @@
             currentSeason = season;
             const filename = `data/season_statistics_${season}.json`;
             
-            // Try loading season-specific file, fallback to default
             let response;
             try {
                 response = await fetch(filename);
                 if (!response.ok) throw new Error('Season-specific file not found');
             } catch {
-                // Fallback to default season_statistics.json
                 response = await fetch('data/season_statistics.json');
                 if (!response.ok) throw new Error('Failed to load statistics');
             }
@@ -573,7 +777,6 @@
             `;
             container.appendChild(leaderboardsSection);
             
-            // Initialize leaderboard tabs
             initLeaderboardTabs();
         }
     }
@@ -581,53 +784,35 @@
     // Render awards
     function renderAwards() {
         const awards = statsData.awards;
-        return Object.entries(awards).map(([key, award]) => `
-            <div class="award-card">
-                <div class="award-header">
-                    <span class="award-icon">${award.icon}</span>
-                    <span class="award-title">${award.title}</span>
+        return Object.entries(awards).map(([, award]) => `
+                <div class="award-card">
+                    <div class="award-header">
+                        <span class="award-icon">${award.icon}</span>
+                        <span class="award-title">${award.title}</span>
+                    </div>
+                    <div class="award-winner">${award.winner}</div>
+                    <div class="award-value">${formatValue(award.value, award.metric)}</div>
                 </div>
-                <div class="award-winner">${award.winner}</div>
-                <div class="award-value">${formatValue(award.value, award.metric)}</div>
-            </div>
-        `).join('');
+            `).join('') || '<p class="empty-message">No awards available.</p>';
     }
 
     // Format value based on metric type
     function formatValue(value, metric) {
         const lowerMetric = metric.toLowerCase();
-        
-        // Integer metrics
         if (lowerMetric.includes('differential') || 
             lowerMetric.includes('wins') || 
             lowerMetric.includes('suffered')) {
             return `${Math.round(value)} ${metric}`;
         }
-        
-        // Percentage metrics
         if (lowerMetric.includes('rate') || lowerMetric.includes('ratio')) {
             return `${value.toFixed(1)}% ${metric.replace(' %', '')}`;
         }
-        
-        // Default: 2 decimal places
         return `${value.toFixed(2)} ${metric}`;
     }
 
     // Render leaderboards
     function renderLeaderboards() {
         const leaderboards = statsData.leaderboards;
-        const leaderboardNames = {
-            'match_win_rate': 'Match Win Rate',
-            'points_differential': 'Points Differential',
-            'round_differential': 'Round Differential',
-            'offensive_power_index': 'Offensive Power Index',
-            'dominance_index': 'Dominance Index',
-            'points_per_round': 'Points Per Round',
-            'aggression_ratio': 'Aggression Ratio',
-            'defensive_stability': 'Defensive Stability',
-            'clutch_win_rate': 'Clutch Win Rate',
-            'volatility': 'Volatility'
-        };
 
         const tabs = Object.keys(leaderboards).map((key, index) => `
             <button class="leaderboard-tab ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
@@ -636,10 +821,10 @@
         `).join('');
 
         const contents = Object.entries(leaderboards).map(([key, leaders], index) => `
-            <div class="leaderboard-content ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
-                ${renderLeaderboardTable(leaders, key)}
-            </div>
-        `).join('');
+                <div class="leaderboard-content ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
+                    ${renderLeaderboardTable(leaders, key)}
+                </div>
+            `).join('');
 
         return `
             <div class="leaderboard-tabs-container">
@@ -656,10 +841,9 @@
     // Render leaderboard table
     function renderLeaderboardTable(leaders, metricKey) {
         if (!leaders || leaders.length === 0) {
-            return '<p>No data available for this metric.</p>';
+            return '<p class="empty-message">No data available for this metric.</p>';
         }
 
-        // Add explanation if available
         const explanation = statExplanations[metricKey];
         const explanationHTML = explanation ? 
             `<div class="stat-explanation">ℹ️ ${explanation}</div>` : '';
@@ -670,8 +854,6 @@
                              entry.rank === 3 ? 'rank-3' : 'rank-other';
             
             let valueDisplay = entry.value;
-            
-            // Format integers for appropriate metrics
             if (metricKey.includes('differential') || 
                 metricKey.includes('wins') || 
                 metricKey.includes('losses')) {
@@ -721,14 +903,12 @@
             tab.addEventListener('click', () => {
                 const leaderboard = tab.dataset.leaderboard;
 
-                // Update active states
                 tabs.forEach(t => t.classList.remove('active'));
                 contents.forEach(c => c.classList.remove('active'));
 
                 tab.classList.add('active');
                 document.querySelector(`.leaderboard-content[data-leaderboard="${leaderboard}"]`).classList.add('active');
                 
-                // Scroll tab into view on mobile
                 tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             });
         });
@@ -737,11 +917,205 @@
     // Season selector
     document.getElementById('season-select').addEventListener('change', (e) => {
         loadStats(e.target.value);
+        loadSeasonPlots(e.target.value);
     });
 
     // Initial load
     loadAvailableSeasons().then(() => {
         loadStats(currentSeason);
+        loadSeasonPlots(currentSeason);
+    });
+
+    // -------------------------------------------------------------------------
+    // Season Plots
+    // -------------------------------------------------------------------------
+
+    let plotsManifest = null;
+    let currentTier = null;
+
+    const PLOT_TITLES = {
+        'bump_chart': '📊 Position Progression (Bump Chart)',
+        'cumulative_points': '📈 Cumulative Season Points',
+        'finish_distribution_all_tiers': '🎯 Finish Type Distribution (All Tiers)',
+        'finish_distribution': '🎯 Finish Type Distribution',
+        'finish_type_evolution': '🔄 Finish Type Evolution',
+        'h2h_matrix': '🔥 Head-to-Head Win Rate Matrix',
+        'points_per_match_all_tiers': '📦 Points Per Match Distribution (All Tiers)',
+        'points_per_match': '📦 Points Per Match Distribution',
+        'radar_chart_all_tiers': '🕸️ Bey Profile Radar (All Tiers)',
+        'radar_chart': '🕸️ Bey Profile (Radar Chart)',
+        'round_differential': '⚖️ Round Differential Over Time',
+        'rolling_volatility': '📉 Rolling Volatility',
+        'efficiency_vs_winrate': '🎯 Efficiency vs Win Rate',
+        'expected_vs_actual': '🎲 Expected vs Actual Wins',
+        'cutline_pressure': '📌 Cutline Pressure',
+        'dominance_timeline': '👑 Dominance Timeline',
+        'tier_comparison': '🏆 Tier Comparison',
+    };
+
+    function getPlotTitle(filename) {
+        for (const [key, title] of Object.entries(PLOT_TITLES)) {
+            if (filename.includes(key)) return title;
+        }
+        return filename.replace(/_/g, ' ').replace(/\.png$/, '');
+    }
+
+    function isDarkMode() {
+        return document.documentElement.classList.contains('dark') ||
+               document.body.classList.contains('dark') ||
+               (document.getElementById('darkToggle') && document.getElementById('darkToggle').checked);
+    }
+
+    async function loadSeasonPlots(season) {
+        const section = document.getElementById('advancedPlotsSection');
+        const tierSelector = document.getElementById('plotsTierSelector');
+        const plotsGrid = document.getElementById('plotsGrid');
+
+        plotsGrid.innerHTML = '<div class="plots-loading">Loading plots...</div>';
+        tierSelector.innerHTML = '';
+        section.style.display = 'none';
+        plotsManifest = null;
+        currentTier = null;
+
+        try {
+            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            if (!resp.ok) throw new Error('Manifest not found');
+            plotsManifest = await resp.json();
+
+            const tiers = Object.keys(plotsManifest.tiers).sort();
+            if (tiers.length === 0) {
+                plotsGrid.innerHTML = '<div class="plots-error">No tier plots available for this season.</div>';
+                section.style.display = 'block';
+                return;
+            }
+
+            // Build tier tabs (individual tiers + "All Tiers" combined tab)
+            const allTabs = tiers.map((t, i) => `
+                <button class="tier-tab ${i === 0 ? 'active' : ''}" data-tier="${t}">Tier ${t}</button>
+            `).join('') + (plotsManifest.combined
+                ? `<button class="tier-tab" data-tier="combined">🌐 All Tiers</button>`
+                : '');
+            tierSelector.innerHTML = allTabs;
+
+            tierSelector.querySelectorAll('.tier-tab').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tierSelector.querySelectorAll('.tier-tab').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const tier = btn.dataset.tier;
+                    renderTierPlots(tier, season);
+                });
+            });
+
+            // Show first tier by default
+            currentTier = tiers[0];
+            renderTierPlots(currentTier, season);
+            section.style.display = 'block';
+
+        } catch (e) {
+            plotsGrid.innerHTML = '<div class="plots-error">Season plots not yet generated. Run <code>python update.py --plots-only</code> to generate them.</div>';
+            section.style.display = 'block';
+        }
+    }
+
+    function renderTierPlots(tier, season) {
+        currentTier = tier;
+        const plotsGrid = document.getElementById('plotsGrid');
+        const dark = isDarkMode();
+        const tierData = plotsManifest && (
+            tier === 'combined' ? plotsManifest.combined : plotsManifest.tiers[tier]
+        );
+
+        if (!tierData) {
+            plotsGrid.innerHTML = '<div class="plots-error">No plots available for this tier.</div>';
+            return;
+        }
+
+        const plots = dark ? tierData.dark_plots : tierData.plots;
+        const basePath = tier === 'combined'
+            ? `plots/season/${season}/combined/`
+            : `plots/season/${season}/tier${tier}/`;
+
+        plotsGrid.innerHTML = plots.map(filename => {
+            const title = getPlotTitle(filename);
+            const src = basePath + filename;
+            return `
+                <div class="plot-card">
+                    <div class="plot-card-title">${title}</div>
+                    <img src="${src}" alt="${title}" loading="lazy"
+                         onerror="this.parentElement.style.display='none'"
+                         onclick="openLightbox(this.src, this.alt, this)">
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Re-render plots when dark mode changes
+    const darkToggle = document.getElementById('darkToggle');
+    if (darkToggle) {
+        darkToggle.addEventListener('change', () => {
+            if (currentTier && plotsManifest) {
+                renderTierPlots(currentTier, currentSeason);
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Lightbox
+    // -------------------------------------------------------------------------
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxClose = document.getElementById('lightbox-close');
+    // Track the element that triggered the lightbox so we can restore focus
+    let lightboxTrigger = null;
+
+    function openLightbox(src, caption, triggerEl) {
+        lightboxTrigger = triggerEl || document.activeElement;
+        lightboxImg.src = src;
+        lightboxImg.alt = caption;
+        lightboxCaption.textContent = caption;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        // Move focus to the close button
+        lightboxClose.focus();
+    }
+
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        lightboxImg.src = '';
+        document.body.style.overflow = '';
+        // Restore focus to the triggering element
+        if (lightboxTrigger) {
+            lightboxTrigger.focus();
+            lightboxTrigger = null;
+        }
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+
+    // Close when clicking the backdrop (not the image itself)
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+    });
+
+    // Keyboard: Escape to close, Tab to trap focus within lightbox
+    lightbox.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
+        } else if (e.key === 'Tab') {
+            // Trap focus between close button and image
+            const focusable = [lightboxClose, lightboxImg];
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
     });
 </script>
 
