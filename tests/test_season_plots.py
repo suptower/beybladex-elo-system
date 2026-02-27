@@ -186,6 +186,7 @@ class TestPlotFunctions:
         season_plots.plot_cumulative_points(season_only, tier=99, outdir=outdir, season_id="S1")
         season_plots.plot_h2h_matrix(season_only, tier=99, outdir=outdir, season_id="S1")
         season_plots.plot_points_per_match(season_only, tier=99, outdir=outdir, season_id="S1")
+        season_plots.plot_position_range_projection(season_only, tier=99, outdir=outdir, season_id="S1")
 
     def test_dark_mode_plots_created(self, sample_matches, tmp_path):
         """Dark mode plots should be saved to the dark/ subdirectory."""
@@ -197,9 +198,110 @@ class TestPlotFunctions:
         )
         assert os.path.exists(os.path.join(outdir, "dark", "bump_chart_tier1_dark.png"))
 
+    def test_position_range_projection(self, sample_matches, tmp_path):
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        outdir = str(tmp_path)
+        os.makedirs(os.path.join(outdir, "dark"), exist_ok=True)
+        season_plots.plot_position_range_projection(
+            season_only, tier=1, outdir=outdir, season_id="S1"
+        )
+        assert os.path.exists(os.path.join(outdir, "position_range_projection_tier1.png"))
+
+    def test_position_range_projection_dark(self, sample_matches, tmp_path):
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        outdir = str(tmp_path)
+        os.makedirs(os.path.join(outdir, "dark"), exist_ok=True)
+        season_plots.plot_position_range_projection(
+            season_only, tier=1, outdir=outdir, season_id="S1", dark_mode=True
+        )
+        assert os.path.exists(
+            os.path.join(outdir, "dark", "position_range_projection_tier1_dark.png")
+        )
+
+
+class TestComputePositionRangeProjection:
+    """Unit tests for compute_position_range_projection."""
+
+    def test_returns_list(self, sample_matches):
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        result = season_plots.compute_position_range_projection(season_only, tier=1)
+        assert isinstance(result, list)
+        assert len(result) == 3  # Alpha, Beta, Gamma
+
+    def test_empty_tier_returns_empty(self, sample_matches):
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        result = season_plots.compute_position_range_projection(season_only, tier=99)
+        assert result == []
+
+    def test_required_keys(self, sample_matches):
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        result = season_plots.compute_position_range_projection(season_only, tier=1)
+        for entry in result:
+            for key in ("bey", "current_points", "remaining_matches",
+                        "p_min", "p_max", "current_rank", "best_rank", "worst_rank"):
+                assert key in entry, f"Missing key '{key}' in {entry}"
+
+    def test_p_min_equals_current_points(self, sample_matches):
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        for entry in season_plots.compute_position_range_projection(season_only, tier=1):
+            assert entry["p_min"] == entry["current_points"]
+
+    def test_p_max_gte_p_min(self, sample_matches):
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        for entry in season_plots.compute_position_range_projection(season_only, tier=1):
+            assert entry["p_max"] >= entry["p_min"]
+
+    def test_best_rank_lte_current_lte_worst_rank(self, sample_matches):
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        for entry in season_plots.compute_position_range_projection(season_only, tier=1):
+            assert entry["best_rank"] <= entry["current_rank"]
+            assert entry["current_rank"] <= entry["worst_rank"]
+
+    def test_sorted_by_current_rank(self, sample_matches):
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        result = season_plots.compute_position_range_projection(season_only, tier=1)
+        ranks = [d["current_rank"] for d in result]
+        assert ranks == sorted(ranks)
+
+    def test_winner_has_most_points(self, sample_matches):
+        """After all matches, Beta (2W) leads with most season points."""
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        result = season_plots.compute_position_range_projection(season_only, tier=1)
+        # All 3 matches played; Beta wins M001 & M003 → 6 pts
+        by_bey = {d["bey"]: d for d in result}
+        assert by_bey["Beta"]["current_points"] >= by_bey["Alpha"]["current_points"]
+        assert by_bey["Beta"]["current_points"] >= by_bey["Gamma"]["current_points"]
+
+    def test_no_remaining_when_all_played(self, sample_matches):
+        """When all round-robin matches are done, remaining_matches == 0 for every bey."""
+        season_only = sample_matches[sample_matches["MatchType"] == "season"]
+        result = season_plots.compute_position_range_projection(season_only, tier=1)
+        for entry in result:
+            assert entry["remaining_matches"] == 0
+            assert entry["p_max"] == entry["p_min"]
+
+    def test_projection_with_remaining_matches(self):
+        """Projection logic should behave correctly when matches remain to be played."""
+        # 2 of 3 round-robin matches played; Beta and Gamma each have 1 remaining.
+        partial_matches = pd.DataFrame([
+            {"MatchID": "M001", "BeyA": "Alpha", "BeyB": "Beta", "ScoreA": 4, "ScoreB": 2,
+             "MatchType": "season", "SeasonID": "S1", "Tier": 1, "Matchday": 1},
+            {"MatchID": "M002", "BeyA": "Alpha", "BeyB": "Gamma", "ScoreA": 2, "ScoreB": 4,
+             "MatchType": "season", "SeasonID": "S1", "Tier": 1, "Matchday": 2},
+            # Beta vs Gamma NOT yet played → remaining_matches == 1 for both
+        ])
+        result = season_plots.compute_position_range_projection(partial_matches, tier=1)
+
+        assert any(entry["remaining_matches"] > 0 for entry in result)
+
+        for entry in result:
+            assert entry["p_max"] >= entry["p_min"]
+            if entry["remaining_matches"] > 0:
+                assert entry["p_max"] > entry["p_min"]
+            assert entry["best_rank"] <= entry["current_rank"] <= entry["worst_rank"]
+
 
 class TestManifest:
-    """Test that generate_season_plots writes the manifest JSON correctly."""
 
     def test_manifest_structure(self, tmp_path, sample_matches, sample_rounds,
                                 sample_stats_json, monkeypatch):
@@ -239,8 +341,8 @@ class TestManifest:
         tier_data = manifest["tiers"]["1"]
         assert "plots" in tier_data
         assert "dark_plots" in tier_data
-        assert len(tier_data["plots"]) == 13
-        assert len(tier_data["dark_plots"]) == 13
+        assert len(tier_data["plots"]) == 14
+        assert len(tier_data["dark_plots"]) == 14
         # Combined (all-tiers) section
         assert "combined" in manifest
         combined_data = manifest["combined"]

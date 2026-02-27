@@ -1276,6 +1276,202 @@ def plot_tier_comparison(season_matches, season_rounds, season_stats_json,
 
 
 # ---------------------------------------------------------------------------
+# 14. Position Range Projection (Best / Worst possible finish per bey)
+# ---------------------------------------------------------------------------
+
+#: Maximum season points awarded for a single match (dominant win: 4-0, 5-0, …)
+_MAX_PTS_PER_MATCH = 4
+
+
+def compute_position_range_projection(season_matches, tier, max_pts_per_match=_MAX_PTS_PER_MATCH):
+    """
+    Compute best/worst possible final-position projection for each Bey in *tier*.
+
+    Only ``match_type = season`` matches should be passed via *season_matches*.
+
+    For each Bey the function calculates:
+
+    - ``current_points``  – points already earned (win = 3, dominant win = 4, loss = 0)
+    - ``remaining_matches`` – matches still to be played (round-robin total minus played)
+    - ``p_min``  – minimum achievable points  = current_points
+    - ``p_max``  – maximum achievable points  = current_points + remaining * max_pts_per_match
+    - ``best_rank``   – 1 + (# other Beys whose current_points > this Bey's p_max)
+    - ``worst_rank``  – 1 + (# other Beys whose p_max >= this Bey's p_min)
+    - ``current_rank`` – position in today's standings (sorted by current_points desc)
+
+    Args:
+        season_matches: DataFrame of season-only matches (already filtered by MatchType).
+        tier: Tier number to analyse.
+        max_pts_per_match: Maximum points earnable in one match (default 4 – dominant win).
+
+    Returns:
+        List of dicts sorted by ``current_rank`` (ascending).
+        Returns an empty list when the tier has no matches.
+    """
+    tier_matches = season_matches[season_matches["Tier"] == tier].copy()
+    if tier_matches.empty:
+        return []
+
+    beys = sorted(set(tier_matches["BeyA"]) | set(tier_matches["BeyB"]))
+    n = len(beys)
+    total_matches_per_bey = n - 1  # single round-robin
+
+    current_pts: dict = {b: 0 for b in beys}
+    matches_played: dict = {b: 0 for b in beys}
+
+    for _, row in tier_matches.iterrows():
+        a, b = row["BeyA"], row["BeyB"]
+        sa, sb = int(row["ScoreA"]), int(row["ScoreB"])
+        matches_played[a] += 1
+        matches_played[b] += 1
+
+        if sa > sb:
+            diff = sa - sb
+            pts_a = 4 if (diff >= 4 and sb == 0) else 3
+            pts_b = 0
+        elif sb > sa:
+            diff = sb - sa
+            pts_a = 0
+            pts_b = 4 if (diff >= 4 and sa == 0) else 3
+        else:
+            pts_a = pts_b = 0
+
+        current_pts[a] += pts_a
+        current_pts[b] += pts_b
+
+    # Build per-bey projection data
+    bey_data: dict = {}
+    for bey in beys:
+        remaining = max(0, total_matches_per_bey - matches_played[bey])
+        p_min = current_pts[bey]
+        p_max = p_min + remaining * max_pts_per_match
+        bey_data[bey] = {
+            "bey": bey,
+            "current_points": p_min,
+            "remaining_matches": remaining,
+            "p_min": p_min,
+            "p_max": p_max,
+        }
+
+    # Current rank (by current_points descending; ties are broken deterministically by bey name)
+    ranked = sorted(beys, key=lambda b: (-bey_data[b]["current_points"], b))
+    current_ranks = {b: i + 1 for i, b in enumerate(ranked)}
+
+    # Best / worst rank per bey
+    for bey in beys:
+        p_max_self = bey_data[bey]["p_max"]
+        p_min_self = bey_data[bey]["p_min"]
+
+        # Beys already ahead that cannot be overtaken
+        count_certain_above = sum(
+            1 for other in beys
+            if other != bey and bey_data[other]["current_points"] > p_max_self
+        )
+        best_rank = count_certain_above + 1
+
+        # Beys that could still equal or overtake this Bey
+        count_can_beat = sum(
+            1 for other in beys
+            if other != bey and bey_data[other]["p_max"] >= p_min_self
+        )
+        worst_rank = count_can_beat + 1
+
+        bey_data[bey]["current_rank"] = current_ranks[bey]
+        bey_data[bey]["best_rank"] = best_rank
+        bey_data[bey]["worst_rank"] = worst_rank
+
+    return sorted(bey_data.values(), key=lambda d: d["current_rank"])
+
+
+def plot_position_range_projection(season_matches, tier, outdir, season_id,
+                                   dark_mode=False,
+                                   promotion_spots: int = 2,
+                                   relegation_spots: int = 2):
+    """
+    Range plot showing the best and worst possible final position for each Bey.
+
+    Each Bey is shown as:
+    - A vertical line spanning [BestRank, WorstRank]
+    - A filled circle at CurrentRank
+    - A text label with current points and the achievable range [P_min – P_max]
+
+    Horizontal cutlines mark the promotion and relegation thresholds.
+
+    Args:
+        season_matches: DataFrame of season-only matches.
+        tier: Tier number.
+        outdir: Output directory (must already contain a ``dark/`` sub-directory).
+        season_id: Season identifier used in the plot title.
+        dark_mode: When ``True`` the dark colour scheme is applied.
+        promotion_spots: Number of automatic-promotion positions (default 2).
+        relegation_spots: Number of automatic-relegation positions (default 2).
+    """
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    tier_int = int(tier)
+    data = compute_position_range_projection(season_matches, tier)
+    if not data:
+        return
+
+    n = len(data)
+    bey_names = [d["bey"] for d in data]
+    x = np.arange(n)
+
+    palette = sns.color_palette("tab10", n)
+
+    fig, ax = plt.subplots(figsize=(max(8, n * 1.0), 6))
+
+    for i, d in enumerate(data):
+        best = d["best_rank"]
+        worst = d["worst_rank"]
+        current = d["current_rank"]
+        color = palette[i]
+
+        # Vertical range bar
+        ax.plot([i, i], [best, worst], color=color, linewidth=4, alpha=0.55,
+                solid_capstyle="round")
+        # Current rank marker
+        ax.scatter([i], [current], color=color, s=90, zorder=5)
+
+        # Annotation: current pts and achievable range
+        ax.annotate(
+            f"{d['current_points']} pts\n[{d['p_min']}–{d['p_max']}]",
+            (i, worst + 0.25),
+            ha="center", va="top", fontsize=6.5, color=color,
+        )
+
+    # Promotion cutline
+    if n > promotion_spots:
+        ax.axhline(promotion_spots + 0.5, color="#22c55e", linewidth=1.5,
+                   linestyle="--", alpha=0.85,
+                   label=f"Promotion (top {promotion_spots})")
+
+    # Relegation cutline
+    relegation_line = n - relegation_spots + 1
+    if n > relegation_spots and relegation_line > promotion_spots + 1:
+        ax.axhline(relegation_line - 0.5, color="#ef4444", linewidth=1.5,
+                   linestyle="--", alpha=0.85,
+                   label=f"Relegation (bottom {relegation_spots})")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(bey_names, rotation=40, ha="right", fontsize=8)
+    ax.set_yticks(range(1, n + 1))
+    ax.set_ylabel("Position")
+    ax.set_title(f"{season_id} – Tier {tier_int} – Position Range Projection")
+    ax.invert_yaxis()
+    ax.grid(True, axis="y", alpha=0.3)
+    ax.legend(fontsize=8, loc="upper right")
+    plt.tight_layout()
+
+    light_p = os.path.join(outdir, f"position_range_projection_tier{tier_int}.png")
+    dark_p = os.path.join(outdir, "dark", f"position_range_projection_tier{tier_int}_dark.png")
+    save_fig(fig, light_p, dark_p, dark_mode)
+
+
+# ---------------------------------------------------------------------------
 # Master runner
 # ---------------------------------------------------------------------------
 
@@ -1330,6 +1526,7 @@ def generate_season_plots():
                 plot_expected_vs_actual(s_matches, season_stats_s, tier_beys, tier, outdir, season_id, dark_mode)
                 plot_cutline_pressure(s_matches, tier, outdir, season_id, dark_mode)
                 plot_dominance_timeline(s_matches, tier, outdir, season_id, dark_mode)
+                plot_position_range_projection(s_matches, tier, outdir, season_id, dark_mode)
 
             print(f"  Season {season_id} – Tier {tier_int}: plots saved to {outdir}")
 
@@ -1363,6 +1560,7 @@ def generate_season_plots():
                         f"expected_vs_actual_tier{int(t)}.png",
                         f"cutline_pressure_tier{int(t)}.png",
                         f"dominance_timeline_tier{int(t)}.png",
+                        f"position_range_projection_tier{int(t)}.png",
                     ],
                     "dark_plots": [
                         f"dark/bump_chart_tier{int(t)}_dark.png",
@@ -1378,6 +1576,7 @@ def generate_season_plots():
                         f"dark/expected_vs_actual_tier{int(t)}_dark.png",
                         f"dark/cutline_pressure_tier{int(t)}_dark.png",
                         f"dark/dominance_timeline_tier{int(t)}_dark.png",
+                        f"dark/position_range_projection_tier{int(t)}_dark.png",
                     ],
                 }
                 for t in sorted(s_matches["Tier"].dropna().unique())
@@ -1400,6 +1599,16 @@ def generate_season_plots():
         manifest_dir = os.path.join(BASE_OUTPUT_DIR, season_id)
         os.makedirs(manifest_dir, exist_ok=True)
         manifest_path = os.path.join(manifest_dir, "manifest.json")
+        # Preserve any extra sections (e.g. "comparison") written by other generators
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, encoding="utf-8") as existing_mf:
+                    existing = json.load(existing_mf)
+                for key in existing:
+                    if key not in manifest:
+                        manifest[key] = existing[key]
+            except (json.JSONDecodeError, OSError):
+                pass
         with open(manifest_path, "w", encoding="utf-8") as mf:
             json.dump(manifest, mf, indent=2)
 
