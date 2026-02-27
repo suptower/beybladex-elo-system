@@ -70,6 +70,7 @@ SCRIPT_ARCHETYPE_ANALYTICS = "./src/archetype_analytics.py"
 SCRIPT_SEASON_PROCESSING = "./src/season_processing.py"
 SCRIPT_STADIUM_STATS = "./src/stadium_stats.py"
 SCRIPT_SEASON_STATISTICS = "./src/season_statistics.py"
+SCRIPT_SEASON_COMPARISON = "./src/season_comparison.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
@@ -398,6 +399,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Season Statistics", success, duration))
+
+    # Season Comparison Analytics (depends on matches, elo_history, leaderboard)
+    success, duration = run_script(
+        SCRIPT_SEASON_COMPARISON,
+        "Season vs Global Comparison Analytics",
+        verbose=verbose
+    )
+    results.append(("Season Comparison", success, duration))
 
     return results
 
