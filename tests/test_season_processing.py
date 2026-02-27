@@ -5,7 +5,6 @@ import csv
 import json
 import os
 import sys
-import tempfile
 
 # Add src directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))

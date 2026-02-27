@@ -1353,8 +1353,8 @@ def compute_position_range_projection(season_matches, tier, max_pts_per_match=_M
             "p_max": p_max,
         }
 
-    # Current rank (by current_points descending; ties share the same position slot)
-    ranked = sorted(beys, key=lambda b: -bey_data[b]["current_points"])
+    # Current rank (by current_points descending; ties are broken deterministically by bey name)
+    ranked = sorted(beys, key=lambda b: (-bey_data[b]["current_points"], b))
     current_ranks = {b: i + 1 for i, b in enumerate(ranked)}
 
     # Best / worst rank per bey
@@ -1599,6 +1599,16 @@ def generate_season_plots():
         manifest_dir = os.path.join(BASE_OUTPUT_DIR, season_id)
         os.makedirs(manifest_dir, exist_ok=True)
         manifest_path = os.path.join(manifest_dir, "manifest.json")
+        # Preserve any extra sections (e.g. "comparison") written by other generators
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, encoding="utf-8") as existing_mf:
+                    existing = json.load(existing_mf)
+                for key in existing:
+                    if key not in manifest:
+                        manifest[key] = existing[key]
+            except (json.JSONDecodeError, OSError):
+                pass
         with open(manifest_path, "w", encoding="utf-8") as mf:
             json.dump(manifest, mf, indent=2)
 

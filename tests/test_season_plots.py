@@ -280,6 +280,26 @@ class TestComputePositionRangeProjection:
             assert entry["remaining_matches"] == 0
             assert entry["p_max"] == entry["p_min"]
 
+    def test_projection_with_remaining_matches(self):
+        """Projection logic should behave correctly when matches remain to be played."""
+        # 2 of 3 round-robin matches played; Beta and Gamma each have 1 remaining.
+        partial_matches = pd.DataFrame([
+            {"MatchID": "M001", "BeyA": "Alpha", "BeyB": "Beta", "ScoreA": 4, "ScoreB": 2,
+             "MatchType": "season", "SeasonID": "S1", "Tier": 1, "Matchday": 1},
+            {"MatchID": "M002", "BeyA": "Alpha", "BeyB": "Gamma", "ScoreA": 2, "ScoreB": 4,
+             "MatchType": "season", "SeasonID": "S1", "Tier": 1, "Matchday": 2},
+            # Beta vs Gamma NOT yet played → remaining_matches == 1 for both
+        ])
+        result = season_plots.compute_position_range_projection(partial_matches, tier=1)
+
+        assert any(entry["remaining_matches"] > 0 for entry in result)
+
+        for entry in result:
+            assert entry["p_max"] >= entry["p_min"]
+            if entry["remaining_matches"] > 0:
+                assert entry["p_max"] > entry["p_min"]
+            assert entry["best_rank"] <= entry["current_rank"] <= entry["worst_rank"]
+
 
 class TestManifest:
 

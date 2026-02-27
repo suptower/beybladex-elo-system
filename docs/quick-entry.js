@@ -157,6 +157,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadSeasonData();
     await loadRecommendedMatches();
     loadFromStorage();
+    // Re-sync baseline ELOs from current leaderboard.csv, adjusting live ELOs
+    // to preserve any in-tournament delta from a resumed session.
+    state.beyblades.forEach(bey => {
+        const oldBaseline = state.baselineElos[bey.name];
+        state.baselineElos[bey.name] = bey.elo;
+        if (oldBaseline !== undefined && state.liveElos[bey.name] !== undefined) {
+            state.liveElos[bey.name] += (bey.elo - oldBaseline);
+        }
+    });
     initializeLiveElos();
     initializeUI();
     setupEventListeners();
