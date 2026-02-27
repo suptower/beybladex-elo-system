@@ -1,57 +1,57 @@
 {
   "metadata": {
     "total_beys": 46,
-    "low_data_beys": 14,
-    "average_matches_all": 12.652173913043478,
-    "average_matches_low_data": 5.928571428571429,
+    "low_data_beys": 18,
+    "average_matches_all": 15.043478260869565,
+    "average_matches_low_data": 6.388888888888889,
     "recommendation": {
       "recommended": "single_elimination",
-      "reason": "Single elimination is best for 14 participants. Bracket size: 16, winner plays 4 matches.",
+      "reason": "Single elimination is best for 18 participants. Bracket size: 32, winner plays 5 matches.",
       "benefits": [
         "Efficient for large participant counts",
         "Creates exciting playoff-style competition",
         "Identifies top performers",
-        "Average current matches: 5.9"
+        "Average current matches: 6.4"
       ],
-      "note": "Some beys may need byes (2 byes needed)"
+      "note": "Some beys may need byes (14 byes needed)"
     }
   },
   "low_data_bey_list": [
     {
-      "name": "WolfHunt",
-      "matches": 2,
-      "elo": 1005.0,
-      "rank": 19
-    },
-    {
-      "name": "EmperorMight",
-      "matches": 2,
-      "elo": 967.0,
-      "rank": 33
-    },
-    {
-      "name": "ValkyrieVolt",
-      "matches": 5,
-      "elo": 1071.0,
-      "rank": 6
-    },
-    {
-      "name": "WyvernHover",
-      "matches": 5,
-      "elo": 1016.0,
+      "name": "HellsBrave",
+      "matches": 3,
+      "elo": 1015.0,
       "rank": 18
     },
     {
-      "name": "CobaltDrake",
-      "matches": 5,
-      "elo": 949.0,
-      "rank": 38
+      "name": "WolfHunt",
+      "matches": 3,
+      "elo": 979.0,
+      "rank": 29
+    },
+    {
+      "name": "TyrannoRoar",
+      "matches": 4,
+      "elo": 1069.0,
+      "rank": 7
+    },
+    {
+      "name": "ClockMirage",
+      "matches": 4,
+      "elo": 985.0,
+      "rank": 27
+    },
+    {
+      "name": "EmperorMight",
+      "matches": 4,
+      "elo": 934.0,
+      "rank": 39
     },
     {
       "name": "WhaleFlame",
       "matches": 5,
       "elo": 947.0,
-      "rank": 39
+      "rank": 35
     },
     {
       "name": "HellsHammer",
@@ -60,10 +60,16 @@
       "rank": 44
     },
     {
+      "name": "CobaltDrake",
+      "matches": 6,
+      "elo": 941.0,
+      "rank": 38
+    },
+    {
       "name": "PegasusBlast",
       "matches": 6,
       "elo": 925.0,
-      "rank": 42
+      "rank": 41
     },
     {
       "name": "WizardArrow",
@@ -78,6 +84,18 @@
       "rank": 43
     },
     {
+      "name": "ValkyrieVolt",
+      "matches": 8,
+      "elo": 1109.0,
+      "rank": 2
+    },
+    {
+      "name": "WyvernHover",
+      "matches": 8,
+      "elo": 1042.0,
+      "rank": 12
+    },
+    {
       "name": "SamuraiSaber",
       "matches": 8,
       "elo": 888.0,
@@ -87,19 +105,25 @@
       "name": "PhoenixRudder",
       "matches": 9,
       "elo": 962.0,
-      "rank": 34
-    },
-    {
-      "name": "TyrannoBeat",
-      "matches": 9,
-      "elo": 933.0,
-      "rank": 40
+      "rank": 33
     },
     {
       "name": "BlackShell",
       "matches": 9,
       "elo": 931.0,
-      "rank": 41
+      "rank": 40
+    },
+    {
+      "name": "DranBuster",
+      "matches": 10,
+      "elo": 969.0,
+      "rank": 32
+    },
+    {
+      "name": "TyrannoBeat",
+      "matches": 10,
+      "elo": 925.0,
+      "rank": 42
     }
   ],
   "brackets": [
@@ -108,45 +132,49 @@
       "bracket": {
         "format": "single_elimination",
         "participants": [
+          "HellsBrave",
           "WolfHunt",
+          "TyrannoRoar",
+          "ClockMirage",
           "EmperorMight",
-          "ValkyrieVolt",
-          "WyvernHover",
-          "CobaltDrake",
           "WhaleFlame",
           "HellsHammer",
+          "CobaltDrake",
           "PegasusBlast",
           "WizardArrow",
           "WizardArc",
+          "ValkyrieVolt",
+          "WyvernHover",
           "SamuraiSaber",
           "PhoenixRudder",
-          "TyrannoBeat",
-          "BlackShell"
+          "BlackShell",
+          "DranBuster",
+          "TyrannoBeat"
         ],
-        "total_rounds": 4,
-        "total_matches": 13,
+        "total_rounds": 5,
+        "total_matches": 17,
         "rounds": [
           {
             "round": 1,
-            "name": "Round of 16",
+            "name": "Round of 32",
             "matches": [
               {
                 "match_id": "R1M1",
-                "bey_a": "WolfHunt",
-                "bey_b": "EmperorMight",
-                "existing_matches": 2,
-                "winner_advances_to": "R2M1"
-              },
-              {
-                "match_id": "R1M2",
-                "bey_a": "ValkyrieVolt",
-                "bey_b": "WyvernHover",
+                "bey_a": "HellsBrave",
+                "bey_b": "WolfHunt",
                 "existing_matches": 0,
                 "winner_advances_to": "R2M1"
               },
               {
+                "match_id": "R1M2",
+                "bey_a": "TyrannoRoar",
+                "bey_b": "ClockMirage",
+                "existing_matches": 1,
+                "winner_advances_to": "R2M1"
+              },
+              {
                 "match_id": "R1M3",
-                "bey_a": "CobaltDrake",
+                "bey_a": "EmperorMight",
                 "bey_b": "WhaleFlame",
                 "existing_matches": 0,
                 "winner_advances_to": "R2M2"
@@ -154,36 +182,50 @@
               {
                 "match_id": "R1M4",
                 "bey_a": "HellsHammer",
-                "bey_b": "PegasusBlast",
+                "bey_b": "CobaltDrake",
                 "existing_matches": 0,
                 "winner_advances_to": "R2M2"
               },
               {
                 "match_id": "R1M5",
-                "bey_a": "WizardArrow",
-                "bey_b": "WizardArc",
+                "bey_a": "PegasusBlast",
+                "bey_b": "WizardArrow",
                 "existing_matches": 0,
                 "winner_advances_to": "R2M3"
               },
               {
                 "match_id": "R1M6",
-                "bey_a": "SamuraiSaber",
-                "bey_b": "PhoenixRudder",
+                "bey_a": "WizardArc",
+                "bey_b": "ValkyrieVolt",
                 "existing_matches": 1,
                 "winner_advances_to": "R2M3"
               },
               {
                 "match_id": "R1M7",
-                "bey_a": "TyrannoBeat",
+                "bey_a": "WyvernHover",
+                "bey_b": "SamuraiSaber",
+                "existing_matches": 0,
+                "winner_advances_to": "R2M4"
+              },
+              {
+                "match_id": "R1M8",
+                "bey_a": "PhoenixRudder",
                 "bey_b": "BlackShell",
                 "existing_matches": 0,
                 "winner_advances_to": "R2M4"
+              },
+              {
+                "match_id": "R1M9",
+                "bey_a": "DranBuster",
+                "bey_b": "TyrannoBeat",
+                "existing_matches": 1,
+                "winner_advances_to": "R2M5"
               }
             ]
           },
           {
             "round": 2,
-            "name": "Quarter-Finals",
+            "name": "Round of 16",
             "matches": [
               {
                 "match_id": "R2M1",
@@ -205,12 +247,19 @@
                 "bey_b": "Winner of R1M6",
                 "existing_matches": 0,
                 "winner_advances_to": "R3M2"
+              },
+              {
+                "match_id": "R2M4",
+                "bey_a": "Winner of R1M7",
+                "bey_b": "Winner of R1M8",
+                "existing_matches": 0,
+                "winner_advances_to": "R3M2"
               }
             ]
           },
           {
             "round": 3,
-            "name": "Semi-Finals",
+            "name": "Quarter-Finals",
             "matches": [
               {
                 "match_id": "R3M1",
@@ -222,7 +271,7 @@
               {
                 "match_id": "R3M2",
                 "bey_a": "Winner of R2M3",
-                "bey_b": "Winner of R1M7",
+                "bey_b": "Winner of R2M4",
                 "existing_matches": 0,
                 "winner_advances_to": "R4M1"
               }
@@ -230,7 +279,7 @@
           },
           {
             "round": 4,
-            "name": "Finals",
+            "name": "Semi-Finals",
             "matches": [
               {
                 "match_id": "R4M1",
@@ -240,99 +289,140 @@
                 "winner_advances_to": "R5M1"
               }
             ]
+          },
+          {
+            "round": 5,
+            "name": "Finals",
+            "matches": [
+              {
+                "match_id": "R5M1",
+                "bey_a": "Winner of R4M1",
+                "bey_b": "Winner of R1M9",
+                "existing_matches": 0,
+                "winner_advances_to": "R6M1"
+              }
+            ]
           }
         ]
       },
       "schedule": [
         {
-          "date": "2026-02-16",
+          "date": "2026-02-27",
           "round": 1,
-          "bey_a": "WolfHunt",
-          "bey_b": "EmperorMight",
-          "existing_matches": 2
-        },
-        {
-          "date": "2026-02-16",
-          "round": 1,
-          "bey_a": "ValkyrieVolt",
-          "bey_b": "WyvernHover",
+          "bey_a": "HellsBrave",
+          "bey_b": "WolfHunt",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-16",
+          "date": "2026-02-27",
           "round": 1,
-          "bey_a": "CobaltDrake",
+          "bey_a": "TyrannoRoar",
+          "bey_b": "ClockMirage",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-02-27",
+          "round": 1,
+          "bey_a": "EmperorMight",
           "bey_b": "WhaleFlame",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-16",
+          "date": "2026-02-27",
           "round": 1,
           "bey_a": "HellsHammer",
-          "bey_b": "PegasusBlast",
+          "bey_b": "CobaltDrake",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-16",
+          "date": "2026-02-27",
           "round": 1,
-          "bey_a": "WizardArrow",
-          "bey_b": "WizardArc",
+          "bey_a": "PegasusBlast",
+          "bey_b": "WizardArrow",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-16",
+          "date": "2026-02-27",
           "round": 1,
-          "bey_a": "SamuraiSaber",
-          "bey_b": "PhoenixRudder",
+          "bey_a": "WizardArc",
+          "bey_b": "ValkyrieVolt",
           "existing_matches": 1
         },
         {
-          "date": "2026-02-16",
+          "date": "2026-02-27",
           "round": 1,
-          "bey_a": "TyrannoBeat",
+          "bey_a": "WyvernHover",
+          "bey_b": "SamuraiSaber",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-02-27",
+          "round": 1,
+          "bey_a": "PhoenixRudder",
           "bey_b": "BlackShell",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-17",
+          "date": "2026-02-27",
+          "round": 1,
+          "bey_a": "DranBuster",
+          "bey_b": "TyrannoBeat",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-02-28",
           "round": 2,
           "bey_a": "Winner of R1M1",
           "bey_b": "Winner of R1M2",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-17",
+          "date": "2026-02-28",
           "round": 2,
           "bey_a": "Winner of R1M3",
           "bey_b": "Winner of R1M4",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-17",
+          "date": "2026-02-28",
           "round": 2,
           "bey_a": "Winner of R1M5",
           "bey_b": "Winner of R1M6",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-18",
+          "date": "2026-02-28",
+          "round": 2,
+          "bey_a": "Winner of R1M7",
+          "bey_b": "Winner of R1M8",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-01",
           "round": 3,
           "bey_a": "Winner of R2M1",
           "bey_b": "Winner of R2M2",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-18",
+          "date": "2026-03-01",
           "round": 3,
           "bey_a": "Winner of R2M3",
-          "bey_b": "Winner of R1M7",
+          "bey_b": "Winner of R2M4",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-19",
+          "date": "2026-03-02",
           "round": 4,
           "bey_a": "Winner of R3M1",
           "bey_b": "Winner of R3M2",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-03",
+          "round": 5,
+          "bey_a": "Winner of R4M1",
+          "bey_b": "Winner of R1M9",
           "existing_matches": 0
         }
       ]
@@ -342,14 +432,14 @@
       "bracket": {
         "format": "round_robin",
         "participants": [
+          "HellsBrave",
           "WolfHunt",
+          "TyrannoRoar",
+          "ClockMirage",
           "EmperorMight",
-          "ValkyrieVolt",
-          "WyvernHover",
-          "CobaltDrake",
           "WhaleFlame",
           "HellsHammer",
-          "PegasusBlast"
+          "CobaltDrake"
         ],
         "total_rounds": 7,
         "total_matches": 28,
@@ -358,24 +448,24 @@
             "round": 1,
             "matches": [
               {
-                "bey_a": "WolfHunt",
-                "bey_b": "PegasusBlast",
+                "bey_a": "HellsBrave",
+                "bey_b": "CobaltDrake",
                 "existing_matches": 0
               },
               {
-                "bey_a": "EmperorMight",
+                "bey_a": "WolfHunt",
                 "bey_b": "HellsHammer",
                 "existing_matches": 0
               },
               {
-                "bey_a": "ValkyrieVolt",
+                "bey_a": "TyrannoRoar",
                 "bey_b": "WhaleFlame",
                 "existing_matches": 0
               },
               {
-                "bey_a": "WyvernHover",
-                "bey_b": "CobaltDrake",
-                "existing_matches": 0
+                "bey_a": "ClockMirage",
+                "bey_b": "EmperorMight",
+                "existing_matches": 1
               }
             ]
           },
@@ -383,24 +473,24 @@
             "round": 2,
             "matches": [
               {
-                "bey_a": "WolfHunt",
+                "bey_a": "HellsBrave",
                 "bey_b": "HellsHammer",
                 "existing_matches": 0
               },
               {
-                "bey_a": "PegasusBlast",
+                "bey_a": "CobaltDrake",
                 "bey_b": "WhaleFlame",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "WolfHunt",
+                "bey_b": "EmperorMight",
+                "existing_matches": 2
+              },
+              {
+                "bey_a": "TyrannoRoar",
+                "bey_b": "ClockMirage",
                 "existing_matches": 1
-              },
-              {
-                "bey_a": "EmperorMight",
-                "bey_b": "CobaltDrake",
-                "existing_matches": 0
-              },
-              {
-                "bey_a": "ValkyrieVolt",
-                "bey_b": "WyvernHover",
-                "existing_matches": 0
               }
             ]
           },
@@ -408,23 +498,23 @@
             "round": 3,
             "matches": [
               {
-                "bey_a": "WolfHunt",
+                "bey_a": "HellsBrave",
                 "bey_b": "WhaleFlame",
                 "existing_matches": 0
               },
               {
                 "bey_a": "HellsHammer",
-                "bey_b": "CobaltDrake",
+                "bey_b": "EmperorMight",
                 "existing_matches": 0
               },
               {
-                "bey_a": "PegasusBlast",
-                "bey_b": "WyvernHover",
+                "bey_a": "CobaltDrake",
+                "bey_b": "ClockMirage",
                 "existing_matches": 0
               },
               {
-                "bey_a": "EmperorMight",
-                "bey_b": "ValkyrieVolt",
+                "bey_a": "WolfHunt",
+                "bey_b": "TyrannoRoar",
                 "existing_matches": 0
               }
             ]
@@ -433,23 +523,23 @@
             "round": 4,
             "matches": [
               {
-                "bey_a": "WolfHunt",
-                "bey_b": "CobaltDrake",
-                "existing_matches": 0
+                "bey_a": "HellsBrave",
+                "bey_b": "EmperorMight",
+                "existing_matches": 1
               },
               {
                 "bey_a": "WhaleFlame",
-                "bey_b": "WyvernHover",
+                "bey_b": "ClockMirage",
                 "existing_matches": 0
               },
               {
                 "bey_a": "HellsHammer",
-                "bey_b": "ValkyrieVolt",
+                "bey_b": "TyrannoRoar",
                 "existing_matches": 0
               },
               {
-                "bey_a": "PegasusBlast",
-                "bey_b": "EmperorMight",
+                "bey_a": "CobaltDrake",
+                "bey_b": "WolfHunt",
                 "existing_matches": 0
               }
             ]
@@ -458,23 +548,23 @@
             "round": 5,
             "matches": [
               {
-                "bey_a": "WolfHunt",
-                "bey_b": "WyvernHover",
-                "existing_matches": 0
+                "bey_a": "HellsBrave",
+                "bey_b": "ClockMirage",
+                "existing_matches": 1
               },
               {
-                "bey_a": "CobaltDrake",
-                "bey_b": "ValkyrieVolt",
+                "bey_a": "EmperorMight",
+                "bey_b": "TyrannoRoar",
                 "existing_matches": 0
               },
               {
                 "bey_a": "WhaleFlame",
-                "bey_b": "EmperorMight",
+                "bey_b": "WolfHunt",
                 "existing_matches": 0
               },
               {
                 "bey_a": "HellsHammer",
-                "bey_b": "PegasusBlast",
+                "bey_b": "CobaltDrake",
                 "existing_matches": 0
               }
             ]
@@ -483,19 +573,19 @@
             "round": 6,
             "matches": [
               {
-                "bey_a": "WolfHunt",
-                "bey_b": "ValkyrieVolt",
-                "existing_matches": 0
-              },
-              {
-                "bey_a": "WyvernHover",
-                "bey_b": "EmperorMight",
-                "existing_matches": 0
-              },
-              {
-                "bey_a": "CobaltDrake",
-                "bey_b": "PegasusBlast",
+                "bey_a": "HellsBrave",
+                "bey_b": "TyrannoRoar",
                 "existing_matches": 1
+              },
+              {
+                "bey_a": "ClockMirage",
+                "bey_b": "WolfHunt",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "EmperorMight",
+                "bey_b": "CobaltDrake",
+                "existing_matches": 0
               },
               {
                 "bey_a": "WhaleFlame",
@@ -508,22 +598,22 @@
             "round": 7,
             "matches": [
               {
-                "bey_a": "WolfHunt",
-                "bey_b": "EmperorMight",
-                "existing_matches": 2
+                "bey_a": "HellsBrave",
+                "bey_b": "WolfHunt",
+                "existing_matches": 0
               },
               {
-                "bey_a": "ValkyrieVolt",
-                "bey_b": "PegasusBlast",
+                "bey_a": "TyrannoRoar",
+                "bey_b": "CobaltDrake",
                 "existing_matches": 1
               },
               {
-                "bey_a": "WyvernHover",
+                "bey_a": "ClockMirage",
                 "bey_b": "HellsHammer",
                 "existing_matches": 0
               },
               {
-                "bey_a": "CobaltDrake",
+                "bey_a": "EmperorMight",
                 "bey_b": "WhaleFlame",
                 "existing_matches": 0
               }
@@ -533,198 +623,198 @@
       },
       "schedule": [
         {
-          "date": "2026-02-16",
+          "date": "2026-02-27",
           "round": 1,
-          "bey_a": "WolfHunt",
-          "bey_b": "PegasusBlast",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-16",
-          "round": 1,
-          "bey_a": "EmperorMight",
-          "bey_b": "HellsHammer",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-16",
-          "round": 1,
-          "bey_a": "ValkyrieVolt",
-          "bey_b": "WhaleFlame",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-16",
-          "round": 1,
-          "bey_a": "WyvernHover",
+          "bey_a": "HellsBrave",
           "bey_b": "CobaltDrake",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-17",
-          "round": 2,
+          "date": "2026-02-27",
+          "round": 1,
           "bey_a": "WolfHunt",
           "bey_b": "HellsHammer",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-17",
-          "round": 2,
-          "bey_a": "PegasusBlast",
+          "date": "2026-02-27",
+          "round": 1,
+          "bey_a": "TyrannoRoar",
           "bey_b": "WhaleFlame",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-02-27",
+          "round": 1,
+          "bey_a": "ClockMirage",
+          "bey_b": "EmperorMight",
           "existing_matches": 1
         },
         {
-          "date": "2026-02-17",
+          "date": "2026-02-28",
           "round": 2,
-          "bey_a": "EmperorMight",
-          "bey_b": "CobaltDrake",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-17",
-          "round": 2,
-          "bey_a": "ValkyrieVolt",
-          "bey_b": "WyvernHover",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-18",
-          "round": 3,
-          "bey_a": "WolfHunt",
-          "bey_b": "WhaleFlame",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-18",
-          "round": 3,
-          "bey_a": "HellsHammer",
-          "bey_b": "CobaltDrake",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-18",
-          "round": 3,
-          "bey_a": "PegasusBlast",
-          "bey_b": "WyvernHover",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-18",
-          "round": 3,
-          "bey_a": "EmperorMight",
-          "bey_b": "ValkyrieVolt",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-19",
-          "round": 4,
-          "bey_a": "WolfHunt",
-          "bey_b": "CobaltDrake",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-19",
-          "round": 4,
-          "bey_a": "WhaleFlame",
-          "bey_b": "WyvernHover",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-19",
-          "round": 4,
-          "bey_a": "HellsHammer",
-          "bey_b": "ValkyrieVolt",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-19",
-          "round": 4,
-          "bey_a": "PegasusBlast",
-          "bey_b": "EmperorMight",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-20",
-          "round": 5,
-          "bey_a": "WolfHunt",
-          "bey_b": "WyvernHover",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-20",
-          "round": 5,
-          "bey_a": "CobaltDrake",
-          "bey_b": "ValkyrieVolt",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-20",
-          "round": 5,
-          "bey_a": "WhaleFlame",
-          "bey_b": "EmperorMight",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-20",
-          "round": 5,
-          "bey_a": "HellsHammer",
-          "bey_b": "PegasusBlast",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-21",
-          "round": 6,
-          "bey_a": "WolfHunt",
-          "bey_b": "ValkyrieVolt",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-21",
-          "round": 6,
-          "bey_a": "WyvernHover",
-          "bey_b": "EmperorMight",
-          "existing_matches": 0
-        },
-        {
-          "date": "2026-02-21",
-          "round": 6,
-          "bey_a": "CobaltDrake",
-          "bey_b": "PegasusBlast",
-          "existing_matches": 1
-        },
-        {
-          "date": "2026-02-21",
-          "round": 6,
-          "bey_a": "WhaleFlame",
+          "bey_a": "HellsBrave",
           "bey_b": "HellsHammer",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-22",
-          "round": 7,
+          "date": "2026-02-28",
+          "round": 2,
+          "bey_a": "CobaltDrake",
+          "bey_b": "WhaleFlame",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-02-28",
+          "round": 2,
           "bey_a": "WolfHunt",
           "bey_b": "EmperorMight",
           "existing_matches": 2
         },
         {
-          "date": "2026-02-22",
-          "round": 7,
-          "bey_a": "ValkyrieVolt",
-          "bey_b": "PegasusBlast",
+          "date": "2026-02-28",
+          "round": 2,
+          "bey_a": "TyrannoRoar",
+          "bey_b": "ClockMirage",
           "existing_matches": 1
         },
         {
-          "date": "2026-02-22",
-          "round": 7,
-          "bey_a": "WyvernHover",
+          "date": "2026-03-01",
+          "round": 3,
+          "bey_a": "HellsBrave",
+          "bey_b": "WhaleFlame",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-01",
+          "round": 3,
+          "bey_a": "HellsHammer",
+          "bey_b": "EmperorMight",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-01",
+          "round": 3,
+          "bey_a": "CobaltDrake",
+          "bey_b": "ClockMirage",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-01",
+          "round": 3,
+          "bey_a": "WolfHunt",
+          "bey_b": "TyrannoRoar",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-02",
+          "round": 4,
+          "bey_a": "HellsBrave",
+          "bey_b": "EmperorMight",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-03-02",
+          "round": 4,
+          "bey_a": "WhaleFlame",
+          "bey_b": "ClockMirage",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-02",
+          "round": 4,
+          "bey_a": "HellsHammer",
+          "bey_b": "TyrannoRoar",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-02",
+          "round": 4,
+          "bey_a": "CobaltDrake",
+          "bey_b": "WolfHunt",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-03",
+          "round": 5,
+          "bey_a": "HellsBrave",
+          "bey_b": "ClockMirage",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-03-03",
+          "round": 5,
+          "bey_a": "EmperorMight",
+          "bey_b": "TyrannoRoar",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-03",
+          "round": 5,
+          "bey_a": "WhaleFlame",
+          "bey_b": "WolfHunt",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-03",
+          "round": 5,
+          "bey_a": "HellsHammer",
+          "bey_b": "CobaltDrake",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-04",
+          "round": 6,
+          "bey_a": "HellsBrave",
+          "bey_b": "TyrannoRoar",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-03-04",
+          "round": 6,
+          "bey_a": "ClockMirage",
+          "bey_b": "WolfHunt",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-04",
+          "round": 6,
+          "bey_a": "EmperorMight",
+          "bey_b": "CobaltDrake",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-04",
+          "round": 6,
+          "bey_a": "WhaleFlame",
           "bey_b": "HellsHammer",
           "existing_matches": 0
         },
         {
-          "date": "2026-02-22",
+          "date": "2026-03-05",
           "round": 7,
-          "bey_a": "CobaltDrake",
+          "bey_a": "HellsBrave",
+          "bey_b": "WolfHunt",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-05",
+          "round": 7,
+          "bey_a": "TyrannoRoar",
+          "bey_b": "CobaltDrake",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-03-05",
+          "round": 7,
+          "bey_a": "ClockMirage",
+          "bey_b": "HellsHammer",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-03-05",
+          "round": 7,
+          "bey_a": "EmperorMight",
           "bey_b": "WhaleFlame",
           "existing_matches": 0
         }
