@@ -283,12 +283,12 @@ def plot_tier_strength(
     fig, ax1 = plt.subplots(figsize=(8, 5))
     ax2 = ax1.twinx()
 
-    bars1 = ax1.bar(x - width, avg_global_pcts, width, label="Avg Global Percentile (%)",
-                    color="#3b82f6", alpha=0.85)
-    bars2 = ax1.bar(x, avg_pdis, width, label="Avg PDI (pp)",
-                    color="#f59e0b", alpha=0.85)
-    bars3 = ax2.bar(x + width, avg_elos, width, label="Avg Elo",
-                    color="#a78bfa", alpha=0.85)
+    ax1.bar(x - width, avg_global_pcts, width, label="Avg Global Percentile (%)",
+            color="#3b82f6", alpha=0.85)
+    ax1.bar(x, avg_pdis, width, label="Avg PDI (pp)",
+            color="#f59e0b", alpha=0.85)
+    ax2.bar(x + width, avg_elos, width, label="Avg Elo",
+            color="#a78bfa", alpha=0.85)
 
     ax1.set_ylabel("Percentile / PDI (%)")
     ax2.set_ylabel("Average Elo")
