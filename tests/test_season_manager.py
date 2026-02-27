@@ -436,3 +436,79 @@ class TestTierAdaptation:
         assert result["total_beys_assigned"] == 32
         # No tier changes expected when structure is the same
         assert len(result["tier_changes"]) == 0
+
+    def test_pending_movements_elo_can_earn_promotion_into_t1(self):
+        """With pending_movements, a T2 bey whose ELO outranks T1-Bey8 earns a T1 slot.
+
+        Scenario:
+        - T1-Bey8 finishes 8th in Tier 1 with a mediocre ELO of 1420.
+        - T2-Bey1 finishes 1st in Tier 2 with ELO 1480 (earned auto-promotion).
+        - When pending_movements are provided and ELO sorting is applied within
+          the effective Tier 1 group, T2-Bey1 (1480) outranks T1-Bey8 (1420) and
+          takes the 8th Tier 1 slot.  T1-Bey8 drops to Tier 2.
+        """
+        # Build T1 table: positions 1-7 have ELOs 1600,1590,...,1530; position 8 = 1420
+        t1_table = [
+            {"bey": f"T1-Bey{i}", "position": i, "elo": 1610 - i * 10}
+            for i in range(1, 8)
+        ] + [{"bey": "T1-Bey8", "position": 8, "elo": 1420}]
+        # Positions 9/10 are auto-relegated (pending movement)
+        t1_table += [
+            {"bey": "T1-Bey9", "position": 9, "elo": 1410},
+            {"bey": "T1-Bey10", "position": 10, "elo": 1400},
+        ]
+
+        # T2-Bey1 finished 1st in Tier 2 with ELO 1480 (better than T1-Bey8's 1420)
+        t2_table = [{"bey": "T2-Bey1", "position": 1, "elo": 1480}] + [
+            {"bey": f"T2-Bey{i}", "position": i, "elo": 1390 - (i - 2) * 10}
+            for i in range(2, 11)
+        ]
+        t3_table = self._make_table(3, 10, 1300)
+
+        old_tables = {1: t1_table, 2: t2_table, 3: t3_table}
+
+        # Pending movements: normal end-of-season auto-promo/relego
+        pending = [
+            {"bey": "T2-Bey1", "from_tier": 2, "to_tier": 1},
+            {"bey": "T2-Bey2", "from_tier": 2, "to_tier": 1},
+            {"bey": "T1-Bey9", "from_tier": 1, "to_tier": 2},
+            {"bey": "T1-Bey10", "from_tier": 1, "to_tier": 2},
+        ]
+
+        result = get_tier_adaptation(
+            old_tables, new_tiers=4, new_beys_per_tier=8,
+            pending_movements=pending
+        )
+        assignments = result["new_tier_assignments"]
+
+        # T2-Bey1 (ELO 1480) outranks T1-Bey8 (ELO 1420) → earns Tier 1 slot
+        assert assignments["T2-Bey1"]["new_tier"] == 1
+        # T1-Bey8 (lowest ELO of the effective T1 group) is displaced to Tier 2
+        assert assignments["T1-Bey8"]["new_tier"] == 2
+
+    def test_pending_movements_without_elo_advantage_stays_in_t2(self):
+        """A promoted T2 bey whose ELO is lower than all T1 beys stays in Tier 2.
+
+        Uses default _make_table ELOs (T1 elo_base=1500 > T2 elo_base=1400), so
+        even with pending_movements T2-Bey1 cannot displace any T1 bey.
+        """
+        old_tables = {
+            1: self._make_table(1, 10, 1500),
+            2: self._make_table(2, 10, 1400),
+            3: self._make_table(3, 10, 1300),
+        }
+        pending = [
+            {"bey": "T2-Bey1", "from_tier": 2, "to_tier": 1},
+            {"bey": "T2-Bey2", "from_tier": 2, "to_tier": 1},
+            {"bey": "T1-Bey9", "from_tier": 1, "to_tier": 2},
+            {"bey": "T1-Bey10", "from_tier": 1, "to_tier": 2},
+        ]
+        result = get_tier_adaptation(
+            old_tables, new_tiers=4, new_beys_per_tier=8,
+            pending_movements=pending
+        )
+        assignments = result["new_tier_assignments"]
+        # _make_table(2, 10, 1400): T2-Bey1 ELO = 1400 - 1*10 = 1390
+        # _make_table(1, 10, 1500): T1-Bey8 ELO = 1500 - 8*10 = 1420
+        # T2-Bey1 ELO (1390) < T1-Bey8 ELO (1420) → cannot displace any T1 bey
+        assert assignments["T2-Bey1"]["new_tier"] == 2

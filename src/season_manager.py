@@ -361,48 +361,90 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
 def get_tier_adaptation(
         league_tables: Dict[int, List[Dict]],
         new_tiers: int,
-        new_beys_per_tier: int) -> Dict:
+        new_beys_per_tier: int,
+        pending_movements: Optional[List[Dict]] = None) -> Dict:
     """
     Compute tier assignments for a new season with a different tier structure.
 
     When transitioning between tier structures (e.g., 3 tiers of 10 to 4 tiers of 8),
     standard promotion/relegation cannot be applied directly because the number of slots
     in each tier changes. This function merges all beys from the old league tables,
-    ranks them by cross-tier standing (tier order then position within tier), and
-    redistributes them into the new structure.
+    ranks them by cross-tier standing, and redistributes them into the new structure.
 
-    Example: moving from 3x10 to 4x8
-    - All 30 beys are ranked globally (T1-1st = rank 1, ..., T3-10th = rank 30)
-    - Top 8 → new Tier I, ranks 9-16 → new Tier II, 17-24 → Tier III, 25-32 → Tier IV
-    - Beys beyond the new league capacity go to the qualification pool
+    Without ``pending_movements``, ranking is purely by old tier order then season
+    position (existing T1 beys always have priority over T2 beys for new T1 slots).
+
+    With ``pending_movements``, earned promotions and relegations are applied first so
+    that promoted beys compete for slots in their destination tier. Within each
+    resulting effective-tier group, beys are then ranked by ELO (highest first) so
+    a promoted bey who genuinely outperforms a mid-table tier-above bey earns the slot.
+    This is the recommended mode for cross-season structure changes because it honours
+    the results of the finished season while still handling the resize fairly.
+
+    Example: moving from 3x10 to 4x8 with pending movements
+    - T2-Bey1/2 earned auto-promotion → effective_tier = 1
+    - T1-Bey9/10 earned auto-relegation → effective_tier = 2
+    - Within the effective Tier 1 group (T1-Bey1..8 + T2-Bey1/2) beys are ranked
+      by ELO; the top 8 keep the Tier 1 slots.  If T2-Bey1 has higher ELO than
+      T1-Bey8, T2-Bey1 takes the Tier 1 slot and T1-Bey8 drops to Tier 2.
 
     Args:
         league_tables: Dict mapping old tier number to its final league table.
-            Each table entry must contain at least "bey" and "position" keys.
+            Each table entry must contain at least ``"bey"`` and ``"position"`` keys;
+            an ``"elo"`` key is used for ranking when pending_movements are provided.
         new_tiers: Number of tiers in the new season.
         new_beys_per_tier: Number of beys per tier in the new season.
+        pending_movements: Optional list of movement dicts, each with keys
+            ``"bey"`` (name), ``"from_tier"`` (int) and ``"to_tier"`` (int).
+            Typically populated from the auto-promotion/relegation results of the
+            finishing season (see ``get_promotion_relegation``).
 
     Returns:
         Dictionary with keys:
-            - "new_tier_assignments": maps bey name to
-              {"new_tier": int, "old_tier": int, "old_position": int}
-            - "qualification_pool": list of beys beyond the new league capacity
-            - "tier_changes": list of dicts describing each bey's movement
-            - "total_beys_assigned": number of beys placed in the new league
+            - ``"new_tier_assignments"``: maps bey name to
+              ``{"new_tier": int, "old_tier": int, "old_position": int}``
+            - ``"qualification_pool"``: list of beys beyond the new league capacity
+            - ``"tier_changes"``: list of dicts describing each bey's movement
+            - ``"total_beys_assigned"``: number of beys placed in the new league
     """
     new_league_size = new_tiers * new_beys_per_tier
 
-    # Build a global ranking by merging all old tiers, sorted by tier then position
-    all_beys = []
+    # Build a per-bey info map from all league tables
+    bey_info_map: Dict[str, Dict] = {}
     for tier in sorted(league_tables.keys()):
-        table = league_tables[tier]
-        sorted_table = sorted(table, key=lambda x: x.get("position", 0))
-        for entry in sorted_table:
-            all_beys.append({
-                "bey": entry["bey"],
+        for entry in league_tables[tier]:
+            bey = entry["bey"]
+            bey_info_map[bey] = {
+                "bey": bey,
                 "old_tier": tier,
-                "old_position": entry.get("position", 0)
-            })
+                "old_position": entry.get("position", 0),
+                "elo": float(entry.get("elo", 0) or 0),
+                "effective_tier": tier,
+            }
+
+    # Apply pending movements: adjust the effective tier for promoted/relegated beys
+    if pending_movements:
+        for movement in pending_movements:
+            bey = movement.get("bey")
+            to_tier = movement.get("to_tier")
+            if bey in bey_info_map and to_tier is not None:
+                bey_info_map[bey]["effective_tier"] = to_tier
+
+    # Build global ranking:
+    # - Without pending_movements: sort by (old_tier, old_position) — original behaviour.
+    # - With pending_movements: sort by (effective_tier, -elo, old_position) so that beys
+    #   from different original tiers competing for the same effective-tier slots are
+    #   fairly ranked by ELO.  A promoted bey with higher ELO earns the slot.
+    if pending_movements:
+        all_beys = sorted(
+            bey_info_map.values(),
+            key=lambda x: (x["effective_tier"], -x["elo"], x["old_position"])
+        )
+    else:
+        all_beys = sorted(
+            bey_info_map.values(),
+            key=lambda x: (x["old_tier"], x["old_position"])
+        )
 
     new_tier_assignments = {}
     qualification_pool = []
