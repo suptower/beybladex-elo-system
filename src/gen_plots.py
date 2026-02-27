@@ -730,6 +730,18 @@ def generate_all_plots(mode):
     else:
         print("Individual interactive position plots generated successfully.")
 
+    # Season Analytics Plots (tier-based, only match_type=season)
+    result = subprocess.run(
+        ["python", "src/visualization/season_plots.py"],
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print("Error running season_plots.py:")
+        print(result.stderr)
+    else:
+        print("Season analytics plots generated successfully.")
+
     print(f"All plots saved to: {files['outdir']}")
 
 
