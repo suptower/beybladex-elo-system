@@ -742,6 +742,18 @@ def generate_all_plots(mode):
     else:
         print("Season analytics plots generated successfully.")
 
+    # Season vs Global Comparison Plots
+    result = subprocess.run(
+        ["python", "src/visualization/season_comparison_plots.py"],
+        capture_output=True,
+        text=True
+    )
+    if result.returncode != 0:
+        print("Error running season_comparison_plots.py:")
+        print(result.stderr)
+    else:
+        print("Season comparison plots generated successfully.")
+
     print(f"All plots saved to: {files['outdir']}")
 
 
