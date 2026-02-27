@@ -535,8 +535,8 @@ def create_tier_flow_interactive(alluvial_data: dict, output_file: str):
             color: #1a1a1a;
         }}
         body.dark {{
-            background-color: #0f172a;
-            color: #f1f5f9;
+            background-color: #0a0a0a;
+            color: #e2e2e2;
         }}
         .header {{
             display: flex;
@@ -576,8 +576,8 @@ def create_tier_flow_interactive(alluvial_data: dict, output_file: str):
             background-color: #e5e7eb;
         }}
         body.dark .zoom-btn {{
-            color: #f1f5f9;
-            background-color: #334155;
+            color: #e2e2e2;
+            background-color: #222222;
         }}
         .zoom-btn:hover {{
             opacity: 0.8;
@@ -605,7 +605,7 @@ def create_tier_flow_interactive(alluvial_data: dict, output_file: str):
             background-color: #e5e7eb;
         }}
         body.dark .theme-toggle label {{
-            background-color: #334155;
+            background-color: #222222;
         }}
         .theme-toggle input {{
             display: none;
@@ -624,8 +624,8 @@ def create_tier_flow_interactive(alluvial_data: dict, output_file: str):
             background-color: #e5e7eb;
         }}
         body.dark .back-link {{
-            color: #f1f5f9;
-            background-color: #334155;
+            color: #e2e2e2;
+            background-color: #222222;
         }}
         .back-link:hover {{
             opacity: 0.8;
@@ -676,8 +676,8 @@ def create_tier_flow_interactive(alluvial_data: dict, output_file: str):
             border: 1px solid #e5e7eb;
         }}
         body.dark .info-section {{
-            background-color: #1e293b;
-            border: 1px solid #334155;
+            background-color: #121212;
+            border: 1px solid #222222;
         }}
         .info-section h2 {{
             margin-top: 0;
@@ -917,15 +917,15 @@ def create_tier_flow_interactive(alluvial_data: dict, output_file: str):
                     text: isMobile ? 'Tier Evolution' : 'Tier Flow - Alluvial Diagram',
                     font: {{ 
                         size: isMobile ? 14 : 18, 
-                        color: isDark ? '#f1f5f9' : '#1a1a1a'
+                        color: isDark ? '#e2e2e2' : '#1a1a1a'
                     }}
                 }},
                 font: {{
-                    color: isDark ? '#f1f5f9' : '#1a1a1a',
+                    color: isDark ? '#e2e2e2' : '#1a1a1a',
                     size: isMobile ? 10 : 12
                 }},
-                paper_bgcolor: isDark ? '#0f172a' : '#f8f9fa',
-                plot_bgcolor: isDark ? '#1e293b' : '#ffffff',
+                paper_bgcolor: isDark ? '#0a0a0a' : '#f8f9fa',
+                plot_bgcolor: isDark ? '#121212' : '#ffffff',
                 width: dims.width,
                 height: dims.height,
                 margin: isMobile ? {{ l: 10, r: 10, t: 60, b: 30 }} : {{ l: 50, r: 50, t: 80, b: 80 }}

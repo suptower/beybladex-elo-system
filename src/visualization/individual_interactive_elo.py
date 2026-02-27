@@ -15,7 +15,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
-from plot_styles import get_text_color, get_bg_color, get_grid_color  # noqa: E402
+from plot_styles import get_text_color, get_bg_color, get_grid_color, get_plot_bg_color, get_accent_color  # noqa: E402
 
 # Output directories
 OUTPUT_DIR = "./docs/plots/elo/interactive"
@@ -92,7 +92,9 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
     # Get colors based on theme
     text_color = get_text_color(dark_mode)
     bg_color = get_bg_color(dark_mode)
+    plot_bg_color = get_plot_bg_color(dark_mode)
     grid_color = get_grid_color(dark_mode)
+    accent_color = get_accent_color(dark_mode)
 
     # Calculate statistics
     avg_elo = df_bey["ELO"].mean()
@@ -135,8 +137,8 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         y=df_bey["ELO"],
         mode='lines+markers',
         name='ELO History',
-        line=dict(color='#6366f1', width=2.5),
-        marker=dict(size=6, color='#6366f1'),
+        line=dict(color=accent_color, width=2.5),
+        marker=dict(size=6, color=accent_color),
         hovertext=hover_texts,
         hoverinfo='text',
         hovertemplate='%{hovertext}<extra></extra>'
@@ -148,7 +150,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         y=[avg_elo, avg_elo],
         mode='lines',
         name=f'Average: {avg_elo:.0f}',
-        line=dict(color='blue', dash='dash', width=1.5),
+        line=dict(color='#3b82f6', dash='dash', width=1.5),
         hovertemplate=f'Average ELO: {avg_elo:.1f}<extra></extra>'
     ))
 
@@ -158,7 +160,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         y=[median_elo, median_elo],
         mode='lines',
         name=f'Median: {median_elo:.0f}',
-        line=dict(color='purple', dash='dot', width=1.5),
+        line=dict(color='#a78bfa', dash='dot', width=1.5),
         hovertemplate=f'Median ELO: {median_elo:.1f}<extra></extra>'
     ))
 
@@ -202,7 +204,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
         ),
         template=template,
         hovermode="closest",
-        plot_bgcolor=bg_color,
+        plot_bgcolor=plot_bg_color,
         paper_bgcolor=bg_color,
         font=dict(color=text_color),
         legend=dict(
@@ -229,7 +231,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
                 ]),
                 font=dict(color=text_color),
                 bgcolor=bg_color,
-                activecolor='#6366f1'
+                activecolor=accent_color
             )
         )
 
