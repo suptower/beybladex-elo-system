@@ -13956,7 +13956,7 @@ body.dark .profile-image-container {
 body.dark .wiki-card-image img,
 body.dark .hover-card-image img,
 body.dark .profile-image {
-    mix-blend-mode: multiply;
+    filter: brightness(0.75) contrast(1.1);
 }
 
 /* All-time standings legend */
