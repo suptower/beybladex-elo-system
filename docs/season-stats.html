@@ -669,8 +669,6 @@
     let currentSeason = urlParams.get('season') || 'S1';
     let statsData = null;
     let availableSeasons = [];
-    // Per-season tier→beys mapping loaded from season_data.json
-    let seasonTierBeys = {};
 
     // Stat explanations
     const statExplanations = {
@@ -698,25 +696,6 @@
         'clutch_win_rate': 'Clutch Win Rate',
         'volatility': 'Volatility'
     };
-
-    // Load season_data.json to get per-tier bey lists
-    async function loadSeasonData() {
-        try {
-            const resp = await fetch('data/season_data.json');
-            if (!resp.ok) return;
-            const data = await resp.json();
-            const seasons = data.seasons || {};
-            for (const [sid, sdata] of Object.entries(seasons)) {
-                seasonTierBeys[sid] = {};
-                const tables = sdata.league_tables || {};
-                for (const [tier, entries] of Object.entries(tables)) {
-                    seasonTierBeys[sid][tier] = entries.map(e => e.bey);
-                }
-            }
-        } catch (e) {
-            // Non-critical: leaderboard will just show all beys if unavailable
-        }
-    }
 
     // Detect available seasons from CSV or use default
     async function loadAvailableSeasons() {
@@ -750,7 +729,7 @@
             }
             
             statsData = await response.json();
-            renderStats(null); // null = no tier filter yet
+            renderStats();
         } catch (error) {
             console.error('Error loading stats:', error);
             document.getElementById('stats-content').innerHTML = `
@@ -762,20 +741,12 @@
         }
     }
 
-    // Render statistics, optionally filtered to a tier's beys
-    function renderStats(tierFilter) {
+    // Render statistics
+    function renderStats() {
         if (!statsData) return;
 
         const container = document.getElementById('stats-content');
         container.innerHTML = '';
-
-        // Determine tier bey filter set
-        const tierBeys = tierFilter
-            ? new Set((seasonTierBeys[currentSeason] || {})[tierFilter] || [])
-            : null;
-
-        // Tier label for section headers
-        const tierLabel = tierFilter ? ` – Tier ${tierFilter}` : '';
 
         // Render awards section
         if (statsData.awards && Object.keys(statsData.awards).length > 0) {
@@ -784,10 +755,10 @@
             awardsSection.innerHTML = `
                 <div class="section-header">
                     <span class="section-icon">🏆</span>
-                    <h2 class="section-title">Season Awards${tierLabel}</h2>
+                    <h2 class="section-title">Season Awards</h2>
                 </div>
                 <div class="awards-grid">
-                    ${renderAwards(tierBeys)}
+                    ${renderAwards()}
                 </div>
             `;
             container.appendChild(awardsSection);
@@ -800,9 +771,9 @@
             leaderboardsSection.innerHTML = `
                 <div class="section-header">
                     <span class="section-icon">📈</span>
-                    <h2 class="section-title">Statistical Leaderboards${tierLabel}</h2>
+                    <h2 class="section-title">Statistical Leaderboards</h2>
                 </div>
-                ${renderLeaderboards(tierBeys)}
+                ${renderLeaderboards()}
             `;
             container.appendChild(leaderboardsSection);
             
@@ -810,12 +781,10 @@
         }
     }
 
-    // Render awards, optionally filtered to tierBeys set
-    function renderAwards(tierBeys) {
+    // Render awards
+    function renderAwards() {
         const awards = statsData.awards;
-        return Object.entries(awards)
-            .filter(([, award]) => !tierBeys || tierBeys.has(award.winner))
-            .map(([, award]) => `
+        return Object.entries(awards).map(([, award]) => `
                 <div class="award-card">
                     <div class="award-header">
                         <span class="award-icon">${award.icon}</span>
@@ -824,7 +793,7 @@
                     <div class="award-winner">${award.winner}</div>
                     <div class="award-value">${formatValue(award.value, award.metric)}</div>
                 </div>
-            `).join('') || '<p class="empty-message">No awards available for this tier.</p>';
+            `).join('') || '<p class="empty-message">No awards available.</p>';
     }
 
     // Format value based on metric type
@@ -841,8 +810,8 @@
         return `${value.toFixed(2)} ${metric}`;
     }
 
-    // Render leaderboards, optionally filtered to tierBeys set
-    function renderLeaderboards(tierBeys) {
+    // Render leaderboards
+    function renderLeaderboards() {
         const leaderboards = statsData.leaderboards;
 
         const tabs = Object.keys(leaderboards).map((key, index) => `
@@ -851,17 +820,11 @@
             </button>
         `).join('');
 
-        const contents = Object.entries(leaderboards).map(([key, leaders], index) => {
-            // Filter entries by tier beys, then re-rank
-            const filtered = tierBeys
-                ? leaders.filter(e => tierBeys.has(e.bey)).map((e, i) => ({ ...e, rank: i + 1 }))
-                : leaders;
-            return `
+        const contents = Object.entries(leaderboards).map(([key, leaders], index) => `
                 <div class="leaderboard-content ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
-                    ${renderLeaderboardTable(filtered, key)}
+                    ${renderLeaderboardTable(leaders, key)}
                 </div>
-            `;
-        }).join('');
+            `).join('');
 
         return `
             <div class="leaderboard-tabs-container">
@@ -958,11 +921,9 @@
     });
 
     // Initial load
-    loadSeasonData().then(() => {
-        loadAvailableSeasons().then(() => {
-            loadStats(currentSeason);
-            loadSeasonPlots(currentSeason);
-        });
+    loadAvailableSeasons().then(() => {
+        loadStats(currentSeason);
+        loadSeasonPlots(currentSeason);
     });
 
     // -------------------------------------------------------------------------
@@ -1028,15 +989,12 @@
                     btn.classList.add('active');
                     const tier = btn.dataset.tier;
                     renderTierPlots(tier, season);
-                    // Also update awards & leaderboards to reflect the selected tier
-                    renderStats(tier);
                 });
             });
 
-            // Show first tier by default and update stats to match
+            // Show first tier by default
             currentTier = tiers[0];
             renderTierPlots(currentTier, season);
-            renderStats(currentTier);
             section.style.display = 'block';
 
         } catch (e) {
