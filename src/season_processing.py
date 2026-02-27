@@ -34,7 +34,8 @@ from season_manager import (  # noqa: E402
     get_league_table,
     get_promotion_relegation,
     generate_season_archive,
-    load_season_data
+    load_season_data,
+    save_season_data
 )
 from table_snapshots import (  # noqa: E402
     generate_all_table_snapshots
@@ -266,6 +267,85 @@ def organize_fixtures_by_tier(fixtures: List[Dict]) -> Dict:
     return by_tier
 
 
+def refresh_qualification_pool(
+        season_id: str,
+        data_dir: str = DEFAULT_DATA_DIR) -> List[Dict]:
+    """
+    Refresh the qualification pool stored in seasons.json.
+
+    For the given season this will:
+    - Update the ELO of every existing pool member to their current value
+      from leaderboard.csv.
+    - Add any beys that appear in the leaderboard but are not yet assigned to
+      a tier and are not already in the qualification pool.
+    - Sort the pool by ELO descending.
+    - Write the updated entry back to seasons.json.
+
+    Args:
+        season_id: Season identifier (e.g. "S1")
+        data_dir: Data directory containing leaderboard.csv and seasons.json
+
+    Returns:
+        The refreshed qualification pool list, or an empty list if the season
+        or leaderboard cannot be found.
+    """
+    leaderboard_file = os.path.join(data_dir, "leaderboard.csv")
+
+    # Load current ELOs from leaderboard.
+    # Canonical column names are "Name" (bey name) and "ELO" (rating).
+    # "Bey" / "Elo" are accepted as legacy fallbacks.
+    current_elos: Dict[str, float] = {}
+    if os.path.exists(leaderboard_file):
+        with open(leaderboard_file, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                bey = row.get("Name") or row.get("Bey") or ""
+                if not bey:
+                    continue
+                raw_elo = row.get("ELO") or row.get("Elo")
+                if raw_elo is None or raw_elo == "":
+                    print(f"{YELLOW}  Warning: missing ELO for '{bey}' in leaderboard; defaulting to 1000{RESET}")
+                    current_elos[bey] = 1000.0
+                else:
+                    try:
+                        current_elos[bey] = float(raw_elo)
+                    except (ValueError, TypeError):
+                        print(f"{YELLOW}  Warning: invalid ELO '{raw_elo}' for '{bey}'; defaulting to 1000{RESET}")
+                        current_elos[bey] = 1000.0
+
+    if not current_elos:
+        return []
+
+    season_data = load_season_data(season_id, data_dir)
+    if not season_data:
+        return []
+
+    tier_assignments: Dict = season_data.get("tier_assignments", {})
+    pool: List[Dict] = season_data.get("qualification_pool", [])
+
+    # Build the set of beys already tracked in tiers or current pool
+    tracked_beys = set(tier_assignments.keys()) | {entry["bey"] for entry in pool}
+
+    # Update ELOs for existing pool members
+    for entry in pool:
+        if entry["bey"] in current_elos:
+            entry["elo"] = current_elos[entry["bey"]]
+
+    # Add new beys that are not yet tracked anywhere in the season
+    for bey, elo in current_elos.items():
+        if bey not in tracked_beys:
+            pool.append({"bey": bey, "elo": elo})
+
+    # Sort descending by ELO
+    pool.sort(key=lambda x: -x["elo"])
+
+    # Persist updated pool back to seasons.json
+    season_data["qualification_pool"] = pool
+    save_season_data(season_data, data_dir)
+
+    return pool
+
+
 def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
                    data_dir: str = DEFAULT_DATA_DIR) -> Dict:
     """
@@ -328,6 +408,11 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
             print(f"{GREEN}  Table snapshots generated{RESET}")
         except Exception as e:
             print(f"{YELLOW}  Warning: Could not generate table snapshots: {e}{RESET}")
+
+    # Refresh qualification pool: update ELOs and add any new beys
+    refreshed_pool = refresh_qualification_pool(season_id, data_dir)
+    if refreshed_pool:
+        print(f"{GREEN}  Qualification Pool refreshed: {len(refreshed_pool)} Beys{RESET}")
 
     # Load season data for additional info
     season_data = load_season_data(season_id, data_dir) or {}
