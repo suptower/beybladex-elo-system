@@ -26,7 +26,7 @@ plt.rcParams["axes.grid"] = True
 
 # Consistent styling for average and median lines across all plots
 AVERAGE_LINE_STYLE = {
-    'color': 'blue',
+    'color': '#3b82f6',
     'linestyle': '--',
     'linewidth': 1.5,
     'alpha': 0.7,
@@ -34,7 +34,7 @@ AVERAGE_LINE_STYLE = {
 }
 
 MEDIAN_LINE_STYLE = {
-    'color': 'purple',
+    'color': '#a78bfa',
     'linestyle': ':',
     'linewidth': 1.5,
     'alpha': 0.7,

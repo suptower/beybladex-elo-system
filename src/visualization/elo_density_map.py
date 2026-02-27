@@ -651,8 +651,8 @@ def plot_summary_statistics(
 
     # Plot 2: Standard Deviation (spread)
     ax2 = axes[0, 1]
-    ax2.plot(match_idx, stats["stds"], color="#8b5cf6", linewidth=2)
-    ax2.fill_between(match_idx, stats["stds"], alpha=0.2, color="#8b5cf6")
+    ax2.plot(match_idx, stats["stds"], color="#a78bfa", linewidth=2)
+    ax2.fill_between(match_idx, stats["stds"], alpha=0.2, color="#a78bfa")
     ax2.set_xlabel("Match Index")
     ax2.set_ylabel("Standard Deviation")
     ax2.set_title("ELO Spread (Meta Compression/Expansion)")
@@ -1294,7 +1294,7 @@ def create_elo_density_interactive(
                 type: 'scatter',
                 mode: 'lines',
                 name: 'Std Dev (Spread)',
-                line: {{ color: '#8b5cf6', width: 2 }},
+                line: {{ color: '#a78bfa', width: 2 }},
                 yaxis: 'y2'
             }};
 
@@ -1314,7 +1314,7 @@ def create_elo_density_interactive(
                     title: 'Standard Deviation',
                     overlaying: 'y',
                     side: 'right',
-                    color: '#8b5cf6',
+                    color: '#a78bfa',
                     gridcolor: 'rgba(128,128,128,0.1)'
                 }},
                 paper_bgcolor: isDark ? '#0a0a0a' : '#ffffff',

@@ -86,7 +86,7 @@ def get_grid_color(dark_mode=False):
 
 def get_accent_color(dark_mode=False):
     """Get appropriate accent/highlight color."""
-    return '#7bc618' if dark_mode else '#6366f1'
+    return '#7bc618' if dark_mode else '#3d6e00'
 
 
 def generate_dynamic_yticks(min_pos, max_pos):
