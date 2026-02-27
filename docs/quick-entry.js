@@ -166,6 +166,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             state.liveElos[bey.name] += (bey.elo - oldBaseline);
         }
     });
+    // Always anchor previousPositions to the current baseline ranking so that
+    // position deltas in the live leaderboard only reflect in-tournament movement,
+    // not global (static) leaderboard position changes.
+    const baselineLeaderboard = generateLeaderboard(state.baselineElos, {}, null);
+    state.previousPositions = getPositionMap(baselineLeaderboard);
     initializeLiveElos();
     initializeUI();
     setupEventListeners();
