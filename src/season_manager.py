@@ -9,27 +9,28 @@ Key Features:
 - Tier assignment based on ELO rankings at season start
 - Season points calculation (3 pts for win, 4 pts for dominant win)
 - League table ranking (Season Points → Point Diff → Total Points → H2H → ELO)
-- Promotion/relegation logic (top 2 up, bottom 2 down, 8th vs 3rd relegation matches)
+- Promotion/relegation logic (top 2 up, bottom 2 down, 6th vs 3rd relegation matches)
 - Round-robin match scheduling within tiers
 - Historical season archiving
+- Tier adaptation support for cross-season structure changes
 
 Season Structure:
-- 30 Beys divided into 3 Tiers of 10 Beys each
-- Tier I (Top Tier), Tier II, Tier III
-- Single round-robin within each tier (9 matches per Bey)
-- Total: 135 league matches per season
+- 32 Beys divided into 4 Tiers of 8 Beys each
+- Tier I (Top Tier), Tier II, Tier III, Tier IV
+- Single round-robin within each tier (7 matches per Bey)
+- Total: 112 league matches per season
 
 Match Types:
 - exhibition: Default, all existing matches and tournaments
 - season: Regular league matches within a tier
-- relegation: Decision matches between tiers (8th vs 3rd)
-- qualification: Tier III entry tournament for unranked Beys
+- relegation: Decision matches between tiers (6th vs 3rd)
+- qualification: Tier IV entry tournament for unranked Beys
 - season_cup: Post-season double-elimination tournament
 
 Qualification System:
-- Tier III positions 7-10 enter Qualification Tournament
-- New Beys and unranked Beys compete for Tier III slots
-- Top 4 finishers earn Tier III slots for next season
+- Tier IV positions 5-8 enter Qualification Tournament
+- New Beys and unranked Beys compete for Tier IV slots
+- Top 4 finishers earn Tier IV slots for next season
 
 Season Points:
 - Win: 3 points
@@ -41,6 +42,8 @@ Functions:
     calculate_season_points(score_a, score_b): Calculate season points for a match
     get_league_table(season_id, tier, matches): Generate league table for a tier
     get_promotion_relegation(season_id): Determine promotion/relegation for next season
+    get_tier_adaptation(league_tables, new_tiers, new_beys_per_tier): Handle cross-season
+        structure changes by re-ranking all beys into the new tier layout
     schedule_round_robin(beys_in_tier): Generate round-robin match schedule
     save_season_data(season_id, data): Save season metadata to file
     load_season_data(season_id): Load season metadata from file
@@ -53,9 +56,9 @@ from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 
 # Constants
-TIERS = 3
-BEYS_PER_TIER = 10
-TOTAL_BEYS_IN_LEAGUE = 30  # Beys in active league (3 tiers)
+TIERS = 4
+BEYS_PER_TIER = 8
+TOTAL_BEYS_IN_LEAGUE = 32  # Beys in active league (4 tiers)
 TOTAL_BEYS = 40  # Total Beys in system (for backward compatibility)
 
 # Season points
@@ -69,8 +72,11 @@ DOMINANT_WIN_THRESHOLD = 4  # Shutout victory with 4+ points (4-0, 5-0, 6-0)
 # Promotion/Relegation counts
 AUTO_PROMOTION = 2
 AUTO_RELEGATION = 2
-RELEGATION_MATCH_POSITION_HIGH = 8  # 8th place in higher tier
+RELEGATION_MATCH_POSITION_HIGH = BEYS_PER_TIER - AUTO_RELEGATION  # 6th place in higher tier
 RELEGATION_MATCH_POSITION_LOW = 3   # 3rd place in lower tier
+
+# Bottom tier qualification zone: positions (BEYS_PER_TIER - QUALIFICATION_SLOTS + 1) to BEYS_PER_TIER
+QUALIFICATION_SLOTS = 4
 
 # Default paths
 DEFAULT_DATA_DIR = "./docs/data"
@@ -338,17 +344,104 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
                     "lower_position": RELEGATION_MATCH_POSITION_LOW
                 })
 
-        # Tier III positions 7-10 enter Qualification Tournament
+        # Bottom tier positions in qualification zone enter Qualification Tournament
         if tier == TIERS:
-            for i in range(6, min(10, len(table))):  # Positions 7-10 (indices 6-9)
+            qual_start = BEYS_PER_TIER - QUALIFICATION_SLOTS  # index of first qualification spot
+            for i in range(qual_start, len(table)):  # Bottom QUALIFICATION_SLOTS positions
                 result["qualification_candidates"].append({
                     "bey": table[i]["bey"],
                     "tier": tier,
                     "position": i + 1,
-                    "reason": "tier3_bottom"
+                    "reason": f"tier{tier}_bottom"
                 })
 
     return result
+
+
+def get_tier_adaptation(
+        league_tables: Dict[int, List[Dict]],
+        new_tiers: int,
+        new_beys_per_tier: int) -> Dict:
+    """
+    Compute tier assignments for a new season with a different tier structure.
+
+    When transitioning between tier structures (e.g., 3 tiers of 10 to 4 tiers of 8),
+    standard promotion/relegation cannot be applied directly because the number of slots
+    in each tier changes. This function merges all beys from the old league tables,
+    ranks them by cross-tier standing (tier order then position within tier), and
+    redistributes them into the new structure.
+
+    Example: moving from 3x10 to 4x8
+    - All 30 beys are ranked globally (T1-1st = rank 1, ..., T3-10th = rank 30)
+    - Top 8 → new Tier I, ranks 9-16 → new Tier II, 17-24 → Tier III, 25-32 → Tier IV
+    - Beys beyond the new league capacity go to the qualification pool
+
+    Args:
+        league_tables: Dict mapping old tier number to its final league table.
+            Each table entry must contain at least "bey" and "position" keys.
+        new_tiers: Number of tiers in the new season.
+        new_beys_per_tier: Number of beys per tier in the new season.
+
+    Returns:
+        Dictionary with keys:
+            - "new_tier_assignments": maps bey name to
+              {"new_tier": int, "old_tier": int, "old_position": int}
+            - "qualification_pool": list of beys beyond the new league capacity
+            - "tier_changes": list of dicts describing each bey's movement
+            - "total_beys_assigned": number of beys placed in the new league
+    """
+    new_league_size = new_tiers * new_beys_per_tier
+
+    # Build a global ranking by merging all old tiers, sorted by tier then position
+    all_beys = []
+    for tier in sorted(league_tables.keys()):
+        table = league_tables[tier]
+        sorted_table = sorted(table, key=lambda x: x.get("position", 0))
+        for entry in sorted_table:
+            all_beys.append({
+                "bey": entry["bey"],
+                "old_tier": tier,
+                "old_position": entry.get("position", 0)
+            })
+
+    new_tier_assignments = {}
+    qualification_pool = []
+    tier_changes = []
+
+    for global_rank, bey_info in enumerate(all_beys):
+        bey = bey_info["bey"]
+        old_tier = bey_info["old_tier"]
+        old_position = bey_info["old_position"]
+
+        if global_rank < new_league_size:
+            new_tier = global_rank // new_beys_per_tier + 1
+            new_tier_assignments[bey] = {
+                "new_tier": new_tier,
+                "old_tier": old_tier,
+                "old_position": old_position
+            }
+            if new_tier != old_tier:
+                direction = "promoted" if new_tier < old_tier else "relegated"
+                tier_changes.append({
+                    "bey": bey,
+                    "old_tier": old_tier,
+                    "old_position": old_position,
+                    "new_tier": new_tier,
+                    "direction": direction
+                })
+        else:
+            qualification_pool.append({
+                "bey": bey,
+                "old_tier": old_tier,
+                "old_position": old_position
+            })
+
+    return {
+        "new_tier_assignments": new_tier_assignments,
+        "qualification_pool": qualification_pool,
+        "tier_changes": tier_changes,
+        "total_beys_assigned": len(new_tier_assignments)
+    }
 
 
 def schedule_round_robin(beys: List[str]) -> List[Tuple[str, str]]:
