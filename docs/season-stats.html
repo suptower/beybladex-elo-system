@@ -507,9 +507,96 @@
             border-radius: 8px;
             border: 1px dashed var(--border-color);
         }
+
+        /* Plot image zoom cursor */
+        .plot-card img {
+            cursor: zoom-in;
+        }
+
+        /* Lightbox overlay */
+        #lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.88);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #lightbox.active {
+            display: flex;
+        }
+
+        #lightbox img {
+            max-width: 95vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+            cursor: zoom-out;
+        }
+
+        #lightbox-caption {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.55);
+            padding: 6px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        #lightbox-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 32px;
+            color: #fff;
+            cursor: pointer;
+            line-height: 1;
+            background: none;
+            border: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        #lightbox-close:hover {
+            opacity: 1;
+        }
+
+        /* Tier badge in leaderboard filter */
+        .tier-filter-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Empty / no-data message */
+        .empty-message {
+            padding: 12px 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-caption">
+    <button id="lightbox-close" aria-label="Close">&times;</button>
+    <img id="lightbox-img" src="" alt="" tabindex="0">
+    <div id="lightbox-caption"></div>
+</div>
 
 <a href="#main-content" class="skip-to-content">Skip to main content</a>
 
@@ -582,6 +669,8 @@
     let currentSeason = urlParams.get('season') || 'S1';
     let statsData = null;
     let availableSeasons = [];
+    // Per-season tier→beys mapping loaded from season_data.json
+    let seasonTierBeys = {};
 
     // Stat explanations
     const statExplanations = {
@@ -597,11 +686,41 @@
         'volatility': 'Standard deviation of points per match - lower values indicate more consistent performance.'
     };
 
+    const leaderboardNames = {
+        'match_win_rate': 'Match Win Rate',
+        'points_differential': 'Points Differential',
+        'round_differential': 'Round Differential',
+        'offensive_power_index': 'Offensive Power Index',
+        'dominance_index': 'Dominance Index',
+        'points_per_round': 'Points Per Round',
+        'aggression_ratio': 'Aggression Ratio',
+        'defensive_stability': 'Defensive Stability',
+        'clutch_win_rate': 'Clutch Win Rate',
+        'volatility': 'Volatility'
+    };
+
+    // Load season_data.json to get per-tier bey lists
+    async function loadSeasonData() {
+        try {
+            const resp = await fetch('data/season_data.json');
+            if (!resp.ok) return;
+            const data = await resp.json();
+            const seasons = data.seasons || {};
+            for (const [sid, sdata] of Object.entries(seasons)) {
+                seasonTierBeys[sid] = {};
+                const tables = sdata.league_tables || {};
+                for (const [tier, entries] of Object.entries(tables)) {
+                    seasonTierBeys[sid][tier] = entries.map(e => e.bey);
+                }
+            }
+        } catch (e) {
+            // Non-critical: leaderboard will just show all beys if unavailable
+        }
+    }
+
     // Detect available seasons from CSV or use default
     async function loadAvailableSeasons() {
         try {
-            // Try to fetch available seasons from a JSON file or use default
-            // For now, we'll use a default list
             availableSeasons = ['S1']; // Can be expanded based on actual data
             
             const select = document.getElementById('season-select');
@@ -609,7 +728,6 @@
                 `<option value="${season}">${season === 'S1' ? 'Season 1' : 'Season ' + season.substring(1)}</option>`
             ).join('');
             
-            // Set default season
             select.value = currentSeason;
         } catch (error) {
             console.error('Error loading seasons:', error);
@@ -622,19 +740,17 @@
             currentSeason = season;
             const filename = `data/season_statistics_${season}.json`;
             
-            // Try loading season-specific file, fallback to default
             let response;
             try {
                 response = await fetch(filename);
                 if (!response.ok) throw new Error('Season-specific file not found');
             } catch {
-                // Fallback to default season_statistics.json
                 response = await fetch('data/season_statistics.json');
                 if (!response.ok) throw new Error('Failed to load statistics');
             }
             
             statsData = await response.json();
-            renderStats();
+            renderStats(null); // null = no tier filter yet
         } catch (error) {
             console.error('Error loading stats:', error);
             document.getElementById('stats-content').innerHTML = `
@@ -646,12 +762,20 @@
         }
     }
 
-    // Render statistics
-    function renderStats() {
+    // Render statistics, optionally filtered to a tier's beys
+    function renderStats(tierFilter) {
         if (!statsData) return;
 
         const container = document.getElementById('stats-content');
         container.innerHTML = '';
+
+        // Determine tier bey filter set
+        const tierBeys = tierFilter
+            ? new Set((seasonTierBeys[currentSeason] || {})[tierFilter] || [])
+            : null;
+
+        // Tier label for section headers
+        const tierLabel = tierFilter ? ` – Tier ${tierFilter}` : '';
 
         // Render awards section
         if (statsData.awards && Object.keys(statsData.awards).length > 0) {
@@ -660,10 +784,10 @@
             awardsSection.innerHTML = `
                 <div class="section-header">
                     <span class="section-icon">🏆</span>
-                    <h2 class="section-title">Season Awards</h2>
+                    <h2 class="section-title">Season Awards${tierLabel}</h2>
                 </div>
                 <div class="awards-grid">
-                    ${renderAwards()}
+                    ${renderAwards(tierBeys)}
                 </div>
             `;
             container.appendChild(awardsSection);
@@ -676,67 +800,50 @@
             leaderboardsSection.innerHTML = `
                 <div class="section-header">
                     <span class="section-icon">📈</span>
-                    <h2 class="section-title">Statistical Leaderboards</h2>
+                    <h2 class="section-title">Statistical Leaderboards${tierLabel}</h2>
                 </div>
-                ${renderLeaderboards()}
+                ${renderLeaderboards(tierBeys)}
             `;
             container.appendChild(leaderboardsSection);
             
-            // Initialize leaderboard tabs
             initLeaderboardTabs();
         }
     }
 
-    // Render awards
-    function renderAwards() {
+    // Render awards, optionally filtered to tierBeys set
+    function renderAwards(tierBeys) {
         const awards = statsData.awards;
-        return Object.entries(awards).map(([key, award]) => `
-            <div class="award-card">
-                <div class="award-header">
-                    <span class="award-icon">${award.icon}</span>
-                    <span class="award-title">${award.title}</span>
+        return Object.entries(awards)
+            .filter(([, award]) => !tierBeys || tierBeys.has(award.winner))
+            .map(([, award]) => `
+                <div class="award-card">
+                    <div class="award-header">
+                        <span class="award-icon">${award.icon}</span>
+                        <span class="award-title">${award.title}</span>
+                    </div>
+                    <div class="award-winner">${award.winner}</div>
+                    <div class="award-value">${formatValue(award.value, award.metric)}</div>
                 </div>
-                <div class="award-winner">${award.winner}</div>
-                <div class="award-value">${formatValue(award.value, award.metric)}</div>
-            </div>
-        `).join('');
+            `).join('') || '<p class="empty-message">No awards available for this tier.</p>';
     }
 
     // Format value based on metric type
     function formatValue(value, metric) {
         const lowerMetric = metric.toLowerCase();
-        
-        // Integer metrics
         if (lowerMetric.includes('differential') || 
             lowerMetric.includes('wins') || 
             lowerMetric.includes('suffered')) {
             return `${Math.round(value)} ${metric}`;
         }
-        
-        // Percentage metrics
         if (lowerMetric.includes('rate') || lowerMetric.includes('ratio')) {
             return `${value.toFixed(1)}% ${metric.replace(' %', '')}`;
         }
-        
-        // Default: 2 decimal places
         return `${value.toFixed(2)} ${metric}`;
     }
 
-    // Render leaderboards
-    function renderLeaderboards() {
+    // Render leaderboards, optionally filtered to tierBeys set
+    function renderLeaderboards(tierBeys) {
         const leaderboards = statsData.leaderboards;
-        const leaderboardNames = {
-            'match_win_rate': 'Match Win Rate',
-            'points_differential': 'Points Differential',
-            'round_differential': 'Round Differential',
-            'offensive_power_index': 'Offensive Power Index',
-            'dominance_index': 'Dominance Index',
-            'points_per_round': 'Points Per Round',
-            'aggression_ratio': 'Aggression Ratio',
-            'defensive_stability': 'Defensive Stability',
-            'clutch_win_rate': 'Clutch Win Rate',
-            'volatility': 'Volatility'
-        };
 
         const tabs = Object.keys(leaderboards).map((key, index) => `
             <button class="leaderboard-tab ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
@@ -744,11 +851,17 @@
             </button>
         `).join('');
 
-        const contents = Object.entries(leaderboards).map(([key, leaders], index) => `
-            <div class="leaderboard-content ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
-                ${renderLeaderboardTable(leaders, key)}
-            </div>
-        `).join('');
+        const contents = Object.entries(leaderboards).map(([key, leaders], index) => {
+            // Filter entries by tier beys, then re-rank
+            const filtered = tierBeys
+                ? leaders.filter(e => tierBeys.has(e.bey)).map((e, i) => ({ ...e, rank: i + 1 }))
+                : leaders;
+            return `
+                <div class="leaderboard-content ${index === 0 ? 'active' : ''}" data-leaderboard="${key}">
+                    ${renderLeaderboardTable(filtered, key)}
+                </div>
+            `;
+        }).join('');
 
         return `
             <div class="leaderboard-tabs-container">
@@ -765,10 +878,9 @@
     // Render leaderboard table
     function renderLeaderboardTable(leaders, metricKey) {
         if (!leaders || leaders.length === 0) {
-            return '<p>No data available for this metric.</p>';
+            return '<p class="empty-message">No data available for this metric.</p>';
         }
 
-        // Add explanation if available
         const explanation = statExplanations[metricKey];
         const explanationHTML = explanation ? 
             `<div class="stat-explanation">ℹ️ ${explanation}</div>` : '';
@@ -779,8 +891,6 @@
                              entry.rank === 3 ? 'rank-3' : 'rank-other';
             
             let valueDisplay = entry.value;
-            
-            // Format integers for appropriate metrics
             if (metricKey.includes('differential') || 
                 metricKey.includes('wins') || 
                 metricKey.includes('losses')) {
@@ -830,14 +940,12 @@
             tab.addEventListener('click', () => {
                 const leaderboard = tab.dataset.leaderboard;
 
-                // Update active states
                 tabs.forEach(t => t.classList.remove('active'));
                 contents.forEach(c => c.classList.remove('active'));
 
                 tab.classList.add('active');
                 document.querySelector(`.leaderboard-content[data-leaderboard="${leaderboard}"]`).classList.add('active');
                 
-                // Scroll tab into view on mobile
                 tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             });
         });
@@ -850,9 +958,11 @@
     });
 
     // Initial load
-    loadAvailableSeasons().then(() => {
-        loadStats(currentSeason);
-        loadSeasonPlots(currentSeason);
+    loadSeasonData().then(() => {
+        loadAvailableSeasons().then(() => {
+            loadStats(currentSeason);
+            loadSeasonPlots(currentSeason);
+        });
     });
 
     // -------------------------------------------------------------------------
@@ -916,13 +1026,17 @@
                 btn.addEventListener('click', () => {
                     tierSelector.querySelectorAll('.tier-tab').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    renderTierPlots(btn.dataset.tier, season);
+                    const tier = btn.dataset.tier;
+                    renderTierPlots(tier, season);
+                    // Also update awards & leaderboards to reflect the selected tier
+                    renderStats(tier);
                 });
             });
 
-            // Show first tier by default
+            // Show first tier by default and update stats to match
             currentTier = tiers[0];
             renderTierPlots(currentTier, season);
+            renderStats(currentTier);
             section.style.display = 'block';
 
         } catch (e) {
@@ -952,7 +1066,8 @@
                 <div class="plot-card">
                     <div class="plot-card-title">${title}</div>
                     <img src="${src}" alt="${title}" loading="lazy"
-                         onerror="this.parentElement.style.display='none'">
+                         onerror="this.parentElement.style.display='none'"
+                         onclick="openLightbox(this.src, this.alt, this)">
                 </div>
             `;
         }).join('');
@@ -967,6 +1082,65 @@
             }
         });
     }
+
+    // -------------------------------------------------------------------------
+    // Lightbox
+    // -------------------------------------------------------------------------
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxClose = document.getElementById('lightbox-close');
+    // Track the element that triggered the lightbox so we can restore focus
+    let lightboxTrigger = null;
+
+    function openLightbox(src, caption, triggerEl) {
+        lightboxTrigger = triggerEl || document.activeElement;
+        lightboxImg.src = src;
+        lightboxImg.alt = caption;
+        lightboxCaption.textContent = caption;
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        // Move focus to the close button
+        lightboxClose.focus();
+    }
+
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        lightboxImg.src = '';
+        document.body.style.overflow = '';
+        // Restore focus to the triggering element
+        if (lightboxTrigger) {
+            lightboxTrigger.focus();
+            lightboxTrigger = null;
+        }
+    }
+
+    lightboxClose.addEventListener('click', closeLightbox);
+
+    // Close when clicking the backdrop (not the image itself)
+    lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) closeLightbox();
+    });
+
+    // Keyboard: Escape to close, Tab to trap focus within lightbox
+    lightbox.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
+        } else if (e.key === 'Tab') {
+            // Trap focus between close button and image
+            const focusable = [lightboxClose, lightboxImg];
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+    });
 </script>
 
 </body>
