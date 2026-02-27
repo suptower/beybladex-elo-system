@@ -3267,11 +3267,8 @@ function openBeyPicker(matchIndex, player) {
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
     
-    // Focus search input after a brief delay for smooth animation
-    setTimeout(() => {
-        const searchInput = document.getElementById('beyPickerSearch');
-        if (searchInput) searchInput.focus();
-    }, 100);
+    // Do not auto-focus the search input — on mobile this would immediately
+    // pop up the on-screen keyboard before the user requests it.
 }
 
 /**
