@@ -71,9 +71,12 @@ SCRIPT_SEASON_PROCESSING = "./src/season_processing.py"
 SCRIPT_STADIUM_STATS = "./src/stadium_stats.py"
 SCRIPT_SEASON_STATISTICS = "./src/season_statistics.py"
 SCRIPT_SEASON_COMPARISON = "./src/season_comparison.py"
+SCRIPT_SEASON_META_ANALYTICS = "./src/season_meta_analytics.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
+# Individual position visualizations (required by TestScriptPaths in test_update.py)
+SCRIPT_PLOT_POSITIONS = "./src/visualization/individual_interactive_position.py"
 
 # Export
 SCRIPT_SHEETS_UPLOAD = "./src/sheets_upload.py"
@@ -407,6 +410,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Season Comparison", success, duration))
+
+    # Season Meta Analytics (depends on matches, elo_history, rpg_stats, leaderboard)
+    success, duration = run_script(
+        SCRIPT_SEASON_META_ANALYTICS,
+        "Advanced Season Meta Analytics",
+        verbose=verbose
+    )
+    results.append(("Season Meta Analytics", success, duration))
 
     return results
 
