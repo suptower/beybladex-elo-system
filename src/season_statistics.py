@@ -961,7 +961,7 @@ def main():
         )
         print(award_text)
 
-    print(f"\n{GREEN}{BOLD}✓ Season statistics generated successfully!{RESET}")
+    print(f"\n{GREEN}{BOLD}Season statistics generated successfully!{RESET}")
 
 
 if __name__ == "__main__":
