@@ -10,6 +10,8 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
+from plot_styles import get_text_color, get_bg_color, get_plot_bg_color  # noqa: E402
+
 # --- Ordner für Diagramme ---
 OUTPUT_DIR = "./docs/plots"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -64,8 +66,10 @@ for f in delta_files:
         bey = r['Name']
         # MatchIndex abschätzen über Anzahl gespielter Matches bis Turnier
         mask = df_ts['Bey'] == bey
-        df_ts.loc[mask, 'Positionsdelta'] = r.get('Positionsdelta', 0)
-        df_ts.loc[mask, 'ELODelta'] = r.get('ELODelta', 0)
+        pos_delta = pd.to_numeric(str(r.get('Positionsdelta', 0)).replace('→', '').strip(), errors='coerce')
+        elo_delta = pd.to_numeric(str(r.get('ELODelta', r.get('ELOdelta', 0))), errors='coerce')
+        df_ts.loc[mask, 'Positionsdelta'] = pos_delta if pd.notna(pos_delta) else 0
+        df_ts.loc[mask, 'ELODelta'] = elo_delta if pd.notna(elo_delta) else 0
 
 # --- Top 5 nach ELO ---
 top5_beys = df_adv.sort_values(by='ELO', ascending=False).head(5)['Bey'].tolist()
@@ -88,7 +92,10 @@ bey_colors = {row['Bey']: color_volatility(row['Volatility']) for _, row in df_a
 def create_interactive_plot(df_ts, top5_beys, bey_colors,
                             template="plotly_white"):
     """Create interactive ELO trends plot"""
-    from plot_styles import get_text_color
+    dark_mode = (template == "plotly_dark")
+    text_color = get_text_color(dark_mode)
+    bg_color = get_bg_color(dark_mode)
+    plot_bg_color = get_plot_bg_color(dark_mode)
 
     fig = go.Figure()
 
@@ -116,9 +123,6 @@ def create_interactive_plot(df_ts, top5_beys, bey_colors,
             for _, row in df_b.iterrows()
         ]
 
-        # Use text color from plot_styles module
-        text_color = get_text_color(dark_mode=(template == "plotly_dark"))
-
         fig.add_trace(go.Scatter(
             x=df_b['MatchIndex'],
             y=df_b['ELO'],
@@ -141,7 +145,10 @@ def create_interactive_plot(df_ts, top5_beys, bey_colors,
         template=template,
         hovermode="closest",
         width=1400,
-        height=800
+        height=800,
+        paper_bgcolor=bg_color,
+        plot_bgcolor=plot_bg_color,
+        font=dict(color=text_color)
     )
 
     return fig

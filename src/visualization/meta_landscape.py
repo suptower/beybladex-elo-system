@@ -498,8 +498,8 @@ def create_meta_landscape_interactive_with_toggle(df: pd.DataFrame, output_file:
             color: #1a1a1a;
         }}
         body.dark {{
-            background-color: #0f172a;
-            color: #f1f5f9;
+            background-color: #0a0a0a;
+            color: #e2e2e2;
         }}
         .header {{
             display: flex;
@@ -530,7 +530,7 @@ def create_meta_landscape_interactive_with_toggle(df: pd.DataFrame, output_file:
             background-color: #e5e7eb;
         }}
         body.dark .theme-toggle label {{
-            background-color: #334155;
+            background-color: #222222;
         }}
         .theme-toggle input {{
             display: none;
@@ -549,8 +549,8 @@ def create_meta_landscape_interactive_with_toggle(df: pd.DataFrame, output_file:
             background-color: #e5e7eb;
         }}
         body.dark .back-link {{
-            color: #f1f5f9;
-            background-color: #334155;
+            color: #e2e2e2;
+            background-color: #222222;
         }}
         .back-link:hover {{
             opacity: 0.8;
@@ -663,22 +663,22 @@ def create_meta_landscape_interactive_with_toggle(df: pd.DataFrame, output_file:
         const darkLayout = {{
             title: {{
                 text: 'Meta Landscape: Offense vs Defense Map',
-                font: {{ size: 18, color: '#f1f5f9' }}
+                font: {{ size: 18, color: '#e2e2e2' }}
             }},
             xaxis: {{
                 title: 'Offense Score →',
                 range: [-0.2, 5.2],
                 gridcolor: 'rgba(128,128,128,0.2)',
-                color: '#f1f5f9'
+                color: '#e2e2e2'
             }},
             yaxis: {{
                 title: 'Defense Score →',
                 range: [-0.2, 5.2],
                 gridcolor: 'rgba(128,128,128,0.2)',
-                color: '#f1f5f9'
+                color: '#e2e2e2'
             }},
-            paper_bgcolor: '#0f172a',
-            plot_bgcolor: '#1e293b',
+            paper_bgcolor: '#0a0a0a',
+            plot_bgcolor: '#121212',
             hovermode: 'closest',
             width: 1000,
             height: 800,
@@ -703,16 +703,16 @@ def create_meta_landscape_interactive_with_toggle(df: pd.DataFrame, output_file:
                 type: 'scatter',
                 text: textData,
                 textposition: 'top center',
-                textfont: {{ size: 9, color: isDark ? '#f1f5f9' : '#1a1a1a' }},
+                textfont: {{ size: 9, color: isDark ? '#e2e2e2' : '#1a1a1a' }},
                 marker: {{
                     size: markerSizes,
                     color: eloData,
                     colorscale: 'RdYlGn',
                     colorbar: {{
-                        title: {{ text: 'ELO', font: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }} }},
+                        title: {{ text: 'ELO', font: {{ color: isDark ? '#e2e2e2' : '#1a1a1a' }} }},
                         thickness: 15,
                         len: 0.7,
-                        tickfont: {{ color: isDark ? '#f1f5f9' : '#1a1a1a' }}
+                        tickfont: {{ color: isDark ? '#e2e2e2' : '#1a1a1a' }}
                     }},
                     showscale: true,
                     line: {{ width: 1, color: isDark ? '#ffffff' : '#000000' }}

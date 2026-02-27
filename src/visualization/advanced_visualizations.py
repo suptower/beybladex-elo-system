@@ -97,7 +97,7 @@ def plot_upset_bar(df_adv, output_file, dark_mode=False):
     df_sorted_upset = df_adv.sort_values(by='UpsetWins', ascending=False)
 
     plt.figure(figsize=(12, 6))
-    plt.bar(df_sorted_upset['Bey'], df_sorted_upset['UpsetWins'], color='blue', label='Upset Wins')
+    plt.bar(df_sorted_upset['Bey'], df_sorted_upset['UpsetWins'], color='#3b82f6', label='Upset Wins')
     plt.bar(df_sorted_upset['Bey'], df_sorted_upset['UpsetLosses'], color='red',
             label='Upset Losses', bottom=df_sorted_upset['UpsetWins'])
     plt.xticks(rotation=45, ha='right')
