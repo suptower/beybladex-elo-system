@@ -28,6 +28,7 @@ meta understanding, and predictive modeling:
     Global Elo is used as-is from the leaderboard.
 """
 
+import os
 import random
 import statistics
 from collections import defaultdict
@@ -898,3 +899,309 @@ def calculate_tier_competitiveness_index(tier_elo_timeseries: Dict) -> Dict[int,
         if iqrs:
             result[tier_val] = round(statistics.mean(iqrs), 2)
     return result
+
+
+# ---------------------------------------------------------------------------
+# CLI entry point
+# ---------------------------------------------------------------------------
+
+def _load_matches_csv(matches_file: str) -> List[Dict]:
+    """Load all matches from CSV into a list of normalised dicts."""
+    import csv
+    rows: List[Dict] = []
+    if not os.path.exists(matches_file):
+        return rows
+    with open(matches_file, encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            rows.append({
+                "match_id": row.get("MatchID", ""),
+                "bey_a":    row.get("BeyA", ""),
+                "bey_b":    row.get("BeyB", ""),
+                "score_a":  int(row.get("ScoreA", 0) or 0),
+                "score_b":  int(row.get("ScoreB", 0) or 0),
+                "match_type": row.get("MatchType", ""),
+                "season_id":  row.get("SeasonID", ""),
+                "tier":       int(row["Tier"]) if row.get("Tier") else None,
+                "matchday":   int(row["Matchday"]) if row.get("Matchday") else None,
+            })
+    return rows
+
+
+def _load_elo_history(elo_history_file: str) -> Dict[str, Dict[str, float]]:
+    """Build {match_id: {bey: pre_elo}} from elo_history.csv."""
+    import csv
+    result: Dict[str, Dict[str, float]] = {}
+    if not os.path.exists(elo_history_file):
+        return result
+    with open(elo_history_file, encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            mid = row.get("MatchID", "")
+            bey_a = row.get("BeyA", "")
+            bey_b = row.get("BeyB", "")
+            try:
+                pre_a = float(row.get("PreA", 1000))
+                pre_b = float(row.get("PreB", 1000))
+            except (ValueError, TypeError):
+                pre_a = pre_b = 1000.0
+            if mid:
+                result[mid] = {bey_a: pre_a, bey_b: pre_b}
+    return result
+
+
+def _load_leaderboard(leaderboard_file: str) -> Dict[str, Dict]:
+    """Build {bey: {elo, wins, losses, matches}} from leaderboard.csv."""
+    import csv
+    result: Dict[str, Dict] = {}
+    if not os.path.exists(leaderboard_file):
+        return result
+    with open(leaderboard_file, encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            name = row.get("Name", "")
+            if not name:
+                continue
+            try:
+                elo = float(str(row.get("ELO", 1000)).replace(",", "."))
+            except (ValueError, TypeError):
+                elo = 1000.0
+            result[name] = {"elo": elo}
+    return result
+
+
+def _load_table_snapshots(data_dir: str, season_id: str) -> Dict[int, Dict[str, Dict]]:
+    """
+    Load the latest standings per tier from table_snapshots_{season_id}_tier{n}.csv.
+
+    Returns:
+        {tier: {bey: {season_points, point_diff, points_for, wins, losses, matches}}}
+    """
+    import csv
+    result: Dict[int, Dict[str, Dict]] = {}
+    for tier in (1, 2, 3):
+        fname = os.path.join(data_dir, f"table_snapshots_{season_id}_tier{tier}.csv")
+        if not os.path.exists(fname):
+            continue
+        rows_by_md: Dict[int, List[Dict]] = {}
+        with open(fname, encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                md_raw = row.get("matchday", "")
+                if not md_raw:
+                    continue
+                md = int(md_raw)
+                rows_by_md.setdefault(md, []).append(row)
+        if not rows_by_md:
+            continue
+        latest = rows_by_md[max(rows_by_md)]
+        tier_standings: Dict[str, Dict] = {}
+        for row in latest:
+            bey = row.get("bey", "")
+            if not bey:
+                continue
+            points_for     = int(row.get("points_for", 0) or 0)
+            points_against = int(row.get("points_against", 0) or 0)
+            point_diff     = int(row.get("point_diff", 0) or 0)
+            tier_standings[bey] = {
+                "season_points": int(row.get("season_points", 0) or 0),
+                "point_diff":    point_diff,
+                "points_for":    points_for,
+                "wins":          int(row.get("wins", 0) or 0),
+                "losses":        int(row.get("losses", 0) or 0),
+                "matches":       int(row.get("matches", 0) or 0),
+                # Aliases used by generate_power_ranking()
+                "points_scored": points_for,
+                "rounds":        points_for + points_against,
+                "round_diff":    point_diff,
+            }
+        result[tier] = tier_standings
+    return result
+
+
+def _build_remaining_fixtures(
+    matches: List[Dict],
+    tier_standings: Dict[str, Dict],
+    season_id: str,
+    tier: int,
+    total_matchdays: int,
+) -> List[Tuple[str, str]]:
+    """
+    Infer remaining (unplayed) fixtures from the round-robin schedule.
+
+    Every pair (bey_a, bey_b) in the tier plays once; already-played pairs
+    are excluded.
+    """
+    played: set = set()
+    for m in matches:
+        if (
+            m.get("match_type", "").lower() == "season"
+            and m.get("season_id", "") == season_id
+            and m.get("tier") == tier
+        ):
+            a = m["bey_a"]
+            b = m["bey_b"]
+            played.add((min(a, b), max(a, b)))
+
+    beys = list(tier_standings.keys())
+    remaining = []
+    for i in range(len(beys)):
+        for j in range(i + 1, len(beys)):
+            pair = (min(beys[i], beys[j]), max(beys[i], beys[j]))
+            if pair not in played:
+                remaining.append((beys[i], beys[j]))
+    return remaining
+
+
+def main() -> None:
+    """CLI entry point: compute and export season meta analytics to JSON."""
+    import argparse
+    import csv
+    import json as json_mod
+
+    parser = argparse.ArgumentParser(
+        description="Advanced Season Meta Analytics – compute & export JSON"
+    )
+    parser.add_argument("--data-dir",    default="./docs/data",
+                        help="Directory containing input CSV/JSON files")
+    parser.add_argument("--output-dir",  default="./docs/data",
+                        help="Directory to write output JSON files")
+    parser.add_argument("--season",      default=None,
+                        help="Season ID to process (default: all active seasons)")
+    parser.add_argument("--simulations", type=int, default=DEFAULT_SIMULATIONS,
+                        help="Number of Monte Carlo simulations")
+    args = parser.parse_args()
+
+    data_dir   = args.data_dir
+    output_dir = args.output_dir
+    os.makedirs(output_dir, exist_ok=True)
+
+    # --- Load shared data -------------------------------------------------
+    matches      = _load_matches_csv(os.path.join(data_dir, "matches.csv"))
+    elo_history  = _load_elo_history(os.path.join(data_dir, "elo_history.csv"))
+    leaderboard  = _load_leaderboard(os.path.join(data_dir, "leaderboard.csv"))
+    rpg_stats_path = os.path.join(data_dir, "rpg_stats.json")
+    rpg_stats: Dict = {}
+    if os.path.exists(rpg_stats_path):
+        with open(rpg_stats_path, encoding="utf-8") as f:
+            rpg_stats = json_mod.load(f)
+
+    # Determine which seasons to process
+    seasons_path = os.path.join(data_dir, "seasons.json")
+    all_season_ids: List[str] = []
+    if args.season:
+        all_season_ids = [args.season]
+    elif os.path.exists(seasons_path):
+        with open(seasons_path, encoding="utf-8") as f:
+            seasons_cfg = json_mod.load(f)
+        all_season_ids = list(seasons_cfg.keys())
+    else:
+        # Fallback: derive from matches
+        all_season_ids = sorted({
+            m["season_id"] for m in matches
+            if m.get("match_type", "").lower() == "season" and m.get("season_id")
+        })
+
+    for season_id in all_season_ids:
+        print(f"Processing season {season_id}…")
+        season_matches = [
+            m for m in matches
+            if m.get("match_type", "").lower() == "season"
+            and m.get("season_id") == season_id
+        ]
+        if not season_matches:
+            print(f"  No season matches found for {season_id}, skipping.")
+            continue
+
+        # ----- Feature 1: Archetype analytics --------------------------------
+        archetype_perf = calculate_archetype_season_performance(
+            matches, rpg_stats, season_id=season_id
+        )
+        archetype_matrix = calculate_archetype_matchup_matrix_season(
+            matches, rpg_stats, season_id=season_id
+        )
+        archetype_evolution = calculate_archetype_meta_evolution(
+            matches, rpg_stats, season_id=season_id
+        )
+        archetype_stability = calculate_archetype_stability_index(
+            archetype_perf, matches, rpg_stats, season_id=season_id
+        )
+
+        # ----- Feature 2: Power Ranking --------------------------------------
+        # Aggregate per-bey season stats across all tiers for power ranking
+        bey_season_data: Dict[str, Dict] = {}
+        for tier in (1, 2, 3):
+            tier_standings = _load_table_snapshots(data_dir, season_id).get(tier, {})
+            for bey, stats in tier_standings.items():
+                if bey not in bey_season_data:
+                    bey_season_data[bey] = stats
+                else:
+                    # Merge across tiers (unusual but safe)
+                    for k in ("wins", "losses", "matches", "points_scored", "rounds"):
+                        bey_season_data[bey][k] = bey_season_data[bey].get(k, 0) + stats.get(k, 0)
+
+        power_ranking = generate_power_ranking(
+            bey_season_data, leaderboard, matches, season_id=season_id
+        )
+
+        # ----- Feature 3: Title Probability per tier -------------------------
+        tier_standings_all = _load_table_snapshots(data_dir, season_id)
+        title_probs_per_tier: Dict[int, List[Dict]] = {}
+        for tier, tier_standings in tier_standings_all.items():
+            if not tier_standings:
+                continue
+            elos_tier = {b: leaderboard.get(b, {}).get("elo", 1000.0) for b in tier_standings}
+            remaining = _build_remaining_fixtures(
+                matches, tier_standings, season_id, tier, total_matchdays=9
+            )
+            position_counts = simulate_season_completion(
+                tier_standings, remaining, elos_tier,
+                n_simulations=args.simulations, seed=DEFAULT_SEED,
+            )
+            title_probs = calculate_title_probabilities(
+                position_counts, n_simulations=args.simulations
+            )
+            title_probs_per_tier[tier] = title_probs
+
+        # ----- Feature 4: Tier Elo timeseries --------------------------------
+        tier_elo_ts  = calculate_tier_elo_timeseries(matches, elo_history, season_id=season_id)
+        tier_strength = calculate_tier_strength_index(tier_elo_ts)
+        tier_comp     = calculate_tier_competitiveness_index(tier_elo_ts)
+
+        # ----- Assemble output -----------------------------------------------
+        output = {
+            "season_id": season_id,
+            "n_simulations": args.simulations,
+            "archetype_analytics": {
+                "performance": archetype_perf,
+                "matchup_matrix": archetype_matrix,
+                "meta_evolution": {
+                    str(md): shares
+                    for md, shares in archetype_evolution.items()
+                },
+                "stability": archetype_stability,
+            },
+            "power_ranking": power_ranking,
+            "title_probabilities": {
+                str(tier): probs
+                for tier, probs in title_probs_per_tier.items()
+            },
+            "tier_elo": {
+                "timeseries": {
+                    str(tier): {
+                        str(md): stats
+                        for md, stats in md_data.items()
+                    }
+                    for tier, md_data in tier_elo_ts.items()
+                },
+                "strength_index":       {str(k): v for k, v in tier_strength.items()},
+                "competitiveness_index": {str(k): v for k, v in tier_comp.items()},
+            },
+        }
+
+        out_file = os.path.join(output_dir, f"season_meta_analytics_{season_id}.json")
+        with open(out_file, "w", encoding="utf-8") as f:
+            json_mod.dump(output, f, indent=2, ensure_ascii=False)
+        print(f"  Exported → {out_file}")
+
+    print("Season meta analytics complete.")
+
+
+if __name__ == "__main__":
+    main()
