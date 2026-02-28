@@ -202,7 +202,6 @@ def plot_archetype_performance(
     labels = [archetype_season_stats[a].get("name", a) for a in archetypes]
 
     x = np.arange(len(archetypes))
-    width = 0.4
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
     title_prefix = f"{season_id} – " if season_id else ""

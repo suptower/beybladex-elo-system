@@ -89,9 +89,9 @@ def _season_points(score_a: int, score_b: int) -> Tuple[int, int]:
     """Compute season league points for a match result."""
     if score_a == score_b:
         return (0, 0)
-    w, l = (score_a, score_b) if score_a > score_b else (score_b, score_a)
+    w, loser_score = (score_a, score_b) if score_a > score_b else (score_b, score_a)
     # Dominant win: winner scores ≥ DOMINANT_WIN_THRESHOLD and loser scores 0 (shutout)
-    pts = POINTS_DOMINANT_WIN if (l == 0 and w >= DOMINANT_WIN_THRESHOLD) else POINTS_WIN
+    pts = POINTS_DOMINANT_WIN if (loser_score == 0 and w >= DOMINANT_WIN_THRESHOLD) else POINTS_WIN
     return (pts, 0) if score_a > score_b else (0, pts)
 
 
@@ -206,8 +206,8 @@ def calculate_archetype_season_performance(
 
         for bey in beys:
             w = bey_wins[bey]
-            l = bey_losses[bey]
-            m_count = w + l
+            losses = bey_losses[bey]
+            m_count = w + losses
             if m_count == 0:
                 continue
             wr = w / m_count
@@ -915,14 +915,14 @@ def _load_matches_csv(matches_file: str) -> List[Dict]:
         for row in csv.DictReader(f):
             rows.append({
                 "match_id": row.get("MatchID", ""),
-                "bey_a":    row.get("BeyA", ""),
-                "bey_b":    row.get("BeyB", ""),
-                "score_a":  int(row.get("ScoreA", 0) or 0),
-                "score_b":  int(row.get("ScoreB", 0) or 0),
+                "bey_a": row.get("BeyA", ""),
+                "bey_b": row.get("BeyB", ""),
+                "score_a": int(row.get("ScoreA", 0) or 0),
+                "score_b": int(row.get("ScoreB", 0) or 0),
                 "match_type": row.get("MatchType", ""),
-                "season_id":  row.get("SeasonID", ""),
-                "tier":       int(row["Tier"]) if row.get("Tier") else None,
-                "matchday":   int(row["Matchday"]) if row.get("Matchday") else None,
+                "season_id": row.get("SeasonID", ""),
+                "tier": int(row["Tier"]) if row.get("Tier") else None,
+                "matchday": int(row["Matchday"]) if row.get("Matchday") else None,
             })
     return rows
 
@@ -996,20 +996,20 @@ def _load_table_snapshots(data_dir: str, season_id: str) -> Dict[int, Dict[str, 
             bey = row.get("bey", "")
             if not bey:
                 continue
-            points_for     = int(row.get("points_for", 0) or 0)
+            points_for = int(row.get("points_for", 0) or 0)
             points_against = int(row.get("points_against", 0) or 0)
-            point_diff     = int(row.get("point_diff", 0) or 0)
+            point_diff = int(row.get("point_diff", 0) or 0)
             tier_standings[bey] = {
                 "season_points": int(row.get("season_points", 0) or 0),
-                "point_diff":    point_diff,
-                "points_for":    points_for,
-                "wins":          int(row.get("wins", 0) or 0),
-                "losses":        int(row.get("losses", 0) or 0),
-                "matches":       int(row.get("matches", 0) or 0),
+                "point_diff": point_diff,
+                "points_for": points_for,
+                "wins": int(row.get("wins", 0) or 0),
+                "losses": int(row.get("losses", 0) or 0),
+                "matches": int(row.get("matches", 0) or 0),
                 # Aliases used by generate_power_ranking()
                 "points_scored": points_for,
-                "rounds":        points_for + points_against,
-                "round_diff":    point_diff,
+                "rounds": points_for + points_against,
+                "round_diff": point_diff,
             }
         result[tier] = tier_standings
     return result
@@ -1052,30 +1052,29 @@ def _build_remaining_fixtures(
 def main() -> None:
     """CLI entry point: compute and export season meta analytics to JSON."""
     import argparse
-    import csv
     import json as json_mod
 
     parser = argparse.ArgumentParser(
         description="Advanced Season Meta Analytics – compute & export JSON"
     )
-    parser.add_argument("--data-dir",    default="./docs/data",
+    parser.add_argument("--data-dir", default="./docs/data",
                         help="Directory containing input CSV/JSON files")
-    parser.add_argument("--output-dir",  default="./docs/data",
+    parser.add_argument("--output-dir", default="./docs/data",
                         help="Directory to write output JSON files")
-    parser.add_argument("--season",      default=None,
+    parser.add_argument("--season", default=None,
                         help="Season ID to process (default: all active seasons)")
     parser.add_argument("--simulations", type=int, default=DEFAULT_SIMULATIONS,
                         help="Number of Monte Carlo simulations")
     args = parser.parse_args()
 
-    data_dir   = args.data_dir
+    data_dir = args.data_dir
     output_dir = args.output_dir
     os.makedirs(output_dir, exist_ok=True)
 
     # --- Load shared data -------------------------------------------------
-    matches      = _load_matches_csv(os.path.join(data_dir, "matches.csv"))
-    elo_history  = _load_elo_history(os.path.join(data_dir, "elo_history.csv"))
-    leaderboard  = _load_leaderboard(os.path.join(data_dir, "leaderboard.csv"))
+    matches = _load_matches_csv(os.path.join(data_dir, "matches.csv"))
+    elo_history = _load_elo_history(os.path.join(data_dir, "elo_history.csv"))
+    leaderboard = _load_leaderboard(os.path.join(data_dir, "leaderboard.csv"))
     rpg_stats_path = os.path.join(data_dir, "rpg_stats.json")
     rpg_stats: Dict = {}
     if os.path.exists(rpg_stats_path):
@@ -1160,9 +1159,9 @@ def main() -> None:
             title_probs_per_tier[tier] = title_probs
 
         # ----- Feature 4: Tier Elo timeseries --------------------------------
-        tier_elo_ts  = calculate_tier_elo_timeseries(matches, elo_history, season_id=season_id)
+        tier_elo_ts = calculate_tier_elo_timeseries(matches, elo_history, season_id=season_id)
         tier_strength = calculate_tier_strength_index(tier_elo_ts)
-        tier_comp     = calculate_tier_competitiveness_index(tier_elo_ts)
+        tier_comp = calculate_tier_competitiveness_index(tier_elo_ts)
 
         # ----- Assemble output -----------------------------------------------
         output = {
@@ -1190,7 +1189,7 @@ def main() -> None:
                     }
                     for tier, md_data in tier_elo_ts.items()
                 },
-                "strength_index":       {str(k): v for k, v in tier_strength.items()},
+                "strength_index": {str(k): v for k, v in tier_strength.items()},
                 "competitiveness_index": {str(k): v for k, v in tier_comp.items()},
             },
         }

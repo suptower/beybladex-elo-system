@@ -9,7 +9,6 @@ Tests cover all four analytical features:
 """
 import sys
 import os
-import random
 
 import pytest
 
@@ -33,8 +32,6 @@ from season_meta_analytics import (
     calculate_tier_elo_timeseries,
     calculate_tier_strength_index,
     calculate_tier_competitiveness_index,
-    # Constants
-    MIN_SEASON_MATCHES,
 )
 
 
