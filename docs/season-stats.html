@@ -661,6 +661,23 @@
             </div>
         </details>
 
+        <!-- Advanced Season Meta Analytics Section -->
+        <details class="profile-section-details" id="advancedMetaSection" style="display: none;">
+            <summary class="section-summary" style="font-size:20px;font-weight:800;cursor:pointer;padding:12px 0;list-style:none;display:flex;align-items:center;gap:8px;">
+                🔬 Advanced Season Meta Analytics
+            </summary>
+            <div style="margin-top:8px;margin-bottom:12px;">
+                <p style="font-size:14px;opacity:0.75;margin:0 0 12px 0;">
+                    Predictive and meta-analytical insights for the selected season:
+                    <strong>Archetype analytics</strong>, <strong>Extended Power Ranking</strong>,
+                    <strong>Title Probability Model</strong> (Monte Carlo), and
+                    <strong>Tier Elo Distribution &amp; Strength Tracking</strong>.
+                    All metrics are derived exclusively from season matches.
+                </p>
+            </div>
+            <div id="advancedMetaContent"></div>
+        </details>
+
         <!-- Season vs Global Comparison Section -->
         <details class="profile-section-details" id="comparisonPlotsSection" style="display: none;">
             <summary class="section-summary" style="font-size:20px;font-weight:800;cursor:pointer;padding:12px 0;list-style:none;display:flex;align-items:center;gap:8px;">
@@ -938,6 +955,7 @@
         loadSeasonPlots(e.target.value);
         comparisonManifest = null;
         loadComparisonPlots(e.target.value);
+        loadAdvancedMetaPlots(e.target.value);
     });
 
     // Initial load
@@ -945,6 +963,7 @@
         loadStats(currentSeason);
         loadSeasonPlots(currentSeason);
         loadComparisonPlots(currentSeason);
+        loadAdvancedMetaPlots(currentSeason);
     });
 
     // -------------------------------------------------------------------------
@@ -1166,6 +1185,317 @@
         } catch (e) {
             section.style.display = 'none';
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Advanced Season Meta Analytics – Statistics + Plots
+    // -------------------------------------------------------------------------
+
+    const ADVANCED_META_PLOT_TITLES = {
+        'archetype_performance': '📊 Archetype Season Win Rate & PPR',
+        'archetype_matchup_matrix': '🗺️ Archetype vs Archetype Win Rate',
+        'archetype_meta_evolution': '📈 Archetype Meta Evolution',
+        'archetype_stability': '⚖️ Archetype Stability Index',
+        'power_ranking': '⚡ Extended Power Ranking',
+        'power_vs_elo_rank_delta': '🔀 Power Rank vs Elo Rank Delta',
+        'title_probability': '🏆 Title Probability (Simulation)',
+        'position_probability_heatmap': '🎯 Position Probability Heatmap',
+        'tier_elo_timeseries': '📉 Tier Elo Distribution over Time',
+        'tier_strength_competitiveness': '💪 Tier Strength & Competitiveness',
+    };
+
+    function getAdvancedMetaPlotTitle(filename) {
+        for (const [key, title] of Object.entries(ADVANCED_META_PLOT_TITLES)) {
+            if (filename.includes(key)) return title;
+        }
+        return filename.replace(/_dark\.png$/, '.png').replace(/\.png$/, '')
+            .replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    let advancedMetaManifest = null;
+    let advancedMetaStats = null;
+
+    async function loadAdvancedMetaPlots(season) {
+        const section = document.getElementById('advancedMetaSection');
+        const content = document.getElementById('advancedMetaContent');
+
+        section.style.display = 'none';
+        advancedMetaManifest = null;
+        advancedMetaStats = null;
+
+        // Try to load statistics JSON (always attempted)
+        let statsLoaded = false;
+        try {
+            const statsResp = await fetch(`data/season_meta_analytics_${season}.json`);
+            if (statsResp.ok) {
+                advancedMetaStats = await statsResp.json();
+                statsLoaded = true;
+            }
+        } catch (_) { /* no stats data */ }
+
+        // Try to load manifest for plots (optional)
+        try {
+            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            if (resp.ok) {
+                const manifest = await resp.json();
+                advancedMetaManifest = manifest.advanced_meta || null;
+            }
+        } catch (_) { /* no plot manifest */ }
+
+        if (!statsLoaded && !advancedMetaManifest) {
+            section.style.display = 'none';
+            return;
+        }
+
+        section.style.display = 'block';
+        renderAdvancedMetaContent(season);
+    }
+
+    function renderAdvancedMetaContent(season) {
+        const content = document.getElementById('advancedMetaContent');
+        let html = '';
+
+        if (advancedMetaStats) {
+            html += renderArchetypeStats(advancedMetaStats);
+            html += renderPowerRanking(advancedMetaStats);
+            html += renderTitleProbabilities(advancedMetaStats);
+            html += renderTierElo(advancedMetaStats);
+        }
+
+        // Plots section (if available)
+        if (advancedMetaManifest) {
+            const dark = isDarkMode();
+            const basePath = advancedMetaManifest.base_path || `plots/season/${season}/advanced/`;
+            const features = advancedMetaManifest.features || [];
+            const plotsHtml = features.map(feature => {
+                const plots = dark ? feature.dark_plots : feature.plots;
+                if (!plots || plots.length === 0) return '';
+                const cards = plots.map(filename => {
+                    const title = getAdvancedMetaPlotTitle(filename);
+                    const src = basePath + filename;
+                    return `
+                        <div class="plot-card">
+                            <div class="plot-card-title">${title}</div>
+                            <img src="${src}" alt="${title}" loading="lazy"
+                                 onerror="this.parentElement.style.display='none'"
+                                 onclick="openLightbox(this.src, this.alt, this)">
+                        </div>`;
+                }).join('');
+                return `
+                    <div style="margin-bottom:24px;">
+                        <h5 style="font-size:14px;font-weight:700;margin:0 0 10px 0;
+                                   color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">
+                            ${feature.label}
+                        </h5>
+                        <div class="plots-grid">${cards}</div>
+                    </div>`;
+            }).join('');
+
+            if (plotsHtml) {
+                html += `
+                    <div style="margin-bottom:32px;">
+                        <h4 style="font-size:16px;font-weight:700;margin:0 0 16px 0;
+                                   padding-bottom:8px;border-bottom:2px solid var(--border-color);
+                                   color:var(--accent-color);">📈 Visualisations</h4>
+                        ${plotsHtml}
+                    </div>`;
+            }
+        }
+
+        content.innerHTML = html || '<p class="empty-message">No advanced meta analytics available for this season yet.</p>';
+    }
+
+    // ---- Sub-renderers --------------------------------------------------------
+
+    function _sectionHeader(icon, title) {
+        return `<h4 style="font-size:16px;font-weight:700;margin:0 0 14px 0;
+                            padding-bottom:8px;border-bottom:2px solid var(--border-color);
+                            color:var(--accent-color);">${icon} ${title}</h4>`;
+    }
+
+    function renderArchetypeStats(data) {
+        const perf = data.archetype_analytics && data.archetype_analytics.performance;
+        if (!perf || Object.keys(perf).length === 0) return '';
+
+        const rows = Object.values(perf)
+            .sort((a, b) => b.avg_winrate - a.avg_winrate)
+            .map((a, i) => {
+                const rankClass = i === 0 ? 'rank-1' : i === 1 ? 'rank-2' : i === 2 ? 'rank-3' : 'rank-other';
+                return `
+                    <tr>
+                        <td style="text-align:center;"><span class="rank-badge ${rankClass}">${i + 1}</span></td>
+                        <td><span style="font-size:18px;margin-right:6px;">${a.icon || ''}</span>
+                            <strong>${a.name || a.id}</strong></td>
+                        <td style="text-align:right;">${(a.avg_winrate * 100).toFixed(1)}%</td>
+                        <td style="text-align:right;">${(a.avg_points_per_round).toFixed(3)}</td>
+                        <td style="text-align:right;">${(a.stability_index).toFixed(3)}</td>
+                        <td style="text-align:right;">${a.bey_count}</td>
+                        <td style="text-align:right;">${a.total_season_matches}</td>
+                    </tr>`;
+            }).join('');
+
+        return `
+            <div style="margin-bottom:32px;">
+                ${_sectionHeader('🎭', 'Archetype Performance')}
+                <div style="overflow-x:auto;">
+                    <table class="leaderboard-table">
+                        <thead><tr>
+                            <th style="width:50px;">Rank</th>
+                            <th>Archetype</th>
+                            <th style="text-align:right;">Avg Win%</th>
+                            <th style="text-align:right;">Avg PPR</th>
+                            <th style="text-align:right;">Stability σ</th>
+                            <th style="text-align:right;">Beys</th>
+                            <th style="text-align:right;">Matches</th>
+                        </tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+                <p style="font-size:12px;opacity:0.65;margin-top:8px;">
+                    PPR = Season Points per Round. Stability σ = lower means more consistent archetype.
+                </p>
+            </div>`;
+    }
+
+    function renderPowerRanking(data) {
+        const ranking = data.power_ranking;
+        if (!ranking || ranking.length === 0) return '';
+
+        const rows = ranking.map(r => {
+            const rankClass = r.power_rank === 1 ? 'rank-1' : r.power_rank === 2 ? 'rank-2' : r.power_rank === 3 ? 'rank-3' : 'rank-other';
+            const delta = r.rank_delta;
+            const deltaStr = delta > 0
+                ? `<span style="color:#22c55e;">▲${delta}</span>`
+                : delta < 0
+                    ? `<span style="color:#ef4444;">▼${Math.abs(delta)}</span>`
+                    : `<span style="color:#94a3b8;">–</span>`;
+            return `
+                <tr>
+                    <td style="text-align:center;"><span class="rank-badge ${rankClass}">${r.power_rank}</span></td>
+                    <td><a href="bey.html?bey=${encodeURIComponent(r.bey)}" class="bey-link">${r.bey}</a></td>
+                    <td style="text-align:right;font-weight:800;">${r.power_score.toFixed(1)}</td>
+                    <td style="text-align:right;">#${r.elo_rank}</td>
+                    <td style="text-align:right;">${deltaStr}</td>
+                </tr>`;
+        }).join('');
+
+        return `
+            <div style="margin-bottom:32px;">
+                ${_sectionHeader('⚡', 'Extended Power Ranking')}
+                <div style="overflow-x:auto;">
+                    <table class="leaderboard-table">
+                        <thead><tr>
+                            <th style="width:60px;">Power #</th>
+                            <th>Bey</th>
+                            <th style="text-align:right;">Power Score</th>
+                            <th style="text-align:right;">Elo Rank</th>
+                            <th style="text-align:right;">Δ Rank</th>
+                        </tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+                <p style="font-size:12px;opacity:0.65;margin-top:8px;">
+                    Power Score (0–100) blends win rate, PPR, Elo percentile, round differential, and recent form.
+                    Δ Rank = Elo rank − Power rank (positive = form outranks Elo).
+                </p>
+            </div>`;
+    }
+
+    function renderTitleProbabilities(data) {
+        const perTier = data.title_probabilities;
+        if (!perTier || Object.keys(perTier).length === 0) return '';
+
+        const nSim = data.n_simulations
+            ? data.n_simulations.toLocaleString()
+            : '10,000';
+
+        const tierHtml = Object.entries(perTier)
+            .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+            .map(([tier, probs]) => {
+                if (!probs || probs.length === 0) return '';
+                const rows = probs.map(r => {
+                    const rankClass = r.title_prob >= 30 ? 'rank-1'
+                                    : r.title_prob >= 10 ? 'rank-2'
+                                    : r.title_prob > 0   ? 'rank-3' : 'rank-other';
+                    return `
+                        <tr>
+                            <td><a href="bey.html?bey=${encodeURIComponent(r.bey)}" class="bey-link">${r.bey}</a></td>
+                            <td style="text-align:right;"><span class="rank-badge ${rankClass}" style="width:auto;padding:2px 8px;border-radius:12px;">${r.title_prob.toFixed(1)}%</span></td>
+                            <td style="text-align:right;">${r.promotion_prob.toFixed(1)}%</td>
+                            <td style="text-align:right;">${r.top3_prob.toFixed(1)}%</td>
+                            <td style="text-align:right;">${r.relegation_prob.toFixed(1)}%</td>
+                        </tr>`;
+                }).join('');
+
+                return `
+                    <div style="margin-bottom:20px;">
+                        <h5 style="font-size:14px;font-weight:700;margin:0 0 10px 0;color:var(--text-muted);">Tier ${tier}</h5>
+                        <div style="overflow-x:auto;">
+                            <table class="leaderboard-table">
+                                <thead><tr>
+                                    <th>Bey</th>
+                                    <th style="text-align:right;">Title %</th>
+                                    <th style="text-align:right;">Promotion %</th>
+                                    <th style="text-align:right;">Top-3 %</th>
+                                    <th style="text-align:right;">Relegation %</th>
+                                </tr></thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+            }).join('');
+
+        if (!tierHtml.trim()) return '';
+        return `
+            <div style="margin-bottom:32px;">
+                ${_sectionHeader('🏆', 'Title Probability Model (Monte Carlo)')}
+                <p style="font-size:13px;opacity:0.75;margin:0 0 14px 0;">
+                    Simulated ${nSim}× using Elo-based win probabilities. Probabilities reflect the remaining fixtures.
+                </p>
+                ${tierHtml}
+            </div>`;
+    }
+
+    function renderTierElo(data) {
+        const tierElo = data.tier_elo;
+        if (!tierElo) return '';
+        const strength = tierElo.strength_index || {};
+        const comp = tierElo.competitiveness_index || {};
+
+        const tiers = [...new Set([...Object.keys(strength), ...Object.keys(comp)])].sort();
+        if (tiers.length === 0) return '';
+
+        const rows = tiers.map(t => `
+            <tr>
+                <td><strong>Tier ${t}</strong></td>
+                <td style="text-align:right;">${strength[t] !== undefined ? strength[t].toFixed(1) : '–'}</td>
+                <td style="text-align:right;">${comp[t] !== undefined ? comp[t].toFixed(1) : '–'}</td>
+            </tr>`).join('');
+
+        return `
+            <div style="margin-bottom:32px;">
+                ${_sectionHeader('📊', 'Tier Elo Distribution & Strength')}
+                <div style="overflow-x:auto;">
+                    <table class="leaderboard-table">
+                        <thead><tr>
+                            <th>Tier</th>
+                            <th style="text-align:right;">Strength Index (Mean Elo)</th>
+                            <th style="text-align:right;">Competitiveness (Mean IQR) ↓</th>
+                        </tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+                <p style="font-size:12px;opacity:0.65;margin-top:8px;">
+                    Competitiveness = mean IQR of Elo per matchday. Lower = more competitive (Beys closely rated).
+                </p>
+            </div>`;
+    }
+
+    // Re-render advanced meta content when dark mode changes
+    if (darkToggle) {
+        darkToggle.addEventListener('change', () => {
+            if (advancedMetaManifest || advancedMetaStats) renderAdvancedMetaContent(currentSeason);
+        });
     }
 
     // -------------------------------------------------------------------------
