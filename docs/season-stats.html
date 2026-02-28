@@ -661,6 +661,23 @@
             </div>
         </details>
 
+        <!-- Advanced Season Meta Analytics Section -->
+        <details class="profile-section-details" id="advancedMetaSection" style="display: none;">
+            <summary class="section-summary" style="font-size:20px;font-weight:800;cursor:pointer;padding:12px 0;list-style:none;display:flex;align-items:center;gap:8px;">
+                🔬 Advanced Season Meta Analytics
+            </summary>
+            <div style="margin-top:8px;margin-bottom:12px;">
+                <p style="font-size:14px;opacity:0.75;margin:0 0 12px 0;">
+                    Predictive and meta-analytical insights for the selected season:
+                    <strong>Archetype analytics</strong>, <strong>Extended Power Ranking</strong>,
+                    <strong>Title Probability Model</strong> (Monte Carlo), and
+                    <strong>Tier Elo Distribution &amp; Strength Tracking</strong>.
+                    All metrics are derived exclusively from season matches.
+                </p>
+            </div>
+            <div id="advancedMetaContent"></div>
+        </details>
+
         <!-- Season vs Global Comparison Section -->
         <details class="profile-section-details" id="comparisonPlotsSection" style="display: none;">
             <summary class="section-summary" style="font-size:20px;font-weight:800;cursor:pointer;padding:12px 0;list-style:none;display:flex;align-items:center;gap:8px;">
@@ -938,6 +955,7 @@
         loadSeasonPlots(e.target.value);
         comparisonManifest = null;
         loadComparisonPlots(e.target.value);
+        loadAdvancedMetaPlots(e.target.value);
     });
 
     // Initial load
@@ -945,6 +963,7 @@
         loadStats(currentSeason);
         loadSeasonPlots(currentSeason);
         loadComparisonPlots(currentSeason);
+        loadAdvancedMetaPlots(currentSeason);
     });
 
     // -------------------------------------------------------------------------
@@ -1166,6 +1185,106 @@
         } catch (e) {
             section.style.display = 'none';
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // Advanced Season Meta Analytics Plots
+    // -------------------------------------------------------------------------
+
+    const ADVANCED_META_PLOT_TITLES = {
+        'archetype_performance': '📊 Archetype Season Win Rate & PPR',
+        'archetype_matchup_matrix': '🗺️ Archetype vs Archetype Win Rate',
+        'archetype_meta_evolution': '📈 Archetype Meta Evolution',
+        'archetype_stability': '⚖️ Archetype Stability Index',
+        'power_ranking': '⚡ Extended Power Ranking',
+        'power_vs_elo_rank_delta': '🔀 Power Rank vs Elo Rank Delta',
+        'title_probability': '🏆 Title Probability (Simulation)',
+        'position_probability_heatmap': '🎯 Position Probability Heatmap',
+        'tier_elo_timeseries': '📉 Tier Elo Distribution over Time',
+        'tier_strength_competitiveness': '💪 Tier Strength & Competitiveness',
+    };
+
+    function getAdvancedMetaPlotTitle(filename) {
+        for (const [key, title] of Object.entries(ADVANCED_META_PLOT_TITLES)) {
+            if (filename.includes(key)) return title;
+        }
+        return filename.replace(/_dark\.png$/, '.png').replace(/\.png$/, '')
+            .replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+
+    let advancedMetaManifest = null;
+
+    async function loadAdvancedMetaPlots(season) {
+        const section = document.getElementById('advancedMetaSection');
+        const content = document.getElementById('advancedMetaContent');
+
+        section.style.display = 'none';
+        advancedMetaManifest = null;
+
+        try {
+            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            if (!resp.ok) throw new Error('Manifest not found');
+            const manifest = await resp.json();
+
+            if (!manifest.advanced_meta) {
+                section.style.display = 'none';
+                return;
+            }
+
+            advancedMetaManifest = manifest.advanced_meta;
+            section.style.display = 'block';
+            renderAdvancedMetaPlots(season);
+
+        } catch (e) {
+            section.style.display = 'none';
+        }
+    }
+
+    function renderAdvancedMetaPlots(season) {
+        const content = document.getElementById('advancedMetaContent');
+        if (!advancedMetaManifest) return;
+
+        const dark = isDarkMode();
+        // base_path is always written by generate_all_advanced_season_plots;
+        // the fallback matches the same pattern for defensive robustness.
+        const basePath = advancedMetaManifest.base_path || `plots/season/${season}/advanced/`;
+        const features = advancedMetaManifest.features || [];
+
+        content.innerHTML = features.map(feature => {
+            const plots = dark ? feature.dark_plots : feature.plots;
+            if (!plots || plots.length === 0) return '';
+
+            const plotCards = plots.map(filename => {
+                const title = getAdvancedMetaPlotTitle(filename);
+                const src = basePath + filename;
+                return `
+                    <div class="plot-card">
+                        <div class="plot-card-title">${title}</div>
+                        <img src="${src}" alt="${title}" loading="lazy"
+                             onerror="this.parentElement.style.display='none'"
+                             onclick="openLightbox(this.src, this.alt, this)">
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div style="margin-bottom:32px;">
+                    <h4 style="font-size:16px;font-weight:700;margin:0 0 14px 0;
+                               padding-bottom:8px;border-bottom:2px solid var(--border-color);
+                               color:var(--accent-color);">
+                        ${feature.label}
+                    </h4>
+                    <div class="plots-grid">${plotCards}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Re-render advanced meta plots when dark mode changes
+    if (darkToggle) {
+        darkToggle.addEventListener('change', () => {
+            if (advancedMetaManifest) renderAdvancedMetaPlots(currentSeason);
+        });
     }
 
     // -------------------------------------------------------------------------

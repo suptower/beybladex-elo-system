@@ -25,6 +25,7 @@ match_type == "season" before being passed to these functions.
 Accessible via "View advanced statistics & plots".
 """
 
+import json
 import os
 import sys
 
@@ -45,8 +46,13 @@ from plot_styles import configure_dark_mode, configure_light_mode  # noqa: E402
 # ---------------------------------------------------------------------------
 
 BASE_OUTPUT_DIR = "./docs/plots/season/advanced"
+# Season manifest directory (season-specific sub-folder)
+SEASON_BASE_DIR = "./docs/plots/season"
 
 TIER_COLORS = {1: "#ef4444", 2: "#f59e0b", 3: "#3b82f6"}
+
+# The manifest key used for the advanced meta analytics plots block
+MANIFEST_KEY = "advanced_meta"
 
 
 # ---------------------------------------------------------------------------
@@ -72,6 +78,95 @@ def _save(fig, outdir: str, filename: str, dark_mode: bool) -> None:
         path = os.path.join(outdir, filename)
     fig.savefig(path, dpi=150, bbox_inches="tight")
     plt.close(fig)
+
+
+def _write_manifest_entry(season_id: str, tier_keys: list) -> None:
+    """Merge the advanced_meta block into the season's manifest.json.
+
+    The manifest entry declares the fixed set of plot files and their dark
+    counterparts, grouped into four feature sections that the frontend uses
+    to label and render each group.
+
+    Args:
+        season_id: Season identifier, e.g. "S1".
+        tier_keys: List of tier integers available (e.g. [1, 2, 3]).
+    """
+    manifest_dir = os.path.join(SEASON_BASE_DIR, season_id)
+    os.makedirs(manifest_dir, exist_ok=True)
+    manifest_path = os.path.join(manifest_dir, "manifest.json")
+
+    # Feature 4 Tier Elo time-series: one plot per tier
+    tier_ts_plots = [f"advanced/tier{t}_elo_timeseries.png" for t in sorted(tier_keys)]
+    tier_ts_dark = [f"advanced/dark/tier{t}_elo_timeseries_dark.png" for t in sorted(tier_keys)]
+
+    advanced_meta_entry = {
+        # Web-relative path used by the browser (docs/ root is the site root)
+        "base_path": f"plots/season/{season_id}/advanced/",
+        "features": [
+            {
+                "id": "archetype_analytics",
+                "label": "🎭 Archetype-Based Season Analytics",
+                "plots": [
+                    "archetype_performance.png",
+                    "archetype_matchup_matrix.png",
+                    "archetype_meta_evolution.png",
+                    "archetype_stability.png",
+                ],
+                "dark_plots": [
+                    "dark/archetype_performance_dark.png",
+                    "dark/archetype_matchup_matrix_dark.png",
+                    "dark/archetype_meta_evolution_dark.png",
+                    "dark/archetype_stability_dark.png",
+                ],
+            },
+            {
+                "id": "power_ranking",
+                "label": "⚡ Extended Power Ranking",
+                "plots": [
+                    "power_ranking.png",
+                    "power_vs_elo_rank_delta.png",
+                ],
+                "dark_plots": [
+                    "dark/power_ranking_dark.png",
+                    "dark/power_vs_elo_rank_delta_dark.png",
+                ],
+            },
+            {
+                "id": "title_probability",
+                "label": "🏆 Title Probability Model",
+                "plots": [
+                    "title_probability.png",
+                    "position_probability_heatmap.png",
+                ],
+                "dark_plots": [
+                    "dark/title_probability_dark.png",
+                    "dark/position_probability_heatmap_dark.png",
+                ],
+            },
+            {
+                "id": "tier_elo",
+                "label": "📊 Tier Elo Distribution & Strength",
+                "plots": tier_ts_plots + ["tier_strength_competitiveness.png"],
+                "dark_plots": tier_ts_dark + ["dark/tier_strength_competitiveness_dark.png"],
+            },
+        ],
+    }
+
+    # Read existing manifest and merge
+    manifest = {}
+    if os.path.exists(manifest_path):
+        try:
+            with open(manifest_path, encoding="utf-8") as f:
+                manifest = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            pass
+
+    manifest[MANIFEST_KEY] = advanced_meta_entry
+
+    with open(manifest_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+
+    print(f"Advanced meta manifest entry written to {manifest_path}")
 
 
 def _apply_mode(dark_mode: bool) -> None:
@@ -574,11 +669,17 @@ def generate_all_advanced_season_plots(
     tier_competitiveness_index: dict,
     rpg_stats: dict,
     season_id: str = "",
-    outdir: str = BASE_OUTPUT_DIR,
+    outdir: str = "",
     dark_mode: bool = False,
+    write_manifest: bool = True,
 ) -> None:
     """
     Generate all advanced season analytics plots.
+
+    When *season_id* is provided the plots are saved under
+    ``docs/plots/season/{season_id}/advanced/`` and the season's
+    ``manifest.json`` is updated with an ``advanced_meta`` block so the
+    frontend can discover and render the new plots automatically.
 
     Intended to be called from gen_plots.py after the underlying data has been
     computed via season_meta_analytics.py.
@@ -594,10 +695,19 @@ def generate_all_advanced_season_plots(
         tier_strength_index: Feature 4 – tier strength index dict.
         tier_competitiveness_index: Feature 4 – tier competitiveness index dict.
         rpg_stats: Bey → archetype mapping (for label resolution).
-        season_id: Season identifier string (for plot titles).
-        outdir: Base output directory.
+        season_id: Season identifier string (for plot titles and output path).
+        outdir: Override output directory.  When empty and *season_id* is set,
+                defaults to ``docs/plots/season/{season_id}/advanced/``.
         dark_mode: Whether to render in dark mode.
+        write_manifest: When True (default), update manifest.json for the season.
     """
+    # Resolve output directory: season-scoped by default
+    if not outdir:
+        if season_id:
+            outdir = os.path.join(SEASON_BASE_DIR, season_id, "advanced")
+        else:
+            outdir = BASE_OUTPUT_DIR
+
     _ensure_dirs(outdir)
 
     # --- Feature 1 ---
@@ -631,3 +741,8 @@ def generate_all_advanced_season_plots(
     plot_tier_strength_competitiveness(
         tier_strength_index, competitiveness_index=tier_competitiveness_index,
         outdir=outdir, season_id=season_id, dark_mode=dark_mode)
+
+    # Write manifest entry (light-mode pass only, to avoid duplicate writes)
+    if write_manifest and season_id and not dark_mode:
+        tier_keys = list(tier_elo_timeseries.keys()) if tier_elo_timeseries else []
+        _write_manifest_entry(season_id, tier_keys)
