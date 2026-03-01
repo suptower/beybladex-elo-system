@@ -19,13 +19,27 @@ def format_match_id(num: int) -> str:
 
 
 def get_latest_session_files():
-    match_files = sorted(RAW_DIR.glob("*_session_matches.csv"))
-    round_files = sorted(RAW_DIR.glob("*_session_rounds.csv"))
+    match_files = {
+        p.name.removesuffix("_session_matches.csv"): p
+        for p in sorted(RAW_DIR.glob("*_session_matches.csv"))
+    }
+    round_files = {
+        p.name.removesuffix("_session_rounds.csv"): p
+        for p in sorted(RAW_DIR.glob("*_session_rounds.csv"))
+    }
 
-    if not match_files or not round_files:
-        raise FileNotFoundError("No session files found.")
+    complete_sessions = sorted(set(match_files) & set(round_files))
 
-    return match_files[-1], round_files[-1]
+    if not complete_sessions:
+        raise FileNotFoundError(
+            "No complete session pair (matches + rounds) found in "
+            f"{RAW_DIR}. "
+            "Ensure both '<prefix>_session_matches.csv' and "
+            "'<prefix>_session_rounds.csv' are present."
+        )
+
+    latest = complete_sessions[-1]
+    return match_files[latest], round_files[latest]
 
 
 def get_current_max_match_id():
