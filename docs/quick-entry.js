@@ -2087,7 +2087,7 @@ function exportJSON() {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     
-    // filename should be: ddmmyy_session_rounds.csv
+    // filename should be: ddmmyy_session.json
     const todayDate = new Date();
     const filename = `${String(todayDate.getDate()).padStart(2, '0')}${String(todayDate.getMonth() + 1).padStart(2, '0')}${String(todayDate.getFullYear()).slice(-2)}_session.json`;
     downloadFile(url, filename);
