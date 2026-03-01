@@ -4,7 +4,6 @@ Tests for the season_plots visualization module.
 import json
 import os
 import sys
-import tempfile
 
 import pandas as pd
 import pytest
