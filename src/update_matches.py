@@ -19,21 +19,41 @@ def format_match_id(num: int) -> str:
     return f"M{num:04d}"
 
 
-def parse_session_date(path: Path) -> datetime:
+def parse_session_date(prefix: str) -> datetime:
     try:
-        return datetime.strptime(path.name[:6], "%d%m%y")
+        return datetime.strptime(prefix[:6], "%d%m%y")
     except ValueError:
-        raise ValueError(f"Filename '{path.name}' does not start with a valid ddmmyy date prefix.")
+        raise ValueError(
+            f"Session prefix '{prefix}' does not start with a valid "
+            "ddmmyy date."
+        )
 
 
 def get_latest_session_files():
-    match_files = sorted(RAW_DIR.glob("*_session_matches.csv"), key=parse_session_date)
-    round_files = sorted(RAW_DIR.glob("*_session_rounds.csv"), key=parse_session_date)
+    match_files = {
+        p.name.removesuffix("_session_matches.csv"): p
+        for p in RAW_DIR.glob("*_session_matches.csv")
+    }
+    round_files = {
+        p.name.removesuffix("_session_rounds.csv"): p
+        for p in RAW_DIR.glob("*_session_rounds.csv")
+    }
 
-    if not match_files or not round_files:
-        raise FileNotFoundError("No session files found.")
+    complete_sessions = sorted(
+        set(match_files) & set(round_files),
+        key=parse_session_date,
+    )
 
-    return match_files[-1], round_files[-1]
+    if not complete_sessions:
+        raise FileNotFoundError(
+            "No complete session pair (matches + rounds) found in "
+            f"{RAW_DIR}. "
+            "Ensure both '<prefix>_session_matches.csv' and "
+            "'<prefix>_session_rounds.csv' are present."
+        )
+
+    latest = complete_sessions[-1]
+    return match_files[latest], round_files[latest]
 
 
 def get_current_max_match_id():
