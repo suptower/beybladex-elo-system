@@ -107,3 +107,4 @@ class TestGetLatestSessionFiles:
 
         with pytest.raises(FileNotFoundError):
             update_matches.get_latest_session_files()
+
