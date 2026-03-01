@@ -73,7 +73,7 @@ def sample_leaderboard():
     return [
         {"Platz": "1", "Name": "Gamma", "ELO": "1120"},
         {"Platz": "2", "Name": "Alpha", "ELO": "1100"},
-        {"Platz": "3", "Name": "Beta",  "ELO": "1050"},
+        {"Platz": "3", "Name": "Beta", "ELO": "1050"},
         {"Platz": "4", "Name": "Delta", "ELO": "1000"},
     ]
 
