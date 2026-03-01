@@ -1,6 +1,7 @@
 import csv
 import re
 import shutil
+from datetime import datetime
 from pathlib import Path
 
 RAW_DIR = Path("archive/raw_sessions")
@@ -18,9 +19,16 @@ def format_match_id(num: int) -> str:
     return f"M{num:04d}"
 
 
+def parse_session_date(path: Path) -> datetime:
+    try:
+        return datetime.strptime(path.name[:6], "%d%m%y")
+    except ValueError:
+        raise ValueError(f"Filename '{path.name}' does not start with a valid ddmmyy date prefix.")
+
+
 def get_latest_session_files():
-    match_files = sorted(RAW_DIR.glob("*_session_matches.csv"))
-    round_files = sorted(RAW_DIR.glob("*_session_rounds.csv"))
+    match_files = sorted(RAW_DIR.glob("*_session_matches.csv"), key=parse_session_date)
+    round_files = sorted(RAW_DIR.glob("*_session_rounds.csv"), key=parse_session_date)
 
     if not match_files or not round_files:
         raise FileNotFoundError("No session files found.")
