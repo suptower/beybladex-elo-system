@@ -2087,7 +2087,9 @@ function exportJSON() {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     
-    const filename = `${state.tournament.name || 'tournament'}_round${state.tournament.round}_${new Date().toISOString().split('T')[0]}.json`;
+    // filename should be: ddmmyy_session.json
+    const todayDate = new Date();
+    const filename = `${String(todayDate.getDate()).padStart(2, '0')}${String(todayDate.getMonth() + 1).padStart(2, '0')}${String(todayDate.getFullYear()).slice(-2)}_session.json`;
     downloadFile(url, filename);
     
     showToast('Exported as JSON', 'success');
@@ -2117,7 +2119,9 @@ function exportCSV() {
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     
-    const filename = `${state.tournament.name || 'tournament'}_round${state.tournament.round}_${new Date().toISOString().split('T')[0]}.csv`;
+    // filename should be: ddmmyy_session_matches.csv
+    const todayDate = new Date();
+    const filename = `${String(todayDate.getDate()).padStart(2, '0')}${String(todayDate.getMonth() + 1).padStart(2, '0')}${String(todayDate.getFullYear()).slice(-2)}_session_matches.csv`;
     downloadFile(url, filename);
     
     showToast('Exported as CSV', 'success');
@@ -2126,7 +2130,7 @@ function exportCSV() {
 // Export detailed rounds CSV
 function exportRoundsCSV() {
     // Format compatible with ./data/rounds.csv
-    const headers = ['match_id', 'round_number', 'winner', 'finish_type', 'points_awarded', 'notes'];
+    const headers = ['MatchID', 'round_number', 'winner', 'finish_type', 'points_awarded', 'notes'];
     const rows = [];
     
     state.matches.forEach((match, i) => {
@@ -2154,7 +2158,9 @@ function exportRoundsCSV() {
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     
-    const filename = `${state.tournament.name || 'tournament'}_rounds_${new Date().toISOString().split('T')[0]}.csv`;
+    // filename should be: ddmmyy_session_rounds.csv
+    const todayDate = new Date();
+    const filename = `${String(todayDate.getDate()).padStart(2, '0')}${String(todayDate.getMonth() + 1).padStart(2, '0')}${String(todayDate.getFullYear()).slice(-2)}_session_rounds.csv`;
     downloadFile(url, filename);
     
     showToast('Exported rounds as CSV', 'success');
