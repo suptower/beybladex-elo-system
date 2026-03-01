@@ -26,7 +26,7 @@ jobs:
         run: python src/update_matches.py
 
       - name: Merge Rounds
-        run: python scripts/merge_rounds.py
+        run: python src/merge_rounds.py
 
       - name: Run Update Pipeline
         run: python update.py
