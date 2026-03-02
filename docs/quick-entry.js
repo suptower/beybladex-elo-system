@@ -2900,7 +2900,7 @@ function renderSeasonTierLeaderboard() {
         
         // Filter out beys with no matches
         // const activeStandings = standings.filter(s => s.matches > 0);
-        activeStandings = standings; // Show all beys in the tier, even if they haven't played yet
+        const activeStandings = standings; // Show all beys in the tier, even if they haven't played yet
         
         if (activeStandings.length === 0) {
             return `
