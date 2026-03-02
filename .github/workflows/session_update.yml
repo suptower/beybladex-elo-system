@@ -44,17 +44,17 @@ jobs:
           git push origin HEAD:${{ github.ref_name }}
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v6
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          branch: ${{ github.ref_name }}
-          title: "Process ${{ github.ref_name }}"
-          body: |
-            Automated session processing.
+        run: |
+          BODY="Automated session processing.
 
-            - Matches appended
-            - Rounds merged
-            - Update pipeline executed
-          draft: false
-          delete-branch: false
+- Matches appended
+- Rounds merged
+- Update pipeline executed"
+          gh pr create \
+            --base main \
+            --head "${{ github.ref_name }}" \
+            --title "Process ${{ github.ref_name }}" \
+            --body "$BODY" \
+          || gh pr view --head "${{ github.ref_name }}" --json url --jq '"PR already exists: " + .url'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
