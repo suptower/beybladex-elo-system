@@ -45,11 +45,7 @@ jobs:
 
       - name: Create Pull Request
         run: |
-          BODY="Automated session processing.
-
-- Matches appended
-- Rounds merged
-- Update pipeline executed"
+          BODY="Automated session processing."
           gh pr create \
             --base main \
             --head "${{ github.ref_name }}" \
