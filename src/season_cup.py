@@ -10,9 +10,8 @@ This module handles the Season Cup post-season tournament, including:
 Season Cup Structure:
 - 8 qualified beys total:
   * Top 4 from Tier I
-  * Top 2 from Tier II
+  * Top 3 from Tier II
   * Top 1 from Tier III
-  * Top 1 from Tier IV
 - Double-elimination format
 - All matches tagged as match_type='season_cup'
 
@@ -31,9 +30,8 @@ from typing import Dict, List, Optional
 # Qualification slots per tier
 TIER_QUALIFICATION = {
     1: 4,  # Tier I: Top 4
-    2: 2,  # Tier II: Top 2
-    3: 1,  # Tier III: Top 1
-    4: 1   # Tier IV: Top 1
+    2: 3,  # Tier II: Top 3
+    3: 1   # Tier III: Top 1
 }
 
 # Default paths
@@ -46,9 +44,8 @@ def get_qualified_beys(league_tables: Dict[int, List[Dict]]) -> List[Dict]:
 
     Qualification:
     - Tier I: Top 4
-    - Tier II: Top 2
+    - Tier II: Top 3
     - Tier III: Top 1
-    - Tier IV: Top 1
 
     Args:
         league_tables: Dictionary mapping tier number to league table
@@ -85,9 +82,8 @@ def generate_double_elimination_bracket(qualified_beys: List[Dict]) -> Dict:
 
     Seeding is based on tier performance:
     1-4: Tier I (1st, 2nd, 3rd, 4th)
-    5-6: Tier II (1st, 2nd)
-    7: Tier III (1st)
-    8: Tier IV (1st)
+    5-7: Tier II (1st, 2nd, 3rd)
+    8: Tier III (1st)
 
     Args:
         qualified_beys: List of 8 qualified beys with seed info
@@ -429,8 +425,7 @@ if __name__ == "__main__":
     test_tables = {
         1: [{"bey": f"T1-{i}", "elo": 1500 - i * 10} for i in range(1, 11)],
         2: [{"bey": f"T2-{i}", "elo": 1400 - i * 10} for i in range(1, 11)],
-        3: [{"bey": f"T3-{i}", "elo": 1300 - i * 10} for i in range(1, 11)],
-        4: [{"bey": f"T4-{i}", "elo": 1200 - i * 10} for i in range(1, 11)]
+        3: [{"bey": f"T3-{i}", "elo": 1300 - i * 10} for i in range(1, 11)]
     }
 
     qualified = get_qualified_beys(test_tables)
