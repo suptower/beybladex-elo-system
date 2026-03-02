@@ -2899,7 +2899,8 @@ function renderSeasonTierLeaderboard() {
         const standings = sortTierStandings(tierStandings[tier]);
         
         // Filter out beys with no matches
-        const activeStandings = standings.filter(s => s.matches > 0);
+        // const activeStandings = standings.filter(s => s.matches > 0);
+        activeStandings = standings; // Show all beys in the tier, even if they haven't played yet
         
         if (activeStandings.length === 0) {
             return `
@@ -2912,12 +2913,15 @@ function renderSeasonTierLeaderboard() {
                 </div>
             `;
         }
+
+        const matchCount = activeStandings.reduce((sum, s) => sum + s.matches, 0) / 2; // Each match counts for both beys, check
+        const matchesString = matchCount === 1 ? '1 match' : `${matchCount} matches`;
         
         return `
             <div class="tier-section" data-tier="${tier}">
                 <div class="tier-header" onclick="toggleTierSection(${tier})">
                     <span class="tier-title">Tier ${tier}</span>
-                    <span class="tier-subtitle">${activeStandings.length} beys • ${activeStandings.reduce((sum, s) => sum + s.matches, 0)} matches</span>
+                    <span class="tier-subtitle">${activeStandings.length} beys • ${matchesString}</span>
                     <button class="tier-toggle">▼</button>
                 </div>
                 <div class="tier-content">
@@ -2982,7 +2986,9 @@ function renderSeasonTierLeaderboard() {
                         </table>
                     </div>
                     <div class="tier-legend">
-                        <span class="legend-item"><span class="legend-color promotion-color"></span>Promotion</span>
+                        ${// Show promotion only for tiers that have promotion spots
+                            parseInt(tier) === 1 ? '' : `<span class="legend-item"><span class="legend-color promotion-color"></span>Promotion</span>`
+                        }
                         <span class="legend-item"><span class="legend-color playoff-color"></span>Playoff</span>
                         <span class="legend-item"><span class="legend-color relegation-color"></span>Relegation / Drop</span>
                     </div>
