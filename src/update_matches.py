@@ -89,7 +89,12 @@ def append_rows(path, fieldnames, rows):
 def move_to_processed(path: Path):
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
-    target = PROCESSED_DIR / path.name
+    # make subdirectory based on session prefix
+    session_prefix = path.name.split("_session_")[0]
+    subdir = PROCESSED_DIR / session_prefix
+    subdir.mkdir(exist_ok=True)
+
+    target = subdir / path.name
 
     if target.exists():
         raise FileExistsError(
