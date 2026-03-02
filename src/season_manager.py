@@ -62,11 +62,54 @@ from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 
 # Constants
-TIERS = 4
-BEYS_PER_TIER = 8
-TOTAL_BEYS_IN_LEAGUE = 32  # Beys in active league (4 tiers)
+# Per-season league format configuration.
+# This allows legacy seasons (e.g., Season 1 with 3×10 structure) to coexist
+# with Season 2+ (4×8) without being affected by global constant changes.
+SEASON_FORMATS: Dict[str, Dict[str, int]] = {
+    # Legacy Season 1: 3 tiers, 10 Beys per tier, no Tier IV.
+    "S1": {
+        "tiers": 3,
+        "beys_per_tier": 10,
+        "total_beys_in_league": 30,
+        "rules_version": 1,  # Legacy ruleset
+    },
+    # Default / Season 2+ format: 4 tiers of 8 Beys each.
+    "default": {
+        "tiers": 4,
+        "beys_per_tier": 8,
+        "total_beys_in_league": 32,
+        "rules_version": 2,  # Season 2+ ruleset
+    },
+}
+
+# Backwards-compatible global constants derived from the default (Season 2+)
+# format. Existing Season 2+ processing continues to use these values, while
+# legacy seasons should query `get_season_format(season_id)` explicitly.
+_DEFAULT_FORMAT = SEASON_FORMATS["default"]
+TIERS = _DEFAULT_FORMAT["tiers"]
+BEYS_PER_TIER = _DEFAULT_FORMAT["beys_per_tier"]
+TOTAL_BEYS_IN_LEAGUE = _DEFAULT_FORMAT["total_beys_in_league"]  # Beys in active league (4 tiers)
 TOTAL_BEYS = 40  # Total Beys in system (for backward compatibility)
 
+
+def get_season_format(season_id: Optional[str]) -> Dict[str, int]:
+    """
+    Return the league format configuration for a given season.
+
+    Args:
+        season_id: The season identifier (e.g., "S1", "S2"). If None or
+                   unrecognized, the Season 2+ default format is returned.
+
+    Returns:
+        A dict with at least:
+            - "tiers": number of tiers in the league
+            - "beys_per_tier": number of Beys per tier
+            - "total_beys_in_league": total Beys participating in league
+            - "rules_version": integer indicating ruleset version
+    """
+    if season_id is None:
+        return SEASON_FORMATS["default"]
+    return SEASON_FORMATS.get(season_id, SEASON_FORMATS["default"])
 # Season points
 POINTS_WIN = 3
 POINTS_DOMINANT_WIN = 4
