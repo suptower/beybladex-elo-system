@@ -363,7 +363,8 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
                 Ranks 5-8 drop to qualification pool
 
     Args:
-        season_data: Current season data (must contain "season_id")
+        season_data: Current season data; if "season_id" is missing or None,
+            the default season format is used.
         league_tables: Dictionary mapping tier number to league table
 
     Returns:
