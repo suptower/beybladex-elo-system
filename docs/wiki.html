@@ -116,6 +116,7 @@ let leaderboardData = {};
 let tournamentsData = {};
 let rpgStatsData = {};
 let archetypeMap = {}; // Lookup map for O(1) archetype access
+let seasonChampionsData = {}; // Map of normalized bey name -> array of season achievements
 let activeFilters = {
     type: 'all',
     system: 'all',
@@ -226,6 +227,47 @@ async function loadAllData() {
             console.warn('Could not load RPG stats data:', e);
         }
         
+        // Load season data for champion badges
+        try {
+            const seasonResponse = await fetch('data/season_data.json');
+            const allSeasonData = await seasonResponse.json();
+            const seasons = allSeasonData.seasons || {};
+            seasonChampionsData = {};
+            const tierIcons = { '1': '🥇', '2': '🥈', '3': '🥉' };
+            const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
+            Object.entries(seasons).forEach(([seasonId, season]) => {
+                if (season.league_tables) {
+                    Object.entries(season.league_tables).forEach(([tierId, table]) => {
+                        if (table && table.length > 0) {
+                            const winnerName = normalizeBeyName(table[0].bey);
+                            if (!seasonChampionsData[winnerName]) seasonChampionsData[winnerName] = [];
+                            seasonChampionsData[winnerName].push({
+                                type: 'tier_champion',
+                                seasonId,
+                                tier: tierId,
+                                label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
+                                badgeClass: `season-badge-tier${tierId}`,
+                                icon: tierIcons[tierId] || '🏅'
+                            });
+                        }
+                    });
+                }
+                if (season.cup_winner) {
+                    const cupWinner = normalizeBeyName(season.cup_winner);
+                    if (!seasonChampionsData[cupWinner]) seasonChampionsData[cupWinner] = [];
+                    seasonChampionsData[cupWinner].push({
+                        type: 'cup_winner',
+                        seasonId,
+                        label: `${seasonId} Season Cup Winner`,
+                        badgeClass: 'season-badge-cup',
+                        icon: '🌟'
+                    });
+                }
+            });
+        } catch (e) {
+            console.warn('Could not load season data:', e);
+        }
+        
         filteredBeys = [...beysData];
         populateDynamicFilters();
         applyFilters();
@@ -332,6 +374,16 @@ function renderBeys() {
             trophiesHtml = `<div class="wiki-card-trophies">${trophyIcons}</div>`;
         }
         
+        // Generate season champion badges HTML
+        const seasonAchievements = seasonChampionsData[normalizedBlade] || [];
+        let seasonBadgesHtml = '';
+        if (seasonAchievements.length > 0) {
+            const badgeIcons = seasonAchievements.map(a =>
+                `<span class="season-icon ${a.badgeClass}" title="${a.label}">${a.icon}</span>`
+            ).join('');
+            seasonBadgesHtml = `<div class="wiki-card-season-badges">${badgeIcons}</div>`;
+        }
+        
         // Generate ELO and Power Index stats HTML
         let statsHtml = '';
         if (elo || powerIndex) {
@@ -374,6 +426,7 @@ function renderBeys() {
                     ${rankBadgeHtml}
                 </div>
                 ${trophiesHtml}
+                ${seasonBadgesHtml}
                 ${bey.code ? `<p class="wiki-card-code ${lineClass}">${bey.code}</p>` : ''}
                 ${archetypeHtml}
                 ${statsHtml}
