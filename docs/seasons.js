@@ -290,7 +290,7 @@ function createSeasonCard(seasonId, season) {
             
             ${tierChampions.length > 0 ? `
                 <div class="tier-champions">
-                    <h4>${isUpcoming ? 'Tier Rosters' : 'Tier Champions'}</h4>
+                    <h4>Tier Champions</h4>
                     <div class="tier-champions-grid">
                         ${tierChampions.map(tc => `
                             <div class="tier-champion">

@@ -86,9 +86,9 @@ class TestSeasonInitialization:
     def test_initialize_season_basic(self):
         """Should create season with correct tier assignments."""
         beys = [(f"Bey{i}", 1500 - i * 10) for i in range(40)]
-        season_data = initialize_season("S1", beys)
+        season_data = initialize_season("S2", beys)
 
-        assert season_data["season_id"] == "S1"
+        assert season_data["season_id"] == "S2"
         assert season_data["status"] == "active"
         # 4-tier system: Top 32 in league, bottom 8 in qualification pool
         assert len(season_data["tier_assignments"]) == 32
@@ -97,7 +97,7 @@ class TestSeasonInitialization:
     def test_tier_assignment_by_elo(self):
         """Beys should be assigned to tiers based on ELO ranking."""
         beys = [(f"Bey{i}", 2000 - i * 10) for i in range(40)]
-        season_data = initialize_season("S1", beys)
+        season_data = initialize_season("S2", beys)
 
         # Top 8 should be in Tier 1
         for i in range(8):
@@ -129,9 +129,22 @@ class TestSeasonInitialization:
     def test_invalid_bey_count(self):
         """Exactly 32 beys should produce a full 4-tier league with no qualification pool."""
         beys = [(f"Bey{i}", 1500) for i in range(32)]
-        season_data = initialize_season("S1", beys)
+        season_data = initialize_season("S2", beys)
         assert len(season_data["tier_assignments"]) == 32
         assert len(season_data.get("qualification_pool", [])) == 0
+
+    def test_initialize_season_legacy_s1(self):
+        """S1 should use legacy 3×10 format: top 30 in league, rest in qualification pool."""
+        beys = [(f"Bey{i}", 1500 - i * 10) for i in range(40)]
+        season_data = initialize_season("S1", beys)
+
+        assert season_data["season_id"] == "S1"
+        # Legacy 3-tier system: Top 30 in league, bottom 10 in qualification pool
+        assert len(season_data["tier_assignments"]) == 30
+        assert len(season_data.get("qualification_pool", [])) == 10
+        # Top 10 should be in Tier 1
+        for i in range(10):
+            assert season_data["tier_assignments"][f"Bey{i}"]["tier"] == 1
 
 
 class TestLeagueTable:

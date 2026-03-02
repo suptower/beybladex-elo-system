@@ -12,6 +12,7 @@ let collapsedSections = new Set(['qualification-pool']); // Track which sections
 let selectedMatchdays = {}; // Track selected matchday for each tier (tier -> matchday number)
 let selectedTableSnapshots = {}; // Track selected table snapshot matchday for each tier (tier -> matchday number)
 let tableSnapshotsData = {}; // Store loaded snapshot data (tier -> array of snapshots)
+let tierFullSizes = {}; // Store the full (final) tier size for each tier to drive zone highlighting
 
 /**
  * Add soft hyphens before capital letters in compound Bey names for better line breaking
@@ -403,6 +404,9 @@ function displayTierTables(leagueTables) {
         const table = leagueTables[tier.toString()];
         if (!table || table.length === 0) continue;
         
+        // Record the full (final) tier size so snapshots use the right zone rules
+        tierFullSizes[tier] = table.length;
+        
         const tierNames = ['I', 'II', 'III', 'IV'];
         const sectionId = `tier-${tier}-content`;
         
@@ -713,7 +717,7 @@ function updateTierTable(tier) {
     // Update table body
     const tbody = document.querySelector(`#tier-${tier}-content .league-table tbody`);
     if (tbody) {
-        tbody.innerHTML = displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, displayTable.length)).join('');
+        tbody.innerHTML = displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, tierFullSizes[tier] || displayTable.length)).join('');
     }
     
     // Update navigation buttons
