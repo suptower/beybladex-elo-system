@@ -63,6 +63,9 @@
                     <div id="profileTrophies" class="profile-trophies" style="display: none;">
                         <!-- Trophies will be dynamically added -->
                     </div>
+                    <div id="profileSeasonBadges" class="profile-season-badges" style="display: none;">
+                        <!-- Season champion badges will be dynamically added -->
+                    </div>
                     <p id="beyDescription" class="profile-description"></p>
                     <div id="beyParts" class="profile-parts">
                         <!-- Parts will be dynamically added -->
@@ -232,6 +235,14 @@
                 </div>
             </details>
             
+            <!-- Season History Section (collapsible) -->
+            <details class="profile-section-details" id="seasonSection" style="display: none;">
+                <summary class="section-summary">🏅 Season History</summary>
+                <div id="seasonContainer">
+                    <!-- Season data will be dynamically added -->
+                </div>
+            </details>
+            
             <!-- Related Beys Section -->
             <div class="profile-section" id="relatedBeysSection" style="display: none;">
                 <h3 class="section-title">🔗 Related Beys</h3>
@@ -297,6 +308,7 @@ let allLeaderboardData = [];
 let allEloHistoryData = [];
 let rpgStatsData = null;
 let countersData = [];
+let seasonData = {};
 let currentArena = localStorage.getItem('beyPageArena') || 'xtreme'; // Track current arena for plots, load from localStorage
 
 // Helper function to normalize bey names for comparison
@@ -496,6 +508,16 @@ async function loadData() {
             countersData = [];
         }
         
+        // Load season data
+        try {
+            const seasonResponse = await fetch('data/season_data.json');
+            const allSeasonData = await seasonResponse.json();
+            seasonData = allSeasonData.seasons || {};
+        } catch (e) {
+            console.warn('Could not load season data:', e);
+            seasonData = {};
+        }
+        
         // Render the profile
         renderProfile();
     } catch (error) {
@@ -553,6 +575,9 @@ function renderProfile() {
     // Render trophies
     renderTrophies();
     
+    // Render season champion badges
+    renderSeasonBadges();
+    
     // Render key stats (ELO and Power Index)
     renderKeyStats();
     
@@ -582,6 +607,9 @@ function renderProfile() {
     
     // Render counters and matchups section
     renderCountersSection();
+    
+    // Render season history section
+    renderSeasonSection();
     
     // Render related beys section
     renderRelatedBeys();
@@ -648,6 +676,140 @@ function renderTrophies() {
             <span class="profile-trophy-name">${tournament.name}</span>
         </div>
     `).join('');
+}
+
+// Get season achievements (tier wins, cup wins) for the current bey
+function getSeasonAchievements() {
+    const achievements = [];
+    const normalizedName = normalizeBeyName(beyName);
+    const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
+    const tierBadgeClasses = { '1': 'season-badge-tier1', '2': 'season-badge-tier2', '3': 'season-badge-tier3' };
+    const tierIcons = { '1': '🥇', '2': '🥈', '3': '🥉' };
+
+    Object.entries(seasonData).forEach(([seasonId, season]) => {
+        // Check tier champions
+        if (season.league_tables) {
+            Object.entries(season.league_tables).forEach(([tierId, table]) => {
+                if (table && table.length > 0 && normalizeBeyName(table[0].bey) === normalizedName) {
+                    achievements.push({
+                        type: 'tier_champion',
+                        seasonId,
+                        tier: tierId,
+                        label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
+                        badgeClass: tierBadgeClasses[tierId] || 'season-badge-tier3',
+                        icon: tierIcons[tierId] || '🏅'
+                    });
+                }
+            });
+        }
+        // Check cup winner
+        if (season.cup_winner && normalizeBeyName(season.cup_winner) === normalizedName) {
+            achievements.push({
+                type: 'cup_winner',
+                seasonId,
+                label: `${seasonId} Season Cup Winner`,
+                badgeClass: 'season-badge-cup',
+                icon: '🌟'
+            });
+        }
+    });
+    return achievements;
+}
+
+// Render season champion badges in profile header
+function renderSeasonBadges() {
+    const badgesContainer = document.getElementById('profileSeasonBadges');
+    const achievements = getSeasonAchievements();
+
+    if (achievements.length === 0) {
+        badgesContainer.style.display = 'none';
+        return;
+    }
+
+    badgesContainer.style.display = 'flex';
+    badgesContainer.innerHTML = achievements.map(a => `
+        <div class="season-badge ${a.badgeClass}" title="${escapeHtml(a.label)}">
+            <span class="season-badge-icon">${a.icon}</span>
+            <span class="season-badge-name">${escapeHtml(a.label)}</span>
+        </div>
+    `).join('');
+}
+
+// Render season history section
+function renderSeasonSection() {
+    const seasonSection = document.getElementById('seasonSection');
+    const seasonContainer = document.getElementById('seasonContainer');
+    const normalizedName = normalizeBeyName(beyName);
+    const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
+
+    // Collect this bey's entries across all seasons
+    const entries = [];
+    Object.entries(seasonData).forEach(([seasonId, season]) => {
+        if (!season.league_tables) return;
+        Object.entries(season.league_tables).forEach(([tierId, table]) => {
+            const entry = table && table.find(e => normalizeBeyName(e.bey) === normalizedName);
+            if (entry) {
+                const isTierChampion = entry.position === 1;
+                const isCupWinner = season.cup_winner && normalizeBeyName(season.cup_winner) === normalizedName;
+                entries.push({ seasonId, tierId, entry, isTierChampion, isCupWinner });
+            }
+        });
+    });
+
+    if (entries.length === 0) {
+        seasonSection.style.display = 'none';
+        return;
+    }
+
+    seasonSection.style.display = 'block';
+
+    const tableRows = entries.map(({ seasonId, tierId, entry, isTierChampion, isCupWinner }) => {
+        const tierLabel = tierLabels[tierId] || `Tier ${tierId}`;
+        const posClass = entry.position === 1 ? 'trend-very-positive' : entry.position <= 3 ? 'trend-positive' : '';
+        const achievementBadges = [
+            isTierChampion ? `<span class="season-table-badge season-badge-tier${tierId}" title="${seasonId} ${tierLabel} Champion">${tierId === '1' ? '🥇' : tierId === '2' ? '🥈' : '🥉'}</span>` : '',
+            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner">🌟</span>` : ''
+        ].filter(Boolean).join('');
+        const winrate = entry.matches > 0 ? Math.round((entry.wins / entry.matches) * 100) : 0;
+        const wrClass = winrate >= 60 ? 'trend-positive' : winrate < 40 ? 'trend-negative' : '';
+
+        return `
+            <tr>
+                <td><a href="season.html?season=${encodeURIComponent(seasonId)}" class="season-link">${escapeHtml(seasonId)}</a></td>
+                <td>${escapeHtml(tierLabel)}</td>
+                <td class="${posClass}">#${entry.position} ${achievementBadges}</td>
+                <td>${entry.matches}</td>
+                <td>${entry.wins}</td>
+                <td>${entry.losses}</td>
+                <td class="${wrClass}">${winrate}%</td>
+                <td>${entry.season_points}</td>
+                <td>${entry.point_diff >= 0 ? '+' : ''}${entry.point_diff}</td>
+            </tr>
+        `;
+    }).join('');
+
+    seasonContainer.innerHTML = `
+        <div class="table-responsive">
+            <table class="season-history-table">
+                <thead>
+                    <tr>
+                        <th>Season</th>
+                        <th>Tier</th>
+                        <th>Position</th>
+                        <th>MP</th>
+                        <th>W</th>
+                        <th>L</th>
+                        <th>Win%</th>
+                        <th>Pts</th>
+                        <th>PD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+        </div>
+    `;
 }
 
 // Render key stats (ELO and Power Index) - highlighted prominently
