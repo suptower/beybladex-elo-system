@@ -2937,13 +2937,29 @@ function renderSeasonTierLeaderboard() {
                             <tbody>
                                 ${activeStandings.map((stat, index) => {
                                     const position = index + 1;
+                                    const tierNum = parseInt(tier);
                                     let rowClass = '';
                                     
-                                    // Highlight promotion/relegation zones (simplified)
-                                    if (position <= 2) {
-                                        rowClass = 'promotion-zone';
-                                    } else if (position >= activeStandings.length - 1) {
-                                        rowClass = 'relegation-zone';
+                                    // Highlight promotion/playoff/relegation zones per tier (Season 2 rules)
+                                    if (tierNum === 1) {
+                                        // T1: Rank 7 = playoff, Rank 8 = relegated
+                                        if (position === 7) rowClass = 'playoff-zone';
+                                        else if (position === 8) rowClass = 'relegation-zone';
+                                    } else if (tierNum === 2) {
+                                        // T2: Rank 1 = promoted, Rank 2 = playoff, Rank 6 = playoff, Ranks 7-8 = relegated
+                                        if (position === 1) rowClass = 'promotion-zone';
+                                        else if (position === 2 || position === 6) rowClass = 'playoff-zone';
+                                        else if (position >= 7) rowClass = 'relegation-zone';
+                                    } else if (tierNum === 3) {
+                                        // T3: Ranks 1-2 = promoted, Rank 3 = playoff, Rank 6 = playoff, Ranks 7-8 = relegated
+                                        if (position <= 2) rowClass = 'promotion-zone';
+                                        else if (position === 3 || position === 6) rowClass = 'playoff-zone';
+                                        else if (position >= 7) rowClass = 'relegation-zone';
+                                    } else if (tierNum === 4) {
+                                        // T4: Ranks 1-2 = promoted, Rank 3 = playoff, Ranks 5-8 = qualification pool
+                                        if (position <= 2) rowClass = 'promotion-zone';
+                                        else if (position === 3) rowClass = 'playoff-zone';
+                                        else if (position >= 5) rowClass = 'relegation-zone';
                                     }
                                     
                                     return `
@@ -2965,7 +2981,8 @@ function renderSeasonTierLeaderboard() {
                     </div>
                     <div class="tier-legend">
                         <span class="legend-item"><span class="legend-color promotion-color"></span>Promotion</span>
-                        <span class="legend-item"><span class="legend-color relegation-color"></span>Relegation</span>
+                        <span class="legend-item"><span class="legend-color playoff-color"></span>Playoff</span>
+                        <span class="legend-item"><span class="legend-color relegation-color"></span>Relegation / Drop</span>
                     </div>
                 </div>
             </div>
