@@ -52,8 +52,9 @@ jobs:
 - Update pipeline executed"
           gh pr create \
             --base main \
+            --head "${{ github.ref_name }}" \
             --title "Process ${{ github.ref_name }}" \
             --body "$BODY" \
-          || gh pr view --json url --jq '"PR already exists: " + .url'
+          || gh pr view --head "${{ github.ref_name }}" --json url --jq '"PR already exists: " + .url'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
