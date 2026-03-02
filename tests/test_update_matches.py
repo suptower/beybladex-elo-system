@@ -31,6 +31,27 @@ class TestParseSessionDate:
             update_matches.parse_session_date("abcdef")
 
 
+class TestExtractSessionPrefix:
+    """Tests for the extract_session_prefix helper."""
+
+    def test_strips_matches_suffix(self):
+        assert update_matches.extract_session_prefix("010125_session_matches.csv") == "010125"
+
+    def test_strips_rounds_suffix(self):
+        assert update_matches.extract_session_prefix("010125_session_rounds.csv") == "010125"
+
+    def test_longer_prefix(self):
+        assert update_matches.extract_session_prefix("311225_extra_session_matches.csv") == "311225_extra"
+
+    def test_unknown_suffix_raises_value_error(self):
+        with pytest.raises(ValueError):
+            update_matches.extract_session_prefix("010125_other.csv")
+
+    def test_unrelated_name_raises_value_error(self):
+        with pytest.raises(ValueError):
+            update_matches.extract_session_prefix("matches.csv")
+
+
 class TestGetLatestSessionFiles:
     """Tests for the get_latest_session_files function."""
 
