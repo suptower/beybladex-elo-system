@@ -17,8 +17,8 @@ from season_manager import (
     POINTS_WIN,
     POINTS_DOMINANT_WIN,
     POINTS_LOSS,
-    AUTO_PROMOTION,
-    AUTO_RELEGATION
+    AUTO_PROMOTIONS_PER_TIER,
+    AUTO_RELEGATIONS_PER_TIER
 )
 
 
@@ -86,48 +86,65 @@ class TestSeasonInitialization:
     def test_initialize_season_basic(self):
         """Should create season with correct tier assignments."""
         beys = [(f"Bey{i}", 1500 - i * 10) for i in range(40)]
-        season_data = initialize_season("S1", beys)
+        season_data = initialize_season("S2", beys)
 
-        assert season_data["season_id"] == "S1"
+        assert season_data["season_id"] == "S2"
         assert season_data["status"] == "active"
-        # 3-tier system: Top 30 in league, bottom 10 in qualification pool
-        assert len(season_data["tier_assignments"]) == 30
-        assert len(season_data.get("qualification_pool", [])) == 10
+        # 4-tier system: Top 32 in league, bottom 8 in qualification pool
+        assert len(season_data["tier_assignments"]) == 32
+        assert len(season_data.get("qualification_pool", [])) == 8
 
     def test_tier_assignment_by_elo(self):
         """Beys should be assigned to tiers based on ELO ranking."""
         beys = [(f"Bey{i}", 2000 - i * 10) for i in range(40)]
-        season_data = initialize_season("S1", beys)
+        season_data = initialize_season("S2", beys)
 
-        # Top 10 should be in Tier 1
-        for i in range(10):
+        # Top 8 should be in Tier 1
+        for i in range(8):
             bey_name = f"Bey{i}"
             assert season_data["tier_assignments"][bey_name]["tier"] == 1
 
-        # Next 10 should be in Tier 2
-        for i in range(10, 20):
+        # Next 8 should be in Tier 2
+        for i in range(8, 16):
             bey_name = f"Bey{i}"
             assert season_data["tier_assignments"][bey_name]["tier"] == 2
 
-        # Beys 20-29 should be in Tier 3
-        for i in range(20, 30):
+        # Beys 16-23 should be in Tier 3
+        for i in range(16, 24):
             bey_name = f"Bey{i}"
             assert season_data["tier_assignments"][bey_name]["tier"] == 3
 
-        # Bottom 10 should be in qualification pool (not in tier assignments)
+        # Beys 24-31 should be in Tier 4
+        for i in range(24, 32):
+            bey_name = f"Bey{i}"
+            assert season_data["tier_assignments"][bey_name]["tier"] == 4
+
+        # Bottom 8 should be in qualification pool (not in tier assignments)
         qual_pool_beys = [entry["bey"] for entry in season_data.get("qualification_pool", [])]
-        for i in range(30, 40):
+        for i in range(32, 40):
             bey_name = f"Bey{i}"
             assert bey_name not in season_data["tier_assignments"]
             assert bey_name in qual_pool_beys
 
     def test_invalid_bey_count(self):
-        """Should not raise error for less than 40 beys (3-tier system is flexible)."""
-        beys = [(f"Bey{i}", 1500) for i in range(30)]
-        # 3-tier system should handle any count >= 30
-        season_data = initialize_season("S1", beys)
-        assert len(season_data["tier_assignments"]) == 30
+        """Exactly 32 beys should produce a full 4-tier league with no qualification pool."""
+        beys = [(f"Bey{i}", 1500) for i in range(32)]
+        season_data = initialize_season("S2", beys)
+        assert len(season_data["tier_assignments"]) == 32
         assert len(season_data.get("qualification_pool", [])) == 0
+
+    def test_initialize_season_legacy_s1(self):
+        """S1 should use legacy 3×10 format: top 30 in league, rest in qualification pool."""
+        beys = [(f"Bey{i}", 1500 - i * 10) for i in range(40)]
+        season_data = initialize_season("S1", beys)
+
+        assert season_data["season_id"] == "S1"
+        # Legacy 3-tier system: Top 30 in league, bottom 10 in qualification pool
+        assert len(season_data["tier_assignments"]) == 30
+        assert len(season_data.get("qualification_pool", [])) == 10
+        # Top 10 should be in Tier 1
+        for i in range(10):
+            assert season_data["tier_assignments"][f"Bey{i}"]["tier"] == 1
 
 
 class TestLeagueTable:
@@ -222,69 +239,100 @@ class TestPromotionRelegation:
     """Tests for promotion and relegation logic."""
 
     def test_automatic_promotion(self):
-        """Top 2 from Tier 2-4 should be promoted."""
+        """Tier II rank 1 should be promoted automatically; Tier III ranks 1-2 promoted."""
         league_tables = {
             2: [
                 {"bey": f"T2-Bey{i}", "position": i, "elo": 1400}
-                for i in range(1, 11)
+                for i in range(1, 9)
+            ],
+            3: [
+                {"bey": f"T3-Bey{i}", "position": i, "elo": 1300}
+                for i in range(1, 9)
             ]
         }
 
         season_data = {}
         pr = get_promotion_relegation(season_data, league_tables)
 
-        # Should have 2 promotions from Tier 2
+        # Should have 1 auto-promotion from Tier 2 (rank 1 only)
         tier2_promotions = [p for p in pr["automatic_promotion"] if p["from_tier"] == 2]
-        assert len(tier2_promotions) == AUTO_PROMOTION
+        assert len(tier2_promotions) == AUTO_PROMOTIONS_PER_TIER[2]
         assert tier2_promotions[0]["bey"] == "T2-Bey1"
-        assert tier2_promotions[1]["bey"] == "T2-Bey2"
+
+        # Should have 2 auto-promotions from Tier 3 (ranks 1-2)
+        tier3_promotions = [p for p in pr["automatic_promotion"] if p["from_tier"] == 3]
+        assert len(tier3_promotions) == AUTO_PROMOTIONS_PER_TIER[3]
+        assert tier3_promotions[0]["bey"] == "T3-Bey1"
+        assert tier3_promotions[1]["bey"] == "T3-Bey2"
 
     def test_automatic_relegation(self):
-        """Bottom 2 from Tier 1-3 should be relegated."""
+        """Tier I rank 8 should be relegated; Tier II ranks 7-8 relegated."""
         league_tables = {
             1: [
                 {"bey": f"T1-Bey{i}", "position": i, "elo": 1500}
-                for i in range(1, 11)
+                for i in range(1, 9)
+            ],
+            2: [
+                {"bey": f"T2-Bey{i}", "position": i, "elo": 1400}
+                for i in range(1, 9)
             ]
         }
 
         season_data = {}
         pr = get_promotion_relegation(season_data, league_tables)
 
-        # Should have 2 relegations from Tier 1
+        # Should have 1 auto-relegation from Tier 1 (rank 8 only)
         tier1_relegations = [r for r in pr["automatic_relegation"] if r["from_tier"] == 1]
-        assert len(tier1_relegations) == AUTO_RELEGATION
-        assert tier1_relegations[0]["bey"] == "T1-Bey10"
-        assert tier1_relegations[1]["bey"] == "T1-Bey9"
+        assert len(tier1_relegations) == AUTO_RELEGATIONS_PER_TIER[1]
+        assert tier1_relegations[0]["bey"] == "T1-Bey8"
+
+        # Should have 2 auto-relegations from Tier 2 (ranks 7-8)
+        tier2_relegations = [r for r in pr["automatic_relegation"] if r["from_tier"] == 2]
+        assert len(tier2_relegations) == AUTO_RELEGATIONS_PER_TIER[2]
+        assert tier2_relegations[0]["bey"] == "T2-Bey8"
+        assert tier2_relegations[1]["bey"] == "T2-Bey7"
 
     def test_relegation_matches(self):
-        """8th vs 3rd relegation matches should be scheduled."""
+        """Playoff matches should be scheduled at correct positions."""
         league_tables = {
-            1: [{"bey": f"T1-Bey{i}", "position": i, "elo": 1500} for i in range(1, 11)],
-            2: [{"bey": f"T2-Bey{i}", "position": i, "elo": 1400} for i in range(1, 11)]
+            1: [{"bey": f"T1-Bey{i}", "position": i, "elo": 1500} for i in range(1, 9)],
+            2: [{"bey": f"T2-Bey{i}", "position": i, "elo": 1400} for i in range(1, 9)]
         }
 
         season_data = {}
         pr = get_promotion_relegation(season_data, league_tables)
 
-        # Should have relegation match between Tier 1 8th and Tier 2 3rd
-        assert len(pr["relegation_matches"]) >= 1
-
+        # Should have playoff match between Tier 1 rank 7 and Tier 2 rank 2
         t1_t2_match = [m for m in pr["relegation_matches"]
                        if m["higher_tier"] == 1 and m["lower_tier"] == 2]
         assert len(t1_t2_match) == 1
-        assert t1_t2_match[0]["higher_bey"] == "T1-Bey8"
-        assert t1_t2_match[0]["lower_bey"] == "T2-Bey3"
+        assert t1_t2_match[0]["higher_bey"] == "T1-Bey7"
+        assert t1_t2_match[0]["lower_bey"] == "T2-Bey2"
+
+    def test_tier4_qualification_candidates(self):
+        """Tier IV ranks 5-8 should enter qualification pool."""
+        league_tables = {
+            4: [{"bey": f"T4-Bey{i}", "position": i, "elo": 1200} for i in range(1, 9)]
+        }
+
+        season_data = {}
+        pr = get_promotion_relegation(season_data, league_tables)
+
+        # Positions 5-8 should be qualification candidates
+        assert len(pr["qualification_candidates"]) == 4
+        candidate_positions = [c["position"] for c in pr["qualification_candidates"]]
+        assert 5 in candidate_positions
+        assert 8 in candidate_positions
 
 
 class TestRoundRobinScheduling:
     """Tests for round-robin match scheduling."""
 
-    def test_schedule_10_beys(self):
-        """10 beys should generate 45 matches (10 * 9 / 2)."""
-        beys = [f"Bey{i}" for i in range(1, 11)]
+    def test_schedule_8_beys(self):
+        """8 beys should generate 28 matches (8 * 7 / 2)."""
+        beys = [f"Bey{i}" for i in range(1, 9)]
         matches = schedule_round_robin(beys)
-        assert len(matches) == 45
+        assert len(matches) == 28
 
     def test_each_pair_once(self):
         """Each pair should meet exactly once."""

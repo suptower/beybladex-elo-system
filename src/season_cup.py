@@ -10,8 +10,9 @@ This module handles the Season Cup post-season tournament, including:
 Season Cup Structure:
 - 8 qualified beys total:
   * Top 4 from Tier I
-  * Top 3 from Tier II
+  * Top 2 from Tier II
   * Top 1 from Tier III
+  * Top 1 from Tier IV
 - Double-elimination format
 - All matches tagged as match_type='season_cup'
 
@@ -30,8 +31,9 @@ from typing import Dict, List, Optional
 # Qualification slots per tier
 TIER_QUALIFICATION = {
     1: 4,  # Tier I: Top 4
-    2: 3,  # Tier II: Top 3
-    3: 1   # Tier III: Top 1
+    2: 2,  # Tier II: Top 2
+    3: 1,  # Tier III: Top 1
+    4: 1   # Tier IV: Top 1
 }
 
 # Default paths
