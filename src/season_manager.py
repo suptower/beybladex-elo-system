@@ -110,6 +110,8 @@ def get_season_format(season_id: Optional[str]) -> Dict[str, int]:
     if season_id is None:
         return SEASON_FORMATS["default"]
     return SEASON_FORMATS.get(season_id, SEASON_FORMATS["default"])
+
+
 # Season points
 POINTS_WIN = 3
 POINTS_DOMINANT_WIN = 4
