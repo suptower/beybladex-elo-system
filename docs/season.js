@@ -790,28 +790,28 @@ function createTableRow(entry, idx, tier, hasSnapshots = false) {
     let positionClass = '';
     let positionIndicator = '';
     
-    // Promotion zone (top 2, except Tier I)
-    if (tier > 1 && idx < 2) {
+    // Promotion zone (top 1 for Tier II, else top 2, except Tier I)
+    if (tier > 2 && idx < 2 || tier === 2 && idx < 1) {
         positionClass = 'promotion-zone';
         positionIndicator = ' ↑';
     }
-    // Promotion playoff zone (3rd place in Tiers II & III - faces 8th from tier above)
-    else if (tier > 1 && idx === 2) {
+    // Promotion playoff zone (2nd place in Tier II, 3rd place in Tiers III & IV - faces 7th or 6th from tier above respectively)
+    else if (tier > 2 && idx === 2 || tier === 2 && idx === 1) {
         positionClass = 'playoff-zone';
         positionIndicator = ' ↕';
     }
     // Relegation match zone (8th place in Tiers I & II - faces 3rd from tier below)
-    else if (tier < 3 && idx === 7) {
+    else if (tier < 4 && idx === 5 && tier > 1 || tier === 1 && idx === 6) {
         positionClass = 'qualification-zone';
         positionIndicator = ' ↕';
     }
-    // Relegation zone (bottom 2 for Tiers I-II)
-    else if (tier < 3 && idx >= 8) {
+    // Relegation zone (bottom 2 for Tiers II-III and last rank for Tier I - directly relegated to tier below)
+    else if (tier < 4 && tier > 1 && idx >= 6 || tier === 1 && idx === 7) {
         positionClass = 'relegation-zone';
         positionIndicator = ' ↓';
     }
-    // Qualification zone (Tier III positions 7-10 enter qualification)
-    else if (tier === 3 && idx >= 6) {
+    // Qualification zone (Tier IV positions 5-8 enter qualification)
+    else if (tier === 4 && idx >= 4) {
         positionClass = 'qualification-zone';
         positionIndicator = ' Q';
     }
