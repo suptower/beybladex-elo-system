@@ -2925,7 +2925,7 @@ function renderSeasonTierLeaderboard() {
             `;
         }
 
-        const matchCount = activeStandings.reduce((sum, s) => sum + s.matches, 0) / 2; // Each match counts for both beys, check
+        const matchCount = Math.round(activeStandings.reduce((sum, s) => sum + s.matches, 0) / 2); // Each match counts for both beys
         const matchesString = matchCount === 1 ? '1 match' : `${matchCount} matches`;
         
         return `
