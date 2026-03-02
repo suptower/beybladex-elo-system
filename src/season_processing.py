@@ -188,12 +188,12 @@ def get_initial_tier_assignments(season_id: str, data_dir: str) -> Dict:
         if tier in tiers:
             tiers[tier].append({
                 "bey": bey,
-                "elo": data.get("start_elo", 1000)
+                "elo": data.get("start_elo") or 0
             })
 
-    # Sort each tier by ELO descending
+    # Sort each tier by ELO descending (fall back to 0 if ELO is None)
     for tier in tiers:
-        tiers[tier].sort(key=lambda x: -x["elo"])
+        tiers[tier].sort(key=lambda x: -(x["elo"] or 0))
 
     return tiers
 

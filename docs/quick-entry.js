@@ -2699,11 +2699,13 @@ function calculateSeasonTierStandings() {
         return {};
     }
     
-    // Get the current season (assume first/only season for now, or could be made configurable)
+    // Get the current season (use the latest season by ID)
     const seasonKeys = Object.keys(state.seasonData.seasons || {});
     if (seasonKeys.length === 0) return {};
     
-    const currentSeasonId = seasonKeys[0]; // Use first season
+    // Sort season keys and pick the last one (e.g. "S2" > "S1")
+    seasonKeys.sort();
+    const currentSeasonId = seasonKeys[seasonKeys.length - 1];
     const currentSeason = state.seasonData.seasons[currentSeasonId];
     
     // Initialize tier standings from season data

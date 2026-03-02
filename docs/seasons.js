@@ -237,30 +237,40 @@ function renderAlltimeRows() {
  * Create HTML for a season card
  */
 function createSeasonCard(seasonId, season) {
-    const champion = season.league_champion || 'TBD';
-    const cupWinner = season.cup_winner || 'TBD';
+    const isUpcoming = season.status === 'upcoming' || (season.statistics?.total_matches || 0) === 0;
+    const champion = isUpcoming ? 'TBD' : (season.league_champion || 'TBD');
+    const cupWinner = isUpcoming ? 'TBD' : (season.cup_winner || 'TBD');
     const totalMatches = season.statistics?.total_matches || 0;
-    const startDate = season.start_date ? new Date(season.start_date).toLocaleDateString() : 'Unknown';
-    const endDate = season.end_date ? new Date(season.end_date).toLocaleDateString() : 'Ongoing';
+    const startDate = season.start_date ? new Date(season.start_date).toLocaleDateString() : (isUpcoming ? 'Upcoming' : 'Unknown');
+    const endDate = season.end_date ? new Date(season.end_date).toLocaleDateString() : (isUpcoming ? 'TBD' : 'Ongoing');
+    const dateRange = isUpcoming ? startDate : `${startDate} - ${endDate}`;
     
-    // Get tier champions
+    // Determine status badge
+    let statusBadge = '';
+    if (season.status === 'upcoming') {
+        statusBadge = '<span class="season-status-badge upcoming">Upcoming</span>';
+    } else if (!season.end_date) {
+        statusBadge = '<span class="season-status-badge active">Active</span>';
+    }
+
+    // Get tier champions (up to 4 tiers)
     const tierChampions = [];
     const leagueTables = season.league_tables || {};
-    for (let tier = 1; tier <= 3; tier++) {
+    for (let tier = 1; tier <= 4; tier++) {
         const table = leagueTables[tier.toString()];
         if (table && table.length > 0) {
             tierChampions.push({
                 tier: tier,
-                champion: table[0].bey
+                champion: isUpcoming ? 'TBD' : table[0].bey
             });
         }
     }
     
     return `
-        <div class="season-card">
+        <div class="season-card${isUpcoming ? ' upcoming-season' : ''}">
             <div class="season-header">
-                <h3>${seasonId}</h3>
-                <span class="season-dates">${startDate} - ${endDate}</span>
+                <h3>${seasonId} ${statusBadge}</h3>
+                <span class="season-dates">${dateRange}</span>
             </div>
             
             <div class="season-highlights">
@@ -280,7 +290,7 @@ function createSeasonCard(seasonId, season) {
             
             ${tierChampions.length > 0 ? `
                 <div class="tier-champions">
-                    <h4>Tier Champions</h4>
+                    <h4>${isUpcoming ? 'Tier Rosters' : 'Tier Champions'}</h4>
                     <div class="tier-champions-grid">
                         ${tierChampions.map(tc => `
                             <div class="tier-champion">

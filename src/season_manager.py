@@ -481,9 +481,10 @@ def generate_season_archive(season_id: str, matches: List[Dict],
     if not season_data:
         raise ValueError(f"Season {season_id} not found")
 
-    # Find league champion (1st place in Tier I)
+    # Find league champion (1st place in Tier I) — only when matches have been played
+    season_matches_count = len([m for m in matches if m.get("season_id") == season_id])
     league_champion = None
-    if 1 in league_tables and len(league_tables[1]) > 0:
+    if season_matches_count > 0 and 1 in league_tables and len(league_tables[1]) > 0:
         league_champion = league_tables[1][0]["bey"]
 
     # Group matches by matchday
@@ -497,13 +498,14 @@ def generate_season_archive(season_id: str, matches: List[Dict],
         "season_id": season_id,
         "start_date": season_data.get("start_date"),
         "end_date": season_data.get("end_date"),
+        "status": season_data.get("status", "active"),
         "league_champion": league_champion,
         "cup_winner": season_data.get("cup_winner"),
         "league_tables": {str(tier): table for tier, table in league_tables.items()},
         "matchdays": dict(matchdays),
         "promotion_relegation": promotion_relegation,
         "statistics": {
-            "total_matches": len([m for m in matches if m.get("season_id") == season_id]),
+            "total_matches": season_matches_count,
             "total_goals": sum(int(m.get("score_a", 0)) + int(m.get("score_b", 0))
                                for m in matches if m.get("season_id") == season_id)
         }
