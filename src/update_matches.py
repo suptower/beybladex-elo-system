@@ -29,13 +29,26 @@ def parse_session_date(prefix: str) -> datetime:
         )
 
 
+_SESSION_SUFFIXES = ("_session_matches.csv", "_session_rounds.csv")
+
+
+def extract_session_prefix(filename: str) -> str:
+    for suffix in _SESSION_SUFFIXES:
+        if filename.endswith(suffix):
+            return filename.removesuffix(suffix)
+    raise ValueError(
+        f"Filename '{filename}' does not end with a known session suffix "
+        f"({', '.join(_SESSION_SUFFIXES)})."
+    )
+
+
 def get_latest_session_files():
     match_files = {
-        p.name.removesuffix("_session_matches.csv"): p
+        extract_session_prefix(p.name): p
         for p in RAW_DIR.glob("*_session_matches.csv")
     }
     round_files = {
-        p.name.removesuffix("_session_rounds.csv"): p
+        extract_session_prefix(p.name): p
         for p in RAW_DIR.glob("*_session_rounds.csv")
     }
 
@@ -90,7 +103,7 @@ def move_to_processed(path: Path):
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
     # make subdirectory based on session prefix
-    session_prefix = path.name.split("_session_")[0]
+    session_prefix = extract_session_prefix(path.name)
     subdir = PROCESSED_DIR / session_prefix
     subdir.mkdir(exist_ok=True)
 
