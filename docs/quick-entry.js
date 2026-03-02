@@ -1559,6 +1559,38 @@ function renderSeasonFields(matchIndex, match) {
     const isSeasonMatch = matchType === 'season';
     const needsSeasonId = matchType !== 'exhibition';
     
+    // Build season ID options from loaded season data or a sensible default list
+    const seasonKeys = (state.seasonData && state.seasonData.seasons)
+        ? Object.keys(state.seasonData.seasons)
+        : ['S1', 'S2'];
+    const seasonOptions = ['', ...seasonKeys].map(key =>
+        `<option value="${escapeHtml(key)}" ${seasonId === key ? 'selected' : ''}>${key || '—'}</option>`
+    ).join('');
+
+    // Build tier options from the selected season's league_tables, defaulting to 3 tiers
+    let tierCount = 3;
+    if (state.seasonData && seasonId && state.seasonData.seasons[seasonId]) {
+        const tables = state.seasonData.seasons[seasonId].league_tables || {};
+        const tierNums = Object.keys(tables).map(key => parseInt(key)).filter(n => !isNaN(n));
+        if (tierNums.length > 0) tierCount = Math.max(...tierNums);
+    }
+    const tierOptions = ['', ...Array.from({length: tierCount}, (_, i) => String(i + 1))].map(tierKey =>
+        `<option value="${tierKey}" ${tier === tierKey ? 'selected' : ''}>${tierKey ? `Tier ${tierKey}` : '—'}</option>`
+    ).join('');
+
+    // Build matchday options from the selected season's matchdays, defaulting to 9
+    let maxMatchday = 9;
+    if (state.seasonData && seasonId && state.seasonData.seasons[seasonId]) {
+        const mds = state.seasonData.seasons[seasonId].matchdays;
+        if (mds) {
+            const mdNums = Object.keys(mds).map(key => parseInt(key)).filter(n => !isNaN(n));
+            if (mdNums.length > 0) maxMatchday = Math.max(...mdNums);
+        }
+    }
+    const matchdayOptions = ['', ...Array.from({length: maxMatchday}, (_, i) => i + 1)].map(mdKey =>
+        `<option value="${mdKey}" ${String(matchday) === String(mdKey) ? 'selected' : ''}>${mdKey === '' ? '—' : mdKey}</option>`
+    ).join('');
+
     return `
         <div class="match-season-fields">
             <div class="season-field-group">
@@ -1580,22 +1612,21 @@ function renderSeasonFields(matchIndex, match) {
             </div>
             <div class="season-field-group ${needsSeasonId ? '' : 'field-disabled'}">
                 <label class="season-field-label">📅 Season ID</label>
-                <input type="text" class="season-field-input" placeholder="e.g., S1" value="${escapeHtml(seasonId)}" 
-                       onchange="updateSeasonId(${matchIndex}, this.value)" ${needsSeasonId ? '' : 'disabled'}>
+                <select class="season-field-select" onchange="updateSeasonId(${matchIndex}, this.value)" ${needsSeasonId ? '' : 'disabled'}>
+                    ${seasonOptions}
+                </select>
             </div>
             <div class="season-field-group ${isSeasonMatch ? '' : 'field-disabled'}">
                 <label class="season-field-label">🎯 Tier</label>
                 <select class="season-field-select season-field-small" onchange="updateTier(${matchIndex}, this.value)" ${isSeasonMatch ? '' : 'disabled'}>
-                    <option value="" ${tier === '' ? 'selected' : ''}>—</option>
-                    <option value="1" ${tier === '1' ? 'selected' : ''}>Tier 1</option>
-                    <option value="2" ${tier === '2' ? 'selected' : ''}>Tier 2</option>
-                    <option value="3" ${tier === '3' ? 'selected' : ''}>Tier 3</option>
+                    ${tierOptions}
                 </select>
             </div>
             <div class="season-field-group ${isSeasonMatch ? '' : 'field-disabled'}">
                 <label class="season-field-label">📆 Matchday</label>
-                <input type="number" class="season-field-input season-field-small" placeholder="1-9" min="1" max="9" 
-                       value="${matchday}" onchange="updateMatchday(${matchIndex}, this.value)" ${isSeasonMatch ? '' : 'disabled'}>
+                <select class="season-field-select season-field-small" onchange="updateMatchday(${matchIndex}, this.value)" ${isSeasonMatch ? '' : 'disabled'}>
+                    ${matchdayOptions}
+                </select>
             </div>
         </div>
     `;
@@ -1604,6 +1635,15 @@ function renderSeasonFields(matchIndex, match) {
 function renderMatchTable() {
     const tbody = document.getElementById('matchEntryBody');
     if (!tbody) return;
+    
+    // Preserve open rounds panel state before re-rendering
+    const openRoundsPanels = new Set();
+    state.matches.forEach((_, index) => {
+        const panel = document.getElementById(`roundsPanel_${index}`);
+        if (panel && panel.style.display !== 'none') {
+            openRoundsPanels.add(index);
+        }
+    });
     
     tbody.innerHTML = state.matches.map((match, index) => {
         const isComplete = match.winner && match.beyA && match.beyB;
@@ -1672,11 +1712,26 @@ function renderMatchTable() {
             </tr>
         `;
     }).join('');
+    
+    // Restore open rounds panel state after re-rendering
+    openRoundsPanels.forEach(index => {
+        const panel = document.getElementById(`roundsPanel_${index}`);
+        if (panel) panel.style.display = 'table-row';
+    });
 }
 
 function renderMatchCards() {
     const container = document.getElementById('matchCardsContainer');
     if (!container) return;
+    
+    // Preserve open card rounds panel state before re-rendering
+    const openCardPanels = new Set();
+    state.matches.forEach((_, index) => {
+        const panel = document.getElementById(`cardRoundsPanel_${index}`);
+        if (panel && panel.style.display !== 'none') {
+            openCardPanels.add(index);
+        }
+    });
     
     container.innerHTML = state.matches.map((match, index) => {
         const isComplete = match.winner && match.beyA && match.beyB;
@@ -1726,6 +1781,12 @@ function renderMatchCards() {
             </div>
         `;
     }).join('');
+    
+    // Restore open card rounds panel state after re-rendering
+    openCardPanels.forEach(index => {
+        const panel = document.getElementById(`cardRoundsPanel_${index}`);
+        if (panel) panel.style.display = 'block';
+    });
 }
 
 // Toggle rounds panel visibility (table view)
