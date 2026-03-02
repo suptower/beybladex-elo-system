@@ -457,7 +457,7 @@ function displayTierTables(leagueTables) {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        ${displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots)).join('')}
+                                         ${displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, table.length)).join('')}
                                     </tbody>
                                 </table>
                             </div>
@@ -465,7 +465,7 @@ function displayTierTables(leagueTables) {
                                 <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
                                 <span><strong>RPW</strong>=Round Points Won, <strong>RPL</strong>=Round Points Lost, <strong>RPD</strong>=Round Points Difference</span>
                             </div>
-                            ${getPositionLegend(tier)}
+                            ${getPositionLegend(tier, table.length)}
                         </div>
                         <div class="tier-matches-column">
                             ${tierMatchdays.length > 0 ? `
@@ -713,7 +713,7 @@ function updateTierTable(tier) {
     // Update table body
     const tbody = document.querySelector(`#tier-${tier}-content .league-table tbody`);
     if (tbody) {
-        tbody.innerHTML = displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots)).join('');
+        tbody.innerHTML = displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, displayTable.length)).join('');
     }
     
     // Update navigation buttons
@@ -738,82 +738,158 @@ function updateTierTable(tier) {
 /**
  * Get position legend for tier
  */
-function getPositionLegend(tier) {
+function getPositionLegend(tier, tierSize = 8) {
     let html = '<div class="position-legend">';
-    
-    // Tier II and III show promotion indicators
-    if (tier > 1) {
-        html += `
-            <div class="position-legend-item">
-                <div class="position-legend-indicator promotion"></div>
-                <span>Promotion (Top 2)</span>
-            </div>
-            <div class="position-legend-item">
-                <div class="position-legend-indicator playoff"></div>
-                <span>Promotion Playoff (3rd)</span>
-            </div>
-        `;
+
+    if (tierSize >= 10) {
+        // Legacy S1 rules (10 beys per tier, 3 tiers)
+        if (tier > 1) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator promotion"></div>
+                    <span>Promotion (Ranks 1–2)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator playoff"></div>
+                    <span>Promotion Playoff (3rd)</span>
+                </div>
+            `;
+        }
+        if (tier < 3) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator qualification"></div>
+                    <span>Relegation Playoff (8th)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator relegation"></div>
+                    <span>Relegation (9th–10th)</span>
+                </div>
+            `;
+        }
+        if (tier === 3) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator qualification"></div>
+                    <span>Qualification Tournament (7th–10th)</span>
+                </div>
+            `;
+        }
+    } else {
+        // S2+ rules (8 beys per tier, 4 tiers)
+        if (tier === 2) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator promotion"></div>
+                    <span>Promotion (1st)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator playoff"></div>
+                    <span>Promotion Playoff (2nd)</span>
+                </div>
+            `;
+        } else if (tier > 2) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator promotion"></div>
+                    <span>Promotion (Ranks 1–2)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator playoff"></div>
+                    <span>Promotion Playoff (3rd)</span>
+                </div>
+            `;
+        }
+        if (tier === 1) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator qualification"></div>
+                    <span>Relegation Playoff (7th)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator relegation"></div>
+                    <span>Relegation (8th)</span>
+                </div>
+            `;
+        } else if (tier === 2 || tier === 3) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator qualification"></div>
+                    <span>Relegation Playoff (6th)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator relegation"></div>
+                    <span>Relegation (7th–8th)</span>
+                </div>
+            `;
+        }
+        if (tier === 4) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator qualification"></div>
+                    <span>Qualification Pool (5th–8th)</span>
+                </div>
+            `;
+        }
     }
-    
-    // Tier I and II show relegation indicators
-    if (tier < 3) {
-        html += `
-            <div class="position-legend-item">
-                <div class="position-legend-indicator qualification"></div>
-                <span>Relegation Playoff (8th)</span>
-            </div>
-            <div class="position-legend-item">
-                <div class="position-legend-indicator relegation"></div>
-                <span>Relegation (Bottom 2)</span>
-            </div>
-        `;
-    }
-    
-    // Tier III shows qualification zone
-    if (tier === 3) {
-        html += `
-            <div class="position-legend-item">
-                <div class="position-legend-indicator qualification"></div>
-                <span>Qualification Tournament (7-10)</span>
-            </div>
-        `;
-    }
-    
+
     html += '</div>';
     return html;
 }
 
 /**
- * Create table row with position indicators
+ * Create table row with position indicators.
+ * tierSize is the number of entries in the tier (used to pick S1 vs S2+ rules).
  */
-function createTableRow(entry, idx, tier, hasSnapshots = false) {
+function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
     let positionClass = '';
     let positionIndicator = '';
-    
-    // Promotion zone (top 1 for Tier II, else top 2, except Tier I)
-    if (tier > 2 && idx < 2 || tier === 2 && idx < 1) {
-        positionClass = 'promotion-zone';
-        positionIndicator = ' ↑';
-    }
-    // Promotion playoff zone (2nd place in Tier II, 3rd place in Tiers III & IV - faces 7th or 6th from tier above respectively)
-    else if (tier > 2 && idx === 2 || tier === 2 && idx === 1) {
-        positionClass = 'playoff-zone';
-        positionIndicator = ' ↕';
-    }
-    // Relegation match zone (8th place in Tiers I & II - faces 3rd from tier below)
-    else if (tier < 4 && idx === 5 && tier > 1 || tier === 1 && idx === 6) {
-        positionClass = 'qualification-zone';
-        positionIndicator = ' ↕';
-    }
-    // Relegation zone (bottom 2 for Tiers II-III and last rank for Tier I - directly relegated to tier below)
-    else if (tier < 4 && tier > 1 && idx >= 6 || tier === 1 && idx === 7) {
-        positionClass = 'relegation-zone';
-        positionIndicator = ' ↓';
-    }
-    // Qualification zone (Tier IV positions 5-8 enter qualification)
-    else if (tier === 4 && idx >= 4) {
-        positionClass = 'qualification-zone';
-        positionIndicator = ' Q';
+
+    if (tierSize >= 10) {
+        // Legacy S1 rules (10 beys per tier, 3 tiers)
+        if (tier > 1 && idx < 2) {
+            positionClass = 'promotion-zone';
+            positionIndicator = ' ↑';
+        } else if (tier > 1 && idx === 2) {
+            positionClass = 'playoff-zone';
+            positionIndicator = ' ↕';
+        } else if (tier < 3 && idx === 7) {
+            positionClass = 'qualification-zone';
+            positionIndicator = ' ↕';
+        } else if (tier < 3 && idx >= 8) {
+            positionClass = 'relegation-zone';
+            positionIndicator = ' ↓';
+        } else if (tier === 3 && idx >= 6) {
+            positionClass = 'qualification-zone';
+            positionIndicator = ' Q';
+        }
+    } else {
+        // S2+ rules (8 beys per tier, 4 tiers)
+        // Promotion zone (top 1 for Tier II, else top 2, except Tier I)
+        if ((tier > 2 && idx < 2) || (tier === 2 && idx < 1)) {
+            positionClass = 'promotion-zone';
+            positionIndicator = ' ↑';
+        }
+        // Promotion playoff zone (2nd place in Tier II, 3rd place in Tiers III & IV)
+        else if ((tier > 2 && idx === 2) || (tier === 2 && idx === 1)) {
+            positionClass = 'playoff-zone';
+            positionIndicator = ' ↕';
+        }
+        // Relegation match zone (7th in Tier I, 6th in Tiers II & III)
+        else if ((tier < 4 && idx === 5 && tier > 1) || (tier === 1 && idx === 6)) {
+            positionClass = 'qualification-zone';
+            positionIndicator = ' ↕';
+        }
+        // Relegation zone (bottom 2 for Tiers II-III, last rank for Tier I)
+        else if ((tier < 4 && tier > 1 && idx >= 6) || (tier === 1 && idx === 7)) {
+            positionClass = 'relegation-zone';
+            positionIndicator = ' ↓';
+        }
+        // Qualification zone (Tier IV positions 5-8 enter qualification)
+        else if (tier === 4 && idx >= 4) {
+            positionClass = 'qualification-zone';
+            positionIndicator = ' Q';
+        }
     }
     
     // Create Bey link with soft hyphens

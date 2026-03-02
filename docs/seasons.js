@@ -237,7 +237,7 @@ function renderAlltimeRows() {
  * Create HTML for a season card
  */
 function createSeasonCard(seasonId, season) {
-    const isUpcoming = season.status === 'upcoming' || (season.statistics?.total_matches || 0) === 0;
+    const isUpcoming = season.status === 'upcoming';
     const champion = isUpcoming ? 'TBD' : (season.league_champion || 'TBD');
     const cupWinner = isUpcoming ? 'TBD' : (season.cup_winner || 'TBD');
     const totalMatches = season.statistics?.total_matches || 0;
