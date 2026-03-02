@@ -2703,8 +2703,19 @@ function calculateSeasonTierStandings() {
     const seasonKeys = Object.keys(state.seasonData.seasons || {});
     if (seasonKeys.length === 0) return {};
     
-    // Sort season keys and pick the last one (e.g. "S2" > "S1")
-    seasonKeys.sort();
+    // Sort season keys numerically by their numeric suffix and pick the last one (e.g. "S10" > "S2" > "S1")
+    seasonKeys.sort((a, b) => {
+        const numA = parseInt(String(a).replace(/^\D+/, ''), 10);
+        const numB = parseInt(String(b).replace(/^\D+/, ''), 10);
+        
+        // If both have valid numeric parts and differ, sort by those numbers
+        if (!Number.isNaN(numA) && !Number.isNaN(numB) && numA !== numB) {
+            return numA - numB;
+        }
+        
+        // Fallback to lexical comparison to keep ordering stable for non-standard IDs
+        return String(a).localeCompare(String(b));
+    });
     const currentSeasonId = seasonKeys[seasonKeys.length - 1];
     const currentSeason = state.seasonData.seasons[currentSeasonId];
     
