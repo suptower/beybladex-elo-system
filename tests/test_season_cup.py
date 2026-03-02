@@ -33,8 +33,8 @@ class TestQualification:
         assert tier1_qualified[0]["bey"] == "T1-1"
         assert tier1_qualified[3]["bey"] == "T1-4"
 
-    def test_tier_2_qualifies_2(self):
-        """Tier II should qualify top 2 beys."""
+    def test_tier_2_qualifies_3(self):
+        """Tier II should qualify top 3 beys."""
         league_tables = {
             2: [{"bey": f"T2-{i}", "elo": 1400 - i} for i in range(1, 11)]
         }
@@ -42,9 +42,10 @@ class TestQualification:
         qualified = get_qualified_beys(league_tables)
         tier2_qualified = [q for q in qualified if q["tier"] == 2]
 
-        assert len(tier2_qualified) == 2
+        assert len(tier2_qualified) == 3
         assert tier2_qualified[0]["bey"] == "T2-1"
         assert tier2_qualified[1]["bey"] == "T2-2"
+        assert tier2_qualified[2]["bey"] == "T2-3"
 
     def test_tier_3_qualifies_1(self):
         """Tier III should qualify top 1 bey."""
@@ -58,8 +59,8 @@ class TestQualification:
         assert len(tier3_qualified) == 1
         assert tier3_qualified[0]["bey"] == "T3-1"
 
-    def test_tier_4_qualifies_1(self):
-        """Tier IV should qualify top 1 bey."""
+    def test_tier_4_qualifies_0(self):
+        """Tier IV should not qualify any beys (removed from season cup)."""
         league_tables = {
             4: [{"bey": f"T4-{i}", "elo": 1200 - i} for i in range(1, 11)]
         }
@@ -67,16 +68,14 @@ class TestQualification:
         qualified = get_qualified_beys(league_tables)
         tier4_qualified = [q for q in qualified if q["tier"] == 4]
 
-        assert len(tier4_qualified) == 1
-        assert tier4_qualified[0]["bey"] == "T4-1"
+        assert len(tier4_qualified) == 0
 
     def test_total_qualified_is_8(self):
-        """Total qualified beys should be 8 (4+2+1+1)."""
+        """Total qualified beys should be 8 (4+3+1)."""
         league_tables = {
             1: [{"bey": f"T1-{i}", "elo": 1500 - i} for i in range(1, 11)],
             2: [{"bey": f"T2-{i}", "elo": 1400 - i} for i in range(1, 11)],
-            3: [{"bey": f"T3-{i}", "elo": 1300 - i} for i in range(1, 11)],
-            4: [{"bey": f"T4-{i}", "elo": 1200 - i} for i in range(1, 11)]
+            3: [{"bey": f"T3-{i}", "elo": 1300 - i} for i in range(1, 11)]
         }
 
         qualified = get_qualified_beys(league_tables)
@@ -87,8 +86,7 @@ class TestQualification:
         league_tables = {
             1: [{"bey": f"T1-{i}", "elo": 1500 - i} for i in range(1, 11)],
             2: [{"bey": f"T2-{i}", "elo": 1400 - i} for i in range(1, 11)],
-            3: [{"bey": f"T3-{i}", "elo": 1300 - i} for i in range(1, 11)],
-            4: [{"bey": f"T4-{i}", "elo": 1200 - i} for i in range(1, 11)]
+            3: [{"bey": f"T3-{i}", "elo": 1300 - i} for i in range(1, 11)]
         }
 
         qualified = get_qualified_beys(league_tables)
