@@ -50,6 +50,10 @@
                 <input type="checkbox" id="tournamentWinnersFilter" class="tournament-checkbox">
                 <span class="tournament-filter-text">🏆 Tournament Winners Only</span>
             </label>
+            <label class="tournament-filter-label">
+                <input type="checkbox" id="seasonChampionsFilter" class="tournament-checkbox">
+                <span class="tournament-filter-text">🏅 Season Champions Only</span>
+            </label>
         </div>
         
         <div class="filters-row">
@@ -123,7 +127,8 @@ let activeFilters = {
     ratchet: 'all',
     bit: 'all',
     archetype: 'all',
-    tournamentWinnersOnly: false
+    tournamentWinnersOnly: false,
+    seasonChampionsOnly: false
 };
 
 // Helper function to normalize bey names for comparison
@@ -524,7 +529,14 @@ function applyFilters() {
             matchesTournamentWinner = trophies.length > 0;
         }
         
-        return matchesSearch && matchesType && matchesSystem && matchesRatchet && matchesBit && matchesArchetype && matchesTournamentWinner;
+        // Season Champions filter
+        let matchesSeasonChampion = true;
+        if (activeFilters.seasonChampionsOnly) {
+            const normalizedBlade = normalizeBeyName(bey.blade);
+            matchesSeasonChampion = (seasonChampionsData[normalizedBlade] || []).length > 0;
+        }
+        
+        return matchesSearch && matchesType && matchesSystem && matchesRatchet && matchesBit && matchesArchetype && matchesTournamentWinner && matchesSeasonChampion;
     });
     
     // Sort the filtered results by code
@@ -570,6 +582,12 @@ document.getElementById('archetypeFilter').addEventListener('change', (e) => {
 // Tournament Winners filter - checkbox
 document.getElementById('tournamentWinnersFilter').addEventListener('change', (e) => {
     activeFilters.tournamentWinnersOnly = e.target.checked;
+    applyFilters();
+});
+
+// Season Champions filter - checkbox
+document.getElementById('seasonChampionsFilter').addEventListener('change', (e) => {
+    activeFilters.seasonChampionsOnly = e.target.checked;
     applyFilters();
 });
 
