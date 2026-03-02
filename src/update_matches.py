@@ -43,13 +43,14 @@ def extract_session_prefix(filename: str) -> str:
 
 
 def get_latest_session_files():
+    matches_suffix, rounds_suffix = _SESSION_SUFFIXES
     match_files = {
         extract_session_prefix(p.name): p
-        for p in RAW_DIR.glob("*_session_matches.csv")
+        for p in RAW_DIR.glob(f"*{matches_suffix}")
     }
     round_files = {
         extract_session_prefix(p.name): p
-        for p in RAW_DIR.glob("*_session_rounds.csv")
+        for p in RAW_DIR.glob(f"*{rounds_suffix}")
     }
 
     complete_sessions = sorted(
