@@ -384,7 +384,7 @@ function renderBeys() {
         let seasonBadgesHtml = '';
         if (seasonAchievements.length > 0) {
             const badgeIcons = seasonAchievements.map(a =>
-                `<span class="season-icon ${a.badgeClass}" title="${a.label}">${a.icon}</span>`
+                `<span class="season-icon" title="${a.label}">${a.icon}</span>`
             ).join('');
             seasonBadgesHtml = `<div class="wiki-card-season-badges">${badgeIcons}</div>`;
         }
