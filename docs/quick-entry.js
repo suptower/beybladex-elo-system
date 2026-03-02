@@ -2699,11 +2699,24 @@ function calculateSeasonTierStandings() {
         return {};
     }
     
-    // Get the current season (assume first/only season for now, or could be made configurable)
+    // Get the current season (use the latest season by ID)
     const seasonKeys = Object.keys(state.seasonData.seasons || {});
     if (seasonKeys.length === 0) return {};
     
-    const currentSeasonId = seasonKeys[0]; // Use first season
+    // Sort season keys numerically by their numeric suffix and pick the last one (e.g. "S10" > "S2" > "S1")
+    seasonKeys.sort((a, b) => {
+        const numA = parseInt(String(a).replace(/^\D+/, ''), 10);
+        const numB = parseInt(String(b).replace(/^\D+/, ''), 10);
+        
+        // If both have valid numeric parts and differ, sort by those numbers
+        if (!Number.isNaN(numA) && !Number.isNaN(numB) && numA !== numB) {
+            return numA - numB;
+        }
+        
+        // Fallback to lexical comparison to keep ordering stable for non-standard IDs
+        return String(a).localeCompare(String(b));
+    });
+    const currentSeasonId = seasonKeys[seasonKeys.length - 1];
     const currentSeason = state.seasonData.seasons[currentSeasonId];
     
     // Initialize tier standings from season data
@@ -2897,7 +2910,8 @@ function renderSeasonTierLeaderboard() {
         const standings = sortTierStandings(tierStandings[tier]);
         
         // Filter out beys with no matches
-        const activeStandings = standings.filter(s => s.matches > 0);
+        // const activeStandings = standings.filter(s => s.matches > 0);
+        const activeStandings = standings; // Show all beys in the tier, even if they haven't played yet
         
         if (activeStandings.length === 0) {
             return `
@@ -2910,12 +2924,15 @@ function renderSeasonTierLeaderboard() {
                 </div>
             `;
         }
+
+        const matchCount = Math.round(activeStandings.reduce((sum, s) => sum + s.matches, 0) / 2); // Each match counts for both beys
+        const matchesString = matchCount === 1 ? '1 match' : `${matchCount} matches`;
         
         return `
             <div class="tier-section" data-tier="${tier}">
                 <div class="tier-header" onclick="toggleTierSection(${tier})">
                     <span class="tier-title">Tier ${tier}</span>
-                    <span class="tier-subtitle">${activeStandings.length} beys • ${activeStandings.reduce((sum, s) => sum + s.matches, 0)} matches</span>
+                    <span class="tier-subtitle">${activeStandings.length} beys • ${matchesString}</span>
                     <button class="tier-toggle">▼</button>
                 </div>
                 <div class="tier-content">
@@ -2937,13 +2954,29 @@ function renderSeasonTierLeaderboard() {
                             <tbody>
                                 ${activeStandings.map((stat, index) => {
                                     const position = index + 1;
+                                    const tierNum = parseInt(tier);
                                     let rowClass = '';
                                     
-                                    // Highlight promotion/relegation zones (simplified)
-                                    if (position <= 2) {
-                                        rowClass = 'promotion-zone';
-                                    } else if (position >= activeStandings.length - 1) {
-                                        rowClass = 'relegation-zone';
+                                    // Highlight promotion/playoff/relegation zones per tier (Season 2 rules)
+                                    if (tierNum === 1) {
+                                        // T1: Rank 7 = playoff, Rank 8 = relegated
+                                        if (position === 7) rowClass = 'playoff-zone';
+                                        else if (position === 8) rowClass = 'relegation-zone';
+                                    } else if (tierNum === 2) {
+                                        // T2: Rank 1 = promoted, Rank 2 = playoff, Rank 6 = playoff, Ranks 7-8 = relegated
+                                        if (position === 1) rowClass = 'promotion-zone';
+                                        else if (position === 2 || position === 6) rowClass = 'playoff-zone';
+                                        else if (position >= 7) rowClass = 'relegation-zone';
+                                    } else if (tierNum === 3) {
+                                        // T3: Ranks 1-2 = promoted, Rank 3 = playoff, Rank 6 = playoff, Ranks 7-8 = relegated
+                                        if (position <= 2) rowClass = 'promotion-zone';
+                                        else if (position === 3 || position === 6) rowClass = 'playoff-zone';
+                                        else if (position >= 7) rowClass = 'relegation-zone';
+                                    } else if (tierNum === 4) {
+                                        // T4: Ranks 1-2 = promoted, Rank 3 = playoff, Ranks 5-8 = qualification pool
+                                        if (position <= 2) rowClass = 'promotion-zone';
+                                        else if (position === 3) rowClass = 'playoff-zone';
+                                        else if (position >= 5) rowClass = 'relegation-zone';
                                     }
                                     
                                     return `
@@ -2964,8 +2997,11 @@ function renderSeasonTierLeaderboard() {
                         </table>
                     </div>
                     <div class="tier-legend">
-                        <span class="legend-item"><span class="legend-color promotion-color"></span>Promotion</span>
-                        <span class="legend-item"><span class="legend-color relegation-color"></span>Relegation</span>
+                        ${// Show promotion only for tiers that have promotion spots
+                            parseInt(tier) === 1 ? '' : `<span class="legend-item"><span class="legend-color promotion-color"></span>Promotion</span>`
+                        }
+                        <span class="legend-item"><span class="legend-color playoff-color"></span>Playoff</span>
+                        <span class="legend-item"><span class="legend-color relegation-color"></span>Relegation / Drop</span>
                     </div>
                 </div>
             </div>

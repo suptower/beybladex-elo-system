@@ -11661,6 +11661,49 @@ select:focus-visible {
     transform: translateY(0);
 }
 
+/* Season status badges */
+.season-status-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+.season-status-badge.upcoming {
+    background: rgba(245, 158, 11, 0.15);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.season-status-badge.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+body.dark .season-status-badge.upcoming {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.5);
+}
+
+body.dark .season-status-badge.active {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.5);
+}
+
+/* Upcoming season card variant */
+.season-card.upcoming-season {
+    border-color: rgba(245, 158, 11, 0.35);
+    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(245, 158, 11, 0.04) 100%);
+}
+
 /* Individual season page */
 .season-overview-grid {
     display: grid;
