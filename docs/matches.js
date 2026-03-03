@@ -1402,7 +1402,8 @@ function createEloBreakdownHtml(match) {
     `;
 }
 
-
+// Create finish type summary badges
+function createFinishTypeSummary(rounds) {
     const counts = {};
     rounds.forEach(round => {
         const type = round.finish_type || 'spin';
