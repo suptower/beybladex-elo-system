@@ -1659,6 +1659,15 @@ function renderMatchTable() {
             openRoundsPanels.add(index);
         }
     });
+
+    // Preserve expanded analysis panel state before re-rendering
+    const openAnalysisPanels = new Set();
+    state.matches.forEach((_, index) => {
+        const panel = document.getElementById(`analysisPanel_${index}`);
+        if (panel && !panel.classList.contains('collapsed')) {
+            openAnalysisPanels.add(index);
+        }
+    });
     
     tbody.innerHTML = state.matches.map((match, index) => {
         const isComplete = match.winner && match.beyA && match.beyB;
@@ -1733,6 +1742,18 @@ function renderMatchTable() {
         const panel = document.getElementById(`roundsPanel_${index}`);
         if (panel) panel.style.display = 'table-row';
     });
+
+    // Restore expanded analysis panel state after re-rendering
+    openAnalysisPanels.forEach(index => {
+        const panel = document.getElementById(`analysisPanel_${index}`);
+        if (panel) {
+            panel.classList.remove('collapsed');
+            const content = panel.querySelector('.analysis-content');
+            const icon = panel.querySelector('.analysis-toggle-icon');
+            if (content) content.style.display = 'block';
+            if (icon) icon.textContent = '▼';
+        }
+    });
 }
 
 function renderMatchCards() {
@@ -1745,6 +1766,15 @@ function renderMatchCards() {
         const panel = document.getElementById(`cardRoundsPanel_${index}`);
         if (panel && panel.style.display !== 'none') {
             openCardPanels.add(index);
+        }
+    });
+
+    // Preserve expanded card analysis panel state before re-rendering
+    const openCardAnalysisPanels = new Set();
+    state.matches.forEach((_, index) => {
+        const panel = document.getElementById(`cardAnalysisPanel_${index}`);
+        if (panel && !panel.classList.contains('collapsed')) {
+            openCardAnalysisPanels.add(index);
         }
     });
     
@@ -1801,6 +1831,18 @@ function renderMatchCards() {
     openCardPanels.forEach(index => {
         const panel = document.getElementById(`cardRoundsPanel_${index}`);
         if (panel) panel.style.display = 'block';
+    });
+
+    // Restore expanded card analysis panel state after re-rendering
+    openCardAnalysisPanels.forEach(index => {
+        const panel = document.getElementById(`cardAnalysisPanel_${index}`);
+        if (panel) {
+            panel.classList.remove('collapsed');
+            const content = panel.querySelector('.analysis-content');
+            const icon = panel.querySelector('.analysis-toggle-icon');
+            if (content) content.style.display = 'block';
+            if (icon) icon.textContent = '▼';
+        }
     });
 }
 

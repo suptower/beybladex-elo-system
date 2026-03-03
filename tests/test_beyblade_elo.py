@@ -145,35 +145,37 @@ class TestScoreWithMargin:
     """Tests for the calculate_score_with_margin function (tanh model, Version 3)."""
 
     def test_reference_win_4_0_gives_score_one(self):
-        """4-0 is the reference win: S = 1 + MARGIN_A * tanh(0) = 1.0."""
+        """4-0 is the reference win: S_winner=1.0, S_loser=1-1.0=0.0."""
         s_a, s_b = calculate_score_with_margin(4, 0, target=4)
         assert abs(s_a - 1.0) < 1e-9
-        assert s_b == 0.0
+        assert abs(s_b - 0.0) < 1e-9
 
     def test_close_win_4_3_gives_less_than_one(self):
-        """4-3 win: m=1 < T=4, so S < 1.0."""
+        """4-3 win: m=1 < T=4, so S_winner < 1.0 and S_loser = 1 - S_winner > 0."""
         s_a, s_b = calculate_score_with_margin(4, 3, target=4)
         assert s_a < 1.0
         assert abs(s_a - 0.833) < 0.01
-        assert s_b == 0.0
+        assert abs(s_b - (1.0 - s_a)) < 1e-9
+        assert s_b > 0.0  # loser is NOT as harshly penalised as for a 4-0 loss
 
     def test_dominant_win_6_0_gives_more_than_one(self):
-        """6-0 win: m=6 > T=4, so S > 1.0 (overshoot rewarded)."""
+        """6-0 win: m=6 > T=4, so S_winner > 1.0 and S_loser = 1 - S_winner < 0."""
         s_a, s_b = calculate_score_with_margin(6, 0, target=4)
         assert s_a > 1.0
-        assert s_b == 0.0
+        assert abs(s_b - (1.0 - s_a)) < 1e-9
+        assert s_b < 0.0  # dominant loss is penalised more than a reference 4-0 loss
 
-    def test_loser_always_gets_zero(self):
-        """Loser's score is always 0."""
+    def test_loser_gets_complement_of_winner(self):
+        """Loser's score is always 1 - winner's score."""
         for sa, sb in [(4, 0), (4, 1), (4, 2), (4, 3), (5, 0), (7, 4)]:
             s_a, s_b = calculate_score_with_margin(sa, sb, target=4)
-            assert s_b == 0.0
+            assert abs(s_b - (1.0 - s_a)) < 1e-9
 
     def test_winner_identified_correctly(self):
-        """When B wins, B gets the margin score and A gets 0."""
+        """When B wins, B gets the margin score and A gets 1 - S_winner."""
         s_a, s_b = calculate_score_with_margin(2, 4, target=4)
-        assert s_a == 0.0
         assert abs(s_b - 0.856) < 0.01  # m=2, T=4: 1 + 0.18*tanh(2.2*(2-4)/4) ≈ 0.856
+        assert abs(s_a - (1.0 - s_b)) < 1e-9
 
     def test_draw_gives_equal_scores(self):
         """Equal scores should give 0.5 each."""
@@ -196,16 +198,16 @@ class TestScoreWithMargin:
         assert s_4_3 < s_4_2 < s_4_0 < s_5_0
 
     def test_finals_target_7(self):
-        """Race-to-7 finals: 7-0 should be reference (S=1.0)."""
+        """Race-to-7 finals: 7-0 should be reference (S_winner=1.0, S_loser=0.0)."""
         s_a, s_b = calculate_score_with_margin(7, 0, target=7)
         assert abs(s_a - 1.0) < 1e-9
-        assert s_b == 0.0
+        assert abs(s_b - 0.0) < 1e-9
 
     def test_finals_close_win(self):
-        """Race-to-7 finals: 7-6 should give S < 1.0."""
+        """Race-to-7 finals: 7-6 should give S_winner < 1.0, S_loser = 1 - S_winner."""
         s_a, s_b = calculate_score_with_margin(7, 6, target=7)
         assert s_a < 1.0
-        assert s_b == 0.0
+        assert abs(s_b - (1.0 - s_a)) < 1e-9
 
     def test_score_uses_margin_formula(self):
         """Winner score follows S = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)."""

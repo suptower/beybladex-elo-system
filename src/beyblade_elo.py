@@ -168,18 +168,22 @@ def expected(a, b):
 
 
 def calculate_score_with_margin(sa, sb, target=TARGET_POINTS):
-    """Calculate winner score using tanh margin model (Version 3).
+    """Calculate scores using tanh margin model (Version 3).
 
     For the winner:
-        S = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)
+        S_winner = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)
     For the loser:
-        S = 0
+        S_loser = 1 - S_winner
 
     where m = winner_score - loser_score (point difference),
           T = target points (4 for regular, 7 for finals).
 
-    At the reference win (e.g. 4-0 for Race to 4): m = T, tanh(0) = 0, S = 1.0.
-    Close wins (m < T) give S < 1.0; dominant wins (m > T) give S > 1.0.
+    At the reference win (e.g. 4-0 for Race to 4): m = T, tanh(0) = 0,
+    S_winner = 1.0, S_loser = 0.0.
+    Close wins (m < T) give S_winner < 1.0, S_loser > 0.0 (smaller penalty for
+    the loser). Dominant wins (m > T) give S_winner > 1.0, S_loser < 0.0
+    (larger penalty for the loser). The formula ensures ELO changes are
+    zero-sum when K-factors are equal.
 
     Args:
         sa: Score of player A
@@ -195,11 +199,11 @@ def calculate_score_with_margin(sa, sb, target=TARGET_POINTS):
     if sa > sb:
         m = sa - sb
         s_winner = 1 + MARGIN_A * math.tanh(MARGIN_B * (m - target) / target)
-        return s_winner, 0.0
+        return s_winner, 1.0 - s_winner
     else:
         m = sb - sa
         s_winner = 1 + MARGIN_A * math.tanh(MARGIN_B * (m - target) / target)
-        return 0.0, s_winner
+        return 1.0 - s_winner, s_winner
 
 
 def calculate_score_with_dominance(sa, sb):

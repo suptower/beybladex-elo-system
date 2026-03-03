@@ -122,11 +122,11 @@ function calculateScoreWithMargin(scoreA, scoreB, target) {
     if (scoreA > scoreB) {
         const m = scoreA - scoreB;
         const sWinner = 1 + MARGIN_A * Math.tanh(MARGIN_B * (m - target) / target);
-        return [sWinner, 0.0];
+        return [sWinner, 1.0 - sWinner];
     } else {
         const m = scoreB - scoreA;
         const sWinner = 1 + MARGIN_A * Math.tanh(MARGIN_B * (m - target) / target);
-        return [0.0, sWinner];
+        return [1.0 - sWinner, sWinner];
     }
 }
 
