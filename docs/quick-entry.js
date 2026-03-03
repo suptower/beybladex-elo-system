@@ -1588,8 +1588,7 @@ function renderSeasonFields(matchIndex, match) {
     if (state.seasonData && seasonId && state.seasonData.seasons[seasonId]) {
         // calculate matchdays by checking how many participants are in tier 1
         // assumption: all tier sizes will stay the same as tier I, so we can use that to calculate the number of matchdays (rounds) in the season
-        const mds = (state.seasonData.seasons[seasonId].league_tables?.['1']?.length) - 1 || 0;
-        console.log("mds for season", seasonId, ":", mds);
+        const mds = Math.max(((state.seasonData.seasons[seasonId].league_tables?.['1']?.length) - 1), 0);
         if (mds) {
             maxMatchday = mds;
         }
@@ -1619,7 +1618,7 @@ function renderSeasonFields(matchIndex, match) {
             </div>
             <div class="season-field-group ${needsSeasonId ? '' : 'field-disabled'}">
                 <label class="season-field-label">📅 Season ID</label>
-                <select class="season-field-select" onchange="updateSeasonId(${matchIndex}, this.value); renderMatches()" ${needsSeasonId ? '' : 'disabled'}>
+                <select class="season-field-select" onchange="updateSeasonId(${matchIndex}, this.value)" ${needsSeasonId ? '' : 'disabled'}>
                     ${seasonOptions}
                 </select>
             </div>
