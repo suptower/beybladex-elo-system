@@ -208,6 +208,15 @@ async function loadMatches() {
             const seasonId = (values[13] || '').trim();
             const tier = values[14] ? parseInt(values[14]) : null;
             const matchday = values[15] ? parseInt(values[15]) : null;
+            // ELO calculation breakdown fields (columns 16-23)
+            const kBaseA = values[16] ? parseFloat(values[16]) : null;
+            const kBaseB = values[17] ? parseFloat(values[17]) : null;
+            const kEffA = values[18] ? parseFloat(values[18]) : null;
+            const kEffB = values[19] ? parseFloat(values[19]) : null;
+            const expA = values[20] ? parseFloat(values[20]) : null;
+            const expB = values[21] ? parseFloat(values[21]) : null;
+            const actA = values[22] ? parseFloat(values[22]) : null;
+            const actB = values[23] ? parseFloat(values[23]) : null;
             
             return {
                 id: index,
@@ -231,7 +240,15 @@ async function loadMatches() {
                 matchType: matchType,
                 seasonId: seasonId,
                 tier: tier,
-                matchday: matchday
+                matchday: matchday,
+                kBaseA: kBaseA,
+                kBaseB: kBaseB,
+                kEffA: kEffA,
+                kEffB: kEffB,
+                expA: expA,
+                expB: expB,
+                actA: actA,
+                actB: actB
             };
         });
         
@@ -764,11 +781,13 @@ function displayMatches() {
         // Rounds expand button
         const tdRounds = document.createElement('td');
         tdRounds.className = 'rounds-cell';
-        if (match.rounds && match.rounds.length > 0) {
+        const hasRounds = match.rounds && match.rounds.length > 0;
+        const hasEloCalc = match.kBaseA !== null;
+        if (hasRounds || hasEloCalc) {
             const expandBtn = document.createElement('button');
             expandBtn.className = 'rounds-expand-btn';
             expandBtn.dataset.matchId = match.matchId;
-            expandBtn.title = `Show ${match.rounds.length} rounds`;
+            expandBtn.title = hasRounds ? `Show ${match.rounds.length} rounds & ELO details` : 'Show ELO details';
             const isExpanded = expandedMatches.has(match.matchId);
             expandBtn.innerHTML = isExpanded ? '▲' : '▼';
             expandBtn.setAttribute('aria-expanded', isExpanded);
@@ -786,7 +805,7 @@ function displayMatches() {
         tbody.appendChild(row);
         
         // Add rounds detail row if expanded
-        if (match.rounds && match.rounds.length > 0 && expandedMatches.has(match.matchId)) {
+        if ((match.rounds && match.rounds.length > 0 || match.kBaseA !== null) && expandedMatches.has(match.matchId)) {
             const roundsRow = createRoundsDetailRow(match);
             tbody.appendChild(roundsRow);
         }
@@ -800,7 +819,9 @@ function displayMatches() {
         card.dataset.matchId = match.matchId;
         
         const hasRounds = match.rounds && match.rounds.length > 0;
+        const hasEloCalc = match.kBaseA !== null;
         const roundsHtml = hasRounds ? createMobileRoundsHtml(match) : '';
+        const eloBreakdownHtml = createEloBreakdownHtml(match);
         const isExpanded = expandedMatches.has(match.matchId);
         
         // Create delta badge HTML for mobile using utility function
@@ -850,14 +871,15 @@ function displayMatches() {
             <div class="card-footer">
                 Winner: <strong><a href="bey.html?name=${encodeURIComponent(match.winner)}" class="bey-link">${match.winner}</a></strong>
             </div>
-            ${hasRounds ? `
+            ${(hasRounds || hasEloCalc) ? `
             <div class="card-rounds-section">
                 <button class="card-rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMobileRounds('${match.matchId}')">
                     <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
-                    Show Rounds (${match.rounds.length})
+                    ${hasRounds ? `Show Rounds (${match.rounds.length}) & ELO Details` : 'Show ELO Details'}
                 </button>
                 <div class="card-rounds-content ${isExpanded ? 'expanded' : ''}" id="mobile-rounds-${match.matchId}">
                     ${roundsHtml}
+                    ${eloBreakdownHtml}
                 </div>
             </div>
             ` : ''}
@@ -1235,8 +1257,13 @@ function createRoundsDetailRow(match) {
     cell.className = 'rounds-detail-cell';
     
     // Build rounds table HTML
+    const hasRounds = match.rounds && match.rounds.length > 0;
     let html = `
         <div class="rounds-detail-container" id="rounds-${match.matchId}">
+    `;
+
+    if (hasRounds) {
+        html += `
             <div class="rounds-header-info">
                 <span class="rounds-title">Round-by-Round Details</span>
                 <span class="rounds-count">${match.rounds.length} rounds</span>
@@ -1252,38 +1279,37 @@ function createRoundsDetailRow(match) {
                     </tr>
                 </thead>
                 <tbody>
-    `;
-    
-    let runningScoreA = 0;
-    let runningScoreB = 0;
-    
-    match.rounds.forEach((round, index) => {
-        const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
-        
-        // Update running score
-        if (round.winner === match.beyA) {
-            runningScoreA += round.points_awarded;
-        } else if (round.winner === match.beyB) {
-            runningScoreB += round.points_awarded;
-        }
-        
-        html += `
-            <tr class="round-row">
-                <td class="round-number">${round.round_number || index + 1}</td>
-                <td class="round-winner ${round.winner === match.winner ? 'match-winner-round' : ''}">${round.winner}</td>
-                <td class="round-finish">
-                    <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
-                        <span class="finish-icon">${finishStyle.icon}</span>
-                        ${finishStyle.label}
-                    </span>
-                </td>
-                <td class="round-points">+${round.points_awarded}</td>
-                <td class="round-score">${runningScoreA} - ${runningScoreB}</td>
-            </tr>
         `;
-    });
-    
-    html += `
+
+        let runningScoreA = 0;
+        let runningScoreB = 0;
+
+        match.rounds.forEach((round, index) => {
+            const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
+
+            if (round.winner === match.beyA) {
+                runningScoreA += round.points_awarded;
+            } else if (round.winner === match.beyB) {
+                runningScoreB += round.points_awarded;
+            }
+
+            html += `
+                <tr class="round-row">
+                    <td class="round-number">${round.round_number || index + 1}</td>
+                    <td class="round-winner ${round.winner === match.winner ? 'match-winner-round' : ''}">${round.winner}</td>
+                    <td class="round-finish">
+                        <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
+                            <span class="finish-icon">${finishStyle.icon}</span>
+                            ${finishStyle.label}
+                        </span>
+                    </td>
+                    <td class="round-points">+${round.points_awarded}</td>
+                    <td class="round-score">${runningScoreA} - ${runningScoreB}</td>
+                </tr>
+            `;
+        });
+
+        html += `
                 </tbody>
             </table>
             <div class="rounds-summary">
@@ -1291,6 +1317,11 @@ function createRoundsDetailRow(match) {
                     ${createFinishTypeSummary(match.rounds)}
                 </div>
             </div>
+        `;
+    }
+
+    html += `
+            ${createEloBreakdownHtml(match)}
         </div>
     `;
     
@@ -1300,8 +1331,78 @@ function createRoundsDetailRow(match) {
     return row;
 }
 
-// Create finish type summary badges
-function createFinishTypeSummary(rounds) {
+// Create ELO calculation breakdown HTML for a match
+function createEloBreakdownHtml(match) {
+    if (match.kBaseA === null || match.expA === null) return '';
+
+    const fmt2 = v => v.toFixed(2);
+    const fmt4 = v => v.toFixed(4);
+    const eloChangeA = match.eloChangeA;
+    const eloChangeB = match.eloChangeB;
+    const signA = eloChangeA >= 0 ? '+' : '';
+    const signB = eloChangeB >= 0 ? '+' : '';
+
+    return `
+        <div class="elo-breakdown">
+            <div class="elo-breakdown-header">
+                <span class="elo-breakdown-title">⚡ ELO Calculation Breakdown</span>
+            </div>
+            <table class="elo-breakdown-table">
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>${match.beyA}</th>
+                        <th>${match.beyB}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="elo-param-label">Pre-Match ELO</td>
+                        <td class="elo-param-value">${match.preEloA}</td>
+                        <td class="elo-param-value">${match.preEloB}</td>
+                    </tr>
+                    <tr>
+                        <td class="elo-param-label">K<sub>base</sub> (smooth)</td>
+                        <td class="elo-param-value">${fmt2(match.kBaseA)}</td>
+                        <td class="elo-param-value">${fmt2(match.kBaseB)}</td>
+                    </tr>
+                    <tr>
+                        <td class="elo-param-label">K<sub>eff</sub> (form adj.)</td>
+                        <td class="elo-param-value">${fmt2(match.kEffA)}</td>
+                        <td class="elo-param-value">${fmt2(match.kEffB)}</td>
+                    </tr>
+                    <tr>
+                        <td class="elo-param-label">E (expected)</td>
+                        <td class="elo-param-value">${fmt4(match.expA)}</td>
+                        <td class="elo-param-value">${fmt4(match.expB)}</td>
+                    </tr>
+                    <tr>
+                        <td class="elo-param-label">S (actual / margin)</td>
+                        <td class="elo-param-value">${fmt4(match.actA)}</td>
+                        <td class="elo-param-value">${fmt4(match.actB)}</td>
+                    </tr>
+                    <tr>
+                        <td class="elo-param-label">S − E</td>
+                        <td class="elo-param-value">${fmt4(match.actA - match.expA)}</td>
+                        <td class="elo-param-value">${fmt4(match.actB - match.expB)}</td>
+                    </tr>
+                    <tr class="elo-result-row">
+                        <td class="elo-param-label">ΔR = K<sub>eff</sub> · (S − E)</td>
+                        <td class="elo-param-value ${eloChangeA >= 0 ? 'elo-gain' : 'elo-loss'}">${signA}${eloChangeA}</td>
+                        <td class="elo-param-value ${eloChangeB >= 0 ? 'elo-gain' : 'elo-loss'}">${signB}${eloChangeB}</td>
+                    </tr>
+                    <tr>
+                        <td class="elo-param-label">Post-Match ELO</td>
+                        <td class="elo-param-value">${match.postEloA}</td>
+                        <td class="elo-param-value">${match.postEloB}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+
     const counts = {};
     rounds.forEach(round => {
         const type = round.finish_type || 'spin';
@@ -1382,7 +1483,7 @@ function toggleRoundsRow(matchId) {
         
         // Find the match data
         const match = filteredMatches.find(m => m.matchId === matchId);
-        if (match && match.rounds && match.rounds.length > 0) {
+        if (match && (match.rounds && match.rounds.length > 0 || match.kBaseA !== null)) {
             // Find the main row and insert rounds row after it
             const mainRow = document.querySelector(`tr[data-match-id="${matchId}"]:not(.rounds-detail-row)`);
             if (mainRow) {

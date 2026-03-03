@@ -266,8 +266,10 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         active_stats[b]["form_history"] = []
 
     # Smooth K-factor with form-based adjustment
-    Ka = k_effective(dynamic_k(active_stats[a]["matches"]), active_stats[a]["form_history"])
-    Kb = k_effective(dynamic_k(active_stats[b]["matches"]), active_stats[b]["form_history"])
+    Ka_base = dynamic_k(active_stats[a]["matches"])
+    Kb_base = dynamic_k(active_stats[b]["matches"])
+    Ka = k_effective(Ka_base, active_stats[a]["form_history"])
+    Kb = k_effective(Kb_base, active_stats[b]["form_history"])
 
     total = sa + sb
     if total == 0:
@@ -341,7 +343,11 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
             match_type or 'exhibition',
             season_id or '',
             tier or '',
-            matchday or ''
+            matchday or '',
+            round(Ka_base, 4), round(Kb_base, 4),
+            round(Ka, 4), round(Kb, 4),
+            round(ea, 4), round(eb, 4),
+            round(s_a, 4), round(s_b, 4)
         ])
 
     active_stats[a]["for"] += sa
@@ -580,7 +586,9 @@ def run_elo_pipeline(pipeline_config):
         writer.writerow([
             "MatchID", "Date", "BeyA", "BeyB", "ScoreA", "ScoreB",
             "PreA", "PreB", "PostA", "PostB", "arena", "elo_arena_updated",
-            "MatchType", "SeasonID", "Tier", "Matchday"
+            "MatchType", "SeasonID", "Tier", "Matchday",
+            "KBaseA", "KBaseB", "KEffA", "KEffB",
+            "ExpA", "ExpB", "ActA", "ActB"
         ])
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
