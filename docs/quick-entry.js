@@ -1613,7 +1613,7 @@ function renderSeasonFields(matchIndex, match) {
             </div>
             <div class="season-field-group ${needsSeasonId ? '' : 'field-disabled'}">
                 <label class="season-field-label">📅 Season ID</label>
-                <select class="season-field-select" onchange="updateSeasonId(${matchIndex}, this.value)" ${needsSeasonId ? '' : 'disabled'}>
+                <select class="season-field-select" onchange="updateSeasonId(${matchIndex}, this.value); renderMatches()" ${needsSeasonId ? '' : 'disabled'}>
                     ${seasonOptions}
                 </select>
             </div>
