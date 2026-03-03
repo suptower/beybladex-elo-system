@@ -3194,6 +3194,9 @@ function enterFullscreenMatch(matchIndex) {
                 </button>
             </div>
             
+            <!-- Match Data Section -->
+            ${renderSeasonFields(matchIndex, match)}
+            
             <!-- Rounds Section -->
             <div class="fullscreen-rounds-section">
                 <div class="fullscreen-rounds-header">
