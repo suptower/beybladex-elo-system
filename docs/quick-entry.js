@@ -1582,10 +1582,12 @@ function renderSeasonFields(matchIndex, match) {
     // Build matchday options from the selected season's matchdays, defaulting to 9
     let maxMatchday = 9;
     if (state.seasonData && seasonId && state.seasonData.seasons[seasonId]) {
-        const mds = state.seasonData.seasons[seasonId].matchdays;
+        // calculate matchdays by checking how many participants are in tier 1
+        // assumption: all tier sizes will stay the same as tier I, so we can use that to calculate the number of matchdays (rounds) in the season
+        const mds = (state.seasonData.seasons[seasonId].league_tables?.['1']?.length) - 1 || 0;
+        console.log("mds for season", seasonId, ":", mds);
         if (mds) {
-            const mdNums = Object.keys(mds).map(key => parseInt(key)).filter(n => !isNaN(n));
-            if (mdNums.length > 0) maxMatchday = Math.max(...mdNums);
+            maxMatchday = mds;
         }
     }
     const matchdayOptions = ['', ...Array.from({length: maxMatchday}, (_, i) => i + 1)].map(mdKey =>
