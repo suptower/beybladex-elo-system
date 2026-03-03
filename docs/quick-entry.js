@@ -1598,7 +1598,7 @@ function renderSeasonFields(matchIndex, match) {
         // calculate matchdays by checking how many participants are in tier 1
         // assumption: all tier sizes will stay the same as tier I, so we can use that to calculate the number of matchdays (rounds) in the season
         const mds = Math.max(((state.seasonData.seasons[seasonId].league_tables?.['1']?.length) - 1), 0);
-        if (mds) {
+        if (Number.isFinite(mds)) {
             maxMatchday = mds;
         }
     }
