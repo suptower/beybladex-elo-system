@@ -1077,6 +1077,7 @@ function updateArena(matchIndex, arena) {
     match.arena = arena;
     saveToStorage();
     renderMatches();
+    refreshFullscreenIfActive(matchIndex);
 }
 
 // Season field update functions
@@ -1099,6 +1100,7 @@ function updateMatchType(matchIndex, matchType) {
     saveToStorage();
     renderMatches();
     updateSeasonTierLeaderboard();
+    refreshFullscreenIfActive(matchIndex);
 }
 
 function updateSeasonId(matchIndex, seasonId) {
@@ -1107,6 +1109,8 @@ function updateSeasonId(matchIndex, seasonId) {
     
     match.seasonId = seasonId;
     saveToStorage();
+    renderMatches();
+    refreshFullscreenIfActive(matchIndex);
 }
 
 function updateTier(matchIndex, tier) {
@@ -3252,6 +3256,16 @@ function exitFullscreenMatch() {
     
     // Re-render matches to update any changes
     renderMatches();
+}
+
+/**
+ * Re-render the fullscreen overlay if it is currently active
+ */
+function refreshFullscreenIfActive(matchIndex) {
+    const overlay = document.getElementById('fullscreenMatchOverlay');
+    if (overlay && overlay.classList.contains('active')) {
+        enterFullscreenMatch(matchIndex);
+    }
 }
 
 /**
