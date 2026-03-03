@@ -1563,9 +1563,10 @@ function renderSeasonFields(matchIndex, match) {
     const seasonKeys = (state.seasonData && state.seasonData.seasons)
         ? Object.keys(state.seasonData.seasons)
         : ['S1', 'S2'];
-    const seasonOptions = ['', ...seasonKeys].map(key =>
-        `<option value="${escapeHtml(key)}" ${seasonId === key ? 'selected' : ''}>${key || '—'}</option>`
-    ).join('');
+    const seasonOptions = ['', ...seasonKeys].map(key => {
+        const label = key ? escapeHtml(key) : '—';
+        return `<option value="${escapeHtml(key)}" ${seasonId === key ? 'selected' : ''}>${label}</option>`;
+    }).join('');
 
     // Build tier options from the selected season's league_tables, defaulting to 3 tiers
     let tierCount = 3;
