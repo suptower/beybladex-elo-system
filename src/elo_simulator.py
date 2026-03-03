@@ -13,37 +13,34 @@ Compatible with the site's K-factor settings.
 """
 
 import random
+import math
 from typing import Tuple, List, Dict, Optional
 
-# Default K-factor settings (same as beyblade_elo.py)
-K_LEARNING = 40
-K_INTERMEDIATE = 24
-K_EXPERIENCED = 12
+# Smooth K-factor parameters (same as beyblade_elo.py, Version 3)
+K_MIN = 16
+K_MAX = 40
+K_TAU = 20
 
 # Default starting Elo
 DEFAULT_ELO = 1000
 
 
-def dynamic_k(matches: int) -> int:
+def dynamic_k(matches: int) -> float:
     """
-    Calculate K-factor based on number of matches played.
+    Calculate smooth K_base using exponential decay based on match count.
 
-    K-Factor Rules:
-    - Learning (< 6 matches): K = 40
-    - Intermediate (6-14 matches): K = 24
-    - Experienced (15+ matches): K = 12
+    K_base(N) = K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)
+
+    New participants receive high volatility (K close to K_MAX=40).
+    Experienced participants receive stable ratings (K approaching K_MIN=16).
 
     Args:
         matches: Number of matches the player has played
 
     Returns:
-        K-factor value (40, 24, or 12)
+        K-factor value (float, between K_MIN and K_MAX)
     """
-    if matches < 6:
-        return K_LEARNING
-    elif matches < 15:
-        return K_INTERMEDIATE
-    return K_EXPERIENCED
+    return K_MIN + (K_MAX - K_MIN) * math.exp(-matches / K_TAU)
 
 
 def expected_score(elo_a: float, elo_b: float) -> float:

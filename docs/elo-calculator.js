@@ -1,24 +1,25 @@
 /**
  * ELO Calculator - Beyblade X ELO Rating System
- * 
+ *
  * This module implements the same ELO calculation logic as the Python backend
  * (src/beyblade_elo.py) to enable client-side live updates.
- * 
+ *
  * Features:
- * - Dynamic K-factor based on match experience
- * - Dominance-based scoring (ELO Version 2)
+ * - Smooth dynamic K-factor (exponential decay, Version 3)
+ * - Form-based K adjustment using rolling performance window
+ * - Margin-based scoring using tanh function (Race-to-N compatible)
+ * - Support for regular matches (Race to 4) and finals (Race to 7)
  * - Expected score calculation
  * - Win probability calculation
- * 
- * K-Factor Rules:
- * - Learning (< 6 matches): K = 40
- * - Intermediate (6-14 matches): K = 24
- * - Experienced (15+ matches): K = 12
- * 
- * Dominance-Based Scoring:
- * - Winner gets: base_win_value (0.75) + dominance_bonus (0 to 0.25)
- * - Dominance scales with point differential
- * - Overkill bonus for scores beyond 4 points
+ *
+ * K-Factor (Version 3, smooth exponential decay):
+ *   K_base(N) = K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)
+ *   Parameters: K_MIN=16, K_MAX=40, K_TAU=20
+ *
+ * Margin-Based Scoring (ELO Version 3):
+ *   Winner: S = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)
+ *   Loser:  S = 0
+ *   where m = point difference, T = target (4 for regular, 7 for finals)
  */
 
 // ============================================
@@ -26,33 +27,53 @@
 // ============================================
 
 const ELO_START = 1000;
-const ELO_K_LEARNING = 40;
-const ELO_K_INTERMEDIATE = 24;
-const ELO_K_EXPERIENCED = 12;
-const ELO_VERSION = 2; // Version 2: Dominance-based scoring
+const ELO_VERSION = 3; // Version 3: Smooth K-factor, form adjustment, tanh margin model
 
-// Dominance calculation constants
-const WIN_THRESHOLD = 4;
-const MAX_POINT_DIFF = 6;
-const OVERKILL_WEIGHT = 0.25;
-const BASE_WIN = 0.75;
+// Smooth exponential K-factor parameters
+const K_MIN = 16;
+const K_MAX = 40;
+const K_TAU = 20;
+
+// Form-based K adjustment parameters
+const FORM_WINDOW = 10;
+const FORM_ALPHA = 3;
+
+// Margin model parameters (tanh-based)
+const MARGIN_A = 0.18;
+const MARGIN_B = 2.2;
+const TARGET_POINTS = 4; // Default target for regular matches (Race to 4)
 
 // ============================================
 // K-FACTOR CALCULATION
 // ============================================
 
 /**
- * Calculate dynamic K-factor based on number of matches played
+ * Calculate smooth K_base using exponential decay based on match count.
+ * K_base(N) = K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)
+ *
  * @param {number} matches - Number of matches played
- * @returns {number} K-factor (40, 24, or 12)
+ * @returns {number} K-factor (float between K_MIN and K_MAX)
  */
 function dynamicK(matches) {
-    if (matches < 6) {
-        return ELO_K_LEARNING;
-    } else if (matches < 15) {
-        return ELO_K_INTERMEDIATE;
+    return K_MIN + (K_MAX - K_MIN) * Math.exp(-matches / K_TAU);
+}
+
+/**
+ * Calculate effective K-factor with form-based multiplier.
+ * K_eff = K_base * (1 + FORM_ALPHA * |D_n|)
+ * where D_n = mean(S_i - E_i) over the last FORM_WINDOW matches.
+ *
+ * @param {number} kBase - Base K-factor from dynamicK
+ * @param {Array<number>} formHistory - Recent (actual_score - expected_score) values
+ * @returns {number} Effective K-factor
+ */
+function kEffective(kBase, formHistory) {
+    if (!formHistory || formHistory.length === 0) {
+        return kBase;
     }
-    return ELO_K_EXPERIENCED;
+    const window = formHistory.slice(-FORM_WINDOW);
+    const dN = window.reduce((a, b) => a + b, 0) / window.length;
+    return kBase * (1 + FORM_ALPHA * Math.abs(dN));
 }
 
 // ============================================
@@ -62,7 +83,7 @@ function dynamicK(matches) {
 /**
  * Calculate expected score (win probability) for player A against player B
  * Uses the standard ELO formula: 1 / (1 + 10^((Rb - Ra) / 400))
- * 
+ *
  * @param {number} eloA - ELO rating of player A
  * @param {number} eloB - ELO rating of player B
  * @returns {number} Expected score for player A (0.0 to 1.0)
@@ -72,56 +93,51 @@ function expected(eloA, eloB) {
 }
 
 // ============================================
-// DOMINANCE-BASED SCORING
+// MARGIN-BASED SCORING (tanh model, Version 3)
 // ============================================
 
 /**
- * Calculate scores with dominance scaling (ELO Version 2)
- * 
- * Rewards dominant victories:
- * - 4-3 win: Winner gets ~0.83 (close match)
- * - 4-0 win: Winner gets ~0.83 + dominance (dominant)
- * - 6-0 win: Winner gets 1.00 (overwhelming)
- * 
+ * Calculate winner score using tanh margin model (Version 3).
+ *
+ * For the winner: S = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)
+ * For the loser:  S = 0
+ * where m = point difference, T = target points.
+ *
+ * At the reference win (4-0 for Race to 4): m = T, tanh(0) = 0, S = 1.0.
+ * Close wins (m < T) give S < 1.0; dominant wins (m > T) give S > 1.0.
+ *
  * @param {number} scoreA - Score for player A
  * @param {number} scoreB - Score for player B
- * @returns {Array<number>} [scoreA, scoreB] adjusted for dominance (sum = 1.0)
+ * @param {number} target - Points needed to win (default TARGET_POINTS=4)
+ * @returns {Array<number>} [scoreA_adjusted, scoreB_adjusted]
  */
-function calculateScoreWithDominance(scoreA, scoreB) {
+function calculateScoreWithMargin(scoreA, scoreB, target) {
+    if (target === undefined) target = TARGET_POINTS;
+
     // Draw case
     if (scoreA === scoreB) {
         return [0.5, 0.5];
     }
-    
-    const winnerScore = Math.max(scoreA, scoreB);
-    const loserScore = Math.min(scoreA, scoreB);
-    const diff = winnerScore - loserScore;
-    
-    // Dominance scaling up to 4-0
-    let dominance;
-    if (diff >= 4) {
-        dominance = 1.0;
-    } else {
-        dominance = diff / 4.0; // 1 → 0.25, 2 → 0.5, 3 → 0.75
-    }
-    
-    let scoreWinner = BASE_WIN + (1.0 - BASE_WIN) * dominance;
-    
-    // Overkill bonus (beyond 4 points)
-    if (winnerScore > WIN_THRESHOLD) {
-        const overkillPoints = winnerScore - WIN_THRESHOLD;
-        const maxOverkill = MAX_POINT_DIFF - WIN_THRESHOLD; // 2
-        scoreWinner += (overkillPoints / maxOverkill) * OVERKILL_WEIGHT;
-    }
-    
-    const scoreLoser = 1.0 - scoreWinner;
-    
-    // Return in correct order
+
     if (scoreA > scoreB) {
-        return [scoreWinner, scoreLoser];
+        const m = scoreA - scoreB;
+        const sWinner = 1 + MARGIN_A * Math.tanh(MARGIN_B * (m - target) / target);
+        return [sWinner, 0.0];
     } else {
-        return [scoreLoser, scoreWinner];
+        const m = scoreB - scoreA;
+        const sWinner = 1 + MARGIN_A * Math.tanh(MARGIN_B * (m - target) / target);
+        return [0.0, sWinner];
     }
+}
+
+/**
+ * Backward-compatible alias for calculateScoreWithMargin with default target (TARGET_POINTS=4).
+ * @param {number} scoreA - Score for player A
+ * @param {number} scoreB - Score for player B
+ * @returns {Array<number>} [scoreA_adjusted, scoreB_adjusted]
+ */
+function calculateScoreWithDominance(scoreA, scoreB) {
+    return calculateScoreWithMargin(scoreA, scoreB);
 }
 
 // ============================================
@@ -130,38 +146,46 @@ function calculateScoreWithDominance(scoreA, scoreB) {
 
 /**
  * Calculate new ELO ratings after a match
- * 
+ *
  * @param {string} beyA - Name of Bey A
  * @param {string} beyB - Name of Bey B
  * @param {number} scoreA - Points scored by Bey A
  * @param {number} scoreB - Points scored by Bey B
  * @param {Object} elos - Object mapping bey names to current ELO ratings
  * @param {Object} stats - Object mapping bey names to stats (matches, wins, losses, etc.)
+ * @param {number} target - Points needed to win (default TARGET_POINTS=4)
  * @returns {Object} Updated ELO and stats information
  */
-function updateElo(beyA, beyB, scoreA, scoreB, elos, stats) {
+function updateElo(beyA, beyB, scoreA, scoreB, elos, stats, target) {
+    if (target === undefined) target = TARGET_POINTS;
+
     // Initialize if not present
     if (!elos[beyA]) elos[beyA] = ELO_START;
     if (!elos[beyB]) elos[beyB] = ELO_START;
-    
+
     if (!stats[beyA]) {
-        stats[beyA] = { matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0 };
+        stats[beyA] = { matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0, form_history: [] };
     }
     if (!stats[beyB]) {
-        stats[beyB] = { matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0 };
+        stats[beyB] = { matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0, form_history: [] };
     }
-    
+    // Lazy init form_history
+    if (!stats[beyA].form_history) stats[beyA].form_history = [];
+    if (!stats[beyB].form_history) stats[beyB].form_history = [];
+
     const eloA = elos[beyA];
     const eloB = elos[beyB];
-    
+
     // Calculate expected scores
     const expectedA = expected(eloA, eloB);
     const expectedB = expected(eloB, eloA);
-    
-    // Get K-factors based on experience
-    const kA = dynamicK(stats[beyA].matches);
-    const kB = dynamicK(stats[beyB].matches);
-    
+
+    // Get effective K-factors (smooth base + form adjustment)
+    const kBaseA = dynamicK(stats[beyA].matches);
+    const kBaseB = dynamicK(stats[beyB].matches);
+    const kA = kEffective(kBaseA, stats[beyA].form_history);
+    const kB = kEffective(kBaseB, stats[beyB].form_history);
+
     // Handle edge case of 0-0 score
     const total = scoreA + scoreB;
     if (total === 0) {
@@ -178,18 +202,22 @@ function updateElo(beyA, beyB, scoreA, scoreB, elos, stats) {
             kB: kB
         };
     }
-    
-    // Calculate dominance-based scores
-    const [actualA, actualB] = calculateScoreWithDominance(scoreA, scoreB);
-    
+
+    // Calculate margin-based scores (Version 3)
+    const [actualA, actualB] = calculateScoreWithMargin(scoreA, scoreB, target);
+
     // Calculate new ELO ratings
     const newEloA = eloA + kA * (actualA - expectedA);
     const newEloB = eloB + kB * (actualB - expectedB);
-    
+
     // Update ELO ratings
     elos[beyA] = newEloA;
     elos[beyB] = newEloB;
-    
+
+    // Update form history (rolling window of S_i - E_i)
+    stats[beyA].form_history.push(actualA - expectedA);
+    stats[beyB].form_history.push(actualB - expectedB);
+
     // Update stats
     stats[beyA].for += scoreA;
     stats[beyA].against += scoreB;
@@ -197,7 +225,7 @@ function updateElo(beyA, beyB, scoreA, scoreB, elos, stats) {
     stats[beyB].against += scoreA;
     stats[beyA].matches += 1;
     stats[beyB].matches += 1;
-    
+
     // Update wins/losses
     if (scoreA > scoreB) {
         stats[beyA].wins += 1;
@@ -206,11 +234,11 @@ function updateElo(beyA, beyB, scoreA, scoreB, elos, stats) {
         stats[beyB].wins += 1;
         stats[beyA].losses += 1;
     }
-    
+
     // Update winrates
     stats[beyA].winrate = stats[beyA].matches > 0 ? stats[beyA].wins / stats[beyA].matches : 0.0;
     stats[beyB].winrate = stats[beyB].matches > 0 ? stats[beyB].wins / stats[beyB].matches : 0.0;
-    
+
     // Return detailed information about the update
     return {
         beyA: beyA,
@@ -318,11 +346,19 @@ if (typeof module !== 'undefined' && module.exports !== undefined) {
     // Node.js environment (for testing)
     module.exports = {
         ELO_START,
-        ELO_K_LEARNING,
-        ELO_K_INTERMEDIATE,
-        ELO_K_EXPERIENCED,
+        ELO_VERSION,
+        K_MIN,
+        K_MAX,
+        K_TAU,
+        FORM_WINDOW,
+        FORM_ALPHA,
+        MARGIN_A,
+        MARGIN_B,
+        TARGET_POINTS,
         dynamicK,
+        kEffective,
         expected,
+        calculateScoreWithMargin,
         calculateScoreWithDominance,
         updateElo,
         generateLeaderboard,

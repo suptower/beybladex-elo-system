@@ -1,37 +1,43 @@
 """
 Beyblade ELO Rating System
 This module implements an ELO rating system for Beyblade matches with dynamic K-factors,
-dominance-based scoring, and comprehensive statistics tracking.
+margin-based scoring, and comprehensive statistics tracking.
 
 The system supports two modes:
 - official: Starts all beyblades at the default ELO (1000)
 - private: Uses existing ELO ratings from the official leaderboard as starting values
 
 Features:
-- Dynamic K-factor based on match experience (learning/intermediate/experienced)
-- Dominance-based scoring that rewards dominant victories (Version 2)
+- Smooth dynamic K-factor based on match count (exponential decay, Version 3)
+- Form-based K adjustment using rolling performance window
+- Margin-based scoring using tanh function (Race-to-N compatible)
+- Support for regular matches (Race to 4) and finals (Race to 7)
 - Match-by-match ELO history tracking
 - Tournament-based leaderboards with position deltas
 - Time series data for ELO progression
 - Position tracking over time with passive/active change detection
 
-K-Factor Rules:
-- Learning (< 6 matches): K = 40
-- Intermediate (6-14 matches): K = 24
-- Experienced (15+ matches): K = 12
+K-Factor (Version 3, smooth exponential decay):
+    K_base(N) = K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)
+    Parameters: K_MIN=16, K_MAX=40, K_TAU=20
+    K_eff = K_base * (1 + FORM_ALPHA * |D_n|)
+    where D_n is the rolling mean of (S_i - E_i) over the last FORM_WINDOW=10 matches.
 
-Dominance-Based Scoring (ELO Version 2):
-- Winner gets: base_win_value (0.5) + dominance_bonus (0 to 0.5)
-- Dominance bonus scales with point differential (max 6 points)
-- Examples:
-  - 4-3 win: Winner gets ~0.58 (close match)
-  - 4-0 win: Winner gets ~0.83 (dominant)
-  - 6-0 win: Winner gets 1.00 (overwhelming)
+Margin-Based Scoring (ELO Version 3):
+    Winner: S = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)
+    Loser:  S = 0
+    where m = point difference, T = target (4 for regular, 7 for finals)
+    Examples (equal players, K=20):
+      4-3: S ≈ 0.83, ΔElo ≈ +6.5
+      4-2: S ≈ 0.86, ΔElo ≈ +7.1
+      4-0: S = 1.00, ΔElo = +10
+      6-0: S ≈ 1.14, ΔElo ≈ +13
 
 Functions:
-    dynamic_k(matches): Calculate K-factor based on number of matches played
+    dynamic_k(matches): Calculate smooth K_base from match count
+    k_effective(k_base_val, form_history): Calculate K_eff with form multiplier
     expected(a, b): Calculate expected score for player A against player B
-    calculate_score_with_dominance(sa, sb): Calculate score with dominance scaling
+    calculate_score_with_margin(sa, sb, target): Calculate score using tanh margin model
     update_elo(a, b, sa, sb, date, elos, stats, writer): Update ELO ratings after a match
     calculate_winrates(stats): Calculate win rates for all beyblades
     run_elo_pipeline(pipeline_config): Execute the complete ELO calculation pipeline
@@ -50,6 +56,7 @@ Usage:
 import csv
 import argparse
 import datetime
+import math
 from collections import defaultdict
 import os
 import pandas as pd
@@ -65,19 +72,25 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 START_ELO = 1000
-K_LEARNING = 40
-K_INTERMEDIATE = 24
-K_EXPERIENCED = 12
+
+# Smooth exponential K-factor parameters (Version 3)
+K_MIN = 16
+K_MAX = 40
+K_TAU = 20
+
+# Form-based K adjustment parameters
+FORM_WINDOW = 10
+FORM_ALPHA = 3
+
+# Margin model parameters (tanh-based, Race-to-N compatible)
+MARGIN_A = 0.18
+MARGIN_B = 2.2
+TARGET_POINTS = 4  # Default target for regular matches (Race to 4)
 
 # Default path for beyblade registry
 DEFAULT_BEYS_DATA_FILE = "./docs/data/beys_data.json"
 # ELO version for calculation changes
-ELO_VERSION = 2  # Version 2: Dominance-based scoring
-
-# Dominance calculation constants
-WIN_THRESHOLD = 4
-MAX_POINT_DIFF = 6
-OVERKILL_WEIGHT = 0.25
+ELO_VERSION = 3  # Version 3: Smooth K-factor, form adjustment, tanh margin model
 
 # Arena constants
 ARENA_XTREME = "Xtreme"
@@ -113,11 +126,37 @@ def normalize_arena_name(arena):
 
 
 def dynamic_k(matches):
-    if matches < 6:
-        return K_LEARNING
-    elif matches < 15:
-        return K_INTERMEDIATE
-    return K_EXPERIENCED
+    """Calculate smooth K_base using exponential decay based on match count.
+
+    K_base(N) = K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)
+
+    New participants receive high volatility (K close to K_MAX).
+    Experienced participants receive stable ratings (K approaching K_MIN).
+    """
+    return K_MIN + (K_MAX - K_MIN) * math.exp(-matches / K_TAU)
+
+
+# ------------ Form-based effective K-factor ------------
+
+
+def k_effective(k_base_val, form_history):
+    """Calculate effective K-factor with form-based multiplier.
+
+    K_eff = K_base * (1 + FORM_ALPHA * |D_n|)
+    where D_n = mean(S_i - E_i) over the last FORM_WINDOW matches.
+
+    Args:
+        k_base_val: Base K-factor from dynamic_k
+        form_history: List of recent (actual_score - expected_score) values
+
+    Returns:
+        Effective K-factor
+    """
+    if not form_history:
+        return k_base_val
+    window = list(form_history)[-FORM_WINDOW:]
+    d_n = sum(window) / len(window)
+    return k_base_val * (1 + FORM_ALPHA * abs(d_n))
 
 # ------------ Elo expected score ------------
 
@@ -125,46 +164,54 @@ def dynamic_k(matches):
 def expected(a, b):
     return 1 / (1 + 10 ** ((b - a) / 400))
 
-# ------------ Dominance-based scoring ------------
+# ------------ Margin-based scoring (tanh model) ------------
 
 
-def calculate_score_with_dominance(sa, sb):
+def calculate_score_with_margin(sa, sb, target=TARGET_POINTS):
+    """Calculate winner score using tanh margin model (Version 3).
+
+    For the winner:
+        S = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)
+    For the loser:
+        S = 0
+
+    where m = winner_score - loser_score (point difference),
+          T = target points (4 for regular, 7 for finals).
+
+    At the reference win (e.g. 4-0 for Race to 4): m = T, tanh(0) = 0, S = 1.0.
+    Close wins (m < T) give S < 1.0; dominant wins (m > T) give S > 1.0.
+
+    Args:
+        sa: Score of player A
+        sb: Score of player B
+        target: Points needed to win (default TARGET_POINTS=4)
+
+    Returns:
+        Tuple (score_a, score_b)
+    """
     if sa == sb:
         return 0.5, 0.5
 
-    winner_score = max(sa, sb)
-    loser_score = min(sa, sb)
-    diff = winner_score - loser_score
-
-    # Base win value (minimum reward for a win)
-    BASE_WIN = 0.75
-
-    # Dominance scaling up to 4-0
-    if diff >= 4:
-        dominance = 1.0
-    else:
-        dominance = diff / 4.0  # 1 → 0.25, 2 → 0.5, 3 → 0.75
-
-    score_winner = BASE_WIN + (1.0 - BASE_WIN) * dominance
-
-    # Overkill bonus (beyond 4 points)
-    if winner_score > WIN_THRESHOLD:
-        overkill_points = winner_score - WIN_THRESHOLD
-        max_overkill = MAX_POINT_DIFF - WIN_THRESHOLD  # 2
-        score_winner += (overkill_points / max_overkill) * OVERKILL_WEIGHT
-
-    score_loser = 1.0 - score_winner
-
     if sa > sb:
-        return score_winner, score_loser
+        m = sa - sb
+        s_winner = 1 + MARGIN_A * math.tanh(MARGIN_B * (m - target) / target)
+        return s_winner, 0.0
     else:
-        return score_loser, score_winner
+        m = sb - sa
+        s_winner = 1 + MARGIN_A * math.tanh(MARGIN_B * (m - target) / target)
+        return 0.0, s_winner
+
+
+def calculate_score_with_dominance(sa, sb):
+    """Backward-compatible alias for calculate_score_with_margin with default target (TARGET_POINTS=4)."""
+    return calculate_score_with_margin(sa, sb)
 
 # ------------- Elo update for ONE MATCH -------------
 
 
 def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, arena=None, match_type=None,
-               arena_elos=None, arena_stats=None, season_id=None, tier=None, matchday=None):
+               arena_elos=None, arena_stats=None, season_id=None, tier=None, matchday=None,
+               target=TARGET_POINTS):
     """
     Update ELO ratings for a match.
 
@@ -183,6 +230,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         season_id: Season identifier (e.g., 'S1')
         tier: Tier number (1-4)
         matchday: Matchday number
+        target: Points needed to win (4 for regular, 7 for finals)
 
     Logic:
         - Season matches: Always update Xtreme ELO only
@@ -211,19 +259,30 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     ra, rb = active_elos[a], active_elos[b]
     ea, eb = expected(ra, rb), expected(rb, ra)
 
-    Ka = dynamic_k(active_stats[a]["matches"])
-    Kb = dynamic_k(active_stats[b]["matches"])
+    # Ensure form_history key exists in stats (lazy init for backward compatibility)
+    if "form_history" not in active_stats[a]:
+        active_stats[a]["form_history"] = []
+    if "form_history" not in active_stats[b]:
+        active_stats[b]["form_history"] = []
+
+    # Smooth K-factor with form-based adjustment
+    Ka = k_effective(dynamic_k(active_stats[a]["matches"]), active_stats[a]["form_history"])
+    Kb = k_effective(dynamic_k(active_stats[b]["matches"]), active_stats[b]["form_history"])
 
     total = sa + sb
     if total == 0:
         return
 
-    # Use dominance-based scoring (ELO Version 2)
-    s_a, s_b = calculate_score_with_dominance(sa, sb)
+    # Use margin-based scoring (ELO Version 3)
+    s_a, s_b = calculate_score_with_margin(sa, sb, target=target)
 
     new_a = ra + Ka * (s_a - ea)
     new_b = rb + Kb * (s_b - eb)
     active_elos[a], active_elos[b] = new_a, new_b
+
+    # Update form history (rolling window of S_i - E_i)
+    active_stats[a]["form_history"].append(s_a - ea)
+    active_stats[b]["form_history"].append(s_b - eb)
 
     # Also update global elos if this is Xtreme arena (for backward compatibility)
     if elo_arena == ARENA_XTREME and arena_elos is not None:
@@ -235,15 +294,24 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         combined_elos = arena_elos[ARENA_COMBINED]
         combined_stats = arena_stats[ARENA_COMBINED] if arena_stats else stats
 
+        # Ensure form_history in combined stats
+        if "form_history" not in combined_stats[a]:
+            combined_stats[a]["form_history"] = []
+        if "form_history" not in combined_stats[b]:
+            combined_stats[b]["form_history"] = []
+
         # Calculate Combined arena update
         rc_a, rc_b = combined_elos[a], combined_elos[b]
         ec_a, ec_b = expected(rc_a, rc_b), expected(rc_b, rc_a)
-        Kc_a = dynamic_k(combined_stats[a]["matches"])
-        Kc_b = dynamic_k(combined_stats[b]["matches"])
+        Kc_a = k_effective(dynamic_k(combined_stats[a]["matches"]), combined_stats[a]["form_history"])
+        Kc_b = k_effective(dynamic_k(combined_stats[b]["matches"]), combined_stats[b]["form_history"])
 
         new_c_a = rc_a + Kc_a * (s_a - ec_a)
         new_c_b = rc_b + Kc_b * (s_b - ec_b)
         combined_elos[a], combined_elos[b] = new_c_a, new_c_b
+
+        combined_stats[a]["form_history"].append(s_a - ec_a)
+        combined_stats[b]["form_history"].append(s_b - ec_b)
 
         # Update Combined arena stats
         combined_stats[a]["for"] += sa
