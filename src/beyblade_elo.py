@@ -671,7 +671,9 @@ def run_elo_pipeline(pipeline_config):
             for bey, elo in prev_elos.items():
                 temp_elos[bey] = elo
             for bey, s in prev_stats.items():
-                temp_stats[bey] = s.copy()  # deepcopy, damit Änderungen temp_stats nicht prev_stats beeinflussen
+                new_s = s.copy()
+                new_s["form_history"] = list(s.get("form_history", []))
+                temp_stats[bey] = new_s  # shallow copy with form_history explicitly copied to avoid sharing
 
             # Matches für dieses Turnier durchlaufen
             for _, m in tour_matches.iterrows():
