@@ -1119,6 +1119,9 @@ function updateTier(matchIndex, tier) {
     
     match.tier = tier;
     saveToStorage();
+    renderMatches();
+    updateSeasonTierLeaderboard();
+    refreshFullscreenIfActive(matchIndex);
 }
 
 function updateMatchday(matchIndex, matchday) {
@@ -1127,6 +1130,8 @@ function updateMatchday(matchIndex, matchday) {
     
     match.matchday = matchday ? parseInt(matchday) : '';
     saveToStorage();
+    renderMatches();
+    refreshFullscreenIfActive(matchIndex);
 }
 
 // ============================================
@@ -1564,9 +1569,13 @@ function renderSeasonFields(matchIndex, match) {
     const needsSeasonId = matchType !== 'exhibition';
     
     // Build season ID options from loaded season data or a sensible default list
-    const seasonKeys = (state.seasonData && state.seasonData.seasons)
+    let seasonKeys = (state.seasonData && state.seasonData.seasons)
         ? Object.keys(state.seasonData.seasons)
         : ['S1', 'S2'];
+    // Ensure the currently saved seasonId is always present in the list
+    if (seasonId && !seasonKeys.includes(seasonId)) {
+        seasonKeys = [...seasonKeys, seasonId];
+    }
     const seasonOptions = ['', ...seasonKeys].map(key => {
         const label = key ? escapeHtml(key) : '—';
         return `<option value="${escapeHtml(key)}" ${seasonId === key ? 'selected' : ''}>${label}</option>`;
