@@ -64,7 +64,7 @@ def calculate_elo_change(
     elo_a: float,
     elo_b: float,
     actual_score_a: float,
-    k_factor_a: int
+    k_factor_a: float
 ) -> float:
     """
     Calculate Elo rating change for player A after a match.
@@ -73,7 +73,7 @@ def calculate_elo_change(
         elo_a: Current Elo rating of player A
         elo_b: Current Elo rating of player B
         actual_score_a: Actual score achieved (1.0 for win, 0.0 for loss, 0.5 for draw)
-        k_factor_a: K-factor for player A
+        k_factor_a: K-factor for player A (float, as returned by dynamic_k)
 
     Returns:
         Elo change for player A (positive for gain, negative for loss)
@@ -87,8 +87,8 @@ def calculate_match_outcomes(
     elo_b: float,
     matches_a: int = 0,
     matches_b: int = 0,
-    k_factor_a: Optional[int] = None,
-    k_factor_b: Optional[int] = None
+    k_factor_a: Optional[float] = None,
+    k_factor_b: Optional[float] = None
 ) -> Dict:
     """
     Calculate expected outcomes for a single match including probabilities and Elo changes.
@@ -98,8 +98,8 @@ def calculate_match_outcomes(
         elo_b: Elo rating of player B
         matches_a: Number of matches player A has played (for K-factor)
         matches_b: Number of matches player B has played (for K-factor)
-        k_factor_a: Override K-factor for player A (optional)
-        k_factor_b: Override K-factor for player B (optional)
+        k_factor_a: Override K-factor for player A (optional, float)
+        k_factor_b: Override K-factor for player B (optional, float)
 
     Returns:
         Dictionary containing:
@@ -190,8 +190,8 @@ def run_multi_match_simulation(
     num_matches: int,
     matches_a: int = 0,
     matches_b: int = 0,
-    k_factor_a: Optional[int] = None,
-    k_factor_b: Optional[int] = None,
+    k_factor_a: Optional[float] = None,
+    k_factor_b: Optional[float] = None,
     max_points: int = 5,
     seed: Optional[int] = None
 ) -> Dict:
@@ -300,8 +300,8 @@ def get_percentile_ranges(
     num_simulations: int = 1000,
     matches_a: int = 0,
     matches_b: int = 0,
-    k_factor_a: Optional[int] = None,
-    k_factor_b: Optional[int] = None,
+    k_factor_a: Optional[float] = None,
+    k_factor_b: Optional[float] = None,
     seed: Optional[int] = None
 ) -> Dict:
     """

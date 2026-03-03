@@ -214,9 +214,15 @@ function updateElo(beyA, beyB, scoreA, scoreB, elos, stats, target) {
     elos[beyA] = newEloA;
     elos[beyB] = newEloB;
 
-    // Update form history (rolling window of S_i - E_i)
+    // Update form history (rolling window of S_i - E_i), trimmed to FORM_WINDOW
     stats[beyA].form_history.push(actualA - expectedA);
     stats[beyB].form_history.push(actualB - expectedB);
+    if (stats[beyA].form_history.length > FORM_WINDOW) {
+        stats[beyA].form_history = stats[beyA].form_history.slice(-FORM_WINDOW);
+    }
+    if (stats[beyB].form_history.length > FORM_WINDOW) {
+        stats[beyB].form_history = stats[beyB].form_history.slice(-FORM_WINDOW);
+    }
 
     // Update stats
     stats[beyA].for += scoreA;

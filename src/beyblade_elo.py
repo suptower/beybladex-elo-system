@@ -154,7 +154,7 @@ def k_effective(k_base_val, form_history):
     """
     if not form_history:
         return k_base_val
-    window = list(form_history)[-FORM_WINDOW:]
+    window = form_history[-FORM_WINDOW:]
     d_n = sum(window) / len(window)
     return k_base_val * (1 + FORM_ALPHA * abs(d_n))
 
@@ -280,9 +280,11 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     new_b = rb + Kb * (s_b - eb)
     active_elos[a], active_elos[b] = new_a, new_b
 
-    # Update form history (rolling window of S_i - E_i)
+    # Update form history (rolling window of S_i - E_i), trimmed to FORM_WINDOW
     active_stats[a]["form_history"].append(s_a - ea)
     active_stats[b]["form_history"].append(s_b - eb)
+    active_stats[a]["form_history"] = active_stats[a]["form_history"][-FORM_WINDOW:]
+    active_stats[b]["form_history"] = active_stats[b]["form_history"][-FORM_WINDOW:]
 
     # Also update global elos if this is Xtreme arena (for backward compatibility)
     if elo_arena == ARENA_XTREME and arena_elos is not None:
@@ -312,6 +314,8 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
 
         combined_stats[a]["form_history"].append(s_a - ec_a)
         combined_stats[b]["form_history"].append(s_b - ec_b)
+        combined_stats[a]["form_history"] = combined_stats[a]["form_history"][-FORM_WINDOW:]
+        combined_stats[b]["form_history"] = combined_stats[b]["form_history"][-FORM_WINDOW:]
 
         # Update Combined arena stats
         combined_stats[a]["for"] += sa
