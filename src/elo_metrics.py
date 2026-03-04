@@ -14,6 +14,8 @@ Metrics calculated:
                            (0 = perfect, ln(2) ≈ 0.693 = uninformed baseline)
   - Calibration          – actual win rate per predicted-probability decile
   - Total matches used   – size of the evaluation set
+  - Spearman ρ           – rank correlation between final ELO and empirical win rate
+                           (1 = perfect rank agreement, 0 = no relationship)
 
 All metrics are computed from the pre-match expected probability (ExpA column) and the
 binary win/loss outcome (ScoreA > ScoreB → outcome = 1).
@@ -44,6 +46,7 @@ OUTPUT_FILE      = "./docs/data/elo_metrics.json"
 ARENA_FILTER   = "Xtreme"   # only the ranked arena
 EPSILON        = 1e-15      # clip probabilities away from 0/1 for log-loss
 N_CALIB_BINS   = 10         # decile calibration buckets
+SPEARMAN_MIN_MATCHES = 5    # minimum matches per bey to include in Spearman calculation
 
 
 def load_elo_history(filepath: str) -> list:
@@ -53,6 +56,77 @@ def load_elo_history(filepath: str) -> list:
         for row in reader:
             rows.append(row)
     return rows
+
+
+def _rank_list(lst: list) -> list:
+    """Return 1-based consecutive ranks for a list (no tie-handling; ties receive arbitrary ordering)."""
+    sorted_idx = sorted(range(len(lst)), key=lambda i: lst[i])
+    ranks = [0] * len(lst)
+    for rank, idx in enumerate(sorted_idx):
+        ranks[idx] = rank + 1
+    return ranks
+
+
+def compute_spearman(rows: list, arena: str = ARENA_FILTER) -> dict | None:
+    """
+    Compute Spearman rank correlation between each bey's final ELO and their
+    empirical win rate, using only matches in *arena*.
+
+    Returns a dict with keys: rho, n_beys, min_matches_filter
+    Returns None if there are fewer than 3 qualifying beys.
+    """
+    # Collect per-bey stats: final ELO (last PostA/PostB in arena), wins, total
+    bey_elo:    dict = {}   # name → final ELO after their most recent arena match
+    bey_wins:   dict = defaultdict(int)
+    bey_total:  dict = defaultdict(int)
+
+    for row in rows:
+        if row.get("arena") != arena:
+            continue
+        bey_a = row.get("BeyA", "")
+        bey_b = row.get("BeyB", "")
+        try:
+            score_a = int(row["ScoreA"])
+            score_b = int(row["ScoreB"])
+            post_a  = float(row["PostA"])
+            post_b  = float(row["PostB"])
+        except (ValueError, KeyError):
+            continue
+
+        bey_elo[bey_a] = post_a
+        bey_elo[bey_b] = post_b
+        bey_total[bey_a] += 1
+        bey_total[bey_b] += 1
+        if score_a > score_b:
+            bey_wins[bey_a] += 1
+        elif score_b > score_a:
+            bey_wins[bey_b] += 1
+
+    # Filter to beys with enough matches
+    beys = [
+        (name, bey_elo[name], bey_wins[name] / bey_total[name])
+        for name in bey_elo
+        if bey_total[name] >= SPEARMAN_MIN_MATCHES
+    ]
+
+    n = len(beys)
+    if n < 3:
+        return None
+
+    elos     = [b[1] for b in beys]
+    winrates = [b[2] for b in beys]
+
+    elo_ranks = _rank_list(elos)
+    wr_ranks  = _rank_list(winrates)
+
+    d2  = sum((er - wr) ** 2 for er, wr in zip(elo_ranks, wr_ranks))
+    rho = 1 - 6 * d2 / (n * (n ** 2 - 1))
+
+    return {
+        "rho":                round(rho, 4),
+        "n_beys":             n,
+        "min_matches_filter": SPEARMAN_MIN_MATCHES,
+    }
 
 
 def compute_metrics(rows: list) -> dict:
@@ -147,6 +221,9 @@ def compute_metrics(rows: list) -> dict:
             "count": cnt,
         })
 
+    # ── Spearman rank correlation: ELO rank vs empirical win-rate rank ────────
+    spearman = compute_spearman(rows)
+
     return {
         "n_matches":          n,
         "n_accuracy_matches": n_acc,
@@ -158,6 +235,7 @@ def compute_metrics(rows: list) -> dict:
         "log_loss_baseline":  round(baseline_log_loss, 4),
         "margin_mse":         round(margin_mse, 4) if margin_mse is not None else None,
         "margin_rmse":        round(margin_mse ** 0.5, 4) if margin_mse is not None else None,
+        "spearman":           spearman,
         "calibration":        calibration,
         "arena_filter":       ARENA_FILTER,
     }
@@ -191,6 +269,10 @@ def main() -> None:
     if metrics.get("margin_rmse") is not None:
         print(f"  Margin RMSE        : {metrics['margin_rmse']:.4f}  "
               f"(RMSE of E vs actual margin score S)")
+    if metrics.get("spearman") is not None:
+        sp = metrics["spearman"]
+        print(f"  Spearman ρ (ELO vs win rate) : {sp['rho']:.4f}  "
+              f"(n={sp['n_beys']} beys, min {sp['min_matches_filter']} matches)")
 
     # Write output
     os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)

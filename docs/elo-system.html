@@ -550,6 +550,11 @@
                 <div class="kpi-value" id="kpi-margin-rmse">—</div>
                 <div class="kpi-note">RMSE of predicted probability <em>E</em> vs actual margin score <em>S</em></div>
             </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Spearman ρ (ELO vs Win Rate)</div>
+                <div class="kpi-value" id="kpi-spearman">—</div>
+                <div class="kpi-note" id="kpi-spearman-note">Rank correlation between final ELO and empirical win rate (1 = perfect)</div>
+            </div>
         </div>
 
         <!-- Calibration table -->
@@ -722,6 +727,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const rmseEl = document.getElementById('kpi-margin-rmse');
             rmseEl.textContent = data.margin_rmse !== null && data.margin_rmse !== undefined
                 ? data.margin_rmse.toFixed(4) : '—';
+
+            const spearmanEl = document.getElementById('kpi-spearman');
+            if (data.spearman && data.spearman.rho !== undefined) {
+                spearmanEl.textContent = data.spearman.rho.toFixed(4);
+                spearmanEl.classList.add(data.spearman.rho >= 0.8 ? 'kpi-positive' : 'kpi-neutral');
+                document.getElementById('kpi-spearman-note').textContent =
+                    `Rank correlation between final ELO and empirical win rate — ${data.spearman.n_beys} beys (≥${data.spearman.min_matches_filter} matches)`;
+            }
 
             // Calibration table
             const tbody = document.getElementById('calibration-tbody');

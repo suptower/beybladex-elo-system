@@ -9,6 +9,11 @@
   "log_loss_baseline": 0.6931,
   "margin_mse": 0.1989,
   "margin_rmse": 0.446,
+  "spearman": {
+    "rho": 0.974,
+    "n_beys": 41,
+    "min_matches_filter": 5
+  },
   "calibration": [
     {
       "bucket": 2,
