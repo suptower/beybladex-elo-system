@@ -17,6 +17,9 @@ from plot_styles import generate_dynamic_yticks, calculate_dynamic_plot_dimensio
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
+env = os.environ.copy()
+env["PYTHONUTF8"] = "1"  # Ensure UTF-8 encoding for subprocesses
+
 plt.rcParams["figure.figsize"] = (10, 6)
 plt.rcParams["axes.grid"] = True
 
@@ -624,9 +627,11 @@ def generate_all_plots(mode):
 
     # Advanced Visualizations
     result = subprocess.run(
-        ["python", "src/visualization/advanced_visualizations.py"],
+        [sys.executable, "src/visualization/advanced_visualizations.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running advanced_visualizations.py:")
@@ -636,9 +641,11 @@ def generate_all_plots(mode):
 
     # Combined ELO Trends Top 5
     result = subprocess.run(
-        ["python", "src/visualization/combined_elo_trends_top5.py"],
+        [sys.executable, "src/visualization/combined_elo_trends_top5.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running combined_elo_trends_top5.py:")
@@ -648,9 +655,11 @@ def generate_all_plots(mode):
 
     # Heatmaps
     result = subprocess.run(
-        ["python", "src/visualization/heatmaps.py"],
+        [sys.executable, "src/visualization/heatmaps.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running heatmaps.py:")
@@ -660,9 +669,11 @@ def generate_all_plots(mode):
 
     # Interactive ELO Trends
     result = subprocess.run(
-        ["python", "src/visualization/interactive_elo_trends.py"],
+        [sys.executable, "src/visualization/interactive_elo_trends.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running interactive_elo_trends.py:")
@@ -672,9 +683,11 @@ def generate_all_plots(mode):
 
     # Meta Landscape Plot
     result = subprocess.run(
-        ["python", "src/visualization/meta_landscape.py"],
+        [sys.executable, "src/visualization/meta_landscape.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running meta_landscape.py:")
@@ -684,9 +697,11 @@ def generate_all_plots(mode):
 
     # ELO Density Map
     result = subprocess.run(
-        ["python", "src/visualization/elo_density_map.py"],
+        [sys.executable, "src/visualization/elo_density_map.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running elo_density_map.py:")
@@ -696,9 +711,11 @@ def generate_all_plots(mode):
 
     # Tier Flow Diagram
     result = subprocess.run(
-        ["python", "src/visualization/tier_flow.py"],
+        [sys.executable, "src/visualization/tier_flow.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running tier_flow.py:")
@@ -708,9 +725,11 @@ def generate_all_plots(mode):
 
     # Individual Interactive ELO Plots
     result = subprocess.run(
-        ["python", "src/visualization/individual_interactive_elo.py"],
+        [sys.executable, "src/visualization/individual_interactive_elo.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running individual_interactive_elo.py:")
@@ -720,9 +739,11 @@ def generate_all_plots(mode):
 
     # Individual Interactive Position Plots
     result = subprocess.run(
-        ["python", "src/visualization/individual_interactive_position.py"],
+        [sys.executable, "src/visualization/individual_interactive_position.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running individual_interactive_position.py:")
@@ -732,9 +753,11 @@ def generate_all_plots(mode):
 
     # Season Analytics Plots (tier-based, only match_type=season)
     result = subprocess.run(
-        ["python", "src/visualization/season_plots.py"],
+        [sys.executable, "src/visualization/season_plots.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running season_plots.py:")
@@ -744,9 +767,11 @@ def generate_all_plots(mode):
 
     # Season vs Global Comparison Plots
     result = subprocess.run(
-        ["python", "src/visualization/season_comparison_plots.py"],
+        [sys.executable, "src/visualization/season_comparison_plots.py"],
         capture_output=True,
-        text=True
+        text=True,
+        encoding="utf-8",
+        env=env
     )
     if result.returncode != 0:
         print("Error running season_comparison_plots.py:")

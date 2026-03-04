@@ -1,85 +1,11 @@
 {
-  "ImpactDrake": {
-    "stats": {
-      "attack": 3.66,
-      "defense": 3.17,
-      "stamina": 0.93,
-      "control": 3.07,
-      "meta_impact": 3.71
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.2131,
-        "pocket_finish_rate": 0.3607,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.1967,
-        "offensive_point_efficiency": 1.9672,
-        "opening_dominance": 0.625
-      },
-      "defense": {
-        "burst_resistance": 0.9787,
-        "pocket_resistance": 0.6809,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.9149,
-        "defensive_conversion": 0.4255
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.2295,
-        "spin_differential_index": 0.3415,
-        "long_round_win_rate": 0.4667
-      },
-      "control": {
-        "volatility_inverse": 0.4926,
-        "first_contact_advantage": 0.8,
-        "match_flow_stability": 0.9177
-      },
-      "meta_impact": {
-        "elo_normalized": 1.0,
-        "elo_per_match": 5.304,
-        "upset_rate": 0.0952,
-        "matchup_spread": 0.4444,
-        "anti_meta_score": 0.4
-      }
-    },
-    "leaderboard": {
-      "rank": 1,
-      "elo": 1159,
-      "matches": 30
-    },
-    "archetype": {
-      "id": "tempo_controller",
-      "name": "Tempo Controller",
-      "description": "High Control, stable flow, consistency-focused",
-      "category": "control",
-      "icon": "\ud83c\udfbc",
-      "color": "#f59e0b",
-      "confidence": 0.42,
-      "candidates": [
-        {
-          "archetype": "tempo_controller",
-          "score": 0.621,
-          "name": "Tempo Controller"
-        },
-        {
-          "archetype": "meta_anchor",
-          "score": 0.597,
-          "name": "Meta Anchor"
-        },
-        {
-          "archetype": "berserker",
-          "score": 0.494,
-          "name": "Berserker"
-        }
-      ]
-    }
-  },
   "SharkScale": {
     "stats": {
       "attack": 2.84,
       "defense": 2.63,
       "stamina": 3.07,
-      "control": 2.0,
-      "meta_impact": 2.77
+      "control": 2.62,
+      "meta_impact": 2.81
     },
     "sub_metrics": {
       "attack": {
@@ -103,21 +29,21 @@
         "long_round_win_rate": 0.5
       },
       "control": {
-        "volatility_inverse": 0.4632,
+        "volatility_inverse": 0.4453,
         "first_contact_advantage": 0.8182,
         "match_flow_stability": 0.8632
       },
       "meta_impact": {
-        "elo_normalized": 0.9886,
-        "elo_per_match": 10.3633,
+        "elo_normalized": 1.0,
+        "elo_per_match": 8.9013,
         "upset_rate": 0.1667,
         "matchup_spread": 0.3556,
         "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
-      "rank": 2,
-      "elo": 1155,
+      "rank": 1,
+      "elo": 1134,
       "matches": 15
     },
     "archetype": {
@@ -127,7 +53,7 @@
       "category": "defense",
       "icon": "\ud83d\udd04",
       "color": "#6366f1",
-      "confidence": 0.45,
+      "confidence": 0.422,
       "candidates": [
         {
           "archetype": "counter_shield",
@@ -135,14 +61,162 @@
           "name": "Counter Shield"
         },
         {
+          "archetype": "adaptive_fighter",
+          "score": 0.675,
+          "name": "Adaptive Fighter"
+        },
+        {
           "archetype": "iron_wall",
-          "score": 0.661,
+          "score": 0.657,
           "name": "Iron Wall"
+        }
+      ]
+    }
+  },
+  "ImpactDrake": {
+    "stats": {
+      "attack": 3.66,
+      "defense": 3.17,
+      "stamina": 0.93,
+      "control": 3.57,
+      "meta_impact": 3.67
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2131,
+        "pocket_finish_rate": 0.3607,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.1967,
+        "offensive_point_efficiency": 1.9672,
+        "opening_dominance": 0.625
+      },
+      "defense": {
+        "burst_resistance": 0.9787,
+        "pocket_resistance": 0.6809,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.9149,
+        "defensive_conversion": 0.4255
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.2295,
+        "spin_differential_index": 0.3415,
+        "long_round_win_rate": 0.4667
+      },
+      "control": {
+        "volatility_inverse": 0.4612,
+        "first_contact_advantage": 0.8,
+        "match_flow_stability": 0.9177
+      },
+      "meta_impact": {
+        "elo_normalized": 0.9706,
+        "elo_per_match": 4.2047,
+        "upset_rate": 0.0952,
+        "matchup_spread": 0.4444,
+        "anti_meta_score": 0.4
+      }
+    },
+    "leaderboard": {
+      "rank": 2,
+      "elo": 1126,
+      "matches": 30
+    },
+    "archetype": {
+      "id": "tempo_controller",
+      "name": "Tempo Controller",
+      "description": "High Control, stable flow, consistency-focused",
+      "category": "control",
+      "icon": "\ud83c\udfbc",
+      "color": "#f59e0b",
+      "confidence": 0.552,
+      "candidates": [
+        {
+          "archetype": "tempo_controller",
+          "score": 0.668,
+          "name": "Tempo Controller"
+        },
+        {
+          "archetype": "meta_anchor",
+          "score": 0.593,
+          "name": "Meta Anchor"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.502,
+          "name": "Berserker"
+        }
+      ]
+    }
+  },
+  "TuskMammoth": {
+    "stats": {
+      "attack": 2.73,
+      "defense": 2.57,
+      "stamina": 2.54,
+      "control": 3.82,
+      "meta_impact": 3.98
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2338,
+        "pocket_finish_rate": 0.3247,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.1039,
+        "offensive_point_efficiency": 1.7662,
+        "opening_dominance": 0.4524
+      },
+      "defense": {
+        "burst_resistance": 0.9839,
+        "pocket_resistance": 0.5,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.8871,
+        "defensive_conversion": 0.371
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.3377,
+        "spin_differential_index": 0.5306,
+        "long_round_win_rate": 0.52
+      },
+      "control": {
+        "volatility_inverse": 0.4626,
+        "first_contact_advantage": 0.9474,
+        "match_flow_stability": 0.9098
+      },
+      "meta_impact": {
+        "elo_normalized": 0.8456,
+        "elo_per_match": 2.4935,
+        "upset_rate": 0.2,
+        "matchup_spread": 0.5111,
+        "anti_meta_score": 0.5714
+      }
+    },
+    "leaderboard": {
+      "rank": 3,
+      "elo": 1092,
+      "matches": 37
+    },
+    "archetype": {
+      "id": "tempo_controller",
+      "name": "Tempo Controller",
+      "description": "High Control, stable flow, consistency-focused",
+      "category": "control",
+      "icon": "\ud83c\udfbc",
+      "color": "#f59e0b",
+      "confidence": 0.474,
+      "candidates": [
+        {
+          "archetype": "tempo_controller",
+          "score": 0.725,
+          "name": "Tempo Controller"
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.629,
+          "score": 0.706,
           "name": "Adaptive Fighter"
+        },
+        {
+          "archetype": "meta_anchor",
+          "score": 0.683,
+          "name": "Meta Anchor"
         }
       ]
     }
@@ -152,8 +226,8 @@
       "attack": 3.69,
       "defense": 3.82,
       "stamina": 1.09,
-      "control": 1.78,
-      "meta_impact": 3.86
+      "control": 2.36,
+      "meta_impact": 3.85
     },
     "sub_metrics": {
       "attack": {
@@ -177,21 +251,21 @@
         "long_round_win_rate": 0.5833
       },
       "control": {
-        "volatility_inverse": 0.3607,
+        "volatility_inverse": 0.419,
         "first_contact_advantage": 1.0,
         "match_flow_stability": 0.7235
       },
       "meta_impact": {
-        "elo_normalized": 0.9375,
-        "elo_per_match": 13.661,
+        "elo_normalized": 0.8456,
+        "elo_per_match": 9.186,
         "upset_rate": 0.25,
         "matchup_spread": 0.3778,
         "anti_meta_score": 1.0
       }
     },
     "leaderboard": {
-      "rank": 3,
-      "elo": 1137,
+      "rank": 4,
+      "elo": 1092,
       "matches": 10
     },
     "archetype": {
@@ -201,11 +275,11 @@
       "category": "balance",
       "icon": "\u2b50",
       "color": "#eab308",
-      "confidence": 0.491,
+      "confidence": 0.488,
       "candidates": [
         {
           "archetype": "meta_anchor",
-          "score": 0.75,
+          "score": 0.749,
           "name": "Meta Anchor"
         },
         {
@@ -215,7 +289,7 @@
         },
         {
           "archetype": "berserker",
-          "score": 0.527,
+          "score": 0.512,
           "name": "Berserker"
         }
       ]
@@ -226,8 +300,8 @@
       "attack": 3.14,
       "defense": 2.48,
       "stamina": 2.38,
-      "control": 1.97,
-      "meta_impact": 3.03
+      "control": 1.89,
+      "meta_impact": 3.0
     },
     "sub_metrics": {
       "attack": {
@@ -251,21 +325,21 @@
         "long_round_win_rate": 0.6154
       },
       "control": {
-        "volatility_inverse": 0.3755,
+        "volatility_inverse": 0.3071,
         "first_contact_advantage": 0.9333,
         "match_flow_stability": 0.8589
       },
       "meta_impact": {
-        "elo_normalized": 0.858,
-        "elo_per_match": 4.0433,
+        "elo_normalized": 0.8309,
+        "elo_per_match": 3.2685,
         "upset_rate": 0.1111,
         "matchup_spread": 0.4889,
         "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
-      "rank": 4,
-      "elo": 1109,
+      "rank": 5,
+      "elo": 1088,
       "matches": 27
     },
     "archetype": {
@@ -275,7 +349,7 @@
       "category": "offense",
       "icon": "\ud83d\udca5",
       "color": "#ef4444",
-      "confidence": 0.375,
+      "confidence": 0.341,
       "candidates": [
         {
           "archetype": "glass_cannon",
@@ -284,13 +358,87 @@
         },
         {
           "archetype": "berserker",
-          "score": 0.48,
+          "score": 0.497,
           "name": "Berserker"
         },
         {
+          "archetype": "chaser",
+          "score": 0.308,
+          "name": "Chaser"
+        }
+      ]
+    }
+  },
+  "GolemRock": {
+    "stats": {
+      "attack": 2.29,
+      "defense": 2.04,
+      "stamina": 3.57,
+      "control": 2.61,
+      "meta_impact": 3.63
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2679,
+        "pocket_finish_rate": 0.2321,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0714,
+        "offensive_point_efficiency": 1.6429,
+        "opening_dominance": 0.5333
+      },
+      "defense": {
+        "burst_resistance": 0.775,
+        "pocket_resistance": 0.55,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.95,
+        "defensive_conversion": 0.325
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4286,
+        "spin_differential_index": 0.6857,
+        "long_round_win_rate": 0.5333
+      },
+      "control": {
+        "volatility_inverse": 0.362,
+        "first_contact_advantage": 0.875,
+        "match_flow_stability": 0.9007
+      },
+      "meta_impact": {
+        "elo_normalized": 0.8051,
+        "elo_per_match": 2.8079,
+        "upset_rate": 0.3333,
+        "matchup_spread": 0.4444,
+        "anti_meta_score": 0.4
+      }
+    },
+    "leaderboard": {
+      "rank": 6,
+      "elo": 1081,
+      "matches": 29
+    },
+    "archetype": {
+      "id": "adaptive_fighter",
+      "name": "Adaptive Fighter",
+      "description": "Moderate in all stats, excels in matchup spread",
+      "category": "balance",
+      "icon": "\u26a1",
+      "color": "#8b5cf6",
+      "confidence": 0.445,
+      "candidates": [
+        {
+          "archetype": "adaptive_fighter",
+          "score": 0.624,
+          "name": "Adaptive Fighter"
+        },
+        {
           "archetype": "meta_anchor",
-          "score": 0.431,
+          "score": 0.588,
           "name": "Meta Anchor"
+        },
+        {
+          "archetype": "endurance_core",
+          "score": 0.544,
+          "name": "Endurance Core"
         }
       ]
     }
@@ -300,7 +448,7 @@
       "attack": 2.28,
       "defense": 2.56,
       "stamina": 3.28,
-      "control": 2.68,
+      "control": 2.76,
       "meta_impact": 4.12
     },
     "sub_metrics": {
@@ -325,21 +473,21 @@
         "long_round_win_rate": 0.6
       },
       "control": {
-        "volatility_inverse": 0.3745,
+        "volatility_inverse": 0.3446,
         "first_contact_advantage": 0.8462,
         "match_flow_stability": 0.9177
       },
       "meta_impact": {
-        "elo_normalized": 0.8239,
-        "elo_per_match": 4.6352,
-        "upset_rate": 0.7692,
+        "elo_normalized": 0.7757,
+        "elo_per_match": 3.49,
+        "upset_rate": 0.8462,
         "matchup_spread": 0.4,
         "anti_meta_score": 0.4286
       }
     },
     "leaderboard": {
-      "rank": 5,
-      "elo": 1097,
+      "rank": 7,
+      "elo": 1073,
       "matches": 21
     },
     "archetype": {
@@ -349,11 +497,11 @@
       "category": "balance",
       "icon": "\u26a1",
       "color": "#8b5cf6",
-      "confidence": 0.43,
+      "confidence": 0.437,
       "candidates": [
         {
           "archetype": "adaptive_fighter",
-          "score": 0.658,
+          "score": 0.661,
           "name": "Adaptive Fighter"
         },
         {
@@ -363,7 +511,7 @@
         },
         {
           "archetype": "iron_wall",
-          "score": 0.619,
+          "score": 0.613,
           "name": "Iron Wall"
         }
       ]
@@ -375,7 +523,7 @@
       "defense": 3.58,
       "stamina": 2.77,
       "control": 3.25,
-      "meta_impact": 2.85
+      "meta_impact": 2.78
     },
     "sub_metrics": {
       "attack": {
@@ -399,21 +547,21 @@
         "long_round_win_rate": 0.6
       },
       "control": {
-        "volatility_inverse": 0.6953,
+        "volatility_inverse": 0.7358,
         "first_contact_advantage": 1.0,
         "match_flow_stability": 0.775
       },
       "meta_impact": {
-        "elo_normalized": 0.821,
-        "elo_per_match": 23.9425,
+        "elo_normalized": 0.7684,
+        "elo_per_match": 17.6875,
         "upset_rate": 0.0,
         "matchup_spread": 0.0889,
         "anti_meta_score": 0.5
       }
     },
     "leaderboard": {
-      "rank": 6,
-      "elo": 1096,
+      "rank": 8,
+      "elo": 1071,
       "matches": 4
     },
     "archetype": {
@@ -423,11 +571,11 @@
       "category": "defense",
       "icon": "\ud83d\udee1\ufe0f",
       "color": "#3b82f6",
-      "confidence": 0.608,
+      "confidence": 0.629,
       "candidates": [
         {
           "archetype": "iron_wall",
-          "score": 0.811,
+          "score": 0.819,
           "name": "Iron Wall"
         },
         {
@@ -437,156 +585,8 @@
         },
         {
           "archetype": "tempo_controller",
-          "score": 0.731,
+          "score": 0.741,
           "name": "Tempo Controller"
-        }
-      ]
-    }
-  },
-  "TuskMammoth": {
-    "stats": {
-      "attack": 2.73,
-      "defense": 2.57,
-      "stamina": 2.54,
-      "control": 3.86,
-      "meta_impact": 3.81
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.2338,
-        "pocket_finish_rate": 0.3247,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.1039,
-        "offensive_point_efficiency": 1.7662,
-        "opening_dominance": 0.4524
-      },
-      "defense": {
-        "burst_resistance": 0.9839,
-        "pocket_resistance": 0.5,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.8871,
-        "defensive_conversion": 0.371
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.3377,
-        "spin_differential_index": 0.5306,
-        "long_round_win_rate": 0.52
-      },
-      "control": {
-        "volatility_inverse": 0.5373,
-        "first_contact_advantage": 0.9474,
-        "match_flow_stability": 0.9098
-      },
-      "meta_impact": {
-        "elo_normalized": 0.8068,
-        "elo_per_match": 2.4635,
-        "upset_rate": 0.24,
-        "matchup_spread": 0.5111,
-        "anti_meta_score": 0.5714
-      }
-    },
-    "leaderboard": {
-      "rank": 7,
-      "elo": 1091,
-      "matches": 37
-    },
-    "archetype": {
-      "id": "tempo_controller",
-      "name": "Tempo Controller",
-      "description": "High Control, stable flow, consistency-focused",
-      "category": "control",
-      "icon": "\ud83c\udfbc",
-      "color": "#f59e0b",
-      "confidence": 0.537,
-      "candidates": [
-        {
-          "archetype": "tempo_controller",
-          "score": 0.748,
-          "name": "Tempo Controller"
-        },
-        {
-          "archetype": "adaptive_fighter",
-          "score": 0.705,
-          "name": "Adaptive Fighter"
-        },
-        {
-          "archetype": "iron_wall",
-          "score": 0.683,
-          "name": "Iron Wall"
-        }
-      ]
-    }
-  },
-  "GolemRock": {
-    "stats": {
-      "attack": 2.29,
-      "defense": 2.04,
-      "stamina": 3.57,
-      "control": 2.68,
-      "meta_impact": 3.5
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.2679,
-        "pocket_finish_rate": 0.2321,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.0714,
-        "offensive_point_efficiency": 1.6429,
-        "opening_dominance": 0.5333
-      },
-      "defense": {
-        "burst_resistance": 0.775,
-        "pocket_resistance": 0.55,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.95,
-        "defensive_conversion": 0.325
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.4286,
-        "spin_differential_index": 0.6857,
-        "long_round_win_rate": 0.5333
-      },
-      "control": {
-        "volatility_inverse": 0.4632,
-        "first_contact_advantage": 0.875,
-        "match_flow_stability": 0.9007
-      },
-      "meta_impact": {
-        "elo_normalized": 0.7955,
-        "elo_per_match": 3.0024,
-        "upset_rate": 0.3333,
-        "matchup_spread": 0.4444,
-        "anti_meta_score": 0.4
-      }
-    },
-    "leaderboard": {
-      "rank": 8,
-      "elo": 1087,
-      "matches": 29
-    },
-    "archetype": {
-      "id": "adaptive_fighter",
-      "name": "Adaptive Fighter",
-      "description": "Moderate in all stats, excels in matchup spread",
-      "category": "balance",
-      "icon": "\u26a1",
-      "color": "#8b5cf6",
-      "confidence": 0.48,
-      "candidates": [
-        {
-          "archetype": "adaptive_fighter",
-          "score": 0.626,
-          "name": "Adaptive Fighter"
-        },
-        {
-          "archetype": "meta_anchor",
-          "score": 0.574,
-          "name": "Meta Anchor"
-        },
-        {
-          "archetype": "endurance_core",
-          "score": 0.564,
-          "name": "Endurance Core"
         }
       ]
     }
@@ -596,8 +596,8 @@
       "attack": 2.95,
       "defense": 2.54,
       "stamina": 3.12,
-      "control": 3.63,
-      "meta_impact": 3.63
+      "control": 3.71,
+      "meta_impact": 3.5
     },
     "sub_metrics": {
       "attack": {
@@ -621,21 +621,21 @@
         "long_round_win_rate": 0.6
       },
       "control": {
-        "volatility_inverse": 0.5029,
+        "volatility_inverse": 0.4356,
         "first_contact_advantage": 0.9375,
         "match_flow_stability": 0.9235
       },
       "meta_impact": {
-        "elo_normalized": 0.7926,
-        "elo_per_match": 3.9068,
-        "upset_rate": 0.5385,
+        "elo_normalized": 0.739,
+        "elo_per_match": 2.8459,
+        "upset_rate": 0.4615,
         "matchup_spread": 0.4222,
         "anti_meta_score": 0.2
       }
     },
     "leaderboard": {
       "rank": 9,
-      "elo": 1086,
+      "elo": 1063,
       "matches": 22
     },
     "archetype": {
@@ -645,21 +645,21 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.496,
+      "confidence": 0.481,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.713,
+          "score": 0.705,
           "name": "Tempo Controller"
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.678,
+          "score": 0.676,
           "name": "Adaptive Fighter"
         },
         {
           "archetype": "iron_wall",
-          "score": 0.628,
+          "score": 0.614,
           "name": "Iron Wall"
         }
       ]
@@ -671,7 +671,7 @@
       "defense": 2.64,
       "stamina": 2.81,
       "control": 2.4,
-      "meta_impact": 3.52
+      "meta_impact": 3.5
     },
     "sub_metrics": {
       "attack": {
@@ -695,13 +695,13 @@
         "long_round_win_rate": 0.5714
       },
       "control": {
-        "volatility_inverse": 0.4976,
+        "volatility_inverse": 0.4255,
         "first_contact_advantage": 0.5833,
         "match_flow_stability": 0.9022
       },
       "meta_impact": {
-        "elo_normalized": 0.7614,
-        "elo_per_match": 3.1158,
+        "elo_normalized": 0.7022,
+        "elo_per_match": 2.2212,
         "upset_rate": 0.5,
         "matchup_spread": 0.4,
         "anti_meta_score": 0.4
@@ -709,7 +709,7 @@
     },
     "leaderboard": {
       "rank": 10,
-      "elo": 1075,
+      "elo": 1053,
       "matches": 24
     },
     "archetype": {
@@ -719,7 +719,7 @@
       "category": "balance",
       "icon": "\u26a1",
       "color": "#8b5cf6",
-      "confidence": 0.563,
+      "confidence": 0.592,
       "candidates": [
         {
           "archetype": "adaptive_fighter",
@@ -728,12 +728,12 @@
         },
         {
           "archetype": "iron_wall",
-          "score": 0.613,
+          "score": 0.598,
           "name": "Iron Wall"
         },
         {
           "archetype": "meta_anchor",
-          "score": 0.567,
+          "score": 0.565,
           "name": "Meta Anchor"
         }
       ]
@@ -744,8 +744,8 @@
       "attack": 2.7,
       "defense": 3.38,
       "stamina": 1.31,
-      "control": 2.34,
-      "meta_impact": 3.11
+      "control": 2.66,
+      "meta_impact": 3.12
     },
     "sub_metrics": {
       "attack": {
@@ -769,13 +769,13 @@
         "long_round_win_rate": 0.4231
       },
       "control": {
-        "volatility_inverse": 0.5292,
+        "volatility_inverse": 0.4875,
         "first_contact_advantage": 0.6,
         "match_flow_stability": 0.886
       },
       "meta_impact": {
-        "elo_normalized": 0.7358,
-        "elo_per_match": 2.6232,
+        "elo_normalized": 0.6949,
+        "elo_per_match": 2.042,
         "upset_rate": 0.5333,
         "matchup_spread": 0.4667,
         "anti_meta_score": 0.0
@@ -783,7 +783,7 @@
     },
     "leaderboard": {
       "rank": 11,
-      "elo": 1066,
+      "elo": 1051,
       "matches": 25
     },
     "archetype": {
@@ -797,12 +797,12 @@
       "candidates": [
         {
           "archetype": "iron_wall",
-          "score": 0.738,
+          "score": 0.729,
           "name": "Iron Wall"
         },
         {
           "archetype": "meta_anchor",
-          "score": 0.435,
+          "score": 0.437,
           "name": "Meta Anchor"
         },
         {
@@ -813,235 +813,13 @@
       ]
     }
   },
-  "ViperTail": {
-    "stats": {
-      "attack": 3.21,
-      "defense": 2.01,
-      "stamina": 2.11,
-      "control": 2.57,
-      "meta_impact": 3.47
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.2778,
-        "pocket_finish_rate": 0.3056,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.1111,
-        "offensive_point_efficiency": 1.8056,
-        "opening_dominance": 0.619
-      },
-      "defense": {
-        "burst_resistance": 0.8125,
-        "pocket_resistance": 0.6562,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.9062,
-        "defensive_conversion": 0.25
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.3056,
-        "spin_differential_index": 0.4783,
-        "long_round_win_rate": 0.6
-      },
-      "control": {
-        "volatility_inverse": 0.4601,
-        "first_contact_advantage": 0.6923,
-        "match_flow_stability": 0.941
-      },
-      "meta_impact": {
-        "elo_normalized": 0.7102,
-        "elo_per_match": 2.7352,
-        "upset_rate": 0.8182,
-        "matchup_spread": 0.3111,
-        "anti_meta_score": 0.25
-      }
-    },
-    "leaderboard": {
-      "rank": 12,
-      "elo": 1057,
-      "matches": 21
-    },
-    "archetype": {
-      "id": "adaptive_fighter",
-      "name": "Adaptive Fighter",
-      "description": "Moderate in all stats, excels in matchup spread",
-      "category": "balance",
-      "icon": "\u26a1",
-      "color": "#8b5cf6",
-      "confidence": 0.482,
-      "candidates": [
-        {
-          "archetype": "adaptive_fighter",
-          "score": 0.615,
-          "name": "Adaptive Fighter"
-        },
-        {
-          "archetype": "glass_cannon",
-          "score": 0.558,
-          "name": "Glass Cannon"
-        },
-        {
-          "archetype": "meta_anchor",
-          "score": 0.506,
-          "name": "Meta Anchor"
-        }
-      ]
-    }
-  },
-  "HellsBrave": {
-    "stats": {
-      "attack": 3.84,
-      "defense": 1.99,
-      "stamina": 1.08,
-      "control": 0.77,
-      "meta_impact": 1.83
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.5,
-        "pocket_finish_rate": 0.1667,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.1667,
-        "offensive_point_efficiency": 2.0,
-        "opening_dominance": 1.0
-      },
-      "defense": {
-        "burst_resistance": 1.0,
-        "pocket_resistance": 0.6667,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.6667,
-        "defensive_conversion": 0.0
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.1667,
-        "spin_differential_index": 0.5,
-        "long_round_win_rate": 0.4
-      },
-      "control": {
-        "volatility_inverse": 0.1974,
-        "first_contact_advantage": 0.6667,
-        "match_flow_stability": 0.7
-      },
-      "meta_impact": {
-        "elo_normalized": 0.6932,
-        "elo_per_match": 16.87,
-        "upset_rate": 0.0,
-        "matchup_spread": 0.0667,
-        "anti_meta_score": 0.0
-      }
-    },
-    "leaderboard": {
-      "rank": 13,
-      "elo": 1051,
-      "matches": 3
-    },
-    "archetype": {
-      "id": "berserker",
-      "name": "Berserker",
-      "description": "High Attack + high volatility, KO-heavy style",
-      "category": "offense",
-      "icon": "\u2694\ufe0f",
-      "color": "#dc2626",
-      "confidence": 0.586,
-      "candidates": [
-        {
-          "archetype": "berserker",
-          "score": 0.683,
-          "name": "Berserker"
-        },
-        {
-          "archetype": "glass_cannon",
-          "score": 0.595,
-          "name": "Glass Cannon"
-        },
-        {
-          "archetype": "chaser",
-          "score": 0.3,
-          "name": "Chaser"
-        }
-      ]
-    }
-  },
-  "SilverWolf": {
-    "stats": {
-      "attack": 0.99,
-      "defense": 3.12,
-      "stamina": 3.71,
-      "control": 3.1,
-      "meta_impact": 3.67
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.1429,
-        "pocket_finish_rate": 0.1429,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.0476,
-        "offensive_point_efficiency": 1.381,
-        "opening_dominance": 0.4211
-      },
-      "defense": {
-        "burst_resistance": 0.7647,
-        "pocket_resistance": 0.8235,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.9412,
-        "defensive_conversion": 0.4412
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.6667,
-        "spin_differential_index": 0.6087,
-        "long_round_win_rate": 0.4783
-      },
-      "control": {
-        "volatility_inverse": 0.5363,
-        "first_contact_advantage": 0.875,
-        "match_flow_stability": 0.8778
-      },
-      "meta_impact": {
-        "elo_normalized": 0.6875,
-        "elo_per_match": 2.5784,
-        "upset_rate": 0.6,
-        "matchup_spread": 0.3556,
-        "anti_meta_score": 1.0
-      }
-    },
-    "leaderboard": {
-      "rank": 14,
-      "elo": 1049,
-      "matches": 19
-    },
-    "archetype": {
-      "id": "meta_anchor",
-      "name": "Meta Anchor",
-      "description": "Above-average Meta Impact despite mixed stat profile",
-      "category": "balance",
-      "icon": "\u2b50",
-      "color": "#eab308",
-      "confidence": 0.584,
-      "candidates": [
-        {
-          "archetype": "meta_anchor",
-          "score": 0.725,
-          "name": "Meta Anchor"
-        },
-        {
-          "archetype": "tempo_controller",
-          "score": 0.65,
-          "name": "Tempo Controller"
-        },
-        {
-          "archetype": "spin_tank",
-          "score": 0.648,
-          "name": "Spin Tank"
-        }
-      ]
-    }
-  },
   "WeissTiger": {
     "stats": {
       "attack": 2.19,
       "defense": 2.11,
       "stamina": 3.53,
-      "control": 2.26,
-      "meta_impact": 2.95
+      "control": 2.02,
+      "meta_impact": 3.05
     },
     "sub_metrics": {
       "attack": {
@@ -1065,21 +843,21 @@
         "long_round_win_rate": 0.6
       },
       "control": {
-        "volatility_inverse": 0.4945,
+        "volatility_inverse": 0.3923,
         "first_contact_advantage": 0.6923,
         "match_flow_stability": 0.8906
       },
       "meta_impact": {
-        "elo_normalized": 0.679,
-        "elo_per_match": 2.5472,
-        "upset_rate": 0.4545,
+        "elo_normalized": 0.6875,
+        "elo_per_match": 2.7472,
+        "upset_rate": 0.3636,
         "matchup_spread": 0.3556,
         "anti_meta_score": 0.25
       }
     },
     "leaderboard": {
-      "rank": 15,
-      "elo": 1046,
+      "rank": 12,
+      "elo": 1049,
       "matches": 18
     },
     "archetype": {
@@ -1089,22 +867,170 @@
       "category": "balance",
       "icon": "\u26a1",
       "color": "#8b5cf6",
-      "confidence": 0.394,
+      "confidence": 0.405,
       "candidates": [
         {
           "archetype": "adaptive_fighter",
-          "score": 0.599,
+          "score": 0.587,
           "name": "Adaptive Fighter"
         },
         {
           "archetype": "endurance_core",
-          "score": 0.581,
+          "score": 0.561,
           "name": "Endurance Core"
         },
         {
+          "archetype": "meta_anchor",
+          "score": 0.469,
+          "name": "Meta Anchor"
+        }
+      ]
+    }
+  },
+  "ViperTail": {
+    "stats": {
+      "attack": 3.21,
+      "defense": 2.01,
+      "stamina": 2.11,
+      "control": 2.45,
+      "meta_impact": 3.35
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2778,
+        "pocket_finish_rate": 0.3056,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.1111,
+        "offensive_point_efficiency": 1.8056,
+        "opening_dominance": 0.619
+      },
+      "defense": {
+        "burst_resistance": 0.8125,
+        "pocket_resistance": 0.6562,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.9062,
+        "defensive_conversion": 0.25
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.3056,
+        "spin_differential_index": 0.4783,
+        "long_round_win_rate": 0.6
+      },
+      "control": {
+        "volatility_inverse": 0.3378,
+        "first_contact_advantage": 0.6923,
+        "match_flow_stability": 0.941
+      },
+      "meta_impact": {
+        "elo_normalized": 0.6838,
+        "elo_per_match": 2.3005,
+        "upset_rate": 0.7273,
+        "matchup_spread": 0.3111,
+        "anti_meta_score": 0.25
+      }
+    },
+    "leaderboard": {
+      "rank": 13,
+      "elo": 1048,
+      "matches": 21
+    },
+    "archetype": {
+      "id": "adaptive_fighter",
+      "name": "Adaptive Fighter",
+      "description": "Moderate in all stats, excels in matchup spread",
+      "category": "balance",
+      "icon": "\u26a1",
+      "color": "#8b5cf6",
+      "confidence": 0.493,
+      "candidates": [
+        {
+          "archetype": "adaptive_fighter",
+          "score": 0.619,
+          "name": "Adaptive Fighter"
+        },
+        {
           "archetype": "glass_cannon",
-          "score": 0.0,
+          "score": 0.558,
           "name": "Glass Cannon"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.52,
+          "name": "Berserker"
+        }
+      ]
+    }
+  },
+  "SilverWolf": {
+    "stats": {
+      "attack": 0.99,
+      "defense": 3.12,
+      "stamina": 3.71,
+      "control": 3.02,
+      "meta_impact": 3.52
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.1429,
+        "pocket_finish_rate": 0.1429,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0476,
+        "offensive_point_efficiency": 1.381,
+        "opening_dominance": 0.4211
+      },
+      "defense": {
+        "burst_resistance": 0.7647,
+        "pocket_resistance": 0.8235,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.9412,
+        "defensive_conversion": 0.4412
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.6667,
+        "spin_differential_index": 0.6087,
+        "long_round_win_rate": 0.4783
+      },
+      "control": {
+        "volatility_inverse": 0.4569,
+        "first_contact_advantage": 0.875,
+        "match_flow_stability": 0.8778
+      },
+      "meta_impact": {
+        "elo_normalized": 0.6544,
+        "elo_per_match": 2.0811,
+        "upset_rate": 0.5,
+        "matchup_spread": 0.3556,
+        "anti_meta_score": 1.0
+      }
+    },
+    "leaderboard": {
+      "rank": 14,
+      "elo": 1040,
+      "matches": 19
+    },
+    "archetype": {
+      "id": "meta_anchor",
+      "name": "Meta Anchor",
+      "description": "Above-average Meta Impact despite mixed stat profile",
+      "category": "balance",
+      "icon": "\u2b50",
+      "color": "#eab308",
+      "confidence": 0.546,
+      "candidates": [
+        {
+          "archetype": "meta_anchor",
+          "score": 0.708,
+          "name": "Meta Anchor"
+        },
+        {
+          "archetype": "spin_tank",
+          "score": 0.648,
+          "name": "Spin Tank"
+        },
+        {
+          "archetype": "tempo_controller",
+          "score": 0.621,
+          "name": "Tempo Controller"
         }
       ]
     }
@@ -1114,8 +1040,8 @@
       "attack": 1.73,
       "defense": 2.26,
       "stamina": 3.78,
-      "control": 3.94,
-      "meta_impact": 2.99
+      "control": 3.47,
+      "meta_impact": 3.03
     },
     "sub_metrics": {
       "attack": {
@@ -1139,21 +1065,21 @@
         "long_round_win_rate": 0.6
       },
       "control": {
-        "volatility_inverse": 0.5268,
+        "volatility_inverse": 0.4042,
         "first_contact_advantage": 1.0,
         "match_flow_stability": 0.934
       },
       "meta_impact": {
-        "elo_normalized": 0.6761,
-        "elo_per_match": 2.0323,
+        "elo_normalized": 0.6471,
+        "elo_per_match": 1.7277,
         "upset_rate": 0.3333,
         "matchup_spread": 0.3778,
         "anti_meta_score": 0.5
       }
     },
     "leaderboard": {
-      "rank": 16,
-      "elo": 1045,
+      "rank": 15,
+      "elo": 1038,
       "matches": 22
     },
     "archetype": {
@@ -1163,96 +1089,96 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.774,
+      "confidence": 0.609,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.765,
+          "score": 0.683,
           "name": "Tempo Controller"
         },
         {
           "archetype": "endurance_core",
-          "score": 0.608,
+          "score": 0.583,
           "name": "Endurance Core"
         },
         {
-          "archetype": "glass_cannon",
-          "score": 0.0,
-          "name": "Glass Cannon"
+          "archetype": "meta_anchor",
+          "score": 0.534,
+          "name": "Meta Anchor"
         }
       ]
     }
   },
-  "HellsChain": {
+  "HellsBrave": {
     "stats": {
-      "attack": 2.26,
-      "defense": 1.75,
-      "stamina": 4.0,
-      "control": 2.6,
-      "meta_impact": 2.82
+      "attack": 3.84,
+      "defense": 1.99,
+      "stamina": 1.08,
+      "control": 0.81,
+      "meta_impact": 1.73
     },
     "sub_metrics": {
       "attack": {
-        "burst_finish_rate": 0.2558,
-        "pocket_finish_rate": 0.1395,
+        "burst_finish_rate": 0.5,
+        "pocket_finish_rate": 0.1667,
         "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.093,
-        "offensive_point_efficiency": 1.5814,
-        "opening_dominance": 0.6522
+        "extreme_finish_rate": 0.1667,
+        "offensive_point_efficiency": 2.0,
+        "opening_dominance": 1.0
       },
       "defense": {
-        "burst_resistance": 0.8333,
-        "pocket_resistance": 0.5667,
+        "burst_resistance": 1.0,
+        "pocket_resistance": 0.6667,
         "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.8333,
-        "defensive_conversion": 0.3333
+        "extreme_resistance": 0.6667,
+        "defensive_conversion": 0.0
       },
       "stamina": {
-        "spin_finish_win_rate": 0.5116,
-        "spin_differential_index": 0.7586,
-        "long_round_win_rate": 0.52
+        "spin_finish_win_rate": 0.1667,
+        "spin_differential_index": 0.5,
+        "long_round_win_rate": 0.4
       },
       "control": {
-        "volatility_inverse": 0.5421,
-        "first_contact_advantage": 0.7333,
-        "match_flow_stability": 0.8486
+        "volatility_inverse": 0.1483,
+        "first_contact_advantage": 0.6667,
+        "match_flow_stability": 0.7
       },
       "meta_impact": {
-        "elo_normalized": 0.6591,
-        "elo_per_match": 1.8795,
-        "upset_rate": 0.5455,
-        "matchup_spread": 0.4444,
+        "elo_normalized": 0.6471,
+        "elo_per_match": 12.5,
+        "upset_rate": 0.0,
+        "matchup_spread": 0.0667,
         "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
-      "rank": 17,
-      "elo": 1039,
-      "matches": 21
+      "rank": 16,
+      "elo": 1038,
+      "matches": 3
     },
     "archetype": {
-      "id": "endurance_core",
-      "name": "Endurance Core",
-      "description": "Stable, low volatility, high Spin Finish bias",
-      "category": "stamina",
-      "icon": "\ud83d\udcaa",
-      "color": "#10b981",
-      "confidence": 1.0,
+      "id": "berserker",
+      "name": "Berserker",
+      "description": "High Attack + high volatility, KO-heavy style",
+      "category": "offense",
+      "icon": "\u2694\ufe0f",
+      "color": "#dc2626",
+      "confidence": 0.618,
       "candidates": [
         {
-          "archetype": "endurance_core",
-          "score": 0.647,
-          "name": "Endurance Core"
+          "archetype": "berserker",
+          "score": 0.695,
+          "name": "Berserker"
         },
         {
           "archetype": "glass_cannon",
-          "score": 0.0,
+          "score": 0.595,
           "name": "Glass Cannon"
         },
         {
-          "archetype": "berserker",
-          "score": 0.0,
-          "name": "Berserker"
+          "archetype": "chaser",
+          "score": 0.3,
+          "name": "Chaser"
         }
       ]
     }
@@ -1262,8 +1188,8 @@
       "attack": 2.53,
       "defense": 2.37,
       "stamina": 2.03,
-      "control": 1.69,
-      "meta_impact": 3.31
+      "control": 1.54,
+      "meta_impact": 3.27
     },
     "sub_metrics": {
       "attack": {
@@ -1287,21 +1213,21 @@
         "long_round_win_rate": 0.36
       },
       "control": {
-        "volatility_inverse": 0.4904,
+        "volatility_inverse": 0.3768,
         "first_contact_advantage": 0.5714,
         "match_flow_stability": 0.8827
       },
       "meta_impact": {
-        "elo_normalized": 0.6449,
-        "elo_per_match": 1.4817,
-        "upset_rate": 0.3846,
+        "elo_normalized": 0.6434,
+        "elo_per_match": 1.6152,
+        "upset_rate": 0.3077,
         "matchup_spread": 0.4,
         "anti_meta_score": 0.75
       }
     },
     "leaderboard": {
-      "rank": 18,
-      "elo": 1034,
+      "rank": 17,
+      "elo": 1037,
       "matches": 23
     },
     "archetype": {
@@ -1315,7 +1241,7 @@
       "candidates": [
         {
           "archetype": "meta_anchor",
-          "score": 0.632,
+          "score": 0.627,
           "name": "Meta Anchor"
         },
         {
@@ -1331,13 +1257,87 @@
       ]
     }
   },
+  "HellsChain": {
+    "stats": {
+      "attack": 2.26,
+      "defense": 1.75,
+      "stamina": 4.0,
+      "control": 2.17,
+      "meta_impact": 2.81
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2558,
+        "pocket_finish_rate": 0.1395,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.093,
+        "offensive_point_efficiency": 1.5814,
+        "opening_dominance": 0.6522
+      },
+      "defense": {
+        "burst_resistance": 0.8333,
+        "pocket_resistance": 0.5667,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.8333,
+        "defensive_conversion": 0.3333
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.5116,
+        "spin_differential_index": 0.7586,
+        "long_round_win_rate": 0.52
+      },
+      "control": {
+        "volatility_inverse": 0.4327,
+        "first_contact_advantage": 0.7333,
+        "match_flow_stability": 0.8486
+      },
+      "meta_impact": {
+        "elo_normalized": 0.6176,
+        "elo_per_match": 1.4438,
+        "upset_rate": 0.5455,
+        "matchup_spread": 0.4444,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 18,
+      "elo": 1030,
+      "matches": 21
+    },
+    "archetype": {
+      "id": "endurance_core",
+      "name": "Endurance Core",
+      "description": "Stable, low volatility, high Spin Finish bias",
+      "category": "stamina",
+      "icon": "\ud83d\udcaa",
+      "color": "#10b981",
+      "confidence": 1.0,
+      "candidates": [
+        {
+          "archetype": "endurance_core",
+          "score": 0.626,
+          "name": "Endurance Core"
+        },
+        {
+          "archetype": "glass_cannon",
+          "score": 0.0,
+          "name": "Glass Cannon"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.0,
+          "name": "Berserker"
+        }
+      ]
+    }
+  },
   "LeonClaw": {
     "stats": {
       "attack": 2.69,
       "defense": 2.18,
       "stamina": 2.53,
-      "control": 3.99,
-      "meta_impact": 2.93
+      "control": 3.56,
+      "meta_impact": 2.88
     },
     "sub_metrics": {
       "attack": {
@@ -1361,21 +1361,21 @@
         "long_round_win_rate": 0.6
       },
       "control": {
-        "volatility_inverse": 0.5805,
+        "volatility_inverse": 0.4493,
         "first_contact_advantage": 0.8182,
         "match_flow_stability": 0.921
       },
       "meta_impact": {
-        "elo_normalized": 0.6165,
-        "elo_per_match": 1.2779,
-        "upset_rate": 0.5,
+        "elo_normalized": 0.5882,
+        "elo_per_match": 1.1321,
+        "upset_rate": 0.4,
         "matchup_spread": 0.3778,
         "anti_meta_score": 0.3333
       }
     },
     "leaderboard": {
       "rank": 19,
-      "elo": 1024,
+      "elo": 1022,
       "matches": 19
     },
     "archetype": {
@@ -1385,16 +1385,16 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.698,
+      "confidence": 0.461,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.748,
+          "score": 0.668,
           "name": "Tempo Controller"
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.623,
+          "score": 0.638,
           "name": "Adaptive Fighter"
         },
         {
@@ -1410,8 +1410,8 @@
       "attack": 1.58,
       "defense": 2.99,
       "stamina": 3.8,
-      "control": 1.96,
-      "meta_impact": 3.16
+      "control": 2.23,
+      "meta_impact": 3.21
     },
     "sub_metrics": {
       "attack": {
@@ -1435,13 +1435,13 @@
         "long_round_win_rate": 0.52
       },
       "control": {
-        "volatility_inverse": 0.5186,
+        "volatility_inverse": 0.463,
         "first_contact_advantage": 0.6923,
         "match_flow_stability": 0.8086
       },
       "meta_impact": {
-        "elo_normalized": 0.608,
-        "elo_per_match": 0.9767,
+        "elo_normalized": 0.5625,
+        "elo_per_match": 0.7229,
         "upset_rate": 0.5,
         "matchup_spread": 0.4222,
         "anti_meta_score": 0.5
@@ -1449,31 +1449,31 @@
     },
     "leaderboard": {
       "rank": 20,
-      "elo": 1021,
+      "elo": 1015,
       "matches": 21
     },
     "archetype": {
-      "id": "endurance_core",
-      "name": "Endurance Core",
-      "description": "Stable, low volatility, high Spin Finish bias",
+      "id": "spin_tank",
+      "name": "Spin Tank",
+      "description": "High stamina + high defense, wins long rounds consistently",
       "category": "stamina",
-      "icon": "\ud83d\udcaa",
-      "color": "#10b981",
-      "confidence": 0.405,
+      "icon": "\ud83d\udd0b",
+      "color": "#14b8a6",
+      "confidence": 0.406,
       "candidates": [
-        {
-          "archetype": "endurance_core",
-          "score": 0.66,
-          "name": "Endurance Core"
-        },
         {
           "archetype": "spin_tank",
           "score": 0.655,
           "name": "Spin Tank"
         },
         {
+          "archetype": "endurance_core",
+          "score": 0.649,
+          "name": "Endurance Core"
+        },
+        {
           "archetype": "meta_anchor",
-          "score": 0.557,
+          "score": 0.563,
           "name": "Meta Anchor"
         }
       ]
@@ -1484,8 +1484,8 @@
       "attack": 2.22,
       "defense": 1.71,
       "stamina": 2.69,
-      "control": 2.33,
-      "meta_impact": 2.22
+      "control": 2.25,
+      "meta_impact": 1.96
     },
     "sub_metrics": {
       "attack": {
@@ -1509,21 +1509,21 @@
         "long_round_win_rate": 0.5
       },
       "control": {
-        "volatility_inverse": 0.3798,
+        "volatility_inverse": 0.3273,
         "first_contact_advantage": 0.6,
         "match_flow_stability": 0.9456
       },
       "meta_impact": {
-        "elo_normalized": 0.5852,
-        "elo_per_match": 1.288,
-        "upset_rate": 0.6,
+        "elo_normalized": 0.5478,
+        "elo_per_match": 1.098,
+        "upset_rate": 0.4,
         "matchup_spread": 0.2222,
         "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
       "rank": 21,
-      "elo": 1013,
+      "elo": 1011,
       "matches": 10
     },
     "archetype": {
@@ -1537,87 +1537,13 @@
       "candidates": []
     }
   },
-  "SharkEdge": {
-    "stats": {
-      "attack": 3.59,
-      "defense": 2.64,
-      "stamina": 0.24,
-      "control": 3.22,
-      "meta_impact": 2.31
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.4706,
-        "pocket_finish_rate": 0.3235,
-        "stadium_exit_finish_rate": 0.0294,
-        "extreme_finish_rate": 0.0882,
-        "offensive_point_efficiency": 2.0,
-        "opening_dominance": 0.48
-      },
-      "defense": {
-        "burst_resistance": 0.76,
-        "pocket_resistance": 0.78,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.96,
-        "defensive_conversion": 0.32
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.0882,
-        "spin_differential_index": 0.1071,
-        "long_round_win_rate": 0.35
-      },
-      "control": {
-        "volatility_inverse": 0.5569,
-        "first_contact_advantage": 0.75,
-        "match_flow_stability": 0.8927
-      },
-      "meta_impact": {
-        "elo_normalized": 0.5795,
-        "elo_per_match": 0.4675,
-        "upset_rate": 0.5,
-        "matchup_spread": 0.4222,
-        "anti_meta_score": 0.0
-      }
-    },
-    "leaderboard": {
-      "rank": 22,
-      "elo": 1011,
-      "matches": 24
-    },
-    "archetype": {
-      "id": "tempo_controller",
-      "name": "Tempo Controller",
-      "description": "High Control, stable flow, consistency-focused",
-      "category": "control",
-      "icon": "\ud83c\udfbc",
-      "color": "#f59e0b",
-      "confidence": 0.548,
-      "candidates": [
-        {
-          "archetype": "tempo_controller",
-          "score": 0.643,
-          "name": "Tempo Controller"
-        },
-        {
-          "archetype": "berserker",
-          "score": 0.563,
-          "name": "Berserker"
-        },
-        {
-          "archetype": "glass_cannon",
-          "score": 0.56,
-          "name": "Glass Cannon"
-        }
-      ]
-    }
-  },
   "CerberusFlame": {
     "stats": {
       "attack": 0.79,
       "defense": 1.86,
       "stamina": 4.68,
-      "control": 2.83,
-      "meta_impact": 2.92
+      "control": 2.91,
+      "meta_impact": 3.08
     },
     "sub_metrics": {
       "attack": {
@@ -1641,21 +1567,21 @@
         "long_round_win_rate": 0.6857
       },
       "control": {
-        "volatility_inverse": 0.5215,
+        "volatility_inverse": 0.4565,
         "first_contact_advantage": 0.7333,
         "match_flow_stability": 0.8938
       },
       "meta_impact": {
-        "elo_normalized": 0.5795,
-        "elo_per_match": 0.3864,
-        "upset_rate": 0.3846,
+        "elo_normalized": 0.5331,
+        "elo_per_match": 0.2432,
+        "upset_rate": 0.4615,
         "matchup_spread": 0.4222,
         "anti_meta_score": 0.5
       }
     },
     "leaderboard": {
-      "rank": 23,
-      "elo": 1011,
+      "rank": 22,
+      "elo": 1007,
       "matches": 28
     },
     "archetype": {
@@ -1665,22 +1591,96 @@
       "category": "stamina",
       "icon": "\ud83d\udcaa",
       "color": "#10b981",
-      "confidence": 1.0,
+      "confidence": 0.902,
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.782,
+          "score": 0.769,
           "name": "Endurance Core"
+        },
+        {
+          "archetype": "meta_anchor",
+          "score": 0.548,
+          "name": "Meta Anchor"
         },
         {
           "archetype": "glass_cannon",
           "score": 0.0,
           "name": "Glass Cannon"
+        }
+      ]
+    }
+  },
+  "SharkEdge": {
+    "stats": {
+      "attack": 3.59,
+      "defense": 2.64,
+      "stamina": 0.24,
+      "control": 3.14,
+      "meta_impact": 2.34
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.4706,
+        "pocket_finish_rate": 0.3235,
+        "stadium_exit_finish_rate": 0.0294,
+        "extreme_finish_rate": 0.0882,
+        "offensive_point_efficiency": 2.0,
+        "opening_dominance": 0.48
+      },
+      "defense": {
+        "burst_resistance": 0.76,
+        "pocket_resistance": 0.78,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.96,
+        "defensive_conversion": 0.32
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.0882,
+        "spin_differential_index": 0.1071,
+        "long_round_win_rate": 0.35
+      },
+      "control": {
+        "volatility_inverse": 0.4659,
+        "first_contact_advantage": 0.75,
+        "match_flow_stability": 0.8927
+      },
+      "meta_impact": {
+        "elo_normalized": 0.511,
+        "elo_per_match": 0.0442,
+        "upset_rate": 0.5,
+        "matchup_spread": 0.4222,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 23,
+      "elo": 1001,
+      "matches": 24
+    },
+    "archetype": {
+      "id": "tempo_controller",
+      "name": "Tempo Controller",
+      "description": "High Control, stable flow, consistency-focused",
+      "category": "control",
+      "icon": "\ud83c\udfbc",
+      "color": "#f59e0b",
+      "confidence": 0.42,
+      "candidates": [
+        {
+          "archetype": "tempo_controller",
+          "score": 0.612,
+          "name": "Tempo Controller"
         },
         {
           "archetype": "berserker",
-          "score": 0.0,
+          "score": 0.585,
           "name": "Berserker"
+        },
+        {
+          "archetype": "glass_cannon",
+          "score": 0.56,
+          "name": "Glass Cannon"
         }
       ]
     }
@@ -1690,8 +1690,8 @@
       "attack": 1.7,
       "defense": 3.03,
       "stamina": 2.31,
-      "control": 2.04,
-      "meta_impact": 2.24
+      "control": 2.24,
+      "meta_impact": 2.04
     },
     "sub_metrics": {
       "attack": {
@@ -1715,21 +1715,21 @@
         "long_round_win_rate": 0.375
       },
       "control": {
-        "volatility_inverse": 0.4952,
+        "volatility_inverse": 0.4446,
         "first_contact_advantage": 0.5455,
         "match_flow_stability": 0.8938
       },
       "meta_impact": {
-        "elo_normalized": 0.5227,
-        "elo_per_match": -0.4333,
-        "upset_rate": 0.7,
+        "elo_normalized": 0.4963,
+        "elo_per_match": -0.13,
+        "upset_rate": 0.5,
         "matchup_spread": 0.3556,
         "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
       "rank": 24,
-      "elo": 991,
+      "elo": 997,
       "matches": 21
     },
     "archetype": {
@@ -1743,303 +1743,7 @@
       "candidates": [
         {
           "archetype": "iron_wall",
-          "score": 0.684,
-          "name": "Iron Wall"
-        },
-        {
-          "archetype": "glass_cannon",
-          "score": 0.0,
-          "name": "Glass Cannon"
-        },
-        {
-          "archetype": "berserker",
-          "score": 0.0,
-          "name": "Berserker"
-        }
-      ]
-    }
-  },
-  "CrimsonGaruda": {
-    "stats": {
-      "attack": 2.73,
-      "defense": 2.28,
-      "stamina": 1.06,
-      "control": 1.98,
-      "meta_impact": 2.29
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.4118,
-        "pocket_finish_rate": 0.2059,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.0882,
-        "offensive_point_efficiency": 1.7941,
-        "opening_dominance": 0.3913
-      },
-      "defense": {
-        "burst_resistance": 0.7857,
-        "pocket_resistance": 0.7143,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.9286,
-        "defensive_conversion": 0.3095
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.2941,
-        "spin_differential_index": 0.3571,
-        "long_round_win_rate": 0.4118
-      },
-      "control": {
-        "volatility_inverse": 0.4888,
-        "first_contact_advantage": 0.7778,
-        "match_flow_stability": 0.8415
-      },
-      "meta_impact": {
-        "elo_normalized": 0.5114,
-        "elo_per_match": -0.61,
-        "upset_rate": 0.7778,
-        "matchup_spread": 0.3778,
-        "anti_meta_score": 0.0
-      }
-    },
-    "leaderboard": {
-      "rank": 25,
-      "elo": 987,
-      "matches": 21
-    },
-    "archetype": {
-      "id": "chaser",
-      "name": "Chaser",
-      "description": "Fast, Pocket/Extreme-focused finish bias",
-      "category": "offense",
-      "icon": "\ud83c\udfaf",
-      "color": "#f97316",
-      "confidence": 0.611,
-      "candidates": [
-        {
-          "archetype": "chaser",
-          "score": 0.235,
-          "name": "Chaser"
-        },
-        {
-          "archetype": "glass_cannon",
-          "score": 0.0,
-          "name": "Glass Cannon"
-        },
-        {
-          "archetype": "berserker",
-          "score": 0.0,
-          "name": "Berserker"
-        }
-      ]
-    }
-  },
-  "UnicornSting": {
-    "stats": {
-      "attack": 3.35,
-      "defense": 1.44,
-      "stamina": 1.68,
-      "control": 2.11,
-      "meta_impact": 1.78
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.2333,
-        "pocket_finish_rate": 0.3333,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.1333,
-        "offensive_point_efficiency": 1.8333,
-        "opening_dominance": 0.6667
-      },
-      "defense": {
-        "burst_resistance": 0.75,
-        "pocket_resistance": 0.7188,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.8125,
-        "defensive_conversion": 0.25
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.3,
-        "spin_differential_index": 0.5,
-        "long_round_win_rate": 0.5
-      },
-      "control": {
-        "volatility_inverse": 0.4845,
-        "first_contact_advantage": 0.5,
-        "match_flow_stability": 0.9352
-      },
-      "meta_impact": {
-        "elo_normalized": 0.5114,
-        "elo_per_match": -0.6176,
-        "upset_rate": 0.4,
-        "matchup_spread": 0.3333,
-        "anti_meta_score": 0.0
-      }
-    },
-    "leaderboard": {
-      "rank": 26,
-      "elo": 987,
-      "matches": 21
-    },
-    "archetype": {
-      "id": "glass_cannon",
-      "name": "Glass Cannon",
-      "description": "Very high Attack, low Defense & low Burst Resistance",
-      "category": "offense",
-      "icon": "\ud83d\udca5",
-      "color": "#ef4444",
-      "confidence": 0.659,
-      "candidates": [
-        {
-          "archetype": "glass_cannon",
-          "score": 0.622,
-          "name": "Glass Cannon"
-        },
-        {
-          "archetype": "berserker",
-          "score": 0.479,
-          "name": "Berserker"
-        },
-        {
-          "archetype": "chaser",
-          "score": 0.324,
-          "name": "Chaser"
-        }
-      ]
-    }
-  },
-  "DranBuster": {
-    "stats": {
-      "attack": 3.28,
-      "defense": 1.5,
-      "stamina": 1.64,
-      "control": 0.9,
-      "meta_impact": 2.21
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.3077,
-        "pocket_finish_rate": 0.2308,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.1538,
-        "offensive_point_efficiency": 1.8462,
-        "opening_dominance": 0.4545
-      },
-      "defense": {
-        "burst_resistance": 0.75,
-        "pocket_resistance": 0.75,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.8,
-        "defensive_conversion": 0.2
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.3077,
-        "spin_differential_index": 0.4,
-        "long_round_win_rate": 0.5
-      },
-      "control": {
-        "volatility_inverse": 0.3351,
-        "first_contact_advantage": 0.6,
-        "match_flow_stability": 0.84
-      },
-      "meta_impact": {
-        "elo_normalized": 0.5114,
-        "elo_per_match": -1.345,
-        "upset_rate": 0.3333,
-        "matchup_spread": 0.2222,
-        "anti_meta_score": 0.5
-      }
-    },
-    "leaderboard": {
-      "rank": 27,
-      "elo": 987,
-      "matches": 10
-    },
-    "archetype": {
-      "id": "glass_cannon",
-      "name": "Glass Cannon",
-      "description": "Very high Attack, low Defense & low Burst Resistance",
-      "category": "offense",
-      "icon": "\ud83d\udca5",
-      "color": "#ef4444",
-      "confidence": 0.515,
-      "candidates": [
-        {
-          "archetype": "glass_cannon",
-          "score": 0.61,
-          "name": "Glass Cannon"
-        },
-        {
-          "archetype": "berserker",
-          "score": 0.536,
-          "name": "Berserker"
-        },
-        {
-          "archetype": "chaser",
-          "score": 0.291,
-          "name": "Chaser"
-        }
-      ]
-    }
-  },
-  "PerseusDark": {
-    "stats": {
-      "attack": 1.6,
-      "defense": 2.83,
-      "stamina": 2.72,
-      "control": 2.54,
-      "meta_impact": 2.3
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.1538,
-        "pocket_finish_rate": 0.2821,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.0769,
-        "offensive_point_efficiency": 1.5897,
-        "opening_dominance": 0.4783
-      },
-      "defense": {
-        "burst_resistance": 0.9535,
-        "pocket_resistance": 0.6279,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.9535,
-        "defensive_conversion": 0.2558
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.4872,
-        "spin_differential_index": 0.4524,
-        "long_round_win_rate": 0.4286
-      },
-      "control": {
-        "volatility_inverse": 0.516,
-        "first_contact_advantage": 0.7273,
-        "match_flow_stability": 0.8834
-      },
-      "meta_impact": {
-        "elo_normalized": 0.5028,
-        "elo_per_match": -0.7438,
-        "upset_rate": 0.8,
-        "matchup_spread": 0.4,
-        "anti_meta_score": 0.0
-      }
-    },
-    "leaderboard": {
-      "rank": 28,
-      "elo": 984,
-      "matches": 21
-    },
-    "archetype": {
-      "id": "iron_wall",
-      "name": "Iron Wall",
-      "description": "Extremely high Defense, high Burst Resistance, low volatility",
-      "category": "defense",
-      "icon": "\ud83d\udee1\ufe0f",
-      "color": "#3b82f6",
-      "confidence": 1.0,
-      "candidates": [
-        {
-          "archetype": "iron_wall",
-          "score": 0.692,
+          "score": 0.674,
           "name": "Iron Wall"
         },
         {
@@ -2061,7 +1765,7 @@
       "defense": 0.92,
       "stamina": 4.07,
       "control": 1.95,
-      "meta_impact": 1.41
+      "meta_impact": 1.61
     },
     "sub_metrics": {
       "attack": {
@@ -2090,16 +1794,16 @@
         "match_flow_stability": 0.8667
       },
       "meta_impact": {
-        "elo_normalized": 0.5028,
-        "elo_per_match": -3.915,
+        "elo_normalized": 0.4632,
+        "elo_per_match": -2.9225,
         "upset_rate": 0.5,
         "matchup_spread": 0.0889,
         "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
-      "rank": 29,
-      "elo": 984,
+      "rank": 25,
+      "elo": 988,
       "matches": 4
     },
     "archetype": {
@@ -2129,76 +1833,372 @@
       ]
     }
   },
-  "PhoenixWing": {
+  "CrimsonGaruda": {
     "stats": {
-      "attack": 2.64,
-      "defense": 2.22,
-      "stamina": 0.81,
-      "control": 3.39,
-      "meta_impact": 2.83
+      "attack": 2.73,
+      "defense": 2.28,
+      "stamina": 1.06,
+      "control": 1.94,
+      "meta_impact": 2.33
     },
     "sub_metrics": {
       "attack": {
-        "burst_finish_rate": 0.1622,
-        "pocket_finish_rate": 0.4595,
+        "burst_finish_rate": 0.4118,
+        "pocket_finish_rate": 0.2059,
         "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.1081,
-        "offensive_point_efficiency": 1.8378,
-        "opening_dominance": 0.3448
+        "extreme_finish_rate": 0.0882,
+        "offensive_point_efficiency": 1.7941,
+        "opening_dominance": 0.3913
       },
       "defense": {
-        "burst_resistance": 1.0,
-        "pocket_resistance": 0.6111,
+        "burst_resistance": 0.7857,
+        "pocket_resistance": 0.7143,
         "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.7963,
-        "defensive_conversion": 0.2963
+        "extreme_resistance": 0.9286,
+        "defensive_conversion": 0.3095
       },
       "stamina": {
-        "spin_finish_win_rate": 0.2703,
-        "spin_differential_index": 0.3125,
-        "long_round_win_rate": 0.4
+        "spin_finish_win_rate": 0.2941,
+        "spin_differential_index": 0.3571,
+        "long_round_win_rate": 0.4118
       },
       "control": {
-        "volatility_inverse": 0.5428,
-        "first_contact_advantage": 0.7,
-        "match_flow_stability": 0.9163
+        "volatility_inverse": 0.3955,
+        "first_contact_advantage": 0.7778,
+        "match_flow_stability": 0.8415
       },
       "meta_impact": {
-        "elo_normalized": 0.4517,
-        "elo_per_match": -1.4926,
-        "upset_rate": 0.7,
-        "matchup_spread": 0.4667,
-        "anti_meta_score": 0.25
+        "elo_normalized": 0.4522,
+        "elo_per_match": -0.7071,
+        "upset_rate": 0.7778,
+        "matchup_spread": 0.3778,
+        "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
-      "rank": 30,
-      "elo": 966,
-      "matches": 23
+      "rank": 26,
+      "elo": 985,
+      "matches": 21
     },
     "archetype": {
-      "id": "tempo_controller",
-      "name": "Tempo Controller",
-      "description": "High Control, stable flow, consistency-focused",
-      "category": "control",
-      "icon": "\ud83c\udfbc",
-      "color": "#f59e0b",
-      "confidence": 1.0,
+      "id": "chaser",
+      "name": "Chaser",
+      "description": "Fast, Pocket/Extreme-focused finish bias",
+      "category": "offense",
+      "icon": "\ud83c\udfaf",
+      "color": "#f97316",
+      "confidence": 0.611,
       "candidates": [
         {
-          "archetype": "tempo_controller",
-          "score": 0.649,
-          "name": "Tempo Controller"
-        },
-        {
           "archetype": "chaser",
-          "score": 0.325,
+          "score": 0.235,
           "name": "Chaser"
         },
         {
           "archetype": "glass_cannon",
           "score": 0.0,
           "name": "Glass Cannon"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.0,
+          "name": "Berserker"
+        }
+      ]
+    }
+  },
+  "PerseusDark": {
+    "stats": {
+      "attack": 1.6,
+      "defense": 2.83,
+      "stamina": 2.72,
+      "control": 1.96,
+      "meta_impact": 2.38
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.1538,
+        "pocket_finish_rate": 0.2821,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.0769,
+        "offensive_point_efficiency": 1.5897,
+        "opening_dominance": 0.4783
+      },
+      "defense": {
+        "burst_resistance": 0.9535,
+        "pocket_resistance": 0.6279,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.9535,
+        "defensive_conversion": 0.2558
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4872,
+        "spin_differential_index": 0.4524,
+        "long_round_win_rate": 0.4286
+      },
+      "control": {
+        "volatility_inverse": 0.3706,
+        "first_contact_advantage": 0.7273,
+        "match_flow_stability": 0.8834
+      },
+      "meta_impact": {
+        "elo_normalized": 0.4338,
+        "elo_per_match": -0.9538,
+        "upset_rate": 0.8,
+        "matchup_spread": 0.4,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 27,
+      "elo": 980,
+      "matches": 21
+    },
+    "archetype": {
+      "id": "iron_wall",
+      "name": "Iron Wall",
+      "description": "Extremely high Defense, high Burst Resistance, low volatility",
+      "category": "defense",
+      "icon": "\ud83d\udee1\ufe0f",
+      "color": "#3b82f6",
+      "confidence": 1.0,
+      "candidates": [
+        {
+          "archetype": "iron_wall",
+          "score": 0.663,
+          "name": "Iron Wall"
+        },
+        {
+          "archetype": "glass_cannon",
+          "score": 0.0,
+          "name": "Glass Cannon"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.0,
+          "name": "Berserker"
+        }
+      ]
+    }
+  },
+  "UnicornSting": {
+    "stats": {
+      "attack": 3.35,
+      "defense": 1.44,
+      "stamina": 1.68,
+      "control": 2.26,
+      "meta_impact": 2.02
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.2333,
+        "pocket_finish_rate": 0.3333,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.1333,
+        "offensive_point_efficiency": 1.8333,
+        "opening_dominance": 0.6667
+      },
+      "defense": {
+        "burst_resistance": 0.75,
+        "pocket_resistance": 0.7188,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.8125,
+        "defensive_conversion": 0.25
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.3,
+        "spin_differential_index": 0.5,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.406,
+        "first_contact_advantage": 0.5,
+        "match_flow_stability": 0.9352
+      },
+      "meta_impact": {
+        "elo_normalized": 0.4228,
+        "elo_per_match": -1.08,
+        "upset_rate": 0.6,
+        "matchup_spread": 0.3333,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 28,
+      "elo": 977,
+      "matches": 21
+    },
+    "archetype": {
+      "id": "glass_cannon",
+      "name": "Glass Cannon",
+      "description": "Very high Attack, low Defense & low Burst Resistance",
+      "category": "offense",
+      "icon": "\ud83d\udca5",
+      "color": "#ef4444",
+      "confidence": 0.62,
+      "candidates": [
+        {
+          "archetype": "glass_cannon",
+          "score": 0.622,
+          "name": "Glass Cannon"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.498,
+          "name": "Berserker"
+        },
+        {
+          "archetype": "chaser",
+          "score": 0.324,
+          "name": "Chaser"
+        }
+      ]
+    }
+  },
+  "DranBuster": {
+    "stats": {
+      "attack": 3.28,
+      "defense": 1.5,
+      "stamina": 1.64,
+      "control": 0.9,
+      "meta_impact": 2.15
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.3077,
+        "pocket_finish_rate": 0.2308,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.1538,
+        "offensive_point_efficiency": 1.8462,
+        "opening_dominance": 0.4545
+      },
+      "defense": {
+        "burst_resistance": 0.75,
+        "pocket_resistance": 0.75,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.8,
+        "defensive_conversion": 0.2
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.3077,
+        "spin_differential_index": 0.4,
+        "long_round_win_rate": 0.5
+      },
+      "control": {
+        "volatility_inverse": 0.1837,
+        "first_contact_advantage": 0.6,
+        "match_flow_stability": 0.84
+      },
+      "meta_impact": {
+        "elo_normalized": 0.4081,
+        "elo_per_match": -2.736,
+        "upset_rate": 0.3333,
+        "matchup_spread": 0.2222,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 29,
+      "elo": 973,
+      "matches": 10
+    },
+    "archetype": {
+      "id": "glass_cannon",
+      "name": "Glass Cannon",
+      "description": "Very high Attack, low Defense & low Burst Resistance",
+      "category": "offense",
+      "icon": "\ud83d\udca5",
+      "color": "#ef4444",
+      "confidence": 0.439,
+      "candidates": [
+        {
+          "archetype": "glass_cannon",
+          "score": 0.61,
+          "name": "Glass Cannon"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.574,
+          "name": "Berserker"
+        },
+        {
+          "archetype": "chaser",
+          "score": 0.291,
+          "name": "Chaser"
+        }
+      ]
+    }
+  },
+  "DranDagger": {
+    "stats": {
+      "attack": 1.99,
+      "defense": 2.72,
+      "stamina": 2.03,
+      "control": 2.19,
+      "meta_impact": 2.39
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.119,
+        "pocket_finish_rate": 0.381,
+        "stadium_exit_finish_rate": 0.0238,
+        "extreme_finish_rate": 0.0714,
+        "offensive_point_efficiency": 1.6667,
+        "opening_dominance": 0.4615
+      },
+      "defense": {
+        "burst_resistance": 0.9286,
+        "pocket_resistance": 0.6429,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.9286,
+        "defensive_conversion": 0.3214
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.4048,
+        "spin_differential_index": 0.3778,
+        "long_round_win_rate": 0.4231
+      },
+      "control": {
+        "volatility_inverse": 0.3742,
+        "first_contact_advantage": 0.6667,
+        "match_flow_stability": 0.9095
+      },
+      "meta_impact": {
+        "elo_normalized": 0.3824,
+        "elo_per_match": -1.6348,
+        "upset_rate": 0.2222,
+        "matchup_spread": 0.4889,
+        "anti_meta_score": 0.25
+      }
+    },
+    "leaderboard": {
+      "rank": 30,
+      "elo": 966,
+      "matches": 21
+    },
+    "archetype": {
+      "id": "iron_wall",
+      "name": "Iron Wall",
+      "description": "Extremely high Defense, high Burst Resistance, low volatility",
+      "category": "defense",
+      "icon": "\ud83d\udee1\ufe0f",
+      "color": "#3b82f6",
+      "confidence": 1.0,
+      "candidates": [
+        {
+          "archetype": "iron_wall",
+          "score": 0.645,
+          "name": "Iron Wall"
+        },
+        {
+          "archetype": "glass_cannon",
+          "score": 0.0,
+          "name": "Glass Cannon"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.0,
+          "name": "Berserker"
         }
       ]
     }
@@ -2208,7 +2208,7 @@
       "attack": 2.41,
       "defense": 1.38,
       "stamina": 2.01,
-      "control": 3.09,
+      "control": 3.06,
       "meta_impact": 0.58
     },
     "sub_metrics": {
@@ -2233,13 +2233,13 @@
         "long_round_win_rate": 0.5
       },
       "control": {
-        "volatility_inverse": 0.3152,
+        "volatility_inverse": 0.1133,
         "first_contact_advantage": 1.0,
         "match_flow_stability": 0.9667
       },
       "meta_impact": {
-        "elo_normalized": 0.4375,
-        "elo_per_match": -12.9967,
+        "elo_normalized": 0.375,
+        "elo_per_match": -11.9367,
         "upset_rate": 0.0,
         "matchup_spread": 0.0667,
         "anti_meta_score": 0.0
@@ -2247,7 +2247,7 @@
     },
     "leaderboard": {
       "rank": 31,
-      "elo": 961,
+      "elo": 964,
       "matches": 3
     },
     "archetype": {
@@ -2261,7 +2261,7 @@
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.619,
+          "score": 0.565,
           "name": "Tempo Controller"
         },
         {
@@ -2277,66 +2277,66 @@
       ]
     }
   },
-  "DranDagger": {
+  "PhoenixWing": {
     "stats": {
-      "attack": 1.99,
-      "defense": 2.72,
-      "stamina": 2.03,
-      "control": 2.51,
-      "meta_impact": 2.32
+      "attack": 2.64,
+      "defense": 2.22,
+      "stamina": 0.81,
+      "control": 2.92,
+      "meta_impact": 2.79
     },
     "sub_metrics": {
       "attack": {
-        "burst_finish_rate": 0.119,
-        "pocket_finish_rate": 0.381,
-        "stadium_exit_finish_rate": 0.0238,
-        "extreme_finish_rate": 0.0714,
-        "offensive_point_efficiency": 1.6667,
-        "opening_dominance": 0.4615
+        "burst_finish_rate": 0.1622,
+        "pocket_finish_rate": 0.4595,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.1081,
+        "offensive_point_efficiency": 1.8378,
+        "opening_dominance": 0.3448
       },
       "defense": {
-        "burst_resistance": 0.9286,
-        "pocket_resistance": 0.6429,
+        "burst_resistance": 1.0,
+        "pocket_resistance": 0.6111,
         "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.9286,
-        "defensive_conversion": 0.3214
+        "extreme_resistance": 0.7963,
+        "defensive_conversion": 0.2963
       },
       "stamina": {
-        "spin_finish_win_rate": 0.4048,
-        "spin_differential_index": 0.3778,
-        "long_round_win_rate": 0.4231
+        "spin_finish_win_rate": 0.2703,
+        "spin_differential_index": 0.3125,
+        "long_round_win_rate": 0.4
       },
       "control": {
-        "volatility_inverse": 0.4931,
-        "first_contact_advantage": 0.6667,
-        "match_flow_stability": 0.9095
+        "volatility_inverse": 0.4327,
+        "first_contact_advantage": 0.7,
+        "match_flow_stability": 0.9163
       },
       "meta_impact": {
-        "elo_normalized": 0.3949,
-        "elo_per_match": -2.5529,
-        "upset_rate": 0.3333,
-        "matchup_spread": 0.4889,
+        "elo_normalized": 0.3676,
+        "elo_per_match": -1.6426,
+        "upset_rate": 0.7,
+        "matchup_spread": 0.4667,
         "anti_meta_score": 0.25
       }
     },
     "leaderboard": {
       "rank": 32,
-      "elo": 946,
-      "matches": 21
+      "elo": 962,
+      "matches": 23
     },
     "archetype": {
-      "id": "iron_wall",
-      "name": "Iron Wall",
-      "description": "Extremely high Defense, high Burst Resistance, low volatility",
-      "category": "defense",
-      "icon": "\ud83d\udee1\ufe0f",
-      "color": "#3b82f6",
-      "confidence": 1.0,
+      "id": "chaser",
+      "name": "Chaser",
+      "description": "Fast, Pocket/Extreme-focused finish bias",
+      "category": "offense",
+      "icon": "\ud83c\udfaf",
+      "color": "#f97316",
+      "confidence": 0.846,
       "candidates": [
         {
-          "archetype": "iron_wall",
-          "score": 0.668,
-          "name": "Iron Wall"
+          "archetype": "chaser",
+          "score": 0.325,
+          "name": "Chaser"
         },
         {
           "archetype": "glass_cannon",
@@ -2356,8 +2356,8 @@
       "attack": 1.3,
       "defense": 2.8,
       "stamina": 2.59,
-      "control": 2.16,
-      "meta_impact": 1.11
+      "control": 2.39,
+      "meta_impact": 1.15
     },
     "sub_metrics": {
       "attack": {
@@ -2381,13 +2381,13 @@
         "long_round_win_rate": 0.4
       },
       "control": {
-        "volatility_inverse": 0.5301,
+        "volatility_inverse": 0.4789,
         "first_contact_advantage": 0.5,
         "match_flow_stability": 0.8972
       },
       "meta_impact": {
-        "elo_normalized": 0.3892,
-        "elo_per_match": -6.2467,
+        "elo_normalized": 0.3309,
+        "elo_per_match": -5.3089,
         "upset_rate": 0.3333,
         "matchup_spread": 0.1778,
         "anti_meta_score": 0.0
@@ -2395,7 +2395,7 @@
     },
     "leaderboard": {
       "rank": 33,
-      "elo": 944,
+      "elo": 952,
       "matches": 9
     },
     "archetype": {
@@ -2409,7 +2409,7 @@
       "candidates": [
         {
           "archetype": "iron_wall",
-          "score": 0.638,
+          "score": 0.628,
           "name": "Iron Wall"
         },
         {
@@ -2430,8 +2430,8 @@
       "attack": 0.94,
       "defense": 1.74,
       "stamina": 4.17,
-      "control": 1.17,
-      "meta_impact": 1.28
+      "control": 1.32,
+      "meta_impact": 1.27
     },
     "sub_metrics": {
       "attack": {
@@ -2455,13 +2455,13 @@
         "long_round_win_rate": 0.8
       },
       "control": {
-        "volatility_inverse": 0.4835,
+        "volatility_inverse": 0.4056,
         "first_contact_advantage": 0.5,
         "match_flow_stability": 0.87
       },
       "meta_impact": {
-        "elo_normalized": 0.375,
-        "elo_per_match": -12.218,
+        "elo_normalized": 0.3162,
+        "elo_per_match": -10.402,
         "upset_rate": 0.0,
         "matchup_spread": 0.0889,
         "anti_meta_score": 0.5
@@ -2469,7 +2469,7 @@
     },
     "leaderboard": {
       "rank": 34,
-      "elo": 939,
+      "elo": 948,
       "matches": 5
     },
     "archetype": {
@@ -2483,156 +2483,8 @@
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.705,
+          "score": 0.69,
           "name": "Endurance Core"
-        },
-        {
-          "archetype": "glass_cannon",
-          "score": 0.0,
-          "name": "Glass Cannon"
-        },
-        {
-          "archetype": "berserker",
-          "score": 0.0,
-          "name": "Berserker"
-        }
-      ]
-    }
-  },
-  "WhaleWave": {
-    "stats": {
-      "attack": 3.01,
-      "defense": 1.89,
-      "stamina": 1.2,
-      "control": 1.73,
-      "meta_impact": 1.97
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.1935,
-        "pocket_finish_rate": 0.3548,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.1613,
-        "offensive_point_efficiency": 1.871,
-        "opening_dominance": 0.2917
-      },
-      "defense": {
-        "burst_resistance": 0.587,
-        "pocket_resistance": 0.8043,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.913,
-        "defensive_conversion": 0.3043
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.2903,
-        "spin_differential_index": 0.3913,
-        "long_round_win_rate": 0.4286
-      },
-      "control": {
-        "volatility_inverse": 0.5036,
-        "first_contact_advantage": 0.5714,
-        "match_flow_stability": 0.8611
-      },
-      "meta_impact": {
-        "elo_normalized": 0.3693,
-        "elo_per_match": -3.1295,
-        "upset_rate": 0.7143,
-        "matchup_spread": 0.4,
-        "anti_meta_score": 0.0
-      }
-    },
-    "leaderboard": {
-      "rank": 35,
-      "elo": 937,
-      "matches": 20
-    },
-    "archetype": {
-      "id": "glass_cannon",
-      "name": "Glass Cannon",
-      "description": "Very high Attack, low Defense & low Burst Resistance",
-      "category": "offense",
-      "icon": "\ud83d\udca5",
-      "color": "#ef4444",
-      "confidence": 0.644,
-      "candidates": [
-        {
-          "archetype": "glass_cannon",
-          "score": 0.581,
-          "name": "Glass Cannon"
-        },
-        {
-          "archetype": "berserker",
-          "score": 0.433,
-          "name": "Berserker"
-        },
-        {
-          "archetype": "chaser",
-          "score": 0.323,
-          "name": "Chaser"
-        }
-      ]
-    }
-  },
-  "BlackShell": {
-    "stats": {
-      "attack": 1.51,
-      "defense": 2.58,
-      "stamina": 2.13,
-      "control": 2.34,
-      "meta_impact": 2.38
-    },
-    "sub_metrics": {
-      "attack": {
-        "burst_finish_rate": 0.1429,
-        "pocket_finish_rate": 0.1429,
-        "stadium_exit_finish_rate": 0.0,
-        "extreme_finish_rate": 0.1429,
-        "offensive_point_efficiency": 1.5714,
-        "opening_dominance": 0.1111
-      },
-      "defense": {
-        "burst_resistance": 0.9048,
-        "pocket_resistance": 0.7619,
-        "stadium_exit_resistance": 1.0,
-        "extreme_resistance": 0.9048,
-        "defensive_conversion": 0.1429
-      },
-      "stamina": {
-        "spin_finish_win_rate": 0.5714,
-        "spin_differential_index": 0.25,
-        "long_round_win_rate": 0.2
-      },
-      "control": {
-        "volatility_inverse": 0.3566,
-        "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.8889
-      },
-      "meta_impact": {
-        "elo_normalized": 0.3466,
-        "elo_per_match": -7.8944,
-        "upset_rate": 1.0,
-        "matchup_spread": 0.2,
-        "anti_meta_score": 0.5
-      }
-    },
-    "leaderboard": {
-      "rank": 36,
-      "elo": 929,
-      "matches": 9
-    },
-    "archetype": {
-      "id": "iron_wall",
-      "name": "Iron Wall",
-      "description": "Extremely high Defense, high Burst Resistance, low volatility",
-      "category": "defense",
-      "icon": "\ud83d\udee1\ufe0f",
-      "color": "#3b82f6",
-      "confidence": 1.0,
-      "candidates": [
-        {
-          "archetype": "iron_wall",
-          "score": 0.62,
-          "name": "Iron Wall"
         },
         {
           "archetype": "glass_cannon",
@@ -2653,7 +2505,7 @@
       "defense": 2.46,
       "stamina": 0.31,
       "control": 2.49,
-      "meta_impact": 0.65
+      "meta_impact": 0.72
     },
     "sub_metrics": {
       "attack": {
@@ -2677,21 +2529,21 @@
         "long_round_win_rate": 0.3333
       },
       "control": {
-        "volatility_inverse": 0.5679,
+        "volatility_inverse": 0.4875,
         "first_contact_advantage": 0.5,
         "match_flow_stability": 0.9
       },
       "meta_impact": {
-        "elo_normalized": 0.3438,
-        "elo_per_match": -11.93,
+        "elo_normalized": 0.2941,
+        "elo_per_match": -9.6867,
         "upset_rate": 0.0,
         "matchup_spread": 0.2444,
         "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
-      "rank": 37,
-      "elo": 928,
+      "rank": 35,
+      "elo": 942,
       "matches": 6
     },
     "archetype": {
@@ -2701,7 +2553,7 @@
       "category": "offense",
       "icon": "\ud83d\udca5",
       "color": "#ef4444",
-      "confidence": 0.533,
+      "confidence": 0.493,
       "candidates": [
         {
           "archetype": "glass_cannon",
@@ -2710,7 +2562,7 @@
         },
         {
           "archetype": "berserker",
-          "score": 0.562,
+          "score": 0.582,
           "name": "Berserker"
         },
         {
@@ -2726,8 +2578,8 @@
       "attack": 2.66,
       "defense": 1.41,
       "stamina": 2.29,
-      "control": 2.23,
-      "meta_impact": 1.68
+      "control": 1.84,
+      "meta_impact": 1.77
     },
     "sub_metrics": {
       "attack": {
@@ -2751,21 +2603,21 @@
         "long_round_win_rate": 0.5
       },
       "control": {
-        "volatility_inverse": 0.5337,
+        "volatility_inverse": 0.4197,
         "first_contact_advantage": 0.5,
         "match_flow_stability": 0.8994
       },
       "meta_impact": {
-        "elo_normalized": 0.321,
-        "elo_per_match": -4.4344,
+        "elo_normalized": 0.2868,
+        "elo_per_match": -3.3489,
         "upset_rate": 0.6667,
         "matchup_spread": 0.3778,
         "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
-      "rank": 38,
-      "elo": 920,
+      "rank": 36,
+      "elo": 940,
       "matches": 18
     },
     "archetype": {
@@ -2795,13 +2647,87 @@
       ]
     }
   },
+  "WhaleWave": {
+    "stats": {
+      "attack": 3.01,
+      "defense": 1.89,
+      "stamina": 1.2,
+      "control": 1.27,
+      "meta_impact": 1.88
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.1935,
+        "pocket_finish_rate": 0.3548,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.1613,
+        "offensive_point_efficiency": 1.871,
+        "opening_dominance": 0.2917
+      },
+      "defense": {
+        "burst_resistance": 0.587,
+        "pocket_resistance": 0.8043,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.913,
+        "defensive_conversion": 0.3043
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.2903,
+        "spin_differential_index": 0.3913,
+        "long_round_win_rate": 0.4286
+      },
+      "control": {
+        "volatility_inverse": 0.376,
+        "first_contact_advantage": 0.5714,
+        "match_flow_stability": 0.8611
+      },
+      "meta_impact": {
+        "elo_normalized": 0.2757,
+        "elo_per_match": -3.126,
+        "upset_rate": 0.7143,
+        "matchup_spread": 0.4,
+        "anti_meta_score": 0.0
+      }
+    },
+    "leaderboard": {
+      "rank": 37,
+      "elo": 937,
+      "matches": 20
+    },
+    "archetype": {
+      "id": "glass_cannon",
+      "name": "Glass Cannon",
+      "description": "Very high Attack, low Defense & low Burst Resistance",
+      "category": "offense",
+      "icon": "\ud83d\udca5",
+      "color": "#ef4444",
+      "confidence": 0.581,
+      "candidates": [
+        {
+          "archetype": "glass_cannon",
+          "score": 0.581,
+          "name": "Glass Cannon"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.465,
+          "name": "Berserker"
+        },
+        {
+          "archetype": "chaser",
+          "score": 0.323,
+          "name": "Chaser"
+        }
+      ]
+    }
+  },
   "WizardArc": {
     "stats": {
       "attack": 1.45,
       "defense": 2.14,
       "stamina": 3.42,
-      "control": 1.02,
-      "meta_impact": 1.56
+      "control": 1.88,
+      "meta_impact": 1.61
     },
     "sub_metrics": {
       "attack": {
@@ -2825,21 +2751,21 @@
         "long_round_win_rate": 0.4762
       },
       "control": {
-        "volatility_inverse": 0.4677,
+        "volatility_inverse": 0.4681,
         "first_contact_advantage": 0.4444,
         "match_flow_stability": 0.8637
       },
       "meta_impact": {
-        "elo_normalized": 0.2955,
-        "elo_per_match": -12.6829,
+        "elo_normalized": 0.2463,
+        "elo_per_match": -10.16,
         "upset_rate": 1.0,
         "matchup_spread": 0.2667,
         "anti_meta_score": 0.0
       }
     },
     "leaderboard": {
-      "rank": 39,
-      "elo": 911,
+      "rank": 38,
+      "elo": 929,
       "matches": 7
     },
     "archetype": {
@@ -2869,13 +2795,87 @@
       ]
     }
   },
+  "BlackShell": {
+    "stats": {
+      "attack": 1.51,
+      "defense": 2.58,
+      "stamina": 2.13,
+      "control": 2.34,
+      "meta_impact": 2.26
+    },
+    "sub_metrics": {
+      "attack": {
+        "burst_finish_rate": 0.1429,
+        "pocket_finish_rate": 0.1429,
+        "stadium_exit_finish_rate": 0.0,
+        "extreme_finish_rate": 0.1429,
+        "offensive_point_efficiency": 1.5714,
+        "opening_dominance": 0.1111
+      },
+      "defense": {
+        "burst_resistance": 0.9048,
+        "pocket_resistance": 0.7619,
+        "stadium_exit_resistance": 1.0,
+        "extreme_resistance": 0.9048,
+        "defensive_conversion": 0.1429
+      },
+      "stamina": {
+        "spin_finish_win_rate": 0.5714,
+        "spin_differential_index": 0.25,
+        "long_round_win_rate": 0.2
+      },
+      "control": {
+        "volatility_inverse": 0.245,
+        "first_contact_advantage": 1.0,
+        "match_flow_stability": 0.8889
+      },
+      "meta_impact": {
+        "elo_normalized": 0.2206,
+        "elo_per_match": -8.6456,
+        "upset_rate": 1.0,
+        "matchup_spread": 0.2,
+        "anti_meta_score": 0.5
+      }
+    },
+    "leaderboard": {
+      "rank": 39,
+      "elo": 922,
+      "matches": 9
+    },
+    "archetype": {
+      "id": "iron_wall",
+      "name": "Iron Wall",
+      "description": "Extremely high Defense, high Burst Resistance, low volatility",
+      "category": "defense",
+      "icon": "\ud83d\udee1\ufe0f",
+      "color": "#3b82f6",
+      "confidence": 1.0,
+      "candidates": [
+        {
+          "archetype": "iron_wall",
+          "score": 0.598,
+          "name": "Iron Wall"
+        },
+        {
+          "archetype": "glass_cannon",
+          "score": 0.0,
+          "name": "Glass Cannon"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.0,
+          "name": "Berserker"
+        }
+      ]
+    }
+  },
   "WizardRod": {
     "stats": {
       "attack": 0.82,
       "defense": 2.18,
       "stamina": 4.81,
-      "control": 2.87,
-      "meta_impact": 1.25
+      "control": 2.91,
+      "meta_impact": 1.24
     },
     "sub_metrics": {
       "attack": {
@@ -2899,13 +2899,13 @@
         "long_round_win_rate": 0.6667
       },
       "control": {
-        "volatility_inverse": 0.5736,
+        "volatility_inverse": 0.5327,
         "first_contact_advantage": 0.7,
         "match_flow_stability": 0.8767
       },
       "meta_impact": {
-        "elo_normalized": 0.2756,
-        "elo_per_match": -4.5524,
+        "elo_normalized": 0.2132,
+        "elo_per_match": -3.8176,
         "upset_rate": 0.4286,
         "matchup_spread": 0.3556,
         "anti_meta_score": 0.0
@@ -2913,7 +2913,7 @@
     },
     "leaderboard": {
       "rank": 40,
-      "elo": 904,
+      "elo": 920,
       "matches": 21
     },
     "archetype": {
@@ -2927,7 +2927,7 @@
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.815,
+          "score": 0.807,
           "name": "Endurance Core"
         },
         {
@@ -2949,7 +2949,7 @@
       "defense": 1.63,
       "stamina": 0.4,
       "control": 4.5,
-      "meta_impact": 0.23
+      "meta_impact": 0.22
     },
     "sub_metrics": {
       "attack": {
@@ -2973,13 +2973,13 @@
         "long_round_win_rate": 0.5
       },
       "control": {
-        "volatility_inverse": 0.8772,
+        "volatility_inverse": 0.895,
         "first_contact_advantage": 1.0,
         "match_flow_stability": 0.92
       },
       "meta_impact": {
-        "elo_normalized": 0.2415,
-        "elo_per_match": -26.915,
+        "elo_normalized": 0.2132,
+        "elo_per_match": -20.05,
         "upset_rate": 0.0,
         "matchup_spread": 0.0889,
         "anti_meta_score": 0.0
@@ -2987,7 +2987,7 @@
     },
     "leaderboard": {
       "rank": 41,
-      "elo": 892,
+      "elo": 920,
       "matches": 4
     },
     "archetype": {
@@ -3001,7 +3001,7 @@
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.914,
+          "score": 0.919,
           "name": "Tempo Controller"
         },
         {
@@ -3023,7 +3023,7 @@
       "defense": 1.44,
       "stamina": 1.87,
       "control": 2.67,
-      "meta_impact": 0.53
+      "meta_impact": 0.55
     },
     "sub_metrics": {
       "attack": {
@@ -3047,13 +3047,13 @@
         "long_round_win_rate": 0.6
       },
       "control": {
-        "volatility_inverse": 0.6121,
+        "volatility_inverse": 0.5908,
         "first_contact_advantage": 0.4,
         "match_flow_stability": 0.909
       },
       "meta_impact": {
-        "elo_normalized": 0.2301,
-        "elo_per_match": -11.169,
+        "elo_normalized": 0.1985,
+        "elo_per_match": -8.442,
         "upset_rate": 0.0,
         "matchup_spread": 0.2667,
         "anti_meta_score": 0.0
@@ -3061,7 +3061,7 @@
     },
     "leaderboard": {
       "rank": 42,
-      "elo": 888,
+      "elo": 916,
       "matches": 10
     },
     "archetype": {
@@ -3080,7 +3080,7 @@
       "attack": 3.75,
       "defense": 2.08,
       "stamina": 0.0,
-      "control": 1.47,
+      "control": 1.74,
       "meta_impact": 0.3
     },
     "sub_metrics": {
@@ -3105,13 +3105,13 @@
         "long_round_win_rate": 0.2
       },
       "control": {
-        "volatility_inverse": 0.4218,
+        "volatility_inverse": 0.4042,
         "first_contact_advantage": 0.5,
         "match_flow_stability": 0.9018
       },
       "meta_impact": {
-        "elo_normalized": 0.2074,
-        "elo_per_match": -19.95,
+        "elo_normalized": 0.1949,
+        "elo_per_match": -14.1083,
         "upset_rate": 0.0,
         "matchup_spread": 0.1778,
         "anti_meta_score": 0.0
@@ -3119,7 +3119,7 @@
     },
     "leaderboard": {
       "rank": 43,
-      "elo": 880,
+      "elo": 915,
       "matches": 6
     },
     "archetype": {
@@ -3129,7 +3129,7 @@
       "category": "offense",
       "icon": "\ud83d\udca5",
       "color": "#ef4444",
-      "confidence": 0.526,
+      "confidence": 0.517,
       "candidates": [
         {
           "archetype": "glass_cannon",
@@ -3138,7 +3138,7 @@
         },
         {
           "archetype": "berserker",
-          "score": 0.545,
+          "score": 0.549,
           "name": "Berserker"
         },
         {
@@ -3179,13 +3179,13 @@
         "long_round_win_rate": 0.5
       },
       "control": {
-        "volatility_inverse": 0.7266,
+        "volatility_inverse": 0.76,
         "first_contact_advantage": 0.5,
         "match_flow_stability": 0.78
       },
       "meta_impact": {
-        "elo_normalized": 0.1165,
-        "elo_per_match": -30.316,
+        "elo_normalized": 0.1287,
+        "elo_per_match": -20.57,
         "upset_rate": 0.0,
         "matchup_spread": 0.1111,
         "anti_meta_score": 0.5
@@ -3193,7 +3193,7 @@
     },
     "leaderboard": {
       "rank": 44,
-      "elo": 848,
+      "elo": 897,
       "matches": 5
     },
     "archetype": {
@@ -3207,7 +3207,7 @@
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.853,
+          "score": 0.859,
           "name": "Endurance Core"
         },
         {
@@ -3229,7 +3229,7 @@
       "defense": 1.42,
       "stamina": 3.64,
       "control": 1.71,
-      "meta_impact": 0.88
+      "meta_impact": 0.9
     },
     "sub_metrics": {
       "attack": {
@@ -3253,13 +3253,13 @@
         "long_round_win_rate": 0.4286
       },
       "control": {
-        "volatility_inverse": 0.7923,
+        "volatility_inverse": 0.8077,
         "first_contact_advantage": 0.0,
         "match_flow_stability": 0.6524
       },
       "meta_impact": {
-        "elo_normalized": 0.0824,
-        "elo_per_match": -27.25,
+        "elo_normalized": 0.0772,
+        "elo_per_match": -19.5633,
         "upset_rate": 0.0,
         "matchup_spread": 0.1111,
         "anti_meta_score": 0.5
@@ -3267,7 +3267,7 @@
     },
     "leaderboard": {
       "rank": 45,
-      "elo": 836,
+      "elo": 883,
       "matches": 6
     },
     "archetype": {
@@ -3281,7 +3281,7 @@
       "candidates": [
         {
           "archetype": "endurance_core",
-          "score": 0.778,
+          "score": 0.781,
           "name": "Endurance Core"
         },
         {
@@ -3327,13 +3327,13 @@
         "long_round_win_rate": 0.5
       },
       "control": {
-        "volatility_inverse": 0.6816,
+        "volatility_inverse": 0.7293,
         "first_contact_advantage": 0.375,
         "match_flow_stability": 0.9577
       },
       "meta_impact": {
         "elo_normalized": 0.0,
-        "elo_per_match": -24.1762,
+        "elo_per_match": -17.3038,
         "upset_rate": 0.0,
         "matchup_spread": 0.2444,
         "anti_meta_score": 0.25
@@ -3341,7 +3341,7 @@
     },
     "leaderboard": {
       "rank": 46,
-      "elo": 807,
+      "elo": 862,
       "matches": 8
     },
     "archetype": {
@@ -3351,11 +3351,11 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.838,
+      "confidence": 0.869,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.586,
+          "score": 0.598,
           "name": "Tempo Controller"
         },
         {

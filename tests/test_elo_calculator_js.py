@@ -22,7 +22,8 @@ def run_js_function(function_name, *args):
             capture_output=True,
             text=True,
             cwd='.',
-            timeout=5
+            timeout=5,
+            encoding="utf-8"
         )
         if result.returncode == 0:
             return json.loads(result.stdout.strip())

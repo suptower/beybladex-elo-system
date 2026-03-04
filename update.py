@@ -94,6 +94,9 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 DIM = "\033[2m"
 
+env = os.environ.copy()
+env["PYTHONUTF8"] = "1"  # Ensure UTF-8 encoding for subprocesses
+
 
 def parse_args():
     """Parse command line arguments."""
@@ -202,7 +205,9 @@ def run_script(script_path, description, verbose=False, stream_output=False):
                 [sys.executable, "-u", script_path],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                text=True
+                text=True,
+                env=env,
+                encoding="utf-8"
             )
             for line in process.stdout:
                 if verbose:
@@ -216,7 +221,9 @@ def run_script(script_path, description, verbose=False, stream_output=False):
             result = subprocess.run(
                 [sys.executable, script_path],
                 capture_output=True,
-                text=True
+                text=True,
+                env=env,
+                encoding="utf-8"
             )
             returncode = result.returncode
             stdout = result.stdout
