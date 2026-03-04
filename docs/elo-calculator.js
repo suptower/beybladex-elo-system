@@ -14,7 +14,7 @@
  *
  * K-Factor (Version 3, smooth exponential decay):
  *   K_base(N) = K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)
- *   Parameters: K_MIN=16, K_MAX=40, K_TAU=20
+ *   Parameters: K_MIN=16, K_MAX=32, K_TAU=20
  *
  * Margin-Based Scoring (ELO Version 3):
  *   Winner: S = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)
@@ -31,13 +31,13 @@ const ELO_VERSION = 3; // Version 3: Smooth K-factor, form adjustment, tanh marg
 
 // Smooth exponential K-factor parameters
 const K_MIN = 16;
-const K_MAX = 40;
+const K_MAX = 32;
 const K_TAU = 20;
 
 // Form-based K adjustment parameters
 const FORM_WINDOW = 10;  // Equivalent window size for EMA smoothing
 const FORM_EMA_ALPHA = 2 / (FORM_WINDOW + 1);  // EMA smoothing factor ≈ 0.182
-const FORM_ALPHA = 3;
+const FORM_ALPHA = 2.5;
 
 // Margin model parameters (tanh-based)
 const MARGIN_A = 0.18;

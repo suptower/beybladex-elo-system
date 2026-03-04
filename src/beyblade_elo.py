@@ -19,7 +19,7 @@ Features:
 
 K-Factor (Version 3, smooth exponential decay):
     K_base(N) = K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)
-    Parameters: K_MIN=16, K_MAX=32, K_TAU=20
+    Parameters: K_MIN=16, K_MAX=32, K_TAU=15
     K_eff = K_base * (1 + FORM_ALPHA * |form_ema|)
     where form_ema is the exponentially weighted mean of (S_i - E_i),
     with smoothing factor FORM_EMA_ALPHA = 2 / (FORM_WINDOW + 1) ≈ 0.182.
@@ -77,12 +77,12 @@ START_ELO = 1000
 # Smooth exponential K-factor parameters (Version 3)
 K_MIN = 16
 K_MAX = 32
-K_TAU = 20
+K_TAU = 15
 
 # Form-based K adjustment parameters
 FORM_WINDOW = 10  # Equivalent window size for EMA smoothing
 FORM_EMA_ALPHA = 2 / (FORM_WINDOW + 1)  # EMA smoothing factor ≈ 0.182
-FORM_ALPHA = 2
+FORM_ALPHA = 2.5
 
 # Margin model parameters (tanh-based, Race-to-N compatible)
 MARGIN_A = 0.18

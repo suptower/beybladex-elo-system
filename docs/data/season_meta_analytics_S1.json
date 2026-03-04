@@ -23,20 +23,21 @@
         "name": "Tempo Controller",
         "icon": "🎼",
         "color": "#f59e0b",
-        "bey_count": 6,
+        "bey_count": 7,
         "beys": [
           "ImpactDrake",
           "TuskMammoth",
           "ScorpioSpear",
           "KnightMail",
           "LeonClaw",
-          "SharkEdge"
+          "SharkEdge",
+          "PhoenixWing"
         ],
-        "avg_winrate": 0.6111,
-        "avg_points_per_round": 0.3795,
-        "stability_index": 0.0609,
-        "total_season_matches": 54,
-        "total_rounds": 303
+        "avg_winrate": 0.5556,
+        "avg_points_per_round": 0.3477,
+        "stability_index": 0.1571,
+        "total_season_matches": 63,
+        "total_rounds": 348
       },
       "meta_anchor": {
         "id": "meta_anchor",
@@ -114,64 +115,55 @@
         "name": "Endurance Core",
         "icon": "💪",
         "color": "#10b981",
-        "bey_count": 3,
+        "bey_count": 4,
         "beys": [
           "HellsChain",
+          "RhinoReaper",
           "CerberusFlame",
           "WizardRod"
         ],
-        "avg_winrate": 0.3704,
-        "avg_points_per_round": 0.2397,
-        "stability_index": 0.2566,
-        "total_season_matches": 27,
-        "total_rounds": 146
-      },
-      "spin_tank": {
-        "id": "spin_tank",
-        "name": "Spin Tank",
-        "icon": "🔋",
-        "color": "#14b8a6",
-        "bey_count": 1,
-        "beys": [
-          "RhinoReaper"
-        ],
-        "avg_winrate": 0.4444,
-        "avg_points_per_round": 0.2281,
-        "stability_index": 0.0,
-        "total_season_matches": 9,
-        "total_rounds": 57
+        "avg_winrate": 0.3889,
+        "avg_points_per_round": 0.2365,
+        "stability_index": 0.2128,
+        "total_season_matches": 36,
+        "total_rounds": 203
       },
       "chaser": {
         "id": "chaser",
         "name": "Chaser",
         "icon": "🎯",
         "color": "#f97316",
-        "bey_count": 3,
+        "bey_count": 2,
         "beys": [
           "CrimsonGaruda",
-          "PhoenixWing",
           "SolEclipse"
         ],
         "avg_winrate": 0.2222,
-        "avg_points_per_round": 0.1342,
-        "stability_index": 0.1111,
-        "total_season_matches": 27,
-        "total_rounds": 149
+        "avg_points_per_round": 0.1346,
+        "stability_index": 0.1571,
+        "total_season_matches": 18,
+        "total_rounds": 104
       }
     },
     "matchup_matrix": {
       "endurance_core": {
         "chaser": {
           "wins": 2,
-          "losses": 0,
-          "total": 2,
-          "winrate": 1.0
+          "losses": 1,
+          "total": 3,
+          "winrate": 0.6667
         },
         "tempo_controller": {
-          "wins": 2,
-          "losses": 5,
+          "wins": 3,
+          "losses": 6,
+          "total": 9,
+          "winrate": 0.3333
+        },
+        "glass_cannon": {
+          "wins": 4,
+          "losses": 3,
           "total": 7,
-          "winrate": 0.2857
+          "winrate": 0.5714
         },
         "adaptive_fighter": {
           "wins": 1,
@@ -179,36 +171,30 @@
           "total": 4,
           "winrate": 0.25
         },
-        "glass_cannon": {
-          "wins": 3,
-          "losses": 2,
-          "total": 5,
-          "winrate": 0.6
-        },
         "meta_anchor": {
-          "wins": 0,
-          "losses": 5,
-          "total": 5,
-          "winrate": 0.0
-        },
-        "spin_tank": {
           "wins": 1,
-          "losses": 1,
-          "total": 2,
-          "winrate": 0.5
+          "losses": 6,
+          "total": 7,
+          "winrate": 0.1429
         },
         "endurance_core": {
-          "wins": 1,
-          "losses": 1,
-          "total": 2,
+          "wins": 3,
+          "losses": 3,
+          "total": 6,
           "winrate": 0.5
         }
       },
       "chaser": {
         "endurance_core": {
-          "wins": 0,
+          "wins": 1,
           "losses": 2,
-          "total": 2,
+          "total": 3,
+          "winrate": 0.3333
+        },
+        "counter_shield": {
+          "wins": 0,
+          "losses": 1,
+          "total": 1,
           "winrate": 0.0
         },
         "tempo_controller": {
@@ -217,23 +203,11 @@
           "total": 4,
           "winrate": 0.0
         },
-        "counter_shield": {
-          "wins": 0,
-          "losses": 2,
-          "total": 2,
-          "winrate": 0.0
-        },
-        "adaptive_fighter": {
-          "wins": 0,
-          "losses": 2,
-          "total": 2,
-          "winrate": 0.0
-        },
         "iron_wall": {
-          "wins": 1,
-          "losses": 7,
-          "total": 8,
-          "winrate": 0.125
+          "wins": 0,
+          "losses": 4,
+          "total": 4,
+          "winrate": 0.0
         },
         "glass_cannon": {
           "wins": 1,
@@ -247,25 +221,19 @@
           "total": 2,
           "winrate": 0.5
         },
-        "spin_tank": {
-          "wins": 1,
-          "losses": 0,
-          "total": 1,
-          "winrate": 1.0
-        },
-        "chaser": {
-          "wins": 1,
+        "adaptive_fighter": {
+          "wins": 0,
           "losses": 1,
-          "total": 2,
-          "winrate": 0.5
+          "total": 1,
+          "winrate": 0.0
         }
       },
       "tempo_controller": {
         "endurance_core": {
-          "wins": 5,
-          "losses": 2,
-          "total": 7,
-          "winrate": 0.7143
+          "wins": 6,
+          "losses": 3,
+          "total": 9,
+          "winrate": 0.6667
         },
         "meta_anchor": {
           "wins": 4,
@@ -273,29 +241,29 @@
           "total": 7,
           "winrate": 0.5714
         },
+        "tempo_controller": {
+          "wins": 5,
+          "losses": 5,
+          "total": 10,
+          "winrate": 0.5
+        },
+        "adaptive_fighter": {
+          "wins": 7,
+          "losses": 7,
+          "total": 14,
+          "winrate": 0.5
+        },
         "chaser": {
           "wins": 4,
           "losses": 0,
           "total": 4,
           "winrate": 1.0
         },
-        "tempo_controller": {
+        "iron_wall": {
           "wins": 4,
           "losses": 4,
           "total": 8,
           "winrate": 0.5
-        },
-        "adaptive_fighter": {
-          "wins": 7,
-          "losses": 6,
-          "total": 13,
-          "winrate": 0.5385
-        },
-        "iron_wall": {
-          "wins": 3,
-          "losses": 1,
-          "total": 4,
-          "winrate": 0.75
         },
         "glass_cannon": {
           "wins": 4,
@@ -305,15 +273,9 @@
         },
         "counter_shield": {
           "wins": 0,
-          "losses": 1,
-          "total": 1,
-          "winrate": 0.0
-        },
-        "spin_tank": {
-          "wins": 1,
-          "losses": 1,
+          "losses": 2,
           "total": 2,
-          "winrate": 0.5
+          "winrate": 0.0
         }
       },
       "glass_cannon": {
@@ -323,23 +285,17 @@
           "total": 5,
           "winrate": 0.2
         },
-        "spin_tank": {
-          "wins": 1,
-          "losses": 1,
-          "total": 2,
-          "winrate": 0.5
+        "endurance_core": {
+          "wins": 3,
+          "losses": 4,
+          "total": 7,
+          "winrate": 0.4286
         },
         "adaptive_fighter": {
           "wins": 2,
           "losses": 2,
           "total": 4,
           "winrate": 0.5
-        },
-        "endurance_core": {
-          "wins": 2,
-          "losses": 3,
-          "total": 5,
-          "winrate": 0.4
         },
         "tempo_controller": {
           "wins": 3,
@@ -379,17 +335,11 @@
           "total": 4,
           "winrate": 0.5
         },
-        "spin_tank": {
-          "wins": 1,
-          "losses": 1,
-          "total": 2,
-          "winrate": 0.5
-        },
         "endurance_core": {
-          "wins": 5,
-          "losses": 0,
-          "total": 5,
-          "winrate": 1.0
+          "wins": 6,
+          "losses": 1,
+          "total": 7,
+          "winrate": 0.8571
         },
         "chaser": {
           "wins": 1,
@@ -402,38 +352,6 @@
           "losses": 1,
           "total": 2,
           "winrate": 0.5
-        }
-      },
-      "spin_tank": {
-        "glass_cannon": {
-          "wins": 1,
-          "losses": 1,
-          "total": 2,
-          "winrate": 0.5
-        },
-        "meta_anchor": {
-          "wins": 1,
-          "losses": 1,
-          "total": 2,
-          "winrate": 0.5
-        },
-        "endurance_core": {
-          "wins": 1,
-          "losses": 1,
-          "total": 2,
-          "winrate": 0.5
-        },
-        "tempo_controller": {
-          "wins": 1,
-          "losses": 1,
-          "total": 2,
-          "winrate": 0.5
-        },
-        "chaser": {
-          "wins": 0,
-          "losses": 1,
-          "total": 1,
-          "winrate": 0.0
         }
       },
       "iron_wall": {
@@ -444,10 +362,10 @@
           "winrate": 0.5
         },
         "chaser": {
-          "wins": 7,
-          "losses": 1,
-          "total": 8,
-          "winrate": 0.875
+          "wins": 4,
+          "losses": 0,
+          "total": 4,
+          "winrate": 1.0
         },
         "counter_shield": {
           "wins": 0,
@@ -456,10 +374,10 @@
           "winrate": 0.0
         },
         "tempo_controller": {
-          "wins": 1,
-          "losses": 3,
-          "total": 4,
-          "winrate": 0.25
+          "wins": 4,
+          "losses": 4,
+          "total": 8,
+          "winrate": 0.5
         },
         "adaptive_fighter": {
           "wins": 2,
@@ -470,9 +388,9 @@
       },
       "counter_shield": {
         "chaser": {
-          "wins": 2,
+          "wins": 1,
           "losses": 0,
-          "total": 2,
+          "total": 1,
           "winrate": 1.0
         },
         "iron_wall": {
@@ -482,9 +400,9 @@
           "winrate": 1.0
         },
         "tempo_controller": {
-          "wins": 1,
+          "wins": 2,
           "losses": 0,
-          "total": 1,
+          "total": 2,
           "winrate": 1.0
         },
         "adaptive_fighter": {
@@ -514,16 +432,10 @@
           "winrate": 0.75
         },
         "tempo_controller": {
-          "wins": 6,
+          "wins": 7,
           "losses": 7,
-          "total": 13,
-          "winrate": 0.4615
-        },
-        "chaser": {
-          "wins": 2,
-          "losses": 0,
-          "total": 2,
-          "winrate": 1.0
+          "total": 14,
+          "winrate": 0.5
         },
         "adaptive_fighter": {
           "wins": 6,
@@ -538,6 +450,12 @@
           "winrate": 0.5
         },
         "counter_shield": {
+          "wins": 1,
+          "losses": 0,
+          "total": 1,
+          "winrate": 1.0
+        },
+        "chaser": {
           "wins": 1,
           "losses": 0,
           "total": 1,
@@ -557,8 +475,7 @@
       },
       "2": {
         "meta_anchor": 0.1429,
-        "endurance_core": 0.1429,
-        "spin_tank": 0.0714,
+        "endurance_core": 0.2143,
         "tempo_controller": 0.3571,
         "adaptive_fighter": 0.1429,
         "iron_wall": 0.0714,
@@ -571,7 +488,7 @@
         "meta_anchor": 0.2143,
         "iron_wall": 0.1429,
         "counter_shield": 0.0714,
-        "spin_tank": 0.0714
+        "endurance_core": 0.0714
       },
       "4": {
         "endurance_core": 0.1333,
@@ -597,24 +514,22 @@
         "iron_wall": 0.1429,
         "counter_shield": 0.0714,
         "glass_cannon": 0.0714,
-        "spin_tank": 0.0714
+        "endurance_core": 0.0714
       },
       "7": {
-        "spin_tank": 0.0667,
-        "endurance_core": 0.0667,
-        "tempo_controller": 0.2667,
+        "endurance_core": 0.1333,
+        "tempo_controller": 0.3333,
         "meta_anchor": 0.1333,
         "counter_shield": 0.0667,
         "iron_wall": 0.0667,
-        "chaser": 0.0667,
         "adaptive_fighter": 0.2,
         "glass_cannon": 0.0667
       },
       "8": {
         "meta_anchor": 0.0667,
-        "tempo_controller": 0.2667,
+        "tempo_controller": 0.3333,
         "glass_cannon": 0.1333,
-        "chaser": 0.1333,
+        "chaser": 0.0667,
         "endurance_core": 0.0667,
         "adaptive_fighter": 0.2,
         "iron_wall": 0.0667,
@@ -638,14 +553,15 @@
         }
       },
       "tempo_controller": {
-        "stability_index": 0.0609,
+        "stability_index": 0.1571,
         "bey_winrates": {
           "ImpactDrake": 0.6667,
           "TuskMammoth": 0.5556,
           "ScorpioSpear": 0.5556,
           "KnightMail": 0.6667,
           "LeonClaw": 0.6667,
-          "SharkEdge": 0.5556
+          "SharkEdge": 0.5556,
+          "PhoenixWing": 0.2222
         }
       },
       "meta_anchor": {
@@ -684,24 +600,18 @@
         }
       },
       "endurance_core": {
-        "stability_index": 0.2566,
+        "stability_index": 0.2128,
         "bey_winrates": {
           "HellsChain": 0.6667,
+          "RhinoReaper": 0.4444,
           "CerberusFlame": 0.2222,
           "WizardRod": 0.2222
         }
       },
-      "spin_tank": {
-        "stability_index": 0.0,
-        "bey_winrates": {
-          "RhinoReaper": 0.4444
-        }
-      },
       "chaser": {
-        "stability_index": 0.1111,
+        "stability_index": 0.1571,
         "bey_winrates": {
           "CrimsonGaruda": 0.3333,
-          "PhoenixWing": 0.2222,
           "SolEclipse": 0.1111
         }
       }
@@ -731,7 +641,7 @@
     },
     {
       "bey": "WeissTiger",
-      "power_score": 70.08,
+      "power_score": 70.51,
       "power_rank": 4,
       "elo_rank": 12,
       "rank_delta": 8
@@ -740,8 +650,8 @@
       "bey": "SilverWolf",
       "power_score": 67.61,
       "power_rank": 5,
-      "elo_rank": 14,
-      "rank_delta": 9
+      "elo_rank": 15,
+      "rank_delta": 10
     },
     {
       "bey": "HellsChain",
@@ -751,25 +661,25 @@
       "rank_delta": 12
     },
     {
-      "bey": "KnightMail",
-      "power_score": 66.31,
+      "bey": "DranBrave",
+      "power_score": 65.72,
       "power_rank": 7,
-      "elo_rank": 16,
+      "elo_rank": 11,
+      "rank_delta": 4
+    },
+    {
+      "bey": "KnightMail",
+      "power_score": 65.45,
+      "power_rank": 8,
+      "elo_rank": 17,
       "rank_delta": 9
     },
     {
-      "bey": "DranBrave",
-      "power_score": 65.72,
-      "power_rank": 8,
-      "elo_rank": 11,
-      "rank_delta": 3
-    },
-    {
       "bey": "LeonCrest",
-      "power_score": 64.62,
+      "power_score": 64.19,
       "power_rank": 9,
-      "elo_rank": 7,
-      "rank_delta": -2
+      "elo_rank": 8,
+      "rank_delta": -1
     },
     {
       "bey": "FoxBrush",
@@ -780,7 +690,7 @@
     },
     {
       "bey": "TuskMammoth",
-      "power_score": 61.24,
+      "power_score": 60.8,
       "power_rank": 11,
       "elo_rank": 4,
       "rank_delta": -7
@@ -857,10 +767,10 @@
     },
     {
       "bey": "CobaltDragoon",
-      "power_score": 44.27,
+      "power_score": 44.7,
       "power_rank": 22,
-      "elo_rank": 17,
-      "rank_delta": -5
+      "elo_rank": 16,
+      "rank_delta": -6
     },
     {
       "bey": "UnicornSting",
@@ -892,28 +802,28 @@
     },
     {
       "bey": "PhoenixWing",
-      "power_score": 29.52,
+      "power_score": 29.96,
       "power_rank": 27,
-      "elo_rank": 32,
-      "rank_delta": 5
+      "elo_rank": 31,
+      "rank_delta": 4
     },
     {
       "bey": "WhaleWave",
-      "power_score": 26.0,
+      "power_score": 26.87,
       "power_rank": 28,
-      "elo_rank": 37,
-      "rank_delta": 9
+      "elo_rank": 35,
+      "rank_delta": 7
     },
     {
       "bey": "WizardRod",
-      "power_score": 20.89,
+      "power_score": 21.33,
       "power_rank": 29,
-      "elo_rank": 41,
-      "rank_delta": 12
+      "elo_rank": 39,
+      "rank_delta": 10
     },
     {
       "bey": "SolEclipse",
-      "power_score": 18.23,
+      "power_score": 18.66,
       "power_rank": 30,
       "elo_rank": 36,
       "rank_delta": 6
@@ -1501,263 +1411,263 @@
     "timeseries": {
       "3": {
         "1": {
-          "mean": 997.65,
-          "median": 1000.57,
-          "max": 1015.52,
-          "min": 979.15,
-          "q1": 988.05,
-          "q3": 1002.78,
-          "iqr": 14.73
+          "mean": 999.15,
+          "median": 1001.15,
+          "max": 1020.48,
+          "min": 981.0,
+          "q1": 989.21,
+          "q3": 1004.88,
+          "iqr": 15.67
         },
         "2": {
-          "mean": 997.73,
-          "median": 993.13,
-          "max": 1016.54,
-          "min": 979.47,
-          "q1": 988.66,
-          "q3": 1011.04,
-          "iqr": 22.38
+          "mean": 999.22,
+          "median": 994.01,
+          "max": 1018.67,
+          "min": 980.97,
+          "q1": 991.03,
+          "q3": 1011.62,
+          "iqr": 20.59
         },
         "3": {
-          "mean": 999.33,
-          "median": 996.26,
-          "max": 1023.51,
-          "min": 977.06,
-          "q1": 981.95,
-          "q3": 1017.47,
-          "iqr": 35.52
+          "mean": 1001.16,
+          "median": 998.22,
+          "max": 1026.51,
+          "min": 979.15,
+          "q1": 982.96,
+          "q3": 1020.31,
+          "iqr": 37.35
         },
         "4": {
-          "mean": 1000.54,
-          "median": 995.59,
-          "max": 1061.74,
-          "min": 962.67,
-          "q1": 973.02,
-          "q3": 1028.21,
-          "iqr": 55.19
+          "mean": 1002.51,
+          "median": 996.1,
+          "max": 1065.26,
+          "min": 965.46,
+          "q1": 975.9,
+          "q3": 1032.54,
+          "iqr": 56.64
         },
         "5": {
-          "mean": 1000.9,
-          "median": 986.31,
-          "max": 1072.01,
-          "min": 949.09,
-          "q1": 981.85,
-          "q3": 1020.49,
-          "iqr": 38.64
+          "mean": 1002.91,
+          "median": 987.95,
+          "max": 1075.65,
+          "min": 951.83,
+          "q1": 980.65,
+          "q3": 1025.08,
+          "iqr": 44.43
         },
         "6": {
-          "mean": 1002.04,
-          "median": 995.74,
-          "max": 1090.12,
-          "min": 966.37,
-          "q1": 976.36,
-          "q3": 1010.08,
-          "iqr": 33.72
+          "mean": 1004.25,
+          "median": 998.66,
+          "max": 1093.82,
+          "min": 969.21,
+          "q1": 977.02,
+          "q3": 1014.98,
+          "iqr": 37.96
         },
         "7": {
-          "mean": 1002.34,
-          "median": 989.34,
-          "max": 1099.78,
-          "min": 953.88,
-          "q1": 969.42,
-          "q3": 1022.85,
-          "iqr": 53.43
+          "mean": 1004.61,
+          "median": 991.65,
+          "max": 1103.58,
+          "min": 957.14,
+          "q1": 970.73,
+          "q3": 1027.46,
+          "iqr": 56.73
         },
         "8": {
-          "mean": 1002.48,
-          "median": 1010.23,
-          "max": 1107.18,
-          "min": 937.48,
-          "q1": 959.43,
-          "q3": 1023.55,
-          "iqr": 64.12
+          "mean": 1004.62,
+          "median": 1011.58,
+          "max": 1110.92,
+          "min": 940.88,
+          "q1": 960.83,
+          "q3": 1025.92,
+          "iqr": 65.09
         },
         "9": {
-          "mean": 1001.17,
-          "median": 1012.64,
-          "max": 1083.49,
-          "min": 921.89,
-          "q1": 973.37,
-          "q3": 1029.24,
-          "iqr": 55.87
+          "mean": 1003.08,
+          "median": 1013.72,
+          "max": 1086.76,
+          "min": 925.18,
+          "q1": 974.56,
+          "q3": 1030.52,
+          "iqr": 55.96
         }
       },
       "2": {
         "1": {
-          "mean": 1010.39,
-          "median": 1010.93,
-          "max": 1035.05,
-          "min": 975.62,
-          "q1": 1000.0,
-          "q3": 1027.61,
-          "iqr": 27.61
+          "mean": 1009.6,
+          "median": 1009.8,
+          "max": 1032.71,
+          "min": 971.33,
+          "q1": 999.86,
+          "q3": 1025.68,
+          "iqr": 25.82
         },
         "2": {
-          "mean": 1010.58,
-          "median": 1010.38,
-          "max": 1047.3,
-          "min": 986.66,
-          "q1": 1004.75,
-          "q3": 1016.39,
-          "iqr": 11.64
+          "mean": 1009.86,
+          "median": 1010.29,
+          "max": 1049.09,
+          "min": 983.54,
+          "q1": 1006.19,
+          "q3": 1013.1,
+          "iqr": 6.91
         },
         "3": {
-          "mean": 1011.65,
-          "median": 1012.39,
-          "max": 1060.67,
-          "min": 974.19,
-          "q1": 990.24,
-          "q3": 1035.08,
-          "iqr": 44.84
+          "mean": 1011.16,
+          "median": 1011.09,
+          "max": 1062.58,
+          "min": 973.44,
+          "q1": 991.96,
+          "q3": 1032.39,
+          "iqr": 40.43
         },
         "4": {
-          "mean": 1014.31,
-          "median": 1013.55,
-          "max": 1091.89,
-          "min": 978.35,
-          "q1": 983.97,
-          "q3": 1031.18,
-          "iqr": 47.21
+          "mean": 1013.95,
+          "median": 1011.82,
+          "max": 1094.79,
+          "min": 980.09,
+          "q1": 983.49,
+          "q3": 1031.55,
+          "iqr": 48.06
         },
         "5": {
-          "mean": 1013.4,
-          "median": 1006.82,
-          "max": 1074.49,
-          "min": 972.61,
-          "q1": 994.23,
-          "q3": 1025.83,
-          "iqr": 31.6
+          "mean": 1012.86,
+          "median": 1005.03,
+          "max": 1076.7,
+          "min": 972.69,
+          "q1": 994.03,
+          "q3": 1022.92,
+          "iqr": 28.89
         },
         "6": {
-          "mean": 1013.9,
-          "median": 1017.63,
-          "max": 1086.67,
-          "min": 962.09,
-          "q1": 983.48,
-          "q3": 1032.24,
-          "iqr": 48.76
+          "mean": 1013.47,
+          "median": 1015.74,
+          "max": 1088.74,
+          "min": 962.53,
+          "q1": 983.91,
+          "q3": 1031.89,
+          "iqr": 47.98
         },
         "7": {
-          "mean": 1013.85,
-          "median": 1011.98,
-          "max": 1095.95,
-          "min": 947.17,
-          "q1": 974.18,
-          "q3": 1048.0,
-          "iqr": 73.82
+          "mean": 1013.41,
+          "median": 1010.59,
+          "max": 1098.04,
+          "min": 947.71,
+          "q1": 976.25,
+          "q3": 1045.1,
+          "iqr": 68.85
         },
         "8": {
-          "mean": 1012.72,
-          "median": 1012.14,
-          "max": 1106.06,
-          "min": 959.99,
-          "q1": 966.62,
-          "q3": 1036.64,
-          "iqr": 70.02
+          "mean": 1012.36,
+          "median": 1010.82,
+          "max": 1108.11,
+          "min": 961.09,
+          "q1": 968.58,
+          "q3": 1037.31,
+          "iqr": 68.73
         },
         "9": {
-          "mean": 1012.33,
-          "median": 1012.41,
-          "max": 1121.17,
-          "min": 949.93,
-          "q1": 969.87,
-          "q3": 1043.09,
-          "iqr": 73.22
+          "mean": 1011.88,
+          "median": 1011.15,
+          "max": 1122.99,
+          "min": 951.16,
+          "q1": 967.83,
+          "q3": 1040.21,
+          "iqr": 72.38
         }
       },
       "1": {
         "1": {
-          "mean": 1064.73,
-          "median": 1053.65,
-          "max": 1112.08,
-          "min": 1029.42,
-          "q1": 1035.95,
-          "q3": 1095.25,
-          "iqr": 59.3
+          "mean": 1066.1,
+          "median": 1054.4,
+          "max": 1117.18,
+          "min": 1028.77,
+          "q1": 1036.9,
+          "q3": 1101.2,
+          "iqr": 64.3
         },
         "2": {
-          "mean": 1065.06,
-          "median": 1059.52,
-          "max": 1121.15,
+          "mean": 1066.52,
+          "median": 1058.43,
+          "max": 1125.65,
           "min": 1019.09,
-          "q1": 1033.99,
-          "q3": 1090.35,
-          "iqr": 56.36
+          "q1": 1034.58,
+          "q3": 1089.96,
+          "iqr": 55.38
         },
         "3": {
-          "mean": 1064.11,
-          "median": 1058.7,
-          "max": 1134.37,
-          "min": 1007.79,
-          "q1": 1038.72,
-          "q3": 1096.21,
-          "iqr": 57.49
+          "mean": 1065.38,
+          "median": 1062.93,
+          "max": 1137.92,
+          "min": 1008.4,
+          "q1": 1037.18,
+          "q3": 1095.26,
+          "iqr": 58.08
         },
         "4": {
-          "mean": 1065.18,
-          "median": 1068.7,
-          "max": 1125.27,
-          "min": 994.27,
-          "q1": 1042.15,
-          "q3": 1093.0,
-          "iqr": 50.85
+          "mean": 1066.65,
+          "median": 1071.22,
+          "max": 1126.1,
+          "min": 998.53,
+          "q1": 1045.53,
+          "q3": 1092.59,
+          "iqr": 47.06
         },
         "5": {
-          "mean": 1065.11,
-          "median": 1071.58,
-          "max": 1135.34,
-          "min": 984.4,
-          "q1": 1029.15,
-          "q3": 1084.33,
-          "iqr": 55.18
+          "mean": 1066.61,
+          "median": 1070.93,
+          "max": 1135.04,
+          "min": 986.01,
+          "q1": 1032.74,
+          "q3": 1083.45,
+          "iqr": 50.71
         },
         "6": {
-          "mean": 1066.25,
-          "median": 1064.72,
-          "max": 1137.1,
-          "min": 1004.46,
-          "q1": 1022.82,
-          "q3": 1092.32,
-          "iqr": 69.5
+          "mean": 1067.83,
+          "median": 1067.93,
+          "max": 1139.87,
+          "min": 1008.63,
+          "q1": 1026.45,
+          "q3": 1091.75,
+          "iqr": 65.3
         },
         "7": {
-          "mean": 1066.42,
-          "median": 1069.34,
-          "max": 1125.35,
-          "min": 996.97,
-          "q1": 1039.67,
-          "q3": 1101.67,
-          "iqr": 62.0
+          "mean": 1067.94,
+          "median": 1068.53,
+          "max": 1128.46,
+          "min": 1001.12,
+          "q1": 1043.2,
+          "q3": 1100.65,
+          "iqr": 57.45
         },
         "8": {
-          "mean": 1067.2,
-          "median": 1074.88,
-          "max": 1129.06,
-          "min": 1005.62,
-          "q1": 1055.68,
-          "q3": 1085.27,
-          "iqr": 29.59
+          "mean": 1068.56,
+          "median": 1077.06,
+          "max": 1131.91,
+          "min": 1009.32,
+          "q1": 1056.71,
+          "q3": 1084.0,
+          "iqr": 27.29
         },
         "9": {
-          "mean": 1066.98,
-          "median": 1067.96,
-          "max": 1136.44,
-          "min": 994.74,
-          "q1": 1044.73,
-          "q3": 1081.28,
-          "iqr": 36.55
+          "mean": 1068.35,
+          "median": 1068.6,
+          "max": 1138.72,
+          "min": 999.01,
+          "q1": 1045.46,
+          "q3": 1086.27,
+          "iqr": 40.81
         }
       }
     },
     "strength_index": {
-      "3": 1000.46,
-      "2": 1012.57,
-      "1": 1065.67
+      "3": 1002.39,
+      "2": 1012.06,
+      "1": 1067.1
     },
     "competitiveness_index": {
-      "3": 41.51,
-      "2": 47.64,
-      "1": 52.98
+      "3": 43.38,
+      "2": 45.34,
+      "1": 51.82
     }
   }
 }
