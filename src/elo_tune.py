@@ -59,13 +59,13 @@ RED    = "\033[31m"
 
 # ── Default / current parameter values ─────────────────────────────────────
 DEFAULTS = dict(
-    k_max      = 32,
-    k_min      = 16,
+    k_max      = 40,
+    k_min      = 12,
     k_tau      = 15,
-    form_alpha = 2.5,
-    form_win   = 10,
+    form_alpha = 3.0,
+    form_win   = 14,
     margin_a   = 0.18,
-    margin_b   = 2.2,
+    margin_b   = 2.6,
 )
 
 # ── Search grid ─────────────────────────────────────────────────────────────
