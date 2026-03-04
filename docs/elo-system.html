@@ -510,6 +510,104 @@
         </div>
     </div>
 
+    <!-- ── System Metrics ──────────────────────────────────────────── -->
+    <div class="elo-metrics-section">
+        <h3 class="elo-metrics-title">📊 System Metrics <span class="metrics-subtitle">(Xtreme arena)</span></h3>
+        <p class="elo-metrics-description">
+            How well does the ELO model predict match outcomes?  Metrics are computed
+            from all Xtreme arena matches using the pre-match expected win probability
+            (<em>E</em>) and the actual winner.
+        </p>
+
+        <!-- KPI cards -->
+        <div class="metrics-kpi-grid" id="metrics-kpi-grid">
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Matches evaluated</div>
+                <div class="kpi-value" id="kpi-matches">—</div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Prediction accuracy</div>
+                <div class="kpi-value" id="kpi-accuracy">—</div>
+                <div class="kpi-note">% of matches where the pre-match favourite won</div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Brier Score</div>
+                <div class="kpi-value" id="kpi-brier">—</div>
+                <div class="kpi-note">Lower is better · uninformed baseline: 0.25</div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Log Loss</div>
+                <div class="kpi-value" id="kpi-logloss">—</div>
+                <div class="kpi-note">Lower is better · uninformed baseline: 0.693</div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Brier Skill Score</div>
+                <div class="kpi-value" id="kpi-skill">—</div>
+                <div class="kpi-note">Improvement over uninformed baseline (higher is better)</div>
+            </div>
+        </div>
+
+        <!-- Calibration table -->
+        <div class="metrics-calibration">
+            <h4 class="calibration-title">Calibration by predicted win probability</h4>
+            <p class="calibration-description">
+                A well-calibrated model produces actual win rates that closely match
+                the predicted probabilities.  For example, when the ELO model gives a
+                Bey a 60–70 % chance of winning, it should win roughly 60–70 % of the
+                time in practice.
+            </p>
+            <div class="calibration-table-wrap">
+                <table class="calibration-table" id="calibration-table">
+                    <thead>
+                        <tr>
+                            <th>Predicted win probability</th>
+                            <th>Mean predicted</th>
+                            <th>Actual win rate</th>
+                            <th>Matches</th>
+                            <th>Calibration</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calibration-tbody">
+                        <tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Metric descriptions -->
+        <div class="metrics-definitions">
+            <details class="metrics-def-block">
+                <summary>What do these metrics mean?</summary>
+                <dl class="metrics-dl">
+                    <dt>Prediction Accuracy</dt>
+                    <dd>The proportion of non-drawn matches in which the player with
+                    the higher pre-match ELO (E &gt; 0.5) went on to win.  Matches
+                    where both players had exactly the same ELO are excluded.</dd>
+
+                    <dt>Brier Score</dt>
+                    <dd>Mean squared error between the predicted win probability
+                    (<em>E</em>) and the actual binary outcome (1 = win, 0 = loss).
+                    A perfectly calibrated, omniscient model scores 0; a model that
+                    always predicts 50 % scores 0.25 (the uninformed baseline).
+                    <br><code>BS = mean( (E − outcome)² )</code></dd>
+
+                    <dt>Brier Skill Score</dt>
+                    <dd>Relative improvement of the Brier Score over the uninformed
+                    baseline (always-0.5 model).  A positive value means the ELO
+                    model does better than random guessing.
+                    <br><code>BSS = 1 − BS / 0.25</code></dd>
+
+                    <dt>Log Loss</dt>
+                    <dd>Mean cross-entropy between the predicted probability and the
+                    actual outcome.  It penalises overconfident wrong predictions
+                    heavily.  The uninformed baseline (always 50 %) scores ln(2) ≈
+                    0.693.
+                    <br><code>LL = −mean( outcome·log(E) + (1−outcome)·log(1−E) )</code></dd>
+                </dl>
+            </details>
+        </div>
+    </div>
+
 </main>
 
 <script>
@@ -538,6 +636,44 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
     });
+
+    // ── Load and render ELO metrics ────────────────────────────────────────
+    fetch('data/elo_metrics.json')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('kpi-matches').textContent  = data.n_matches;
+            document.getElementById('kpi-accuracy').textContent =
+                data.accuracy !== null ? (data.accuracy * 100).toFixed(1) + ' %' : '—';
+            document.getElementById('kpi-brier').textContent    = data.brier_score.toFixed(4);
+            document.getElementById('kpi-logloss').textContent  = data.log_loss.toFixed(4);
+
+            const skillPct = (data.brier_skill * 100).toFixed(2);
+            const skillEl  = document.getElementById('kpi-skill');
+            skillEl.textContent = (data.brier_skill >= 0 ? '+' : '') + skillPct + ' %';
+            skillEl.classList.add(data.brier_skill >= 0 ? 'kpi-positive' : 'kpi-negative');
+
+            // Calibration table
+            const tbody = document.getElementById('calibration-tbody');
+            tbody.innerHTML = '';
+            data.calibration.forEach(row => {
+                const diff = row.actual_win_rate - row.mean_predicted;
+                const diffStr = (diff >= 0 ? '+' : '') + (diff * 100).toFixed(1) + ' pp';
+                const diffCls = Math.abs(diff) < 0.05 ? 'calib-good'
+                              : Math.abs(diff) < 0.12 ? 'calib-ok'
+                              : 'calib-off';
+                tbody.innerHTML +=
+                    `<tr>
+                        <td>${row.label}</td>
+                        <td>${(row.mean_predicted * 100).toFixed(1)} %</td>
+                        <td>${(row.actual_win_rate * 100).toFixed(1)} %</td>
+                        <td>${row.count}</td>
+                        <td class="${diffCls}">${diffStr}</td>
+                    </tr>`;
+            });
+        })
+        .catch(() => {
+            document.getElementById('kpi-matches').textContent = 'N/A';
+        });
 });
 </script>
 

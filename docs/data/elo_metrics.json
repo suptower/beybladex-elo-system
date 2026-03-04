@@ -1,0 +1,55 @@
+{
+  "n_matches": 376,
+  "n_accuracy_matches": 354,
+  "accuracy": 0.5537,
+  "brier_score": 0.2443,
+  "brier_baseline": 0.25,
+  "brier_skill": 0.023,
+  "log_loss": 0.6817,
+  "log_loss_baseline": 0.6931,
+  "calibration": [
+    {
+      "bucket": 2,
+      "label": "20-30%",
+      "mean_predicted": 0.2952,
+      "actual_win_rate": 0.3333,
+      "count": 3
+    },
+    {
+      "bucket": 3,
+      "label": "30-40%",
+      "mean_predicted": 0.3602,
+      "actual_win_rate": 0.3684,
+      "count": 19
+    },
+    {
+      "bucket": 4,
+      "label": "40-50%",
+      "mean_predicted": 0.4603,
+      "actual_win_rate": 0.4569,
+      "count": 116
+    },
+    {
+      "bucket": 5,
+      "label": "50-60%",
+      "mean_predicted": 0.5364,
+      "actual_win_rate": 0.5178,
+      "count": 197
+    },
+    {
+      "bucket": 6,
+      "label": "60-70%",
+      "mean_predicted": 0.6403,
+      "actual_win_rate": 0.6286,
+      "count": 35
+    },
+    {
+      "bucket": 7,
+      "label": "70-80%",
+      "mean_predicted": 0.7277,
+      "actual_win_rate": 0.5,
+      "count": 6
+    }
+  ],
+  "arena_filter": "Xtreme"
+}

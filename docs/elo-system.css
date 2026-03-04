@@ -514,3 +514,182 @@
         flex-direction: column;
     }
 }
+
+/* ── ELO System Metrics ───────────────────────────────────────────────────── */
+.elo-metrics-section {
+    margin-top: 2.5rem;
+    padding: 1.75rem 2rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.elo-metrics-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
+}
+
+.metrics-subtitle {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.elo-metrics-description {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    max-width: 680px;
+    line-height: 1.6;
+}
+
+/* KPI card grid */
+.metrics-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.metrics-kpi-card {
+    background: var(--bg-secondary, var(--section-bg));
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+}
+
+.kpi-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+}
+
+.kpi-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.1;
+}
+
+.kpi-note {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+    line-height: 1.4;
+}
+
+.kpi-positive { color: var(--win-color, #22c55e); }
+.kpi-negative { color: var(--loss-color, #ef4444); }
+
+/* Calibration table */
+.metrics-calibration {
+    margin-bottom: 1.5rem;
+}
+
+.calibration-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.4rem 0;
+}
+
+.calibration-description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.85rem;
+    line-height: 1.5;
+    max-width: 640px;
+}
+
+.calibration-table-wrap {
+    overflow-x: auto;
+}
+
+.calibration-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.calibration-table th,
+.calibration-table td {
+    padding: 0.55rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.calibration-table th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    background: var(--bg-secondary, var(--section-bg));
+}
+
+.calibration-table td { color: var(--text-primary); }
+
+.calib-good { color: var(--win-color,  #22c55e); font-weight: 600; }
+.calib-ok   { color: var(--warn-color, #f59e0b); font-weight: 600; }
+.calib-off  { color: var(--loss-color, #ef4444); font-weight: 600; }
+
+/* Metric definitions accordion */
+.metrics-def-block {
+    background: var(--bg-secondary, var(--section-bg));
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.metrics-def-block summary {
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-primary);
+    user-select: none;
+}
+
+.metrics-def-block summary:hover {
+    background: var(--hover-bg, rgba(0,0,0,0.04));
+}
+
+.metrics-dl {
+    padding: 0 1.25rem 1rem;
+    margin: 0;
+}
+
+.metrics-dl dt {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-top: 0.85rem;
+}
+
+.metrics-dl dd {
+    margin: 0.3rem 0 0 0;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.metrics-dl code {
+    display: block;
+    margin-top: 0.4rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    background: var(--code-bg, rgba(0,0,0,0.06));
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .metrics-kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .kpi-value { font-size: 1.3rem; }
+    .elo-metrics-section { padding: 1.25rem; }
+}

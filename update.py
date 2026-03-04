@@ -72,6 +72,7 @@ SCRIPT_STADIUM_STATS = "./src/stadium_stats.py"
 SCRIPT_SEASON_STATISTICS = "./src/season_statistics.py"
 SCRIPT_SEASON_COMPARISON = "./src/season_comparison.py"
 SCRIPT_SEASON_META_ANALYTICS = "./src/season_meta_analytics.py"
+SCRIPT_ELO_METRICS = "./src/elo_metrics.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
@@ -425,6 +426,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Season Meta Analytics", success, duration))
+
+    # ELO Metrics (depends on elo_history)
+    success, duration = run_script(
+        SCRIPT_ELO_METRICS,
+        "ELO System Metrics",
+        verbose=verbose
+    )
+    results.append(("ELO Metrics", success, duration))
 
     return results
 
