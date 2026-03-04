@@ -19,7 +19,7 @@ Output:
 import csv
 import json
 import statistics
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime
 
 # Colors for terminal output (ANSI escape codes work on most modern terminals)
@@ -183,6 +183,47 @@ def calculate_stadium_overview(matches, elo_history):
             }
 
     return overview
+
+
+def calculate_score_distribution_per_stadium(matches):
+    """Calculate match score distribution per stadium.
+
+    Each match is represented as winner_score-loser_score so that
+    4-0 always means 'winner got 4, loser got 0' regardless of which
+    side (A or B) won.
+    """
+    stadium_scores = defaultdict(Counter)
+    stadium_totals = defaultdict(int)
+
+    for match in matches:
+        stadium = match['stadium']
+        sa, sb = match['score_a'], match['score_b']
+        winner_score = max(sa, sb)
+        loser_score = min(sa, sb)
+        score_key = f"{winner_score}-{loser_score}"
+        stadium_scores[stadium][score_key] += 1
+        stadium_totals[stadium] += 1
+
+    result = {}
+    for stadium, scores in stadium_scores.items():
+        total = stadium_totals[stadium]
+        sorted_scores = sorted(
+            scores.items(),
+            key=lambda x: (-int(x[0].split('-')[0]), -int(x[0].split('-')[1]))
+        )
+        result[stadium] = {
+            'scores': [
+                {
+                    'score': score,
+                    'count': count,
+                    'percentage': round(count / total * 100, 1)
+                }
+                for score, count in sorted_scores
+            ],
+            'total_matches': total
+        }
+
+    return result
 
 
 def calculate_bey_performance_per_stadium(matches, elo_history):
@@ -547,6 +588,9 @@ def generate_stadium_analytics():
     print(f"{CYAN}Calculating archetype effectiveness per stadium...{RESET}")
     archetype_effectiveness = calculate_archetype_effectiveness_per_stadium(matches, rpg_stats)
 
+    print(f"{CYAN}Calculating score distribution per stadium...{RESET}")
+    score_distribution = calculate_score_distribution_per_stadium(matches)
+
     print(f"{CYAN}Calculating finish type statistics per stadium...{RESET}")
     finish_stats = calculate_finish_type_statistics_per_stadium(matches, rounds)
 
@@ -562,6 +606,7 @@ def generate_stadium_analytics():
         'stadium_overview': overview,
         'bey_performance': bey_performance,
         'archetype_effectiveness': archetype_effectiveness,
+        'score_distribution': score_distribution,
         'finish_type_statistics': finish_stats,
         'elo_behavior': elo_behavior,
         'comparative_analysis': comparisons
