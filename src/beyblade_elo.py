@@ -270,6 +270,10 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     if "form_ema" not in active_stats[b]:
         active_stats[b]["form_ema"] = None
 
+    # Capture pre-match form_ema for history logging
+    pre_form_ema_a = active_stats[a]["form_ema"]
+    pre_form_ema_b = active_stats[b]["form_ema"]
+
     # Smooth K-factor with form-based adjustment
     Ka_base = dynamic_k(active_stats[a]["matches"])
     Kb_base = dynamic_k(active_stats[b]["matches"])
@@ -373,7 +377,9 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
             round(Ka_base, 4), round(Kb_base, 4),
             round(Ka, 4), round(Kb, 4),
             round(ea, 4), round(eb, 4),
-            round(s_a, 4), round(s_b, 4)
+            round(s_a, 4), round(s_b, 4),
+            round(pre_form_ema_a, 4) if pre_form_ema_a is not None else '',
+            round(pre_form_ema_b, 4) if pre_form_ema_b is not None else '',
         ])
 
     active_stats[a]["for"] += sa
@@ -614,7 +620,8 @@ def run_elo_pipeline(pipeline_config):
             "PreA", "PreB", "PostA", "PostB", "arena", "elo_arena_updated",
             "MatchType", "SeasonID", "Tier", "Matchday",
             "KBaseA", "KBaseB", "KEffA", "KEffB",
-            "ExpA", "ExpB", "ActA", "ActB"
+            "ExpA", "ExpB", "ActA", "ActB",
+            "FormEmaA", "FormEmaB"
         ])
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))

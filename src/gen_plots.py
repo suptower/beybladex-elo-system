@@ -83,7 +83,7 @@ def ensure_dir(path):
 
 
 def ensure_subdirs(base):
-    subdirs = ["elo", "heatmaps", "bars", "positions"]
+    subdirs = ["elo", "heatmaps", "bars", "positions", "kfactor"]
     paths = {}
     for s in subdirs:
         path = os.path.join(base, s)
@@ -207,6 +207,87 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
         plt.savefig(out_path, dpi=200)
         plt.close()
     print(f"Einzelne ELO-Diagramme gespeichert im Ordner: {subdir}")
+
+
+def plot_kfactor_single(df_hist, outdir, dark_mode=False):
+    """Per-bey K_base, K_eff, and form_ema evolution plots from elo_history.csv."""
+    if dark_mode:
+        configure_dark_mode()
+    else:
+        configure_light_mode()
+
+    required_cols = {"BeyA", "BeyB", "KBaseA", "KBaseB", "KEffA", "KEffB"}
+    if not required_cols.issubset(df_hist.columns):
+        print("plot_kfactor_single: missing required columns in elo_history, skipping.")
+        return
+
+    subdir = os.path.join(outdir, "dark") if dark_mode else outdir
+    suffix = "_dark" if dark_mode else ""
+
+    # Melt into per-bey rows: one row per match-player
+    rows_a = df_hist[["BeyA", "KBaseA", "KEffA"]].copy().rename(
+        columns={"BeyA": "Bey", "KBaseA": "KBase", "KEffA": "KEff"})
+    rows_a["Match"] = df_hist.index + 1
+    rows_b = df_hist[["BeyB", "KBaseB", "KEffB"]].copy().rename(
+        columns={"BeyB": "Bey", "KBaseB": "KBase", "KEffB": "KEff"})
+    rows_b["Match"] = df_hist.index + 1
+
+    has_ema = "FormEmaA" in df_hist.columns and "FormEmaB" in df_hist.columns
+    if has_ema:
+        rows_a["FormEma"] = pd.to_numeric(df_hist["FormEmaA"], errors="coerce")
+        rows_b["FormEma"] = pd.to_numeric(df_hist["FormEmaB"], errors="coerce")
+
+    combined = pd.concat([rows_a, rows_b], ignore_index=True)
+    combined["KBase"] = pd.to_numeric(combined["KBase"], errors="coerce")
+    combined["KEff"] = pd.to_numeric(combined["KEff"], errors="coerce")
+    combined = combined.sort_values(["Bey", "Match"])
+
+    for bey, group in combined.groupby("Bey"):
+        if len(group) < 1:
+            continue
+
+        n_panels = 3 if has_ema else 2
+        fig, axes = plt.subplots(n_panels, 1, figsize=(6, 3 * n_panels), sharex=True)
+
+        # K_base panel
+        ax0 = axes[0]
+        ax0.plot(group["Match"], group["KBase"], marker="o", linewidth=1.5,
+                 color="#3b82f6", label="K_base")
+        ax0.set_ylabel("K_base")
+        ax0.set_title(f"K-Faktor / Form-EMA: {bey}")
+        ax0.legend(loc="best", fontsize=8)
+        ax0.grid(True, alpha=0.4)
+
+        # K_eff panel
+        ax1 = axes[1]
+        ax1.plot(group["Match"], group["KEff"], marker="o", linewidth=1.5,
+                 color="#f59e0b", label="K_eff")
+        ax1.set_ylabel("K_eff")
+        ax1.legend(loc="best", fontsize=8)
+        ax1.grid(True, alpha=0.4)
+
+        # form_ema panel (optional)
+        if has_ema:
+            ax2 = axes[2]
+            ema_series = group["FormEma"].dropna()
+            ema_matches = group.loc[ema_series.index, "Match"]
+            ax2.plot(ema_matches, ema_series, marker="o", linewidth=1.5,
+                     color="#a78bfa", label="form_ema")
+            ax2.axhline(0, color="gray", linewidth=0.8, linestyle="--", alpha=0.6)
+            ax2.set_ylabel("form_ema")
+            ax2.legend(loc="best", fontsize=8)
+            ax2.grid(True, alpha=0.4)
+
+        axes[-1].set_xlabel("Match")
+        plt.tight_layout()
+
+        safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
+        out_path = os.path.join(subdir, f"{safe_name}_kfactor{suffix}.png")
+        plt.savefig(out_path, dpi=200)
+        plt.close()
+
+    print(f"K-Faktor/Form-EMA-Diagramme gespeichert im Ordner: {subdir}")
+
 
 # -------------------
 # ELO Bar Chart
@@ -604,6 +685,9 @@ def generate_all_plots(mode):
         # ELO
         plot_elo_combined(df_ts, files["outdir"], dark_mode=dark_mode)
         plot_elo_single(df_ts, dirs["elo"], dark_mode=dark_mode)
+
+        # K-factor / form_ema per-bey
+        plot_kfactor_single(df_hist, dirs["kfactor"], dark_mode=dark_mode)
 
         df_pos_frac = create_fractional_positions(df_pos)
         plot_position_timeseries(df_pos_frac, dirs["positions"], dark_mode=dark_mode)

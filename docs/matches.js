@@ -219,6 +219,8 @@ async function loadMatches() {
             const expB = values[21] ? parseFloat(values[21]) : null;
             const actA = values[22] ? parseFloat(values[22]) : null;
             const actB = values[23] ? parseFloat(values[23]) : null;
+            const formEmaA = values[24] && values[24].trim() !== '' ? parseFloat(values[24]) : null;
+            const formEmaB = values[25] && values[25].trim() !== '' ? parseFloat(values[25]) : null;
             
             return {
                 id: index,
@@ -250,7 +252,9 @@ async function loadMatches() {
                 expA: expA,
                 expB: expB,
                 actA: actA,
-                actB: actB
+                actB: actB,
+                formEmaA: formEmaA,
+                formEmaB: formEmaB
             };
         });
         
@@ -1384,6 +1388,11 @@ function createEloBreakdownHtml(match) {
                         <td class="elo-param-label">K<sub>eff</sub> (form adj.)</td>
                         <td class="elo-param-value">${fmt2(match.kEffA)}</td>
                         <td class="elo-param-value">${fmt2(match.kEffB)}</td>
+                    </tr>
+                    <tr>
+                        <td class="elo-param-label">form<sub>ema</sub></td>
+                        <td class="elo-param-value">${match.formEmaA != null ? fmt4(match.formEmaA) : '—'}</td>
+                        <td class="elo-param-value">${match.formEmaB != null ? fmt4(match.formEmaB) : '—'}</td>
                     </tr>
                     <tr>
                         <td class="elo-param-label">E (expected)</td>
