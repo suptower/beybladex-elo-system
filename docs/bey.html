@@ -153,6 +153,21 @@
                     <img id="kfactorPlot" src="" alt="K-Factor / Form-EMA History" class="profile-plot" style="display: none;">
                 </div>
             </details>
+
+            <!-- Score Distribution Section (collapsible) -->
+            <details class="profile-section-details" id="scoreDistSection" style="display: none;">
+                <summary class="section-summary">🎯 Score Distribution</summary>
+                <div id="scoreDistContent">
+                    <div class="score-dist-bey-layout">
+                        <div class="score-dist-bey-chart-container">
+                            <canvas id="beyScoreDistChart"></canvas>
+                        </div>
+                        <div id="beyScoreDistTable" class="score-dist-bey-table-container">
+                            <div class="loading-placeholder">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </details>
             
             <!-- History/Timeline Section -->
             <div class="profile-section" id="historySection" style="display: none;">
@@ -297,6 +312,7 @@
     <p>© 2026 suptower • <span id="site-version">Loading version...</span></p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="version-display.js"></script>
 
 <script>
@@ -440,6 +456,7 @@ async function loadData() {
             beyB: m.BeyB,
             scoreA: parseInt(m.ScoreA),
             scoreB: parseInt(m.ScoreB),
+            arena: m.arena || 'Xtreme',
             winner: parseInt(m.ScoreA) > parseInt(m.ScoreB) ? m.BeyA : m.BeyB
         }));
         matchesData = getMatchesForBey(allMatches, beyName);
@@ -609,6 +626,9 @@ function renderProfile() {
 
     // Try to load K-Factor / Form-EMA plot
     loadKfactorPlot();
+
+    // Render score distribution
+    renderScoreDistribution();
     
     // Setup dark mode observer for plots
     setupPlotDarkModeObserver();
@@ -1564,6 +1584,151 @@ function loadKfactorPlot() {
         plotImg.style.display = 'block';
         plotSection.style.display = 'block';
     };
+}
+
+// Render per-bey score distribution chart and table
+let beyScoreDistChart = null;
+
+function renderScoreDistribution() {
+    const section = document.getElementById('scoreDistSection');
+    const tableContainer = document.getElementById('beyScoreDistTable');
+    const ctx = document.getElementById('beyScoreDistChart');
+    if (!section || !tableContainer || !ctx) return;
+
+    // Filter matches by current arena
+    const arenaLabel = currentArena === 'xtreme' ? 'Xtreme' :
+                       currentArena === 'drop_attack' ? 'Drop Attack' :
+                       currentArena === 'combined' ? null : currentArena;
+
+    const filteredMatches = arenaLabel
+        ? matchesData.filter(m => m.arena === arenaLabel)
+        : matchesData;
+
+    if (!filteredMatches || filteredMatches.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    // Compute score distribution from bey perspective
+    const normalizedBeyName = normalizeBeyName(beyName);
+    const scoreCounts = {};
+
+    for (const m of filteredMatches) {
+        const isA = normalizeBeyName(m.beyA) === normalizedBeyName;
+        const myScore = isA ? m.scoreA : m.scoreB;
+        const oppScore = isA ? m.scoreB : m.scoreA;
+        const key = `${myScore}-${oppScore}`;
+        scoreCounts[key] = (scoreCounts[key] || 0) + 1;
+    }
+
+    const total = filteredMatches.length;
+
+    // Sort: wins (myScore > oppScore) descending by score, then losses ascending
+    const entries = Object.entries(scoreCounts).map(([score, count]) => {
+        const [myScore, oppScore] = score.split('-').map(Number);
+        return { score, myScore, oppScore, count, percentage: Math.round(count / total * 1000) / 10 }; // *1000/10 = 1 decimal place
+    });
+    entries.sort((a, b) => {
+        const aWin = a.myScore > a.oppScore ? 1 : 0;
+        const bWin = b.myScore > b.oppScore ? 1 : 0;
+        if (aWin !== bWin) return bWin - aWin; // wins first
+        if (aWin) return b.myScore - a.myScore || a.oppScore - b.oppScore; // bigger wins first
+        return a.oppScore - b.oppScore || b.myScore - a.myScore; // closer losses first
+    });
+
+    const labels = entries.map(e => e.score);
+    const counts = entries.map(e => e.count);
+    const percentages = entries.map(e => e.percentage);
+
+    if (beyScoreDistChart) {
+        beyScoreDistChart.destroy();
+        beyScoreDistChart = null;
+    }
+
+    const isDark = document.body.classList.contains('dark');
+    const textColor = isDark ? '#e0e0e0' : '#333';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+    beyScoreDistChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Matches',
+                data: counts,
+                backgroundColor: entries.map(e => {
+                    if (e.myScore > e.oppScore) {
+                        if (e.oppScore === 0) return 'rgba(34,197,94,0.85)';
+                        if (e.myScore - e.oppScore === 1) return 'rgba(132,204,22,0.75)';
+                        return 'rgba(59,130,246,0.75)';
+                    } else {
+                        if (e.myScore - e.oppScore === -1) return 'rgba(249,115,22,0.75)';
+                        return 'rgba(239,68,68,0.8)';
+                    }
+                }),
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipCtx) {
+                            const pct = percentages[tooltipCtx.dataIndex];
+                            return `${tooltipCtx.parsed.x} matches (${pct}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor },
+                    title: { display: true, text: 'Number of matches', color: textColor }
+                },
+                y: {
+                    ticks: { color: textColor, font: { family: 'monospace', size: 12 } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    const arenaDisplay = arenaLabel || 'All arenas';
+    tableContainer.innerHTML = `
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:8px;">
+            Score shown as <strong>your score – opponent score</strong> (${arenaDisplay}, ${total} match${total !== 1 ? 'es' : ''})
+        </p>
+        <table class="data-table score-dist-table">
+            <thead>
+                <tr><th>Score</th><th>W/L</th><th>Count</th><th>%</th><th>Distribution</th></tr>
+            </thead>
+            <tbody>
+                ${entries.map(e => {
+                    const isWin = e.myScore > e.oppScore;
+                    const badge = isWin
+                        ? '<span style="color:#16a34a;font-weight:bold;">W</span>'
+                        : '<span style="color:#dc2626;font-weight:bold;">L</span>';
+                    return `<tr>
+                        <td><strong>${e.score}</strong></td>
+                        <td>${badge}</td>
+                        <td>${e.count}</td>
+                        <td>${e.percentage}%</td>
+                        <td><div class="inline-bar-outer"><div class="inline-bar-inner" style="width:${e.percentage}%"></div></div></td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+            <tfoot>
+                <tr><td><strong>Total</strong></td><td></td><td><strong>${total}</strong></td><td><strong>100%</strong></td><td></td></tr>
+            </tfoot>
+        </table>
+    `;
 }
 
 // Setup dark mode observer for plot images and interactive plots
