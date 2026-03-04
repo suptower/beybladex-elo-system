@@ -35,7 +35,8 @@ const K_MAX = 40;
 const K_TAU = 20;
 
 // Form-based K adjustment parameters
-const FORM_WINDOW = 10;
+const FORM_WINDOW = 10;  // Equivalent window size for EMA smoothing
+const FORM_EMA_ALPHA = 2 / (FORM_WINDOW + 1);  // EMA smoothing factor ≈ 0.182
 const FORM_ALPHA = 3;
 
 // Margin model parameters (tanh-based)
@@ -59,21 +60,20 @@ function dynamicK(matches) {
 }
 
 /**
- * Calculate effective K-factor with form-based multiplier.
- * K_eff = K_base * (1 + FORM_ALPHA * |D_n|)
- * where D_n = mean(S_i - E_i) over the last FORM_WINDOW matches.
+ * Calculate effective K-factor with form-based EMA multiplier.
+ * K_eff = K_base * (1 + FORM_ALPHA * |form_ema|)
+ * where form_ema is the exponentially weighted mean of (S_i - E_i),
+ * updated as: form_ema = FORM_EMA_ALPHA * delta + (1 - FORM_EMA_ALPHA) * form_ema
  *
  * @param {number} kBase - Base K-factor from dynamicK
- * @param {Array<number>} formHistory - Recent (actual_score - expected_score) values
+ * @param {number|null} formEma - Current EMA of (actual_score - expected_score), or null if no history
  * @returns {number} Effective K-factor
  */
-function kEffective(kBase, formHistory) {
-    if (!formHistory || formHistory.length === 0) {
+function kEffective(kBase, formEma) {
+    if (formEma === null || formEma === undefined) {
         return kBase;
     }
-    const window = formHistory.slice(-FORM_WINDOW);
-    const dN = window.reduce((a, b) => a + b, 0) / window.length;
-    return kBase * (1 + FORM_ALPHA * Math.abs(dN));
+    return kBase * (1 + FORM_ALPHA * Math.abs(formEma));
 }
 
 // ============================================
@@ -164,14 +164,14 @@ function updateElo(beyA, beyB, scoreA, scoreB, elos, stats, target) {
     if (!elos[beyB]) elos[beyB] = ELO_START;
 
     if (!stats[beyA]) {
-        stats[beyA] = { matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0, form_history: [] };
+        stats[beyA] = { matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0, form_ema: null };
     }
     if (!stats[beyB]) {
-        stats[beyB] = { matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0, form_history: [] };
+        stats[beyB] = { matches: 0, wins: 0, losses: 0, for: 0, against: 0, winrate: 0.0, form_ema: null };
     }
-    // Lazy init form_history
-    if (!stats[beyA].form_history) stats[beyA].form_history = [];
-    if (!stats[beyB].form_history) stats[beyB].form_history = [];
+    // Lazy init form_ema
+    if (stats[beyA].form_ema === undefined) stats[beyA].form_ema = null;
+    if (stats[beyB].form_ema === undefined) stats[beyB].form_ema = null;
 
     const eloA = elos[beyA];
     const eloB = elos[beyB];
@@ -183,8 +183,8 @@ function updateElo(beyA, beyB, scoreA, scoreB, elos, stats, target) {
     // Get effective K-factors (smooth base + form adjustment)
     const kBaseA = dynamicK(stats[beyA].matches);
     const kBaseB = dynamicK(stats[beyB].matches);
-    const kA = kEffective(kBaseA, stats[beyA].form_history);
-    const kB = kEffective(kBaseB, stats[beyB].form_history);
+    const kA = kEffective(kBaseA, stats[beyA].form_ema);
+    const kB = kEffective(kBaseB, stats[beyB].form_ema);
 
     // Handle edge case of 0-0 score
     const total = scoreA + scoreB;
@@ -214,15 +214,15 @@ function updateElo(beyA, beyB, scoreA, scoreB, elos, stats, target) {
     elos[beyA] = newEloA;
     elos[beyB] = newEloB;
 
-    // Update form history (rolling window of S_i - E_i), trimmed to FORM_WINDOW
-    stats[beyA].form_history.push(actualA - expectedA);
-    stats[beyB].form_history.push(actualB - expectedB);
-    if (stats[beyA].form_history.length > FORM_WINDOW) {
-        stats[beyA].form_history = stats[beyA].form_history.slice(-FORM_WINDOW);
-    }
-    if (stats[beyB].form_history.length > FORM_WINDOW) {
-        stats[beyB].form_history = stats[beyB].form_history.slice(-FORM_WINDOW);
-    }
+    // Update form EMA: exponentially weighted mean of (S_i - E_i)
+    const deltaA = actualA - expectedA;
+    const deltaB = actualB - expectedB;
+    stats[beyA].form_ema = stats[beyA].form_ema === null
+        ? deltaA
+        : FORM_EMA_ALPHA * deltaA + (1 - FORM_EMA_ALPHA) * stats[beyA].form_ema;
+    stats[beyB].form_ema = stats[beyB].form_ema === null
+        ? deltaB
+        : FORM_EMA_ALPHA * deltaB + (1 - FORM_EMA_ALPHA) * stats[beyB].form_ema;
 
     // Update stats
     stats[beyA].for += scoreA;
@@ -357,6 +357,7 @@ if (typeof module !== 'undefined' && module.exports !== undefined) {
         K_MAX,
         K_TAU,
         FORM_WINDOW,
+        FORM_EMA_ALPHA,
         FORM_ALPHA,
         MARGIN_A,
         MARGIN_B,

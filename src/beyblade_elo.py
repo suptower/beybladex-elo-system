@@ -20,8 +20,9 @@ Features:
 K-Factor (Version 3, smooth exponential decay):
     K_base(N) = K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)
     Parameters: K_MIN=16, K_MAX=40, K_TAU=20
-    K_eff = K_base * (1 + FORM_ALPHA * |D_n|)
-    where D_n is the rolling mean of (S_i - E_i) over the last FORM_WINDOW=10 matches.
+    K_eff = K_base * (1 + FORM_ALPHA * |form_ema|)
+    where form_ema is the exponentially weighted mean of (S_i - E_i),
+    with smoothing factor FORM_EMA_ALPHA = 2 / (FORM_WINDOW + 1) ≈ 0.182.
 
 Margin-Based Scoring (ELO Version 3):
     Winner: S = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)
@@ -79,7 +80,8 @@ K_MAX = 40
 K_TAU = 20
 
 # Form-based K adjustment parameters
-FORM_WINDOW = 10
+FORM_WINDOW = 10  # Equivalent window size for EMA smoothing
+FORM_EMA_ALPHA = 2 / (FORM_WINDOW + 1)  # EMA smoothing factor ≈ 0.182
 FORM_ALPHA = 3
 
 # Margin model parameters (tanh-based, Race-to-N compatible)
@@ -139,24 +141,23 @@ def dynamic_k(matches):
 # ------------ Form-based effective K-factor ------------
 
 
-def k_effective(k_base_val, form_history):
-    """Calculate effective K-factor with form-based multiplier.
+def k_effective(k_base_val, form_ema):
+    """Calculate effective K-factor with form-based EMA multiplier.
 
-    K_eff = K_base * (1 + FORM_ALPHA * |D_n|)
-    where D_n = mean(S_i - E_i) over the last FORM_WINDOW matches.
+    K_eff = K_base * (1 + FORM_ALPHA * |form_ema|)
+    where form_ema is the exponentially weighted mean of (S_i - E_i),
+    updated each match as: form_ema = FORM_EMA_ALPHA * delta + (1 - FORM_EMA_ALPHA) * form_ema
 
     Args:
         k_base_val: Base K-factor from dynamic_k
-        form_history: List of recent (actual_score - expected_score) values
+        form_ema: Current EMA of (actual_score - expected_score), or None if no history
 
     Returns:
         Effective K-factor
     """
-    if not form_history:
+    if form_ema is None:
         return k_base_val
-    window = form_history[-FORM_WINDOW:]
-    d_n = sum(window) / len(window)
-    return k_base_val * (1 + FORM_ALPHA * abs(d_n))
+    return k_base_val * (1 + FORM_ALPHA * abs(form_ema))
 
 # ------------ Elo expected score ------------
 
@@ -263,17 +264,17 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     ra, rb = active_elos[a], active_elos[b]
     ea, eb = expected(ra, rb), expected(rb, ra)
 
-    # Ensure form_history key exists in stats (lazy init for backward compatibility)
-    if "form_history" not in active_stats[a]:
-        active_stats[a]["form_history"] = []
-    if "form_history" not in active_stats[b]:
-        active_stats[b]["form_history"] = []
+    # Ensure form_ema key exists in stats (lazy init for backward compatibility)
+    if "form_ema" not in active_stats[a]:
+        active_stats[a]["form_ema"] = None
+    if "form_ema" not in active_stats[b]:
+        active_stats[b]["form_ema"] = None
 
     # Smooth K-factor with form-based adjustment
     Ka_base = dynamic_k(active_stats[a]["matches"])
     Kb_base = dynamic_k(active_stats[b]["matches"])
-    Ka = k_effective(Ka_base, active_stats[a]["form_history"])
-    Kb = k_effective(Kb_base, active_stats[b]["form_history"])
+    Ka = k_effective(Ka_base, active_stats[a]["form_ema"])
+    Kb = k_effective(Kb_base, active_stats[b]["form_ema"])
 
     total = sa + sb
     if total == 0:
@@ -286,11 +287,17 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     new_b = rb + Kb * (s_b - eb)
     active_elos[a], active_elos[b] = new_a, new_b
 
-    # Update form history (rolling window of S_i - E_i), trimmed to FORM_WINDOW
-    active_stats[a]["form_history"].append(s_a - ea)
-    active_stats[b]["form_history"].append(s_b - eb)
-    active_stats[a]["form_history"] = active_stats[a]["form_history"][-FORM_WINDOW:]
-    active_stats[b]["form_history"] = active_stats[b]["form_history"][-FORM_WINDOW:]
+    # Update form EMA: exponentially weighted mean of (S_i - E_i)
+    delta_a = s_a - ea
+    delta_b = s_b - eb
+    if active_stats[a]["form_ema"] is None:
+        active_stats[a]["form_ema"] = delta_a
+    else:
+        active_stats[a]["form_ema"] = FORM_EMA_ALPHA * delta_a + (1 - FORM_EMA_ALPHA) * active_stats[a]["form_ema"]
+    if active_stats[b]["form_ema"] is None:
+        active_stats[b]["form_ema"] = delta_b
+    else:
+        active_stats[b]["form_ema"] = FORM_EMA_ALPHA * delta_b + (1 - FORM_EMA_ALPHA) * active_stats[b]["form_ema"]
 
     # Also update global elos if this is Xtreme arena (for backward compatibility)
     if elo_arena == ARENA_XTREME and arena_elos is not None:
@@ -302,26 +309,33 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         combined_elos = arena_elos[ARENA_COMBINED]
         combined_stats = arena_stats[ARENA_COMBINED] if arena_stats else stats
 
-        # Ensure form_history in combined stats
-        if "form_history" not in combined_stats[a]:
-            combined_stats[a]["form_history"] = []
-        if "form_history" not in combined_stats[b]:
-            combined_stats[b]["form_history"] = []
+        # Ensure form_ema in combined stats
+        if "form_ema" not in combined_stats[a]:
+            combined_stats[a]["form_ema"] = None
+        if "form_ema" not in combined_stats[b]:
+            combined_stats[b]["form_ema"] = None
 
         # Calculate Combined arena update
         rc_a, rc_b = combined_elos[a], combined_elos[b]
         ec_a, ec_b = expected(rc_a, rc_b), expected(rc_b, rc_a)
-        Kc_a = k_effective(dynamic_k(combined_stats[a]["matches"]), combined_stats[a]["form_history"])
-        Kc_b = k_effective(dynamic_k(combined_stats[b]["matches"]), combined_stats[b]["form_history"])
+        Kc_a = k_effective(dynamic_k(combined_stats[a]["matches"]), combined_stats[a]["form_ema"])
+        Kc_b = k_effective(dynamic_k(combined_stats[b]["matches"]), combined_stats[b]["form_ema"])
 
         new_c_a = rc_a + Kc_a * (s_a - ec_a)
         new_c_b = rc_b + Kc_b * (s_b - ec_b)
         combined_elos[a], combined_elos[b] = new_c_a, new_c_b
 
-        combined_stats[a]["form_history"].append(s_a - ec_a)
-        combined_stats[b]["form_history"].append(s_b - ec_b)
-        combined_stats[a]["form_history"] = combined_stats[a]["form_history"][-FORM_WINDOW:]
-        combined_stats[b]["form_history"] = combined_stats[b]["form_history"][-FORM_WINDOW:]
+        # Update combined form EMA
+        delta_c_a = s_a - ec_a
+        delta_c_b = s_b - ec_b
+        if combined_stats[a]["form_ema"] is None:
+            combined_stats[a]["form_ema"] = delta_c_a
+        else:
+            combined_stats[a]["form_ema"] = FORM_EMA_ALPHA * delta_c_a + (1 - FORM_EMA_ALPHA) * combined_stats[a]["form_ema"]
+        if combined_stats[b]["form_ema"] is None:
+            combined_stats[b]["form_ema"] = delta_c_b
+        else:
+            combined_stats[b]["form_ema"] = FORM_EMA_ALPHA * delta_c_b + (1 - FORM_EMA_ALPHA) * combined_stats[b]["form_ema"]
 
         # Update Combined arena stats
         combined_stats[a]["for"] += sa
@@ -684,8 +698,8 @@ def run_elo_pipeline(pipeline_config):
                 temp_elos[bey] = elo
             for bey, s in prev_stats.items():
                 new_s = s.copy()
-                new_s["form_history"] = list(s.get("form_history", []))
-                temp_stats[bey] = new_s  # shallow copy with form_history explicitly copied to avoid sharing
+                new_s["form_ema"] = s.get("form_ema", None)
+                temp_stats[bey] = new_s  # shallow copy with form_ema explicitly copied to avoid sharing
 
             # Matches für dieses Turnier durchlaufen
             for _, m in tour_matches.iterrows():

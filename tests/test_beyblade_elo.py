@@ -24,6 +24,7 @@ from beyblade_elo import (
     K_MAX,
     K_TAU,
     FORM_WINDOW,
+    FORM_EMA_ALPHA,
     FORM_ALPHA,
     MARGIN_A,
     MARGIN_B,
@@ -99,46 +100,42 @@ class TestExpected:
 
 
 class TestKEffective:
-    """Tests for the k_effective function (form-based K adjustment)."""
+    """Tests for the k_effective function (EMA-based K adjustment)."""
 
-    def test_no_form_history_returns_base_k(self):
-        """Empty form history should return the base K unchanged."""
+    def test_no_form_ema_returns_base_k(self):
+        """None form_ema (no history) should return the base K unchanged."""
         k_base = dynamic_k(10)
-        assert k_effective(k_base, []) == k_base
+        assert k_effective(k_base, None) == k_base
 
     def test_positive_form_increases_k(self):
-        """Positive form (wins above expectation) should increase K."""
+        """Positive form EMA (wins above expectation) should increase K."""
         k_base = dynamic_k(10)
-        history = [0.4] * 5  # Consistently outperforming
-        assert k_effective(k_base, history) > k_base
+        assert k_effective(k_base, 0.4) > k_base
 
     def test_negative_form_increases_k(self):
-        """Negative form (losses below expectation) should also increase K."""
+        """Negative form EMA (losses below expectation) should also increase K."""
         k_base = dynamic_k(10)
-        history = [-0.4] * 5  # Consistently underperforming
-        assert k_effective(k_base, history) > k_base
+        assert k_effective(k_base, -0.4) > k_base
 
     def test_neutral_form_keeps_base_k(self):
-        """Zero form deviation should return base K unchanged."""
+        """Zero form EMA should return base K unchanged."""
         k_base = dynamic_k(10)
-        history = [0.0] * 5
-        assert k_effective(k_base, history) == k_base
+        assert k_effective(k_base, 0.0) == k_base
 
-    def test_uses_last_form_window_entries(self):
-        """Should only consider the last FORM_WINDOW entries."""
-        k_base = dynamic_k(10)
-        # Long neutral history followed by strong positive form
-        long_history = [0.0] * 100 + [0.5] * FORM_WINDOW
-        short_history = [0.5] * FORM_WINDOW
-        assert abs(k_effective(k_base, long_history) - k_effective(k_base, short_history)) < 1e-9
+    def test_ema_converges_smoothly(self):
+        """EMA should converge: sustained positive deltas eventually dominate zero history."""
+        form_ema = 0.0
+        for _ in range(50):
+            form_ema = FORM_EMA_ALPHA * 0.5 + (1 - FORM_EMA_ALPHA) * form_ema
+        # After many sustained +0.5 deltas, EMA should be close to 0.5
+        assert abs(form_ema - 0.5) < 0.01
 
     def test_k_eff_formula(self):
-        """K_eff = K_base * (1 + FORM_ALPHA * |D_n|)."""
+        """K_eff = K_base * (1 + FORM_ALPHA * |form_ema|)."""
         k_base = dynamic_k(10)
-        history = [0.3] * 5
-        d_n = 0.3
-        expected_k = k_base * (1 + FORM_ALPHA * abs(d_n))
-        assert abs(k_effective(k_base, history) - expected_k) < 1e-9
+        form_ema = 0.3
+        expected_k = k_base * (1 + FORM_ALPHA * abs(form_ema))
+        assert abs(k_effective(k_base, form_ema) - expected_k) < 1e-9
 
 
 class TestScoreWithMargin:
