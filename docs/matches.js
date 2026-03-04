@@ -9,6 +9,7 @@ let currentSort = { column: 0, asc: false }; // Default: Match ID descending (Ma
 let currentPage = 1;
 let pageSize = 50;
 let expandedMatches = new Set(); // Track which matches are expanded
+let resizeTimer; // Debounce timer for window resize
 
 // Column definitions for extended match history
 const COLUMN_DEFINITIONS = [
@@ -1238,8 +1239,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCurrentSortLabel();
     updateActiveFiltersCount();
     
-    // Handle resize
-    window.addEventListener('resize', displayMatches);
+    // Handle resize — debounced to avoid rebuilding the DOM on every pixel of resize
+    // (on mobile, the URL bar showing/hiding fires rapid resize events which caused
+    // expanded rounds/ELO panels to appear to auto-collapse)
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(displayMatches, 150);
+    });
 });
 
 // ============================================
