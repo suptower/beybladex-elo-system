@@ -23,7 +23,7 @@ forecasting and rating-system evaluation.
 
 Usage:
     cd <repo-root>
-    python src/elo_tune.py [--holdout 0.25] [--csv docs/data/elo_history.csv]
+    python src/elo_tune.py [--holdout 0.30] [--csv docs/data/elo_history.csv]
 
 Output:
     - Prints the top-N parameter combinations ranked by log loss.
@@ -220,8 +220,8 @@ def load_xtreme_matches(filepath: str) -> list:
 def main():
     parser = argparse.ArgumentParser(
         description="ELO hyper-parameter search with temporal hold-out validation.")
-    parser.add_argument("--holdout", type=float, default=0.25,
-                        help="Fraction of matches to use for evaluation (default: 0.25)")
+    parser.add_argument("--holdout", type=float, default=0.30,
+                        help="Fraction of matches to use for evaluation (default: 0.30)")
     parser.add_argument("--csv", default=ELO_HISTORY_FILE,
                         help="Path to elo_history.csv")
     parser.add_argument("--top", type=int, default=20,
