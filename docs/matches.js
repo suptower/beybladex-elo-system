@@ -10,6 +10,7 @@ let currentPage = 1;
 let pageSize = 50;
 let expandedMatches = new Set(); // Track which matches are expanded
 let resizeTimer; // Debounce timer for window resize
+let lastLayoutIsMobile = window.innerWidth < 900; // Track layout mode to avoid unnecessary re-renders
 
 // Column definitions for extended match history
 const COLUMN_DEFINITIONS = [
@@ -1239,12 +1240,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCurrentSortLabel();
     updateActiveFiltersCount();
     
-    // Handle resize — debounced to avoid rebuilding the DOM on every pixel of resize
-    // (on mobile, the URL bar showing/hiding fires rapid resize events which caused
-    // expanded rounds/ELO panels to appear to auto-collapse)
+    // Handle resize — only re-render when the layout actually switches between mobile
+    // and desktop (crossing the 900 px threshold). URL bar show/hide on mobile fires
+    // resize events without changing the layout, so we must not re-render then — doing
+    // so collapses all expanded panels for no reason.
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(displayMatches, 150);
+        resizeTimer = setTimeout(() => {
+            const isMobile = window.innerWidth < 900;
+            if (isMobile !== lastLayoutIsMobile) {
+                lastLayoutIsMobile = isMobile;
+                displayMatches();
+            }
+        }, 150);
     });
 });
 
