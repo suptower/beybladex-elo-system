@@ -145,6 +145,14 @@
                     <img id="positionPlot" src="" alt="Position History" class="profile-plot" style="display: none;">
                 </div>
             </details>
+
+            <!-- K-Factor / Form-EMA Section (collapsible, hidden by default) -->
+            <details class="profile-section-details" id="kfactorPlotSection" style="display: none;">
+                <summary class="section-summary">⚡ K-Factor / Form-EMA</summary>
+                <div class="profile-plot-container" id="kfactorPlotContainer">
+                    <img id="kfactorPlot" src="" alt="K-Factor / Form-EMA History" class="profile-plot" style="display: none;">
+                </div>
+            </details>
             
             <!-- History/Timeline Section -->
             <div class="profile-section" id="historySection" style="display: none;">
@@ -598,6 +606,9 @@ function renderProfile() {
     
     // Try to load Position plot
     loadPositionPlot();
+
+    // Try to load K-Factor / Form-EMA plot
+    loadKfactorPlot();
     
     // Setup dark mode observer for plots
     setupPlotDarkModeObserver();
@@ -1532,12 +1543,36 @@ function loadStaticPositionPlot(bladeName, isDark) {
     };
 }
 
+// Load K-Factor / Form-EMA plot
+function loadKfactorPlot() {
+    const plotSection = document.getElementById('kfactorPlotSection');
+    const plotImg = document.getElementById('kfactorPlot');
+    const bladeName = getBladeName();
+    const isDark = document.body.classList.contains('dark');
+
+    const basePath = isDark ? './plots/kfactor/dark/' : './plots/kfactor/';
+    const filename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
+
+    plotImg.src = basePath + filename;
+    plotImg.alt = `${bladeName} K-Factor / Form-EMA`;
+
+    plotImg.onerror = () => {
+        plotSection.style.display = 'none';
+    };
+
+    plotImg.onload = () => {
+        plotImg.style.display = 'block';
+        plotSection.style.display = 'block';
+    };
+}
+
 // Setup dark mode observer for plot images and interactive plots
 function setupPlotDarkModeObserver() {
     const eloPlotFrame = document.getElementById('eloPlotFrame');
     const eloPlot = document.getElementById('eloPlot');
     const positionPlotFrame = document.getElementById('positionPlotFrame');
     const positionPlot = document.getElementById('positionPlot');
+    const kfactorPlot = document.getElementById('kfactorPlot');
     const bladeName = getBladeName();
     
     const observer = new MutationObserver(() => {
@@ -1573,6 +1608,13 @@ function setupPlotDarkModeObserver() {
             const posBasePath = isDark ? './plots/positions/dark/' : './plots/positions/';
             const posFilename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
             positionPlot.src = posBasePath + posFilename;
+        }
+
+        // Update K-Factor / Form-EMA plot
+        if (kfactorPlot && kfactorPlot.style.display !== 'none' && kfactorPlot.src) {
+            const kfBasePath = isDark ? './plots/kfactor/dark/' : './plots/kfactor/';
+            const kfFilename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
+            kfactorPlot.src = kfBasePath + kfFilename;
         }
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });

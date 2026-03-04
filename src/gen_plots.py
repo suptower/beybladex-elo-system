@@ -221,6 +221,10 @@ def plot_kfactor_single(df_hist, outdir, dark_mode=False):
         print("plot_kfactor_single: missing required columns in elo_history, skipping.")
         return
 
+    # Only use Xtreme arena matches for kfactor plots
+    if "arena" in df_hist.columns:
+        df_hist = df_hist[df_hist["arena"] == "Xtreme"].reset_index(drop=True)
+
     subdir = os.path.join(outdir, "dark") if dark_mode else outdir
     suffix = "_dark" if dark_mode else ""
 

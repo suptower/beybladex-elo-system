@@ -533,6 +533,12 @@ def compute_milestones():
     elo_history = load_csv_to_dict(ELO_HISTORY_FILE)
     elo_timeseries = load_csv_to_dict(ELO_TIMESERIES_FILE)
 
+    # Filter to Xtreme arena matches only
+    matches = [m for m in matches if m.get('arena') == 'Xtreme']
+    xtreme_match_ids = {m['MatchID'] for m in matches}
+    rounds = [r for r in rounds if r.get('match_id', '') in xtreme_match_ids]
+    elo_history = [e for e in elo_history if e.get('arena') == 'Xtreme']
+
     print(f"{YELLOW}{RESET} Calculating Match & Win Records...")
     streaks = calculate_streaks(matches)
     total_wins = calculate_total_wins(matches)
