@@ -545,6 +545,11 @@
                 <div class="kpi-value" id="kpi-skill">—</div>
                 <div class="kpi-note">Improvement over uninformed baseline (higher is better)</div>
             </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Margin RMSE</div>
+                <div class="kpi-value" id="kpi-margin-rmse">—</div>
+                <div class="kpi-note">RMSE of predicted probability <em>E</em> vs actual margin score <em>S</em></div>
+            </div>
         </div>
 
         <!-- Calibration table -->
@@ -603,6 +608,68 @@
                     heavily.  The uninformed baseline (always 50 %) scores ln(2) ≈
                     0.693.
                     <br><code>LL = −mean( outcome·log(E) + (1−outcome)·log(1−E) )</code></dd>
+
+                    <dt>Margin RMSE</dt>
+                    <dd>Root mean squared error between the predicted win probability
+                    (<em>E</em>) and the actual margin-based score (<em>S</em>)
+                    used for ELO updates.  Unlike Brier Score, this captures how
+                    well <em>E</em> predicts the magnitude of the result — a dominant
+                    6–0 win gives S&nbsp;&gt;&nbsp;1 while a 3–4 near-miss gives
+                    S&nbsp;≈&nbsp;0.17, so a higher Margin RMSE indicates the
+                    probability is not well aligned with the actual result margins.
+                    <br><code>MarginRMSE = sqrt( mean( (E − S)² ) )</code></dd>
+                </dl>
+            </details>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="metrics-definitions">
+            <details class="metrics-def-block">
+                <summary>📈 How to further improve the system</summary>
+                <dl class="metrics-dl">
+                    <dt>More match data (highest impact)</dt>
+                    <dd>With ~376 Xtreme arena matches the dataset is relatively small.
+                    ELO systems typically need thousands of matches to reach reliable
+                    calibration.  High-probability buckets (70–80 %) have very few
+                    matches, leading to noisy calibration that will self-correct as
+                    more high-skill-gap matches accumulate.</dd>
+
+                    <dt>Tune the ELO scale D (currently 400)</dt>
+                    <dd>The expected score formula uses
+                    <code>E = 1 / (1 + 10<sup>−(Δr/D)</sup>)</code>.
+                    A smaller D (e.g., 300) spreads ratings faster and makes
+                    E more decisive; a larger D (e.g., 500) compresses predictions
+                    toward 0.5.  Reducing D slightly would push
+                    well-matched Beys toward more confident predictions, potentially
+                    improving accuracy.</dd>
+
+                    <dt>K-factor parameter tuning (K_max, K_min, τ)</dt>
+                    <dd>Increasing τ (currently 20) slows the decay from K_max to
+                    K_min, keeping ratings more volatile for longer and allowing
+                    faster convergence.  Reducing K_max (currently 40) would compress
+                    the rating spread, correcting the overconfidence seen in
+                    high-probability buckets.</dd>
+
+                    <dt>Match-type stratification</dt>
+                    <dd>Exhibition, regular-season, and tournament finals are currently
+                    treated identically.  Weighting finals or playoff matches more
+                    heavily (higher K) could improve the signal-to-noise ratio.</dd>
+
+                    <dt>Head-to-head recency bonus</dt>
+                    <dd>A small ELO adjustment based on recent head-to-head record
+                    between two specific Beys could improve short-term accuracy,
+                    though it risks over-fitting on small pair samples.</dd>
+
+                    <dt>Note on binary vs continuous outcomes</dt>
+                    <dd>Accuracy, Brier Score, and Log Loss all use the
+                    <strong>binary outcome</strong> (win = 1, loss = 0) as ground
+                    truth.  This is the correct convention for probability-calibration
+                    metrics because <em>E</em> is a win probability, not a margin
+                    predictor.  The continuous margin score <em>S</em> is only used
+                    for ELO updates — it intentionally exceeds [0, 1] for dominant
+                    results (e.g., S ≈ 1.09 for a 5–0 win).  The separate
+                    Margin RMSE metric quantifies how well <em>E</em> tracks
+                    <em>S</em> as a whole.</dd>
                 </dl>
             </details>
         </div>
@@ -651,6 +718,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const skillEl  = document.getElementById('kpi-skill');
             skillEl.textContent = (data.brier_skill >= 0 ? '+' : '') + skillPct + ' %';
             skillEl.classList.add(data.brier_skill >= 0 ? 'kpi-positive' : 'kpi-negative');
+
+            const rmseEl = document.getElementById('kpi-margin-rmse');
+            rmseEl.textContent = data.margin_rmse !== null && data.margin_rmse !== undefined
+                ? data.margin_rmse.toFixed(4) : '—';
 
             // Calibration table
             const tbody = document.getElementById('calibration-tbody');

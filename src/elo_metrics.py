@@ -64,33 +64,40 @@ def compute_metrics(rows: list) -> dict:
         if row.get("arena") != ARENA_FILTER:
             continue
         try:
-            exp_a = float(row["ExpA"])
+            exp_a   = float(row["ExpA"])
             score_a = int(row["ScoreA"])
             score_b = int(row["ScoreB"])
         except (ValueError, KeyError):
             continue
         if score_a == score_b:       # skip draws (shouldn't occur but guard anyway)
             continue
-        filtered.append((exp_a, 1 if score_a > score_b else 0))
+        act_a_raw = row.get("ActA", "")
+        try:
+            act_a = float(act_a_raw) if act_a_raw != "" else None
+        except ValueError:
+            act_a = None
+        filtered.append((exp_a, 1 if score_a > score_b else 0, act_a))
 
     n = len(filtered)
     if n == 0:
         return {"error": "No valid matches found"}
 
     # ── Core metrics ─────────────────────────────────────────────────────────
-    brier_sum    = 0.0
-    log_loss_sum = 0.0
-    correct      = 0
-    skipped_acc  = 0  # matches where ELO had no preference (ExpA ≈ 0.5)
+    brier_sum        = 0.0
+    log_loss_sum     = 0.0
+    correct          = 0
+    skipped_acc      = 0  # matches where ELO had no preference (ExpA ≈ 0.5)
+    margin_mse_sum   = 0.0
+    margin_mse_count = 0
 
     # Calibration: bucket by predicted-probability decile
     calib_buckets: dict = defaultdict(lambda: {"predicted_sum": 0.0, "wins": 0, "count": 0})
 
-    for exp_a, outcome in filtered:
-        # Brier score (both teams contribute, but by symmetry using A is sufficient)
+    for exp_a, outcome, act_a in filtered:
+        # Brier score uses binary outcome: did the predicted favourite win?
         brier_sum += (exp_a - outcome) ** 2
 
-        # Log-loss
+        # Log-loss (binary outcome)
         p = max(min(exp_a, 1 - EPSILON), EPSILON)
         log_loss_sum += -(outcome * math.log(p) + (1 - outcome) * math.log(1 - p))
 
@@ -108,10 +115,18 @@ def compute_metrics(rows: list) -> dict:
         calib_buckets[bucket]["wins"]          += outcome
         calib_buckets[bucket]["count"]         += 1
 
+        # Margin MSE: MSE of E (win probability) vs S (continuous margin score).
+        # Unlike binary Brier Score, this includes punishment for margin magnitude.
+        # S can exceed [0, 1] for dominant results (>4-0 wins / <0-4 losses).
+        if act_a is not None:
+            margin_mse_sum   += (exp_a - act_a) ** 2
+            margin_mse_count += 1
+
     n_acc = n - skipped_acc
-    accuracy   = (correct / n_acc) if n_acc else None
+    accuracy    = (correct / n_acc) if n_acc else None
     brier_score = brier_sum / n
     log_loss    = log_loss_sum / n
+    margin_mse  = (margin_mse_sum / margin_mse_count) if margin_mse_count else None
 
     # Baseline Brier / log-loss for an uninformed model that always predicts 0.5
     baseline_brier    = 0.25
@@ -141,6 +156,8 @@ def compute_metrics(rows: list) -> dict:
         "brier_skill":        round(1 - brier_score / baseline_brier, 4),
         "log_loss":           round(log_loss, 4),
         "log_loss_baseline":  round(baseline_log_loss, 4),
+        "margin_mse":         round(margin_mse, 4) if margin_mse is not None else None,
+        "margin_rmse":        round(margin_mse ** 0.5, 4) if margin_mse is not None else None,
         "calibration":        calibration,
         "arena_filter":       ARENA_FILTER,
     }
@@ -171,6 +188,9 @@ def main() -> None:
           f"skill {metrics['brier_skill']:+.2%})")
     print(f"  Log Loss           : {metrics['log_loss']:.4f}  "
           f"(baseline {metrics['log_loss_baseline']:.4f})")
+    if metrics.get("margin_rmse") is not None:
+        print(f"  Margin RMSE        : {metrics['margin_rmse']:.4f}  "
+              f"(RMSE of E vs actual margin score S)")
 
     # Write output
     os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
