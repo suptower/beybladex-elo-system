@@ -331,11 +331,19 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         if combined_stats[a]["form_ema"] is None:
             combined_stats[a]["form_ema"] = delta_c_a
         else:
-            combined_stats[a]["form_ema"] = FORM_EMA_ALPHA * delta_c_a + (1 - FORM_EMA_ALPHA) * combined_stats[a]["form_ema"]
+            old_ema_a = combined_stats[a]["form_ema"]
+            combined_stats[a]["form_ema"] = (
+                FORM_EMA_ALPHA * delta_c_a +
+                (1 - FORM_EMA_ALPHA) * old_ema_a
+            )
         if combined_stats[b]["form_ema"] is None:
             combined_stats[b]["form_ema"] = delta_c_b
         else:
-            combined_stats[b]["form_ema"] = FORM_EMA_ALPHA * delta_c_b + (1 - FORM_EMA_ALPHA) * combined_stats[b]["form_ema"]
+            old_ema_b = combined_stats[b]["form_ema"]
+            combined_stats[b]["form_ema"] = (
+                FORM_EMA_ALPHA * delta_c_b +
+                (1 - FORM_EMA_ALPHA) * old_ema_b
+            )
 
         # Update Combined arena stats
         combined_stats[a]["for"] += sa

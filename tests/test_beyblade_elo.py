@@ -23,12 +23,10 @@ from beyblade_elo import (
     K_MIN,
     K_MAX,
     K_TAU,
-    FORM_WINDOW,
     FORM_EMA_ALPHA,
     FORM_ALPHA,
     MARGIN_A,
     MARGIN_B,
-    TARGET_POINTS,
     START_ELO,
     ARENA_XTREME,
     ARENA_DROP_ATTACK
