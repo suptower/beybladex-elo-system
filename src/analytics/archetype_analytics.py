@@ -41,11 +41,11 @@ CYAN = "\033[36m"
 BOLD = "\033[1m"
 
 # File paths
-RPG_STATS_JSON = "./docs/data/rpg_stats.json"
-ADVANCED_LEADERBOARD_CSV = "./docs/data/advanced_leaderboard.csv"
-MATCHES_CSV = "./docs/data/matches.csv"
-ELO_HISTORY_CSV = "./docs/data/elo_history.csv"
-ARCHETYPE_ANALYTICS_JSON = "./docs/data/archetype_analytics.json"
+RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
+ADVANCED_LEADERBOARD_CSV = "./docs/data/leaderboard/advanced_leaderboard.csv"
+MATCHES_CSV = "./docs/data/matches/matches.csv"
+ELO_HISTORY_CSV = "./docs/data/elo/elo_history.csv"
+ARCHETYPE_ANALYTICS_JSON = "./docs/data/analytics/archetype_analytics.json"
 
 # Minimum matches threshold for archetype analysis
 MIN_MATCHES_FOR_ARCHETYPE = 3

@@ -173,25 +173,25 @@ function loadLeaderboard(isAdvanced = false, matchIndex = null) {
     if (matchIndex !== null && historicalMode) {
         // Load historical snapshot
         const paddedIndex = String(matchIndex).padStart(4, '0');
-        csvPath = `./data/leaderboard_snapshots/leaderboard_${paddedIndex}.csv`;
+        csvPath = `./data/leaderboard/leaderboard_${paddedIndex}.csv`;
     } else if (currentArena === "all_arenas") {
         // Load combined arena leaderboard
-        csvPath = "./data/leaderboard_all_arenas.csv";
+        csvPath = "./data/leaderboard/leaderboard_all_arenas.csv";
     } else if (currentArena === "combined") {
         // Load Combined/Global arena leaderboard (with advanced stats support)
         csvPath = isAdvanced
-            ? "./data/advanced_leaderboard_combined.csv"
-            : "./data/leaderboard_combined.csv";
+            ? "./data/leaderboard/advanced_leaderboard_combined.csv"
+            : "./data/leaderboard/leaderboard_combined.csv";
     } else if (currentArena === "drop_attack") {
         // Load Drop Attack arena leaderboard (advanced if requested)
         csvPath = isAdvanced 
-            ? "./data/advanced_leaderboard_drop_attack.csv" 
-            : "./data/leaderboard_drop_attack.csv";
+            ? "./data/leaderboard/advanced_leaderboard_drop_attack.csv" 
+            : "./data/leaderboard/leaderboard_drop_attack.csv";
     } else {
         // Load current leaderboard (standard or advanced for Xtreme/default)
         csvPath = isAdvanced 
-            ? "./data/advanced_leaderboard.csv" 
-            : (currentArena === "xtreme" ? "./data/leaderboard_xtreme.csv" : "./data/leaderboard.csv");
+            ? "./data/leaderboard/advanced_leaderboard.csv" 
+            : (currentArena === "xtreme" ? "./data/leaderboard/leaderboard_xtreme.csv" : "./data/leaderboard/leaderboard.csv");
     }
     
     fetch(csvPath)
@@ -1287,7 +1287,7 @@ function setupHistoricalControls() {
     const DEFAULT_MAX_MATCHES = 224;
     
     // Determine max match index by checking for matches.csv
-    fetch('./data/matches.csv')
+    fetch('./data/matches/matches.csv')
         .then(res => {
             if (!res.ok) {
                 throw new Error(`Failed to load matches.csv: ${res.status}`);

@@ -9,7 +9,7 @@ Plots produced (light + dark variants)
 3. Expected vs Actual Wins Scatter (with reference diagonal)
 4. Tier Strength Overview (grouped bar chart)
 
-Source data: docs/data/season_comparison.json
+Source data: docs/data/season/season_comparison.json
 Output dir : docs/plots/season/comparison/
 """
 
@@ -31,7 +31,7 @@ from plot_styles import configure_dark_mode, configure_light_mode  # noqa: E402
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-COMPARISON_FILE = "./docs/data/season_comparison.json"
+COMPARISON_FILE = "./docs/data/season/season_comparison.json"
 BASE_OUTPUT_DIR = "./docs/plots/season/comparison"
 
 

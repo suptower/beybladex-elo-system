@@ -24,7 +24,7 @@ Global ranking is Elo-based across all match types as currently implemented.
 
 Output
 ------
-docs/data/season_comparison.json
+docs/data/season/season_comparison.json
 """
 
 import csv

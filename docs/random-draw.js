@@ -31,16 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadData() {
     try {
         // Load leaderboard
-        const leaderboardResponse = await fetch('./data/leaderboard.csv');
+        const leaderboardResponse = await fetch('./data/leaderboard/leaderboard.csv');
         const leaderboardText = await leaderboardResponse.text();
         leaderboardData = parseLeaderboardCSV(leaderboardText);
 
         // Load Bey metadata
-        const metadataResponse = await fetch('./data/beys_data.json');
+        const metadataResponse = await fetch('./data/beys/beys_data.json');
         beyMetadata = await metadataResponse.json();
 
         // Load RPG stats
-        const rpgResponse = await fetch('./data/rpg_stats.json');
+        const rpgResponse = await fetch('./data/analytics/rpg_stats.json');
         rpgStats = await rpgResponse.json();
 
         console.log(`Loaded ${leaderboardData.length} Beys from leaderboard`);

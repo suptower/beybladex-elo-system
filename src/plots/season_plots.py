@@ -32,10 +32,10 @@ from plot_styles import configure_dark_mode, configure_light_mode  # noqa: E402
 # ---------------------------------------------------------------------------
 # File paths
 # ---------------------------------------------------------------------------
-MATCHES_FILE = "./docs/data/matches.csv"
-ROUNDS_FILE = "./docs/data/rounds.csv"
-SEASON_DATA_FILE = "./docs/data/season_data.json"
-SEASON_STATS_FILE = "./docs/data/season_statistics.json"
+MATCHES_FILE = "./docs/data/matches/matches.csv"
+ROUNDS_FILE = "./docs/data/matches/rounds.csv"
+SEASON_DATA_FILE = "./docs/data/season/season_data.json"
+SEASON_STATS_FILE = "./docs/data/season/season_statistics.json"
 BASE_OUTPUT_DIR = "./docs/plots/season"
 
 # Finish type colours (consistent across all plots)

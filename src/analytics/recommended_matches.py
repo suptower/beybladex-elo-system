@@ -35,11 +35,11 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 
 # File paths
-ELO_HISTORY_CSV = "./docs/data/elo_history.csv"
-LEADERBOARD_CSV = "./docs/data/leaderboard.csv"
-ADVANCED_LEADERBOARD_CSV = "./docs/data/advanced_leaderboard.csv"
-MATCHES_CSV = "./docs/data/matches.csv"
-RECOMMENDED_MATCHES_OUTPUT = "./docs/data/recommended_matches.json"
+ELO_HISTORY_CSV = "./docs/data/elo/elo_history.csv"
+LEADERBOARD_CSV = "./docs/data/leaderboard/leaderboard.csv"
+ADVANCED_LEADERBOARD_CSV = "./docs/data/leaderboard/advanced_leaderboard.csv"
+MATCHES_CSV = "./docs/data/matches/matches.csv"
+RECOMMENDED_MATCHES_OUTPUT = "./docs/data/analytics/recommended_matches.json"
 
 # Configuration constants
 CONFIG = {

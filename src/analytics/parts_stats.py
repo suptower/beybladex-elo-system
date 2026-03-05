@@ -13,7 +13,7 @@ Each stat uses a 0-5 scale with fractional values supported.
 import json
 
 # File paths
-PARTS_STATS_JSON = "./docs/data/parts_stats.json"
+PARTS_STATS_JSON = "./docs/data/analytics/parts_stats.json"
 
 # Colors for terminal output
 RESET = "\033[0m"

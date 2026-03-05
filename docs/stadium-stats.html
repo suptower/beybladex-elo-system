@@ -156,7 +156,7 @@ let scoreDistChart = null;
 
 async function loadStadiumData() {
     try {
-        const response = await fetch('./data/stadium_analytics.json');
+        const response = await fetch('./data/analytics/stadium_analytics.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

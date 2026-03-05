@@ -34,8 +34,8 @@ sys.path.insert(0, parent_dir)
 from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
 
 # --- File paths ---
-RPG_STATS_FILE = "./docs/data/rpg_stats.json"
-ADVANCED_LEADERBOARD_FILE = "./docs/data/advanced_leaderboard.csv"
+RPG_STATS_FILE = "./docs/data/analytics/rpg_stats.json"
+ADVANCED_LEADERBOARD_FILE = "./docs/data/leaderboard/advanced_leaderboard.csv"
 OUTPUT_DIR = "./docs/plots"
 
 # Ensure output directories exist

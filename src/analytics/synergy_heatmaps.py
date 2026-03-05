@@ -17,11 +17,11 @@ import pandas as pd
 import numpy as np
 
 # File paths
-BEYS_DATA_JSON = "./docs/data/beys_data.json"
-PARTS_STATS_JSON = "./docs/data/parts_stats.json"
-ELO_HISTORY_CSV = "./docs/data/elo_history.csv"
-ROUNDS_CSV = "./docs/data/rounds.csv"
-SYNERGY_OUTPUT_JSON = "./docs/data/synergy_data.json"
+BEYS_DATA_JSON = "./docs/data/beys/beys_data.json"
+PARTS_STATS_JSON = "./docs/data/analytics/parts_stats.json"
+ELO_HISTORY_CSV = "./docs/data/elo/elo_history.csv"
+ROUNDS_CSV = "./docs/data/matches/rounds.csv"
+SYNERGY_OUTPUT_JSON = "./docs/data/analytics/synergy_data.json"
 SYNERGY_CSV_DIR = "./csv"
 
 # Minimum matches required for valid synergy score

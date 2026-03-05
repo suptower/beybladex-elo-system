@@ -269,12 +269,12 @@ async function loadData() {
     try {
         // Load all data in parallel
         const [rpgResponse, beysResponse, partsResponse, countersResponse, historyResponse, advancedResponse] = await Promise.all([
-            fetch('data/rpg_stats.json'),
-            fetch('data/beys_data.json'),
-            fetch('data/parts_stats.json'),
-            fetch('data/bey_counters.csv'),
-            fetch('data/elo_history.csv'),
-            fetch('data/advanced_leaderboard.csv')
+            fetch('data/analytics/rpg_stats.json'),
+            fetch('data/beys/beys_data.json'),
+            fetch('data/analytics/parts_stats.json'),
+            fetch('data/analytics/bey_counters.csv'),
+            fetch('data/elo/elo_history.csv'),
+            fetch('data/leaderboard/advanced_leaderboard.csv')
         ]);
         
         rpgStatsData = await rpgResponse.json();

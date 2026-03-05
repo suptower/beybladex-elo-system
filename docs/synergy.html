@@ -266,7 +266,7 @@ function getSynergyLabel(score, hasSufficientData) {
 // Load synergy data
 async function loadSynergyData() {
     try {
-        const response = await fetch('data/synergy_data.json');
+        const response = await fetch('data/analytics/synergy_data.json');
         synergyData = await response.json();
         renderAllSections();
         setupEventListeners();

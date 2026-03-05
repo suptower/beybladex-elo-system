@@ -75,7 +75,7 @@ function createDeltaBadgeElement(eloChange) {
 // Load beys data for part filtering
 async function loadBeysDataForFilters() {
     try {
-        const response = await fetch('data/beys_data.json');
+        const response = await fetch('data/beys/beys_data.json');
         beysData = await response.json();
     } catch (error) {
         console.error('Error loading beys data:', error);
@@ -86,7 +86,7 @@ async function loadBeysDataForFilters() {
 // Load RPG stats data for archetype filtering
 async function loadRpgStatsData() {
     try {
-        const response = await fetch('data/rpg_stats.json');
+        const response = await fetch('data/analytics/rpg_stats.json');
         rpgStatsData = await response.json();
         
         // Build archetype lookup map for O(1) access
@@ -166,7 +166,7 @@ function formatMatchday(matchday) {
 // Load rounds data from matches_with_rounds.json
 async function loadRoundsData() {
     try {
-        const response = await fetch('data/matches_with_rounds.json');
+        const response = await fetch('data/matches/matches_with_rounds.json');
         const data = await response.json();
         
         // Create a mapping of match_id to rounds
@@ -187,7 +187,7 @@ async function loadRoundsData() {
 // Load extended match history from elo_history.csv
 async function loadMatches() {
     try {
-        const response = await fetch('data/elo_history.csv');
+        const response = await fetch('data/elo/elo_history.csv');
         const text = await response.text();
         
         const lines = text.trim().split('\n');

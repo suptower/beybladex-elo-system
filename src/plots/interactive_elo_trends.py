@@ -20,9 +20,9 @@ OUTPUT_FILE = os.path.join(OUTPUT_DIR, "elo_trends_interactive.html")
 OUTPUT_FILE_DARK = os.path.join(OUTPUT_DIR, "dark", "elo_trends_interactive_dark.html")
 
 # --- CSVs einlesen ---
-df_ts = pd.read_csv("./docs/data/elo_timeseries.csv")      # Date,Bey,ELO,match_id,MatchIndex
-df_hist = pd.read_csv("./docs/data/elo_history.csv")       # Date,BeyA,BeyB,ScoreA,ScoreB,PreA,PreB,PostA,PostB
-df_adv = pd.read_csv("./docs/data/advanced_leaderboard.csv")  # ELO, Volatility etc.
+df_ts = pd.read_csv("./docs/data/elo/elo_timeseries.csv")      # Date,Bey,ELO,match_id,MatchIndex
+df_hist = pd.read_csv("./docs/data/elo/elo_history.csv")       # Date,BeyA,BeyB,ScoreA,ScoreB,PreA,PreB,PostA,PostB
+df_adv = pd.read_csv("./docs/data/leaderboard/advanced_leaderboard.csv")  # ELO, Volatility etc.
 
 # --- Gegner-Spalte automatisch füllen ---
 
@@ -56,7 +56,7 @@ def fill_opponent(df_ts, df_hist):
 df_ts = fill_opponent(df_ts, df_hist)
 
 # --- Turnierbasierte Deltas einfügen ---
-delta_files = sorted(glob.glob("./docs/data/leaderboards/leaderboard_*.csv"))
+delta_files = sorted(glob.glob("./docs/data/leaderboard/leaderboard_*.csv"))
 df_ts['Positionsdelta'] = 0
 df_ts['ELODelta'] = 0
 

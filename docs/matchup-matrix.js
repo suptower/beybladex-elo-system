@@ -23,7 +23,7 @@ const sortBySelect = document.getElementById('sortBy');
 // Load matchup data
 async function loadMatchupData() {
     try {
-        const response = await fetch('data/matchup_matrix.json');
+        const response = await fetch('data/analytics/matchup_matrix.json');
         if (!response.ok) {
             throw new Error('Failed to load matchup data');
         }

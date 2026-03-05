@@ -776,7 +776,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ── Load V1 metrics ──────────────────────────────────────────────────────
-    fetch('data/elo_metrics_v1.json')
+    fetch('data/elo/elo_metrics_v1.json')
         .then(r => r.json())
         .then(data => {
             const loadingEl = document.getElementById('v1-metrics-loading');
@@ -789,7 +789,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     // ── Load V2 metrics ──────────────────────────────────────────────────────
-    fetch('data/elo_metrics_v2.json')
+    fetch('data/elo/elo_metrics_v2.json')
         .then(r => r.json())
         .then(data => {
             const loadingEl = document.getElementById('v2-metrics-loading');
@@ -802,7 +802,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     // ── Load and render V3 ELO metrics ────────────────────────────────────────
-    fetch('data/elo_metrics.json')
+    fetch('data/elo/elo_metrics.json')
         .then(r => r.json())
         .then(data => {
             document.getElementById('kpi-matches').textContent  = data.n_matches;

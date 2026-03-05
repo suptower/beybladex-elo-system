@@ -232,7 +232,7 @@ def run_elo_pipeline(pipeline_config):
                 "ELOdelta": elo_delta_str
             })
 
-        out_file = f"../../docs/data/leaderboards/leaderboard_{t_idx}.csv"
+        out_file = f"../../docs/data/leaderboard/leaderboard_{t_idx}.csv"
         pd.DataFrame(tour_rows).to_csv(out_file, index=False)
 
         # Update für nächstes Turnier
@@ -266,12 +266,12 @@ def run_elo_pipeline(pipeline_config):
     tour_rows_df = pd.DataFrame(tour_rows_sorted)
     tour_rows_df.to_csv(leaderboard_file, index=False)
 
-    # Write names-only-leaderboard to docs/data/beys.csv for easy access but remove header line
-    pd.DataFrame(tour_rows_names_only).to_csv("../../docs/data/beys.csv", index=False, header=False)
+    # Write names-only-leaderboard to docs/data/beys/beys.csv for easy access but remove header line
+    pd.DataFrame(tour_rows_names_only).to_csv("../../docs/data/beys/beys.csv", index=False, header=False)
 
     # matches_with_rounds.json is already in docs/data from merge_rounds.py
     # No need to copy from ./data anymore
-    rounds_json_path = "../../docs/data/matches_with_rounds.json"
+    rounds_json_path = "../../docs/data/matches/matches_with_rounds.json"
     if not os.path.exists(rounds_json_path):
         print(f"{YELLOW}Warning: Round data file not found at {rounds_json_path}{RESET}")
 
@@ -417,22 +417,22 @@ if __name__ == "__main__":
     if mode == "official":
         config = {
             "mode": "official",
-            "input_file": "../../docs/data/matches.csv",
-            "leaderboard": "../../docs/data/leaderboard.csv",
-            "history": "../../docs/data/elo_history.csv",
-            "timeseries": "../../docs/data/elo_timeseries.csv",
-            "positions": "../../docs/data/position_timeseries.csv",
+            "input_file": "../../docs/data/matches/matches.csv",
+            "leaderboard": "../../docs/data/leaderboard/leaderboard.csv",
+            "history": "../../docs/data/elo/elo_history.csv",
+            "timeseries": "../../docs/data/elo/elo_timeseries.csv",
+            "positions": "../../docs/data/analytics/position_timeseries.csv",
             "start_elos": None
         }
     else:
-        df = pd.read_csv("../../docs/data/leaderboard.csv")
+        df = pd.read_csv("../../docs/data/leaderboard/leaderboard.csv")
         start_elos = dict(zip(df["Name"], df["ELO"]))
         config = {
             "mode": "private",
-            "input_file": "../../docs/data/private_matches.csv",
-            "leaderboard": "../../docs/data/private_leaderboard.csv",
-            "history": "../../docs/data/private_elo_history.csv",
-            "timeseries": "../../docs/data/private_elo_timeseries.csv",
+            "input_file": "../../docs/data/matches/private_matches.csv",
+            "leaderboard": "../../docs/data/leaderboard/private_leaderboard.csv",
+            "history": "../../docs/data/elo/private_elo_history.csv",
+            "timeseries": "../../docs/data/elo/private_elo_timeseries.csv",
             "positions": "../../docs/data/private_position_timeseries.csv",
             "start_elos": start_elos
         }

@@ -29,12 +29,12 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # File paths
-MATCHES_FILE = "./docs/data/matches.csv"
-ROUNDS_FILE = "./docs/data/rounds.csv"
-ELO_HISTORY_FILE = "./docs/data/elo_history.csv"
-ADVANCED_LEADERBOARD_FILE = "./docs/data/advanced_leaderboard.csv"
-RPG_STATS_JSON = "./docs/data/rpg_stats.json"
-RPG_STATS_CSV = "./docs/data/rpg_stats.csv"
+MATCHES_FILE = "./docs/data/matches/matches.csv"
+ROUNDS_FILE = "./docs/data/matches/rounds.csv"
+ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
+ADVANCED_LEADERBOARD_FILE = "./docs/data/leaderboard/advanced_leaderboard.csv"
+RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
+RPG_STATS_CSV = "./docs/data/analytics/rpg_stats.csv"
 
 # Minimum matches threshold to compute reliable stats
 # Set to 1 to include all beys in the leaderboard even with limited data

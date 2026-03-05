@@ -435,17 +435,17 @@ Examples:
     parser.add_argument(
         "--challonge",
         help="Path to Challonge export file (CSV or JSON)",
-        default="./docs/data/matches.csv"
+        default="./docs/data/matches/matches.csv"
     )
     parser.add_argument(
         "--rounds",
         help="Path to rounds CSV file",
-        default="./docs/data/rounds.csv"
+        default="./docs/data/matches/rounds.csv"
     )
     parser.add_argument(
         "--output",
         help="Path for output JSON file",
-        default="./docs/data/matches_with_rounds.json"
+        default="./docs/data/matches/matches_with_rounds.json"
     )
     parser.add_argument(
         "--validate",

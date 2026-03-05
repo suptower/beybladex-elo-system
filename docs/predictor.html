@@ -388,7 +388,7 @@ let outcomeChart = null;
 
 async function loadData() {
     try {
-        const response = await fetch('data/rpg_stats.json');
+        const response = await fetch('data/analytics/rpg_stats.json');
         rpgStatsData = await response.json();
         allBeys = Object.keys(rpgStatsData).sort((a, b) => {
             const rankA = rpgStatsData[a]?.leaderboard?.rank || 999;

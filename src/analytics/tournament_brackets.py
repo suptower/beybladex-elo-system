@@ -28,9 +28,9 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 
 # File paths
-LEADERBOARD_CSV = "./docs/data/leaderboard.csv"
-MATCHES_CSV = "./docs/data/matches.csv"
-TOURNAMENT_BRACKETS_OUTPUT = "./docs/data/tournament_brackets.json"
+LEADERBOARD_CSV = "./docs/data/leaderboard/leaderboard.csv"
+MATCHES_CSV = "./docs/data/matches/matches.csv"
+TOURNAMENT_BRACKETS_OUTPUT = "./docs/data/tournaments/tournament_brackets.json"
 
 # Configuration constants
 CONFIG = {

@@ -26,9 +26,9 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR_DARK, exist_ok=True)
 
 # Data files
-TIMESERIES_FILE = "./docs/data/elo_timeseries.csv"
-HISTORY_FILE = "./docs/data/elo_history.csv"
-MATCHES_FILE = "./docs/data/matches.csv"
+TIMESERIES_FILE = "./docs/data/elo/elo_timeseries.csv"
+HISTORY_FILE = "./docs/data/elo/elo_history.csv"
+MATCHES_FILE = "./docs/data/matches/matches.csv"
 
 
 def load_data():

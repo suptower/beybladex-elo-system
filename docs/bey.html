@@ -408,7 +408,7 @@ function formatDate(dateStr) {
 async function loadData() {
     try {
         // Load bey wiki data
-        const beyResponse = await fetch('data/beys_data.json');
+        const beyResponse = await fetch('data/beys/beys_data.json');
         const beys = await beyResponse.json();
         allBeysData = beys;
         beyData = findBeyByName(beys, beyName);
@@ -417,14 +417,14 @@ async function loadData() {
         try {
             // Try advanced leaderboard first for both arenas
             if (currentArena === 'xtreme') {
-                const advancedResponse = await fetch('data/advanced_leaderboard.csv');
+                const advancedResponse = await fetch('data/leaderboard/advanced_leaderboard.csv');
                 const advancedText = await advancedResponse.text();
                 const advancedData = parseCSV(advancedText);
                 allLeaderboardData = advancedData;
                 leaderboardData = findLeaderboardEntry(advancedData, beyName);
             } else if (currentArena === 'drop_attack') {
                 // Try Drop Attack advanced leaderboard
-                const advancedResponse = await fetch('data/advanced_leaderboard_drop_attack.csv');
+                const advancedResponse = await fetch('data/leaderboard/advanced_leaderboard_drop_attack.csv');
                 const advancedText = await advancedResponse.text();
                 const advancedData = parseCSV(advancedText);
                 allLeaderboardData = advancedData;
@@ -447,7 +447,7 @@ async function loadData() {
         }
         
         // Load matches data
-        const matchesResponse = await fetch('data/matches.csv');
+        const matchesResponse = await fetch('data/matches/matches.csv');
         const matchesText = await matchesResponse.text();
         const allMatches = parseCSV(matchesText).map(m => ({
             matchId: parseInt(m.MatchID.slice(1).replace(/^0+/, ''), 10),
@@ -463,7 +463,7 @@ async function loadData() {
         
         // Load tournaments data
         try {
-            const tournamentsResponse = await fetch('data/tournaments.json');
+            const tournamentsResponse = await fetch('data/tournaments/tournaments.json');
             const tournaments = await tournamentsResponse.json();
             const normalizedBeyName = normalizeBeyName(beyName);
             tournamentsData = tournaments.tournaments.filter(t => 
@@ -498,7 +498,7 @@ async function loadData() {
         
         // Load ELO history data (for milestones)
         try {
-            const eloHistoryResponse = await fetch('data/elo_history.csv');
+            const eloHistoryResponse = await fetch('data/elo/elo_history.csv');
             const eloHistoryText = await eloHistoryResponse.text();
             allEloHistoryData = parseCSV(eloHistoryText);
         } catch (e) {
@@ -508,7 +508,7 @@ async function loadData() {
         
         // Load RPG stats data
         try {
-            const rpgStatsResponse = await fetch('data/rpg_stats.json');
+            const rpgStatsResponse = await fetch('data/analytics/rpg_stats.json');
             const allRpgStats = await rpgStatsResponse.json();
             // Find RPG stats for this bey
             const normalizedName = normalizeBeyName(beyName);
@@ -525,7 +525,7 @@ async function loadData() {
         
         // Load counters data
         try {
-            const countersResponse = await fetch('data/bey_counters.csv');
+            const countersResponse = await fetch('data/analytics/bey_counters.csv');
             const countersText = await countersResponse.text();
             countersData = parseCSV(countersText);
         } catch (e) {
@@ -535,7 +535,7 @@ async function loadData() {
         
         // Load season data
         try {
-            const seasonResponse = await fetch('data/season_data.json');
+            const seasonResponse = await fetch('data/season/season_data.json');
             const allSeasonData = await seasonResponse.json();
             seasonData = allSeasonData.seasons || {};
         } catch (e) {

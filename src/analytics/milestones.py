@@ -36,12 +36,12 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # File paths
-MATCHES_FILE = "./docs/data/matches.csv"
-ROUNDS_FILE = "./docs/data/rounds.csv"
-ELO_HISTORY_FILE = "./docs/data/elo_history.csv"
-ELO_TIMESERIES_FILE = "./docs/data/elo_timeseries.csv"
-TOURNAMENTS_FILE = "./docs/data/tournaments.json"
-MILESTONES_FILE = "./docs/data/milestones.json"
+MATCHES_FILE = "./docs/data/matches/matches.csv"
+ROUNDS_FILE = "./docs/data/matches/rounds.csv"
+ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
+ELO_TIMESERIES_FILE = "./docs/data/elo/elo_timeseries.csv"
+TOURNAMENTS_FILE = "./docs/data/tournaments/tournaments.json"
+MILESTONES_FILE = "./docs/data/analytics/milestones.json"
 
 # Configuration
 MIN_MATCHES_FOR_WINRATE = 20  # Minimum matches to qualify for win rate records

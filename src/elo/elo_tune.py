@@ -23,12 +23,12 @@ forecasting and rating-system evaluation.
 
 Usage:
     cd <repo-root>
-    python src/elo_tune.py [--holdout 0.30] [--csv docs/data/elo_history.csv]
+    python src/elo_tune.py [--holdout 0.30] [--csv docs/data/elo/elo_history.csv]
 
 Output:
     - Prints the top-N parameter combinations ranked by log loss.
     - Prints the parameter combination that best improves over the current default.
-    - Writes a CSV summary to docs/data/elo_tune_results.csv.
+    - Writes a CSV summary to docs/data/elo/elo_tune_results.csv.
 """
 
 import argparse
@@ -39,8 +39,8 @@ import os
 from typing import Optional
 
 # ── File paths ──────────────────────────────────────────────────────────────
-ELO_HISTORY_FILE = "./docs/data/elo_history.csv"
-OUTPUT_CSV = "./docs/data/elo_tune_results.csv"
+ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
+OUTPUT_CSV = "./docs/data/elo/elo_tune_results.csv"
 
 ARENA_FILTER = "Xtreme"
 START_ELO = 1000

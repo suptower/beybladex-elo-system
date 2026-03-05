@@ -17,11 +17,11 @@ from collections import defaultdict
 from typing import Dict, List, Tuple
 
 # File paths
-MATCHES_CSV = "./docs/data/matches.csv"
-BEYS_DATA_JSON = "./docs/data/beys_data.json"
-LEADERBOARD_CSV = "./docs/data/leaderboard.csv"
-RPG_STATS_JSON = "./docs/data/rpg_stats.json"
-OUTPUT_JSON = "./docs/data/matchup_matrix.json"
+MATCHES_CSV = "./docs/data/matches/matches.csv"
+BEYS_DATA_JSON = "./docs/data/beys/beys_data.json"
+LEADERBOARD_CSV = "./docs/data/leaderboard/leaderboard.csv"
+RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
+OUTPUT_JSON = "./docs/data/analytics/matchup_matrix.json"
 
 
 def load_matches() -> List[Dict]:

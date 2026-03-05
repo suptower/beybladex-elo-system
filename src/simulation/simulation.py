@@ -25,9 +25,9 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 
 # File paths
-BEYS_FILE = "./docs/data/beys.csv"
-LEADERBOARD_FILE = "./docs/data/leaderboard.csv"
-MATCHES_FILE = "./docs/data/matches.csv"
+BEYS_FILE = "./docs/data/beys/beys.csv"
+LEADERBOARD_FILE = "./docs/data/leaderboard/leaderboard.csv"
+MATCHES_FILE = "./docs/data/matches/matches.csv"
 
 # Default Elo values
 DEFAULT_ELO = 1000

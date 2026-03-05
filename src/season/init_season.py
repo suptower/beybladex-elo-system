@@ -180,7 +180,7 @@ def main():
         '--leaderboard',
         type=str,
         default=DEFAULT_LEADERBOARD,
-        help='Path to leaderboard.csv (default: ./docs/data/leaderboard.csv)'
+        help='Path to leaderboard.csv (default: ./docs/data/leaderboard/leaderboard.csv)'
     )
     parser.add_argument(
         '--data-dir',
@@ -242,11 +242,11 @@ def main():
                 f"2. Find schedule templates in {args.schedule_dir}/")
             print("3. Fill in dates and match results")
             print(
-                "4. Import completed matches to docs/data/matches.csv")
+                "4. Import completed matches to docs/data/matches/matches.csv")
         else:
             print(
                 "2. Create season matches manually or use --generate-schedule")
-            print("3. Add matches to docs/data/matches.csv with:")
+            print("3. Add matches to docs/data/matches/matches.csv with:")
             print("   - MatchType: season")
             print(f"   - SeasonID: {args.season_id}")
             print("   - Tier: 1-4")

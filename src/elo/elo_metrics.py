@@ -21,7 +21,7 @@ All metrics are computed from the pre-match expected probability (ExpA column) a
 binary win/loss outcome (ScoreA > ScoreB → outcome = 1).
 
 Output Files:
-  - docs/data/elo_metrics.json
+  - docs/data/elo/elo_metrics.json
 """
 
 import csv
@@ -39,8 +39,8 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # ── File paths ─────────────────────────────────────────────────────────────────
-ELO_HISTORY_FILE = "./docs/data/elo_history.csv"
-OUTPUT_FILE = "./docs/data/elo_metrics.json"
+ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
+OUTPUT_FILE = "./docs/data/elo/elo_metrics.json"
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 ARENA_FILTER = "Xtreme"   # only the ranked arena

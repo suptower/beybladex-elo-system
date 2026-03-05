@@ -4,8 +4,8 @@ Compute ELO system metrics for archived V1 and V2 ELO systems.
 
 Runs each historical ELO version in memory on the current match data (Xtreme arena only),
 computes the same evaluation metrics as elo_metrics.py, and saves them to:
-  - docs/data/elo_metrics_v1.json
-  - docs/data/elo_metrics_v2.json
+  - docs/data/elo/elo_metrics_v1.json
+  - docs/data/elo/elo_metrics_v2.json
 
 These are loaded by the frontend ELO System page to display per-version statistics
 when the V1 or V2 tab is selected.
@@ -29,9 +29,9 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # ── File paths ─────────────────────────────────────────────────────────────────
-MATCHES_FILE = "./docs/data/matches.csv"
-OUTPUT_V1 = "./docs/data/elo_metrics_v1.json"
-OUTPUT_V2 = "./docs/data/elo_metrics_v2.json"
+MATCHES_FILE = "./docs/data/matches/matches.csv"
+OUTPUT_V1 = "./docs/data/elo/elo_metrics_v1.json"
+OUTPUT_V2 = "./docs/data/elo/elo_metrics_v2.json"
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 START_ELO = 1000

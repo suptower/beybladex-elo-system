@@ -19,12 +19,12 @@ import json
 import os
 
 # File paths
-BEYS_DATA_JSON = "./docs/data/beys_data.json"
-PARTS_STATS_JSON = "./docs/data/parts_stats.json"
-SYNERGY_DATA_JSON = "./docs/data/synergy_data.json"
-RPG_STATS_JSON = "./docs/data/rpg_stats.json"
-ADV_LEADERBOARD_CSV = "./docs/data/advanced_leaderboard.csv"
-COMBO_DATA_JSON = "./docs/data/combo_data.json"
+BEYS_DATA_JSON = "./docs/data/beys/beys_data.json"
+PARTS_STATS_JSON = "./docs/data/analytics/parts_stats.json"
+SYNERGY_DATA_JSON = "./docs/data/analytics/synergy_data.json"
+RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
+ADV_LEADERBOARD_CSV = "./docs/data/leaderboard/advanced_leaderboard.csv"
+COMBO_DATA_JSON = "./docs/data/analytics/combo_data.json"
 
 
 def load_json(filepath: str) -> dict | list:

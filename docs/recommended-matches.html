@@ -239,7 +239,7 @@ function createRecommendationCard(rec, index) {
 // Load and display recommendations
 async function loadRecommendations() {
     try {
-        const response = await fetch('data/recommended_matches.json');
+        const response = await fetch('data/analytics/recommended_matches.json');
         const data = await response.json();
         
         // Display summary

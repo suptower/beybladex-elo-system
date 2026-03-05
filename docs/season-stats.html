@@ -759,7 +759,7 @@
                 response = await fetch(filename);
                 if (!response.ok) throw new Error('Season-specific file not found');
             } catch {
-                response = await fetch('data/season_statistics.json');
+                response = await fetch('data/season/season_statistics.json');
                 if (!response.ok) throw new Error('Failed to load statistics');
             }
             

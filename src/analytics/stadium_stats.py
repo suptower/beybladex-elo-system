@@ -31,11 +31,11 @@ BOLD = "\033[1m"
 RED = "\033[31m"
 
 # File paths
-MATCHES_CSV = "./docs/data/matches.csv"
-ROUNDS_CSV = "./docs/data/rounds.csv"
-ELO_HISTORY_CSV = "./docs/data/elo_history.csv"
-RPG_STATS_JSON = "./docs/data/rpg_stats.json"
-STADIUM_ANALYTICS_JSON = "./docs/data/stadium_analytics.json"
+MATCHES_CSV = "./docs/data/matches/matches.csv"
+ROUNDS_CSV = "./docs/data/matches/rounds.csv"
+ELO_HISTORY_CSV = "./docs/data/elo/elo_history.csv"
+RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
+STADIUM_ANALYTICS_JSON = "./docs/data/analytics/stadium_analytics.json"
 
 # Stadium name normalization
 STADIUM_ALIASES = {

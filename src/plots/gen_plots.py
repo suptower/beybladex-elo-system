@@ -53,17 +53,17 @@ MEDIAN_LINE_STYLE = {
 def load_files(mode):
     if mode == "official":
         return {
-            "leaderboard": "./docs/data/leaderboard.csv",
-            "history": "./docs/data/elo_history.csv",
-            "timeseries": "./docs/data/elo_timeseries.csv",
-            "positions": "./docs/data/position_timeseries.csv",
+            "leaderboard": "./docs/data/leaderboard/leaderboard.csv",
+            "history": "./docs/data/elo/elo_history.csv",
+            "timeseries": "./docs/data/elo/elo_timeseries.csv",
+            "positions": "./docs/data/analytics/position_timeseries.csv",
             "outdir": "./docs/plots/"
         }
     else:
         return {
-            "leaderboard": "./docs/data/private_leaderboard.csv",
-            "history": "./docs/data/private_elo_history.csv",
-            "timeseries": "./docs/data/private_elo_timeseries.csv",
+            "leaderboard": "./docs/data/leaderboard/private_leaderboard.csv",
+            "history": "./docs/data/elo/private_elo_history.csv",
+            "timeseries": "./docs/data/elo/private_elo_timeseries.csv",
             "positions": "./docs/data/private_position_timeseries.csv",
             "outdir": "./plots/private/"
         }
