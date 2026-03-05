@@ -12,7 +12,7 @@ import os
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'season'))
 
 from season_meta_analytics import (
     # Feature 1

@@ -180,12 +180,12 @@ function parseCSV(text) {
 async function loadAllData() {
     try {
         // Load beyblade data
-        const beyResponse = await fetch('data/beys_data.json');
+        const beyResponse = await fetch('data/beys/beys_data.json');
         beysData = await beyResponse.json();
         
         // Load leaderboard data
         try {
-            const leaderboardResponse = await fetch('data/advanced_leaderboard.csv');
+            const leaderboardResponse = await fetch('data/leaderboard/advanced_leaderboard.csv');
             const leaderboardText = await leaderboardResponse.text();
             const leaderboardArray = parseCSV(leaderboardText);
             // Create a map by normalized bey name
@@ -201,7 +201,7 @@ async function loadAllData() {
         
         // Load tournaments data
         try {
-            const tournamentsResponse = await fetch('data/tournaments.json');
+            const tournamentsResponse = await fetch('data/tournaments/tournaments.json');
             const tournaments = await tournamentsResponse.json();
             // Create a map of bey name to array of tournament wins
             tournaments.tournaments.forEach(tournament => {
@@ -217,7 +217,7 @@ async function loadAllData() {
         
         // Load RPG stats data for archetype information
         try {
-            const rpgStatsResponse = await fetch('data/rpg_stats.json');
+            const rpgStatsResponse = await fetch('data/analytics/rpg_stats.json');
             rpgStatsData = await rpgStatsResponse.json();
             
             // Build archetype lookup map for O(1) access
@@ -234,7 +234,7 @@ async function loadAllData() {
         
         // Load season data for champion badges
         try {
-            const seasonResponse = await fetch('data/season_data.json');
+            const seasonResponse = await fetch('data/season/season_data.json');
             const allSeasonData = await seasonResponse.json();
             const seasons = allSeasonData.seasons || {};
             seasonChampionsData = {};

@@ -2,7 +2,7 @@ import sys
 import os
 
 # Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'plots'))
 
 from plot_styles import generate_dynamic_yticks
 

@@ -6,7 +6,7 @@ import sys
 import os
 
 # Add src directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'analytics'))
 
 from archetype_analytics import (
     calculate_archetype_stats,

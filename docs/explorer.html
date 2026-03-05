@@ -178,7 +178,7 @@ function escapeHtml(text) {
 // Load combo data
 async function loadComboData() {
     try {
-        const response = await fetch('data/combo_data.json');
+        const response = await fetch('data/analytics/combo_data.json');
         comboData = await response.json();
         applyFilters();
         setupEventListeners();

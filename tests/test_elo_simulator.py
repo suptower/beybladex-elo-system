@@ -5,10 +5,11 @@ match outcomes, single match simulation, and multi-match Monte Carlo simulations
 """
 import sys
 import os
+import math
 import random
 
 # Add scripts directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'elo'))
 
 from elo_simulator import (
     dynamic_k,
@@ -18,32 +19,39 @@ from elo_simulator import (
     simulate_single_match,
     run_multi_match_simulation,
     get_percentile_ranges,
-    K_LEARNING,
-    K_INTERMEDIATE,
-    K_EXPERIENCED
+    K_MIN,
+    K_MAX,
+    K_TAU
 )
 
 
 class TestDynamicK:
-    """Tests for the dynamic_k function."""
+    """Tests for the dynamic_k function (smooth exponential decay, Version 3)."""
 
-    def test_k_factor_learning_phase(self):
-        """K-factor should be 40 for players with fewer than 6 matches."""
-        assert dynamic_k(0) == K_LEARNING
-        assert dynamic_k(1) == K_LEARNING
-        assert dynamic_k(5) == K_LEARNING
+    def test_k_at_zero_matches_equals_k_max(self):
+        """K-factor at 0 matches should equal K_MAX."""
+        assert abs(dynamic_k(0) - K_MAX) < 1e-9
 
-    def test_k_factor_intermediate_phase(self):
-        """K-factor should be 24 for players with 6-14 matches."""
-        assert dynamic_k(6) == K_INTERMEDIATE
-        assert dynamic_k(10) == K_INTERMEDIATE
-        assert dynamic_k(14) == K_INTERMEDIATE
+    def test_k_decreases_with_more_matches(self):
+        """K-factor should decrease as match count increases."""
+        assert dynamic_k(0) > dynamic_k(10)
+        assert dynamic_k(10) > dynamic_k(50)
 
-    def test_k_factor_experienced_phase(self):
-        """K-factor should be 12 for players with 15+ matches."""
-        assert dynamic_k(15) == K_EXPERIENCED
-        assert dynamic_k(50) == K_EXPERIENCED
-        assert dynamic_k(100) == K_EXPERIENCED
+    def test_k_approaches_k_min_for_many_matches(self):
+        """K-factor should approach K_MIN for very large match counts."""
+        assert abs(dynamic_k(1000) - K_MIN) < 0.01
+
+    def test_k_bounded_between_k_min_and_k_max(self):
+        """K-factor should always be between K_MIN and K_MAX."""
+        for n in [0, 5, 10, 20, 50, 100]:
+            k = dynamic_k(n)
+            assert K_MIN <= k <= K_MAX
+
+    def test_k_exponential_formula(self):
+        """K-factor should follow K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)."""
+        for n in [0, 5, 10, 20, 50]:
+            expected_k = K_MIN + (K_MAX - K_MIN) * math.exp(-n / K_TAU)
+            assert abs(dynamic_k(n) - expected_k) < 1e-9
 
 
 class TestExpectedScore:
@@ -84,35 +92,35 @@ class TestCalculateEloChange:
 
     def test_win_increases_elo(self):
         """Winning should result in positive Elo change."""
-        change = calculate_elo_change(1000, 1000, 1.0, K_LEARNING)
+        change = calculate_elo_change(1000, 1000, 1.0, K_MAX)
         assert change > 0
 
     def test_loss_decreases_elo(self):
         """Losing should result in negative Elo change."""
-        change = calculate_elo_change(1000, 1000, 0.0, K_LEARNING)
+        change = calculate_elo_change(1000, 1000, 0.0, K_MAX)
         assert change < 0
 
     def test_equal_ratings_win(self):
         """Equal ratings win should give K/2 points."""
-        change = calculate_elo_change(1000, 1000, 1.0, K_LEARNING)
-        assert abs(change - K_LEARNING * 0.5) < 0.01
+        change = calculate_elo_change(1000, 1000, 1.0, K_MAX)
+        assert abs(change - K_MAX * 0.5) < 0.01
 
     def test_equal_ratings_loss(self):
         """Equal ratings loss should lose K/2 points."""
-        change = calculate_elo_change(1000, 1000, 0.0, K_LEARNING)
-        assert abs(change - (-K_LEARNING * 0.5)) < 0.01
+        change = calculate_elo_change(1000, 1000, 0.0, K_MAX)
+        assert abs(change - (-K_MAX * 0.5)) < 0.01
 
     def test_upset_win_gives_more_points(self):
         """Winning as underdog should give more than K/2 points."""
-        change = calculate_elo_change(1000, 1200, 1.0, K_LEARNING)
+        change = calculate_elo_change(1000, 1200, 1.0, K_MAX)
         # Expected score is less than 0.5, so win gives more than K/2
-        assert change > K_LEARNING * 0.5
+        assert change > K_MAX * 0.5
 
     def test_expected_win_gives_fewer_points(self):
         """Winning as favorite should give less than K/2 points."""
-        change = calculate_elo_change(1200, 1000, 1.0, K_LEARNING)
+        change = calculate_elo_change(1200, 1000, 1.0, K_MAX)
         # Expected score is more than 0.5, so win gives less than K/2
-        assert change < K_LEARNING * 0.5
+        assert change < K_MAX * 0.5
         assert change > 0
 
 
@@ -148,8 +156,8 @@ class TestCalculateMatchOutcomes:
     def test_k_factor_from_matches(self):
         """K-factors should be calculated from match count when not provided."""
         result = calculate_match_outcomes(1000, 1000, matches_a=0, matches_b=20)
-        assert result["k_factor_a"] == K_LEARNING
-        assert result["k_factor_b"] == K_EXPERIENCED
+        assert abs(result["k_factor_a"] - K_MAX) < 1e-9
+        assert K_MIN <= result["k_factor_b"] <= K_MAX
 
     def test_win_loss_elo_opposite_signs(self):
         """Win Elo change should be positive, loss should be negative."""

@@ -211,10 +211,10 @@ async function loadAllData() {
     try {
         console.log('Starting data load...');
         const [beysRes, matchesRes, eloRes, roundsRes] = await Promise.all([
-            fetch('data/beys.csv'),
-            fetch('data/matches.csv'),
-            fetch('data/elo_history.csv'),
-            fetch('data/matches_with_rounds.json')
+            fetch('data/beys/beys.csv'),
+            fetch('data/matches/matches.csv'),
+            fetch('data/elo/elo_history.csv'),
+            fetch('data/matches/matches_with_rounds.json')
         ]);
 
         // Check response status

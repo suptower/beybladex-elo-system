@@ -5,7 +5,7 @@ This ensures the JS port matches Python behavior exactly
 import subprocess
 import json
 import pytest
-from src.beyblade_elo import dynamic_k, expected, calculate_score_with_dominance
+from src.elo.beyblade_elo import dynamic_k, expected, calculate_score_with_dominance
 
 
 def run_js_function(function_name, *args):
@@ -22,7 +22,8 @@ def run_js_function(function_name, *args):
             capture_output=True,
             text=True,
             cwd='.',
-            timeout=5
+            timeout=5,
+            encoding="utf-8"
         )
         if result.returncode == 0:
             return json.loads(result.stdout.strip())

@@ -5,21 +5,28 @@ ELO updates, and winrate calculations, plus arena-specific ELO tracking.
 """
 import sys
 import os
+import math
 
 # Add scripts directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'elo'))
 
 from collections import defaultdict
 from beyblade_elo import (
     dynamic_k,
+    k_effective,
     expected,
+    calculate_score_with_margin,
     calculate_score_with_dominance,
     update_elo,
     calculate_winrates,
     normalize_arena_name,
-    K_LEARNING,
-    K_INTERMEDIATE,
-    K_EXPERIENCED,
+    K_MIN,
+    K_MAX,
+    K_TAU,
+    FORM_EMA_ALPHA,
+    FORM_ALPHA,
+    MARGIN_A,
+    MARGIN_B,
     START_ELO,
     ARENA_XTREME,
     ARENA_DROP_ATTACK
@@ -27,25 +34,34 @@ from beyblade_elo import (
 
 
 class TestDynamicK:
-    """Tests for the dynamic_k function that calculates K-factor based on match count."""
+    """Tests for the dynamic_k function (smooth exponential decay, Version 3)."""
 
-    def test_k_factor_learning_phase(self):
-        """K-factor should be 40 for players with fewer than 6 matches."""
-        assert dynamic_k(0) == K_LEARNING
-        assert dynamic_k(1) == K_LEARNING
-        assert dynamic_k(5) == K_LEARNING
+    def test_k_at_zero_matches_equals_k_max(self):
+        """K-factor at 0 matches should equal K_MAX (maximum volatility)."""
+        assert abs(dynamic_k(0) - K_MAX) < 1e-9
 
-    def test_k_factor_intermediate_phase(self):
-        """K-factor should be 24 for players with 6-14 matches."""
-        assert dynamic_k(6) == K_INTERMEDIATE
-        assert dynamic_k(10) == K_INTERMEDIATE
-        assert dynamic_k(14) == K_INTERMEDIATE
+    def test_k_decreases_with_more_matches(self):
+        """K-factor should decrease as match count increases."""
+        assert dynamic_k(0) > dynamic_k(10)
+        assert dynamic_k(10) > dynamic_k(50)
+        assert dynamic_k(50) > dynamic_k(200)
 
-    def test_k_factor_experienced_phase(self):
-        """K-factor should be 12 for players with 15+ matches."""
-        assert dynamic_k(15) == K_EXPERIENCED
-        assert dynamic_k(50) == K_EXPERIENCED
-        assert dynamic_k(100) == K_EXPERIENCED
+    def test_k_approaches_k_min_for_many_matches(self):
+        """K-factor should approach K_MIN for very large match counts."""
+        k_large = dynamic_k(1000)
+        assert abs(k_large - K_MIN) < 0.01
+
+    def test_k_bounded_between_k_min_and_k_max(self):
+        """K-factor should always be between K_MIN and K_MAX."""
+        for n in [0, 1, 5, 10, 20, 50, 100, 500]:
+            k = dynamic_k(n)
+            assert K_MIN <= k <= K_MAX, f"K out of bounds for {n} matches: {k}"
+
+    def test_k_exponential_formula(self):
+        """K-factor should follow K_MIN + (K_MAX - K_MIN) * exp(-N / K_TAU)."""
+        for n in [0, 5, 10, 20, 50]:
+            expected_k = K_MIN + (K_MAX - K_MIN) * math.exp(-n / K_TAU)
+            assert abs(dynamic_k(n) - expected_k) < 1e-9
 
 
 class TestExpected:
@@ -81,110 +97,127 @@ class TestExpected:
         assert abs(e_a + e_b - 1.0) < 0.0001
 
 
-class TestScoreWithDominance:
-    """Tests for the calculate_score_with_dominance function."""
+class TestKEffective:
+    """Tests for the k_effective function (EMA-based K adjustment)."""
 
-    def test_close_match_4_3(self):
-        """Close 4-3 match should give small dominance bonus."""
-        s_a, s_b = calculate_score_with_dominance(4, 3)
-        # Point diff = 1, dominance_bonus = 0.1
-        # Winner gets 0.5 + 0.1 = 0.6
-        assert abs(s_a - 0.8125) < 0.01
-        assert abs(s_b - 0.1875) < 0.01
-        assert abs(s_a + s_b - 1.0) < 0.0001
+    def test_no_form_ema_returns_base_k(self):
+        """None form_ema (no history) should return the base K unchanged."""
+        k_base = dynamic_k(10)
+        assert k_effective(k_base, None) == k_base
 
-    def test_moderate_win_4_2(self):
-        """Moderate 4-2 win should give medium dominance bonus."""
-        s_a, s_b = calculate_score_with_dominance(4, 2)
-        # Point diff = 2, dominance_bonus = 0.25
-        # Winner gets 0.5 + 0.25 = 0.75
-        assert abs(s_a - 0.875) < 0.01
-        assert abs(s_b - 0.125) < 0.01
-        assert abs(s_a + s_b - 1.0) < 0.0001
+    def test_positive_form_increases_k(self):
+        """Positive form EMA (wins above expectation) should increase K."""
+        k_base = dynamic_k(10)
+        assert k_effective(k_base, 0.4) > k_base
 
-    def test_strong_win_4_1(self):
-        """Strong 4-1 win should give large dominance bonus."""
-        s_a, s_b = calculate_score_with_dominance(4, 1)
-        # Point diff = 3, dominance_bonus = 0.375
-        # Winner gets 0.5 + 0.375 = 0.875
-        assert abs(s_a - 0.9375) < 0.01
-        assert abs(s_b - 0.0625) < 0.01
-        assert abs(s_a + s_b - 1.0) < 0.0001
+    def test_negative_form_increases_k(self):
+        """Negative form EMA (losses below expectation) should also increase K."""
+        k_base = dynamic_k(10)
+        assert k_effective(k_base, -0.4) > k_base
 
-    def test_dominant_win_4_0(self):
-        """Dominant 4-0 win should give maximum score."""
-        s_a, s_b = calculate_score_with_dominance(4, 0)
-        # Point diff = 4, dominance_bonus = 0.5
-        # Winner gets 0.5 + 0.5 = 1.0
-        assert abs(s_a - 1.0) < 0.0001
-        assert abs(s_b - 0.0) < 0.0001
-        assert abs(s_a + s_b - 1.0) < 0.0001
+    def test_neutral_form_keeps_base_k(self):
+        """Zero form EMA should return base K unchanged."""
+        k_base = dynamic_k(10)
+        assert k_effective(k_base, 0.0) == k_base
 
-    def test_overwhelming_win_5_0(self):
-        """Overwhelming 5-0 win should give maximum score."""
-        s_a, s_b = calculate_score_with_dominance(5, 0)
-        # Point diff = 5, dominance_bonus = 0.5 (capped at WIN_THRESHOLD)
-        # Winner gets 0.5 + 0.5 = 1.0
-        assert abs(s_a - 1.125) < 0.0001
-        assert abs(s_b + 0.125) < 0.0001
-        assert abs(s_a + s_b - 1.0) < 0.0001
+    def test_ema_converges_smoothly(self):
+        """EMA should converge: sustained positive deltas eventually dominate zero history."""
+        form_ema = 0.0
+        for _ in range(50):
+            form_ema = FORM_EMA_ALPHA * 0.5 + (1 - FORM_EMA_ALPHA) * form_ema
+        # After many sustained +0.5 deltas, EMA should be close to 0.5
+        assert abs(form_ema - 0.5) < 0.01
 
-    def test_overwhelming_win_6_0(self):
-        """Overwhelming 6-0 win should give maximum score."""
-        s_a, s_b = calculate_score_with_dominance(6, 0)
-        # Point diff = 6, dominance_bonus = 0.5 (capped at WIN_THRESHOLD)
-        # Winner gets 0.5 + 0.5 = 1.0
-        assert abs(s_a - 1.25) < 0.0001
-        assert abs(s_b + 0.25) < 0.0001
-        assert abs(s_a + s_b - 1.0) < 0.0001
+    def test_k_eff_formula(self):
+        """K_eff = K_base * (1 + FORM_ALPHA * |form_ema|)."""
+        k_base = dynamic_k(10)
+        form_ema = 0.3
+        expected_k = k_base * (1 + FORM_ALPHA * abs(form_ema))
+        assert abs(k_effective(k_base, form_ema) - expected_k) < 1e-9
 
-    def test_loser_perspective(self):
-        """Test that loser (second argument) wins work correctly."""
-        s_a, s_b = calculate_score_with_dominance(2, 4)
-        # Point diff = 2, dominance_bonus = 0.25
-        # Winner (B) gets 0.5 + 0.25 = 0.75
-        # Loser (A) gets 0.25
-        assert abs(s_a - 0.125) < 0.01
-        assert abs(s_b - 0.875) < 0.01
-        assert abs(s_a + s_b - 1.0) < 0.0001
+
+class TestScoreWithMargin:
+    """Tests for the calculate_score_with_margin function (tanh model, Version 3)."""
+
+    def test_reference_win_4_0_gives_score_one(self):
+        """4-0 is the reference win: S_winner=1.0, S_loser=1-1.0=0.0."""
+        s_a, s_b = calculate_score_with_margin(4, 0, target=4)
+        assert abs(s_a - 1.0) < 1e-9
+        assert abs(s_b - 0.0) < 1e-9
+
+    def test_close_win_4_3_gives_less_than_one(self):
+        """4-3 win: m=1 < T=4, so S_winner < 1.0 and S_loser = 1 - S_winner > 0."""
+        s_a, s_b = calculate_score_with_margin(4, 3, target=4)
+        assert s_a < 1.0
+        assert abs(s_a - 0.833) < 0.01
+        assert abs(s_b - (1.0 - s_a)) < 1e-9
+        assert s_b > 0.0  # loser is NOT as harshly penalised as for a 4-0 loss
+
+    def test_dominant_win_6_0_gives_more_than_one(self):
+        """6-0 win: m=6 > T=4, so S_winner > 1.0 and S_loser = 1 - S_winner < 0."""
+        s_a, s_b = calculate_score_with_margin(6, 0, target=4)
+        assert s_a > 1.0
+        assert abs(s_b - (1.0 - s_a)) < 1e-9
+        assert s_b < 0.0  # dominant loss is penalised more than a reference 4-0 loss
+
+    def test_loser_gets_complement_of_winner(self):
+        """Loser's score is always 1 - winner's score."""
+        for sa, sb in [(4, 0), (4, 1), (4, 2), (4, 3), (5, 0), (7, 4)]:
+            s_a, s_b = calculate_score_with_margin(sa, sb, target=4)
+            assert abs(s_b - (1.0 - s_a)) < 1e-9
+
+    def test_winner_identified_correctly(self):
+        """When B wins, B gets the margin score and A gets 1 - S_winner."""
+        s_a, s_b = calculate_score_with_margin(2, 4, target=4)
+        assert abs(s_b - 0.856) < 0.01  # m=2, T=4: 1 + 0.18*tanh(2.2*(2-4)/4) ≈ 0.856
+        assert abs(s_a - (1.0 - s_b)) < 1e-9
+
+    def test_draw_gives_equal_scores(self):
+        """Equal scores should give 0.5 each."""
+        s_a, s_b = calculate_score_with_margin(3, 3)
+        assert s_a == 0.5
+        assert s_b == 0.5
 
     def test_zero_zero_draw(self):
-        """0-0 draw should give equal scores."""
-        s_a, s_b = calculate_score_with_dominance(0, 0)
+        """0-0 should give equal scores."""
+        s_a, s_b = calculate_score_with_margin(0, 0)
         assert s_a == 0.5
         assert s_b == 0.5
 
-    def test_tie_score(self):
-        """Equal scores should give 0.5 to each player."""
-        s_a, s_b = calculate_score_with_dominance(3, 3)
-        assert s_a == 0.5
-        assert s_b == 0.5
-
-    def test_scores_sum_to_one(self):
-        """All score combinations should sum to 1.0."""
-        test_cases = [
-            (4, 3), (4, 2), (4, 1), (4, 0),
-            (5, 0), (6, 0), (5, 2), (3, 5)
-        ]
-        for sa, sb in test_cases:
-            s_a, s_b = calculate_score_with_dominance(sa, sb)
-            assert abs(s_a + s_b - 1.0) < 0.0001, f"Failed for {sa}-{sb}"
-
-    def test_base_win_value_present(self):
-        """Winner should always get at least 0.5 (base win value)."""
-        test_cases = [(4, 3), (5, 4), (6, 5)]
-        for sa, sb in test_cases:
-            s_a, s_b = calculate_score_with_dominance(sa, sb)
-            assert s_a >= 0.5, "Winner should get at least 0.5"
-
-    def test_larger_differential_gives_higher_score(self):
+    def test_larger_margin_gives_higher_score(self):
         """Larger point differential should give higher score to winner."""
-        s_a_4_3, _ = calculate_score_with_dominance(4, 3)
-        s_a_4_2, _ = calculate_score_with_dominance(4, 2)
-        s_a_4_0, _ = calculate_score_with_dominance(4, 0)
+        s_4_3, _ = calculate_score_with_margin(4, 3)
+        s_4_2, _ = calculate_score_with_margin(4, 2)
+        s_4_0, _ = calculate_score_with_margin(4, 0)
+        s_5_0, _ = calculate_score_with_margin(5, 0)
+        assert s_4_3 < s_4_2 < s_4_0 < s_5_0
 
-        # Winner's score should increase with larger differential
-        assert s_a_4_3 < s_a_4_2 < s_a_4_0
+    def test_finals_target_7(self):
+        """Race-to-7 finals: 7-0 should be reference (S_winner=1.0, S_loser=0.0)."""
+        s_a, s_b = calculate_score_with_margin(7, 0, target=7)
+        assert abs(s_a - 1.0) < 1e-9
+        assert abs(s_b - 0.0) < 1e-9
+
+    def test_finals_close_win(self):
+        """Race-to-7 finals: 7-6 should give S_winner < 1.0, S_loser = 1 - S_winner."""
+        s_a, s_b = calculate_score_with_margin(7, 6, target=7)
+        assert s_a < 1.0
+        assert abs(s_b - (1.0 - s_a)) < 1e-9
+
+    def test_score_uses_margin_formula(self):
+        """Winner score follows S = 1 + MARGIN_A * tanh(MARGIN_B * (m - T) / T)."""
+        sa, sb = 4, 1
+        s_a, _ = calculate_score_with_margin(sa, sb, target=4)
+        m = sa - sb
+        expected_s = 1 + MARGIN_A * math.tanh(MARGIN_B * (m - 4) / 4)
+        assert abs(s_a - expected_s) < 1e-9
+
+    def test_backward_compat_alias(self):
+        """calculate_score_with_dominance should delegate to calculate_score_with_margin."""
+        s_a1, s_b1 = calculate_score_with_margin(4, 2)
+        s_a2, s_b2 = calculate_score_with_dominance(4, 2)
+        assert abs(s_a1 - s_a2) < 1e-9
+        assert abs(s_b1 - s_b2) < 1e-9
 
 
 class TestUpdateElo:
@@ -242,18 +275,18 @@ class TestUpdateElo:
         assert stats["BeyB"]["for"] == 3
         assert stats["BeyB"]["against"] == 5
 
-    def test_elo_conservation_approximately(self):
-        """Total ELO change should be roughly zero for equal K-factors."""
+    def test_elo_conservation_for_reference_win(self):
+        """4-0 (reference win) conserves total ELO exactly (S_A=1.0, S_B=0.0, sum=1.0)."""
         elos, stats = self._create_test_data()
         elos["BeyA"] = 1000
         elos["BeyB"] = 1000
 
         initial_total = elos["BeyA"] + elos["BeyB"]
-        update_elo("BeyA", "BeyB", 5, 3, "2024-01-01", elos, stats)
+        update_elo("BeyA", "BeyB", 4, 0, "2024-01-01", elos, stats)
         final_total = elos["BeyA"] + elos["BeyB"]
 
-        # With equal K-factors, total should be roughly conserved
-        assert abs(initial_total - final_total) < 1
+        # 4-0: m=4=T, tanh(0)=0, S_A=1.0, S_B=0.0, S_A+S_B=1.0 → ELO conserved
+        assert abs(initial_total - final_total) < 0.001
 
     def test_zero_total_score_no_update(self):
         """A match with 0-0 score should not update anything."""
@@ -286,9 +319,9 @@ class TestUpdateElo:
         gain_equal = elos2["BeyD"] - 1000
         assert gain_underdog > gain_equal
 
-    def test_dominance_affects_elo_gain(self):
-        """More dominant wins should result in larger ELO gains."""
-        # Test three equal-rated matches with different dominance levels
+    def test_margin_affects_elo_gain(self):
+        """Larger winning margin should result in larger ELO gains."""
+        # Test three equal-rated matches with different margin levels
         elos_close, stats_close = self._create_test_data()
         elos_close["BeyA"] = 1000
         elos_close["BeyB"] = 1000
@@ -301,13 +334,13 @@ class TestUpdateElo:
         elos_dominant["BeyE"] = 1000
         elos_dominant["BeyF"] = 1000
 
-        # Close win: 4-3 (point diff = 1, dominance_bonus = 0.1)
+        # Close win: 4-3 (m=1, S < 1.0)
         update_elo("BeyA", "BeyB", 4, 3, "2024-01-01", elos_close, stats_close)
 
-        # Moderate win: 4-2 (point diff = 2, dominance_bonus = 0.25)
+        # Moderate win: 4-2 (m=2, S slightly higher)
         update_elo("BeyC", "BeyD", 4, 2, "2024-01-01", elos_moderate, stats_moderate)
 
-        # Dominant win: 4-0 (point diff = 4, dominance_bonus = 0.5)
+        # Reference win: 4-0 (m=4=T, S=1.0)
         update_elo("BeyE", "BeyF", 4, 0, "2024-01-01", elos_dominant, stats_dominant)
 
         # Calculate ELO gains
@@ -319,8 +352,8 @@ class TestUpdateElo:
         assert gain_close < gain_moderate < gain_dominant, \
             f"Expected gains to increase with dominance: {gain_close} < {gain_moderate} < {gain_dominant}"
 
-    def test_4_0_and_above_give_maximum_gain(self):
-        """4-0, 5-0, and 6-0 wins should all give maximum ELO gain."""
+    def test_overshoot_gives_more_than_reference_win(self):
+        """5-0 and 6-0 (overshoot) should give more ELO gain than reference 4-0."""
         elos_4_0, stats_4_0 = self._create_test_data()
         elos_4_0["BeyA"] = 1000
         elos_4_0["BeyB"] = 1000
@@ -333,14 +366,19 @@ class TestUpdateElo:
         elos_6_0["BeyE"] = 1000
         elos_6_0["BeyF"] = 1000
 
-        # 4-0 win (point diff = 4)
+        # 4-0 win: reference (S=1.0)
         update_elo("BeyA", "BeyB", 4, 0, "2024-01-01", elos_4_0, stats_4_0)
-
-        # 5-0 win (point diff = 5)
+        # 5-0 win: overshoot (S > 1.0)
         update_elo("BeyC", "BeyD", 5, 0, "2024-01-01", elos_5_0, stats_5_0)
-
-        # 6-0 win (point diff = 6)
+        # 6-0 win: larger overshoot (S even higher)
         update_elo("BeyE", "BeyF", 6, 0, "2024-01-01", elos_6_0, stats_6_0)
+
+        gain_4_0 = elos_4_0["BeyA"] - 1000
+        gain_5_0 = elos_5_0["BeyC"] - 1000
+        gain_6_0 = elos_6_0["BeyE"] - 1000
+
+        assert gain_4_0 < gain_5_0 < gain_6_0, \
+            f"Expected 4-0 < 5-0 < 6-0 gains: {gain_4_0} < {gain_5_0} < {gain_6_0}"
 
 
 class TestCalculateWinrates:

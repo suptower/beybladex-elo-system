@@ -58,7 +58,7 @@
 // Load and display milestones
 async function loadMilestones() {
     try {
-        const response = await fetch('data/milestones.json');
+        const response = await fetch('data/analytics/milestones.json');
         const data = await response.json();
         
         const container = document.getElementById('milestones-container');

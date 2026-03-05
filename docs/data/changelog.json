@@ -1,75 +1,354 @@
 {
-  "generated_at": "2026-03-03T12:27:49.224083+00:00",
+  "generated_at": "2026-03-05T19:20:59.081630+00:00",
   "commit_count": 50,
   "commits": [
     {
-      "hash": "8711b0f3",
-      "full_hash": "8711b0f3839ce51cb74c6736608173b0d8fd4791",
-      "date": "2026-03-03T13:27:43+01:00",
-      "message": "fix: linting test_update_matches.py",
+      "hash": "96d0b342",
+      "full_hash": "96d0b34211887f7b97e22ff3d821da61a97e33a5",
+      "date": "2026-03-05T20:19:02+01:00",
+      "message": "fix: show 1 as 100% instead of 1.00 in rpg stats",
       "author": "Arda K",
       "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/8711b0f3839ce51cb74c6736608173b0d8fd4791"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/96d0b34211887f7b97e22ff3d821da61a97e33a5"
     },
     {
-      "hash": "4e211e96",
-      "full_hash": "4e211e9652aa9cb0faef4f1a0d9916521ba76eff",
-      "date": "2026-03-03T13:27:11+01:00",
-      "message": "fix: dynamic calculation of maxMatchdays",
+      "hash": "9193e026",
+      "full_hash": "9193e0269b91dc29d95da8029387023d3ae3da90",
+      "date": "2026-03-05T19:09:30Z",
+      "message": "fix: align elo_tune.py EMA seeding with beyblade_elo.py (zero-start)",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/9193e0269b91dc29d95da8029387023d3ae3da90"
+    },
+    {
+      "hash": "2ebaaa6c",
+      "full_hash": "2ebaaa6c3fae044785e9afdc17aedcbc0574306c",
+      "date": "2026-03-05T13:25:40Z",
+      "message": "fix: matches filter instant update + mobile filter height clipping",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/2ebaaa6c3fae044785e9afdc17aedcbc0574306c"
+    },
+    {
+      "hash": "9ab65521",
+      "full_hash": "9ab65521bb8c7c373191bdbdd9b6efe0d685381c",
+      "date": "2026-03-05T13:15:17Z",
+      "message": "fix: distribution bars (undefined CSS vars), table-below-chart layout, V1 description, per-version metrics",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/9ab65521bb8c7c373191bdbdd9b6efe0d685381c"
+    },
+    {
+      "hash": "0e41e5dd",
+      "full_hash": "0e41e5dd74c93fb0229b90ec3062c71b309d03b3",
+      "date": "2026-03-05T13:39:49+01:00",
+      "message": "feat: update pipeline with ema seeding",
+      "author": "Arda K",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/0e41e5dd74c93fb0229b90ec3062c71b309d03b3"
+    },
+    {
+      "hash": "c07fb1cb",
+      "full_hash": "c07fb1cb9c88d32fb19d3abe8e0f5544cd25e79e",
+      "date": "2026-03-05T10:56:21Z",
+      "message": "fix: zero-start EMA seeding to prevent early K_eff spike",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/c07fb1cb9c88d32fb19d3abe8e0f5544cd25e79e"
+    },
+    {
+      "hash": "46c66f65",
+      "full_hash": "46c66f65e6dae9889611b130e5c9b1f18094b525",
+      "date": "2026-03-04T23:57:07Z",
+      "message": "feat: add Spearman rank correlation (ELO vs empirical win rate) to system metrics (ρ=0.974)",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/46c66f65e6dae9889611b130e5c9b1f18094b525"
+    },
+    {
+      "hash": "798db645",
+      "full_hash": "798db6459513268bea80cb1cd67d7d439d441321",
+      "date": "2026-03-04T22:13:06Z",
+      "message": "feat: add per-bey score distribution (table + chart) to bey profile page, filtered by arena",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/798db6459513268bea80cb1cd67d7d439d441321"
+    },
+    {
+      "hash": "3623fbca",
+      "full_hash": "3623fbca9e97b75b3bf8075c5bea533d715b0447",
+      "date": "2026-03-04T21:13:01Z",
+      "message": "feat: apply best tuned ELO parameters (K_MAX=40, K_MIN=12, FORM_WIN=14, FORM_ALPHA=3.0, MARGIN_B=2.6), regenerate pipeline + plots",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/3623fbca9e97b75b3bf8075c5bea533d715b0447"
+    },
+    {
+      "hash": "0eb7fb28",
+      "full_hash": "0eb7fb288fd8eac902eb40d75e0b08f2be8f2c51",
+      "date": "2026-03-04T20:54:59Z",
+      "message": "feat: update elo_tune.py default holdout to 0.30 (70/30 split), regenerate tune results",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/0eb7fb288fd8eac902eb40d75e0b08f2be8f2c51"
+    },
+    {
+      "hash": "04783e14",
+      "full_hash": "04783e14cb227727391291361e5e7402165e2313",
+      "date": "2026-03-04T20:54:01Z",
+      "message": "plan: update elo_tune.py default holdout to 0.30 (70/30 split)",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/04783e14cb227727391291361e5e7402165e2313"
+    },
+    {
+      "hash": "f9f5ba35",
+      "full_hash": "f9f5ba35e8af2073145ac731046b2df6a2f70e9e",
+      "date": "2026-03-04T19:54:15Z",
+      "message": "feat: add elo_tune.py — temporal hold-out parameter grid search",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f9f5ba35e8af2073145ac731046b2df6a2f70e9e"
+    },
+    {
+      "hash": "925f22df",
+      "full_hash": "925f22df8a8813759d1b65b644197807d4d636ca",
+      "date": "2026-03-04T19:36:06Z",
+      "message": "feat: add score distribution section to stadium stats (table + bar chart)",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/925f22df8a8813759d1b65b644197807d4d636ca"
+    },
+    {
+      "hash": "b654af78",
+      "full_hash": "b654af78f6790604382e790a72047cbfc7b62e8e",
+      "date": "2026-03-04T19:21:17Z",
+      "message": "feat: add Margin RMSE metric + system improvement recommendations to elo-system page",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/b654af78f6790604382e790a72047cbfc7b62e8e"
+    },
+    {
+      "hash": "c057f926",
+      "full_hash": "c057f926eced8d7590c92d3a56794c61df484b3b",
+      "date": "2026-03-04T19:00:52Z",
+      "message": "feat: ELO system v3 — smooth K-factor, EMA form adjustment, zero-sum tanh margin model + frontend calculation breakdown, K-factor plots (Xtreme arena), ELO system explanation page & predictive metrics",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/c057f926eced8d7590c92d3a56794c61df484b3b"
+    },
+    {
+      "hash": "2035b064",
+      "full_hash": "2035b06450ec1a825faa7498a12ad7070876c5ec",
+      "date": "2026-03-04T18:56:59Z",
+      "message": "feat: add ELO system evaluation metrics (accuracy, Brier Score, Log Loss, calibration)",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/2035b06450ec1a825faa7498a12ad7070876c5ec"
+    },
+    {
+      "hash": "e8773373",
+      "full_hash": "e877337337ac8dd87b3ad9a279dace282fd5fc65",
+      "date": "2026-03-04T18:11:24Z",
+      "message": "feat: add ELO system explanation page (v1, v2, v3) with navigation link",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e877337337ac8dd87b3ad9a279dace282fd5fc65"
+    },
+    {
+      "hash": "674b58bb",
+      "full_hash": "674b58bbfe4a6d7d59f06dd6c8156fd035559caa",
+      "date": "2026-03-04T13:55:10Z",
+      "message": "feat: filter kfactor plots to Xtreme arena, add to bey frontend, filter milestones to Xtreme arena",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/674b58bbfe4a6d7d59f06dd6c8156fd035559caa"
+    },
+    {
+      "hash": "f5d0048f",
+      "full_hash": "f5d0048f361e5fd9dffc1dc8ed2a4a401ecdc695",
+      "date": "2026-03-04T13:25:44Z",
+      "message": "feat: add FormEmaA/B to elo_history, form_ema in breakdown, per-bey K-factor/form_ema plots",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f5d0048f361e5fd9dffc1dc8ed2a4a401ecdc695"
+    },
+    {
+      "hash": "55ce7925",
+      "full_hash": "55ce7925b64dd0616131920a345ca9d6860f598a",
+      "date": "2026-03-04T14:11:30+01:00",
+      "message": "feat: more parameter adaptations",
+      "author": "Arda K",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/55ce7925b64dd0616131920a345ca9d6860f598a"
+    },
+    {
+      "hash": "6cd077c4",
+      "full_hash": "6cd077c46647eae08d41ad53b5d2967a39a7889f",
+      "date": "2026-03-04T13:52:38+01:00",
+      "message": "feat: auto hide statistics on profile by default",
+      "author": "Arda K",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/6cd077c46647eae08d41ad53b5d2967a39a7889f"
+    },
+    {
+      "hash": "83ec1714",
+      "full_hash": "83ec171435d415e374d5d2068f971dd96bb19fec",
+      "date": "2026-03-04T13:50:46+01:00",
+      "message": "fix: linting elo file",
       "author": "Arda K",
       "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/4e211e9652aa9cb0faef4f1a0d9916521ba76eff"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/83ec171435d415e374d5d2068f971dd96bb19fec"
     },
     {
-      "hash": "f0231b3b",
-      "full_hash": "f0231b3bdc3651fbc6fa7f5173f5bcdf76b801f2",
-      "date": "2026-03-03T13:19:48+01:00",
-      "message": "fix: quick-entry re-render matches on season id change",
-      "author": "suptower",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f0231b3bdc3651fbc6fa7f5173f5bcdf76b801f2"
+      "hash": "45c4793a",
+      "full_hash": "45c4793ab600e9dd8b78cd4558353ad410a8f089",
+      "date": "2026-03-04T13:47:43+01:00",
+      "message": "feat: adapt elo parameters",
+      "author": "Arda K",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/45c4793ab600e9dd8b78cd4558353ad410a8f089"
     },
     {
-      "hash": "62f3d7d6",
-      "full_hash": "62f3d7d696154538d0029b2c0ceae324d51ad2e9",
-      "date": "2026-03-03T13:19:06+01:00",
-      "message": "fix: quick-entry html injection prevention",
-      "author": "suptower",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/62f3d7d696154538d0029b2c0ceae324d51ad2e9"
-    },
-    {
-      "hash": "e074f005",
-      "full_hash": "e074f005f6f93e8b6748dce9c3c648adc5befb86",
-      "date": "2026-03-03T00:35:37Z",
-      "message": "ux: add match data fields (type, arena, season, tier, matchday) to fullscreen mode",
+      "hash": "b6616443",
+      "full_hash": "b661644331829ee04cf080530d4d7e3e69e6a409",
+      "date": "2026-03-04T10:11:42Z",
+      "message": "feat: replace rolling mean with EMA for form-based K-factor adjustment",
       "author": "copilot-swe-agent[bot]",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e074f005f6f93e8b6748dce9c3c648adc5befb86"
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/b661644331829ee04cf080530d4d7e3e69e6a409"
     },
     {
-      "hash": "7daf6d70",
-      "full_hash": "7daf6d70c028891b9f46746687c26d82b549b339",
-      "date": "2026-03-02T23:06:36Z",
-      "message": "ux: fix panel collapse, add season/matchday/tier dropdowns in quick entry",
+      "hash": "f08cb823",
+      "full_hash": "f08cb82366db47e1fcace8188249fd6d5d4ae437",
+      "date": "2026-03-04T00:20:48Z",
+      "message": "fix: only re-render on resize when mobile/desktop layout switches, not on URL bar show/hide",
       "author": "copilot-swe-agent[bot]",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/7daf6d70c028891b9f46746687c26d82b549b339"
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f08cb82366db47e1fcace8188249fd6d5d4ae437"
     },
     {
-      "hash": "a4954a93",
-      "full_hash": "a4954a93e0c0e8fa08451114d91abb0a6b0e562d",
-      "date": "2026-03-02T22:54:44Z",
+      "hash": "6bc2591b",
+      "full_hash": "6bc2591b809964c9c91b5627f6b37f3efe853dcd",
+      "date": "2026-03-04T00:07:01Z",
+      "message": "fix: revert quick-entry.js; debounce resize in matches.js to stop mobile panels auto-collapsing",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/6bc2591b809964c9c91b5627f6b37f3efe853dcd"
+    },
+    {
+      "hash": "ca5891c3",
+      "full_hash": "ca5891c305564144386ef10b11ea3c93bce63445",
+      "date": "2026-03-04T00:00:19Z",
+      "message": "chore: regenerate all data files and plots with S_loser = 1 - S_winner formula",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Chore",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/ca5891c305564144386ef10b11ea3c93bce63445"
+    },
+    {
+      "hash": "90385272",
+      "full_hash": "90385272b2b3da453f5908a4024aa8aa0a93fd40",
+      "date": "2026-03-03T23:57:02Z",
+      "message": "feat: loser score S = 1 - S_winner (close losses penalised less); fix analysis panel auto-hiding in quick entry",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/90385272b2b3da453f5908a4024aa8aa0a93fd40"
+    },
+    {
+      "hash": "d6d8e6f6",
+      "full_hash": "d6d8e6f6b8aefe05f4d82e3b900be4adb9c15745",
+      "date": "2026-03-03T23:32:35Z",
+      "message": "chore: regenerate all plots after ELO v3 update",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Chore",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/d6d8e6f6b8aefe05f4d82e3b900be4adb9c15745"
+    },
+    {
+      "hash": "a538cca7",
+      "full_hash": "a538cca748637271c4c47c6b40374dee2f97c79c",
+      "date": "2026-03-03T22:23:45Z",
+      "message": "fix: prevent ELO breakdown table from being clipped on mobile",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/a538cca748637271c4c47c6b40374dee2f97c79c"
+    },
+    {
+      "hash": "5f96fa6e",
+      "full_hash": "5f96fa6e1566e58f43e88f3a82cd0ba54f689405",
+      "date": "2026-03-03T22:13:15Z",
+      "message": "fix: restore createFinishTypeSummary function declaration lost in refactor",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/5f96fa6e1566e58f43e88f3a82cd0ba54f689405"
+    },
+    {
+      "hash": "b62d3a99",
+      "full_hash": "b62d3a99abca0fe583233badc70e2e83d9d6ebcb",
+      "date": "2026-03-03T21:57:25Z",
+      "message": "feat: add ELO calculation breakdown to match history frontend",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/b62d3a99abca0fe583233badc70e2e83d9d6ebcb"
+    },
+    {
+      "hash": "38242df1",
+      "full_hash": "38242df19c0628ceb40403d005045a034c40a7d7",
+      "date": "2026-03-03T21:36:35Z",
+      "message": "chore: regenerate all data files via update pipeline",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Chore",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/38242df19c0628ceb40403d005045a034c40a7d7"
+    },
+    {
+      "hash": "ffa21f54",
+      "full_hash": "ffa21f54a3f403da17c18ec62314db9d591441f8",
+      "date": "2026-03-03T21:22:22Z",
+      "message": "fix: explicitly copy form_history when cloning stats to avoid shared mutable list",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/ffa21f54a3f403da17c18ec62314db9d591441f8"
+    },
+    {
+      "hash": "165fe570",
+      "full_hash": "165fe5706763c435f0a30b1f8c6dfed68588317c",
+      "date": "2026-03-03T20:50:30Z",
+      "message": "fix: trim form_history to FORM_WINDOW, avoid redundant list copy, update K-factor type hints to float",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Fix",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/165fe5706763c435f0a30b1f8c6dfed68588317c"
+    },
+    {
+      "hash": "0a9390d9",
+      "full_hash": "0a9390d911fc13f54aa3129d2022ffa6971ab5cc",
+      "date": "2026-03-03T17:23:39Z",
+      "message": "feat: implement ELO system v3 overhaul with smooth K-factor, form adjustment, and tanh margin model",
+      "author": "copilot-swe-agent[bot]",
+      "category": "Feature",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/0a9390d911fc13f54aa3129d2022ffa6971ab5cc"
+    },
+    {
+      "hash": "839e08ff",
+      "full_hash": "839e08fff8a5ac8050392caf6467384d37683a03",
+      "date": "2026-03-03T17:07:02Z",
       "message": "Initial plan",
       "author": "copilot-swe-agent[bot]",
       "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/a4954a93e0c0e8fa08451114d91abb0a6b0e562d"
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/839e08fff8a5ac8050392caf6467384d37683a03"
+    },
+    {
+      "hash": "3ffd315b",
+      "full_hash": "3ffd315b0c7fa91ed6a3c2969eb499122a24215d",
+      "date": "2026-03-03T16:32:41+01:00",
+      "message": "ux: quick entry — dropdown fields, panel collapse fix, fullscreen match data (#293)",
+      "author": "Copilot",
+      "category": "Other",
+      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/3ffd315b0c7fa91ed6a3c2969eb499122a24215d"
     },
     {
       "hash": "96f4eca5",
       "full_hash": "96f4eca5fcba3fd54b264b6217471a04ee1b48cd",
       "date": "2026-03-02T23:52:29+01:00",
-      "message": "feat(seasons): season 2 preparations - 4 tiers of 8, new promo/relegation rules, S2 tier assignments & archive (#291)",
+      "message": "feat(seasons): season 2 preparations — 4 tiers of 8, new promo/relegation rules, S2 tier assignments & archive (#291)",
       "author": "Copilot",
       "category": "Feature",
       "github_url": "https://github.com/suptower/beybladex-elo-system/commit/96f4eca5fcba3fd54b264b6217471a04ee1b48cd"
@@ -172,285 +451,6 @@
       "author": "suptower",
       "category": "Feature",
       "github_url": "https://github.com/suptower/beybladex-elo-system/commit/9fd5b81c35ff4b6acebcd6f8229054f32440736a"
-    },
-    {
-      "hash": "2e216cff",
-      "full_hash": "2e216cff3c8b87d0554a24408c8d01bfe19aa586",
-      "date": "2026-02-27T13:46:42+01:00",
-      "message": "ui: adapt full site theme to Beyblade X black-green color scheme (#266)",
-      "author": "Copilot",
-      "category": "UI",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/2e216cff3c8b87d0554a24408c8d01bfe19aa586"
-    },
-    {
-      "hash": "0a4113f8",
-      "full_hash": "0a4113f801889461adff5a3855365b8ccf13b53b",
-      "date": "2026-02-19T15:26:38+01:00",
-      "message": "feat(seasons): add all-time standings table to Seasonal League Archive (#264)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/0a4113f801889461adff5a3855365b8ccf13b53b"
-    },
-    {
-      "hash": "378fa25b",
-      "full_hash": "378fa25bb2703b087894daf09816cc8e5746d360",
-      "date": "2026-02-19T12:16:26+01:00",
-      "message": "feat(seasons): implement advanced season statistics & analytics system with contextual navigation (#262)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/378fa25bb2703b087894daf09816cc8e5746d360"
-    },
-    {
-      "hash": "4f732509",
-      "full_hash": "4f732509cc539903a013471e9f96254e28a0256b",
-      "date": "2026-02-16T16:13:50+01:00",
-      "message": "Brainstorm: Season 2 match format alternatives with statistical analysis (#260)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/4f732509cc539903a013471e9f96254e28a0256b"
-    },
-    {
-      "hash": "fb38edad",
-      "full_hash": "fb38edad60d55b51be6ddc79a3d9f5b5cfe2a2d8",
-      "date": "2026-02-15T20:31:33+01:00",
-      "message": "feat: add HellsBrave + TyrannoRoar + ClockMirage (#258)",
-      "author": "suptower",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/fb38edad60d55b51be6ddc79a3d9f5b5cfe2a2d8"
-    },
-    {
-      "hash": "05c02bf3",
-      "full_hash": "05c02bf3f3e226d2d2dd414866994332361b5528",
-      "date": "2026-02-15T20:17:36+01:00",
-      "message": "refactor: redesign season page with per-tier matchday navigation and interactive table snapshots (#257)",
-      "author": "Copilot",
-      "category": "Refactor",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/05c02bf3f3e226d2d2dd414866994332361b5528"
-    },
-    {
-      "hash": "881d5fd4",
-      "full_hash": "881d5fd4a4090addfc81c877a87a3197b25de41e",
-      "date": "2026-02-14T12:28:00+01:00",
-      "message": "chore: add season tier mockup",
-      "author": "Arda K",
-      "category": "Chore",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/881d5fd4a4090addfc81c877a87a3197b25de41e"
-    },
-    {
-      "hash": "1be8d228",
-      "full_hash": "1be8d2286a240d79d76f79eb725f84355df64db1",
-      "date": "2026-02-14T11:45:18+01:00",
-      "message": "feat: add tournament bracket generator for low-data beys (#255)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/1be8d2286a240d79d76f79eb725f84355df64db1"
-    },
-    {
-      "hash": "16d702af",
-      "full_hash": "16d702aff77a4e483d7c7d443edf3663c5e8c766",
-      "date": "2026-02-13T22:25:25+01:00",
-      "message": "feat: add data of season 1 matchday 4 (#253)",
-      "author": "suptower",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/16d702aff77a4e483d7c7d443edf3663c5e8c766"
-    },
-    {
-      "hash": "0a19a138",
-      "full_hash": "0a19a138e99d94bf1661838a5cca61614b71292d",
-      "date": "2026-02-13T21:29:49+01:00",
-      "message": "feat: unlimited recommend match pairings (#252)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/0a19a138e99d94bf1661838a5cca61614b71292d"
-    },
-    {
-      "hash": "f3b8598a",
-      "full_hash": "f3b8598a5c1cc9c20fb2679c72e961704433517f",
-      "date": "2026-02-13T13:28:17+01:00",
-      "message": "fix(navigation): archetype dashboard appeared twice",
-      "author": "Arda K",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f3b8598a5c1cc9c20fb2679c72e961704433517f"
-    },
-    {
-      "hash": "cb65ba92",
-      "full_hash": "cb65ba9203af926e8f05ea1f2b3c64fdcde613df",
-      "date": "2026-02-13T13:00:34+01:00",
-      "message": "feat: Add fullscreen mode with custom bey picker for touch devices + fix hamburger menu bug (#250)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/cb65ba9203af926e8f05ea1f2b3c64fdcde613df"
-    },
-    {
-      "hash": "418d55e2",
-      "full_hash": "418d55e2b9833036503feb1ef2791bd9b0bf5aad",
-      "date": "2026-02-12T20:08:14+01:00",
-      "message": "Centralize navigation menu to eliminate inconsistencies across pages (#249)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/418d55e2b9833036503feb1ef2791bd9b0bf5aad"
-    },
-    {
-      "hash": "cd90eccd",
-      "full_hash": "cd90eccd4cfc9d608768c1647b606f86694ea0a9",
-      "date": "2026-02-12T18:51:25+01:00",
-      "message": "feat: add stadium exit finish type (#246)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/cd90eccd4cfc9d608768c1647b606f86694ea0a9"
-    },
-    {
-      "hash": "128b314f",
-      "full_hash": "128b314fef58c9e5e97cc1b18007911474610c27",
-      "date": "2026-02-12T16:55:47+01:00",
-      "message": "feat: Add archetype badges to wiki cards and archetype filtering (#244)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/128b314fef58c9e5e97cc1b18007911474610c27"
-    },
-    {
-      "hash": "740a6b0b",
-      "full_hash": "740a6b0bf81b509b1519413a5f276fdfa269d749",
-      "date": "2026-02-12T14:59:12+01:00",
-      "message": "feat: dynamic yticks and plot dimensions for static position plots (#242)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/740a6b0bf81b509b1519413a5f276fdfa269d749"
-    },
-    {
-      "hash": "98b3e414",
-      "full_hash": "98b3e41431fed9a10254723577d813305c04e6ea",
-      "date": "2026-02-12T00:58:44+01:00",
-      "message": "fix(leaderboard): add missing position and ELO delta columns to arena-specific leaderboards (#240)",
-      "author": "Copilot",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/98b3e41431fed9a10254723577d813305c04e6ea"
-    },
-    {
-      "hash": "ccea91d0",
-      "full_hash": "ccea91d05113097aafde3db6a86e75145b365405",
-      "date": "2026-02-12T00:40:29+01:00",
-      "message": "feat: add data of s1 matchday 2 + 3 (#238)",
-      "author": "suptower",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/ccea91d05113097aafde3db6a86e75145b365405"
-    },
-    {
-      "hash": "960522e0",
-      "full_hash": "960522e0f16da04ca8832979b5eaa7bc9c456121",
-      "date": "2026-02-06T14:13:56+01:00",
-      "message": "fix: rounds detail section colspan to match table width (#237)",
-      "author": "Copilot",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/960522e0f16da04ca8832979b5eaa7bc9c456121"
-    },
-    {
-      "hash": "bfb4bb20",
-      "full_hash": "bfb4bb202b4689c575de647900c71662893952a8",
-      "date": "2026-02-05T19:43:38+01:00",
-      "message": "chore: gen changelog",
-      "author": "suptower",
-      "category": "Chore",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/bfb4bb202b4689c575de647900c71662893952a8"
-    },
-    {
-      "hash": "2116ad98",
-      "full_hash": "2116ad980cb81c1d1924c4fd1c2dd99005de12f7",
-      "date": "2026-02-05T19:42:48+01:00",
-      "message": "feat: add EmperorMight",
-      "author": "suptower",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/2116ad980cb81c1d1924c4fd1c2dd99005de12f7"
-    },
-    {
-      "hash": "f0107c3e",
-      "full_hash": "f0107c3eae174b575204b8701fbc9694b3977fb8",
-      "date": "2026-02-04T15:56:16+01:00",
-      "message": "feat: add wolfhunt data (#235)",
-      "author": "suptower",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/f0107c3eae174b575204b8701fbc9694b3977fb8"
-    },
-    {
-      "hash": "3104925e",
-      "full_hash": "3104925e2a77a445897430555d06146efdf9739e",
-      "date": "2026-02-03T20:33:13+01:00",
-      "message": "feat: Random Bey Draw / Tournament Seeding Tool (#234)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/3104925e2a77a445897430555d06146efdf9739e"
-    },
-    {
-      "hash": "166a844b",
-      "full_hash": "166a844ba10ee58920a2eea94be0ad53814e1903",
-      "date": "2026-02-01T19:09:34+01:00",
-      "message": "feat: redesign seasons tab with collapsible sections, match cards, statistics, ELO tracking, and optimized layout (#232)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/166a844ba10ee58920a2eea94be0ad53814e1903"
-    },
-    {
-      "hash": "e5364a20",
-      "full_hash": "e5364a205f761c8b3641d9a96ae1a4567a0a0247",
-      "date": "2026-01-31T17:39:35+01:00",
-      "message": "feat(wiki): add tournament winners filter (#231)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e5364a205f761c8b3641d9a96ae1a4567a0a0247"
-    },
-    {
-      "hash": "24d3cd02",
-      "full_hash": "24d3cd023ffeb76f4651ecb06e4313a363159e5d",
-      "date": "2026-01-31T17:11:09+01:00",
-      "message": "feat: display match metadata (type, season, tier, matchday) in matches tab (#228)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/24d3cd023ffeb76f4651ecb06e4313a363159e5d"
-    },
-    {
-      "hash": "10ba09ed",
-      "full_hash": "10ba09ed95230c47091e8d1fca874c0470a3a0b0",
-      "date": "2026-01-31T16:43:17+01:00",
-      "message": "feat: add season 1 matchday 1 results (#226)",
-      "author": "suptower",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/10ba09ed95230c47091e8d1fca874c0470a3a0b0"
-    },
-    {
-      "hash": "44e34803",
-      "full_hash": "44e34803e2a7ebe4c005e9c835cd43db7445676c",
-      "date": "2026-01-31T16:32:42+01:00",
-      "message": "feat: implement arena-specific elo tracking with three-arena system (#225)",
-      "author": "Copilot",
-      "category": "Feature",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/44e34803e2a7ebe4c005e9c835cd43db7445676c"
-    },
-    {
-      "hash": "e794204a",
-      "full_hash": "e794204a541f6fdf1a511faa56e4dee522e76ad5",
-      "date": "2026-01-30T01:11:25+01:00",
-      "message": "Add live Season Tier leaderboard preview to Quick Entry (#223)",
-      "author": "Copilot",
-      "category": "Other",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/e794204a541f6fdf1a511faa56e4dee522e76ad5"
-    },
-    {
-      "hash": "86e199cf",
-      "full_hash": "86e199cf66e0ee21512ff055b6e3c4dfa8b392dd",
-      "date": "2026-01-29T13:15:13+01:00",
-      "message": "fix: stat card value alignment on bey profile pages (#221)",
-      "author": "Copilot",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/86e199cf66e0ee21512ff055b6e3c4dfa8b392dd"
-    },
-    {
-      "hash": "8c73251f",
-      "full_hash": "8c73251f1d77f710436b83fa02a799ae962751e1",
-      "date": "2026-01-29T12:48:30+01:00",
-      "message": "fix: fallback bey of the date (#220)",
-      "author": "suptower",
-      "category": "Fix",
-      "github_url": "https://github.com/suptower/beybladex-elo-system/commit/8c73251f1d77f710436b83fa02a799ae962751e1"
     }
   ]
 }
