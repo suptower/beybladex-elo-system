@@ -174,9 +174,9 @@ def replay_elo(matches: list, holdout_start_idx: int, params: dict) -> list:
         # Update EMA
         old_ema_a = form_emas.get(bey_a)
         old_ema_b = form_emas.get(bey_b)
-        form_emas[bey_a] = (delta_a if old_ema_a is None
+        form_emas[bey_a] = (ema_alpha * delta_a if old_ema_a is None
                             else ema_alpha * delta_a + (1 - ema_alpha) * old_ema_a)
-        form_emas[bey_b] = (delta_b if old_ema_b is None
+        form_emas[bey_b] = (ema_alpha * delta_b if old_ema_b is None
                             else ema_alpha * delta_b + (1 - ema_alpha) * old_ema_b)
 
     return results
