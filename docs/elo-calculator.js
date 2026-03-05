@@ -218,10 +218,10 @@ function updateElo(beyA, beyB, scoreA, scoreB, elos, stats, target) {
     const deltaA = actualA - expectedA;
     const deltaB = actualB - expectedB;
     stats[beyA].form_ema = stats[beyA].form_ema === null
-        ? deltaA
+        ? FORM_EMA_ALPHA * deltaA
         : FORM_EMA_ALPHA * deltaA + (1 - FORM_EMA_ALPHA) * stats[beyA].form_ema;
     stats[beyB].form_ema = stats[beyB].form_ema === null
-        ? deltaB
+        ? FORM_EMA_ALPHA * deltaB
         : FORM_EMA_ALPHA * deltaB + (1 - FORM_EMA_ALPHA) * stats[beyB].form_ema;
 
     // Update stats

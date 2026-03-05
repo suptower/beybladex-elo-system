@@ -295,11 +295,11 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     delta_a = s_a - ea
     delta_b = s_b - eb
     if active_stats[a]["form_ema"] is None:
-        active_stats[a]["form_ema"] = delta_a
+        active_stats[a]["form_ema"] = FORM_EMA_ALPHA * delta_a
     else:
         active_stats[a]["form_ema"] = FORM_EMA_ALPHA * delta_a + (1 - FORM_EMA_ALPHA) * active_stats[a]["form_ema"]
     if active_stats[b]["form_ema"] is None:
-        active_stats[b]["form_ema"] = delta_b
+        active_stats[b]["form_ema"] = FORM_EMA_ALPHA * delta_b
     else:
         active_stats[b]["form_ema"] = FORM_EMA_ALPHA * delta_b + (1 - FORM_EMA_ALPHA) * active_stats[b]["form_ema"]
 
@@ -333,7 +333,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         delta_c_a = s_a - ec_a
         delta_c_b = s_b - ec_b
         if combined_stats[a]["form_ema"] is None:
-            combined_stats[a]["form_ema"] = delta_c_a
+            combined_stats[a]["form_ema"] = FORM_EMA_ALPHA * delta_c_a
         else:
             old_ema_a = combined_stats[a]["form_ema"]
             combined_stats[a]["form_ema"] = (
@@ -341,7 +341,7 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
                 (1 - FORM_EMA_ALPHA) * old_ema_a
             )
         if combined_stats[b]["form_ema"] is None:
-            combined_stats[b]["form_ema"] = delta_c_b
+            combined_stats[b]["form_ema"] = FORM_EMA_ALPHA * delta_c_b
         else:
             old_ema_b = combined_stats[b]["form_ema"]
             combined_stats[b]["form_ema"] = (
