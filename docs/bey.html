@@ -1084,7 +1084,7 @@ function renderRpgStats() {
                     const displayName = metricNames[key] || key;
                     const description = metricDescs[key] || '';
                     // Display values < 1 as percentages (rates/ratios), otherwise as decimal
-                    const isPercentageMetric = typeof val === 'number' && val < 1;
+                    const isPercentageMetric = typeof val === 'number' && val <= 1;
                     const displayVal = typeof val === 'number' ? 
                         (isPercentageMetric ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
                     return `<div class="rpg-stat-detail-item">
