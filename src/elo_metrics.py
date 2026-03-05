@@ -33,19 +33,19 @@ from collections import defaultdict
 # Terminal colour helpers (graceful on systems without ANSI support)
 if os.name == "nt":
     os.system("")
-RESET  = "\033[0m"
-GREEN  = "\033[32m"
+RESET = "\033[0m"
+GREEN = "\033[32m"
 YELLOW = "\033[33m"
-CYAN   = "\033[36m"
+CYAN = "\033[36m"
 
 # ── File paths ─────────────────────────────────────────────────────────────────
 ELO_HISTORY_FILE = "./docs/data/elo_history.csv"
-OUTPUT_FILE      = "./docs/data/elo_metrics.json"
+OUTPUT_FILE = "./docs/data/elo_metrics.json"
 
 # ── Constants ──────────────────────────────────────────────────────────────────
-ARENA_FILTER   = "Xtreme"   # only the ranked arena
-EPSILON        = 1e-15      # clip probabilities away from 0/1 for log-loss
-N_CALIB_BINS   = 10         # decile calibration buckets
+ARENA_FILTER = "Xtreme"   # only the ranked arena
+EPSILON = 1e-15      # clip probabilities away from 0/1 for log-loss
+N_CALIB_BINS = 10         # decile calibration buckets
 SPEARMAN_MIN_MATCHES = 5    # minimum matches per bey to include in Spearman calculation
 
 
@@ -76,9 +76,9 @@ def compute_spearman(rows: list, arena: str = ARENA_FILTER) -> dict | None:
     Returns None if there are fewer than 3 qualifying beys.
     """
     # Collect per-bey stats: final ELO (last PostA/PostB in arena), wins, total
-    bey_elo:    dict = {}   # name → final ELO after their most recent arena match
-    bey_wins:   dict = defaultdict(int)
-    bey_total:  dict = defaultdict(int)
+    bey_elo: dict = {}   # name → final ELO after their most recent arena match
+    bey_wins: dict = defaultdict(int)
+    bey_total: dict = defaultdict(int)
 
     for row in rows:
         if row.get("arena") != arena:
@@ -88,8 +88,8 @@ def compute_spearman(rows: list, arena: str = ARENA_FILTER) -> dict | None:
         try:
             score_a = int(row["ScoreA"])
             score_b = int(row["ScoreB"])
-            post_a  = float(row["PostA"])
-            post_b  = float(row["PostB"])
+            post_a = float(row["PostA"])
+            post_b = float(row["PostB"])
         except (ValueError, KeyError):
             continue
 
@@ -113,18 +113,18 @@ def compute_spearman(rows: list, arena: str = ARENA_FILTER) -> dict | None:
     if n < 3:
         return None
 
-    elos     = [b[1] for b in beys]
+    elos = [b[1] for b in beys]
     winrates = [b[2] for b in beys]
 
     elo_ranks = _rank_list(elos)
-    wr_ranks  = _rank_list(winrates)
+    wr_ranks = _rank_list(winrates)
 
-    d2  = sum((er - wr) ** 2 for er, wr in zip(elo_ranks, wr_ranks))
+    d2 = sum((er - wr) ** 2 for er, wr in zip(elo_ranks, wr_ranks))
     rho = 1 - 6 * d2 / (n * (n ** 2 - 1))
 
     return {
-        "rho":                round(rho, 4),
-        "n_beys":             n,
+        "rho": round(rho, 4),
+        "n_beys": n,
         "min_matches_filter": SPEARMAN_MIN_MATCHES,
     }
 
@@ -138,7 +138,7 @@ def compute_metrics(rows: list) -> dict:
         if row.get("arena") != ARENA_FILTER:
             continue
         try:
-            exp_a   = float(row["ExpA"])
+            exp_a = float(row["ExpA"])
             score_a = int(row["ScoreA"])
             score_b = int(row["ScoreB"])
         except (ValueError, KeyError):
@@ -157,11 +157,11 @@ def compute_metrics(rows: list) -> dict:
         return {"error": "No valid matches found"}
 
     # ── Core metrics ─────────────────────────────────────────────────────────
-    brier_sum        = 0.0
-    log_loss_sum     = 0.0
-    correct          = 0
-    skipped_acc      = 0  # matches where ELO had no preference (ExpA ≈ 0.5)
-    margin_mse_sum   = 0.0
+    brier_sum = 0.0
+    log_loss_sum = 0.0
+    correct = 0
+    skipped_acc = 0  # matches where ELO had no preference (ExpA ≈ 0.5)
+    margin_mse_sum = 0.0
     margin_mse_count = 0
 
     # Calibration: bucket by predicted-probability decile
@@ -186,24 +186,24 @@ def compute_metrics(rows: list) -> dict:
         # Calibration bucket (decile 0–9)
         bucket = min(int(exp_a * N_CALIB_BINS), N_CALIB_BINS - 1)
         calib_buckets[bucket]["predicted_sum"] += exp_a
-        calib_buckets[bucket]["wins"]          += outcome
-        calib_buckets[bucket]["count"]         += 1
+        calib_buckets[bucket]["wins"] += outcome
+        calib_buckets[bucket]["count"] += 1
 
         # Margin MSE: MSE of E (win probability) vs S (continuous margin score).
         # Unlike binary Brier Score, this includes punishment for margin magnitude.
         # S can exceed [0, 1] for dominant results (>4-0 wins / <0-4 losses).
         if act_a is not None:
-            margin_mse_sum   += (exp_a - act_a) ** 2
+            margin_mse_sum += (exp_a - act_a) ** 2
             margin_mse_count += 1
 
     n_acc = n - skipped_acc
-    accuracy    = (correct / n_acc) if n_acc else None
+    accuracy = (correct / n_acc) if n_acc else None
     brier_score = brier_sum / n
-    log_loss    = log_loss_sum / n
-    margin_mse  = (margin_mse_sum / margin_mse_count) if margin_mse_count else None
+    log_loss = log_loss_sum / n
+    margin_mse = (margin_mse_sum / margin_mse_count) if margin_mse_count else None
 
     # Baseline Brier / log-loss for an uninformed model that always predicts 0.5
-    baseline_brier    = 0.25
+    baseline_brier = 0.25
     baseline_log_loss = math.log(2)
 
     # ── Calibration table ────────────────────────────────────────────────────
@@ -225,19 +225,19 @@ def compute_metrics(rows: list) -> dict:
     spearman = compute_spearman(rows)
 
     return {
-        "n_matches":          n,
+        "n_matches": n,
         "n_accuracy_matches": n_acc,
-        "accuracy":           round(accuracy, 4) if accuracy is not None else None,
-        "brier_score":        round(brier_score, 4),
-        "brier_baseline":     round(baseline_brier, 4),
-        "brier_skill":        round(1 - brier_score / baseline_brier, 4),
-        "log_loss":           round(log_loss, 4),
-        "log_loss_baseline":  round(baseline_log_loss, 4),
-        "margin_mse":         round(margin_mse, 4) if margin_mse is not None else None,
-        "margin_rmse":        round(margin_mse ** 0.5, 4) if margin_mse is not None else None,
-        "spearman":           spearman,
-        "calibration":        calibration,
-        "arena_filter":       ARENA_FILTER,
+        "accuracy": round(accuracy, 4) if accuracy is not None else None,
+        "brier_score": round(brier_score, 4),
+        "brier_baseline": round(baseline_brier, 4),
+        "brier_skill": round(1 - brier_score / baseline_brier, 4),
+        "log_loss": round(log_loss, 4),
+        "log_loss_baseline": round(baseline_log_loss, 4),
+        "margin_mse": round(margin_mse, 4) if margin_mse is not None else None,
+        "margin_rmse": round(margin_mse ** 0.5, 4) if margin_mse is not None else None,
+        "spearman": spearman,
+        "calibration": calibration,
+        "arena_filter": ARENA_FILTER,
     }
 
 

@@ -10,7 +10,7 @@ import pytest
 # Add src directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from elo_metrics import compute_metrics, EPSILON
+from elo_metrics import compute_metrics
 
 
 class TestComputeMetrics:

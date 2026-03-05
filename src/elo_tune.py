@@ -40,44 +40,44 @@ from typing import Optional
 
 # ── File paths ──────────────────────────────────────────────────────────────
 ELO_HISTORY_FILE = "./docs/data/elo_history.csv"
-OUTPUT_CSV       = "./docs/data/elo_tune_results.csv"
+OUTPUT_CSV = "./docs/data/elo_tune_results.csv"
 
-ARENA_FILTER     = "Xtreme"
-START_ELO        = 1000
-TARGET_POINTS    = 4
-EPSILON          = 1e-15   # clip probabilities away from 0/1 for log-loss
+ARENA_FILTER = "Xtreme"
+START_ELO = 1000
+TARGET_POINTS = 4
+EPSILON = 1e-15   # clip probabilities away from 0/1 for log-loss
 
 # ── Terminal colours ────────────────────────────────────────────────────────
 if os.name == "nt":
     os.system("")
-RESET  = "\033[0m"
-BOLD   = "\033[1m"
-GREEN  = "\033[32m"
+RESET = "\033[0m"
+BOLD = "\033[1m"
+GREEN = "\033[32m"
 YELLOW = "\033[33m"
-CYAN   = "\033[36m"
-RED    = "\033[31m"
+CYAN = "\033[36m"
+RED = "\033[31m"
 
 # ── Default / current parameter values ─────────────────────────────────────
 DEFAULTS = dict(
-    k_max      = 40,
-    k_min      = 12,
-    k_tau      = 15,
-    form_alpha = 3.0,
-    form_win   = 14,
-    margin_a   = 0.18,
-    margin_b   = 2.6,
+    k_max=40,
+    k_min=12,
+    k_tau=15,
+    form_alpha=3.0,
+    form_win=14,
+    margin_a=0.18,
+    margin_b=2.6,
 )
 
 # ── Search grid ─────────────────────────────────────────────────────────────
 # Keep the grid manageable (~a few hundred combinations) to run in seconds.
 SEARCH_GRID = dict(
-    k_max      = [28, 32, 36, 40],
-    k_min      = [12, 16, 20],
-    k_tau      = [10, 15, 20, 25],
-    form_alpha = [1.5, 2.0, 2.5, 3.0],
-    form_win   = [6, 10, 14],
-    margin_a   = [0.15, 0.18, 0.22],
-    margin_b   = [1.8, 2.2, 2.6],
+    k_max=[28, 32, 36, 40],
+    k_min=[12, 16, 20],
+    k_tau=[10, 15, 20, 25],
+    form_alpha=[1.5, 2.0, 2.5, 3.0],
+    form_win=[6, 10, 14],
+    margin_a=[0.15, 0.18, 0.22],
+    margin_b=[1.8, 2.2, 2.6],
 )
 
 
@@ -122,25 +122,25 @@ def replay_elo(matches: list, holdout_start_idx: int, params: dict) -> list:
     Replay the ELO sequence with the given params.  Return a list of
     (exp_a, outcome) tuples for matches whose index >= holdout_start_idx.
     """
-    k_max      = params["k_max"]
-    k_min      = params["k_min"]
-    k_tau      = params["k_tau"]
+    k_max = params["k_max"]
+    k_min = params["k_min"]
+    k_tau = params["k_tau"]
     form_alpha = params["form_alpha"]
-    form_win   = params["form_win"]
-    margin_a   = params["margin_a"]
-    margin_b   = params["margin_b"]
-    ema_alpha  = 2.0 / (form_win + 1)
+    form_win = params["form_win"]
+    margin_a = params["margin_a"]
+    margin_b = params["margin_b"]
+    ema_alpha = 2.0 / (form_win + 1)
 
-    elos:      dict = {}
+    elos: dict = {}
     match_cnt: dict = {}
     form_emas: dict = {}
     results = []
 
     for idx, row in enumerate(matches):
-        bey_a  = row["BeyA"]
-        bey_b  = row["BeyB"]
-        sa     = int(row["ScoreA"])
-        sb     = int(row["ScoreB"])
+        bey_a = row["BeyA"]
+        bey_b = row["BeyB"]
+        sa = int(row["ScoreA"])
+        sb = int(row["ScoreB"])
 
         r_a = elos.get(bey_a, START_ELO)
         r_b = elos.get(bey_b, START_ELO)
@@ -246,13 +246,13 @@ def main():
     # ── Baseline: current default parameters ────────────────────────────────
     print(f"{YELLOW}Computing baseline (current default parameters) …{RESET}")
     baseline_preds = replay_elo(matches, holdout_start, DEFAULTS)
-    baseline_ll    = compute_log_loss(baseline_preds)
-    baseline_bs    = compute_brier(baseline_preds)
+    baseline_ll = compute_log_loss(baseline_preds)
+    baseline_bs = compute_brier(baseline_preds)
     print(f"  Default Log Loss  : {baseline_ll:.4f}")
     print(f"  Default Brier     : {baseline_bs:.4f}\n")
 
     # ── Grid search ─────────────────────────────────────────────────────────
-    keys  = list(SEARCH_GRID.keys())
+    keys = list(SEARCH_GRID.keys())
     values = list(SEARCH_GRID.values())
     combos = list(itertools.product(*values))
     print(f"{YELLOW}Searching {len(combos)} parameter combinations …{RESET}")
@@ -260,9 +260,9 @@ def main():
     results = []
     for i, combo in enumerate(combos):
         params = dict(zip(keys, combo))
-        preds  = replay_elo(matches, holdout_start, params)
-        ll     = compute_log_loss(preds)
-        bs     = compute_brier(preds)
+        preds = replay_elo(matches, holdout_start, params)
+        ll = compute_log_loss(preds)
+        bs = compute_brier(preds)
         results.append({**params, "log_loss": ll, "brier": bs})
         if (i + 1) % 200 == 0 or (i + 1) == len(combos):
             print(f"  … {i + 1}/{len(combos)} done", end="\r")
