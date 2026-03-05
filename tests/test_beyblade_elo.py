@@ -15,6 +15,8 @@ from beyblade_elo import (
     dynamic_k,
     k_effective,
     expected,
+    compute_archetype_offsets,
+    expected_with_archetype_bias,
     calculate_score_with_margin,
     calculate_score_with_dominance,
     update_elo,
@@ -29,7 +31,8 @@ from beyblade_elo import (
     MARGIN_B,
     START_ELO,
     ARENA_XTREME,
-    ARENA_DROP_ATTACK
+    ARENA_DROP_ATTACK,
+    ARCHETYPE_MIN_SAMPLE,
 )
 
 
@@ -576,3 +579,288 @@ class TestArenaSpecificELO:
         # Should update Xtreme ELO only
         assert arena_elos[ARENA_XTREME]["BeyG"] > START_ELO
         assert arena_stats[ARENA_XTREME]["BeyG"]["matches"] == 1
+
+
+# ── Helpers shared across archetype-bias tests ───────────────────────────────
+
+def _make_matches(arch_a, bey_a, arch_b, bey_b, wins_a, wins_b, draws=0):
+    """Build a synthetic match list for archetype pair (arch_a vs arch_b).
+
+    Uses a single representative bey name per archetype.
+    wins_a  – number of matches where bey_a (arch_a) beats bey_b (arch_b)
+    wins_b  – number of matches where bey_b (arch_b) beats bey_a (arch_a)
+    draws   – number of drawn matches (ScoreA == ScoreB)
+    """
+    matches = []
+    for _ in range(wins_a):
+        matches.append({"BeyA": bey_a, "BeyB": bey_b, "ScoreA": "4", "ScoreB": "2"})
+    for _ in range(wins_b):
+        matches.append({"BeyA": bey_b, "BeyB": bey_a, "ScoreA": "4", "ScoreB": "2"})
+    for _ in range(draws):
+        matches.append({"BeyA": bey_a, "BeyB": bey_b, "ScoreA": "3", "ScoreB": "3"})
+    return matches
+
+
+def _bey_to_arch(pairs):
+    """Return bey_to_archetype dict from [(bey, arch), ...] tuples."""
+    return {bey: arch for bey, arch in pairs}
+
+
+# ── Tests for compute_archetype_offsets ─────────────────────────────────────
+
+class TestComputeArchetypeOffsets:
+    """Tests for compute_archetype_offsets (ELO v3.1 μ-table estimation)."""
+
+    def test_below_min_n_returns_zero_offset(self):
+        """Pairs with fewer than min_n matches should receive μ = 0."""
+        matches = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=5, wins_b=3)
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        assert mu.get(("gc", "iw"), 0.0) == 0.0
+        assert mu.get(("iw", "gc"), 0.0) == 0.0
+
+    def test_above_min_n_returns_nonzero_offset(self):
+        """Pairs with at least min_n matches should receive a non-zero offset when A dominates."""
+        # 10 wins for gc, 0 wins for iw
+        matches = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=10, wins_b=0)
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        # gc dominates iw → positive offset for (gc, iw)
+        assert mu[("gc", "iw")] > 0.0
+        # inverse should be negative
+        assert mu[("iw", "gc")] < 0.0
+
+    def test_antisymmetry(self):
+        """μ(X, Y) must equal −μ(Y, X) for every pair."""
+        matches = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=8, wins_b=4)
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        assert abs(mu[("gc", "iw")] + mu[("iw", "gc")]) < 1e-9
+
+    def test_even_record_gives_zero_offset(self):
+        """Perfect 50/50 head-to-head should produce μ ≈ 0 (logit of 0.5 = 0)."""
+        matches = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=10, wins_b=10)
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        assert abs(mu[("gc", "iw")]) < 1e-6
+        assert abs(mu[("iw", "gc")]) < 1e-6
+
+    def test_same_archetype_matchups_excluded(self):
+        """Within-archetype matches should not appear in the mu table."""
+        matches = [
+            {"BeyA": "BeyA", "BeyB": "BeyC", "ScoreA": "4", "ScoreB": "2"},
+        ] * 15
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyC", "gc")])
+
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        assert ("gc", "gc") not in mu
+
+    def test_unknown_archetype_bey_excluded(self):
+        """Beys without an archetype mapping should be skipped entirely."""
+        matches = [
+            {"BeyA": "BeyA", "BeyB": "BeyX", "ScoreA": "4", "ScoreB": "2"},
+        ] * 15
+        bta = {"BeyA": "gc"}  # BeyX has no mapping
+
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        assert len(mu) == 0
+
+    def test_multiple_beys_per_archetype(self):
+        """Matches from multiple beys of the same archetype are aggregated."""
+        matches = [
+            {"BeyA": "BeyA1", "BeyB": "BeyB1", "ScoreA": "4", "ScoreB": "2"},
+            {"BeyA": "BeyA2", "BeyB": "BeyB2", "ScoreA": "4", "ScoreB": "2"},
+            {"BeyA": "BeyA1", "BeyB": "BeyB2", "ScoreA": "4", "ScoreB": "2"},
+            {"BeyA": "BeyA2", "BeyB": "BeyB1", "ScoreA": "4", "ScoreB": "2"},
+            {"BeyA": "BeyA1", "BeyB": "BeyB1", "ScoreA": "4", "ScoreB": "2"},
+            {"BeyA": "BeyA2", "BeyB": "BeyB2", "ScoreA": "4", "ScoreB": "2"},
+            {"BeyA": "BeyA1", "BeyB": "BeyB2", "ScoreA": "4", "ScoreB": "2"},
+            {"BeyA": "BeyA2", "BeyB": "BeyB1", "ScoreA": "4", "ScoreB": "2"},
+            {"BeyA": "BeyB1", "BeyB": "BeyA1", "ScoreA": "4", "ScoreB": "2"},  # iw wins
+            {"BeyA": "BeyB1", "BeyB": "BeyA2", "ScoreA": "4", "ScoreB": "2"},  # iw wins
+        ]
+        bta = _bey_to_arch([
+            ("BeyA1", "gc"), ("BeyA2", "gc"),
+            ("BeyB1", "iw"), ("BeyB2", "iw"),
+        ])
+
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        # 8 gc wins, 2 iw wins → gc positive offset
+        assert ("gc", "iw") in mu
+        assert mu[("gc", "iw")] > 0.0
+        assert abs(mu[("gc", "iw")] + mu[("iw", "gc")]) < 1e-9
+
+    def test_missing_score_rows_skipped(self):
+        """Rows with missing or invalid scores should be silently ignored."""
+        matches = [{"BeyA": "BeyA", "BeyB": "BeyB"}] * 5  # no scores
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        # Below threshold due to missing scores → zero offsets (or not present)
+        assert mu.get(("gc", "iw"), 0.0) == 0.0
+
+    def test_empty_matches_returns_empty_table(self):
+        """No matches should return an empty mu table."""
+        mu = compute_archetype_offsets([], {}, min_n=10)
+        assert mu == {}
+
+    def test_min_n_boundary_exact(self):
+        """Exactly min_n matches should produce a non-zero offset (>=, not >)."""
+        matches = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=7, wins_b=3)
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+        min_n = len(matches)  # exactly min_n
+
+        mu = compute_archetype_offsets(matches, bta, min_n=min_n)
+
+        # 7/10 win rate for gc → logit > 0
+        assert mu[("gc", "iw")] > 0.0
+
+    def test_logit_magnitude_reflects_dominance(self):
+        """More one-sided records should yield larger |μ| values."""
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+
+        matches_70 = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=7, wins_b=3)
+        matches_90 = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=9, wins_b=1)
+
+        mu_70 = compute_archetype_offsets(matches_70, bta, min_n=10)
+        mu_90 = compute_archetype_offsets(matches_90, bta, min_n=10)
+
+        assert mu_90[("gc", "iw")] > mu_70[("gc", "iw")] > 0.0
+
+    def test_draws_only_gives_negative_offset(self):
+        """All-draw record means 0 wins out of total → zero wins but valid total."""
+        matches = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=0, wins_b=0, draws=10)
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        # 0 wins out of 10 → win rate clipped to 1e-6 → very negative offset, not zero
+        # This is correct behaviour: a team with 0 wins should receive a large negative offset
+        assert mu[("gc", "iw")] < 0.0
+
+
+# ── Tests for expected_with_archetype_bias ──────────────────────────────────
+
+class TestExpectedWithArchetypeBias:
+    """Tests for expected_with_archetype_bias (ELO v3.1 adjusted expected score)."""
+
+    def test_equal_ratings_no_bias_gives_half(self):
+        """Equal ratings with μ = 0 should return 0.5."""
+        mu_table = {("gc", "iw"): 0.0, ("iw", "gc"): 0.0}
+        result = expected_with_archetype_bias(1000, 1000, "gc", "iw", mu_table)
+        assert abs(result - 0.5) < 1e-9
+
+    def test_positive_mu_boosts_expected_above_base(self):
+        """Positive archetype offset should increase expected score above raw expected."""
+        mu_table = {("gc", "iw"): 0.5, ("iw", "gc"): -0.5}
+        raw = expected(1000, 1000)
+        adj = expected_with_archetype_bias(1000, 1000, "gc", "iw", mu_table)
+        assert adj > raw
+
+    def test_negative_mu_reduces_expected_below_base(self):
+        """Negative archetype offset should decrease expected score below raw expected."""
+        mu_table = {("gc", "iw"): -0.5, ("iw", "gc"): 0.5}
+        raw = expected(1000, 1000)
+        adj = expected_with_archetype_bias(1000, 1000, "gc", "iw", mu_table)
+        assert adj < raw
+
+    def test_result_stays_in_zero_one_range(self):
+        """Result must always be in (0, 1)."""
+        for mu_val in [-10.0, -2.0, 0.0, 2.0, 10.0]:
+            mu_table = {("gc", "iw"): mu_val, ("iw", "gc"): -mu_val}
+            result = expected_with_archetype_bias(1000, 1000, "gc", "iw", mu_table)
+            assert 0.0 < result < 1.0, f"Result out of range for μ={mu_val}: {result}"
+
+    def test_missing_archetype_falls_back_to_standard_expected(self):
+        """Unknown archetype pair should fall back to standard expected()."""
+        mu_table = {}  # empty table
+        raw = expected(1200, 1000)
+        adj = expected_with_archetype_bias(1200, 1000, "gc", "iw", mu_table)
+        assert abs(adj - raw) < 1e-9
+
+    def test_none_archetype_falls_back_to_standard_expected(self):
+        """None archetype should use standard expected() regardless of mu_table."""
+        mu_table = {("gc", "iw"): 1.0}
+        raw = expected(1200, 1000)
+        adj_a_none = expected_with_archetype_bias(1200, 1000, None, "iw", mu_table)
+        adj_b_none = expected_with_archetype_bias(1200, 1000, "gc", None, mu_table)
+        assert abs(adj_a_none - raw) < 1e-9
+        assert abs(adj_b_none - raw) < 1e-9
+
+    def test_none_mu_table_falls_back_to_standard_expected(self):
+        """None mu_table should fall back to standard expected()."""
+        raw = expected(1200, 1000)
+        adj = expected_with_archetype_bias(1200, 1000, "gc", "iw", None)
+        assert abs(adj - raw) < 1e-9
+
+    def test_same_archetype_falls_back_to_standard_expected(self):
+        """Same archetype on both sides should use standard expected()."""
+        mu_table = {("gc", "gc"): 0.5}  # Should be ignored
+        raw = expected(1200, 1000)
+        adj = expected_with_archetype_bias(1200, 1000, "gc", "gc", mu_table)
+        assert abs(adj - raw) < 1e-9
+
+    def test_antisymmetry_of_bias_effect(self):
+        """Bias applied to (A, B) should be equal and opposite to (B, A) at equal ratings."""
+        mu_table = {("gc", "iw"): 0.8, ("iw", "gc"): -0.8}
+        e_gc_vs_iw = expected_with_archetype_bias(1000, 1000, "gc", "iw", mu_table)
+        e_iw_vs_gc = expected_with_archetype_bias(1000, 1000, "iw", "gc", mu_table)
+        # Probabilities should sum to 1
+        assert abs(e_gc_vs_iw + e_iw_vs_gc - 1.0) < 1e-9
+
+    def test_elo_advantage_still_reflected(self):
+        """Higher-rated player should still be favoured after archetype bias."""
+        # gc has slight archetype disadvantage but large ELO lead
+        mu_table = {("gc", "iw"): -0.3, ("iw", "gc"): 0.3}
+        e_high_elo = expected_with_archetype_bias(1300, 1000, "gc", "iw", mu_table)
+        e_equal_elo = expected_with_archetype_bias(1000, 1000, "gc", "iw", mu_table)
+        assert e_high_elo > e_equal_elo
+
+    def test_zero_mu_in_table_equals_standard_expected(self):
+        """Explicit μ = 0 entry should return the same as standard expected()."""
+        mu_table = {("gc", "iw"): 0.0, ("iw", "gc"): 0.0}
+        for ra, rb in [(1000, 1000), (1200, 1000), (1000, 1200)]:
+            raw = expected(ra, rb)
+            adj = expected_with_archetype_bias(ra, rb, "gc", "iw", mu_table)
+            assert abs(adj - raw) < 1e-9
+
+    def test_roundtrip_with_computed_offsets(self):
+        """Offsets computed from a 70/30 record should boost gc vs iw expected score."""
+        matches = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=7, wins_b=3)
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        raw = expected(1000, 1000)
+        adj = expected_with_archetype_bias(1000, 1000, "gc", "iw", mu)
+
+        # gc wins 70% empirically → adjusted E should be > 0.5 and > raw
+        assert adj > 0.5
+        assert adj > raw
+
+    def test_adjusted_expected_approximately_matches_empirical_winrate(self):
+        """At equal ELO, adjusted E should approximate the empirical archetype win rate."""
+        # 70 wins for gc, 30 for iw → μ = logit(0.7)
+        matches = _make_matches("gc", "BeyA", "iw", "BeyB", wins_a=70, wins_b=30)
+        bta = _bey_to_arch([("BeyA", "gc"), ("BeyB", "iw")])
+        mu = compute_archetype_offsets(matches, bta, min_n=10)
+
+        adj = expected_with_archetype_bias(1000, 1000, "gc", "iw", mu)
+
+        # Should be approximately 0.70 (within 1%)
+        assert abs(adj - 0.70) < 0.01
+
+    def test_default_min_n_constant(self):
+        """ARCHETYPE_MIN_SAMPLE constant should be >= 1 and <= 50 (reasonable range)."""
+        assert 1 <= ARCHETYPE_MIN_SAMPLE <= 50

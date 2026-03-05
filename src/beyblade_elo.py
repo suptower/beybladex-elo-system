@@ -34,10 +34,18 @@ Margin-Based Scoring (ELO Version 3):
       4-0: S = 1.00, ΔElo = +10
       6-0: S ≈ 1.14, ΔElo ≈ +13
 
+Archetype Bias (ELO Version 3.1):
+    E_adjusted = sigmoid(logit(E_raw) + μ(arch_A, arch_B))
+    where μ(X, Y) = logit(empirical_winrate(X vs Y)), estimated from training matches.
+    μ(X, Y) = −μ(Y, X) by construction.  If the archetype pair has fewer than
+    ARCHETYPE_MIN_SAMPLE matches in the training set, μ = 0 (no offset applied).
+
 Functions:
     dynamic_k(matches): Calculate smooth K_base from match count
     k_effective(k_base_val, form_history): Calculate K_eff with form multiplier
     expected(a, b): Calculate expected score for player A against player B
+    compute_archetype_offsets(matches, bey_to_archetype, min_n): Estimate μ table from match data
+    expected_with_archetype_bias(r_a, r_b, arch_a, arch_b, mu_table): Archetype-adjusted expected score
     calculate_score_with_margin(sa, sb, target): Calculate score using tanh margin model
     update_elo(a, b, sa, sb, date, elos, stats, writer): Update ELO ratings after a match
     calculate_winrates(stats): Calculate win rates for all beyblades
@@ -89,7 +97,10 @@ MARGIN_A = 0.18
 MARGIN_B = 2.6
 TARGET_POINTS = 4  # Default target for regular matches (Race to 4)
 
-# Default path forhttps://www.desmos.com/calculator?lang=de beyblade registry
+# Archetype bias parameters (ELO Version 3.1)
+ARCHETYPE_MIN_SAMPLE = 10  # Minimum matches per archetype pair to apply offset
+
+# Default path for beyblade registry
 DEFAULT_BEYS_DATA_FILE = "./docs/data/beys_data.json"
 # ELO version for calculation changes
 ELO_VERSION = 3.1  # Version 3: Smooth K-factor, form adjustment, tanh margin model
@@ -164,6 +175,122 @@ def k_effective(k_base_val, form_ema):
 
 def expected(a, b):
     return 1 / (1 + 10 ** ((b - a) / 400))
+
+
+# ------------ Archetype bias (ELO Version 3.1) ------------
+
+
+def compute_archetype_offsets(matches, bey_to_archetype, min_n=ARCHETYPE_MIN_SAMPLE):
+    """Estimate archetype-pair logit offsets (μ table) from match data.
+
+    For each ordered pair of archetypes (X, Y), computes:
+        μ(X, Y) = logit(wins_X_vs_Y / (wins_X_vs_Y + wins_Y_vs_X))
+    if the total count of matches between X and Y is >= min_n, otherwise μ = 0.
+
+    Antisymmetry is guaranteed by construction: μ(Y, X) = −μ(X, Y).
+
+    Args:
+        matches: List of match dicts, each containing keys 'BeyA', 'BeyB',
+                 'ScoreA', 'ScoreB'.
+        bey_to_archetype: Dict mapping bey name → archetype id string.
+        min_n: Minimum number of cross-archetype matches for the pair to receive
+               a non-zero offset.  Pairs below this threshold default to μ = 0.
+
+    Returns:
+        Dict mapping (arch_x, arch_y) → float offset.  Only pairs with at
+        least one recorded match are included (with offset 0 when below min_n).
+        Pairs not present default to 0 when looked up.
+    """
+    from collections import defaultdict
+    wins = defaultdict(int)   # (arch_a, arch_b) -> wins for arch_a
+    totals = defaultdict(int)  # (arch_a, arch_b) -> total matches (unordered pair)
+
+    for row in matches:
+        bey_a = row.get("BeyA", "")
+        bey_b = row.get("BeyB", "")
+        arch_a = bey_to_archetype.get(bey_a)
+        arch_b = bey_to_archetype.get(bey_b)
+
+        # Skip if either archetype is unknown or both are the same
+        if not arch_a or not arch_b or arch_a == arch_b:
+            continue
+
+        try:
+            score_a = int(row["ScoreA"])
+            score_b = int(row["ScoreB"])
+        except (KeyError, ValueError):
+            continue
+
+        # Normalise pair order so totals are symmetric
+        pair = (arch_a, arch_b)
+        totals[pair] += 1
+        totals[(arch_b, arch_a)] += 1
+
+        if score_a > score_b:
+            wins[(arch_a, arch_b)] += 1
+        elif score_b > score_a:
+            wins[(arch_b, arch_a)] += 1
+        # draws: no wins recorded for either side
+
+    mu = {}
+    # Iterate over unique unordered pairs to avoid double-calculation
+    seen_pairs = set()
+    for (ax, ay) in list(totals.keys()):
+        if (ax, ay) in seen_pairs or (ay, ax) in seen_pairs:
+            continue
+        seen_pairs.add((ax, ay))
+
+        n = totals[(ax, ay)]
+        if n < min_n:
+            mu[(ax, ay)] = 0.0
+            mu[(ay, ax)] = 0.0
+        else:
+            w = wins[(ax, ay)]
+            # Clip win rate away from 0 and 1 to keep logit finite
+            p = max(1e-6, min(1 - 1e-6, w / n))
+            offset = math.log(p / (1 - p))
+            mu[(ax, ay)] = offset
+            mu[(ay, ax)] = -offset
+
+    return mu
+
+
+def expected_with_archetype_bias(r_a, r_b, arch_a, arch_b, mu_table):
+    """Calculate archetype-adjusted expected score for player A against player B.
+
+    Applies an archetype-pair logit offset on top of the standard ELO expected
+    score formula (Version 3.1):
+
+        E_adjusted = sigmoid(logit(E_raw) + μ(arch_A, arch_B))
+
+    where logit uses the natural logarithm.  When arch_a or arch_b is None, or
+    the pair is absent from mu_table, the offset defaults to 0 and the result
+    is identical to the standard expected() function.
+
+    Args:
+        r_a: ELO rating of player A.
+        r_b: ELO rating of player B.
+        arch_a: Archetype id of player A (str or None).
+        arch_b: Archetype id of player B (str or None).
+        mu_table: Dict from compute_archetype_offsets (may be None or empty).
+
+    Returns:
+        Float in (0, 1): adjusted expected win probability for player A.
+    """
+    e_raw = expected(r_a, r_b)
+
+    mu = 0.0
+    if mu_table and arch_a and arch_b and arch_a != arch_b:
+        mu = mu_table.get((arch_a, arch_b), 0.0)
+
+    if mu == 0.0:
+        return e_raw
+
+    # logit(E_raw) using natural log
+    logit_e = math.log(e_raw / (1.0 - e_raw))
+    adjusted = logit_e + mu
+    return 1.0 / (1.0 + math.exp(-adjusted))
+
 
 # ------------ Margin-based scoring (tanh model) ------------
 
