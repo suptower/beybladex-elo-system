@@ -97,7 +97,8 @@ def get_commit_history(limit=50):
                 "--pretty=format:%h%x00%H%x00%aI%x00%an%x00%s",
             ],
             text=True,
-            timeout=30
+            timeout=30,
+            encoding='utf-8'
         ).strip()
 
         commits = []
@@ -120,7 +121,8 @@ def get_commit_history(limit=50):
                 repo_url = subprocess.check_output(
                     ["git", "config", "--get", "remote.origin.url"],
                     text=True,
-                    timeout=5
+                    timeout=5,
+                    encoding='utf-8'
                 ).strip()
 
                 # Convert SSH URL to HTTPS if needed
