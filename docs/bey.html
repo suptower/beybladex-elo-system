@@ -111,7 +111,7 @@
             </details>
             
             <!-- Stats Section (collapsible) -->
-            <details class="profile-section-details" open>
+            <details class="profile-section-details">
                 <summary class="section-summary">📊 Statistics</summary>
                 <div id="statsGrid" class="stats-grid">
                     <!-- Stats will be dynamically added -->
@@ -143,6 +143,29 @@
                     <!-- Interactive plot will be embedded here, or fallback to static image -->
                     <iframe id="positionPlotFrame" src="" style="width: 100%; height: 550px; border: none; display: none;"></iframe>
                     <img id="positionPlot" src="" alt="Position History" class="profile-plot" style="display: none;">
+                </div>
+            </details>
+
+            <!-- K-Factor / Form-EMA Section (collapsible, hidden by default) -->
+            <details class="profile-section-details" id="kfactorPlotSection" style="display: none;">
+                <summary class="section-summary">⚡ K-Factor / Form-EMA</summary>
+                <div class="profile-plot-container" id="kfactorPlotContainer">
+                    <img id="kfactorPlot" src="" alt="K-Factor / Form-EMA History" class="profile-plot" style="display: none;">
+                </div>
+            </details>
+
+            <!-- Score Distribution Section (collapsible) -->
+            <details class="profile-section-details" id="scoreDistSection" style="display: none;">
+                <summary class="section-summary">🎯 Score Distribution</summary>
+                <div id="scoreDistContent">
+                    <div class="score-dist-bey-layout">
+                        <div class="score-dist-bey-chart-container">
+                            <canvas id="beyScoreDistChart"></canvas>
+                        </div>
+                        <div id="beyScoreDistTable" class="score-dist-bey-table-container">
+                            <div class="loading-placeholder">Loading...</div>
+                        </div>
+                    </div>
                 </div>
             </details>
             
@@ -289,6 +312,7 @@
     <p>© 2026 suptower • <span id="site-version">Loading version...</span></p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="version-display.js"></script>
 
 <script>
@@ -384,7 +408,7 @@ function formatDate(dateStr) {
 async function loadData() {
     try {
         // Load bey wiki data
-        const beyResponse = await fetch('data/beys_data.json');
+        const beyResponse = await fetch('data/beys/beys_data.json');
         const beys = await beyResponse.json();
         allBeysData = beys;
         beyData = findBeyByName(beys, beyName);
@@ -393,14 +417,14 @@ async function loadData() {
         try {
             // Try advanced leaderboard first for both arenas
             if (currentArena === 'xtreme') {
-                const advancedResponse = await fetch('data/advanced_leaderboard.csv');
+                const advancedResponse = await fetch('data/leaderboard/advanced_leaderboard.csv');
                 const advancedText = await advancedResponse.text();
                 const advancedData = parseCSV(advancedText);
                 allLeaderboardData = advancedData;
                 leaderboardData = findLeaderboardEntry(advancedData, beyName);
             } else if (currentArena === 'drop_attack') {
                 // Try Drop Attack advanced leaderboard
-                const advancedResponse = await fetch('data/advanced_leaderboard_drop_attack.csv');
+                const advancedResponse = await fetch('data/leaderboard/advanced_leaderboard_drop_attack.csv');
                 const advancedText = await advancedResponse.text();
                 const advancedData = parseCSV(advancedText);
                 allLeaderboardData = advancedData;
@@ -423,7 +447,7 @@ async function loadData() {
         }
         
         // Load matches data
-        const matchesResponse = await fetch('data/matches.csv');
+        const matchesResponse = await fetch('data/matches/matches.csv');
         const matchesText = await matchesResponse.text();
         const allMatches = parseCSV(matchesText).map(m => ({
             matchId: parseInt(m.MatchID.slice(1).replace(/^0+/, ''), 10),
@@ -432,13 +456,14 @@ async function loadData() {
             beyB: m.BeyB,
             scoreA: parseInt(m.ScoreA),
             scoreB: parseInt(m.ScoreB),
+            arena: m.arena || 'Xtreme',
             winner: parseInt(m.ScoreA) > parseInt(m.ScoreB) ? m.BeyA : m.BeyB
         }));
         matchesData = getMatchesForBey(allMatches, beyName);
         
         // Load tournaments data
         try {
-            const tournamentsResponse = await fetch('data/tournaments.json');
+            const tournamentsResponse = await fetch('data/tournaments/tournaments.json');
             const tournaments = await tournamentsResponse.json();
             const normalizedBeyName = normalizeBeyName(beyName);
             tournamentsData = tournaments.tournaments.filter(t => 
@@ -473,7 +498,7 @@ async function loadData() {
         
         // Load ELO history data (for milestones)
         try {
-            const eloHistoryResponse = await fetch('data/elo_history.csv');
+            const eloHistoryResponse = await fetch('data/elo/elo_history.csv');
             const eloHistoryText = await eloHistoryResponse.text();
             allEloHistoryData = parseCSV(eloHistoryText);
         } catch (e) {
@@ -483,7 +508,7 @@ async function loadData() {
         
         // Load RPG stats data
         try {
-            const rpgStatsResponse = await fetch('data/rpg_stats.json');
+            const rpgStatsResponse = await fetch('data/analytics/rpg_stats.json');
             const allRpgStats = await rpgStatsResponse.json();
             // Find RPG stats for this bey
             const normalizedName = normalizeBeyName(beyName);
@@ -500,7 +525,7 @@ async function loadData() {
         
         // Load counters data
         try {
-            const countersResponse = await fetch('data/bey_counters.csv');
+            const countersResponse = await fetch('data/analytics/bey_counters.csv');
             const countersText = await countersResponse.text();
             countersData = parseCSV(countersText);
         } catch (e) {
@@ -510,7 +535,7 @@ async function loadData() {
         
         // Load season data
         try {
-            const seasonResponse = await fetch('data/season_data.json');
+            const seasonResponse = await fetch('data/season/season_data.json');
             const allSeasonData = await seasonResponse.json();
             seasonData = allSeasonData.seasons || {};
         } catch (e) {
@@ -598,6 +623,12 @@ function renderProfile() {
     
     // Try to load Position plot
     loadPositionPlot();
+
+    // Try to load K-Factor / Form-EMA plot
+    loadKfactorPlot();
+
+    // Render score distribution
+    renderScoreDistribution();
     
     // Setup dark mode observer for plots
     setupPlotDarkModeObserver();
@@ -1053,7 +1084,7 @@ function renderRpgStats() {
                     const displayName = metricNames[key] || key;
                     const description = metricDescs[key] || '';
                     // Display values < 1 as percentages (rates/ratios), otherwise as decimal
-                    const isPercentageMetric = typeof val === 'number' && val < 1;
+                    const isPercentageMetric = typeof val === 'number' && val <= 1;
                     const displayVal = typeof val === 'number' ? 
                         (isPercentageMetric ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
                     return `<div class="rpg-stat-detail-item">
@@ -1532,12 +1563,181 @@ function loadStaticPositionPlot(bladeName, isDark) {
     };
 }
 
+// Load K-Factor / Form-EMA plot
+function loadKfactorPlot() {
+    const plotSection = document.getElementById('kfactorPlotSection');
+    const plotImg = document.getElementById('kfactorPlot');
+    const bladeName = getBladeName();
+    const isDark = document.body.classList.contains('dark');
+
+    const basePath = isDark ? './plots/kfactor/dark/' : './plots/kfactor/';
+    const filename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
+
+    plotImg.src = basePath + filename;
+    plotImg.alt = `${bladeName} K-Factor / Form-EMA`;
+
+    plotImg.onerror = () => {
+        plotSection.style.display = 'none';
+    };
+
+    plotImg.onload = () => {
+        plotImg.style.display = 'block';
+        plotSection.style.display = 'block';
+    };
+}
+
+// Render per-bey score distribution chart and table
+let beyScoreDistChart = null;
+
+function renderScoreDistribution() {
+    const section = document.getElementById('scoreDistSection');
+    const tableContainer = document.getElementById('beyScoreDistTable');
+    const ctx = document.getElementById('beyScoreDistChart');
+    if (!section || !tableContainer || !ctx) return;
+
+    // Filter matches by current arena
+    const arenaLabel = currentArena === 'xtreme' ? 'Xtreme' :
+                       currentArena === 'drop_attack' ? 'Drop Attack' :
+                       currentArena === 'combined' ? null : currentArena;
+
+    const filteredMatches = arenaLabel
+        ? matchesData.filter(m => m.arena === arenaLabel)
+        : matchesData;
+
+    if (!filteredMatches || filteredMatches.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    // Compute score distribution from bey perspective
+    const normalizedBeyName = normalizeBeyName(beyName);
+    const scoreCounts = {};
+
+    for (const m of filteredMatches) {
+        const isA = normalizeBeyName(m.beyA) === normalizedBeyName;
+        const myScore = isA ? m.scoreA : m.scoreB;
+        const oppScore = isA ? m.scoreB : m.scoreA;
+        const key = `${myScore}-${oppScore}`;
+        scoreCounts[key] = (scoreCounts[key] || 0) + 1;
+    }
+
+    const total = filteredMatches.length;
+
+    // Sort: wins (myScore > oppScore) descending by score, then losses ascending
+    const entries = Object.entries(scoreCounts).map(([score, count]) => {
+        const [myScore, oppScore] = score.split('-').map(Number);
+        return { score, myScore, oppScore, count, percentage: Math.round(count / total * 1000) / 10 }; // *1000/10 = 1 decimal place
+    });
+    entries.sort((a, b) => {
+        const aWin = a.myScore > a.oppScore ? 1 : 0;
+        const bWin = b.myScore > b.oppScore ? 1 : 0;
+        if (aWin !== bWin) return bWin - aWin; // wins first
+        if (aWin) return b.myScore - a.myScore || a.oppScore - b.oppScore; // bigger wins first
+        return a.oppScore - b.oppScore || b.myScore - a.myScore; // closer losses first
+    });
+
+    const labels = entries.map(e => e.score);
+    const counts = entries.map(e => e.count);
+    const percentages = entries.map(e => e.percentage);
+
+    if (beyScoreDistChart) {
+        beyScoreDistChart.destroy();
+        beyScoreDistChart = null;
+    }
+
+    const isDark = document.body.classList.contains('dark');
+    const textColor = isDark ? '#e0e0e0' : '#333';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+    beyScoreDistChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Matches',
+                data: counts,
+                backgroundColor: entries.map(e => {
+                    if (e.myScore > e.oppScore) {
+                        if (e.oppScore === 0) return 'rgba(34,197,94,0.85)';
+                        if (e.myScore - e.oppScore === 1) return 'rgba(132,204,22,0.75)';
+                        return 'rgba(59,130,246,0.75)';
+                    } else {
+                        if (e.myScore - e.oppScore === -1) return 'rgba(249,115,22,0.75)';
+                        return 'rgba(239,68,68,0.8)';
+                    }
+                }),
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipCtx) {
+                            const pct = percentages[tooltipCtx.dataIndex];
+                            return `${tooltipCtx.parsed.x} matches (${pct}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor },
+                    title: { display: true, text: 'Number of matches', color: textColor }
+                },
+                y: {
+                    ticks: { color: textColor, font: { family: 'monospace', size: 12 } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    const arenaDisplay = arenaLabel || 'All arenas';
+    tableContainer.innerHTML = `
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:8px;">
+            Score shown as <strong>your score – opponent score</strong> (${arenaDisplay}, ${total} match${total !== 1 ? 'es' : ''})
+        </p>
+        <table class="data-table score-dist-table">
+            <thead>
+                <tr><th>Score</th><th>W/L</th><th>Count</th><th>%</th><th>Distribution</th></tr>
+            </thead>
+            <tbody>
+                ${entries.map(e => {
+                    const isWin = e.myScore > e.oppScore;
+                    const badge = isWin
+                        ? '<span style="color:#16a34a;font-weight:bold;">W</span>'
+                        : '<span style="color:#dc2626;font-weight:bold;">L</span>';
+                    return `<tr>
+                        <td><strong>${e.score}</strong></td>
+                        <td>${badge}</td>
+                        <td>${e.count}</td>
+                        <td>${e.percentage}%</td>
+                        <td><div class="inline-bar-outer"><div class="inline-bar-inner" style="width:${e.percentage}%"></div></div></td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+            <tfoot>
+                <tr><td><strong>Total</strong></td><td></td><td><strong>${total}</strong></td><td><strong>100%</strong></td><td></td></tr>
+            </tfoot>
+        </table>
+    `;
+}
+
 // Setup dark mode observer for plot images and interactive plots
 function setupPlotDarkModeObserver() {
     const eloPlotFrame = document.getElementById('eloPlotFrame');
     const eloPlot = document.getElementById('eloPlot');
     const positionPlotFrame = document.getElementById('positionPlotFrame');
     const positionPlot = document.getElementById('positionPlot');
+    const kfactorPlot = document.getElementById('kfactorPlot');
     const bladeName = getBladeName();
     
     const observer = new MutationObserver(() => {
@@ -1573,6 +1773,13 @@ function setupPlotDarkModeObserver() {
             const posBasePath = isDark ? './plots/positions/dark/' : './plots/positions/';
             const posFilename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
             positionPlot.src = posBasePath + posFilename;
+        }
+
+        // Update K-Factor / Form-EMA plot
+        if (kfactorPlot && kfactorPlot.style.display !== 'none' && kfactorPlot.src) {
+            const kfBasePath = isDark ? './plots/kfactor/dark/' : './plots/kfactor/';
+            const kfFilename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
+            kfactorPlot.src = kfBasePath + kfFilename;
         }
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });

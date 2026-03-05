@@ -351,7 +351,7 @@ function formatPercent(value) {
 async function loadMetaBalanceData() {
     try {
         // Fetch meta balance data first (required)
-        const metaResponse = await fetch('data/meta_balance.json');
+        const metaResponse = await fetch('data/analytics/meta_balance.json');
         if (!metaResponse.ok) {
             throw new Error(`Failed to load meta_balance.json: ${metaResponse.status}`);
         }
@@ -359,7 +359,7 @@ async function loadMetaBalanceData() {
         
         // Try to fetch leaderboard data (optional for charts)
         try {
-            const leaderboardResponse = await fetch('data/advanced_leaderboard.csv');
+            const leaderboardResponse = await fetch('data/leaderboard/advanced_leaderboard.csv');
             if (leaderboardResponse.ok) {
                 const csvText = await leaderboardResponse.text();
                 leaderboardData = parseCSV(csvText);

@@ -6,7 +6,7 @@ import sys
 import os
 
 # Add scripts directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'analytics'))
 
 from combo_explorer import (
     calculate_combo_rating,

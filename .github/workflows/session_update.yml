@@ -26,10 +26,10 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Append Matches
-        run: python src/update_matches.py
+        run: python src/utils/update_matches.py
 
       - name: Merge Rounds
-        run: python src/merge_rounds.py
+        run: python src/utils/merge_rounds.py
 
       - name: Run Update Pipeline
         run: python update.py

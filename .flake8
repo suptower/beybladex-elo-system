@@ -16,12 +16,12 @@ ignore =
 extend-ignore = E203
 per-file-ignores =
     # Allow long lines in documentation table at end of file
-    src/advanced_stats.py:E501
-    src/advanced_stats_combined.py:E501
-    src/advanced_stats_drop_attack.py:E501
+    src/analytics/advanced_stats.py:E501
+    src/analytics/advanced_stats_combined.py:E501
+    src/analytics/advanced_stats_drop_attack.py:E501
     # Allow long lines in embedded JavaScript/HTML code
-    src/visualization/meta_landscape.py:E501
+    src/plots/meta_landscape.py:E501
     # Allow whitespace in embedded HTML templates
-    src/visualization/tier_flow.py:E501,W291,W293
+    src/plots/tier_flow.py:E501,W291,W293
     # Allow imports after sys.path modification in test files
     tests/*.py:E402

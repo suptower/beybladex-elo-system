@@ -9,8 +9,8 @@ import pandas as pd
 import pytest
 
 # Add parent src directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'visualization'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'plots'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'plots'))
 
 import matplotlib
 matplotlib.use('Agg')  # non-interactive backend for tests

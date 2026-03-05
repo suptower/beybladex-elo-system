@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 async function loadRoundsData() {
     try {
-        const response = await fetch('data/matches_with_rounds.json');
+        const response = await fetch('data/matches/matches_with_rounds.json');
         const data = await response.json();
         
         // Create a mapping of match_id to rounds and ELO values
@@ -82,7 +82,7 @@ async function loadRoundsData() {
  */
 async function loadXtremeEloData() {
     try {
-        const response = await fetch('data/leaderboard_xtreme.csv');
+        const response = await fetch('data/leaderboard/leaderboard_xtreme.csv');
         if (!response.ok) {
             throw new Error('Failed to load Xtreme leaderboard');
         }
@@ -182,7 +182,7 @@ async function loadTableSnapshots(seasonId, tier) {
  */
 async function loadSeason(seasonId) {
     try {
-        const response = await fetch('data/season_data.json');
+        const response = await fetch('data/season/season_data.json');
         if (!response.ok) {
             throw new Error('Failed to load season data');
         }

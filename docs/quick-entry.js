@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load beyblade data from CSV
 async function loadBeybladeData() {
     try {
-        const response = await fetch('data/leaderboard.csv');
+        const response = await fetch('data/leaderboard/leaderboard.csv');
         const text = await response.text();
         const lines = text.trim().split(/\r?\n/);
         
@@ -217,7 +217,7 @@ async function loadBeybladeData() {
 // Load historical match data
 async function loadMatchHistory() {
     try {
-        const response = await fetch('data/matches.csv');
+        const response = await fetch('data/matches/matches.csv');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -246,7 +246,7 @@ async function loadMatchHistory() {
 // Load historical rounds data
 async function loadRoundsHistory() {
     try {
-        const response = await fetch('data/rounds.csv');
+        const response = await fetch('data/matches/rounds.csv');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -272,7 +272,7 @@ async function loadRoundsHistory() {
 // Load recommended matches data
 async function loadRecommendedMatches() {
     try {
-        const response = await fetch('data/recommended_matches.json');
+        const response = await fetch('data/analytics/recommended_matches.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -302,7 +302,7 @@ async function loadRecommendedMatches() {
 // Load season data (tier assignments)
 async function loadSeasonData() {
     try {
-        const response = await fetch('data/season_data.json');
+        const response = await fetch('data/season/season_data.json');
         if (!response.ok) {
             console.log('No season data found, season tier leaderboard will be disabled');
             return;
@@ -2205,7 +2205,7 @@ function exportCSV() {
 
 // Export detailed rounds CSV
 function exportRoundsCSV() {
-    // Format compatible with ./data/rounds.csv
+    // Format compatible with ./data/matches/rounds.csv
     const headers = ['MatchID', 'round_number', 'winner', 'finish_type', 'points_awarded', 'notes'];
     const rows = [];
     

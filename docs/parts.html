@@ -248,7 +248,7 @@ function escapeHtml(text) {
 // Load parts data
 async function loadPartsData() {
     try {
-        const response = await fetch('data/parts_stats.json');
+        const response = await fetch('data/analytics/parts_stats.json');
         partsData = await response.json();
         renderAllSections();
         setupEventListeners();

@@ -286,7 +286,7 @@ function getRankMedal(rank) {
 // Load and display top 5 Beys
 async function loadTopBeys() {
     try {
-        const response = await fetch('data/leaderboard.csv');
+        const response = await fetch('data/leaderboard/leaderboard.csv');
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -317,7 +317,7 @@ async function loadTopBeys() {
 // Load and display recent matches
 async function loadRecentMatches() {
     try {
-        const response = await fetch('data/matches.csv');
+        const response = await fetch('data/matches/matches.csv');
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -347,7 +347,7 @@ async function loadRecentMatches() {
 // Load and display giant killers (upset specialists)
 async function loadGiantKillers() {
     try {
-        const response = await fetch('data/upset_analysis.csv');
+        const response = await fetch('data/analytics/upset_analysis.csv');
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -383,7 +383,7 @@ async function loadGiantKillers() {
 // Load and display power rankings (by Power Index)
 async function loadPowerRankings() {
     try {
-        const response = await fetch('data/advanced_leaderboard.csv');
+        const response = await fetch('data/leaderboard/advanced_leaderboard.csv');
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -430,9 +430,9 @@ async function loadPowerRankings() {
 async function loadQuickStats() {
     try {
         const [matchesRes, leaderboardRes, upsetRes] = await Promise.all([
-            fetch('data/matches.csv'),
-            fetch('data/advanced_leaderboard.csv'),
-            fetch('data/upset_analysis.csv')
+            fetch('data/matches/matches.csv'),
+            fetch('data/leaderboard/advanced_leaderboard.csv'),
+            fetch('data/analytics/upset_analysis.csv')
         ]);
         
         const [matchesText, leaderboardText, upsetText] = await Promise.all([
@@ -636,7 +636,7 @@ function weightedRandomSelection(items, count) {
 // Load and display meta health (archetype diversity)
 async function loadMetaHealth() {
     try {
-        const response = await fetch('data/rpg_stats.csv');
+        const response = await fetch('data/analytics/rpg_stats.csv');
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -764,9 +764,9 @@ async function loadFeaturedBey() {
     try {
         // Load all necessary data
         const [leaderboardRes, rpgStatsRes, advancedRes] = await Promise.all([
-            fetch('data/leaderboard.csv'),
-            fetch('data/rpg_stats.csv'),
-            fetch('data/advanced_leaderboard.csv')
+            fetch('data/leaderboard/leaderboard.csv'),
+            fetch('data/analytics/rpg_stats.csv'),
+            fetch('data/leaderboard/advanced_leaderboard.csv')
         ]);
         
         const [leaderboardText, rpgStatsText, advancedText] = await Promise.all([

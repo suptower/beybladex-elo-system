@@ -142,7 +142,7 @@
     // Load archetype analytics data
     async function loadArchetypeData() {
         try {
-            const response = await fetch('data/archetype_analytics.json');
+            const response = await fetch('data/analytics/archetype_analytics.json');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

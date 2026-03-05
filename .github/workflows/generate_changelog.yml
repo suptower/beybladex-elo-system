@@ -21,7 +21,7 @@ jobs:
 
       - name: Generate changelog
         run: |
-          python ./src/generate_changelog.py --limit 50
+          python ./src/utils/generate_changelog.py --limit 50
 
       - name: Commit changelog on new branch
         run: |

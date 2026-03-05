@@ -65,6 +65,23 @@
         </div>
     </section>
 
+    <!-- Score Distribution -->
+    <section class="score-distribution-section">
+        <h3>🎯 Score Distribution</h3>
+        <p class="help-text">
+            <span class="tooltip-icon">ℹ️</span>
+            <span>Scores are shown as <strong>winner score – loser score</strong>. A 4-0 means the winner scored 4 and the loser scored 0.</span>
+        </p>
+        <div class="score-dist-layout">
+            <div class="score-dist-chart-container">
+                <canvas id="scoreDistChart"></canvas>
+            </div>
+            <div class="score-dist-table-container" id="scoreDistTable">
+                <div class="loading-placeholder">Select a stadium to view score distribution...</div>
+            </div>
+        </div>
+    </section>
+
     <!-- ELO Behavior -->
     <section class="elo-behavior-section">
         <h3>📈 ELO Behavior & Volatility</h3>
@@ -135,10 +152,11 @@
 let stadiumData = null;
 let selectedStadium = null;
 let finishChart = null;
+let scoreDistChart = null;
 
 async function loadStadiumData() {
     try {
-        const response = await fetch('./data/stadium_analytics.json');
+        const response = await fetch('./data/analytics/stadium_analytics.json');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -187,6 +205,7 @@ function selectStadium(stadium) {
     
     // Update all sections
     displayStadiumOverview(stadium);
+    displayScoreDistribution(stadium);
     displayEloBehavior(stadium);
     displayFinishStats(stadium);
     displayTopPerformers(stadium);
@@ -215,6 +234,110 @@ function displayStadiumOverview(stadium) {
             <div class="stat-label">Median Score</div>
             <div class="stat-value">${overview.match_score_distribution.median}</div>
         </div>
+    `;
+}
+
+function displayScoreDistribution(stadium) {
+    const distData = stadiumData.score_distribution && stadiumData.score_distribution[stadium];
+    const tableContainer = document.getElementById('scoreDistTable');
+    const ctx = document.getElementById('scoreDistChart');
+
+    if (!distData || !distData.scores || distData.scores.length === 0) {
+        tableContainer.innerHTML = '<div class="info-message">No score distribution data available</div>';
+        if (scoreDistChart) { scoreDistChart.destroy(); scoreDistChart = null; }
+        return;
+    }
+
+    const scores = distData.scores;
+    const labels = scores.map(s => s.score);
+    const counts = scores.map(s => s.count);
+    const percentages = scores.map(s => s.percentage);
+
+    if (scoreDistChart) { scoreDistChart.destroy(); }
+    const isDark = document.body.classList.contains('dark');
+    const textColor = isDark ? '#e0e0e0' : '#333';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+    scoreDistChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Matches',
+                data: counts,
+                backgroundColor: labels.map(l => {
+                    const parts = l.split('-');
+                    const winnerScore = parseInt(parts[0]);
+                    const loserScore = parseInt(parts[1]);
+                    if (loserScore === 0) return 'rgba(34,197,94,0.8)';
+                    if (winnerScore - loserScore === 1) return 'rgba(239,68,68,0.8)';
+                    return 'rgba(59,130,246,0.8)';
+                }),
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const pct = percentages[ctx.dataIndex];
+                            return `${ctx.parsed.x} matches (${pct}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor },
+                    title: { display: true, text: 'Number of matches', color: textColor }
+                },
+                y: {
+                    ticks: { color: textColor, font: { family: 'monospace', size: 12 } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    tableContainer.innerHTML = `
+        <table class="data-table score-dist-table">
+            <thead>
+                <tr>
+                    <th>Score</th>
+                    <th>Count</th>
+                    <th>%</th>
+                    <th>Distribution</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${scores.map(s => `
+                    <tr>
+                        <td><strong>${s.score}</strong></td>
+                        <td>${s.count}</td>
+                        <td>${s.percentage}%</td>
+                        <td>
+                            <div class="inline-bar-outer">
+                                <div class="inline-bar-inner" style="width:${s.percentage}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>${distData.total_matches}</strong></td>
+                    <td><strong>100%</strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
     `;
 }
 
@@ -683,6 +806,48 @@ section h3 {
 
 .tooltip-icon {
     font-size: 1.2em;
+}
+
+/* Score Distribution */
+.score-dist-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.score-dist-chart-container {
+    height: 420px;
+    position: relative;
+}
+
+.score-dist-table-container {
+    overflow-x: auto;
+}
+
+.score-dist-table {
+    width: 100%;
+}
+
+.score-dist-table tfoot td {
+    border-top: 2px solid var(--border);
+    padding-top: 8px;
+}
+
+.inline-bar-outer {
+    background: var(--border);
+    border-radius: 4px;
+    height: 10px;
+    width: 100%;
+    min-width: 80px;
+    overflow: hidden;
+}
+
+.inline-bar-inner {
+    background: var(--accent);
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
 }
 </style>
 
