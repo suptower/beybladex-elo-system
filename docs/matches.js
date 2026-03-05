@@ -1231,6 +1231,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('bitFilter').addEventListener('change', applyFilters);
     document.getElementById('archetypeFilter').addEventListener('change', applyFilters);
     document.getElementById('arenaFilter').addEventListener('change', applyFilters);
+    document.getElementById('matchTypeFilter').addEventListener('change', applyFilters);
+    document.getElementById('seasonFilter').addEventListener('change', applyFilters);
+    document.getElementById('tierFilter').addEventListener('change', applyFilters);
+    document.getElementById('matchdayFilter').addEventListener('change', applyFilters);
     document.getElementById('minEloDiff').addEventListener('input', applyFilters);
     document.getElementById('maxEloDiff').addEventListener('input', applyFilters);
     document.getElementById('eloChangeFilter').addEventListener('change', applyFilters);
