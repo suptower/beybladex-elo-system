@@ -56,12 +56,15 @@ ATTACK_WEIGHTS = {
 }
 
 DEFENSE_WEIGHTS = {
-    "burst_resistance": 0.35,
-    "pocket_resistance": 0.20,
-    "stadium_exit_resistance": 0.10,  # Rare but worth tracking
-    "extreme_resistance": 0.20,
-    "defensive_conversion": 0.15,
+    "impact_resistance": 0.50,   # Aggregated KO resistance (burst+pocket+stadium_exit+extreme)
+    "defensive_conversion": 0.30,  # Comeback win rate after losing a round
+    "round_survival_rate": 0.20,  # Proportion of rounds NOT lost
 }
+
+# Non-linear scaling exponent applied to all stat calculations.
+# alpha < 1 compresses the low end and stretches the upper range so that
+# exceptional beys realistically reach 20–25 total points (5 stats × 0–5).
+STAT_SCALE_ALPHA = 0.65
 
 STAMINA_WEIGHTS = {
     "spin_finish_win_rate": 0.50,
@@ -199,7 +202,7 @@ CHASER_MIN_EXTREME_FINISH = 0.15
 
 # Iron Wall thresholds
 IRON_WALL_MIN_DEFENSE = 2.5
-IRON_WALL_MIN_BURST_RESISTANCE = 0.65
+IRON_WALL_MIN_IMPACT_RESISTANCE = 0.40  # Minimum impact_resistance: at least 40% of losses must be non-KO (spin)
 IRON_WALL_MAX_ATTACK = 3.5
 IRON_WALL_MAX_STAMINA = 3.5
 
@@ -281,7 +284,7 @@ def detect_archetype(
     pocket_finish_rate = attack_metrics.get("pocket_finish_rate", 0)
     stadium_exit_finish_rate = attack_metrics.get("stadium_exit_finish_rate", 0)
     extreme_finish_rate = attack_metrics.get("extreme_finish_rate", 0)
-    burst_resistance = defense_metrics.get("burst_resistance", 0.5)
+    impact_resistance = defense_metrics.get("impact_resistance", 0.5)
     defensive_conversion = defense_metrics.get("defensive_conversion", 0.5)
     spin_finish_win_rate = stamina_metrics.get("spin_finish_win_rate", 0)
     volatility_inverse = control_metrics.get("volatility_inverse", 0.5)
@@ -291,13 +294,13 @@ def detect_archetype(
     # Calculate archetype scores
     archetype_scores: dict[str, float] = {}
 
-    # Glass Cannon: High attack, low defense & burst resistance
+    # Glass Cannon: High attack, low defense & low impact resistance
     # Require: attack > threshold, defense < threshold
     if attack > GLASS_CANNON_MIN_ATTACK and defense < GLASS_CANNON_MAX_DEFENSE:
         archetype_scores["glass_cannon"] = (
             (attack / 5.0) * 0.5
             + ((5.0 - defense) / 5.0) * 0.35
-            + ((1.0 - burst_resistance) * 0.15)
+            + ((1.0 - impact_resistance) * 0.15)
         )
     else:
         archetype_scores["glass_cannon"] = 0.0
@@ -328,15 +331,15 @@ def detect_archetype(
     else:
         archetype_scores["chaser"] = 0.0
 
-    # Iron Wall: High defense, high burst resistance, low volatility
-    # Require: defense, burst_resistance above threshold, attack and stamina below threshold
+    # Iron Wall: High defense, high impact resistance, low volatility
+    # Require: defense, impact_resistance above threshold, attack and stamina below threshold
     if (defense > IRON_WALL_MIN_DEFENSE and
-            burst_resistance > IRON_WALL_MIN_BURST_RESISTANCE and
+            impact_resistance > IRON_WALL_MIN_IMPACT_RESISTANCE and
             attack < IRON_WALL_MAX_ATTACK and
             stamina < IRON_WALL_MAX_STAMINA):
         archetype_scores["iron_wall"] = (
             (defense / 5.0) * 0.45
-            + (burst_resistance * 0.35)
+            + (impact_resistance * 0.35)
             + (volatility_inverse * 0.20)
         )
     else:
@@ -350,7 +353,7 @@ def detect_archetype(
         archetype_scores["counter_shield"] = (
             (defense / 5.0) * 0.35
             + (defensive_conversion * 0.45)
-            + (burst_resistance * 0.20)
+            + (impact_resistance * 0.20)
         )
     else:
         archetype_scores["counter_shield"] = 0.0
@@ -796,29 +799,37 @@ def calculate_defense_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str,
     Calculate Defense sub-metrics for each Beyblade.
 
     Metrics:
-    - burst_resistance: 1 - (burst losses / total rounds lost)
-    - pocket_resistance: 1 - (pocket losses / total rounds lost)
-    - stadium_exit_resistance: 1 - (stadium exit losses / total rounds lost)
-    - extreme_resistance: 1 - (extreme losses / total rounds lost)
-    - defensive_conversion: Win rate after losing a round
+    - impact_resistance: 1 - (all KO losses / total rounds lost). Aggregates
+      burst, pocket, stadium_exit and extreme resistances into one orthogonal signal.
+    - defensive_conversion: Win rate after losing a round (comeback ability)
+    - round_survival_rate: 1 - (rounds_lost / total rounds played). Measures
+      how often the bey avoids losing a round (frequency, not type).
     """
     metrics: dict[str, dict] = {}
 
     for bey in all_beys:
         stats = bey_stats.get(bey, {})
+        rounds_won = stats.get("rounds_won", 0)
         rounds_lost = stats.get("rounds_lost", 0)
 
         if rounds_lost > 0:
-            burst_resistance = 1.0 - (stats.get("burst_losses", 0) / rounds_lost)
-            pocket_resistance = 1.0 - (stats.get("pocket_losses", 0) / rounds_lost)
-            stadium_exit_resistance = 1.0 - (stats.get("stadium_exit_losses", 0) / rounds_lost)
-            extreme_resistance = 1.0 - (stats.get("extreme_losses", 0) / rounds_lost)
+            ko_losses = (
+                stats.get("burst_losses", 0)
+                + stats.get("pocket_losses", 0)
+                + stats.get("stadium_exit_losses", 0)
+                + stats.get("extreme_losses", 0)
+            )
+            impact_resistance = 1.0 - (ko_losses / rounds_lost)
         else:
             # No losses means perfect resistance
-            burst_resistance = 1.0
-            pocket_resistance = 1.0
-            stadium_exit_resistance = 1.0
-            extreme_resistance = 1.0
+            impact_resistance = 1.0
+
+        # Round survival rate: proportion of rounds NOT lost
+        total_rounds = rounds_won + rounds_lost
+        if total_rounds > 0:
+            round_survival_rate = 1.0 - (rounds_lost / total_rounds)
+        else:
+            round_survival_rate = 0.5  # Neutral if no rounds played
 
         # Defensive conversion: ability to win the next round after losing one
         lost_previous = stats.get("lost_previous_round", 0)
@@ -828,11 +839,9 @@ def calculate_defense_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str,
             defensive_conversion = 0.5  # Neutral if never lost a round
 
         metrics[bey] = {
-            "burst_resistance": burst_resistance,
-            "pocket_resistance": pocket_resistance,
-            "stadium_exit_resistance": stadium_exit_resistance,
-            "extreme_resistance": extreme_resistance,
+            "impact_resistance": impact_resistance,
             "defensive_conversion": defensive_conversion,
+            "round_survival_rate": round_survival_rate,
         }
 
     return metrics
@@ -1079,34 +1088,28 @@ def calculate_attack_stat(metrics: dict, all_metrics: list[dict]) -> float:
         + ATTACK_WEIGHTS["opening_dominance"] * norm_opening
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 def calculate_defense_stat(metrics: dict, all_metrics: list[dict]) -> float:
     """Calculate the Defense stat (0-5) from defense metrics."""
-    all_burst_res = [m["burst_resistance"] for m in all_metrics]
-    all_pocket_res = [m["pocket_resistance"] for m in all_metrics]
-    all_stadium_exit_res = [m["stadium_exit_resistance"] for m in all_metrics]
-    all_extreme_res = [m["extreme_resistance"] for m in all_metrics]
+    all_impact = [m["impact_resistance"] for m in all_metrics]
     all_conversion = [m["defensive_conversion"] for m in all_metrics]
+    all_survival = [m["round_survival_rate"] for m in all_metrics]
 
-    norm_burst = percentile_normalize(metrics["burst_resistance"], all_burst_res)
-    norm_pocket = percentile_normalize(metrics["pocket_resistance"], all_pocket_res)
-    norm_stadium_exit = percentile_normalize(metrics["stadium_exit_resistance"], all_stadium_exit_res)
-    norm_extreme = percentile_normalize(metrics["extreme_resistance"], all_extreme_res)
+    norm_impact = percentile_normalize(metrics["impact_resistance"], all_impact)
     norm_conversion = percentile_normalize(
         metrics["defensive_conversion"], all_conversion
     )
+    norm_survival = percentile_normalize(metrics["round_survival_rate"], all_survival)
 
     raw_score = (
-        DEFENSE_WEIGHTS["burst_resistance"] * norm_burst
-        + DEFENSE_WEIGHTS["pocket_resistance"] * norm_pocket
-        + DEFENSE_WEIGHTS["stadium_exit_resistance"] * norm_stadium_exit
-        + DEFENSE_WEIGHTS["extreme_resistance"] * norm_extreme
+        DEFENSE_WEIGHTS["impact_resistance"] * norm_impact
         + DEFENSE_WEIGHTS["defensive_conversion"] * norm_conversion
+        + DEFENSE_WEIGHTS["round_survival_rate"] * norm_survival
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 def calculate_stamina_stat(metrics: dict, all_metrics: list[dict]) -> float:
@@ -1129,7 +1132,7 @@ def calculate_stamina_stat(metrics: dict, all_metrics: list[dict]) -> float:
         + STAMINA_WEIGHTS["long_round_win_rate"] * norm_long
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 def calculate_control_stat(metrics: dict, all_metrics: list[dict]) -> float:
@@ -1148,7 +1151,7 @@ def calculate_control_stat(metrics: dict, all_metrics: list[dict]) -> float:
         + CONTROL_WEIGHTS["match_flow_stability"] * norm_flow
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 def calculate_meta_impact_stat(metrics: dict, all_metrics: list[dict]) -> float:
@@ -1173,7 +1176,7 @@ def calculate_meta_impact_stat(metrics: dict, all_metrics: list[dict]) -> float:
         + META_IMPACT_WEIGHTS["anti_meta_score"] * norm_anti
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 # ============================================

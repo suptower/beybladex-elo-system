@@ -25,6 +25,7 @@ from rpg_stats import (
     STAMINA_WEIGHTS,
     CONTROL_WEIGHTS,
     META_IMPACT_WEIGHTS,
+    STAT_SCALE_ALPHA,
 )
 
 
@@ -68,6 +69,35 @@ class TestStatWeights:
         for weights in all_weights:
             for weight in weights.values():
                 assert weight > 0
+
+    def test_defense_weights_use_new_metrics(self):
+        """Defense weights should use the redesigned metric names."""
+        assert "impact_resistance" in DEFENSE_WEIGHTS
+        assert "defensive_conversion" in DEFENSE_WEIGHTS
+        assert "round_survival_rate" in DEFENSE_WEIGHTS
+        # Old correlated metrics should no longer exist
+        assert "burst_resistance" not in DEFENSE_WEIGHTS
+        assert "pocket_resistance" not in DEFENSE_WEIGHTS
+        assert "stadium_exit_resistance" not in DEFENSE_WEIGHTS
+        assert "extreme_resistance" not in DEFENSE_WEIGHTS
+
+    def test_stat_scale_alpha_in_range(self):
+        """STAT_SCALE_ALPHA must be in (0, 1) to stretch the upper score range."""
+        assert 0.0 < STAT_SCALE_ALPHA < 1.0
+
+    def test_power_scaling_increases_midrange_scores(self):
+        """Power scaling with alpha < 1 should produce higher values than linear scaling."""
+        # For a mid-range percentile score (0.6), power scaling should give a higher
+        # final stat than the old linear formula
+        raw_score = 0.6
+        linear_result = raw_score * 5.0
+        scaled_result = 5.0 * (raw_score ** STAT_SCALE_ALPHA)
+        assert scaled_result > linear_result
+
+    def test_power_scaling_preserves_extremes(self):
+        """Power scaling should preserve 0 and 5 as endpoints."""
+        assert clamp(5.0 * (0.0 ** STAT_SCALE_ALPHA)) == 0.0
+        assert clamp(5.0 * (1.0 ** STAT_SCALE_ALPHA)) == 5.0
 
 
 class TestPercentileNormalize:
@@ -237,20 +267,16 @@ class TestCalculateDefenseStat:
     def test_high_defense_metrics(self):
         """High defense metrics should produce high defense stat."""
         metrics = {
-            "burst_resistance": 1.0,
-            "pocket_resistance": 1.0,
-            "stadium_exit_resistance": 1.0,
-            "extreme_resistance": 1.0,
+            "impact_resistance": 1.0,
             "defensive_conversion": 0.8,
+            "round_survival_rate": 0.9,
         }
         all_metrics = [
             metrics,
             {
-                "burst_resistance": 0.5,
-                "pocket_resistance": 0.5,
-                "stadium_exit_resistance": 0.5,
-                "extreme_resistance": 0.5,
+                "impact_resistance": 0.2,
                 "defensive_conversion": 0.2,
+                "round_survival_rate": 0.3,
             },
         ]
         result = calculate_defense_stat(metrics, all_metrics)
@@ -259,11 +285,9 @@ class TestCalculateDefenseStat:
     def test_stat_range(self):
         """Defense stat should be between 0 and 5."""
         metrics = {
-            "burst_resistance": 0.7,
-            "pocket_resistance": 0.7,
-            "stadium_exit_resistance": 0.8,
-            "extreme_resistance": 0.8,
+            "impact_resistance": 0.6,
             "defensive_conversion": 0.5,
+            "round_survival_rate": 0.6,
         }
         all_metrics = [metrics]
         result = calculate_defense_stat(metrics, all_metrics)
@@ -405,15 +429,15 @@ class TestDetectArchetype:
             "attack": {
                 "burst_finish_rate": 0.2,
                 "pocket_finish_rate": 0.2,
+                "stadium_exit_finish_rate": 0.0,
                 "extreme_finish_rate": 0.1,
                 "offensive_point_efficiency": 1.5,
                 "opening_dominance": 0.5,
             },
             "defense": {
-                "burst_resistance": 0.7,
-                "pocket_resistance": 0.7,
-                "extreme_resistance": 0.8,
+                "impact_resistance": 0.6,
                 "defensive_conversion": 0.5,
+                "round_survival_rate": 0.6,
             },
             "stamina": {
                 "spin_finish_win_rate": 0.3,
@@ -478,7 +502,7 @@ class TestDetectArchetype:
         stats = {"attack": 4.5, "defense": 1.5, "stamina": 2.0, "control": 2.0, "meta_impact": 3.0}
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["attack"]["burst_finish_rate"] = 0.5
-        sub_metrics["defense"]["burst_resistance"] = 0.4
+        sub_metrics["defense"]["impact_resistance"] = 0.4
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)
@@ -490,7 +514,7 @@ class TestDetectArchetype:
         """High defense stats should suggest a defense-category archetype."""
         stats = {"attack": 2.0, "defense": 4.5, "stamina": 2.5, "control": 3.0, "meta_impact": 2.5}
         sub_metrics = self._create_default_sub_metrics()
-        sub_metrics["defense"]["burst_resistance"] = 0.9
+        sub_metrics["defense"]["impact_resistance"] = 0.9
         sub_metrics["defense"]["defensive_conversion"] = 0.7
         sub_metrics["control"]["volatility_inverse"] = 0.8
         leaderboard_data = {"matches": 10}
@@ -555,7 +579,7 @@ class TestDetectArchetype:
         stats = {"attack": 4.0, "defense": 2.8, "stamina": 0.6, "control": 1.7, "meta_impact": 3.3}
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["attack"]["burst_finish_rate"] = 0.4
-        sub_metrics["defense"]["burst_resistance"] = 0.7
+        sub_metrics["defense"]["impact_resistance"] = 0.7
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)
@@ -570,7 +594,7 @@ class TestDetectArchetype:
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["stamina"]["spin_finish_win_rate"] = 0.5
         sub_metrics["stamina"]["long_round_win_rate"] = 0.6
-        sub_metrics["defense"]["burst_resistance"] = 0.8
+        sub_metrics["defense"]["impact_resistance"] = 0.8
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)
@@ -630,12 +654,12 @@ class TestDetectArchetype:
         assert result["archetype"] == "unknown"
         assert "reason" in result
 
-    def test_iron_wall_requires_high_defense_and_burst_resistance(self):
-        """Iron Wall should require defense > 2.5 and burst_resistance > 0.65."""
-        # Test with good defense and burst resistance, low stamina
+    def test_iron_wall_requires_high_defense_and_impact_resistance(self):
+        """Iron Wall should require defense > 2.5 and impact_resistance > 0.40."""
+        # Test with good defense and impact resistance, low stamina
         stats = {"attack": 2.4, "defense": 3.0, "stamina": 1.5, "control": 2.5, "meta_impact": 2.5}
         sub_metrics = self._create_default_sub_metrics()
-        sub_metrics["defense"]["burst_resistance"] = 0.8
+        sub_metrics["defense"]["impact_resistance"] = 0.8
         sub_metrics["control"]["volatility_inverse"] = 0.7
         leaderboard_data = {"matches": 10}
 
@@ -650,7 +674,7 @@ class TestDetectArchetype:
         stats = {"attack": 4.0, "defense": 2.5, "stamina": 1.0, "control": 2.0, "meta_impact": 3.0}
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["attack"]["burst_finish_rate"] = 0.4
-        sub_metrics["defense"]["burst_resistance"] = 0.5
+        sub_metrics["defense"]["impact_resistance"] = 0.5
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)

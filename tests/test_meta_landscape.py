@@ -58,10 +58,9 @@ class TestDefenseWeights:
     def test_required_weight_keys(self):
         """Defense weights should have all required keys."""
         required_keys = [
-            "burst_resistance",
-            "pocket_resistance",
-            "extreme_resistance",
+            "impact_resistance",
             "defensive_conversion",
+            "round_survival_rate",
         ]
         for key in required_keys:
             assert key in DEFENSE_WEIGHTS
@@ -130,10 +129,9 @@ class TestCalculateDefenseScore:
     def test_high_defense_metrics(self):
         """High defense metrics should produce high defense score."""
         metrics = {
-            "burst_resistance": 1.0,
-            "pocket_resistance": 1.0,
-            "extreme_resistance": 1.0,
+            "impact_resistance": 1.0,
             "defensive_conversion": 0.8,
+            "round_survival_rate": 1.0,
         }
         result = calculate_defense_score(metrics)
         assert 4.0 <= result <= 5.0
@@ -141,10 +139,9 @@ class TestCalculateDefenseScore:
     def test_low_defense_metrics(self):
         """Low defense metrics should produce low defense score."""
         metrics = {
-            "burst_resistance": 0.2,
-            "pocket_resistance": 0.2,
-            "extreme_resistance": 0.2,
+            "impact_resistance": 0.2,
             "defensive_conversion": 0.1,
+            "round_survival_rate": 0.2,
         }
         result = calculate_defense_score(metrics)
         assert 0.0 <= result <= 1.5
@@ -152,10 +149,9 @@ class TestCalculateDefenseScore:
     def test_score_range(self):
         """Defense score should be between 0 and 5."""
         metrics = {
-            "burst_resistance": 0.7,
-            "pocket_resistance": 0.6,
-            "extreme_resistance": 0.8,
+            "impact_resistance": 0.7,
             "defensive_conversion": 0.5,
+            "round_survival_rate": 0.6,
         }
         result = calculate_defense_score(metrics)
         assert 0.0 <= result <= 5.0
@@ -168,10 +164,9 @@ class TestCalculateDefenseScore:
     def test_perfect_resistance(self):
         """Perfect resistance metrics should give high score."""
         metrics = {
-            "burst_resistance": 1.0,
-            "pocket_resistance": 1.0,
-            "extreme_resistance": 1.0,
+            "impact_resistance": 1.0,
             "defensive_conversion": 1.0,
+            "round_survival_rate": 1.0,
         }
         result = calculate_defense_score(metrics)
         assert result == 5.0
@@ -190,10 +185,9 @@ class TestScoreSymmetry:
             "opening_dominance": 0.5,
         }
         defense_metrics = {
-            "burst_resistance": 0.5,
-            "pocket_resistance": 0.5,
-            "extreme_resistance": 0.5,
+            "impact_resistance": 0.5,
             "defensive_conversion": 0.5,
+            "round_survival_rate": 0.5,
         }
         offense = calculate_offense_score(attack_metrics)
         defense = calculate_defense_score(defense_metrics)

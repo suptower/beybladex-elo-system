@@ -58,10 +58,9 @@ OFFENSE_WEIGHTS = {
 
 # Weights for Defense Score (derived from defense sub-metrics)
 DEFENSE_WEIGHTS = {
-    "burst_resistance": 0.35,
-    "pocket_resistance": 0.25,
-    "extreme_resistance": 0.25,
-    "defensive_conversion": 0.15,
+    "impact_resistance": 0.50,
+    "defensive_conversion": 0.30,
+    "round_survival_rate": 0.20,
 }
 
 
