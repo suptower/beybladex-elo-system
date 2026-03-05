@@ -114,57 +114,71 @@
 
         <div class="elo-section-card">
             <h3>📖 Overview</h3>
-            <p>Version 1 was the original ELO system: a single flat K-factor and standard binary win/loss scoring.
-            Simple but limited — all wins were treated equally regardless of the score margin.</p>
+            <p>Version 1 was the original ELO system: a tiered K-factor based on match count and proportional win/loss scoring based on the raw point ratio.
+            Simple but limited — while it differentiated new from experienced Beyblades, all wins with the same score ratio were treated identically regardless of margin context.</p>
         </div>
 
         <div class="elo-section-card">
             <h3>⚙️ K-Factor</h3>
-            <p>All players used the same fixed K-factor, regardless of experience:</p>
-            <div class="formula-block">
-                <div class="formula-math">K = 16 (flat, for all players)</div>
+            <p>K-factor was divided into three discrete tiers based on the number of matches played:</p>
+            <div class="example-table-wrap">
+                <table class="example-table">
+                    <thead><tr><th>Matches played</th><th>Stage</th><th>K-factor</th></tr></thead>
+                    <tbody>
+                        <tr><td>&lt; 6</td><td>Learning</td><td><strong>40</strong></td></tr>
+                        <tr><td>6 – 14</td><td>Intermediate</td><td><strong>24</strong></td></tr>
+                        <tr><td>15+</td><td>Experienced</td><td><strong>12</strong></td></tr>
+                    </tbody>
+                </table>
             </div>
-            <p>This meant a veteran Beyblade with 100 matches was just as volatile as one playing its first match — ratings were slow to converge.</p>
+            <p>New Beyblades started highly volatile (K=40) and became stable over time, but the transitions were abrupt — a Beyblade at match 5 had K=40, at match 6 it suddenly dropped to K=24.</p>
         </div>
 
         <div class="elo-section-card">
             <h3>🏆 Score Function</h3>
-            <p>Classic binary scoring — win or lose, nothing in between:</p>
+            <p>Proportional scoring — score was simply the fraction of points scored:</p>
             <div class="two-col">
                 <div class="formula-block outcome-win">
-                    <div class="formula-title">Winner</div>
-                    <div class="formula-math">S = 1.0</div>
+                    <div class="formula-title">Player A</div>
+                    <div class="formula-math">S<sub>A</sub> = ScoreA / (ScoreA + ScoreB)</div>
                 </div>
                 <div class="formula-block outcome-loss">
-                    <div class="formula-title">Loser</div>
-                    <div class="formula-math">S = 0.0</div>
+                    <div class="formula-title">Player B</div>
+                    <div class="formula-math">S<sub>B</sub> = ScoreB / (ScoreA + ScoreB)</div>
                 </div>
             </div>
             <p class="formula-note">
-                A 4–3 win granted the exact same ELO gain as a 4–0 win. Match closeness was ignored entirely.
+                A 4–3 win gave S ≈ 0.571, while a 4–0 win gave S = 1.0. Margin was reflected, but the scaling was linear — no concept of a "reference result" or saturating function.
             </p>
         </div>
 
         <div class="elo-section-card">
-            <h3>📊 Example (equal players, K = 16)</h3>
+            <h3>📊 Example (equal players, K = 40 new / K = 12 veteran)</h3>
             <div class="example-table-wrap">
                 <table class="example-table">
-                    <thead><tr><th>Result</th><th>S (winner)</th><th>S (loser)</th><th>ΔElo (winner)</th><th>ΔElo (loser)</th></tr></thead>
+                    <thead><tr><th>Result</th><th>S (winner)</th><th>S (loser)</th><th>ΔElo (K=40)</th><th>ΔElo (K=12)</th></tr></thead>
                     <tbody>
-                        <tr><td>4–3</td><td>1.00</td><td>0.00</td><td class="pos">+8</td><td class="neg">−8</td></tr>
-                        <tr><td>4–0</td><td>1.00</td><td>0.00</td><td class="pos">+8</td><td class="neg">−8</td></tr>
-                        <tr><td>6–0</td><td>1.00</td><td>0.00</td><td class="pos">+8</td><td class="neg">−8</td></tr>
+                        <tr><td>4–3</td><td>0.571</td><td>0.429</td><td class="pos">+2.9</td><td class="pos">+0.9</td></tr>
+                        <tr><td>4–1</td><td>0.800</td><td>0.200</td><td class="pos">+12.0</td><td class="pos">+3.6</td></tr>
+                        <tr><td>4–0</td><td>1.000</td><td>0.000</td><td class="pos">+20.0</td><td class="pos">+6.0</td></tr>
+                        <tr><td>6–0</td><td>1.000</td><td>0.000</td><td class="pos">+20.0</td><td class="pos">+6.0</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
+        <div class="elo-section-card" id="v1-metrics-card">
+            <h3>📈 Predictive Metrics (V1, Xtreme arena)</h3>
+            <div id="v1-metrics-loading" style="color:var(--text-light);font-style:italic;">Loading metrics…</div>
+            <div id="v1-metrics-content" style="display:none;"></div>
+        </div>
+
         <div class="elo-section-card">
             <h3>⚠️ Limitations</h3>
             <ul class="limitation-list">
-                <li>Flat K-factor gives identical volatility to new and experienced Beyblades</li>
-                <li>No margin of victory consideration — a 4–3 win equals a 6–0 blowout</li>
-                <li>Ratings converge slowly for new entrants</li>
+                <li>Abrupt K-factor jumps at match 6 and match 15 cause sudden volatility cliffs</li>
+                <li>Linear proportional scoring does not distinguish between e.g. 4-0 (shutout) and 6-0 (overkill)</li>
+                <li>No form adjustment — a bey on a losing streak is treated identically to one performing as expected</li>
             </ul>
         </div>
 
@@ -251,6 +265,12 @@
                 <li>Discrete K-factor jumps create sudden volatility cliffs at match 6 and match 15</li>
                 <li>No form/momentum component — a Beyblade on a losing streak gets the same K as one on a winning streak</li>
             </ul>
+        </div>
+
+        <div class="elo-section-card" id="v2-metrics-card">
+            <h3>📈 Predictive Metrics (V2, Xtreme arena)</h3>
+            <div id="v2-metrics-loading" style="color:var(--text-light);font-style:italic;">Loading metrics…</div>
+            <div id="v2-metrics-content" style="display:none;"></div>
         </div>
 
     </div><!-- /panel-v2 -->
@@ -471,13 +491,13 @@
                 <tbody>
                     <tr>
                         <td>K-factor</td>
-                        <td>Flat (K=16)</td>
                         <td>3 discrete tiers (12/24/40)</td>
-                        <td class="current-col">Smooth exponential decay (16→32)</td>
+                        <td>3 discrete tiers (12/24/40)</td>
+                        <td class="current-col">Smooth exponential decay (12→40)</td>
                     </tr>
                     <tr>
                         <td>Score function</td>
-                        <td>Binary (1/0)</td>
+                        <td>Proportional (sa/total)</td>
                         <td>Dominance scale (0.75→1.25)</td>
                         <td class="current-col">tanh margin (smooth S-curve)</td>
                     </tr>
@@ -709,7 +729,79 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // ── Load and render ELO metrics ────────────────────────────────────────
+    // ── Render a compact metrics grid into a container element ────────────────
+    function renderVersionMetrics(data, loadingEl, contentEl) {
+        loadingEl.style.display = 'none';
+        const acc = data.accuracy !== null ? (data.accuracy * 100).toFixed(1) + ' %' : '—';
+        const brier = data.brier_score.toFixed(4);
+        const logLoss = data.log_loss.toFixed(4);
+        const skillPct = (data.brier_skill * 100).toFixed(2);
+        const skillSign = data.brier_skill >= 0 ? '+' : '';
+        const skillClass = data.brier_skill >= 0 ? 'kpi-positive' : 'kpi-negative';
+        const spRow = data.spearman
+            ? `<div class="metrics-kpi-card">
+                 <div class="kpi-label">Spearman ρ</div>
+                 <div class="kpi-value ${data.spearman.rho >= 0.8 ? 'kpi-positive' : ''}">${data.spearman.rho.toFixed(4)}</div>
+                 <div class="kpi-note">${data.spearman.n_beys} beys (≥${data.spearman.min_matches_filter} matches)</div>
+               </div>` : '';
+        contentEl.innerHTML = `
+            <div class="metrics-kpi-grid">
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Matches evaluated</div>
+                    <div class="kpi-value">${data.n_matches}</div>
+                </div>
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Prediction accuracy</div>
+                    <div class="kpi-value">${acc}</div>
+                    <div class="kpi-note">% of matches where the favourite won</div>
+                </div>
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Brier Score</div>
+                    <div class="kpi-value">${brier}</div>
+                    <div class="kpi-note">Lower is better · baseline 0.25</div>
+                </div>
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Log Loss</div>
+                    <div class="kpi-value">${logLoss}</div>
+                    <div class="kpi-note">Lower is better · baseline 0.693</div>
+                </div>
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Brier Skill Score</div>
+                    <div class="kpi-value ${skillClass}">${skillSign}${skillPct} %</div>
+                    <div class="kpi-note">Improvement over uninformed baseline</div>
+                </div>
+                ${spRow}
+            </div>`;
+        contentEl.style.display = 'block';
+    }
+
+    // ── Load V1 metrics ──────────────────────────────────────────────────────
+    fetch('data/elo_metrics_v1.json')
+        .then(r => r.json())
+        .then(data => {
+            const loadingEl = document.getElementById('v1-metrics-loading');
+            const contentEl = document.getElementById('v1-metrics-content');
+            if (loadingEl && contentEl) renderVersionMetrics(data, loadingEl, contentEl);
+        })
+        .catch(() => {
+            const el = document.getElementById('v1-metrics-loading');
+            if (el) el.textContent = 'Metrics not available.';
+        });
+
+    // ── Load V2 metrics ──────────────────────────────────────────────────────
+    fetch('data/elo_metrics_v2.json')
+        .then(r => r.json())
+        .then(data => {
+            const loadingEl = document.getElementById('v2-metrics-loading');
+            const contentEl = document.getElementById('v2-metrics-content');
+            if (loadingEl && contentEl) renderVersionMetrics(data, loadingEl, contentEl);
+        })
+        .catch(() => {
+            const el = document.getElementById('v2-metrics-loading');
+            if (el) el.textContent = 'Metrics not available.';
+        });
+
+    // ── Load and render V3 ELO metrics ────────────────────────────────────────
     fetch('data/elo_metrics.json')
         .then(r => r.json())
         .then(data => {

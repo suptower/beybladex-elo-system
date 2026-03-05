@@ -73,6 +73,7 @@ SCRIPT_SEASON_STATISTICS = "./src/season_statistics.py"
 SCRIPT_SEASON_COMPARISON = "./src/season_comparison.py"
 SCRIPT_SEASON_META_ANALYTICS = "./src/season_meta_analytics.py"
 SCRIPT_ELO_METRICS = "./src/elo_metrics.py"
+SCRIPT_VERSION_METRICS = "./src/compute_version_metrics.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
@@ -434,6 +435,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("ELO Metrics", success, duration))
+
+    # Historical Version Metrics (V1/V2, depends on matches.csv)
+    success, duration = run_script(
+        SCRIPT_VERSION_METRICS,
+        "Historical ELO Version Metrics",
+        verbose=verbose
+    )
+    results.append(("Historical ELO Version Metrics", success, duration))
 
     return results
 

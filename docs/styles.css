@@ -14272,17 +14272,10 @@ body.dark .profile-image {
 
 /* Per-bey score distribution section */
 .score-dist-bey-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 20px;
     margin: 12px 0 4px;
-    align-items: start;
-}
-
-@media (max-width: 768px) {
-    .score-dist-bey-layout {
-        grid-template-columns: 1fr;
-    }
 }
 
 .score-dist-bey-chart-container {
@@ -14299,20 +14292,21 @@ body.dark .profile-image {
 }
 
 .score-dist-table tfoot td {
-    border-top: 2px solid var(--border-color);
+    border-top: 2px solid var(--border);
     padding-top: 8px;
 }
 
 .inline-bar-outer {
-    background: var(--border-color);
+    background: var(--border);
     border-radius: 4px;
     height: 10px;
+    width: 100%;
     min-width: 60px;
     overflow: hidden;
 }
 
 .inline-bar-inner {
-    background: var(--primary-color);
+    background: var(--accent);
     height: 100%;
     border-radius: 4px;
     transition: width 0.3s ease;

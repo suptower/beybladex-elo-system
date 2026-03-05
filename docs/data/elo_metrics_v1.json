@@ -1,0 +1,49 @@
+{
+  "version": "V1",
+  "n_matches": 376,
+  "n_accuracy_matches": 353,
+  "accuracy": 0.5949,
+  "brier_score": 0.2441,
+  "brier_baseline": 0.25,
+  "brier_skill": 0.0237,
+  "log_loss": 0.6812,
+  "log_loss_baseline": 0.6931,
+  "margin_mse": 0.122,
+  "margin_rmse": 0.3493,
+  "spearman": {
+    "rho": 0.928,
+    "n_beys": 41,
+    "min_matches_filter": 5
+  },
+  "calibration": [
+    {
+      "bucket": 3,
+      "label": "30-40%",
+      "mean_predicted": 0.384,
+      "actual_win_rate": 0.0,
+      "count": 6
+    },
+    {
+      "bucket": 4,
+      "label": "40-50%",
+      "mean_predicted": 0.4675,
+      "actual_win_rate": 0.406,
+      "count": 133
+    },
+    {
+      "bucket": 5,
+      "label": "50-60%",
+      "mean_predicted": 0.5319,
+      "actual_win_rate": 0.5586,
+      "count": 222
+    },
+    {
+      "bucket": 6,
+      "label": "60-70%",
+      "mean_predicted": 0.6198,
+      "actual_win_rate": 0.6667,
+      "count": 15
+    }
+  ],
+  "arena_filter": "Xtreme"
+}
