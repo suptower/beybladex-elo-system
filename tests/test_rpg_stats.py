@@ -78,6 +78,16 @@ class TestStatWeights:
         # Old correlated metrics should no longer exist
         assert "burst_resistance" not in DEFENSE_WEIGHTS
         assert "pocket_resistance" not in DEFENSE_WEIGHTS
+
+    def test_attack_weights_use_aggregated_metric(self):
+        """Attack weights should use aggregated aggressive_finish_rate, not individual finish types."""
+        assert "aggressive_finish_rate" in ATTACK_WEIGHTS
+        # Individual finish type metrics should not be in weights (they are stored
+        # in sub_metrics for context but not used in the weighted calculation)
+        assert "burst_finish_rate" not in ATTACK_WEIGHTS
+        assert "pocket_finish_rate" not in ATTACK_WEIGHTS
+        assert "extreme_finish_rate" not in ATTACK_WEIGHTS
+        assert "stadium_exit_finish_rate" not in ATTACK_WEIGHTS
         assert "stadium_exit_resistance" not in DEFENSE_WEIGHTS
         assert "extreme_resistance" not in DEFENSE_WEIGHTS
 
@@ -201,22 +211,25 @@ class TestCalculateAttackStat:
     def test_high_attack_metrics(self):
         """High attack metrics should produce high attack stat."""
         metrics = {
+            "aggressive_finish_rate": 1.0,  # 100% KO finishes
+            "offensive_point_efficiency": 2.0,
+            "opening_dominance": 0.8,
+            # Individual rates kept for archetype detection
             "burst_finish_rate": 0.5,
             "pocket_finish_rate": 0.3,
             "stadium_exit_finish_rate": 0.1,
-            "extreme_finish_rate": 0.2,
-            "offensive_point_efficiency": 2.0,
-            "opening_dominance": 0.8,
+            "extreme_finish_rate": 0.1,
         }
         all_metrics = [
             metrics,
             {
+                "aggressive_finish_rate": 0.2,
+                "offensive_point_efficiency": 1.0,
+                "opening_dominance": 0.2,
                 "burst_finish_rate": 0.1,
                 "pocket_finish_rate": 0.1,
                 "stadium_exit_finish_rate": 0.0,
                 "extreme_finish_rate": 0.0,
-                "offensive_point_efficiency": 1.0,
-                "opening_dominance": 0.2,
             },
         ]
         result = calculate_attack_stat(metrics, all_metrics)
@@ -225,22 +238,24 @@ class TestCalculateAttackStat:
     def test_low_attack_metrics(self):
         """Low attack metrics should produce low attack stat."""
         metrics = {
+            "aggressive_finish_rate": 0.0,  # No KO finishes
+            "offensive_point_efficiency": 1.0,
+            "opening_dominance": 0.0,
             "burst_finish_rate": 0.0,
             "pocket_finish_rate": 0.0,
             "stadium_exit_finish_rate": 0.0,
             "extreme_finish_rate": 0.0,
-            "offensive_point_efficiency": 1.0,
-            "opening_dominance": 0.0,
         }
         all_metrics = [
             metrics,
             {
+                "aggressive_finish_rate": 1.0,
+                "offensive_point_efficiency": 2.0,
+                "opening_dominance": 0.8,
                 "burst_finish_rate": 0.5,
                 "pocket_finish_rate": 0.3,
                 "stadium_exit_finish_rate": 0.1,
-                "extreme_finish_rate": 0.2,
-                "offensive_point_efficiency": 2.0,
-                "opening_dominance": 0.8,
+                "extreme_finish_rate": 0.1,
             },
         ]
         result = calculate_attack_stat(metrics, all_metrics)
@@ -249,16 +264,43 @@ class TestCalculateAttackStat:
     def test_stat_range(self):
         """Attack stat should be between 0 and 5."""
         metrics = {
+            "aggressive_finish_rate": 0.65,
+            "offensive_point_efficiency": 1.5,
+            "opening_dominance": 0.5,
             "burst_finish_rate": 0.3,
             "pocket_finish_rate": 0.2,
             "stadium_exit_finish_rate": 0.05,
             "extreme_finish_rate": 0.1,
-            "offensive_point_efficiency": 1.5,
-            "opening_dominance": 0.5,
         }
         all_metrics = [metrics]
         result = calculate_attack_stat(metrics, all_metrics)
         assert 0.0 <= result <= 5.0
+
+    def test_burst_specialist_not_penalised(self):
+        """A bey winning 100% via bursts should score as high as a mixed-finish bey."""
+        burst_specialist = {
+            "aggressive_finish_rate": 1.0,  # All wins are bursts
+            "offensive_point_efficiency": 1.5,
+            "opening_dominance": 0.6,
+            "burst_finish_rate": 1.0,
+            "pocket_finish_rate": 0.0,
+            "stadium_exit_finish_rate": 0.0,
+            "extreme_finish_rate": 0.0,
+        }
+        mixed_finisher = {
+            "aggressive_finish_rate": 1.0,  # Same total KO rate, but spread across types
+            "offensive_point_efficiency": 1.5,
+            "opening_dominance": 0.6,
+            "burst_finish_rate": 0.4,
+            "pocket_finish_rate": 0.3,
+            "stadium_exit_finish_rate": 0.1,
+            "extreme_finish_rate": 0.2,
+        }
+        all_metrics = [burst_specialist, mixed_finisher]
+        burst_score = calculate_attack_stat(burst_specialist, all_metrics)
+        mixed_score = calculate_attack_stat(mixed_finisher, all_metrics)
+        # Both have the same aggressive_finish_rate=1.0 so scores should be equal
+        assert abs(burst_score - mixed_score) < 0.01
 
 
 class TestCalculateDefenseStat:
@@ -427,12 +469,14 @@ class TestDetectArchetype:
         """Create default sub-metrics structure."""
         return {
             "attack": {
+                "aggressive_finish_rate": 0.5,
+                "offensive_point_efficiency": 1.5,
+                "opening_dominance": 0.5,
+                # Individual rates kept for archetype detection
                 "burst_finish_rate": 0.2,
                 "pocket_finish_rate": 0.2,
                 "stadium_exit_finish_rate": 0.0,
                 "extreme_finish_rate": 0.1,
-                "offensive_point_efficiency": 1.5,
-                "opening_dominance": 0.5,
             },
             "defense": {
                 "impact_resistance": 0.6,

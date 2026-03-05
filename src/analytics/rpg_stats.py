@@ -47,12 +47,9 @@ MIN_MATCHES_FOR_STATS = 1
 # ============================================
 
 ATTACK_WEIGHTS = {
-    "burst_finish_rate": 0.30,
-    "pocket_finish_rate": 0.15,
-    "stadium_exit_finish_rate": 0.05,  # Rare but impactful 2-point finish
-    "extreme_finish_rate": 0.20,
-    "offensive_point_efficiency": 0.20,  # Reduced to accommodate stadium_exit
-    "opening_dominance": 0.10,
+    "aggressive_finish_rate": 0.50,  # Combined KO finish rate (burst+pocket+stadium_exit+extreme) / rounds_won
+    "offensive_point_efficiency": 0.30,  # Average points per round won
+    "opening_dominance": 0.20,  # First-round win rate
 }
 
 DEFENSE_WEIGHTS = {
@@ -750,12 +747,17 @@ def calculate_attack_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str, 
     Calculate Attack sub-metrics for each Beyblade.
 
     Metrics:
-    - burst_finish_rate: % of round wins that are burst finishes
-    - pocket_finish_rate: % of round wins that are pocket finishes
-    - stadium_exit_finish_rate: % of round wins that are stadium exit finishes
-    - extreme_finish_rate: % of round wins that are extreme finishes
+    - aggressive_finish_rate: % of round wins that are any KO-type finish
+      (burst + pocket + stadium_exit + extreme) / rounds_won. Aggregates all
+      high-impact finishes into a single orthogonal signal so that a burst
+      specialist is not penalised for having zero pocket/extreme rates.
     - offensive_point_efficiency: Average points per round won
     - opening_dominance: % of first rounds won
+
+    Individual finish-type rates (burst, pocket, stadium_exit, extreme) are also
+    stored in the returned dict so that downstream modules (matchup predictor,
+    archetype detection) can still access them, but they are not used in the
+    weighted attack stat calculation.
     """
     metrics: dict[str, dict] = {}
 
@@ -769,12 +771,16 @@ def calculate_attack_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str, 
             pocket_rate = stats.get("pocket_wins", 0) / rounds_won
             stadium_exit_rate = stats.get("stadium_exit_wins", 0) / rounds_won
             extreme_rate = stats.get("extreme_wins", 0) / rounds_won
+            # Aggregate all KO-type finishes into one metric so that a bey
+            # specialising in a single finish type is not penalised.
+            aggressive_finish_rate = burst_rate + pocket_rate + stadium_exit_rate + extreme_rate
             point_efficiency = stats.get("points_from_wins", 0) / rounds_won
         else:
             burst_rate = 0.0
             pocket_rate = 0.0
             stadium_exit_rate = 0.0
             extreme_rate = 0.0
+            aggressive_finish_rate = 0.0
             point_efficiency = 0.0
 
         if total_matches > 0:
@@ -783,12 +789,14 @@ def calculate_attack_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str, 
             opening_dominance = 0.0
 
         metrics[bey] = {
+            "aggressive_finish_rate": aggressive_finish_rate,
+            "offensive_point_efficiency": point_efficiency,
+            "opening_dominance": opening_dominance,
+            # Individual rates kept for archetype detection and matchup predictor
             "burst_finish_rate": burst_rate,
             "pocket_finish_rate": pocket_rate,
             "stadium_exit_finish_rate": stadium_exit_rate,
             "extreme_finish_rate": extreme_rate,
-            "offensive_point_efficiency": point_efficiency,
-            "opening_dominance": opening_dominance,
         }
 
     return metrics
@@ -1061,18 +1069,12 @@ def calculate_meta_impact_metrics(
 def calculate_attack_stat(metrics: dict, all_metrics: list[dict]) -> float:
     """Calculate the Attack stat (0-5) from attack metrics."""
     # Collect all values for percentile normalization
-    all_burst = [m["burst_finish_rate"] for m in all_metrics]
-    all_pocket = [m["pocket_finish_rate"] for m in all_metrics]
-    all_stadium_exit = [m["stadium_exit_finish_rate"] for m in all_metrics]
-    all_extreme = [m["extreme_finish_rate"] for m in all_metrics]
+    all_aggressive = [m["aggressive_finish_rate"] for m in all_metrics]
     all_efficiency = [m["offensive_point_efficiency"] for m in all_metrics]
     all_opening = [m["opening_dominance"] for m in all_metrics]
 
     # Normalize each metric
-    norm_burst = percentile_normalize(metrics["burst_finish_rate"], all_burst)
-    norm_pocket = percentile_normalize(metrics["pocket_finish_rate"], all_pocket)
-    norm_stadium_exit = percentile_normalize(metrics["stadium_exit_finish_rate"], all_stadium_exit)
-    norm_extreme = percentile_normalize(metrics["extreme_finish_rate"], all_extreme)
+    norm_aggressive = percentile_normalize(metrics["aggressive_finish_rate"], all_aggressive)
     norm_efficiency = percentile_normalize(
         metrics["offensive_point_efficiency"], all_efficiency
     )
@@ -1080,10 +1082,7 @@ def calculate_attack_stat(metrics: dict, all_metrics: list[dict]) -> float:
 
     # Weighted combination
     raw_score = (
-        ATTACK_WEIGHTS["burst_finish_rate"] * norm_burst
-        + ATTACK_WEIGHTS["pocket_finish_rate"] * norm_pocket
-        + ATTACK_WEIGHTS["stadium_exit_finish_rate"] * norm_stadium_exit
-        + ATTACK_WEIGHTS["extreme_finish_rate"] * norm_extreme
+        ATTACK_WEIGHTS["aggressive_finish_rate"] * norm_aggressive
         + ATTACK_WEIGHTS["offensive_point_efficiency"] * norm_efficiency
         + ATTACK_WEIGHTS["opening_dominance"] * norm_opening
     )
