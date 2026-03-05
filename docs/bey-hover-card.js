@@ -19,6 +19,7 @@ async function loadBeysData() {
     
     try {
         const response = await fetch('data/beys/beys_data.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
         beysDataCache = await response.json();
         return beysDataCache;
     } catch (error) {
@@ -33,6 +34,7 @@ async function loadLeaderboardData() {
     
     try {
         const response = await fetch('data/leaderboard/advanced_leaderboard.csv');
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
         const text = await response.text();
         leaderboardDataCache = parseHoverCardCSV(text);
         return leaderboardDataCache;
@@ -48,6 +50,7 @@ async function loadRpgStatsData() {
     
     try {
         const response = await fetch('data/analytics/rpg_stats.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
         rpgStatsDataCache = await response.json();
         return rpgStatsDataCache;
     } catch (error) {

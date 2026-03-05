@@ -277,7 +277,7 @@ def main() -> None:
     # Write output
     os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as fh:
-        json.dump(metrics, fh, indent=2)
+        json.dump({"version": "V3", **metrics}, fh, indent=2)
     print(f"\n{GREEN}✔  Metrics written to {OUTPUT_FILE}{RESET}\n")
 
 
