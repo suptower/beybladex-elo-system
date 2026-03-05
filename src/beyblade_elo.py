@@ -343,7 +343,7 @@ def calculate_score_with_dominance(sa, sb):
 
 def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, arena=None, match_type=None,
                arena_elos=None, arena_stats=None, season_id=None, tier=None, matchday=None,
-               target=TARGET_POINTS):
+               target=TARGET_POINTS, bey_to_archetype=None, mu_table=None):
     """
     Update ELO ratings for a match.
 
@@ -363,6 +363,8 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         tier: Tier number (1-4)
         matchday: Matchday number
         target: Points needed to win (4 for regular, 7 for finals)
+        bey_to_archetype: Dict mapping bey name → archetype string (for v3.1 bias)
+        mu_table: Archetype-pair logit offsets from compute_archetype_offsets (for v3.1 bias)
 
     Logic:
         - Season matches: Always update Xtreme ELO only
@@ -389,7 +391,15 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         active_stats = stats
 
     ra, rb = active_elos[a], active_elos[b]
-    ea, eb = expected(ra, rb), expected(rb, ra)
+
+    # Use archetype-adjusted expected scores when archetype data is available (ELO v3.1)
+    if bey_to_archetype is not None and mu_table is not None:
+        arch_a = bey_to_archetype.get(a)
+        arch_b = bey_to_archetype.get(b)
+        ea = expected_with_archetype_bias(ra, rb, arch_a, arch_b, mu_table)
+        eb = expected_with_archetype_bias(rb, ra, arch_b, arch_a, mu_table)
+    else:
+        ea, eb = expected(ra, rb), expected(rb, ra)
 
     # Ensure form_ema key exists in stats (lazy init for backward compatibility)
     if "form_ema" not in active_stats[a]:
@@ -448,7 +458,13 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
 
         # Calculate Combined arena update
         rc_a, rc_b = combined_elos[a], combined_elos[b]
-        ec_a, ec_b = expected(rc_a, rc_b), expected(rc_b, rc_a)
+        if bey_to_archetype is not None and mu_table is not None:
+            arch_a = bey_to_archetype.get(a)
+            arch_b = bey_to_archetype.get(b)
+            ec_a = expected_with_archetype_bias(rc_a, rc_b, arch_a, arch_b, mu_table)
+            ec_b = expected_with_archetype_bias(rc_b, rc_a, arch_b, arch_a, mu_table)
+        else:
+            ec_a, ec_b = expected(rc_a, rc_b), expected(rc_b, rc_a)
         Kc_a = k_effective(dynamic_k(combined_stats[a]["matches"]), combined_stats[a]["form_ema"])
         Kc_b = k_effective(dynamic_k(combined_stats[b]["matches"]), combined_stats[b]["form_ema"])
 
@@ -705,6 +721,7 @@ def run_elo_pipeline(pipeline_config):
 
     # Load all beys from beys_data.json to include beys without matches
     all_bey_blades = set()
+    bey_to_archetype = {}
     if os.path.exists(beys_data_path):
         print(f"{CYAN}Loading all beys from {beys_data_path}...{RESET}")
         try:
@@ -714,12 +731,17 @@ def run_elo_pipeline(pipeline_config):
                     blade_name = bey.get("blade")
                     if blade_name:
                         all_bey_blades.add(blade_name)
+                        # Build archetype mapping (ELO v3.1)
+                        archetype = bey.get("type")
+                        if archetype:
+                            bey_to_archetype[blade_name] = archetype
                         # Initialize in elos dict by accessing it (triggers defaultdict)
                         _ = elos[blade_name]
                         # Initialize in all arena dicts (including Combined)
                         for arena in ALL_ARENAS:
                             _ = arena_elos[arena][blade_name]
-            print(f"{GREEN}Loaded {len(all_bey_blades)} beys from registry{RESET}")
+            print(f"{GREEN}Loaded {len(all_bey_blades)} beys from registry "
+                  f"({len(bey_to_archetype)} with archetype){RESET}")
         except FileNotFoundError:
             print(f"{YELLOW}Warning: beys_data.json not found at {beys_data_path}{RESET}")
         except json.JSONDecodeError as e:
@@ -753,6 +775,15 @@ def run_elo_pipeline(pipeline_config):
 
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
 
+        # Pre-compute archetype-pair logit offsets (ELO v3.1)
+        mu_table = compute_archetype_offsets(matches, bey_to_archetype)
+        if mu_table:
+            print(f"{CYAN}Archetype bias: computed μ-table for "
+                  f"{len(mu_table)} ordered archetype pairs{RESET}")
+        else:
+            print(f"{YELLOW}Archetype bias: no archetype pairs met the minimum sample "
+                  f"threshold — bias disabled{RESET}")
+
         # Generate match-by-match snapshots
         snapshots_dir = pipeline_config.get("snapshots_dir", "./docs/data/leaderboard_snapshots")
         generate_match_snapshots(matches, input_file, snapshots_dir, pipeline_start_elos, all_bey_blades)
@@ -782,7 +813,9 @@ def run_elo_pipeline(pipeline_config):
                 arena_stats,
                 m.get("SeasonID", ""),
                 m.get("Tier", ""),
-                m.get("Matchday", "")
+                m.get("Matchday", ""),
+                bey_to_archetype=bey_to_archetype,
+                mu_table=mu_table
             )
 
             # Check if we just finished processing all matches from the second-to-last tournament date

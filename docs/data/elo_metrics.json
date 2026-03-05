@@ -1,16 +1,16 @@
 {
   "n_matches": 376,
-  "n_accuracy_matches": 354,
-  "accuracy": 0.565,
-  "brier_score": 0.2436,
+  "n_accuracy_matches": 366,
+  "accuracy": 0.571,
+  "brier_score": 0.2408,
   "brier_baseline": 0.25,
-  "brier_skill": 0.0257,
-  "log_loss": 0.6803,
+  "brier_skill": 0.037,
+  "log_loss": 0.6746,
   "log_loss_baseline": 0.6931,
-  "margin_mse": 0.1978,
-  "margin_rmse": 0.4447,
+  "margin_mse": 0.1955,
+  "margin_rmse": 0.4421,
   "spearman": {
-    "rho": 0.9767,
+    "rho": 0.9329,
     "n_beys": 41,
     "min_matches_filter": 5
   },
@@ -18,44 +18,44 @@
     {
       "bucket": 2,
       "label": "20-30%",
-      "mean_predicted": 0.2842,
+      "mean_predicted": 0.2599,
       "actual_win_rate": 0.0,
-      "count": 1
+      "count": 3
     },
     {
       "bucket": 3,
       "label": "30-40%",
-      "mean_predicted": 0.3603,
-      "actual_win_rate": 0.3158,
-      "count": 19
+      "mean_predicted": 0.3598,
+      "actual_win_rate": 0.2667,
+      "count": 30
     },
     {
       "bucket": 4,
       "label": "40-50%",
-      "mean_predicted": 0.464,
-      "actual_win_rate": 0.4492,
-      "count": 118
+      "mean_predicted": 0.4579,
+      "actual_win_rate": 0.4643,
+      "count": 112
     },
     {
       "bucket": 5,
       "label": "50-60%",
-      "mean_predicted": 0.5338,
-      "actual_win_rate": 0.5377,
-      "count": 199
+      "mean_predicted": 0.5371,
+      "actual_win_rate": 0.5233,
+      "count": 172
     },
     {
       "bucket": 6,
       "label": "60-70%",
-      "mean_predicted": 0.6412,
-      "actual_win_rate": 0.5676,
-      "count": 37
+      "mean_predicted": 0.641,
+      "actual_win_rate": 0.68,
+      "count": 50
     },
     {
       "bucket": 7,
       "label": "70-80%",
-      "mean_predicted": 0.7298,
-      "actual_win_rate": 0.5,
-      "count": 2
+      "mean_predicted": 0.7327,
+      "actual_win_rate": 0.4444,
+      "count": 9
     }
   ],
   "arena_filter": "Xtreme"
