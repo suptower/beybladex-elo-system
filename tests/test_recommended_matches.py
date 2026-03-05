@@ -6,7 +6,7 @@ import sys
 import os
 
 # Add scripts directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'analytics'))
 
 from recommended_matches import (
     identify_low_data_beys,

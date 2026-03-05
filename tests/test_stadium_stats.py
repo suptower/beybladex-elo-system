@@ -5,7 +5,7 @@ Tests for stadium_stats.py module
 import os
 import json
 import pytest
-from src.stadium_stats import (
+from src.analytics.stadium_stats import (
     normalize_stadium_name,
     load_matches,
     load_elo_history,

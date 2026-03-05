@@ -132,7 +132,7 @@ def main():
     """Main entry point."""
     # Determine output path (relative to script location)
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(script_dir)
+    repo_root = os.path.dirname(os.path.dirname(script_dir))
     output_path = os.path.join(repo_root, "docs", "version.js")
 
     print("Generating version information...")

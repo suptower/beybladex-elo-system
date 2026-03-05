@@ -49,40 +49,40 @@ from datetime import datetime
 
 # --- Script Paths ---
 # Version generation
-SCRIPT_GENERATE_VERSION = "./src/generate_version.py"
+SCRIPT_GENERATE_VERSION = "./src/utils/generate_version.py"
 
 # Core data generation
-SCRIPT_BLADE_ELO = "./src/beyblade_elo.py"
-SCRIPT_ADVANCED_STATS = "./src/advanced_stats.py"
+SCRIPT_BLADE_ELO = "./src/elo/beyblade_elo.py"
+SCRIPT_ADVANCED_STATS = "./src/analytics/advanced_stats.py"
 
 # Analysis modules
-SCRIPT_RPG_STATS = "./src/rpg_stats.py"
-SCRIPT_UPSET_ANALYSIS = "./src/upset_analysis.py"
-SCRIPT_META_BALANCE = "./src/meta_balance.py"
-SCRIPT_SYNERGY_HEATMAPS = "./src/synergy_heatmaps.py"
-SCRIPT_COUNTER_CHECKER = "./src/counter_checker.py"
-SCRIPT_COMBO_EXPLORER = "./src/combo_explorer.py"
-SCRIPT_MILESTONES = "./src/milestones.py"
-SCRIPT_RECOMMENDED_MATCHES = "./src/recommended_matches.py"
-SCRIPT_TOURNAMENT_BRACKETS = "./src/tournament_brackets.py"
-SCRIPT_MATCHUP_MATRIX = "./src/matchup_matrix.py"
-SCRIPT_ARCHETYPE_ANALYTICS = "./src/archetype_analytics.py"
-SCRIPT_SEASON_PROCESSING = "./src/season_processing.py"
-SCRIPT_STADIUM_STATS = "./src/stadium_stats.py"
-SCRIPT_SEASON_STATISTICS = "./src/season_statistics.py"
-SCRIPT_SEASON_COMPARISON = "./src/season_comparison.py"
-SCRIPT_SEASON_META_ANALYTICS = "./src/season_meta_analytics.py"
-SCRIPT_ELO_METRICS = "./src/elo_metrics.py"
-SCRIPT_VERSION_METRICS = "./src/compute_version_metrics.py"
+SCRIPT_RPG_STATS = "./src/analytics/rpg_stats.py"
+SCRIPT_UPSET_ANALYSIS = "./src/analytics/upset_analysis.py"
+SCRIPT_META_BALANCE = "./src/analytics/meta_balance.py"
+SCRIPT_SYNERGY_HEATMAPS = "./src/analytics/synergy_heatmaps.py"
+SCRIPT_COUNTER_CHECKER = "./src/analytics/counter_checker.py"
+SCRIPT_COMBO_EXPLORER = "./src/analytics/combo_explorer.py"
+SCRIPT_MILESTONES = "./src/analytics/milestones.py"
+SCRIPT_RECOMMENDED_MATCHES = "./src/analytics/recommended_matches.py"
+SCRIPT_TOURNAMENT_BRACKETS = "./src/analytics/tournament_brackets.py"
+SCRIPT_MATCHUP_MATRIX = "./src/analytics/matchup_matrix.py"
+SCRIPT_ARCHETYPE_ANALYTICS = "./src/analytics/archetype_analytics.py"
+SCRIPT_SEASON_PROCESSING = "./src/season/season_processing.py"
+SCRIPT_STADIUM_STATS = "./src/analytics/stadium_stats.py"
+SCRIPT_SEASON_STATISTICS = "./src/season/season_statistics.py"
+SCRIPT_SEASON_COMPARISON = "./src/season/season_comparison.py"
+SCRIPT_SEASON_META_ANALYTICS = "./src/season/season_meta_analytics.py"
+SCRIPT_ELO_METRICS = "./src/elo/elo_metrics.py"
+SCRIPT_VERSION_METRICS = "./src/elo/compute_version_metrics.py"
 
 # Visualization
-SCRIPT_GEN_PLOTS = "./src/gen_plots.py"
+SCRIPT_GEN_PLOTS = "./src/plots/gen_plots.py"
 # Individual position visualizations (required by TestScriptPaths in test_update.py)
-SCRIPT_PLOT_POSITIONS = "./src/visualization/individual_interactive_position.py"
+SCRIPT_PLOT_POSITIONS = "./src/plots/individual_interactive_position.py"
 
 # Export
-SCRIPT_SHEETS_UPLOAD = "./src/sheets_upload.py"
-SCRIPT_EXPORT_PDF = "./src/export_leaderboard_pdf.py"
+SCRIPT_SHEETS_UPLOAD = "./src/export/sheets_upload.py"
+SCRIPT_EXPORT_PDF = "./src/export/export_leaderboard_pdf.py"
 
 # Enable ANSI colors in Windows terminals (no-op on other systems)
 os.system("")

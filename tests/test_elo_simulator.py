@@ -9,7 +9,7 @@ import math
 import random
 
 # Add scripts directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'elo'))
 
 from elo_simulator import (
     dynamic_k,

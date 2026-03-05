@@ -715,7 +715,7 @@ def generate_all_plots(mode):
 
     # Advanced Visualizations
     result = subprocess.run(
-        [sys.executable, "src/visualization/advanced_visualizations.py"],
+        [sys.executable, "src/plots/advanced_visualizations.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -729,7 +729,7 @@ def generate_all_plots(mode):
 
     # Combined ELO Trends Top 5
     result = subprocess.run(
-        [sys.executable, "src/visualization/combined_elo_trends_top5.py"],
+        [sys.executable, "src/plots/combined_elo_trends_top5.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -743,7 +743,7 @@ def generate_all_plots(mode):
 
     # Heatmaps
     result = subprocess.run(
-        [sys.executable, "src/visualization/heatmaps.py"],
+        [sys.executable, "src/plots/heatmaps.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -757,7 +757,7 @@ def generate_all_plots(mode):
 
     # Interactive ELO Trends
     result = subprocess.run(
-        [sys.executable, "src/visualization/interactive_elo_trends.py"],
+        [sys.executable, "src/plots/interactive_elo_trends.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -771,7 +771,7 @@ def generate_all_plots(mode):
 
     # Meta Landscape Plot
     result = subprocess.run(
-        [sys.executable, "src/visualization/meta_landscape.py"],
+        [sys.executable, "src/plots/meta_landscape.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -785,7 +785,7 @@ def generate_all_plots(mode):
 
     # ELO Density Map
     result = subprocess.run(
-        [sys.executable, "src/visualization/elo_density_map.py"],
+        [sys.executable, "src/plots/elo_density_map.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -799,7 +799,7 @@ def generate_all_plots(mode):
 
     # Tier Flow Diagram
     result = subprocess.run(
-        [sys.executable, "src/visualization/tier_flow.py"],
+        [sys.executable, "src/plots/tier_flow.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -813,7 +813,7 @@ def generate_all_plots(mode):
 
     # Individual Interactive ELO Plots
     result = subprocess.run(
-        [sys.executable, "src/visualization/individual_interactive_elo.py"],
+        [sys.executable, "src/plots/individual_interactive_elo.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -827,7 +827,7 @@ def generate_all_plots(mode):
 
     # Individual Interactive Position Plots
     result = subprocess.run(
-        [sys.executable, "src/visualization/individual_interactive_position.py"],
+        [sys.executable, "src/plots/individual_interactive_position.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -841,7 +841,7 @@ def generate_all_plots(mode):
 
     # Season Analytics Plots (tier-based, only match_type=season)
     result = subprocess.run(
-        [sys.executable, "src/visualization/season_plots.py"],
+        [sys.executable, "src/plots/season_plots.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",
@@ -855,7 +855,7 @@ def generate_all_plots(mode):
 
     # Season vs Global Comparison Plots
     result = subprocess.run(
-        [sys.executable, "src/visualization/season_comparison_plots.py"],
+        [sys.executable, "src/plots/season_comparison_plots.py"],
         capture_output=True,
         text=True,
         encoding="utf-8",

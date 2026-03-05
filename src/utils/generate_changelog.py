@@ -201,7 +201,7 @@ def main():
 
     # Determine output path
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(script_dir)
+    repo_root = os.path.dirname(os.path.dirname(script_dir))
     output_path = os.path.join(repo_root, "docs", "data", "changelog.json")
 
     print(f"Generating changelog with up to {args.limit} commits...")

@@ -7,7 +7,7 @@ import tempfile
 import csv
 import json
 import os
-from src.season_statistics import (
+from src.season.season_statistics import (
     BeySeasonStats,
     SeasonStatistics,
     Match,
