@@ -92,7 +92,7 @@ TARGET_POINTS = 4  # Default target for regular matches (Race to 4)
 # Default path forhttps://www.desmos.com/calculator?lang=de beyblade registry
 DEFAULT_BEYS_DATA_FILE = "./docs/data/beys_data.json"
 # ELO version for calculation changes
-ELO_VERSION = 3  # Version 3: Smooth K-factor, form adjustment, tanh margin model
+ELO_VERSION = 3.1  # Version 3: Smooth K-factor, form adjustment, tanh margin model
 
 # Arena constants
 ARENA_XTREME = "Xtreme"
