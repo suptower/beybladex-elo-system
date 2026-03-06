@@ -10,12 +10,9 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
+  process:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
-    concurrency:
-      group: gh-pages-deploy
-      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v4
@@ -37,12 +34,19 @@ jobs:
       - name: Run Update Pipeline
         run: python update.py
 
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-output
+          path: docs/
+
       - name: Commit source data changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           # Only stage source data files — generated artifacts are deployed to
-          # the gh-pages branch below and must not accumulate in Git history.
+          # the gh-pages branch by the deploy job and must not accumulate in
+          # Git history.
           git add \
             docs/data/matches/ \
             docs/data/beys/ \
@@ -50,8 +54,34 @@ jobs:
             docs/data/season/seasons_backup.json \
             docs/data/tournaments/tournaments.json \
             archive/
-          git diff --cached --quiet || git commit -m "Process ${GITHUB_REF_NAME} - $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git diff --cached --quiet || git commit -m "Process ${{ github.ref_name }} - $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push origin HEAD:${{ github.ref_name }}
+
+      - name: Create Pull Request
+        run: |
+          BODY="Automated session processing."
+          gh pr create \
+            --base main \
+            --head "${{ github.ref_name }}" \
+            --title "Process ${{ github.ref_name }}" \
+            --body "$BODY" \
+          || gh pr view --head "${{ github.ref_name }}" --json url --jq '"PR already exists: " + .url'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    needs: process
+    runs-on: ubuntu-latest
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Download docs artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-output
+          path: docs/
 
       - name: Deploy generated docs to gh-pages
         run: |
@@ -66,19 +96,7 @@ jobs:
           cd "$DEPLOY_DIR"
           git init
           git add -A
-          git commit -m "Deploy from ${GITHUB_REF_NAME} - $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git commit -m "Deploy from ${{ github.ref_name }} - $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push --force \
             "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
             HEAD:gh-pages
-
-      - name: Create Pull Request
-        run: |
-          BODY="Automated session processing."
-          gh pr create \
-            --base main \
-            --head "${{ github.ref_name }}" \
-            --title "Process ${{ github.ref_name }}" \
-            --body "$BODY" \
-          || gh pr view --head "${{ github.ref_name }}" --json url --jq '"PR already exists: " + .url'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
