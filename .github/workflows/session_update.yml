@@ -9,14 +9,13 @@ permissions:
   contents: write
   pull-requests: write
 
-concurrency:
-  group: gh-pages-deploy
-  cancel-in-progress: false
-
 jobs:
   build:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +48,8 @@ jobs:
             docs/data/beys/ \
             docs/data/season/seasons.json \
             docs/data/season/seasons_backup.json \
-            docs/data/tournaments/tournaments.json
+            docs/data/tournaments/tournaments.json \
+            archive/
           git diff --cached --quiet || git commit -m "Process ${GITHUB_REF_NAME} - $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push origin HEAD:${{ github.ref_name }}
 
