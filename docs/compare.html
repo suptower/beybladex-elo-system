@@ -303,7 +303,7 @@ async function loadData() {
         // Sort by rank initially
         allBeys.sort((a, b) => (a.leaderboard.rank || 999) - (b.leaderboard.rank || 999));
         
-        renderStatsTable();
+        updateView();
         renderSelectorSlots();
         
         // Check URL for pre-selected beys
@@ -1465,9 +1465,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Handle window resize
     window.addEventListener('resize', updateView);
-    
-    // Initial view update
-    setTimeout(updateView, 100);
 });
 </script>
 

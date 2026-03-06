@@ -210,5 +210,12 @@ __marimo__/
 service_account.json
 
 # Simulated data (temporary output from simulation script)
-data/simulated_matches.csvseason_schedules/
+data/simulated_matches.csv
+season_schedules/
 nohup.out
+
+# Per-match leaderboard snapshots (docs/data/leaderboard_snapshots/) are a
+# duplicate output directory that is not referenced by the frontend.
+# The files under docs/data/leaderboard/leaderboard_0XXX.csv ARE required by
+# the leaderboard time-travel feature and must remain tracked.
+docs/data/leaderboard_snapshots/

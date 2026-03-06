@@ -181,7 +181,7 @@ class TestCalculateOutcomeProbabilities:
             "stats": {"attack": 3.0, "defense": 3.0, "stamina": 3.0, "control": 3.0, "meta_impact": 3.0},
             "sub_metrics": {
                 "attack": {"burst_finish_rate": 0.2, "pocket_finish_rate": 0.15, "extreme_finish_rate": 0.1},
-                "defense": {"burst_resistance": 0.7, "pocket_resistance": 0.7, "extreme_resistance": 0.9},
+                "defense": {"impact_resistance": 0.7},
                 "stamina": {"spin_finish_win_rate": 0.4}
             }
         }
@@ -204,7 +204,7 @@ class TestCalculateOutcomeProbabilities:
             "stats": {"attack": 4.0, "defense": 2.0, "stamina": 3.0, "control": 3.0, "meta_impact": 3.0},
             "sub_metrics": {
                 "attack": {"burst_finish_rate": 0.3, "pocket_finish_rate": 0.2, "extreme_finish_rate": 0.15},
-                "defense": {"burst_resistance": 0.6, "pocket_resistance": 0.6, "extreme_resistance": 0.8},
+                "defense": {"impact_resistance": 0.6},
                 "stamina": {"spin_finish_win_rate": 0.35}
             }
         }
@@ -212,7 +212,7 @@ class TestCalculateOutcomeProbabilities:
             "stats": {"attack": 2.0, "defense": 4.0, "stamina": 3.0, "control": 3.0, "meta_impact": 3.0},
             "sub_metrics": {
                 "attack": {"burst_finish_rate": 0.1, "pocket_finish_rate": 0.1, "extreme_finish_rate": 0.05},
-                "defense": {"burst_resistance": 0.85, "pocket_resistance": 0.85, "extreme_resistance": 0.95},
+                "defense": {"impact_resistance": 0.85},
                 "stamina": {"spin_finish_win_rate": 0.5}
             }
         }
@@ -315,7 +315,7 @@ class TestPredictMatchup:
             "stats": {"attack": 3.5, "defense": 2.5, "stamina": 3.0, "control": 3.0, "meta_impact": 3.0},
             "sub_metrics": {
                 "attack": {"burst_finish_rate": 0.2, "pocket_finish_rate": 0.15, "extreme_finish_rate": 0.1},
-                "defense": {"burst_resistance": 0.7, "pocket_resistance": 0.7, "extreme_resistance": 0.9},
+                "defense": {"impact_resistance": 0.7},
                 "stamina": {"spin_finish_win_rate": 0.4},
                 "meta_impact": {"upset_rate": 0.1}
             }
@@ -325,7 +325,7 @@ class TestPredictMatchup:
             "stats": {"attack": 2.5, "defense": 3.5, "stamina": 3.0, "control": 3.0, "meta_impact": 2.5},
             "sub_metrics": {
                 "attack": {"burst_finish_rate": 0.1, "pocket_finish_rate": 0.1, "extreme_finish_rate": 0.05},
-                "defense": {"burst_resistance": 0.8, "pocket_resistance": 0.8, "extreme_resistance": 0.95},
+                "defense": {"impact_resistance": 0.8},
                 "stamina": {"spin_finish_win_rate": 0.5},
                 "meta_impact": {"upset_rate": 0.2}
             }

@@ -33,8 +33,14 @@ MATCHES_FILE = "./docs/data/matches/matches.csv"
 ROUNDS_FILE = "./docs/data/matches/rounds.csv"
 ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
 ADVANCED_LEADERBOARD_FILE = "./docs/data/leaderboard/advanced_leaderboard.csv"
+BEYS_DATA_FILE = "./docs/data/beys/beys_data.json"
 RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
 RPG_STATS_CSV = "./docs/data/analytics/rpg_stats.csv"
+
+# Minimum matches against an opponent type to use the real win rate.
+# Below this threshold the neutral value (0.5) is imputed.
+TYPE_VERSATILITY_MIN_MATCHES = 2
+TYPE_VERSATILITY_NEUTRAL = 0.5
 
 # Minimum matches threshold to compute reliable stats
 # Set to 1 to include all beys in the leaderboard even with limited data
@@ -47,21 +53,21 @@ MIN_MATCHES_FOR_STATS = 1
 # ============================================
 
 ATTACK_WEIGHTS = {
-    "burst_finish_rate": 0.30,
-    "pocket_finish_rate": 0.15,
-    "stadium_exit_finish_rate": 0.05,  # Rare but impactful 2-point finish
-    "extreme_finish_rate": 0.20,
-    "offensive_point_efficiency": 0.20,  # Reduced to accommodate stadium_exit
-    "opening_dominance": 0.10,
+    "aggressive_finish_rate": 0.50,  # Combined KO finish rate (burst+pocket+stadium_exit+extreme) / rounds_won
+    "offensive_point_efficiency": 0.30,  # Average points per round won
+    "opening_dominance": 0.20,  # First-round win rate
 }
 
 DEFENSE_WEIGHTS = {
-    "burst_resistance": 0.35,
-    "pocket_resistance": 0.20,
-    "stadium_exit_resistance": 0.10,  # Rare but worth tracking
-    "extreme_resistance": 0.20,
-    "defensive_conversion": 0.15,
+    "impact_resistance": 0.50,   # Aggregated KO resistance (burst+pocket+stadium_exit+extreme)
+    "defensive_conversion": 0.30,  # Comeback win rate after losing a round
+    "round_survival_rate": 0.20,  # Proportion of rounds NOT lost
 }
+
+# Non-linear scaling exponent applied to all stat calculations.
+# alpha < 1 compresses the low end and stretches the upper range so that
+# exceptional beys realistically reach 20–25 total points (5 stats × 0–5).
+STAT_SCALE_ALPHA = 0.65
 
 STAMINA_WEIGHTS = {
     "spin_finish_win_rate": 0.50,
@@ -70,9 +76,9 @@ STAMINA_WEIGHTS = {
 }
 
 CONTROL_WEIGHTS = {
-    "volatility_inverse": 0.35,
-    "first_contact_advantage": 0.35,
-    "match_flow_stability": 0.30,
+    "volatility_inverse": 0.30,
+    "first_contact_advantage": 0.30,
+    "type_versatility": 0.40,  # Cross-type win rate consistency (pre-set bey types)
 }
 
 META_IMPACT_WEIGHTS = {
@@ -199,7 +205,7 @@ CHASER_MIN_EXTREME_FINISH = 0.15
 
 # Iron Wall thresholds
 IRON_WALL_MIN_DEFENSE = 2.5
-IRON_WALL_MIN_BURST_RESISTANCE = 0.65
+IRON_WALL_MIN_IMPACT_RESISTANCE = 0.40  # Minimum impact_resistance: at least 40% of losses must be non-KO (spin)
 IRON_WALL_MAX_ATTACK = 3.5
 IRON_WALL_MAX_STAMINA = 3.5
 
@@ -281,7 +287,7 @@ def detect_archetype(
     pocket_finish_rate = attack_metrics.get("pocket_finish_rate", 0)
     stadium_exit_finish_rate = attack_metrics.get("stadium_exit_finish_rate", 0)
     extreme_finish_rate = attack_metrics.get("extreme_finish_rate", 0)
-    burst_resistance = defense_metrics.get("burst_resistance", 0.5)
+    impact_resistance = defense_metrics.get("impact_resistance", 0.5)
     defensive_conversion = defense_metrics.get("defensive_conversion", 0.5)
     spin_finish_win_rate = stamina_metrics.get("spin_finish_win_rate", 0)
     volatility_inverse = control_metrics.get("volatility_inverse", 0.5)
@@ -291,13 +297,13 @@ def detect_archetype(
     # Calculate archetype scores
     archetype_scores: dict[str, float] = {}
 
-    # Glass Cannon: High attack, low defense & burst resistance
+    # Glass Cannon: High attack, low defense & low impact resistance
     # Require: attack > threshold, defense < threshold
     if attack > GLASS_CANNON_MIN_ATTACK and defense < GLASS_CANNON_MAX_DEFENSE:
         archetype_scores["glass_cannon"] = (
             (attack / 5.0) * 0.5
             + ((5.0 - defense) / 5.0) * 0.35
-            + ((1.0 - burst_resistance) * 0.15)
+            + ((1.0 - impact_resistance) * 0.15)
         )
     else:
         archetype_scores["glass_cannon"] = 0.0
@@ -328,15 +334,15 @@ def detect_archetype(
     else:
         archetype_scores["chaser"] = 0.0
 
-    # Iron Wall: High defense, high burst resistance, low volatility
-    # Require: defense, burst_resistance above threshold, attack and stamina below threshold
+    # Iron Wall: High defense, high impact resistance, low volatility
+    # Require: defense, impact_resistance above threshold, attack and stamina below threshold
     if (defense > IRON_WALL_MIN_DEFENSE and
-            burst_resistance > IRON_WALL_MIN_BURST_RESISTANCE and
+            impact_resistance > IRON_WALL_MIN_IMPACT_RESISTANCE and
             attack < IRON_WALL_MAX_ATTACK and
             stamina < IRON_WALL_MAX_STAMINA):
         archetype_scores["iron_wall"] = (
             (defense / 5.0) * 0.45
-            + (burst_resistance * 0.35)
+            + (impact_resistance * 0.35)
             + (volatility_inverse * 0.20)
         )
     else:
@@ -350,7 +356,7 @@ def detect_archetype(
         archetype_scores["counter_shield"] = (
             (defense / 5.0) * 0.35
             + (defensive_conversion * 0.45)
-            + (burst_resistance * 0.20)
+            + (impact_resistance * 0.20)
         )
     else:
         archetype_scores["counter_shield"] = 0.0
@@ -605,9 +611,84 @@ def load_advanced_leaderboard() -> dict[str, dict[str, Any]]:
     return leaderboard
 
 
+def load_bey_types(beys_data_path: str = BEYS_DATA_FILE) -> dict[str, str]:
+    """
+    Load pre-set bey types from beys_data.json.
+
+    Each Beyblade is assigned a type (Attack / Defense / Stamina / Balance)
+    based on its parts design.  This classification is static and does not
+    depend on match results.
+
+    Returns:
+        Dictionary mapping blade name → type string, e.g. {"ImpactDrake": "Attack"}.
+        Returns an empty dict if the file cannot be read.
+    """
+    try:
+        with open(beys_data_path, encoding="utf-8") as f:
+            data = json.load(f)
+        return {entry["blade"]: entry["type"] for entry in data}
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        return {}
+
+
 # ============================================
 # SUB-METRIC CALCULATION FUNCTIONS
 # ============================================
+
+def calculate_type_matchup_stats(
+    matches: list,
+    bey_types: dict[str, str],
+    all_beys: list[str]
+) -> dict[str, dict]:
+    """
+    Calculate per-bey win/loss records broken down by pre-set opponent type.
+
+    For each bey and each of the four standard types (Attack, Defense, Stamina,
+    Balance) this returns the number of matches played against that type and the
+    number of those matches won.  The results feed the ``type_versatility``
+    sub-metric used in the Control stat calculation.
+
+    Args:
+        matches: List of match dicts as returned by load_matches().
+        bey_types: Dict mapping blade name → type string (from load_bey_types()).
+        all_beys: List of all bey names to include in the output.
+
+    Returns:
+        Dict mapping bey name → stats dict with keys:
+        ``wins_vs_Attack``, ``matches_vs_Attack``, … (one pair per type).
+    """
+    _TYPES = ("Attack", "Defense", "Stamina", "Balance")
+    stats: dict[str, dict] = {
+        bey: {
+            f"wins_vs_{t}": 0
+            for t in _TYPES
+        } | {
+            f"matches_vs_{t}": 0
+            for t in _TYPES
+        }
+        for bey in all_beys
+    }
+
+    for m in matches:
+        a = m["bey_a"]
+        b = m["bey_b"]
+        sa = m["score_a"]
+        sb = m["score_b"]
+        type_a = bey_types.get(a)
+        type_b = bey_types.get(b)
+
+        if a in stats and type_b in _TYPES:
+            stats[a][f"matches_vs_{type_b}"] += 1
+            if sa > sb:
+                stats[a][f"wins_vs_{type_b}"] += 1
+
+        if b in stats and type_a in _TYPES:
+            stats[b][f"matches_vs_{type_a}"] += 1
+            if sb > sa:
+                stats[b][f"wins_vs_{type_a}"] += 1
+
+    return stats
+
 
 def calculate_bey_round_stats(matches: list, rounds: list) -> dict[str, dict]:
     """
@@ -747,12 +828,17 @@ def calculate_attack_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str, 
     Calculate Attack sub-metrics for each Beyblade.
 
     Metrics:
-    - burst_finish_rate: % of round wins that are burst finishes
-    - pocket_finish_rate: % of round wins that are pocket finishes
-    - stadium_exit_finish_rate: % of round wins that are stadium exit finishes
-    - extreme_finish_rate: % of round wins that are extreme finishes
+    - aggressive_finish_rate: % of round wins that are any KO-type finish
+      (burst + pocket + stadium_exit + extreme) / rounds_won. Aggregates all
+      high-impact finishes into a single orthogonal signal so that a burst
+      specialist is not penalised for having zero pocket/extreme rates.
     - offensive_point_efficiency: Average points per round won
     - opening_dominance: % of first rounds won
+
+    Individual finish-type rates (burst, pocket, stadium_exit, extreme) are also
+    stored in the returned dict so that downstream modules (matchup predictor,
+    archetype detection) can still access them, but they are not used in the
+    weighted attack stat calculation.
     """
     metrics: dict[str, dict] = {}
 
@@ -766,12 +852,16 @@ def calculate_attack_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str, 
             pocket_rate = stats.get("pocket_wins", 0) / rounds_won
             stadium_exit_rate = stats.get("stadium_exit_wins", 0) / rounds_won
             extreme_rate = stats.get("extreme_wins", 0) / rounds_won
+            # Aggregate all KO-type finishes into one metric so that a bey
+            # specialising in a single finish type is not penalised.
+            aggressive_finish_rate = burst_rate + pocket_rate + stadium_exit_rate + extreme_rate
             point_efficiency = stats.get("points_from_wins", 0) / rounds_won
         else:
             burst_rate = 0.0
             pocket_rate = 0.0
             stadium_exit_rate = 0.0
             extreme_rate = 0.0
+            aggressive_finish_rate = 0.0
             point_efficiency = 0.0
 
         if total_matches > 0:
@@ -780,12 +870,14 @@ def calculate_attack_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str, 
             opening_dominance = 0.0
 
         metrics[bey] = {
+            "aggressive_finish_rate": aggressive_finish_rate,
+            "offensive_point_efficiency": point_efficiency,
+            "opening_dominance": opening_dominance,
+            # Individual rates kept for archetype detection and matchup predictor
             "burst_finish_rate": burst_rate,
             "pocket_finish_rate": pocket_rate,
             "stadium_exit_finish_rate": stadium_exit_rate,
             "extreme_finish_rate": extreme_rate,
-            "offensive_point_efficiency": point_efficiency,
-            "opening_dominance": opening_dominance,
         }
 
     return metrics
@@ -796,29 +888,37 @@ def calculate_defense_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str,
     Calculate Defense sub-metrics for each Beyblade.
 
     Metrics:
-    - burst_resistance: 1 - (burst losses / total rounds lost)
-    - pocket_resistance: 1 - (pocket losses / total rounds lost)
-    - stadium_exit_resistance: 1 - (stadium exit losses / total rounds lost)
-    - extreme_resistance: 1 - (extreme losses / total rounds lost)
-    - defensive_conversion: Win rate after losing a round
+    - impact_resistance: 1 - (all KO losses / total rounds lost). Aggregates
+      burst, pocket, stadium_exit and extreme resistances into one orthogonal signal.
+    - defensive_conversion: Win rate after losing a round (comeback ability)
+    - round_survival_rate: 1 - (rounds_lost / total rounds played). Measures
+      how often the bey avoids losing a round (frequency, not type).
     """
     metrics: dict[str, dict] = {}
 
     for bey in all_beys:
         stats = bey_stats.get(bey, {})
+        rounds_won = stats.get("rounds_won", 0)
         rounds_lost = stats.get("rounds_lost", 0)
 
         if rounds_lost > 0:
-            burst_resistance = 1.0 - (stats.get("burst_losses", 0) / rounds_lost)
-            pocket_resistance = 1.0 - (stats.get("pocket_losses", 0) / rounds_lost)
-            stadium_exit_resistance = 1.0 - (stats.get("stadium_exit_losses", 0) / rounds_lost)
-            extreme_resistance = 1.0 - (stats.get("extreme_losses", 0) / rounds_lost)
+            ko_losses = (
+                stats.get("burst_losses", 0)
+                + stats.get("pocket_losses", 0)
+                + stats.get("stadium_exit_losses", 0)
+                + stats.get("extreme_losses", 0)
+            )
+            impact_resistance = 1.0 - (ko_losses / rounds_lost)
         else:
             # No losses means perfect resistance
-            burst_resistance = 1.0
-            pocket_resistance = 1.0
-            stadium_exit_resistance = 1.0
-            extreme_resistance = 1.0
+            impact_resistance = 1.0
+
+        # Round survival rate: proportion of rounds NOT lost
+        total_rounds = rounds_won + rounds_lost
+        if total_rounds > 0:
+            round_survival_rate = 1.0 - (rounds_lost / total_rounds)
+        else:
+            round_survival_rate = 0.5  # Neutral if no rounds played
 
         # Defensive conversion: ability to win the next round after losing one
         lost_previous = stats.get("lost_previous_round", 0)
@@ -828,11 +928,9 @@ def calculate_defense_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str,
             defensive_conversion = 0.5  # Neutral if never lost a round
 
         metrics[bey] = {
-            "burst_resistance": burst_resistance,
-            "pocket_resistance": pocket_resistance,
-            "stadium_exit_resistance": stadium_exit_resistance,
-            "extreme_resistance": extreme_resistance,
+            "impact_resistance": impact_resistance,
             "defensive_conversion": defensive_conversion,
+            "round_survival_rate": round_survival_rate,
         }
 
     return metrics
@@ -886,15 +984,21 @@ def calculate_stamina_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str,
 def calculate_control_metrics(
     bey_stats: dict,
     advanced_lb: dict,
+    type_matchup_stats: dict,
     all_beys: list[str]
 ) -> dict[str, dict]:
     """
     Calculate Control sub-metrics for each Beyblade.
 
     Metrics:
-    - volatility_inverse: 1 - normalized volatility (higher = more consistent)
-    - first_contact_advantage: Match win rate when winning first round
-    - match_flow_stability: Inverse of variance in round counts per match
+    - volatility_inverse: 1 - normalized volatility (higher = more consistent ELO)
+    - first_contact_advantage: Match win rate when winning first round (closing ability)
+    - type_versatility: Cross-type win rate quality, using pre-set bey types.
+      Computed as mean_win_rate × (1 - stdev(win_rates)) across all four types
+      (Attack, Defense, Stamina, Balance).  Types with fewer than
+      TYPE_VERSATILITY_MIN_MATCHES matches are imputed with TYPE_VERSATILITY_NEUTRAL
+      so that sparse beys fall back to a neutral mid-range score.
+      High value → wins consistently against every type (true "control" behavior).
     """
     metrics: dict[str, dict] = {}
 
@@ -925,19 +1029,25 @@ def calculate_control_metrics(
         else:
             first_contact_advantage = 0.5
 
-        # Match flow stability (inverse of variance in round counts)
-        round_counts = stats.get("match_round_counts", [])
-        if len(round_counts) > 1:
-            variance = statistics.variance(round_counts)
-            # Normalize variance (typical range 0-10)
-            match_flow_stability = 1.0 - min(1.0, variance / 10.0)
-        else:
-            match_flow_stability = 0.5
+        # Type versatility: how consistently the bey wins against all pre-set types.
+        # For each type, compute win rate if enough matches exist, else impute neutral.
+        bey_type_stats = type_matchup_stats.get(bey, {})
+        type_rates = []
+        for bey_type in ("Attack", "Defense", "Stamina", "Balance"):
+            n = bey_type_stats.get(f"matches_vs_{bey_type}", 0)
+            if n >= TYPE_VERSATILITY_MIN_MATCHES:
+                w = bey_type_stats.get(f"wins_vs_{bey_type}", 0)
+                type_rates.append(w / n)
+            else:
+                type_rates.append(TYPE_VERSATILITY_NEUTRAL)
+        mean_type_rate = sum(type_rates) / 4
+        std_type_rate = statistics.stdev(type_rates)
+        type_versatility = mean_type_rate * (1.0 - std_type_rate)
 
         metrics[bey] = {
             "volatility_inverse": volatility_inverse,
             "first_contact_advantage": first_contact_advantage,
-            "match_flow_stability": match_flow_stability,
+            "type_versatility": type_versatility,
         }
 
     return metrics
@@ -1052,18 +1162,12 @@ def calculate_meta_impact_metrics(
 def calculate_attack_stat(metrics: dict, all_metrics: list[dict]) -> float:
     """Calculate the Attack stat (0-5) from attack metrics."""
     # Collect all values for percentile normalization
-    all_burst = [m["burst_finish_rate"] for m in all_metrics]
-    all_pocket = [m["pocket_finish_rate"] for m in all_metrics]
-    all_stadium_exit = [m["stadium_exit_finish_rate"] for m in all_metrics]
-    all_extreme = [m["extreme_finish_rate"] for m in all_metrics]
+    all_aggressive = [m["aggressive_finish_rate"] for m in all_metrics]
     all_efficiency = [m["offensive_point_efficiency"] for m in all_metrics]
     all_opening = [m["opening_dominance"] for m in all_metrics]
 
     # Normalize each metric
-    norm_burst = percentile_normalize(metrics["burst_finish_rate"], all_burst)
-    norm_pocket = percentile_normalize(metrics["pocket_finish_rate"], all_pocket)
-    norm_stadium_exit = percentile_normalize(metrics["stadium_exit_finish_rate"], all_stadium_exit)
-    norm_extreme = percentile_normalize(metrics["extreme_finish_rate"], all_extreme)
+    norm_aggressive = percentile_normalize(metrics["aggressive_finish_rate"], all_aggressive)
     norm_efficiency = percentile_normalize(
         metrics["offensive_point_efficiency"], all_efficiency
     )
@@ -1071,42 +1175,33 @@ def calculate_attack_stat(metrics: dict, all_metrics: list[dict]) -> float:
 
     # Weighted combination
     raw_score = (
-        ATTACK_WEIGHTS["burst_finish_rate"] * norm_burst
-        + ATTACK_WEIGHTS["pocket_finish_rate"] * norm_pocket
-        + ATTACK_WEIGHTS["stadium_exit_finish_rate"] * norm_stadium_exit
-        + ATTACK_WEIGHTS["extreme_finish_rate"] * norm_extreme
+        ATTACK_WEIGHTS["aggressive_finish_rate"] * norm_aggressive
         + ATTACK_WEIGHTS["offensive_point_efficiency"] * norm_efficiency
         + ATTACK_WEIGHTS["opening_dominance"] * norm_opening
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 def calculate_defense_stat(metrics: dict, all_metrics: list[dict]) -> float:
     """Calculate the Defense stat (0-5) from defense metrics."""
-    all_burst_res = [m["burst_resistance"] for m in all_metrics]
-    all_pocket_res = [m["pocket_resistance"] for m in all_metrics]
-    all_stadium_exit_res = [m["stadium_exit_resistance"] for m in all_metrics]
-    all_extreme_res = [m["extreme_resistance"] for m in all_metrics]
+    all_impact = [m["impact_resistance"] for m in all_metrics]
     all_conversion = [m["defensive_conversion"] for m in all_metrics]
+    all_survival = [m["round_survival_rate"] for m in all_metrics]
 
-    norm_burst = percentile_normalize(metrics["burst_resistance"], all_burst_res)
-    norm_pocket = percentile_normalize(metrics["pocket_resistance"], all_pocket_res)
-    norm_stadium_exit = percentile_normalize(metrics["stadium_exit_resistance"], all_stadium_exit_res)
-    norm_extreme = percentile_normalize(metrics["extreme_resistance"], all_extreme_res)
+    norm_impact = percentile_normalize(metrics["impact_resistance"], all_impact)
     norm_conversion = percentile_normalize(
         metrics["defensive_conversion"], all_conversion
     )
+    norm_survival = percentile_normalize(metrics["round_survival_rate"], all_survival)
 
     raw_score = (
-        DEFENSE_WEIGHTS["burst_resistance"] * norm_burst
-        + DEFENSE_WEIGHTS["pocket_resistance"] * norm_pocket
-        + DEFENSE_WEIGHTS["stadium_exit_resistance"] * norm_stadium_exit
-        + DEFENSE_WEIGHTS["extreme_resistance"] * norm_extreme
+        DEFENSE_WEIGHTS["impact_resistance"] * norm_impact
         + DEFENSE_WEIGHTS["defensive_conversion"] * norm_conversion
+        + DEFENSE_WEIGHTS["round_survival_rate"] * norm_survival
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 def calculate_stamina_stat(metrics: dict, all_metrics: list[dict]) -> float:
@@ -1129,26 +1224,26 @@ def calculate_stamina_stat(metrics: dict, all_metrics: list[dict]) -> float:
         + STAMINA_WEIGHTS["long_round_win_rate"] * norm_long
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 def calculate_control_stat(metrics: dict, all_metrics: list[dict]) -> float:
     """Calculate the Control stat (0-5) from control metrics."""
     all_vol_inv = [m["volatility_inverse"] for m in all_metrics]
     all_first = [m["first_contact_advantage"] for m in all_metrics]
-    all_flow = [m["match_flow_stability"] for m in all_metrics]
+    all_versatility = [m["type_versatility"] for m in all_metrics]
 
     norm_vol = percentile_normalize(metrics["volatility_inverse"], all_vol_inv)
     norm_first = percentile_normalize(metrics["first_contact_advantage"], all_first)
-    norm_flow = percentile_normalize(metrics["match_flow_stability"], all_flow)
+    norm_versatility = percentile_normalize(metrics["type_versatility"], all_versatility)
 
     raw_score = (
         CONTROL_WEIGHTS["volatility_inverse"] * norm_vol
         + CONTROL_WEIGHTS["first_contact_advantage"] * norm_first
-        + CONTROL_WEIGHTS["match_flow_stability"] * norm_flow
+        + CONTROL_WEIGHTS["type_versatility"] * norm_versatility
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 def calculate_meta_impact_stat(metrics: dict, all_metrics: list[dict]) -> float:
@@ -1173,7 +1268,7 @@ def calculate_meta_impact_stat(metrics: dict, all_metrics: list[dict]) -> float:
         + META_IMPACT_WEIGHTS["anti_meta_score"] * norm_anti
     )
 
-    return clamp(raw_score * 5.0)
+    return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
 
 
 # ============================================
@@ -1193,6 +1288,7 @@ def calculate_rpg_stats() -> dict[str, dict]:
     rounds = load_rounds()
     elo_history = load_elo_history()
     advanced_lb = load_advanced_leaderboard()
+    bey_types = load_bey_types()
 
     # Get all beys
     all_beys = list(advanced_lb.keys())
@@ -1202,6 +1298,9 @@ def calculate_rpg_stats() -> dict[str, dict]:
     # Calculate round-level stats
     bey_round_stats = calculate_bey_round_stats(matches, rounds)
 
+    # Calculate per-type matchup records (used for type_versatility in Control)
+    type_matchup_stats = calculate_type_matchup_stats(matches, bey_types, all_beys)
+
     print(f"{CYAN}Calculating sub-metrics...{RESET}")
 
     # Calculate sub-metrics for each category
@@ -1209,7 +1308,7 @@ def calculate_rpg_stats() -> dict[str, dict]:
     defense_metrics = calculate_defense_metrics(bey_round_stats, all_beys)
     stamina_metrics = calculate_stamina_metrics(bey_round_stats, all_beys)
     control_metrics = calculate_control_metrics(
-        bey_round_stats, advanced_lb, all_beys
+        bey_round_stats, advanced_lb, type_matchup_stats, all_beys
     )
     meta_impact_metrics = calculate_meta_impact_metrics(
         bey_round_stats, advanced_lb, elo_history, all_beys
