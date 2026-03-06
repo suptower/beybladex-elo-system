@@ -34,13 +34,38 @@ jobs:
       - name: Run Update Pipeline
         run: python update.py
 
-      - name: Commit changes
+      - name: Commit source data changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add .
+          # Only stage source data files — generated artifacts are deployed to
+          # the gh-pages branch below and must not accumulate in Git history.
+          git add \
+            docs/data/matches/ \
+            docs/data/beys/ \
+            docs/data/season/seasons.json \
+            docs/data/season/seasons_backup.json \
+            docs/data/tournaments/tournaments.json
           git diff --cached --quiet || git commit -m "Process ${GITHUB_REF_NAME} - $(date -u +'%Y-%m-%d %H:%M UTC')"
           git push origin HEAD:${{ github.ref_name }}
+
+      - name: Deploy generated docs to gh-pages
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          # Create a detached commit containing only the docs/ directory and
+          # force-push it to the gh-pages branch. This overwrites the branch
+          # on every run so no generated-data history accumulates.
+          DEPLOY_DIR=$(mktemp -d)
+          trap 'rm -rf "$DEPLOY_DIR"' EXIT
+          cp -r docs/. "$DEPLOY_DIR/"
+          cd "$DEPLOY_DIR"
+          git init
+          git add -A
+          git commit -m "Deploy from ${GITHUB_REF_NAME} - $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push --force \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            HEAD:gh-pages
 
       - name: Create Pull Request
         run: |

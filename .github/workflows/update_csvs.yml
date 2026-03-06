@@ -6,6 +6,8 @@ on:
 jobs:
   update_csvs:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -25,11 +27,40 @@ jobs:
           python ./src/elo/beyblade_elo.py --mode official
           python ./src/elo/beyblade_elo.py --mode private
 
-      - name: Commit updated CSVs
+      - name: Deploy updated ELO data to gh-pages
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add docs/data/leaderboard/leaderboard.csv docs/data/elo/elo_history.csv docs/data/elo/elo_timeseries.csv
-          git add docs/data/leaderboard/private_leaderboard.csv docs/data/elo/private_elo_history.csv docs/data/elo/private_elo_timeseries.csv
-          git commit -m "Auto-update CSVs via GitHub Actions" || echo "No changes to commit"
-          git push
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Fetch the current gh-pages branch into a temp directory.
+          # If gh-pages doesn't exist yet, fall back to the current docs/ tree
+          # so that the initial deployment contains a complete site.
+          DEPLOY_DIR=$(mktemp -d)
+          trap 'rm -rf "$DEPLOY_DIR"' EXIT
+          if git fetch origin gh-pages --depth=1 2>/dev/null; then
+            git archive FETCH_HEAD | tar -x -C "$DEPLOY_DIR"
+          else
+            echo "gh-pages branch not found — initialising from docs/"
+            cp -r docs/. "$DEPLOY_DIR/"
+          fi
+
+          # Overwrite only the regenerated ELO and leaderboard files.
+          mkdir -p "$DEPLOY_DIR/data/leaderboard" "$DEPLOY_DIR/data/elo"
+          cp docs/data/leaderboard/leaderboard.csv          "$DEPLOY_DIR/data/leaderboard/leaderboard.csv"
+          cp docs/data/elo/elo_history.csv                  "$DEPLOY_DIR/data/elo/elo_history.csv"
+          cp docs/data/elo/elo_timeseries.csv               "$DEPLOY_DIR/data/elo/elo_timeseries.csv"
+          cp docs/data/leaderboard/private_leaderboard.csv  "$DEPLOY_DIR/data/leaderboard/private_leaderboard.csv"
+          cp docs/data/elo/private_elo_history.csv          "$DEPLOY_DIR/data/elo/private_elo_history.csv"
+          cp docs/data/elo/private_elo_timeseries.csv       "$DEPLOY_DIR/data/elo/private_elo_timeseries.csv"
+
+          cd "$DEPLOY_DIR"
+          git init
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to deploy"
+          else
+            git commit -m "Auto-update ELO CSVs via GitHub Actions"
+            git push --force \
+              "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+              HEAD:gh-pages
+          fi
