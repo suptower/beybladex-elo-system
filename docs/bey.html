@@ -1910,9 +1910,10 @@ function renderFinishTypeDistribution() {
 
     const totalRounds = totalWinRounds + totalLossRounds;
     const arenaDisplay = arenaLabel || 'All arenas';
+    const safeArenaDisplay = escapeHtml(arenaDisplay);
     tableContainer.innerHTML = `
         <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:8px;">
-            Rounds by finish type — <strong>wins</strong> = rounds won using that finish; <strong>losses</strong> = rounds lost to that finish (${arenaDisplay}, ${totalRounds} round${totalRounds !== 1 ? 's' : ''})
+            Rounds by finish type — <strong>wins</strong> = rounds won using that finish; <strong>losses</strong> = rounds lost to that finish (${safeArenaDisplay}, ${totalRounds} round${totalRounds !== 1 ? 's' : ''})
         </p>
         <table class="data-table score-dist-table">
             <thead>
@@ -1937,9 +1938,9 @@ function renderFinishTypeDistribution() {
                 <tr>
                     <td><strong>Total</strong></td>
                     <td><strong style="color:#16a34a;">${totalWinRounds}</strong></td>
-                    <td><strong>100%</strong></td>
+                    <td><strong>${totalWinRounds > 0 ? '100%' : '0%'}</strong></td>
                     <td><strong style="color:#dc2626;">${totalLossRounds}</strong></td>
-                    <td><strong>100%</strong></td>
+                    <td><strong>${totalLossRounds > 0 ? '100%' : '0%'}</strong></td>
                 </tr>
             </tfoot>
         </table>
@@ -1994,6 +1995,10 @@ function setupPlotDarkModeObserver() {
             const kfFilename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
             kfactorPlot.src = kfBasePath + kfFilename;
         }
+
+        // Re-render Chart.js charts so axis/legend colors update with theme
+        renderScoreDistribution();
+        renderFinishTypeDistribution();
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 }
