@@ -4,6 +4,7 @@ Tests the Parts Combination Explorer functionality.
 """
 import sys
 import os
+import pytest
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'analytics'))
@@ -263,8 +264,12 @@ class TestFindBeysWithCombo:
 class TestGenerateComboData:
     """Tests for the generate_combo_data function."""
 
+    PARTS_STATS_FILE = './docs/data/analytics/parts_stats.json'
+
     def test_returns_expected_structure(self):
         """Should return dict with combos, parts, and metadata."""
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
         result = generate_combo_data()
 
         assert "combos" in result
@@ -277,6 +282,8 @@ class TestGenerateComboData:
 
     def test_combos_have_required_fields(self):
         """Each combo should have all required fields."""
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
         result = generate_combo_data()
 
         if result["combos"]:
@@ -290,6 +297,8 @@ class TestGenerateComboData:
 
     def test_combos_sorted_by_rating(self):
         """Combos should be sorted by overall rating descending."""
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
         result = generate_combo_data()
 
         if len(result["combos"]) > 1:
@@ -298,6 +307,8 @@ class TestGenerateComboData:
 
     def test_metadata_has_counts(self):
         """Metadata should have total counts."""
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
         result = generate_combo_data()
 
         assert "total_combos" in result["metadata"]

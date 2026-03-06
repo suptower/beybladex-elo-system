@@ -847,7 +847,7 @@ def run_elo_pipeline(pipeline_config):
     print(f"{CYAN}Generating arena-specific leaderboards...{RESET}")
     for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
         arena_file_name = arena.lower().replace(" ", "_")
-        arena_leaderboard_file = f"./docs/data/leaderboard_{arena_file_name}.csv"
+        arena_leaderboard_file = f"./docs/data/leaderboard/leaderboard_{arena_file_name}.csv"
 
         # Sort by arena-specific ELO
         arena_sorted_beys = sorted(arena_elos[arena].items(), key=lambda x: x[1], reverse=True)
@@ -955,7 +955,7 @@ def run_elo_pipeline(pipeline_config):
     # --- Generate arena-specific timeseries ---
     for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
         arena_file_name = arena.lower().replace(" ", "_")
-        arena_timeseries_file = f"./docs/data/elo_timeseries_{arena_file_name}.csv"
+        arena_timeseries_file = f"./docs/data/elo/elo_timeseries_{arena_file_name}.csv"
 
         # For Combined arena, include ALL matches; for specific arenas, filter by arena
         if arena == ARENA_COMBINED:
@@ -1006,7 +1006,7 @@ def run_elo_pipeline(pipeline_config):
         arena_file_name = arena.lower().replace(" ", "_")
         arena_position_file = (
             position_file if arena == ARENA_XTREME
-            else f"./docs/data/position_timeseries_{arena_file_name}.csv"
+            else f"./docs/data/analytics/position_timeseries_{arena_file_name}.csv"
         )
 
         # Filter to only this arena's updates
@@ -1157,7 +1157,7 @@ if __name__ == "__main__":
             "leaderboard": "./docs/data/leaderboard/private_leaderboard.csv",
             "history": "./docs/data/elo/private_elo_history.csv",
             "timeseries": "./docs/data/elo/private_elo_timeseries.csv",
-            "positions": "./docs/data/private_position_timeseries.csv",
+            "positions": "./docs/data/analytics/private_position_timeseries.csv",
             "start_elos": start_elos
         }
 

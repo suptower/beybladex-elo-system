@@ -4,6 +4,7 @@ Tests the Parts Performance Ranking functionality for Blades, Ratchets, and Bits
 """
 import sys
 import os
+import pytest
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'analytics'))
@@ -90,6 +91,14 @@ class TestCalculateTotalScore:
 
 class TestLoadPartsStats:
     """Tests for loading parts stats data."""
+    PARTS_STATS_FILE = './docs/data/analytics/parts_stats.json'
+
+    @pytest.fixture(autouse=True)
+    def require_parts_stats(self):
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
+
+
 
     def test_loads_data_structure(self):
         """Should load valid data structure."""
@@ -134,6 +143,14 @@ class TestLoadPartsStats:
 
 class TestStatsInRange:
     """Tests that all stats are within valid range."""
+    PARTS_STATS_FILE = './docs/data/analytics/parts_stats.json'
+
+    @pytest.fixture(autouse=True)
+    def require_parts_stats(self):
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
+
+
 
     def test_blade_stats_in_range(self):
         """All blade stats should be between 0 and 5."""
@@ -159,6 +176,14 @@ class TestStatsInRange:
 
 class TestGetBladesRanking:
     """Tests for the get_blades_ranking function."""
+    PARTS_STATS_FILE = './docs/data/analytics/parts_stats.json'
+
+    @pytest.fixture(autouse=True)
+    def require_parts_stats(self):
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
+
+
 
     def test_returns_list(self):
         """Should return a list."""
@@ -191,6 +216,14 @@ class TestGetBladesRanking:
 
 class TestGetRatchetsRanking:
     """Tests for the get_ratchets_ranking function."""
+    PARTS_STATS_FILE = './docs/data/analytics/parts_stats.json'
+
+    @pytest.fixture(autouse=True)
+    def require_parts_stats(self):
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
+
+
 
     def test_returns_list(self):
         """Should return a list."""
@@ -216,6 +249,14 @@ class TestGetRatchetsRanking:
 
 class TestGetBitsRanking:
     """Tests for the get_bits_ranking function."""
+    PARTS_STATS_FILE = './docs/data/analytics/parts_stats.json'
+
+    @pytest.fixture(autouse=True)
+    def require_parts_stats(self):
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
+
+
 
     def test_returns_list(self):
         """Should return a list."""
@@ -242,6 +283,14 @@ class TestGetBitsRanking:
 
 class TestPartsCounts:
     """Tests for expected part counts."""
+    PARTS_STATS_FILE = './docs/data/analytics/parts_stats.json'
+
+    @pytest.fixture(autouse=True)
+    def require_parts_stats(self):
+        if not os.path.exists(self.PARTS_STATS_FILE):
+            pytest.skip("parts_stats.json not yet generated — run the pipeline first")
+
+
 
     def test_has_blades(self):
         """Should have at least some blades."""

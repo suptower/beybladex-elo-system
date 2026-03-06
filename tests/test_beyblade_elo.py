@@ -169,7 +169,9 @@ class TestScoreWithMargin:
     def test_winner_identified_correctly(self):
         """When B wins, B gets the margin score and A gets 1 - S_winner."""
         s_a, s_b = calculate_score_with_margin(2, 4, target=4)
-        assert abs(s_b - 0.856) < 0.01  # m=2, T=4: 1 + 0.18*tanh(2.2*(2-4)/4) ≈ 0.856
+        # m=2, T=4: 1 + MARGIN_A * tanh(MARGIN_B * (2-4) / 4)
+        expected_sb = 1 + MARGIN_A * math.tanh(MARGIN_B * (2 - 4) / 4)
+        assert abs(s_b - expected_sb) < 1e-9
         assert abs(s_a - (1.0 - s_b)) < 1e-9
 
     def test_draw_gives_equal_scores(self):

@@ -25,9 +25,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 VALID_FINISH_TYPES = {"spin", "pocket", "burst", "extreme", "stadium_exit"}
 DEFAULT_FINISH_TYPE = "spin"
 
-# Default weights path
+# Default weights path (src/utils/ -> src/ -> repo root -> config/)
 DEFAULT_WEIGHTS_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "config",
     "finish_weights.json"
 )

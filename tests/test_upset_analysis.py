@@ -4,6 +4,7 @@ Tests the Giant Killer Score calculation and upset analysis functions.
 """
 import sys
 import os
+import pytest
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'analytics'))
@@ -167,6 +168,14 @@ class TestCalculateGiantKillerScore:
 
 class TestAnalyzeUpsets:
     """Tests for the analyze_upsets function using real data."""
+    ELO_HISTORY_FILE = './docs/data/elo/elo_history.csv'
+
+    @pytest.fixture(autouse=True)
+    def require_elo_history(self):
+        if not os.path.exists(self.ELO_HISTORY_FILE):
+            pytest.skip("elo_history.csv not yet generated — run the pipeline first")
+
+
 
     def test_analyze_upsets_returns_data(self):
         """analyze_upsets should return bey_stats and upset_matches."""
@@ -215,6 +224,14 @@ class TestAnalyzeUpsets:
 
 class TestCalculateAnalysisMetrics:
     """Tests for the calculate_analysis_metrics function."""
+    ELO_HISTORY_FILE = './docs/data/elo/elo_history.csv'
+
+    @pytest.fixture(autouse=True)
+    def require_elo_history(self):
+        if not os.path.exists(self.ELO_HISTORY_FILE):
+            pytest.skip("elo_history.csv not yet generated — run the pipeline first")
+
+
 
     def test_metrics_structure(self):
         """Calculated metrics should have required fields."""
@@ -251,6 +268,14 @@ class TestCalculateAnalysisMetrics:
 
 class TestCalculateGiantKillerScores:
     """Tests for the calculate_giant_killer_scores function."""
+    ELO_HISTORY_FILE = './docs/data/elo/elo_history.csv'
+
+    @pytest.fixture(autouse=True)
+    def require_elo_history(self):
+        if not os.path.exists(self.ELO_HISTORY_FILE):
+            pytest.skip("elo_history.csv not yet generated — run the pipeline first")
+
+
 
     def test_scores_added_to_data(self):
         """Giant Killer scores should be added to each entry."""
