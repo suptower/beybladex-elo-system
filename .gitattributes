@@ -1,0 +1,15 @@
+# Git LFS tracking
+#
+# IMPORTANT — GitHub Pages compatibility:
+# GitHub Pages serves files directly from the git tree. Files tracked with LFS
+# are replaced by tiny pointer files in the tree, so GitHub Pages would serve
+# the pointer text instead of the actual content. This means any file under
+# docs/ that is served to users (images, JSON analytics, leaderboard CSVs,
+# plot PNGs/HTMLs) must NOT use LFS — they must remain as regular git objects.
+#
+# LFS is appropriate for large binary files that are NOT served by GitHub Pages,
+# for example private exports, archives, or build artifacts stored outside docs/.
+
+# Private/internal large files (not served via GitHub Pages)
+plots/private/**/*.png filter=lfs diff=lfs merge=lfs -text
+plots/private/**/*.html filter=lfs diff=lfs merge=lfs -text
