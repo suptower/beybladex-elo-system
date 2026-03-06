@@ -218,24 +218,21 @@ def calculate_outcome_probabilities(
     spin_rate_b = stamina_metrics_b.get("spin_finish_win_rate", 0.40)
 
     # Defensive resistance rates (reduce opponent's finish type chances)
-    burst_resist_a = defense_metrics_a.get("burst_resistance", 0.70)
-    pocket_resist_a = defense_metrics_a.get("pocket_resistance", 0.70)
-    extreme_resist_a = defense_metrics_a.get("extreme_resistance", 0.85)
-    burst_resist_b = defense_metrics_b.get("burst_resistance", 0.70)
-    pocket_resist_b = defense_metrics_b.get("pocket_resistance", 0.70)
-    extreme_resist_b = defense_metrics_b.get("extreme_resistance", 0.85)
+    # Use unified impact_resistance which aggregates all KO-type resistance
+    impact_resist_a = defense_metrics_a.get("impact_resistance", 0.70)
+    impact_resist_b = defense_metrics_b.get("impact_resistance", 0.70)
 
     # Calculate outcome probabilities for A (when A wins)
     # A's finish types are boosted by their offensive rates and opponent's weaknesses
-    burst_a = burst_rate_a * (1.0 - burst_resist_b) * 3.0  # Scaled by opponent weakness
-    pocket_a = pocket_rate_a * (1.0 - pocket_resist_b) * 3.0
-    extreme_a = extreme_rate_a * (1.0 - extreme_resist_b) * 5.0
+    burst_a = burst_rate_a * (1.0 - impact_resist_b) * 3.0  # Scaled by opponent weakness
+    pocket_a = pocket_rate_a * (1.0 - impact_resist_b) * 3.0
+    extreme_a = extreme_rate_a * (1.0 - impact_resist_b) * 5.0
     spin_a = spin_rate_a
 
     # Calculate outcome probabilities for B (when B wins)
-    burst_b = burst_rate_b * (1.0 - burst_resist_a) * 3.0
-    pocket_b = pocket_rate_b * (1.0 - pocket_resist_a) * 3.0
-    extreme_b = extreme_rate_b * (1.0 - extreme_resist_a) * 5.0
+    burst_b = burst_rate_b * (1.0 - impact_resist_a) * 3.0
+    pocket_b = pocket_rate_b * (1.0 - impact_resist_a) * 3.0
+    extreme_b = extreme_rate_b * (1.0 - impact_resist_a) * 5.0
     spin_b = spin_rate_b
 
     # Normalize A's outcomes

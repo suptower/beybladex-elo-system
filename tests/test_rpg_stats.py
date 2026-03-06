@@ -25,6 +25,7 @@ from rpg_stats import (
     STAMINA_WEIGHTS,
     CONTROL_WEIGHTS,
     META_IMPACT_WEIGHTS,
+    STAT_SCALE_ALPHA,
 )
 
 
@@ -68,6 +69,50 @@ class TestStatWeights:
         for weights in all_weights:
             for weight in weights.values():
                 assert weight > 0
+
+    def test_defense_weights_use_new_metrics(self):
+        """Defense weights should use the redesigned metric names."""
+        assert "impact_resistance" in DEFENSE_WEIGHTS
+        assert "defensive_conversion" in DEFENSE_WEIGHTS
+        assert "round_survival_rate" in DEFENSE_WEIGHTS
+        # Old correlated metrics should no longer exist
+        assert "burst_resistance" not in DEFENSE_WEIGHTS
+        assert "pocket_resistance" not in DEFENSE_WEIGHTS
+
+    def test_attack_weights_use_aggregated_metric(self):
+        """Attack weights should use aggregated aggressive_finish_rate, not individual finish types."""
+        assert "aggressive_finish_rate" in ATTACK_WEIGHTS
+        # Individual finish type metrics should not be in weights (they are stored
+        # in sub_metrics for context but not used in the weighted calculation)
+        assert "burst_finish_rate" not in ATTACK_WEIGHTS
+        assert "pocket_finish_rate" not in ATTACK_WEIGHTS
+        assert "extreme_finish_rate" not in ATTACK_WEIGHTS
+        assert "stadium_exit_finish_rate" not in ATTACK_WEIGHTS
+        assert "stadium_exit_resistance" not in DEFENSE_WEIGHTS
+        assert "extreme_resistance" not in DEFENSE_WEIGHTS
+
+    def test_control_weights_use_type_versatility(self):
+        """Control weights should use type_versatility instead of match_flow_stability."""
+        assert "type_versatility" in CONTROL_WEIGHTS
+        assert "match_flow_stability" not in CONTROL_WEIGHTS
+
+    def test_stat_scale_alpha_in_range(self):
+        """STAT_SCALE_ALPHA must be in (0, 1) to stretch the upper score range."""
+        assert 0.0 < STAT_SCALE_ALPHA < 1.0
+
+    def test_power_scaling_increases_midrange_scores(self):
+        """Power scaling with alpha < 1 should produce higher values than linear scaling."""
+        # For a mid-range percentile score (0.6), power scaling should give a higher
+        # final stat than the old linear formula
+        raw_score = 0.6
+        linear_result = raw_score * 5.0
+        scaled_result = 5.0 * (raw_score ** STAT_SCALE_ALPHA)
+        assert scaled_result > linear_result
+
+    def test_power_scaling_preserves_extremes(self):
+        """Power scaling should preserve 0 and 5 as endpoints."""
+        assert clamp(5.0 * (0.0 ** STAT_SCALE_ALPHA)) == 0.0
+        assert clamp(5.0 * (1.0 ** STAT_SCALE_ALPHA)) == 5.0
 
 
 class TestPercentileNormalize:
@@ -171,22 +216,25 @@ class TestCalculateAttackStat:
     def test_high_attack_metrics(self):
         """High attack metrics should produce high attack stat."""
         metrics = {
+            "aggressive_finish_rate": 1.0,  # 100% KO finishes
+            "offensive_point_efficiency": 2.0,
+            "opening_dominance": 0.8,
+            # Individual rates kept for archetype detection
             "burst_finish_rate": 0.5,
             "pocket_finish_rate": 0.3,
             "stadium_exit_finish_rate": 0.1,
-            "extreme_finish_rate": 0.2,
-            "offensive_point_efficiency": 2.0,
-            "opening_dominance": 0.8,
+            "extreme_finish_rate": 0.1,
         }
         all_metrics = [
             metrics,
             {
+                "aggressive_finish_rate": 0.2,
+                "offensive_point_efficiency": 1.0,
+                "opening_dominance": 0.2,
                 "burst_finish_rate": 0.1,
                 "pocket_finish_rate": 0.1,
                 "stadium_exit_finish_rate": 0.0,
                 "extreme_finish_rate": 0.0,
-                "offensive_point_efficiency": 1.0,
-                "opening_dominance": 0.2,
             },
         ]
         result = calculate_attack_stat(metrics, all_metrics)
@@ -195,22 +243,24 @@ class TestCalculateAttackStat:
     def test_low_attack_metrics(self):
         """Low attack metrics should produce low attack stat."""
         metrics = {
+            "aggressive_finish_rate": 0.0,  # No KO finishes
+            "offensive_point_efficiency": 1.0,
+            "opening_dominance": 0.0,
             "burst_finish_rate": 0.0,
             "pocket_finish_rate": 0.0,
             "stadium_exit_finish_rate": 0.0,
             "extreme_finish_rate": 0.0,
-            "offensive_point_efficiency": 1.0,
-            "opening_dominance": 0.0,
         }
         all_metrics = [
             metrics,
             {
+                "aggressive_finish_rate": 1.0,
+                "offensive_point_efficiency": 2.0,
+                "opening_dominance": 0.8,
                 "burst_finish_rate": 0.5,
                 "pocket_finish_rate": 0.3,
                 "stadium_exit_finish_rate": 0.1,
-                "extreme_finish_rate": 0.2,
-                "offensive_point_efficiency": 2.0,
-                "opening_dominance": 0.8,
+                "extreme_finish_rate": 0.1,
             },
         ]
         result = calculate_attack_stat(metrics, all_metrics)
@@ -219,16 +269,43 @@ class TestCalculateAttackStat:
     def test_stat_range(self):
         """Attack stat should be between 0 and 5."""
         metrics = {
+            "aggressive_finish_rate": 0.65,
+            "offensive_point_efficiency": 1.5,
+            "opening_dominance": 0.5,
             "burst_finish_rate": 0.3,
             "pocket_finish_rate": 0.2,
             "stadium_exit_finish_rate": 0.05,
             "extreme_finish_rate": 0.1,
-            "offensive_point_efficiency": 1.5,
-            "opening_dominance": 0.5,
         }
         all_metrics = [metrics]
         result = calculate_attack_stat(metrics, all_metrics)
         assert 0.0 <= result <= 5.0
+
+    def test_burst_specialist_not_penalised(self):
+        """A bey winning 100% via bursts should score as high as a mixed-finish bey."""
+        burst_specialist = {
+            "aggressive_finish_rate": 1.0,  # All wins are bursts
+            "offensive_point_efficiency": 1.5,
+            "opening_dominance": 0.6,
+            "burst_finish_rate": 1.0,
+            "pocket_finish_rate": 0.0,
+            "stadium_exit_finish_rate": 0.0,
+            "extreme_finish_rate": 0.0,
+        }
+        mixed_finisher = {
+            "aggressive_finish_rate": 1.0,  # Same total KO rate, but spread across types
+            "offensive_point_efficiency": 1.5,
+            "opening_dominance": 0.6,
+            "burst_finish_rate": 0.4,
+            "pocket_finish_rate": 0.3,
+            "stadium_exit_finish_rate": 0.1,
+            "extreme_finish_rate": 0.2,
+        }
+        all_metrics = [burst_specialist, mixed_finisher]
+        burst_score = calculate_attack_stat(burst_specialist, all_metrics)
+        mixed_score = calculate_attack_stat(mixed_finisher, all_metrics)
+        # Both have the same aggressive_finish_rate=1.0 so scores should be equal
+        assert abs(burst_score - mixed_score) < 0.01
 
 
 class TestCalculateDefenseStat:
@@ -237,20 +314,16 @@ class TestCalculateDefenseStat:
     def test_high_defense_metrics(self):
         """High defense metrics should produce high defense stat."""
         metrics = {
-            "burst_resistance": 1.0,
-            "pocket_resistance": 1.0,
-            "stadium_exit_resistance": 1.0,
-            "extreme_resistance": 1.0,
+            "impact_resistance": 1.0,
             "defensive_conversion": 0.8,
+            "round_survival_rate": 0.9,
         }
         all_metrics = [
             metrics,
             {
-                "burst_resistance": 0.5,
-                "pocket_resistance": 0.5,
-                "stadium_exit_resistance": 0.5,
-                "extreme_resistance": 0.5,
+                "impact_resistance": 0.2,
                 "defensive_conversion": 0.2,
+                "round_survival_rate": 0.3,
             },
         ]
         result = calculate_defense_stat(metrics, all_metrics)
@@ -259,11 +332,9 @@ class TestCalculateDefenseStat:
     def test_stat_range(self):
         """Defense stat should be between 0 and 5."""
         metrics = {
-            "burst_resistance": 0.7,
-            "pocket_resistance": 0.7,
-            "stadium_exit_resistance": 0.8,
-            "extreme_resistance": 0.8,
+            "impact_resistance": 0.6,
             "defensive_conversion": 0.5,
+            "round_survival_rate": 0.6,
         }
         all_metrics = [metrics]
         result = calculate_defense_stat(metrics, all_metrics)
@@ -311,14 +382,14 @@ class TestCalculateControlStat:
         metrics = {
             "volatility_inverse": 0.9,
             "first_contact_advantage": 0.9,
-            "match_flow_stability": 0.9,
+            "type_versatility": 0.7,
         }
         all_metrics = [
             metrics,
             {
                 "volatility_inverse": 0.3,
                 "first_contact_advantage": 0.3,
-                "match_flow_stability": 0.3,
+                "type_versatility": 0.2,
             },
         ]
         result = calculate_control_stat(metrics, all_metrics)
@@ -329,11 +400,26 @@ class TestCalculateControlStat:
         metrics = {
             "volatility_inverse": 0.5,
             "first_contact_advantage": 0.5,
-            "match_flow_stability": 0.5,
+            "type_versatility": 0.4,
         }
         all_metrics = [metrics]
         result = calculate_control_stat(metrics, all_metrics)
         assert 0.0 <= result <= 5.0
+
+    def test_type_versatility_beats_single_type_specialist(self):
+        """A bey that wins consistently across all types should outscore a type specialist."""
+        versatile = {
+            "volatility_inverse": 0.6,
+            "first_contact_advantage": 0.6,
+            "type_versatility": 0.6,  # Wins consistently across all types
+        }
+        specialist = {
+            "volatility_inverse": 0.6,
+            "first_contact_advantage": 0.6,
+            "type_versatility": 0.1,  # Only beats one type
+        }
+        all_metrics = [versatile, specialist]
+        assert calculate_control_stat(versatile, all_metrics) > calculate_control_stat(specialist, all_metrics)
 
 
 class TestCalculateMetaImpactStat:
@@ -403,17 +489,19 @@ class TestDetectArchetype:
         """Create default sub-metrics structure."""
         return {
             "attack": {
-                "burst_finish_rate": 0.2,
-                "pocket_finish_rate": 0.2,
-                "extreme_finish_rate": 0.1,
+                "aggressive_finish_rate": 0.5,
                 "offensive_point_efficiency": 1.5,
                 "opening_dominance": 0.5,
+                # Individual rates kept for archetype detection
+                "burst_finish_rate": 0.2,
+                "pocket_finish_rate": 0.2,
+                "stadium_exit_finish_rate": 0.0,
+                "extreme_finish_rate": 0.1,
             },
             "defense": {
-                "burst_resistance": 0.7,
-                "pocket_resistance": 0.7,
-                "extreme_resistance": 0.8,
+                "impact_resistance": 0.6,
                 "defensive_conversion": 0.5,
+                "round_survival_rate": 0.6,
             },
             "stamina": {
                 "spin_finish_win_rate": 0.3,
@@ -423,7 +511,7 @@ class TestDetectArchetype:
             "control": {
                 "volatility_inverse": 0.5,
                 "first_contact_advantage": 0.6,
-                "match_flow_stability": 0.7,
+                "type_versatility": 0.5,
             },
             "meta_impact": {
                 "elo_normalized": 0.5,
@@ -478,7 +566,7 @@ class TestDetectArchetype:
         stats = {"attack": 4.5, "defense": 1.5, "stamina": 2.0, "control": 2.0, "meta_impact": 3.0}
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["attack"]["burst_finish_rate"] = 0.5
-        sub_metrics["defense"]["burst_resistance"] = 0.4
+        sub_metrics["defense"]["impact_resistance"] = 0.4
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)
@@ -490,7 +578,7 @@ class TestDetectArchetype:
         """High defense stats should suggest a defense-category archetype."""
         stats = {"attack": 2.0, "defense": 4.5, "stamina": 2.5, "control": 3.0, "meta_impact": 2.5}
         sub_metrics = self._create_default_sub_metrics()
-        sub_metrics["defense"]["burst_resistance"] = 0.9
+        sub_metrics["defense"]["impact_resistance"] = 0.9
         sub_metrics["defense"]["defensive_conversion"] = 0.7
         sub_metrics["control"]["volatility_inverse"] = 0.8
         leaderboard_data = {"matches": 10}
@@ -520,7 +608,7 @@ class TestDetectArchetype:
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["control"]["volatility_inverse"] = 0.9
         sub_metrics["control"]["first_contact_advantage"] = 0.8
-        sub_metrics["control"]["match_flow_stability"] = 0.9
+        sub_metrics["control"]["type_versatility"] = 0.7
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)
@@ -555,7 +643,7 @@ class TestDetectArchetype:
         stats = {"attack": 4.0, "defense": 2.8, "stamina": 0.6, "control": 1.7, "meta_impact": 3.3}
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["attack"]["burst_finish_rate"] = 0.4
-        sub_metrics["defense"]["burst_resistance"] = 0.7
+        sub_metrics["defense"]["impact_resistance"] = 0.7
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)
@@ -570,7 +658,7 @@ class TestDetectArchetype:
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["stamina"]["spin_finish_win_rate"] = 0.5
         sub_metrics["stamina"]["long_round_win_rate"] = 0.6
-        sub_metrics["defense"]["burst_resistance"] = 0.8
+        sub_metrics["defense"]["impact_resistance"] = 0.8
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)
@@ -630,12 +718,12 @@ class TestDetectArchetype:
         assert result["archetype"] == "unknown"
         assert "reason" in result
 
-    def test_iron_wall_requires_high_defense_and_burst_resistance(self):
-        """Iron Wall should require defense > 2.5 and burst_resistance > 0.65."""
-        # Test with good defense and burst resistance, low stamina
+    def test_iron_wall_requires_high_defense_and_impact_resistance(self):
+        """Iron Wall should require defense > 2.5 and impact_resistance > 0.40."""
+        # Test with good defense and impact resistance, low stamina
         stats = {"attack": 2.4, "defense": 3.0, "stamina": 1.5, "control": 2.5, "meta_impact": 2.5}
         sub_metrics = self._create_default_sub_metrics()
-        sub_metrics["defense"]["burst_resistance"] = 0.8
+        sub_metrics["defense"]["impact_resistance"] = 0.8
         sub_metrics["control"]["volatility_inverse"] = 0.7
         leaderboard_data = {"matches": 10}
 
@@ -650,7 +738,7 @@ class TestDetectArchetype:
         stats = {"attack": 4.0, "defense": 2.5, "stamina": 1.0, "control": 2.0, "meta_impact": 3.0}
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["attack"]["burst_finish_rate"] = 0.4
-        sub_metrics["defense"]["burst_resistance"] = 0.5
+        sub_metrics["defense"]["impact_resistance"] = 0.5
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)
