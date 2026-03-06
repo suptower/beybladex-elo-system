@@ -1738,9 +1738,10 @@ function renderScoreDistribution() {
     });
 
     const arenaDisplay = arenaLabel || 'All arenas';
+    const safeArenaDisplay = escapeHtml(arenaDisplay);
     tableContainer.innerHTML = `
         <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:8px;">
-            Score shown as <strong>your score – opponent score</strong> (${arenaDisplay}, ${total} match${total !== 1 ? 'es' : ''})
+            Score shown as <strong>your score – opponent score</strong> (${safeArenaDisplay}, ${total} match${total !== 1 ? 'es' : ''})
         </p>
         <table class="data-table score-dist-table">
             <thead>
