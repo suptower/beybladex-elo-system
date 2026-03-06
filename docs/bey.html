@@ -480,7 +480,7 @@ async function loadData() {
             beyB: m.BeyB,
             scoreA: parseInt(m.ScoreA),
             scoreB: parseInt(m.ScoreB),
-            arena: m.arena || 'Xtreme',
+            arena: matchArenaMap[m.MatchID] || 'Xtreme',
             winner: parseInt(m.ScoreA) > parseInt(m.ScoreB) ? m.BeyA : m.BeyB
         }));
         matchesData = getMatchesForBey(allMatches, beyName);
