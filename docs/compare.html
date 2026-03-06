@@ -166,14 +166,6 @@
             </div>
         </div>
         
-        <!-- Part-Level Comparison -->
-        <div class="compare-parts-section" id="comparePartsSection" style="display: none;">
-            <h3>🔧 Part-Level Comparison</h3>
-            <div class="parts-comparison-grid" id="partsComparisonGrid">
-                <!-- Populated by JavaScript -->
-            </div>
-        </div>
-        
         <!-- Archetype Comparison -->
         <div class="compare-archetype-section" id="compareArchetypeSection" style="display: none;">
             <h3>🎭 Archetype Comparison</h3>
@@ -206,7 +198,6 @@ let selectedBeys = [];
 let currentSort = { column: 'rank', asc: true };
 let radarChart = null;
 let beysData = [];
-let partsStatsData = {};
 let beyCountersData = [];
 let eloHistoryData = [];
 let advancedLeaderboardData = [];
@@ -268,10 +259,9 @@ const subMetricNames = {
 async function loadData() {
     try {
         // Load all data in parallel
-        const [rpgResponse, beysResponse, partsResponse, countersResponse, historyResponse, advancedResponse] = await Promise.all([
+        const [rpgResponse, beysResponse, countersResponse, historyResponse, advancedResponse] = await Promise.all([
             fetch('data/analytics/rpg_stats.json'),
             fetch('data/beys/beys_data.json'),
-            fetch('data/analytics/parts_stats.json'),
             fetch('data/analytics/bey_counters.csv'),
             fetch('data/elo/elo_history.csv'),
             fetch('data/leaderboard/advanced_leaderboard.csv')
@@ -279,7 +269,6 @@ async function loadData() {
         
         rpgStatsData = await rpgResponse.json();
         beysData = await beysResponse.json();
-        partsStatsData = await partsResponse.json();
         
         // Parse CSV data
         const countersText = await countersResponse.text();
@@ -527,7 +516,6 @@ function renderCompareCards() {
     const leaderboardSection = document.getElementById('compareLeaderboardSection');
     const advancedSection = document.getElementById('compareAdvancedSection');
     const finishSection = document.getElementById('compareFinishSection');
-    const partsSection = document.getElementById('comparePartsSection');
     const archetypeSection = document.getElementById('compareArchetypeSection');
     const h2hSection = document.getElementById('compareH2HSection');
     
@@ -538,7 +526,6 @@ function renderCompareCards() {
         leaderboardSection.style.display = 'none';
         advancedSection.style.display = 'none';
         finishSection.style.display = 'none';
-        partsSection.style.display = 'none';
         archetypeSection.style.display = 'none';
         h2hSection.style.display = 'none';
         return;
@@ -548,7 +535,7 @@ function renderCompareCards() {
         const bey = rpgStatsData[name];
         const color = beyColors[idx];
         const beyInfo = beysData.find(b => b.blade === name);
-        const beyType = beyInfo?.type || partsStatsData.blades?.[name]?.type || 'Unknown';
+        const beyType = beyInfo?.type || 'Unknown';
         const safeType = sanitizeClassName(beyType);
         
         return `
@@ -599,9 +586,6 @@ function renderCompareCards() {
         finishSection.style.display = 'block';
         renderFinishComparison();
         
-        partsSection.style.display = 'block';
-        renderPartsComparison();
-        
         archetypeSection.style.display = 'block';
         renderArchetypeComparison();
         
@@ -613,7 +597,6 @@ function renderCompareCards() {
         leaderboardSection.style.display = 'none';
         advancedSection.style.display = 'none';
         finishSection.style.display = 'none';
-        partsSection.style.display = 'none';
         archetypeSection.style.display = 'none';
         h2hSection.style.display = 'none';
     }
@@ -996,125 +979,6 @@ function getBeyInfo(bladeName) {
     return beysData.find(b => b.blade === bladeName) || null;
 }
 
-// Render Parts Comparison
-function renderPartsComparison() {
-    const container = document.getElementById('partsComparisonGrid');
-    if (!container || selectedBeys.length < 2) return;
-    
-    const partsData = selectedBeys.map((name, idx) => {
-        const beyInfo = getBeyInfo(name);
-        const bladeStats = partsStatsData.blades?.[name] || {};
-        const ratchetStats = beyInfo?.ratchet ? partsStatsData.ratchets?.[beyInfo.ratchet] : null;
-        const bitStats = beyInfo?.bit ? partsStatsData.bits?.[beyInfo.bit] : null;
-        
-        return {
-            name,
-            color: beyColors[idx],
-            blade: {
-                name: name,
-                type: bladeStats.type || 'Unknown',
-                stats: bladeStats.stats || {}
-            },
-            ratchet: beyInfo?.ratchet ? {
-                name: beyInfo.ratchet,
-                stats: ratchetStats?.stats || {}
-            } : null,
-            bit: beyInfo?.bit ? {
-                name: beyInfo.bit,
-                category: bitStats?.category || 'Unknown',
-                stats: bitStats?.stats || {}
-            } : null
-        };
-    });
-    
-    // Build the parts comparison HTML
-    container.innerHTML = `
-        <div class="parts-category">
-            <h4>🔘 Blade Stats</h4>
-            <div class="parts-stats-grid">
-                ${renderPartStatComparison(partsData, 'blade', ['contact_power', 'spin_control', 'deflection_ability'])}
-            </div>
-        </div>
-        <div class="parts-category">
-            <h4>⚙️ Ratchet</h4>
-            <div class="parts-info-row">
-                ${partsData.map(p => `
-                    <div class="part-info-item" style="border-color: ${p.color.border}">
-                        <span class="part-name">${escapeHtml(p.name)}</span>
-                        <span class="part-value">${escapeHtml(p.ratchet?.name || 'Unknown')}</span>
-                    </div>
-                `).join('')}
-            </div>
-            ${partsData.some(p => p.ratchet?.stats) ? `
-            <div class="parts-stats-grid">
-                ${renderPartStatComparison(partsData, 'ratchet', ['burst_resistance', 'lock_stability', 'weight_efficiency'])}
-            </div>
-            ` : ''}
-        </div>
-        <div class="parts-category">
-            <h4>🎱 Bit</h4>
-            <div class="parts-info-row">
-                ${partsData.map(p => `
-                    <div class="part-info-item" style="border-color: ${p.color.border}">
-                        <span class="part-name">${escapeHtml(p.name)}</span>
-                        <span class="part-value">${escapeHtml(p.bit?.name || 'Unknown')}</span>
-                        ${p.bit?.category ? `<span class="part-category type-${sanitizeClassName(p.bit.category)}">${escapeHtml(p.bit.category)}</span>` : ''}
-                    </div>
-                `).join('')}
-            </div>
-            ${partsData.some(p => p.bit?.stats) ? `
-            <div class="parts-stats-grid">
-                ${renderPartStatComparison(partsData, 'bit', ['tip_control', 'speed_rating', 'stamina_output'])}
-            </div>
-            ` : ''}
-        </div>
-    `;
-}
-
-// Helper function to render part stat comparisons
-function renderPartStatComparison(partsData, partType, statKeys) {
-    const statLabels = {
-        contact_power: 'Contact Power',
-        spin_control: 'Spin Control',
-        deflection_ability: 'Deflection',
-        burst_resistance: 'Burst Resist',
-        lock_stability: 'Lock Stability',
-        weight_efficiency: 'Weight Eff.',
-        tip_control: 'Tip Control',
-        speed_rating: 'Speed',
-        stamina_output: 'Stamina Output'
-    };
-    
-    return statKeys.map(statKey => {
-        const values = partsData.map(p => ({
-            name: p.name,
-            value: p[partType]?.stats?.[statKey] || 0,
-            color: p.color
-        }));
-        
-        const maxValue = Math.max(...values.map(v => v.value));
-        const minValue = Math.min(...values.map(v => v.value));
-        const difference = maxValue - minValue;
-        
-        return `
-            <div class="part-stat-row">
-                <span class="part-stat-label">${statLabels[statKey] || statKey}</span>
-                <div class="part-stat-values">
-                    ${values.map(v => {
-                        const isWinner = v.value === maxValue && difference > 0.2;
-                        const isLoser = v.value === minValue && difference > 0.2;
-                        return `
-                            <span class="part-stat-value ${isWinner ? 'advantage' : ''} ${isLoser ? 'disadvantage' : ''}" style="color: ${v.color.border}">
-                                ${v.value > 0 ? v.value.toFixed(1) : '-'}
-                            </span>
-                        `;
-                    }).join('')}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
 // Render Archetype Comparison
 function renderArchetypeComparison() {
     const container = document.getElementById('archetypeComparisonGrid');
@@ -1129,8 +993,7 @@ function renderArchetypeComparison() {
     
     container.innerHTML = selectedBeys.map((name, idx) => {
         const beyInfo = getBeyInfo(name);
-        const bladeStats = partsStatsData.blades?.[name] || {};
-        const type = beyInfo?.type || bladeStats.type || 'Unknown';
+        const type = beyInfo?.type || 'Unknown';
         const typeInfo = typeDescriptions[type] || { emoji: '❓', desc: 'Unknown type', strengths: [], weaknesses: [] };
         const color = beyColors[idx];
         const safeType = sanitizeClassName(type);

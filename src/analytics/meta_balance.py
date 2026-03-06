@@ -34,7 +34,6 @@ RED = "\033[31m"
 # File paths
 ELO_HISTORY_CSV = "./docs/data/elo/elo_history.csv"
 BEYS_DATA_JSON = "./docs/data/beys/beys_data.json"
-PARTS_STATS_JSON = "./docs/data/analytics/parts_stats.json"
 ADVANCED_LEADERBOARD_CSV = "./docs/data/leaderboard/advanced_leaderboard.csv"
 META_BALANCE_OUTPUT_JSON = "./docs/data/analytics/meta_balance.json"
 

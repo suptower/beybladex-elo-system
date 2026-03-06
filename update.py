@@ -15,9 +15,7 @@ Pipeline Stages:
    - RPG Stats & Archetypes (rpg_stats.py)
    - Upset Analysis (upset_analysis.py)
    - Meta Balance (meta_balance.py)
-   - Synergy Heatmaps (synergy_heatmaps.py)
    - Bey Counters (counter_checker.py)
-   - Combo Explorer (combo_explorer.py)
    - Milestones (milestones.py)
    - Recommended Matches (recommended_matches.py)
    - Tournament Brackets (tournament_brackets.py)
@@ -59,9 +57,7 @@ SCRIPT_ADVANCED_STATS = "./src/analytics/advanced_stats.py"
 SCRIPT_RPG_STATS = "./src/analytics/rpg_stats.py"
 SCRIPT_UPSET_ANALYSIS = "./src/analytics/upset_analysis.py"
 SCRIPT_META_BALANCE = "./src/analytics/meta_balance.py"
-SCRIPT_SYNERGY_HEATMAPS = "./src/analytics/synergy_heatmaps.py"
 SCRIPT_COUNTER_CHECKER = "./src/analytics/counter_checker.py"
-SCRIPT_COMBO_EXPLORER = "./src/analytics/combo_explorer.py"
 SCRIPT_MILESTONES = "./src/analytics/milestones.py"
 SCRIPT_RECOMMENDED_MATCHES = "./src/analytics/recommended_matches.py"
 SCRIPT_TOURNAMENT_BRACKETS = "./src/analytics/tournament_brackets.py"
@@ -324,14 +320,6 @@ def run_analysis_modules(verbose=False):
     )
     results.append(("Meta Balance", success, duration))
 
-    # Synergy Heatmaps
-    success, duration = run_script(
-        SCRIPT_SYNERGY_HEATMAPS,
-        "Synergy Heatmaps",
-        verbose=verbose
-    )
-    results.append(("Synergy Heatmaps", success, duration))
-
     # Bey Counters
     success, duration = run_script(
         SCRIPT_COUNTER_CHECKER,
@@ -339,14 +327,6 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Bey Counters", success, duration))
-
-    # Combo Explorer (depends on beys_data, parts_stats, synergy_data, rpg_stats)
-    success, duration = run_script(
-        SCRIPT_COMBO_EXPLORER,
-        "Combo Explorer Data",
-        verbose=verbose
-    )
-    results.append(("Combo Explorer", success, duration))
 
     # Milestones (depends on matches, rounds, elo_history, elo_timeseries)
     success, duration = run_script(
