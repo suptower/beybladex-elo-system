@@ -168,6 +168,21 @@
                     </div>
                 </div>
             </details>
+
+            <!-- Finish Type Distribution Section (collapsible) -->
+            <details class="profile-section-details" id="finishTypeDistSection" style="display: none;">
+                <summary class="section-summary">🏁 Finish Type Distribution</summary>
+                <div id="finishTypeDistContent">
+                    <div class="score-dist-bey-layout">
+                        <div class="score-dist-bey-chart-container">
+                            <canvas id="beyFinishTypeChart"></canvas>
+                        </div>
+                        <div id="beyFinishTypeTable" class="score-dist-bey-table-container">
+                            <div class="loading-placeholder">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </details>
             
             <!-- History/Timeline Section -->
             <div class="profile-section" id="historySection" style="display: none;">
@@ -324,6 +339,8 @@ const beyName = params.get('name');
 let beyData = null;
 let leaderboardData = null;
 let matchesData = [];
+let matchArenaMap = {};
+let matchesWithRoundsData = [];
 let tournamentsData = [];
 let eloTimeseriesData = [];
 let positionTimeseriesData = [];
@@ -449,17 +466,34 @@ async function loadData() {
         // Load matches data
         const matchesResponse = await fetch('data/matches/matches.csv');
         const matchesText = await matchesResponse.text();
-        const allMatches = parseCSV(matchesText).map(m => ({
+        const allMatchesRaw = parseCSV(matchesText);
+        // Build arena lookup map (match_id string -> normalized arena)
+        allMatchesRaw.forEach(m => {
+            const raw = m.arena || 'Xtreme';
+            // Normalize 'DropAttack' variant to 'Drop Attack'
+            matchArenaMap[m.MatchID] = raw === 'DropAttack' ? 'Drop Attack' : raw;
+        });
+        const allMatches = allMatchesRaw.map(m => ({
             matchId: parseInt(m.MatchID.slice(1).replace(/^0+/, ''), 10),
             date: m.Date,
             beyA: m.BeyA,
             beyB: m.BeyB,
             scoreA: parseInt(m.ScoreA),
             scoreB: parseInt(m.ScoreB),
-            arena: m.arena || 'Xtreme',
+            arena: matchArenaMap[m.MatchID] || 'Xtreme',
             winner: parseInt(m.ScoreA) > parseInt(m.ScoreB) ? m.BeyA : m.BeyB
         }));
         matchesData = getMatchesForBey(allMatches, beyName);
+        
+        // Load matches with rounds data (for finish type distribution)
+        try {
+            const roundsResponse = await fetch('data/matches/matches_with_rounds.json');
+            const roundsJson = await roundsResponse.json();
+            matchesWithRoundsData = roundsJson.matches || [];
+        } catch (e) {
+            console.warn('Could not load rounds data:', e);
+            matchesWithRoundsData = [];
+        }
         
         // Load tournaments data
         try {
@@ -629,6 +663,9 @@ function renderProfile() {
 
     // Render score distribution
     renderScoreDistribution();
+
+    // Render finish type distribution
+    renderFinishTypeDistribution();
     
     // Setup dark mode observer for plots
     setupPlotDarkModeObserver();
@@ -1701,9 +1738,10 @@ function renderScoreDistribution() {
     });
 
     const arenaDisplay = arenaLabel || 'All arenas';
+    const safeArenaDisplay = escapeHtml(arenaDisplay);
     tableContainer.innerHTML = `
         <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:8px;">
-            Score shown as <strong>your score – opponent score</strong> (${arenaDisplay}, ${total} match${total !== 1 ? 'es' : ''})
+            Score shown as <strong>your score – opponent score</strong> (${safeArenaDisplay}, ${total} match${total !== 1 ? 'es' : ''})
         </p>
         <table class="data-table score-dist-table">
             <thead>
@@ -1731,7 +1769,184 @@ function renderScoreDistribution() {
     `;
 }
 
-// Setup dark mode observer for plot images and interactive plots
+// Render per-bey finish type distribution chart and table
+let beyFinishTypeChart = null;
+
+function renderFinishTypeDistribution() {
+    const section = document.getElementById('finishTypeDistSection');
+    const tableContainer = document.getElementById('beyFinishTypeTable');
+    const ctx = document.getElementById('beyFinishTypeChart');
+    if (!section || !tableContainer || !ctx) return;
+
+    if (!matchesWithRoundsData || matchesWithRoundsData.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    const normalizedBeyName = normalizeBeyName(beyName);
+
+    // Arena filter label
+    const arenaLabel = currentArena === 'xtreme' ? 'Xtreme' :
+                       currentArena === 'drop_attack' ? 'Drop Attack' :
+                       currentArena === 'combined' ? null : currentArena;
+
+    // Filter rounds data to matches involving this bey, then by arena
+    const beyMatches = matchesWithRoundsData.filter(m =>
+        normalizeBeyName(m.bey_a) === normalizedBeyName ||
+        normalizeBeyName(m.bey_b) === normalizedBeyName
+    );
+
+    const filteredMatches = arenaLabel
+        ? beyMatches.filter(m => (matchArenaMap[m.match_id] || 'Xtreme') === arenaLabel)
+        : beyMatches;
+
+    if (filteredMatches.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    // Count finish types for wins and losses
+    const FINISH_TYPES = ['spin', 'burst', 'extreme', 'pocket', 'stadium_exit'];
+    const winsByType = {};
+    const lossesByType = {};
+    FINISH_TYPES.forEach(t => { winsByType[t] = 0; lossesByType[t] = 0; });
+    let totalWinRounds = 0;
+    let totalLossRounds = 0;
+
+    filteredMatches.forEach(match => {
+        (match.rounds || []).forEach(round => {
+            const ft = round.finish_type;
+            if (!ft || !FINISH_TYPES.includes(ft)) return;
+            if (normalizeBeyName(round.winner) === normalizedBeyName) {
+                winsByType[ft]++;
+                totalWinRounds++;
+            } else {
+                lossesByType[ft]++;
+                totalLossRounds++;
+            }
+        });
+    });
+
+    // Only include types that have at least one round
+    const activeTypes = FINISH_TYPES.filter(t => winsByType[t] > 0 || lossesByType[t] > 0);
+
+    if (activeTypes.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    const typeLabels = {
+        spin: '💨 Spin',
+        burst: '💥 Burst',
+        extreme: '⚡ Xtreme',
+        pocket: '🕳️ Pocket',
+        stadium_exit: '🚪 Stadium Exit'
+    };
+
+    const labels = activeTypes.map(t => typeLabels[t] || t);
+    const winsData = activeTypes.map(t => winsByType[t]);
+    const lossesData = activeTypes.map(t => lossesByType[t]);
+
+    if (beyFinishTypeChart) {
+        beyFinishTypeChart.destroy();
+        beyFinishTypeChart = null;
+    }
+
+    const isDark = document.body.classList.contains('dark');
+    const textColor = isDark ? '#e0e0e0' : '#333';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+    beyFinishTypeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Wins',
+                    data: winsData,
+                    backgroundColor: 'rgba(34,197,94,0.8)',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Losses',
+                    data: lossesData,
+                    backgroundColor: 'rgba(239,68,68,0.8)',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, labels: { color: textColor } },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipCtx) {
+                            const isWin = tooltipCtx.datasetIndex === 0;
+                            const total = isWin ? totalWinRounds : totalLossRounds;
+                            const count = tooltipCtx.parsed.y;
+                            const pct = total > 0 ? Math.round(count / total * 1000) / 10 : 0;
+                            return `${count} round${count !== 1 ? 's' : ''} (${pct}% of ${isWin ? 'wins' : 'losses'})`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor }
+                },
+                y: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor },
+                    title: { display: true, text: 'Rounds', color: textColor },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const totalRounds = totalWinRounds + totalLossRounds;
+    const arenaDisplay = arenaLabel || 'All arenas';
+    const safeArenaDisplay = escapeHtml(arenaDisplay);
+    tableContainer.innerHTML = `
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:8px;">
+            Rounds by finish type — <strong>wins</strong> = rounds won using that finish; <strong>losses</strong> = rounds lost to that finish (${safeArenaDisplay}, ${totalRounds} round${totalRounds !== 1 ? 's' : ''})
+        </p>
+        <table class="data-table score-dist-table">
+            <thead>
+                <tr><th>Finish Type</th><th>Wins</th><th>Win %</th><th>Losses</th><th>Loss %</th></tr>
+            </thead>
+            <tbody>
+                ${activeTypes.map(t => {
+                    const wins = winsByType[t];
+                    const losses = lossesByType[t];
+                    const winPct = totalWinRounds > 0 ? Math.round(wins / totalWinRounds * 1000) / 10 : 0;
+                    const lossPct = totalLossRounds > 0 ? Math.round(losses / totalLossRounds * 1000) / 10 : 0;
+                    return `<tr>
+                        <td><strong>${typeLabels[t] || t}</strong></td>
+                        <td><span style="color:#16a34a;font-weight:bold;">${wins}</span></td>
+                        <td>${winPct}%</td>
+                        <td><span style="color:#dc2626;font-weight:bold;">${losses}</span></td>
+                        <td>${lossPct}%</td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong style="color:#16a34a;">${totalWinRounds}</strong></td>
+                    <td><strong>${totalWinRounds > 0 ? '100%' : '0%'}</strong></td>
+                    <td><strong style="color:#dc2626;">${totalLossRounds}</strong></td>
+                    <td><strong>${totalLossRounds > 0 ? '100%' : '0%'}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    `;
+}
 function setupPlotDarkModeObserver() {
     const eloPlotFrame = document.getElementById('eloPlotFrame');
     const eloPlot = document.getElementById('eloPlot');
@@ -1781,6 +1996,10 @@ function setupPlotDarkModeObserver() {
             const kfFilename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
             kfactorPlot.src = kfBasePath + kfFilename;
         }
+
+        // Re-render Chart.js charts so axis/legend colors update with theme
+        renderScoreDistribution();
+        renderFinishTypeDistribution();
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 }
