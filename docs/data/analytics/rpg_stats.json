@@ -4,7 +4,7 @@
       "attack": 3.27,
       "defense": 4.15,
       "stamina": 3.64,
-      "control": 3.47,
+      "control": 4.32,
       "meta_impact": 3.4
     },
     "sub_metrics": {
@@ -30,7 +30,7 @@
       "control": {
         "volatility_inverse": 0.3969,
         "first_contact_advantage": 0.8182,
-        "match_flow_stability": 0.8632
+        "type_versatility": 0.5817
       },
       "meta_impact": {
         "elo_normalized": 1.0,
@@ -46,23 +46,23 @@
       "matches": 15
     },
     "archetype": {
-      "id": "spin_tank",
-      "name": "Spin Tank",
-      "description": "High stamina + high defense, wins long rounds consistently",
-      "category": "stamina",
-      "icon": "\ud83d\udd0b",
-      "color": "#14b8a6",
-      "confidence": 0.578,
+      "id": "tempo_controller",
+      "name": "Tempo Controller",
+      "description": "High Control, stable flow, consistency-focused",
+      "category": "control",
+      "icon": "\ud83c\udfbc",
+      "color": "#f59e0b",
+      "confidence": 0.483,
       "candidates": [
+        {
+          "archetype": "tempo_controller",
+          "score": 0.738,
+          "name": "Tempo Controller"
+        },
         {
           "archetype": "spin_tank",
           "score": 0.718,
           "name": "Spin Tank"
-        },
-        {
-          "archetype": "tempo_controller",
-          "score": 0.645,
-          "name": "Tempo Controller"
         },
         {
           "archetype": "berserker",
@@ -77,7 +77,7 @@
       "attack": 4.52,
       "defense": 4.65,
       "stamina": 1.68,
-      "control": 3.93,
+      "control": 4.25,
       "meta_impact": 4.11
     },
     "sub_metrics": {
@@ -103,7 +103,7 @@
       "control": {
         "volatility_inverse": 0.3743,
         "first_contact_advantage": 0.8,
-        "match_flow_stability": 0.9177
+        "type_versatility": 0.6285
       },
       "meta_impact": {
         "elo_normalized": 0.9549,
@@ -125,11 +125,11 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.501,
+      "confidence": 0.593,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.686,
+          "score": 0.721,
           "name": "Tempo Controller"
         },
         {
@@ -150,7 +150,7 @@
       "attack": 4.74,
       "defense": 4.91,
       "stamina": 1.86,
-      "control": 2.48,
+      "control": 3.89,
       "meta_impact": 4.27
     },
     "sub_metrics": {
@@ -176,7 +176,7 @@
       "control": {
         "volatility_inverse": 0.1668,
         "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.7235
+        "type_versatility": 0.7354
       },
       "meta_impact": {
         "elo_normalized": 0.8759,
@@ -211,9 +211,9 @@
           "name": "Counter Shield"
         },
         {
-          "archetype": "berserker",
-          "score": 0.659,
-          "name": "Berserker"
+          "archetype": "tempo_controller",
+          "score": 0.67,
+          "name": "Tempo Controller"
         }
       ]
     }
@@ -223,7 +223,7 @@
       "attack": 3.33,
       "defense": 3.77,
       "stamina": 3.22,
-      "control": 4.28,
+      "control": 4.32,
       "meta_impact": 4.31
     },
     "sub_metrics": {
@@ -249,7 +249,7 @@
       "control": {
         "volatility_inverse": 0.4115,
         "first_contact_advantage": 0.9474,
-        "match_flow_stability": 0.9098
+        "type_versatility": 0.4889
       },
       "meta_impact": {
         "elo_normalized": 0.8308,
@@ -271,11 +271,11 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.546,
+      "confidence": 0.557,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.763,
+          "score": 0.768,
           "name": "Tempo Controller"
         },
         {
@@ -296,7 +296,7 @@
       "attack": 2.77,
       "defense": 2.8,
       "stamina": 4.01,
-      "control": 3.34,
+      "control": 3.83,
       "meta_impact": 4.05
     },
     "sub_metrics": {
@@ -322,7 +322,7 @@
       "control": {
         "volatility_inverse": 0.3075,
         "first_contact_advantage": 0.875,
-        "match_flow_stability": 0.9007
+        "type_versatility": 0.5645
       },
       "meta_impact": {
         "elo_normalized": 0.8083,
@@ -338,14 +338,19 @@
       "matches": 29
     },
     "archetype": {
-      "id": "spin_tank",
-      "name": "Spin Tank",
-      "description": "High stamina + high defense, wins long rounds consistently",
-      "category": "stamina",
-      "icon": "\ud83d\udd0b",
-      "color": "#14b8a6",
-      "confidence": 0.456,
+      "id": "tempo_controller",
+      "name": "Tempo Controller",
+      "description": "High Control, stable flow, consistency-focused",
+      "category": "control",
+      "icon": "\ud83c\udfbc",
+      "color": "#f59e0b",
+      "confidence": 0.423,
       "candidates": [
+        {
+          "archetype": "tempo_controller",
+          "score": 0.673,
+          "name": "Tempo Controller"
+        },
         {
           "archetype": "spin_tank",
           "score": 0.664,
@@ -355,11 +360,6 @@
           "archetype": "meta_anchor",
           "score": 0.634,
           "name": "Meta Anchor"
-        },
-        {
-          "archetype": "tempo_controller",
-          "score": 0.619,
-          "name": "Tempo Controller"
         }
       ]
     }
@@ -369,7 +369,7 @@
       "attack": 3.85,
       "defense": 3.77,
       "stamina": 3.08,
-      "control": 2.7,
+      "control": 3.82,
       "meta_impact": 3.58
     },
     "sub_metrics": {
@@ -395,7 +395,7 @@
       "control": {
         "volatility_inverse": 0.2378,
         "first_contact_advantage": 0.9333,
-        "match_flow_stability": 0.8589
+        "type_versatility": 0.5973
       },
       "meta_impact": {
         "elo_normalized": 0.8008,
@@ -417,22 +417,22 @@
       "category": "balance",
       "icon": "\u26a1",
       "color": "#8b5cf6",
-      "confidence": 0.534,
+      "confidence": 0.538,
       "candidates": [
         {
           "archetype": "adaptive_fighter",
-          "score": 0.716,
+          "score": 0.72,
           "name": "Adaptive Fighter"
+        },
+        {
+          "archetype": "tempo_controller",
+          "score": 0.666,
+          "name": "Tempo Controller"
         },
         {
           "archetype": "spin_tank",
           "score": 0.664,
           "name": "Spin Tank"
-        },
-        {
-          "archetype": "berserker",
-          "score": 0.571,
-          "name": "Berserker"
         }
       ]
     }
@@ -442,7 +442,7 @@
       "attack": 2.82,
       "defense": 3.8,
       "stamina": 3.8,
-      "control": 3.3,
+      "control": 3.62,
       "meta_impact": 4.38
     },
     "sub_metrics": {
@@ -468,7 +468,7 @@
       "control": {
         "volatility_inverse": 0.1993,
         "first_contact_advantage": 0.8462,
-        "match_flow_stability": 0.9177
+        "type_versatility": 0.5475
       },
       "meta_impact": {
         "elo_normalized": 0.7932,
@@ -490,7 +490,7 @@
       "category": "stamina",
       "icon": "\ud83d\udd0b",
       "color": "#14b8a6",
-      "confidence": 0.526,
+      "confidence": 0.505,
       "candidates": [
         {
           "archetype": "spin_tank",
@@ -499,7 +499,7 @@
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.683,
+          "score": 0.694,
           "name": "Adaptive Fighter"
         },
         {
@@ -515,7 +515,7 @@
       "attack": 3.87,
       "defense": 3.98,
       "stamina": 3.4,
-      "control": 3.78,
+      "control": 4.38,
       "meta_impact": 3.42
     },
     "sub_metrics": {
@@ -541,7 +541,7 @@
       "control": {
         "volatility_inverse": 0.8092,
         "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.775
+        "type_versatility": 0.4688
       },
       "meta_impact": {
         "elo_normalized": 0.7406,
@@ -563,11 +563,11 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.718,
+      "confidence": 0.889,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.818,
+          "score": 0.884,
           "name": "Tempo Controller"
         },
         {
@@ -588,7 +588,7 @@
       "attack": 3.55,
       "defense": 3.8,
       "stamina": 3.68,
-      "control": 3.69,
+      "control": 3.44,
       "meta_impact": 3.94
     },
     "sub_metrics": {
@@ -614,7 +614,7 @@
       "control": {
         "volatility_inverse": 0.2904,
         "first_contact_advantage": 0.9375,
-        "match_flow_stability": 0.9235
+        "type_versatility": 0.4405
       },
       "meta_impact": {
         "elo_normalized": 0.7218,
@@ -636,11 +636,11 @@
       "category": "balance",
       "icon": "\u26a1",
       "color": "#8b5cf6",
-      "confidence": 0.531,
+      "confidence": 0.5,
       "candidates": [
         {
           "archetype": "adaptive_fighter",
-          "score": 0.756,
+          "score": 0.744,
           "name": "Adaptive Fighter"
         },
         {
@@ -650,7 +650,7 @@
         },
         {
           "archetype": "tempo_controller",
-          "score": 0.666,
+          "score": 0.639,
           "name": "Tempo Controller"
         }
       ]
@@ -661,7 +661,7 @@
       "attack": 3.81,
       "defense": 4.18,
       "stamina": 2.09,
-      "control": 3.12,
+      "control": 3.62,
       "meta_impact": 3.51
     },
     "sub_metrics": {
@@ -687,7 +687,7 @@
       "control": {
         "volatility_inverse": 0.3815,
         "first_contact_advantage": 0.6,
-        "match_flow_stability": 0.886
+        "type_versatility": 0.4875
       },
       "meta_impact": {
         "elo_normalized": 0.703,
@@ -709,11 +709,11 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.438,
+      "confidence": 0.581,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.559,
+          "score": 0.614,
           "name": "Tempo Controller"
         },
         {
@@ -734,7 +734,7 @@
       "attack": 2.96,
       "defense": 3.64,
       "stamina": 3.99,
-      "control": 2.84,
+      "control": 3.43,
       "meta_impact": 3.6
     },
     "sub_metrics": {
@@ -760,7 +760,7 @@
       "control": {
         "volatility_inverse": 0.3379,
         "first_contact_advantage": 0.6923,
-        "match_flow_stability": 0.8906
+        "type_versatility": 0.4996
       },
       "meta_impact": {
         "elo_normalized": 0.6842,
@@ -782,7 +782,7 @@
       "category": "stamina",
       "icon": "\ud83d\udd0b",
       "color": "#14b8a6",
-      "confidence": 0.613,
+      "confidence": 0.564,
       "candidates": [
         {
           "archetype": "spin_tank",
@@ -791,13 +791,13 @@
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.648,
+          "score": 0.672,
           "name": "Adaptive Fighter"
         },
         {
-          "archetype": "meta_anchor",
-          "score": 0.53,
-          "name": "Meta Anchor"
+          "archetype": "tempo_controller",
+          "score": 0.6,
+          "name": "Tempo Controller"
         }
       ]
     }
@@ -807,7 +807,7 @@
       "attack": 2.8,
       "defense": 3.66,
       "stamina": 3.44,
-      "control": 3.04,
+      "control": 3.27,
       "meta_impact": 3.9
     },
     "sub_metrics": {
@@ -833,7 +833,7 @@
       "control": {
         "volatility_inverse": 0.3482,
         "first_contact_advantage": 0.5833,
-        "match_flow_stability": 0.9022
+        "type_versatility": 0.4833
       },
       "meta_impact": {
         "elo_normalized": 0.6842,
@@ -855,11 +855,11 @@
       "category": "balance",
       "icon": "\u26a1",
       "color": "#8b5cf6",
-      "confidence": 0.415,
+      "confidence": 0.435,
       "candidates": [
         {
           "archetype": "adaptive_fighter",
-          "score": 0.683,
+          "score": 0.69,
           "name": "Adaptive Fighter"
         },
         {
@@ -880,7 +880,7 @@
       "attack": 4.05,
       "defense": 3.07,
       "stamina": 2.85,
-      "control": 3.18,
+      "control": 2.95,
       "meta_impact": 3.85
     },
     "sub_metrics": {
@@ -906,7 +906,7 @@
       "control": {
         "volatility_inverse": 0.2571,
         "first_contact_advantage": 0.6923,
-        "match_flow_stability": 0.941
+        "type_versatility": 0.4425
       },
       "meta_impact": {
         "elo_normalized": 0.6767,
@@ -941,9 +941,9 @@
           "name": "Spin Tank"
         },
         {
-          "archetype": "tempo_controller",
-          "score": 0.553,
-          "name": "Tempo Controller"
+          "archetype": "meta_anchor",
+          "score": 0.548,
+          "name": "Meta Anchor"
         }
       ]
     }
@@ -953,7 +953,7 @@
       "attack": 2.3,
       "defense": 3.17,
       "stamina": 4.17,
-      "control": 4.14,
+      "control": 3.96,
       "meta_impact": 3.78
     },
     "sub_metrics": {
@@ -979,7 +979,7 @@
       "control": {
         "volatility_inverse": 0.3576,
         "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.934
+        "type_versatility": 0.4777
       },
       "meta_impact": {
         "elo_normalized": 0.6466,
@@ -1001,11 +1001,11 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.502,
+      "confidence": 0.451,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.745,
+          "score": 0.725,
           "name": "Tempo Controller"
         },
         {
@@ -1026,7 +1026,7 @@
       "attack": 3.3,
       "defense": 3.74,
       "stamina": 2.79,
-      "control": 2.55,
+      "control": 3.07,
       "meta_impact": 3.87
     },
     "sub_metrics": {
@@ -1052,7 +1052,7 @@
       "control": {
         "volatility_inverse": 0.346,
         "first_contact_advantage": 0.5714,
-        "match_flow_stability": 0.8827
+        "type_versatility": 0.4447
       },
       "meta_impact": {
         "elo_normalized": 0.6429,
@@ -1074,7 +1074,7 @@
       "category": "balance",
       "icon": "\u2b50",
       "color": "#eab308",
-      "confidence": 0.467,
+      "confidence": 0.45,
       "candidates": [
         {
           "archetype": "meta_anchor",
@@ -1083,7 +1083,7 @@
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.668,
+          "score": 0.676,
           "name": "Adaptive Fighter"
         },
         {
@@ -1099,7 +1099,7 @@
       "attack": 1.41,
       "defense": 4.49,
       "stamina": 4.12,
-      "control": 3.51,
+      "control": 4.16,
       "meta_impact": 4.02
     },
     "sub_metrics": {
@@ -1125,7 +1125,7 @@
       "control": {
         "volatility_inverse": 0.3695,
         "first_contact_advantage": 0.875,
-        "match_flow_stability": 0.8778
+        "type_versatility": 0.5153
       },
       "meta_impact": {
         "elo_normalized": 0.6128,
@@ -1161,7 +1161,7 @@
         },
         {
           "archetype": "tempo_controller",
-          "score": 0.653,
+          "score": 0.725,
           "name": "Tempo Controller"
         }
       ]
@@ -1172,7 +1172,7 @@
       "attack": 4.68,
       "defense": 2.77,
       "stamina": 1.84,
-      "control": 1.53,
+      "control": 3.03,
       "meta_impact": 2.46
     },
     "sub_metrics": {
@@ -1198,7 +1198,7 @@
       "control": {
         "volatility_inverse": 0.0526,
         "first_contact_advantage": 0.6667,
-        "match_flow_stability": 0.7
+        "type_versatility": 0.5
       },
       "meta_impact": {
         "elo_normalized": 0.6015,
@@ -1233,9 +1233,9 @@
           "name": "Glass Cannon"
         },
         {
-          "archetype": "chaser",
-          "score": 0.342,
-          "name": "Chaser"
+          "archetype": "tempo_controller",
+          "score": 0.48,
+          "name": "Tempo Controller"
         }
       ]
     }
@@ -1245,7 +1245,7 @@
       "attack": 2.6,
       "defense": 2.65,
       "stamina": 4.32,
-      "control": 2.98,
+      "control": 3.3,
       "meta_impact": 3.4
     },
     "sub_metrics": {
@@ -1271,7 +1271,7 @@
       "control": {
         "volatility_inverse": 0.3653,
         "first_contact_advantage": 0.7333,
-        "match_flow_stability": 0.8486
+        "type_versatility": 0.4
       },
       "meta_impact": {
         "elo_normalized": 0.5977,
@@ -1306,9 +1306,9 @@
           "name": "Endurance Core"
         },
         {
-          "archetype": "meta_anchor",
-          "score": 0.463,
-          "name": "Meta Anchor"
+          "archetype": "tempo_controller",
+          "score": 0.601,
+          "name": "Tempo Controller"
         }
       ]
     }
@@ -1318,7 +1318,7 @@
       "attack": 3.43,
       "defense": 3.03,
       "stamina": 3.21,
-      "control": 4.04,
+      "control": 3.36,
       "meta_impact": 3.52
     },
     "sub_metrics": {
@@ -1344,7 +1344,7 @@
       "control": {
         "volatility_inverse": 0.3781,
         "first_contact_advantage": 0.8182,
-        "match_flow_stability": 0.921
+        "type_versatility": 0.3686
       },
       "meta_impact": {
         "elo_normalized": 0.5338,
@@ -1360,28 +1360,28 @@
       "matches": 19
     },
     "archetype": {
-      "id": "tempo_controller",
-      "name": "Tempo Controller",
-      "description": "High Control, stable flow, consistency-focused",
-      "category": "control",
-      "icon": "\ud83c\udfbc",
-      "color": "#f59e0b",
-      "confidence": 0.585,
+      "id": "adaptive_fighter",
+      "name": "Adaptive Fighter",
+      "description": "Moderate in all stats, excels in matchup spread",
+      "category": "balance",
+      "icon": "\u26a1",
+      "color": "#8b5cf6",
+      "confidence": 0.591,
       "candidates": [
         {
+          "archetype": "adaptive_fighter",
+          "score": 0.71,
+          "name": "Adaptive Fighter"
+        },
+        {
           "archetype": "tempo_controller",
-          "score": 0.703,
+          "score": 0.628,
           "name": "Tempo Controller"
         },
         {
           "archetype": "spin_tank",
           "score": 0.621,
           "name": "Spin Tank"
-        },
-        {
-          "archetype": "meta_anchor",
-          "score": 0.546,
-          "name": "Meta Anchor"
         }
       ]
     }
@@ -1391,7 +1391,7 @@
       "attack": 2.24,
       "defense": 4.24,
       "stamina": 4.18,
-      "control": 2.5,
+      "control": 3.21,
       "meta_impact": 3.6
     },
     "sub_metrics": {
@@ -1417,7 +1417,7 @@
       "control": {
         "volatility_inverse": 0.3482,
         "first_contact_advantage": 0.6923,
-        "match_flow_stability": 0.8086
+        "type_versatility": 0.4283
       },
       "meta_impact": {
         "elo_normalized": 0.5338,
@@ -1452,9 +1452,9 @@
           "name": "Meta Anchor"
         },
         {
-          "archetype": "glass_cannon",
-          "score": 0.0,
-          "name": "Glass Cannon"
+          "archetype": "tempo_controller",
+          "score": 0.579,
+          "name": "Tempo Controller"
         }
       ]
     }
@@ -1464,7 +1464,7 @@
       "attack": 3.05,
       "defense": 3.04,
       "stamina": 3.34,
-      "control": 3.07,
+      "control": 3.14,
       "meta_impact": 2.95
     },
     "sub_metrics": {
@@ -1490,7 +1490,7 @@
       "control": {
         "volatility_inverse": 0.2596,
         "first_contact_advantage": 0.6,
-        "match_flow_stability": 0.9456
+        "type_versatility": 0.5
       },
       "meta_impact": {
         "elo_normalized": 0.5338,
@@ -1512,11 +1512,11 @@
       "category": "balance",
       "icon": "\u26a1",
       "color": "#8b5cf6",
-      "confidence": 0.512,
+      "confidence": 0.518,
       "candidates": [
         {
           "archetype": "adaptive_fighter",
-          "score": 0.669,
+          "score": 0.671,
           "name": "Adaptive Fighter"
         },
         {
@@ -1526,7 +1526,7 @@
         },
         {
           "archetype": "tempo_controller",
-          "score": 0.523,
+          "score": 0.53,
           "name": "Tempo Controller"
         }
       ]
@@ -1537,7 +1537,7 @@
       "attack": 1.65,
       "defense": 3.39,
       "stamina": 4.79,
-      "control": 3.66,
+      "control": 3.5,
       "meta_impact": 3.63
     },
     "sub_metrics": {
@@ -1563,7 +1563,7 @@
       "control": {
         "volatility_inverse": 0.3982,
         "first_contact_advantage": 0.7333,
-        "match_flow_stability": 0.8938
+        "type_versatility": 0.3994
       },
       "meta_impact": {
         "elo_normalized": 0.5188,
@@ -1585,7 +1585,7 @@
       "category": "stamina",
       "icon": "\ud83d\udd0b",
       "color": "#14b8a6",
-      "confidence": 0.797,
+      "confidence": 0.832,
       "candidates": [
         {
           "archetype": "spin_tank",
@@ -1594,7 +1594,7 @@
         },
         {
           "archetype": "tempo_controller",
-          "score": 0.649,
+          "score": 0.631,
           "name": "Tempo Controller"
         },
         {
@@ -1610,7 +1610,7 @@
       "attack": 2.61,
       "defense": 4.21,
       "stamina": 3.03,
-      "control": 2.55,
+      "control": 2.58,
       "meta_impact": 2.97
     },
     "sub_metrics": {
@@ -1636,7 +1636,7 @@
       "control": {
         "volatility_inverse": 0.3375,
         "first_contact_advantage": 0.5455,
-        "match_flow_stability": 0.8938
+        "type_versatility": 0.4201
       },
       "meta_impact": {
         "elo_normalized": 0.515,
@@ -1683,7 +1683,7 @@
       "attack": 4.43,
       "defense": 3.48,
       "stamina": 0.7,
-      "control": 3.76,
+      "control": 3.43,
       "meta_impact": 3.01
     },
     "sub_metrics": {
@@ -1709,7 +1709,7 @@
       "control": {
         "volatility_inverse": 0.4149,
         "first_contact_advantage": 0.75,
-        "match_flow_stability": 0.8927
+        "type_versatility": 0.3684
       },
       "meta_impact": {
         "elo_normalized": 0.4887,
@@ -1725,23 +1725,23 @@
       "matches": 24
     },
     "archetype": {
-      "id": "tempo_controller",
-      "name": "Tempo Controller",
-      "description": "High Control, stable flow, consistency-focused",
-      "category": "control",
-      "icon": "\ud83c\udfbc",
-      "color": "#f59e0b",
-      "confidence": 0.404,
+      "id": "berserker",
+      "name": "Berserker",
+      "description": "High Attack + high volatility, KO-heavy style",
+      "category": "offense",
+      "icon": "\u2694\ufe0f",
+      "color": "#dc2626",
+      "confidence": 0.468,
       "candidates": [
-        {
-          "archetype": "tempo_controller",
-          "score": 0.667,
-          "name": "Tempo Controller"
-        },
         {
           "archetype": "berserker",
           "score": 0.665,
           "name": "Berserker"
+        },
+        {
+          "archetype": "tempo_controller",
+          "score": 0.631,
+          "name": "Tempo Controller"
         },
         {
           "archetype": "meta_anchor",
@@ -1756,7 +1756,7 @@
       "attack": 2.24,
       "defense": 3.59,
       "stamina": 3.37,
-      "control": 2.79,
+      "control": 2.15,
       "meta_impact": 3.05
     },
     "sub_metrics": {
@@ -1782,7 +1782,7 @@
       "control": {
         "volatility_inverse": 0.3362,
         "first_contact_advantage": 0.7273,
-        "match_flow_stability": 0.8834
+        "type_versatility": 0.247
       },
       "meta_impact": {
         "elo_normalized": 0.4699,
@@ -1804,7 +1804,7 @@
       "category": "stamina",
       "icon": "\ud83d\udd0b",
       "color": "#14b8a6",
-      "confidence": 0.389,
+      "confidence": 0.439,
       "candidates": [
         {
           "archetype": "spin_tank",
@@ -1813,7 +1813,7 @@
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.638,
+          "score": 0.613,
           "name": "Adaptive Fighter"
         },
         {
@@ -1829,7 +1829,7 @@
       "attack": 4.21,
       "defense": 2.2,
       "stamina": 2.46,
-      "control": 3.08,
+      "control": 2.78,
       "meta_impact": 2.54
     },
     "sub_metrics": {
@@ -1855,7 +1855,7 @@
       "control": {
         "volatility_inverse": 0.3537,
         "first_contact_advantage": 0.5,
-        "match_flow_stability": 0.9352
+        "type_versatility": 0.4217
       },
       "meta_impact": {
         "elo_normalized": 0.4586,
@@ -1890,9 +1890,9 @@
           "name": "Berserker"
         },
         {
-          "archetype": "tempo_controller",
-          "score": 0.527,
-          "name": "Tempo Controller"
+          "archetype": "chaser",
+          "score": 0.367,
+          "name": "Chaser"
         }
       ]
     }
@@ -1902,7 +1902,7 @@
       "attack": 3.66,
       "defense": 3.3,
       "stamina": 1.82,
-      "control": 2.81,
+      "control": 2.88,
       "meta_impact": 3.0
     },
     "sub_metrics": {
@@ -1928,7 +1928,7 @@
       "control": {
         "volatility_inverse": 0.3413,
         "first_contact_advantage": 0.7778,
-        "match_flow_stability": 0.8415
+        "type_versatility": 0.3399
       },
       "meta_impact": {
         "elo_normalized": 0.4511,
@@ -1975,7 +1975,7 @@
       "attack": 1.57,
       "defense": 2.08,
       "stamina": 4.37,
-      "control": 2.75,
+      "control": 2.47,
       "meta_impact": 2.26
     },
     "sub_metrics": {
@@ -2001,7 +2001,7 @@
       "control": {
         "volatility_inverse": 0.0188,
         "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.8667
+        "type_versatility": 0.2812
       },
       "meta_impact": {
         "elo_normalized": 0.4474,
@@ -2048,7 +2048,7 @@
       "attack": 3.52,
       "defense": 0.74,
       "stamina": 2.77,
-      "control": 3.6,
+      "control": 3.0,
       "meta_impact": 1.44
     },
     "sub_metrics": {
@@ -2074,7 +2074,7 @@
       "control": {
         "volatility_inverse": 0.0,
         "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.9667
+        "type_versatility": 0.4201
       },
       "meta_impact": {
         "elo_normalized": 0.4248,
@@ -2096,7 +2096,7 @@
       "category": "offense",
       "icon": "\ud83d\udca5",
       "color": "#ef4444",
-      "confidence": 0.833,
+      "confidence": 0.962,
       "candidates": [
         {
           "archetype": "glass_cannon",
@@ -2104,14 +2104,14 @@
           "name": "Glass Cannon"
         },
         {
-          "archetype": "tempo_controller",
-          "score": 0.596,
-          "name": "Tempo Controller"
-        },
-        {
           "archetype": "berserker",
           "score": 0.532,
           "name": "Berserker"
+        },
+        {
+          "archetype": "chaser",
+          "score": 0.393,
+          "name": "Chaser"
         }
       ]
     }
@@ -2121,7 +2121,7 @@
       "attack": 3.84,
       "defense": 3.1,
       "stamina": 1.53,
-      "control": 3.25,
+      "control": 2.79,
       "meta_impact": 3.45
     },
     "sub_metrics": {
@@ -2147,7 +2147,7 @@
       "control": {
         "volatility_inverse": 0.3375,
         "first_contact_advantage": 0.7,
-        "match_flow_stability": 0.9163
+        "type_versatility": 0.3904
       },
       "meta_impact": {
         "elo_normalized": 0.3872,
@@ -2163,19 +2163,14 @@
       "matches": 23
     },
     "archetype": {
-      "id": "tempo_controller",
-      "name": "Tempo Controller",
-      "description": "High Control, stable flow, consistency-focused",
-      "category": "control",
-      "icon": "\ud83c\udfbc",
-      "color": "#f59e0b",
-      "confidence": 0.442,
+      "id": "meta_anchor",
+      "name": "Meta Anchor",
+      "description": "Above-average Meta Impact despite mixed stat profile",
+      "category": "balance",
+      "icon": "\u2b50",
+      "color": "#eab308",
+      "confidence": 0.333,
       "candidates": [
-        {
-          "archetype": "tempo_controller",
-          "score": 0.582,
-          "name": "Tempo Controller"
-        },
         {
           "archetype": "meta_anchor",
           "score": 0.535,
@@ -2185,6 +2180,11 @@
           "archetype": "berserker",
           "score": 0.53,
           "name": "Berserker"
+        },
+        {
+          "archetype": "chaser",
+          "score": 0.385,
+          "name": "Chaser"
         }
       ]
     }
@@ -2194,7 +2194,7 @@
       "attack": 3.75,
       "defense": 1.92,
       "stamina": 2.43,
-      "control": 1.69,
+      "control": 1.59,
       "meta_impact": 3.27
     },
     "sub_metrics": {
@@ -2220,7 +2220,7 @@
       "control": {
         "volatility_inverse": 0.1895,
         "first_contact_advantage": 0.6,
-        "match_flow_stability": 0.84
+        "type_versatility": 0.2624
       },
       "meta_impact": {
         "elo_normalized": 0.3759,
@@ -2267,7 +2267,7 @@
       "attack": 2.76,
       "defense": 3.54,
       "stamina": 2.79,
-      "control": 3.13,
+      "control": 2.69,
       "meta_impact": 3.03
     },
     "sub_metrics": {
@@ -2293,7 +2293,7 @@
       "control": {
         "volatility_inverse": 0.3383,
         "first_contact_advantage": 0.6667,
-        "match_flow_stability": 0.9095
+        "type_versatility": 0.3692
       },
       "meta_impact": {
         "elo_normalized": 0.3722,
@@ -2315,22 +2315,22 @@
       "category": "balance",
       "icon": "\u26a1",
       "color": "#8b5cf6",
-      "confidence": 0.682,
+      "confidence": 0.697,
       "candidates": [
         {
           "archetype": "adaptive_fighter",
-          "score": 0.695,
+          "score": 0.7,
           "name": "Adaptive Fighter"
-        },
-        {
-          "archetype": "tempo_controller",
-          "score": 0.562,
-          "name": "Tempo Controller"
         },
         {
           "archetype": "iron_wall",
           "score": 0.561,
           "name": "Iron Wall"
+        },
+        {
+          "archetype": "meta_anchor",
+          "score": 0.494,
+          "name": "Meta Anchor"
         }
       ]
     }
@@ -2340,7 +2340,7 @@
       "attack": 1.48,
       "defense": 3.89,
       "stamina": 3.26,
-      "control": 2.76,
+      "control": 2.09,
       "meta_impact": 1.95
     },
     "sub_metrics": {
@@ -2366,7 +2366,7 @@
       "control": {
         "volatility_inverse": 0.3674,
         "first_contact_advantage": 0.5,
-        "match_flow_stability": 0.8972
+        "type_versatility": 0.2674
       },
       "meta_impact": {
         "elo_normalized": 0.3195,
@@ -2413,7 +2413,7 @@
       "attack": 1.26,
       "defense": 1.41,
       "stamina": 4.44,
-      "control": 2.64,
+      "control": 2.34,
       "meta_impact": 2.03
     },
     "sub_metrics": {
@@ -2439,7 +2439,7 @@
       "control": {
         "volatility_inverse": 0.3837,
         "first_contact_advantage": 0.5,
-        "match_flow_stability": 0.87
+        "type_versatility": 0.2812
       },
       "meta_impact": {
         "elo_normalized": 0.3158,
@@ -2486,7 +2486,7 @@
       "attack": 4.83,
       "defense": 3.14,
       "stamina": 0.82,
-      "control": 3.21,
+      "control": 3.08,
       "meta_impact": 1.44
     },
     "sub_metrics": {
@@ -2512,7 +2512,7 @@
       "control": {
         "volatility_inverse": 0.4333,
         "first_contact_advantage": 0.5,
-        "match_flow_stability": 0.9
+        "type_versatility": 0.4201
       },
       "meta_impact": {
         "elo_normalized": 0.297,
@@ -2534,7 +2534,7 @@
       "category": "offense",
       "icon": "\u2694\ufe0f",
       "color": "#dc2626",
-      "confidence": 0.535,
+      "confidence": 0.563,
       "candidates": [
         {
           "archetype": "berserker",
@@ -2543,7 +2543,7 @@
         },
         {
           "archetype": "tempo_controller",
-          "score": 0.561,
+          "score": 0.547,
           "name": "Tempo Controller"
         },
         {
@@ -2559,7 +2559,7 @@
       "attack": 3.07,
       "defense": 1.94,
       "stamina": 3.01,
-      "control": 2.31,
+      "control": 1.45,
       "meta_impact": 2.41
     },
     "sub_metrics": {
@@ -2585,7 +2585,7 @@
       "control": {
         "volatility_inverse": 0.3366,
         "first_contact_advantage": 0.5,
-        "match_flow_stability": 0.8994
+        "type_versatility": 0.2507
       },
       "meta_impact": {
         "elo_normalized": 0.2895,
@@ -2632,7 +2632,7 @@
       "attack": 3.88,
       "defense": 2.39,
       "stamina": 1.98,
-      "control": 2.51,
+      "control": 2.59,
       "meta_impact": 2.67
     },
     "sub_metrics": {
@@ -2658,7 +2658,7 @@
       "control": {
         "volatility_inverse": 0.3618,
         "first_contact_advantage": 0.5714,
-        "match_flow_stability": 0.8611
+        "type_versatility": 0.3464
       },
       "meta_impact": {
         "elo_normalized": 0.2594,
@@ -2705,7 +2705,7 @@
       "attack": 2.6,
       "defense": 3.48,
       "stamina": 3.91,
-      "control": 2.79,
+      "control": 2.97,
       "meta_impact": 2.36
     },
     "sub_metrics": {
@@ -2731,7 +2731,7 @@
       "control": {
         "volatility_inverse": 0.4393,
         "first_contact_advantage": 0.4444,
-        "match_flow_stability": 0.8637
+        "type_versatility": 0.398
       },
       "meta_impact": {
         "elo_normalized": 0.2519,
@@ -2753,7 +2753,7 @@
       "category": "stamina",
       "icon": "\ud83d\udd0b",
       "color": "#14b8a6",
-      "confidence": 0.59,
+      "confidence": 0.578,
       "candidates": [
         {
           "archetype": "spin_tank",
@@ -2762,7 +2762,7 @@
         },
         {
           "archetype": "adaptive_fighter",
-          "score": 0.603,
+          "score": 0.609,
           "name": "Adaptive Fighter"
         },
         {
@@ -2778,7 +2778,7 @@
       "attack": 4.19,
       "defense": 1.64,
       "stamina": 0.97,
-      "control": 4.67,
+      "control": 4.17,
       "meta_impact": 0.8
     },
     "sub_metrics": {
@@ -2804,7 +2804,7 @@
       "control": {
         "volatility_inverse": 0.8939,
         "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.92
+        "type_versatility": 0.4201
       },
       "meta_impact": {
         "elo_normalized": 0.2293,
@@ -2826,11 +2826,11 @@
       "category": "control",
       "icon": "\ud83c\udfbc",
       "color": "#f59e0b",
-      "confidence": 0.918,
+      "confidence": 0.775,
       "candidates": [
         {
           "archetype": "tempo_controller",
-          "score": 0.937,
+          "score": 0.882,
           "name": "Tempo Controller"
         },
         {
@@ -2851,7 +2851,7 @@
       "attack": 4.29,
       "defense": 2.79,
       "stamina": 0.0,
-      "control": 3.01,
+      "control": 2.19,
       "meta_impact": 0.97
     },
     "sub_metrics": {
@@ -2877,7 +2877,7 @@
       "control": {
         "volatility_inverse": 0.3794,
         "first_contact_advantage": 0.5,
-        "match_flow_stability": 0.9018
+        "type_versatility": 0.2667
       },
       "meta_impact": {
         "elo_normalized": 0.2105,
@@ -2912,9 +2912,9 @@
           "name": "Berserker"
         },
         {
-          "archetype": "tempo_controller",
-          "score": 0.526,
-          "name": "Tempo Controller"
+          "archetype": "chaser",
+          "score": 0.457,
+          "name": "Chaser"
         }
       ]
     }
@@ -2924,7 +2924,7 @@
       "attack": 1.26,
       "defense": 2.55,
       "stamina": 4.88,
-      "control": 3.55,
+      "control": 3.26,
       "meta_impact": 2.02
     },
     "sub_metrics": {
@@ -2950,7 +2950,7 @@
       "control": {
         "volatility_inverse": 0.4444,
         "first_contact_advantage": 0.7,
-        "match_flow_stability": 0.8767
+        "type_versatility": 0.294
       },
       "meta_impact": {
         "elo_normalized": 0.1992,
@@ -2986,7 +2986,7 @@
         },
         {
           "archetype": "tempo_controller",
-          "score": 0.642,
+          "score": 0.61,
           "name": "Tempo Controller"
         }
       ]
@@ -2997,7 +2997,7 @@
       "attack": 1.61,
       "defense": 3.12,
       "stamina": 2.87,
-      "control": 3.15,
+      "control": 2.36,
       "meta_impact": 2.86
     },
     "sub_metrics": {
@@ -3023,7 +3023,7 @@
       "control": {
         "volatility_inverse": 0.2532,
         "first_contact_advantage": 1.0,
-        "match_flow_stability": 0.8889
+        "type_versatility": 0.1915
       },
       "meta_impact": {
         "elo_normalized": 0.1955,
@@ -3039,19 +3039,14 @@
       "matches": 9
     },
     "archetype": {
-      "id": "tempo_controller",
-      "name": "Tempo Controller",
-      "description": "High Control, stable flow, consistency-focused",
-      "category": "control",
-      "icon": "\ud83c\udfbc",
-      "color": "#f59e0b",
-      "confidence": 0.523,
+      "id": "iron_wall",
+      "name": "Iron Wall",
+      "description": "Extremely high Defense, high Burst Resistance, low volatility",
+      "category": "defense",
+      "icon": "\ud83d\udee1\ufe0f",
+      "color": "#3b82f6",
+      "confidence": 0.348,
       "candidates": [
-        {
-          "archetype": "tempo_controller",
-          "score": 0.61,
-          "name": "Tempo Controller"
-        },
         {
           "archetype": "iron_wall",
           "score": 0.531,
@@ -3061,6 +3056,11 @@
           "archetype": "spin_tank",
           "score": 0.517,
           "name": "Spin Tank"
+        },
+        {
+          "archetype": "glass_cannon",
+          "score": 0.0,
+          "name": "Glass Cannon"
         }
       ]
     }
@@ -3070,7 +3070,7 @@
       "attack": 3.19,
       "defense": 1.55,
       "stamina": 2.64,
-      "control": 3.23,
+      "control": 2.17,
       "meta_impact": 1.07
     },
     "sub_metrics": {
@@ -3096,7 +3096,7 @@
       "control": {
         "volatility_inverse": 0.4264,
         "first_contact_advantage": 0.4,
-        "match_flow_stability": 0.909
+        "type_versatility": 0.2188
       },
       "meta_impact": {
         "elo_normalized": 0.1579,
@@ -3118,7 +3118,7 @@
       "category": "offense",
       "icon": "\ud83d\udca5",
       "color": "#ef4444",
-      "confidence": 0.654,
+      "confidence": 0.672,
       "candidates": [
         {
           "archetype": "glass_cannon",
@@ -3126,14 +3126,14 @@
           "name": "Glass Cannon"
         },
         {
-          "archetype": "tempo_controller",
-          "score": 0.542,
-          "name": "Tempo Controller"
-        },
-        {
           "archetype": "berserker",
           "score": 0.533,
           "name": "Berserker"
+        },
+        {
+          "archetype": "chaser",
+          "score": 0.267,
+          "name": "Chaser"
         }
       ]
     }
@@ -3143,7 +3143,7 @@
       "attack": 0.0,
       "defense": 2.85,
       "stamina": 4.3,
-      "control": 2.72,
+      "control": 2.69,
       "meta_impact": 1.64
     },
     "sub_metrics": {
@@ -3169,7 +3169,7 @@
       "control": {
         "volatility_inverse": 0.8135,
         "first_contact_advantage": 0.5,
-        "match_flow_stability": 0.78
+        "type_versatility": 0.2812
       },
       "meta_impact": {
         "elo_normalized": 0.1241,
@@ -3216,7 +3216,7 @@
       "attack": 0.66,
       "defense": 1.15,
       "stamina": 4.07,
-      "control": 2.49,
+      "control": 2.25,
       "meta_impact": 1.62
     },
     "sub_metrics": {
@@ -3242,7 +3242,7 @@
       "control": {
         "volatility_inverse": 0.8148,
         "first_contact_advantage": 0.0,
-        "match_flow_stability": 0.6524
+        "type_versatility": 0.1778
       },
       "meta_impact": {
         "elo_normalized": 0.0752,
@@ -3289,7 +3289,7 @@
       "attack": 4.32,
       "defense": 0.82,
       "stamina": 2.63,
-      "control": 3.66,
+      "control": 2.7,
       "meta_impact": 1.49
     },
     "sub_metrics": {
@@ -3315,7 +3315,7 @@
       "control": {
         "volatility_inverse": 0.7481,
         "first_contact_advantage": 0.375,
-        "match_flow_stability": 0.9577
+        "type_versatility": 0.3322
       },
       "meta_impact": {
         "elo_normalized": 0.0,
@@ -3337,7 +3337,7 @@
       "category": "offense",
       "icon": "\ud83d\udca5",
       "color": "#ef4444",
-      "confidence": 0.908,
+      "confidence": 1.0,
       "candidates": [
         {
           "archetype": "glass_cannon",
@@ -3345,14 +3345,14 @@
           "name": "Glass Cannon"
         },
         {
-          "archetype": "tempo_controller",
-          "score": 0.665,
-          "name": "Tempo Controller"
-        },
-        {
           "archetype": "chaser",
           "score": 0.428,
           "name": "Chaser"
+        },
+        {
+          "archetype": "berserker",
+          "score": 0.0,
+          "name": "Berserker"
         }
       ]
     }

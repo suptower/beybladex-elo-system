@@ -33,8 +33,14 @@ MATCHES_FILE = "./docs/data/matches/matches.csv"
 ROUNDS_FILE = "./docs/data/matches/rounds.csv"
 ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
 ADVANCED_LEADERBOARD_FILE = "./docs/data/leaderboard/advanced_leaderboard.csv"
+BEYS_DATA_FILE = "./docs/data/beys/beys_data.json"
 RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
 RPG_STATS_CSV = "./docs/data/analytics/rpg_stats.csv"
+
+# Minimum matches against an opponent type to use the real win rate.
+# Below this threshold the neutral value (0.5) is imputed.
+TYPE_VERSATILITY_MIN_MATCHES = 2
+TYPE_VERSATILITY_NEUTRAL = 0.5
 
 # Minimum matches threshold to compute reliable stats
 # Set to 1 to include all beys in the leaderboard even with limited data
@@ -70,9 +76,9 @@ STAMINA_WEIGHTS = {
 }
 
 CONTROL_WEIGHTS = {
-    "volatility_inverse": 0.35,
-    "first_contact_advantage": 0.35,
-    "match_flow_stability": 0.30,
+    "volatility_inverse": 0.30,
+    "first_contact_advantage": 0.30,
+    "type_versatility": 0.40,  # Cross-type win rate consistency (pre-set bey types)
 }
 
 META_IMPACT_WEIGHTS = {
@@ -605,9 +611,84 @@ def load_advanced_leaderboard() -> dict[str, dict[str, Any]]:
     return leaderboard
 
 
+def load_bey_types(beys_data_path: str = BEYS_DATA_FILE) -> dict[str, str]:
+    """
+    Load pre-set bey types from beys_data.json.
+
+    Each Beyblade is assigned a type (Attack / Defense / Stamina / Balance)
+    based on its parts design.  This classification is static and does not
+    depend on match results.
+
+    Returns:
+        Dictionary mapping blade name → type string, e.g. {"ImpactDrake": "Attack"}.
+        Returns an empty dict if the file cannot be read.
+    """
+    try:
+        with open(beys_data_path, encoding="utf-8") as f:
+            data = json.load(f)
+        return {entry["blade"]: entry["type"] for entry in data}
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        return {}
+
+
 # ============================================
 # SUB-METRIC CALCULATION FUNCTIONS
 # ============================================
+
+def calculate_type_matchup_stats(
+    matches: list,
+    bey_types: dict[str, str],
+    all_beys: list[str]
+) -> dict[str, dict]:
+    """
+    Calculate per-bey win/loss records broken down by pre-set opponent type.
+
+    For each bey and each of the four standard types (Attack, Defense, Stamina,
+    Balance) this returns the number of matches played against that type and the
+    number of those matches won.  The results feed the ``type_versatility``
+    sub-metric used in the Control stat calculation.
+
+    Args:
+        matches: List of match dicts as returned by load_matches().
+        bey_types: Dict mapping blade name → type string (from load_bey_types()).
+        all_beys: List of all bey names to include in the output.
+
+    Returns:
+        Dict mapping bey name → stats dict with keys:
+        ``wins_vs_Attack``, ``matches_vs_Attack``, … (one pair per type).
+    """
+    _TYPES = ("Attack", "Defense", "Stamina", "Balance")
+    stats: dict[str, dict] = {
+        bey: {
+            f"wins_vs_{t}": 0
+            for t in _TYPES
+        } | {
+            f"matches_vs_{t}": 0
+            for t in _TYPES
+        }
+        for bey in all_beys
+    }
+
+    for m in matches:
+        a = m["bey_a"]
+        b = m["bey_b"]
+        sa = m["score_a"]
+        sb = m["score_b"]
+        type_a = bey_types.get(a)
+        type_b = bey_types.get(b)
+
+        if a in stats and type_b in _TYPES:
+            stats[a][f"matches_vs_{type_b}"] += 1
+            if sa > sb:
+                stats[a][f"wins_vs_{type_b}"] += 1
+
+        if b in stats and type_a in _TYPES:
+            stats[b][f"matches_vs_{type_a}"] += 1
+            if sb > sa:
+                stats[b][f"wins_vs_{type_a}"] += 1
+
+    return stats
+
 
 def calculate_bey_round_stats(matches: list, rounds: list) -> dict[str, dict]:
     """
@@ -903,15 +984,21 @@ def calculate_stamina_metrics(bey_stats: dict, all_beys: list[str]) -> dict[str,
 def calculate_control_metrics(
     bey_stats: dict,
     advanced_lb: dict,
+    type_matchup_stats: dict,
     all_beys: list[str]
 ) -> dict[str, dict]:
     """
     Calculate Control sub-metrics for each Beyblade.
 
     Metrics:
-    - volatility_inverse: 1 - normalized volatility (higher = more consistent)
-    - first_contact_advantage: Match win rate when winning first round
-    - match_flow_stability: Inverse of variance in round counts per match
+    - volatility_inverse: 1 - normalized volatility (higher = more consistent ELO)
+    - first_contact_advantage: Match win rate when winning first round (closing ability)
+    - type_versatility: Cross-type win rate quality, using pre-set bey types.
+      Computed as mean_win_rate × (1 - stdev(win_rates)) across all four types
+      (Attack, Defense, Stamina, Balance).  Types with fewer than
+      TYPE_VERSATILITY_MIN_MATCHES matches are imputed with TYPE_VERSATILITY_NEUTRAL
+      so that sparse beys fall back to a neutral mid-range score.
+      High value → wins consistently against every type (true "control" behavior).
     """
     metrics: dict[str, dict] = {}
 
@@ -942,19 +1029,25 @@ def calculate_control_metrics(
         else:
             first_contact_advantage = 0.5
 
-        # Match flow stability (inverse of variance in round counts)
-        round_counts = stats.get("match_round_counts", [])
-        if len(round_counts) > 1:
-            variance = statistics.variance(round_counts)
-            # Normalize variance (typical range 0-10)
-            match_flow_stability = 1.0 - min(1.0, variance / 10.0)
-        else:
-            match_flow_stability = 0.5
+        # Type versatility: how consistently the bey wins against all pre-set types.
+        # For each type, compute win rate if enough matches exist, else impute neutral.
+        bey_type_stats = type_matchup_stats.get(bey, {})
+        type_rates = []
+        for bey_type in ("Attack", "Defense", "Stamina", "Balance"):
+            n = bey_type_stats.get(f"matches_vs_{bey_type}", 0)
+            if n >= TYPE_VERSATILITY_MIN_MATCHES:
+                w = bey_type_stats.get(f"wins_vs_{bey_type}", 0)
+                type_rates.append(w / n)
+            else:
+                type_rates.append(TYPE_VERSATILITY_NEUTRAL)
+        mean_type_rate = sum(type_rates) / 4
+        std_type_rate = statistics.stdev(type_rates)
+        type_versatility = mean_type_rate * (1.0 - std_type_rate)
 
         metrics[bey] = {
             "volatility_inverse": volatility_inverse,
             "first_contact_advantage": first_contact_advantage,
-            "match_flow_stability": match_flow_stability,
+            "type_versatility": type_versatility,
         }
 
     return metrics
@@ -1138,16 +1231,16 @@ def calculate_control_stat(metrics: dict, all_metrics: list[dict]) -> float:
     """Calculate the Control stat (0-5) from control metrics."""
     all_vol_inv = [m["volatility_inverse"] for m in all_metrics]
     all_first = [m["first_contact_advantage"] for m in all_metrics]
-    all_flow = [m["match_flow_stability"] for m in all_metrics]
+    all_versatility = [m["type_versatility"] for m in all_metrics]
 
     norm_vol = percentile_normalize(metrics["volatility_inverse"], all_vol_inv)
     norm_first = percentile_normalize(metrics["first_contact_advantage"], all_first)
-    norm_flow = percentile_normalize(metrics["match_flow_stability"], all_flow)
+    norm_versatility = percentile_normalize(metrics["type_versatility"], all_versatility)
 
     raw_score = (
         CONTROL_WEIGHTS["volatility_inverse"] * norm_vol
         + CONTROL_WEIGHTS["first_contact_advantage"] * norm_first
-        + CONTROL_WEIGHTS["match_flow_stability"] * norm_flow
+        + CONTROL_WEIGHTS["type_versatility"] * norm_versatility
     )
 
     return clamp(5.0 * (raw_score ** STAT_SCALE_ALPHA))
@@ -1195,6 +1288,7 @@ def calculate_rpg_stats() -> dict[str, dict]:
     rounds = load_rounds()
     elo_history = load_elo_history()
     advanced_lb = load_advanced_leaderboard()
+    bey_types = load_bey_types()
 
     # Get all beys
     all_beys = list(advanced_lb.keys())
@@ -1204,6 +1298,9 @@ def calculate_rpg_stats() -> dict[str, dict]:
     # Calculate round-level stats
     bey_round_stats = calculate_bey_round_stats(matches, rounds)
 
+    # Calculate per-type matchup records (used for type_versatility in Control)
+    type_matchup_stats = calculate_type_matchup_stats(matches, bey_types, all_beys)
+
     print(f"{CYAN}Calculating sub-metrics...{RESET}")
 
     # Calculate sub-metrics for each category
@@ -1211,7 +1308,7 @@ def calculate_rpg_stats() -> dict[str, dict]:
     defense_metrics = calculate_defense_metrics(bey_round_stats, all_beys)
     stamina_metrics = calculate_stamina_metrics(bey_round_stats, all_beys)
     control_metrics = calculate_control_metrics(
-        bey_round_stats, advanced_lb, all_beys
+        bey_round_stats, advanced_lb, type_matchup_stats, all_beys
     )
     meta_impact_metrics = calculate_meta_impact_metrics(
         bey_round_stats, advanced_lb, elo_history, all_beys

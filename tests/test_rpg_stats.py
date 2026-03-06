@@ -91,6 +91,11 @@ class TestStatWeights:
         assert "stadium_exit_resistance" not in DEFENSE_WEIGHTS
         assert "extreme_resistance" not in DEFENSE_WEIGHTS
 
+    def test_control_weights_use_type_versatility(self):
+        """Control weights should use type_versatility instead of match_flow_stability."""
+        assert "type_versatility" in CONTROL_WEIGHTS
+        assert "match_flow_stability" not in CONTROL_WEIGHTS
+
     def test_stat_scale_alpha_in_range(self):
         """STAT_SCALE_ALPHA must be in (0, 1) to stretch the upper score range."""
         assert 0.0 < STAT_SCALE_ALPHA < 1.0
@@ -377,14 +382,14 @@ class TestCalculateControlStat:
         metrics = {
             "volatility_inverse": 0.9,
             "first_contact_advantage": 0.9,
-            "match_flow_stability": 0.9,
+            "type_versatility": 0.7,
         }
         all_metrics = [
             metrics,
             {
                 "volatility_inverse": 0.3,
                 "first_contact_advantage": 0.3,
-                "match_flow_stability": 0.3,
+                "type_versatility": 0.2,
             },
         ]
         result = calculate_control_stat(metrics, all_metrics)
@@ -395,11 +400,26 @@ class TestCalculateControlStat:
         metrics = {
             "volatility_inverse": 0.5,
             "first_contact_advantage": 0.5,
-            "match_flow_stability": 0.5,
+            "type_versatility": 0.4,
         }
         all_metrics = [metrics]
         result = calculate_control_stat(metrics, all_metrics)
         assert 0.0 <= result <= 5.0
+
+    def test_type_versatility_beats_single_type_specialist(self):
+        """A bey that wins consistently across all types should outscore a type specialist."""
+        versatile = {
+            "volatility_inverse": 0.6,
+            "first_contact_advantage": 0.6,
+            "type_versatility": 0.6,  # Wins consistently across all types
+        }
+        specialist = {
+            "volatility_inverse": 0.6,
+            "first_contact_advantage": 0.6,
+            "type_versatility": 0.1,  # Only beats one type
+        }
+        all_metrics = [versatile, specialist]
+        assert calculate_control_stat(versatile, all_metrics) > calculate_control_stat(specialist, all_metrics)
 
 
 class TestCalculateMetaImpactStat:
@@ -491,7 +511,7 @@ class TestDetectArchetype:
             "control": {
                 "volatility_inverse": 0.5,
                 "first_contact_advantage": 0.6,
-                "match_flow_stability": 0.7,
+                "type_versatility": 0.5,
             },
             "meta_impact": {
                 "elo_normalized": 0.5,
@@ -588,7 +608,7 @@ class TestDetectArchetype:
         sub_metrics = self._create_default_sub_metrics()
         sub_metrics["control"]["volatility_inverse"] = 0.9
         sub_metrics["control"]["first_contact_advantage"] = 0.8
-        sub_metrics["control"]["match_flow_stability"] = 0.9
+        sub_metrics["control"]["type_versatility"] = 0.7
         leaderboard_data = {"matches": 10}
 
         result = detect_archetype(stats, sub_metrics, leaderboard_data)
