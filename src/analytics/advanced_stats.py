@@ -371,7 +371,6 @@ if __name__ == "__main__":
 
     print(f"{GREEN} Advanced Leaderboard erstellt: {ADVANCED_FILE}")
 
-
     # | Spalte            | Beschreibung                                                                                                                        |
     # | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
     # | **Bey**           | Name des Beyblades.                                                                                                                 |

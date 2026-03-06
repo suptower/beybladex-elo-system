@@ -485,8 +485,6 @@ class TestMetaBalanceIntegration:
         if not os.path.exists(self.ELO_HISTORY_FILE):
             pytest.skip("elo_history.csv not yet generated — run the pipeline first")
 
-
-
     def test_full_analysis_returns_valid_structure(self):
         """Full analysis should return a valid complete structure."""
         from meta_balance import generate_meta_balance_report

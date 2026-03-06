@@ -175,8 +175,6 @@ class TestAnalyzeUpsets:
         if not os.path.exists(self.ELO_HISTORY_FILE):
             pytest.skip("elo_history.csv not yet generated — run the pipeline first")
 
-
-
     def test_analyze_upsets_returns_data(self):
         """analyze_upsets should return bey_stats and upset_matches."""
         bey_stats, upset_matches = analyze_upsets()
@@ -231,8 +229,6 @@ class TestCalculateAnalysisMetrics:
         if not os.path.exists(self.ELO_HISTORY_FILE):
             pytest.skip("elo_history.csv not yet generated — run the pipeline first")
 
-
-
     def test_metrics_structure(self):
         """Calculated metrics should have required fields."""
         bey_stats, _ = analyze_upsets()
@@ -274,8 +270,6 @@ class TestCalculateGiantKillerScores:
     def require_elo_history(self):
         if not os.path.exists(self.ELO_HISTORY_FILE):
             pytest.skip("elo_history.csv not yet generated — run the pipeline first")
-
-
 
     def test_scores_added_to_data(self):
         """Giant Killer scores should be added to each entry."""

@@ -333,7 +333,6 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
     df_pos["Event"] = df_pos["Event"].astype(int)
     df_pos["MatchIndex"] = df_pos["MatchIndex"].astype(int)
     df_pos = df_pos.sort_values(["Bey", "Event"]).reset_index(drop=True)
-    max_rank = len(df_pos["Bey"].unique())
 
     subdir = os.path.join(outdir, "dark") if dark_mode else outdir
     suffix = "_dark" if dark_mode else ""

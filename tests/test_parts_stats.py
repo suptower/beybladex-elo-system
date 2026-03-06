@@ -98,8 +98,6 @@ class TestLoadPartsStats:
         if not os.path.exists(self.PARTS_STATS_FILE):
             pytest.skip("parts_stats.json not yet generated — run the pipeline first")
 
-
-
     def test_loads_data_structure(self):
         """Should load valid data structure."""
         data = load_parts_stats()
@@ -150,8 +148,6 @@ class TestStatsInRange:
         if not os.path.exists(self.PARTS_STATS_FILE):
             pytest.skip("parts_stats.json not yet generated — run the pipeline first")
 
-
-
     def test_blade_stats_in_range(self):
         """All blade stats should be between 0 and 5."""
         data = load_parts_stats()
@@ -182,8 +178,6 @@ class TestGetBladesRanking:
     def require_parts_stats(self):
         if not os.path.exists(self.PARTS_STATS_FILE):
             pytest.skip("parts_stats.json not yet generated — run the pipeline first")
-
-
 
     def test_returns_list(self):
         """Should return a list."""
@@ -223,8 +217,6 @@ class TestGetRatchetsRanking:
         if not os.path.exists(self.PARTS_STATS_FILE):
             pytest.skip("parts_stats.json not yet generated — run the pipeline first")
 
-
-
     def test_returns_list(self):
         """Should return a list."""
         result = get_ratchets_ranking()
@@ -255,8 +247,6 @@ class TestGetBitsRanking:
     def require_parts_stats(self):
         if not os.path.exists(self.PARTS_STATS_FILE):
             pytest.skip("parts_stats.json not yet generated — run the pipeline first")
-
-
 
     def test_returns_list(self):
         """Should return a list."""
@@ -289,8 +279,6 @@ class TestPartsCounts:
     def require_parts_stats(self):
         if not os.path.exists(self.PARTS_STATS_FILE):
             pytest.skip("parts_stats.json not yet generated — run the pipeline first")
-
-
 
     def test_has_blades(self):
         """Should have at least some blades."""
