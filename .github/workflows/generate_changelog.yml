@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
     steps:
       - name: Checkout repo with full history
         uses: actions/checkout@v4
@@ -23,15 +26,41 @@ jobs:
         run: |
           python ./src/utils/generate_changelog.py --limit 50
 
-      - name: Commit changelog on new branch
+      - name: Deploy changelog to gh-pages
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git checkout -b update-changelog || git checkout update-changelog
-          git add docs/data/changelog.json
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Fetch the current gh-pages branch into a temp directory.
+          # If gh-pages doesn't exist yet, fall back to the current docs/ tree
+          # so that the initial deployment contains a complete site.
+          DEPLOY_DIR=$(mktemp -d)
+          trap 'rm -rf "$DEPLOY_DIR"' EXIT
+          if git fetch origin gh-pages --depth=1 2>/dev/null; then
+            git archive FETCH_HEAD | tar -x -C "$DEPLOY_DIR"
           else
+            echo "gh-pages branch not found — initialising from docs/"
+            cp -r docs/. "$DEPLOY_DIR/"
+          fi
+
+          # Snapshot checksum of the current changelog on gh-pages so we can
+          # detect genuine changes without relying on git diff in a fresh repo.
+          OLD_HASH=$(sha256sum "$DEPLOY_DIR/data/changelog.json" 2>/dev/null || true)
+
+          # Update only the changelog file.
+          mkdir -p "$DEPLOY_DIR/data"
+          cp docs/data/changelog.json "$DEPLOY_DIR/data/changelog.json"
+
+          NEW_HASH=$(sha256sum "$DEPLOY_DIR/data/changelog.json" 2>/dev/null || true)
+
+          cd "$DEPLOY_DIR"
+          if [ "$OLD_HASH" = "$NEW_HASH" ]; then
+            echo "No changes to deploy"
+          else
+            git init
+            git add -A
             git commit -m "chore: Update changelog [skip ci]"
-            git push --set-upstream origin update-changelog
+            git push --force \
+              "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+              HEAD:gh-pages
           fi
