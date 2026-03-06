@@ -37,11 +37,11 @@ from typing import Dict, List, Optional
 # Default paths
 # ---------------------------------------------------------------------------
 DEFAULT_DATA_DIR = "./docs/data"
-MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches.csv")
-ELO_HISTORY_FILE = os.path.join(DEFAULT_DATA_DIR, "elo_history.csv")
-LEADERBOARD_FILE = os.path.join(DEFAULT_DATA_DIR, "leaderboard.csv")
-SEASON_DATA_FILE = os.path.join(DEFAULT_DATA_DIR, "season_data.json")
-OUTPUT_FILE = os.path.join(DEFAULT_DATA_DIR, "season_comparison.json")
+MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches/matches.csv")
+ELO_HISTORY_FILE = os.path.join(DEFAULT_DATA_DIR, "elo/elo_history.csv")
+LEADERBOARD_FILE = os.path.join(DEFAULT_DATA_DIR, "leaderboard/leaderboard.csv")
+SEASON_DATA_FILE = os.path.join(DEFAULT_DATA_DIR, "season/season_data.json")
+OUTPUT_FILE = os.path.join(DEFAULT_DATA_DIR, "season/season_comparison.json")
 
 # Colors for terminal output
 RESET = "\033[0m"
@@ -466,9 +466,9 @@ def main(
     tier_filter: Optional[int] = None,
 ) -> None:
     """Load data, compute comparison metrics and write output JSON."""
-    matches_path = os.path.join(data_dir, "matches.csv")
-    elo_history_path = os.path.join(data_dir, "elo_history.csv")
-    leaderboard_path = os.path.join(data_dir, "leaderboard.csv")
+    matches_path = os.path.join(data_dir, "matches/matches.csv")
+    elo_history_path = os.path.join(data_dir, "elo/elo_history.csv")
+    leaderboard_path = os.path.join(data_dir, "leaderboard/leaderboard.csv")
 
     matches = load_matches(matches_path)
     elo_history = load_elo_history(elo_history_path)
