@@ -216,6 +216,54 @@ nohup.out
 
 # Per-match leaderboard snapshots (docs/data/leaderboard_snapshots/) are a
 # duplicate output directory that is not referenced by the frontend.
-# The files under docs/data/leaderboard/leaderboard_0XXX.csv ARE required by
-# the leaderboard time-travel feature and must remain tracked.
 docs/data/leaderboard_snapshots/
+
+# Generated artifacts — these are produced by the analytics pipeline and
+# deployed to the gh-pages branch on every run. They must NOT be committed to
+# the main branch so that Git history does not accumulate redundant versions.
+# GitHub Pages is served from the gh-pages branch, so all frontend files
+# remain accessible without being stored in main-branch history.
+
+# Visualizations
+docs/plots/
+docs/tournament-charts/
+
+# Analytics outputs
+docs/data/analytics/
+
+# ELO computation outputs
+docs/data/elo/
+
+# Leaderboard outputs (including per-match time-travel snapshots)
+docs/data/leaderboard/
+
+# Season analytics outputs (seasons.json / seasons_backup.json are kept as
+# they contain source configuration, not computed data)
+docs/data/season/season_comparison.json
+docs/data/season/season_data.json
+docs/data/season/season_meta_analytics_*.json
+docs/data/season/season_statistics*.csv
+docs/data/season/season_statistics*.json
+docs/data/season/table_snapshots*.csv
+
+# Generated tournament bracket data
+docs/data/tournaments/tournament_brackets.json
+
+# Top-level generated CSVs and JSON exported from the pipeline
+docs/advanced_leaderboard.csv
+docs/data/changelog.json
+docs/data/newsfeed.json
+docs/data/elo_timeseries_combined.csv
+docs/data/elo_timeseries_drop_attack.csv
+docs/data/elo_timeseries_xtreme.csv
+docs/data/leaderboard_combined.csv
+docs/data/leaderboard_drop_attack.csv
+docs/data/leaderboard_xtreme.csv
+docs/data/position_timeseries_drop_attack.csv
+docs/elo_timeseries_combined.csv
+docs/elo_timeseries_drop_attack.csv
+docs/elo_timeseries_xtreme.csv
+docs/leaderboard_combined.csv
+docs/leaderboard_drop_attack.csv
+docs/leaderboard_xtreme.csv
+docs/position_timeseries_drop_attack.csv
