@@ -55,6 +55,14 @@
         </div>
     </section>
 
+    <!-- Newsfeed -->
+    <section class="newsfeed-section">
+        <h2 class="section-title">📰 Latest News &amp; Announcements</h2>
+        <div id="newsfeedList" class="newsfeed-list">
+            <div class="loading-placeholder">Loading news...</div>
+        </div>
+    </section>
+
     <!-- Featured Bey -->
     <section class="featured-bey-section">
         <h2 class="section-title">🎯 Featured Bey of the Day</h2>
@@ -262,6 +270,16 @@ function parseCSV(text) {
         headers.forEach((h, i) => obj[h] = values[i]);
         return obj;
     });
+}
+
+// Escape HTML special characters to prevent XSS
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // Get ELO trend class
@@ -911,8 +929,79 @@ async function loadFeaturedBey() {
     }
 }
 
+// Load and display newsfeed
+async function loadNewsfeed() {
+    try {
+        const response = await fetch('data/newsfeed.json');
+        const data = await response.json();
+        const container = document.getElementById('newsfeedList');
+
+        const items = data.news || [];
+        if (items.length === 0) {
+            container.innerHTML = '<p class="no-data-text">No news available.</p>';
+            return;
+        }
+
+        // Sort: pinned first, then by date descending
+        const sorted = [...items].sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return new Date(b.date) - new Date(a.date);
+        });
+
+        const categoryConfig = {
+            announcement: { label: 'Announcement', emoji: '📢' },
+            tournament:   { label: 'Tournament',    emoji: '🏆' },
+            match:        { label: 'Match',          emoji: '⚔️' },
+            feature:      { label: 'New Feature',   emoji: '✨' },
+            system:       { label: 'System',         emoji: '⚙️' }
+        };
+
+        container.innerHTML = sorted.map(item => {
+            const cat = categoryConfig[item.category] || { label: escapeHtml(item.category), emoji: '📌' };
+            const dateObj = new Date(item.date);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            const pinnedBadge = item.pinned ? '<span class="news-pinned-badge">📌 Pinned</span>' : '';
+            // Only allow relative paths and http/https URLs to prevent javascript: injection
+            let safeLink = '';
+            if (typeof item.link === 'string') {
+                const trimmedLink = item.link.trim();
+                if (/^https?:\/\//i.test(trimmedLink)) {
+                    // Allow explicit http/https URLs
+                    safeLink = trimmedLink;
+                } else if (trimmedLink !== '' && !trimmedLink.includes(':') && !trimmedLink.startsWith('//')) {
+                    // Allow relative paths without any scheme or protocol-relative prefix
+                    safeLink = trimmedLink;
+                }
+            }
+            const linkHtml = safeLink
+                ? `<a href="${escapeHtml(safeLink)}" class="news-read-more">Read more →</a>`
+                : '';
+
+            return `
+                <article class="news-item${item.pinned ? ' news-item-pinned' : ''}">
+                    <div class="news-item-header">
+                        <div class="news-item-meta">
+                            <span class="news-category-badge news-category-${escapeHtml(item.category)}">${cat.emoji} ${cat.label}</span>
+                            <span class="news-date">${formattedDate}</span>
+                            ${pinnedBadge}
+                        </div>
+                        <h3 class="news-item-title">${escapeHtml(item.title)}</h3>
+                    </div>
+                    <p class="news-item-content">${escapeHtml(item.content)}</p>
+                    ${linkHtml}
+                </article>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading newsfeed:', error);
+        document.getElementById('newsfeedList').innerHTML = '<p class="error-text">Failed to load news</p>';
+    }
+}
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
+    loadNewsfeed();
     loadTopBeys();
     loadRecentMatches();
     loadGiantKillers();
