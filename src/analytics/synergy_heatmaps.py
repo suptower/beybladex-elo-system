@@ -63,7 +63,10 @@ def load_beys_data() -> list:
 
 
 def load_parts_stats() -> dict:
-    """Load parts performance statistics."""
+    """Load parts performance statistics. Returns empty dict if file not found."""
+    if not os.path.exists(PARTS_STATS_JSON):
+        print(f"Warning: {PARTS_STATS_JSON} not found — parts stat complementarity will be skipped")
+        return {}
     with open(PARTS_STATS_JSON, "r", encoding="utf-8") as f:
         return json.load(f)
 
