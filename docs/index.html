@@ -963,7 +963,17 @@ async function loadNewsfeed() {
             const formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
             const pinnedBadge = item.pinned ? '<span class="news-pinned-badge">📌 Pinned</span>' : '';
             // Only allow relative paths and http/https URLs to prevent javascript: injection
-            const safeLink = item.link && /^(https?:\/\/|[^:]*$)/.test(item.link) ? item.link : '';
+            let safeLink = '';
+            if (typeof item.link === 'string') {
+                const trimmedLink = item.link.trim();
+                if (/^https?:\/\//i.test(trimmedLink)) {
+                    // Allow explicit http/https URLs
+                    safeLink = trimmedLink;
+                } else if (trimmedLink !== '' && !trimmedLink.includes(':') && !trimmedLink.startsWith('//')) {
+                    // Allow relative paths without any scheme or protocol-relative prefix
+                    safeLink = trimmedLink;
+                }
+            }
             const linkHtml = safeLink
                 ? `<a href="${escapeHtml(safeLink)}" class="news-read-more">Read more →</a>`
                 : '';
