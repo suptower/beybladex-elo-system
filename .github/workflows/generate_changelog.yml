@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
     steps:
       - name: Checkout repo with full history
         uses: actions/checkout@v4
@@ -40,16 +43,22 @@ jobs:
             cp -r docs/. "$DEPLOY_DIR/"
           fi
 
+          # Snapshot checksum of the current changelog on gh-pages so we can
+          # detect genuine changes without relying on git diff in a fresh repo.
+          OLD_HASH=$(sha256sum "$DEPLOY_DIR/data/changelog.json" 2>/dev/null || true)
+
           # Update only the changelog file.
           mkdir -p "$DEPLOY_DIR/data"
           cp docs/data/changelog.json "$DEPLOY_DIR/data/changelog.json"
 
+          NEW_HASH=$(sha256sum "$DEPLOY_DIR/data/changelog.json" 2>/dev/null || true)
+
           cd "$DEPLOY_DIR"
-          git init
-          git add -A
-          if git diff --cached --quiet; then
+          if [ "$OLD_HASH" = "$NEW_HASH" ]; then
             echo "No changes to deploy"
           else
+            git init
+            git add -A
             git commit -m "chore: Update changelog [skip ci]"
             git push --force \
               "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \

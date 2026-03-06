@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    concurrency:
+      group: gh-pages-deploy
+      cancel-in-progress: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -44,6 +47,17 @@ jobs:
             cp -r docs/. "$DEPLOY_DIR/"
           fi
 
+          # Snapshot checksums of the files we're about to patch so we can
+          # detect genuine changes without relying on git diff in a fresh repo.
+          OLD_HASH=$(sha256sum \
+            "$DEPLOY_DIR/data/leaderboard/leaderboard.csv" \
+            "$DEPLOY_DIR/data/elo/elo_history.csv" \
+            "$DEPLOY_DIR/data/elo/elo_timeseries.csv" \
+            "$DEPLOY_DIR/data/leaderboard/private_leaderboard.csv" \
+            "$DEPLOY_DIR/data/elo/private_elo_history.csv" \
+            "$DEPLOY_DIR/data/elo/private_elo_timeseries.csv" \
+            2>/dev/null || true)
+
           # Overwrite only the regenerated ELO and leaderboard files.
           mkdir -p "$DEPLOY_DIR/data/leaderboard" "$DEPLOY_DIR/data/elo"
           cp docs/data/leaderboard/leaderboard.csv          "$DEPLOY_DIR/data/leaderboard/leaderboard.csv"
@@ -53,12 +67,21 @@ jobs:
           cp docs/data/elo/private_elo_history.csv          "$DEPLOY_DIR/data/elo/private_elo_history.csv"
           cp docs/data/elo/private_elo_timeseries.csv       "$DEPLOY_DIR/data/elo/private_elo_timeseries.csv"
 
+          NEW_HASH=$(sha256sum \
+            "$DEPLOY_DIR/data/leaderboard/leaderboard.csv" \
+            "$DEPLOY_DIR/data/elo/elo_history.csv" \
+            "$DEPLOY_DIR/data/elo/elo_timeseries.csv" \
+            "$DEPLOY_DIR/data/leaderboard/private_leaderboard.csv" \
+            "$DEPLOY_DIR/data/elo/private_elo_history.csv" \
+            "$DEPLOY_DIR/data/elo/private_elo_timeseries.csv" \
+            2>/dev/null || true)
+
           cd "$DEPLOY_DIR"
-          git init
-          git add -A
-          if git diff --cached --quiet; then
+          if [ "$OLD_HASH" = "$NEW_HASH" ]; then
             echo "No changes to deploy"
           else
+            git init
+            git add -A
             git commit -m "Auto-update ELO CSVs via GitHub Actions"
             git push --force \
               "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
