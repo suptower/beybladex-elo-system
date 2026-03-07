@@ -29,7 +29,7 @@ from typing import Dict, List, Optional
 from dataclasses import dataclass
 
 import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import DATA_DIR, MATCHES_CSV, ROUNDS_CSV
+from src.config.paths import DATA_DIR, MATCHES_CSV, ROUNDS_CSV, SEASON_DIR
 
 # Colors for output
 RESET = "\033[0m"
@@ -42,7 +42,7 @@ CYAN = "\033[36m"
 DEFAULT_DATA_DIR = DATA_DIR
 DEFAULT_MATCHES_FILE = MATCHES_CSV
 DEFAULT_ROUNDS_FILE = ROUNDS_CSV
-DEFAULT_OUTPUT_DIR = DEFAULT_DATA_DIR
+DEFAULT_OUTPUT_DIR = SEASON_DIR
 
 
 @dataclass
