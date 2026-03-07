@@ -1020,7 +1020,7 @@
         currentTier = null;
 
         try {
-            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            const resp = await fetch(DATA_PATHS.seasonPlotManifest(season));
             if (!resp.ok) throw new Error('Manifest not found');
             plotsManifest = await resp.json();
 
@@ -1073,9 +1073,7 @@
         }
 
         const plots = dark ? tierData.dark_plots : tierData.plots;
-        const basePath = tier === 'combined'
-            ? `plots/season/${season}/combined/`
-            : `plots/season/${season}/tier${tier}/`;
+        const basePath = DATA_PATHS.seasonPlotDir(season, tier);
 
         plotsGrid.innerHTML = plots.map(filename => {
             const title = getPlotTitle(filename);
@@ -1128,7 +1126,7 @@
         section.style.display = 'none';
 
         try {
-            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            const resp = await fetch(DATA_PATHS.seasonPlotManifest(season));
             if (!resp.ok) throw new Error('Manifest not found');
             const manifest = await resp.json();
 
@@ -1153,7 +1151,7 @@
 
         try {
             if (!comparisonManifest) {
-                const resp = await fetch(`plots/season/${season}/manifest.json`);
+                const resp = await fetch(DATA_PATHS.seasonPlotManifest(season));
                 if (!resp.ok) throw new Error('Manifest not found');
                 const manifest = await resp.json();
                 comparisonManifest = manifest.comparison || null;
@@ -1166,7 +1164,7 @@
 
             const dark = isDarkMode();
             const plots = dark ? comparisonManifest.dark_plots : comparisonManifest.plots;
-            const basePath = comparisonManifest.base_path || 'plots/season/comparison/';
+            const basePath = comparisonManifest.base_path || DATA_PATHS.seasonComparisonPlotDir();
 
             grid.innerHTML = plots.map(filename => {
                 const title = getComparisonPlotTitle(filename);
@@ -1236,7 +1234,7 @@
 
         // Try to load manifest for plots (optional)
         try {
-            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            const resp = await fetch(DATA_PATHS.seasonPlotManifest(season));
             if (resp.ok) {
                 const manifest = await resp.json();
                 advancedMetaManifest = manifest.advanced_meta || null;
@@ -1266,7 +1264,7 @@
         // Plots section (if available)
         if (advancedMetaManifest) {
             const dark = isDarkMode();
-            const basePath = advancedMetaManifest.base_path || `plots/season/${season}/advanced/`;
+            const basePath = advancedMetaManifest.base_path || DATA_PATHS.seasonAdvancedPlotDir(season);
             const features = advancedMetaManifest.features || [];
             const plotsHtml = features.map(feature => {
                 const plots = dark ? feature.dark_plots : feature.plots;

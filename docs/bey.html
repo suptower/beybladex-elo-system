@@ -1451,9 +1451,7 @@ function loadEloPlot() {
     // Try interactive plot first on desktop
     // Add timestamp-based cache-busting to ensure latest version is always loaded
     const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
-    const interactivePath = isDark 
-        ? `./plots/elo/interactive/dark/${safeName}_dark.html${cacheBuster}`
-        : `./plots/elo/interactive/${safeName}.html${cacheBuster}`;
+    const interactivePath = DATA_PATHS.eloInteractivePlot(safeName, isDark) + cacheBuster;
     
     // Check if interactive plot exists
     fetch(interactivePath, { method: 'HEAD' })
@@ -1495,7 +1493,7 @@ function loadStaticEloPlot(bladeName, isDark) {
     const plotFrame = document.getElementById('eloPlotFrame');
     const plotImg = document.getElementById('eloPlot');
     
-    const basePath = isDark ? './plots/elo/dark/' : './plots/elo/';
+    const basePath = isDark ? DATA_PATHS.PLOTS_ELO_DARK_DIR : DATA_PATHS.PLOTS_ELO_DIR;
     const filename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
     
     plotImg.src = basePath + filename;
@@ -1544,9 +1542,7 @@ function loadPositionPlot() {
     // Try interactive plot first on desktop
     // Add timestamp-based cache-busting to ensure latest version is always loaded
     const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
-    const interactivePath = isDark 
-        ? `./plots/positions/interactive/dark/${safeName}_dark.html${cacheBuster}`
-        : `./plots/positions/interactive/${safeName}.html${cacheBuster}`;
+    const interactivePath = DATA_PATHS.positionsInteractivePlot(safeName, isDark) + cacheBuster;
     
     // Check if interactive plot exists
     fetch(interactivePath, { method: 'HEAD' })
@@ -1588,7 +1584,7 @@ function loadStaticPositionPlot(bladeName, isDark) {
     const plotFrame = document.getElementById('positionPlotFrame');
     const plotImg = document.getElementById('positionPlot');
     
-    const basePath = isDark ? './plots/positions/dark/' : './plots/positions/';
+    const basePath = isDark ? DATA_PATHS.PLOTS_POSITIONS_DARK_DIR : DATA_PATHS.PLOTS_POSITIONS_DIR;
     const filename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
     
     plotImg.src = basePath + filename;
@@ -1613,7 +1609,7 @@ function loadKfactorPlot() {
     const bladeName = getBladeName();
     const isDark = document.body.classList.contains('dark');
 
-    const basePath = isDark ? './plots/kfactor/dark/' : './plots/kfactor/';
+    const basePath = isDark ? DATA_PATHS.PLOTS_KFACTOR_DARK_DIR : DATA_PATHS.PLOTS_KFACTOR_DIR;
     const filename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
 
     plotImg.src = basePath + filename;
@@ -1969,13 +1965,11 @@ function setupPlotDarkModeObserver() {
             // Interactive plot is displayed, reload with correct theme
             const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
             const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
-            const interactivePath = isDark 
-                ? `./plots/elo/interactive/dark/${safeName}_dark.html${cacheBuster}`
-                : `./plots/elo/interactive/${safeName}.html${cacheBuster}`;
+            const interactivePath = DATA_PATHS.eloInteractivePlot(safeName, isDark) + cacheBuster;
             eloPlotFrame.src = interactivePath;
         } else if (eloPlot && eloPlot.style.display !== 'none' && eloPlot.src) {
             // Static plot is displayed
-            const eloBasePath = isDark ? './plots/elo/dark/' : './plots/elo/';
+            const eloBasePath = isDark ? DATA_PATHS.PLOTS_ELO_DARK_DIR : DATA_PATHS.PLOTS_ELO_DIR;
             const eloFilename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
             eloPlot.src = eloBasePath + eloFilename;
         }
@@ -1985,20 +1979,18 @@ function setupPlotDarkModeObserver() {
             // Interactive plot is displayed, reload with correct theme
             const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
             const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
-            const interactivePath = isDark 
-                ? `./plots/positions/interactive/dark/${safeName}_dark.html${cacheBuster}`
-                : `./plots/positions/interactive/${safeName}.html${cacheBuster}`;
+            const interactivePath = DATA_PATHS.positionsInteractivePlot(safeName, isDark) + cacheBuster;
             positionPlotFrame.src = interactivePath;
         } else if (positionPlot && positionPlot.style.display !== 'none' && positionPlot.src) {
             // Static plot is displayed
-            const posBasePath = isDark ? './plots/positions/dark/' : './plots/positions/';
+            const posBasePath = isDark ? DATA_PATHS.PLOTS_POSITIONS_DARK_DIR : DATA_PATHS.PLOTS_POSITIONS_DIR;
             const posFilename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
             positionPlot.src = posBasePath + posFilename;
         }
 
         // Update K-Factor / Form-EMA plot
         if (kfactorPlot && kfactorPlot.style.display !== 'none' && kfactorPlot.src) {
-            const kfBasePath = isDark ? './plots/kfactor/dark/' : './plots/kfactor/';
+            const kfBasePath = isDark ? DATA_PATHS.PLOTS_KFACTOR_DARK_DIR : DATA_PATHS.PLOTS_KFACTOR_DIR;
             const kfFilename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
             kfactorPlot.src = kfBasePath + kfFilename;
         }

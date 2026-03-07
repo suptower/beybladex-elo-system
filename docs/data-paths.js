@@ -70,6 +70,23 @@ const DATA_PATHS = Object.freeze({
     SEASON_STATS_JSON: 'data/season/season_statistics.json',
 
     // -----------------------------------------------------------------------
+    // Plots (public, under docs/plots/)
+    // -----------------------------------------------------------------------
+    PLOTS_JSON:              'plots/plots.json',
+    PLOTS_BARS_JSON:         'plots/bars/plots.json',
+    PLOTS_ELO_JSON:          'plots/elo/plots.json',
+    PLOTS_POSITIONS_JSON:    'plots/positions/plots.json',
+    PLOTS_HEATMAPS_JSON:     'plots/heatmaps/plots.json',
+    PLOTS_BASE:              'plots/',
+    PLOTS_ELO_DIR:           'plots/elo/',
+    PLOTS_ELO_DARK_DIR:      'plots/elo/dark/',
+    PLOTS_POSITIONS_DIR:     'plots/positions/',
+    PLOTS_POSITIONS_DARK_DIR:'plots/positions/dark/',
+    PLOTS_KFACTOR_DIR:       'plots/kfactor/',
+    PLOTS_KFACTOR_DARK_DIR:  'plots/kfactor/dark/',
+    PLOTS_SEASON_DIR:        'plots/season/',
+
+    // -----------------------------------------------------------------------
     // Tournaments
     // -----------------------------------------------------------------------
     TOURNAMENTS_JSON:         'data/tournaments/tournaments.json',
@@ -142,7 +159,7 @@ const DATA_PATHS = Object.freeze({
      * @returns {string}
      */
     seasonMetaAnalytics(seasonId) {
-        return `data/season_meta_analytics_${seasonId}.json`;
+        return `data/season/season_meta_analytics_${seasonId}.json`;
     },
 
     /**
@@ -152,6 +169,68 @@ const DATA_PATHS = Object.freeze({
      * @returns {string}
      */
     tableSnapshots(seasonId, tier) {
-        return `data/table_snapshots_${seasonId}_tier${tier}.csv`;
+        return `data/season/table_snapshots_${seasonId}_tier${tier}.csv`;
+    },
+
+    /**
+     * Season plot manifest JSON.
+     * @param {string} seasonId - e.g. 'S1'
+     * @returns {string}
+     */
+    seasonPlotManifest(seasonId) {
+        return `plots/season/${seasonId}/manifest.json`;
+    },
+
+    /**
+     * Season plot directory for a tier or 'combined'.
+     * @param {string} seasonId - e.g. 'S1'
+     * @param {string|number} tier - tier number or 'combined'
+     * @returns {string}
+     */
+    seasonPlotDir(seasonId, tier) {
+        return tier === 'combined'
+            ? `plots/season/${seasonId}/combined/`
+            : `plots/season/${seasonId}/tier${tier}/`;
+    },
+
+    /**
+     * Season comparison plot directory.
+     * @returns {string}
+     */
+    seasonComparisonPlotDir() {
+        return 'plots/season/comparison/';
+    },
+
+    /**
+     * Season advanced meta-analytics plot directory.
+     * @param {string} seasonId - e.g. 'S1'
+     * @returns {string}
+     */
+    seasonAdvancedPlotDir(seasonId) {
+        return `plots/season/${seasonId}/advanced/`;
+    },
+
+    /**
+     * Interactive ELO plot HTML for a bey.
+     * @param {string} safeName - filesystem-safe bey name
+     * @param {boolean} dark - dark mode
+     * @returns {string}
+     */
+    eloInteractivePlot(safeName, dark) {
+        return dark
+            ? `plots/elo/interactive/dark/${safeName}_dark.html`
+            : `plots/elo/interactive/${safeName}.html`;
+    },
+
+    /**
+     * Interactive positions plot HTML for a bey.
+     * @param {string} safeName - filesystem-safe bey name
+     * @param {boolean} dark - dark mode
+     * @returns {string}
+     */
+    positionsInteractivePlot(safeName, dark) {
+        return dark
+            ? `plots/positions/interactive/dark/${safeName}_dark.html`
+            : `plots/positions/interactive/${safeName}.html`;
     },
 });

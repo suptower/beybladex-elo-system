@@ -35,7 +35,7 @@ from collections import defaultdict
 from typing import Dict, List, Optional, Tuple
 
 import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import DATA_DIR
+from src.config.paths import DATA_DIR, SEASON_DIR
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -1062,7 +1062,7 @@ def main() -> None:
     )
     parser.add_argument("--data-dir", default=DATA_DIR,
                         help="Directory containing input CSV/JSON files")
-    parser.add_argument("--output-dir", default=DATA_DIR,
+    parser.add_argument("--output-dir", default=SEASON_DIR,
                         help="Directory to write output JSON files")
     parser.add_argument("--season", default=None,
                         help="Season ID to process (default: all active seasons)")
