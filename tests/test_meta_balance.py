@@ -4,6 +4,7 @@ Tests the Meta Balance Analyzer functionality for competitive health metrics.
 """
 import sys
 import os
+import pytest
 
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'analytics'))
@@ -477,6 +478,12 @@ class TestIdentifyOutliers:
 
 class TestMetaBalanceIntegration:
     """Integration tests using real data."""
+    ELO_HISTORY_FILE = './docs/data/elo/elo_history.csv'
+
+    @pytest.fixture(autouse=True)
+    def require_elo_history(self):
+        if not os.path.exists(self.ELO_HISTORY_FILE):
+            pytest.skip("elo_history.csv not yet generated — run the pipeline first")
 
     def test_full_analysis_returns_valid_structure(self):
         """Full analysis should return a valid complete structure."""

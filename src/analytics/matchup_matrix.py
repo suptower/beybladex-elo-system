@@ -16,12 +16,22 @@ import csv
 from collections import defaultdict
 from typing import Dict, List, Tuple
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
+    MATCHES_CSV,
+    LEADERBOARD_CSV,
+    RPG_STATS_JSON,
+    MATCHUP_MATRIX_JSON,
+)
+
 # File paths
-MATCHES_CSV = "./docs/data/matches/matches.csv"
-BEYS_DATA_JSON = "./docs/data/beys/beys_data.json"
-LEADERBOARD_CSV = "./docs/data/leaderboard/leaderboard.csv"
-RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
-OUTPUT_JSON = "./docs/data/analytics/matchup_matrix.json"
+OUTPUT_JSON = MATCHUP_MATRIX_JSON
 
 
 def load_matches() -> List[Dict]:

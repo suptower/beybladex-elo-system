@@ -6,6 +6,7 @@
     <title>suptower Beyblade X - Best Counters</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -208,13 +209,13 @@ function getEffectivenessText(winrate, scoreDiff) {
 async function loadAllData() {
     try {
         // Load counters data
-        const countersResponse = await fetch('data/analytics/bey_counters.csv');
+        const countersResponse = await fetch(DATA_PATHS.BEY_COUNTERS_CSV);
         const countersText = await countersResponse.text();
         countersData = parseCSV(countersText);
         
         // Load beyblade data for images
         try {
-            const beyResponse = await fetch('data/beys/beys_data.json');
+            const beyResponse = await fetch(DATA_PATHS.BEYS_DATA_JSON);
             beysData = await beyResponse.json();
         } catch (e) {
             console.warn('Could not load beys data:', e);

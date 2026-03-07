@@ -28,6 +28,15 @@ import json
 import os
 from typing import Dict, List, Optional
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import SEASON_DIR  # noqa: E402
+
 # Qualification slots per tier
 TIER_QUALIFICATION = {
     1: 4,  # Tier I: Top 4
@@ -37,7 +46,7 @@ TIER_QUALIFICATION = {
 }
 
 # Default paths
-DEFAULT_DATA_DIR = "./docs/data"
+DEFAULT_DATA_DIR = SEASON_DIR
 
 
 def get_qualified_beys(league_tables: Dict[int, List[Dict]]) -> List[Dict]:

@@ -6,6 +6,7 @@
     <title>Archetype Effectiveness Dashboard - Beyblade X ELO</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -142,7 +143,7 @@
     // Load archetype analytics data
     async function loadArchetypeData() {
         try {
-            const response = await fetch('data/analytics/archetype_analytics.json');
+            const response = await fetch(DATA_PATHS.ARCHETYPE_ANALYTICS_JSON);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

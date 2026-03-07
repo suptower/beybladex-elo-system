@@ -9,12 +9,24 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
-from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
+from plot_styles import configure_light_mode, configure_dark_mode   # noqa: E402
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (   # noqa: E402
+    LEADERBOARD_CSV,
+    ADVANCED_LEADERBOARD_CSV,
+    ELO_TIMESERIES_CSV,
+    PLOTS_DIR,
+)
 
 # --- Dateien und Verzeichnisse ---
-LEADERBOARD_FILE = "./docs/data/leaderboard/leaderboard.csv"
-ADVANCED_FILE = "./docs/data/leaderboard/advanced_leaderboard.csv"
-OUTPUT_DIR = "./docs/plots"
+LEADERBOARD_FILE = LEADERBOARD_CSV
+ADVANCED_FILE = ADVANCED_LEADERBOARD_CSV
+OUTPUT_DIR = PLOTS_DIR
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 
@@ -136,8 +148,8 @@ def plot_elo_trends_top5(output_file, dark_mode=False):
         configure_light_mode()
 
     # ELO Verlauf aus timeseries CSV
-    df_ts = pd.read_csv("./docs/data/elo/elo_timeseries.csv")
-    df_adv = pd.read_csv("./docs/data/leaderboard/advanced_leaderboard.csv")
+    df_ts = pd.read_csv(ELO_TIMESERIES_CSV)
+    df_adv = pd.read_csv(ADVANCED_LEADERBOARD_CSV)
     df_trend = df_adv.sort_values(by='ELO', ascending=False).head(5)
 
     plt.figure(figsize=(12, 6))

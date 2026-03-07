@@ -28,6 +28,15 @@ from collections import defaultdict
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import DATA_DIR, MATCHES_CSV, ROUNDS_CSV, SEASON_DIR  # noqa: E402
+
 # Colors for output
 RESET = "\033[0m"
 BOLD = "\033[1m"
@@ -36,10 +45,10 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # Default paths
-DEFAULT_DATA_DIR = "./docs/data"
-DEFAULT_MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches.csv")
-DEFAULT_ROUNDS_FILE = os.path.join(DEFAULT_DATA_DIR, "rounds.csv")
-DEFAULT_OUTPUT_DIR = DEFAULT_DATA_DIR
+DEFAULT_DATA_DIR = DATA_DIR
+DEFAULT_MATCHES_FILE = MATCHES_CSV
+DEFAULT_ROUNDS_FILE = ROUNDS_CSV
+DEFAULT_OUTPUT_DIR = SEASON_DIR
 
 
 @dataclass
@@ -326,10 +335,14 @@ class SeasonStatistics:
         with open(self.matches_file, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                # Only consider matches with MatchType = "season"
+                # Determine match type and phase
                 match_type = row.get("MatchType", "").lower()
-                if match_type != "season":
-                    continue
+                if match_type == "season":
+                    phase = "Swiss"
+                elif match_type == "season_cup":
+                    phase = "Playoffs"
+                else:
+                    continue  # Skip unrecognised match types
 
                 # Apply filters
                 if season_id and row.get("SeasonID") != season_id:
@@ -337,9 +350,6 @@ class SeasonStatistics:
                 if tier is not None and row.get("Tier"):
                     if int(row.get("Tier", 0)) != tier:
                         continue
-
-                # Season matches are Swiss phase
-                phase = "Swiss"
 
                 # Determine winner
                 score_a = int(row.get("ScoreA", 0))

@@ -1,7 +1,23 @@
 import gspread
 import csv
-from oauth2client.service_account import ServiceAccountCredentials
 import os
+from oauth2client.service_account import ServiceAccountCredentials
+
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
+    LEADERBOARD_CSV,
+    ADVANCED_LEADERBOARD_CSV,
+    ELO_HISTORY_CSV,
+    ELO_TIMESERIES_CSV,
+    BEY_COUNTERS_CSV,
+    LEADERBOARD_DIR,
+)
 
 # Aktiviert ANSI-Farben in Windows-Terminals
 os.system("")
@@ -36,25 +52,25 @@ def upload_csv_to_sheet(csv_file, sheet_name, percent_cols=[]):
 
 # --- Tabellen hochladen ---
 print(f"{BOLD}Lade Leaderboards zu Google Sheets hoch...{RESET}", flush=True)
-upload_csv_to_sheet("./docs/data/leaderboard/leaderboard.csv", "Leaderboard")
+upload_csv_to_sheet(LEADERBOARD_CSV, "Leaderboard")
 print(f"{GREEN}Haupt-Rangliste hochgeladen.{RESET}")
 print(f"{BOLD}Lade erweiterte Daten zu Google Sheets hoch...{RESET}", flush=True)
-upload_csv_to_sheet("./docs/data/leaderboard/advanced_leaderboard.csv", "Advanced_Leaderboard")
+upload_csv_to_sheet(ADVANCED_LEADERBOARD_CSV, "Advanced_Leaderboard")
 print(f"{GREEN}Erweiterte Daten hochgeladen.{RESET}", flush=True)
-upload_csv_to_sheet("./docs/data/elo/elo_history.csv", "ELO_History")
+upload_csv_to_sheet(ELO_HISTORY_CSV, "ELO_History")
 print(f"{GREEN}ELO-Verlauf hochgeladen.{RESET}", flush=True)
-upload_csv_to_sheet("./docs/data/elo/elo_timeseries.csv", "ELO_Timeseries")
+upload_csv_to_sheet(ELO_TIMESERIES_CSV, "ELO_Timeseries")
 print(f"{GREEN}ELO-Zeitreihe hochgeladen.{RESET}", flush=True)
-upload_csv_to_sheet("./docs/data/analytics/bey_counters.csv", "Bey_Counters")
+upload_csv_to_sheet(BEY_COUNTERS_CSV, "Bey_Counters")
 print(f"{GREEN}Bey-Counter-Daten hochgeladen.{RESET}", flush=True)
 
 # Alle leaderboard csvs hochladen
 print(f"{BOLD}Lade einzelne Turnier-Ranglisten zu Google Sheets hoch...{RESET}", flush=True)
-for file in os.listdir("./docs/data/leaderboard/"):
+for file in os.listdir(LEADERBOARD_DIR):
     if file.startswith("leaderboard_") and file.endswith(".csv"):
         print(f"{GREEN}Lade {file} hoch...{RESET}", flush=True)
         t_idx = file[len("leaderboard_"):-len(".csv")]
-        upload_csv_to_sheet(f"./docs/data/leaderboard/{file}", f"Single_Leaderboard_{t_idx}")
+        upload_csv_to_sheet(os.path.join(LEADERBOARD_DIR, file), f"Single_Leaderboard_{t_idx}")
 
 
 print(f"{GREEN}Alle Daten erfolgreich zu Google Sheets hochgeladen!{RESET}")

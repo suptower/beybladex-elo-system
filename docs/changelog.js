@@ -29,7 +29,7 @@ const categoryEmojis = {
  */
 async function initChangelog() {
     try {
-        const response = await fetch('data/changelog.json');
+        const response = await fetch(DATA_PATHS.CHANGELOG_JSON);
         if (!response.ok) {
             throw new Error(`Failed to load changelog data: HTTP ${response.status} ${response.statusText}`);
         }

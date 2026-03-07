@@ -6,6 +6,7 @@
     <title>Season Statistics - BeybladeX ELO System</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -752,14 +753,14 @@
     async function loadStats(season) {
         try {
             currentSeason = season;
-            const filename = `data/season_statistics_${season}.json`;
+            const filename = DATA_PATHS.seasonStats(season);
             
             let response;
             try {
                 response = await fetch(filename);
                 if (!response.ok) throw new Error('Season-specific file not found');
             } catch {
-                response = await fetch('data/season/season_statistics.json');
+                response = await fetch(DATA_PATHS.SEASON_STATS_JSON);
                 if (!response.ok) throw new Error('Failed to load statistics');
             }
             
@@ -1019,7 +1020,7 @@
         currentTier = null;
 
         try {
-            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            const resp = await fetch(DATA_PATHS.seasonPlotManifest(season));
             if (!resp.ok) throw new Error('Manifest not found');
             plotsManifest = await resp.json();
 
@@ -1072,9 +1073,7 @@
         }
 
         const plots = dark ? tierData.dark_plots : tierData.plots;
-        const basePath = tier === 'combined'
-            ? `plots/season/${season}/combined/`
-            : `plots/season/${season}/tier${tier}/`;
+        const basePath = DATA_PATHS.seasonPlotDir(season, tier);
 
         plotsGrid.innerHTML = plots.map(filename => {
             const title = getPlotTitle(filename);
@@ -1127,7 +1126,7 @@
         section.style.display = 'none';
 
         try {
-            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            const resp = await fetch(DATA_PATHS.seasonPlotManifest(season));
             if (!resp.ok) throw new Error('Manifest not found');
             const manifest = await resp.json();
 
@@ -1152,7 +1151,7 @@
 
         try {
             if (!comparisonManifest) {
-                const resp = await fetch(`plots/season/${season}/manifest.json`);
+                const resp = await fetch(DATA_PATHS.seasonPlotManifest(season));
                 if (!resp.ok) throw new Error('Manifest not found');
                 const manifest = await resp.json();
                 comparisonManifest = manifest.comparison || null;
@@ -1165,7 +1164,7 @@
 
             const dark = isDarkMode();
             const plots = dark ? comparisonManifest.dark_plots : comparisonManifest.plots;
-            const basePath = comparisonManifest.base_path || 'plots/season/comparison/';
+            const basePath = comparisonManifest.base_path || DATA_PATHS.seasonComparisonPlotDir();
 
             grid.innerHTML = plots.map(filename => {
                 const title = getComparisonPlotTitle(filename);
@@ -1226,7 +1225,7 @@
         // Try to load statistics JSON (always attempted)
         let statsLoaded = false;
         try {
-            const statsResp = await fetch(`data/season_meta_analytics_${season}.json`);
+            const statsResp = await fetch(DATA_PATHS.seasonMetaAnalytics(season));
             if (statsResp.ok) {
                 advancedMetaStats = await statsResp.json();
                 statsLoaded = true;
@@ -1235,7 +1234,7 @@
 
         // Try to load manifest for plots (optional)
         try {
-            const resp = await fetch(`plots/season/${season}/manifest.json`);
+            const resp = await fetch(DATA_PATHS.seasonPlotManifest(season));
             if (resp.ok) {
                 const manifest = await resp.json();
                 advancedMetaManifest = manifest.advanced_meta || null;
@@ -1265,7 +1264,7 @@
         // Plots section (if available)
         if (advancedMetaManifest) {
             const dark = isDarkMode();
-            const basePath = advancedMetaManifest.base_path || `plots/season/${season}/advanced/`;
+            const basePath = advancedMetaManifest.base_path || DATA_PATHS.seasonAdvancedPlotDir(season);
             const features = advancedMetaManifest.features || [];
             const plotsHtml = features.map(feature => {
                 const plots = dark ? feature.dark_plots : feature.plots;

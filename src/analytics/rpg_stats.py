@@ -19,6 +19,23 @@ from collections import defaultdict
 from typing import Any
 import os
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
+    MATCHES_CSV,
+    ROUNDS_CSV,
+    ELO_HISTORY_CSV,
+    ADVANCED_LEADERBOARD_CSV,
+    BEYS_DATA_JSON,
+    RPG_STATS_JSON,
+    RPG_STATS_CSV,
+)
+
 # Initialize Windows terminal for ANSI color support (no-op on Unix systems)
 os.system("")
 
@@ -29,13 +46,11 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # File paths
-MATCHES_FILE = "./docs/data/matches/matches.csv"
-ROUNDS_FILE = "./docs/data/matches/rounds.csv"
-ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
-ADVANCED_LEADERBOARD_FILE = "./docs/data/leaderboard/advanced_leaderboard.csv"
-BEYS_DATA_FILE = "./docs/data/beys/beys_data.json"
-RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
-RPG_STATS_CSV = "./docs/data/analytics/rpg_stats.csv"
+MATCHES_FILE = MATCHES_CSV
+ROUNDS_FILE = ROUNDS_CSV
+ELO_HISTORY_FILE = ELO_HISTORY_CSV
+ADVANCED_LEADERBOARD_FILE = ADVANCED_LEADERBOARD_CSV
+BEYS_DATA_FILE = BEYS_DATA_JSON
 
 # Minimum matches against an opponent type to use the real win rate.
 # Below this threshold the neutral value (0.5) is imputed.

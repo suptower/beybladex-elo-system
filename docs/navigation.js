@@ -49,14 +49,11 @@
             // Tools pages
             'compare.html': { title: 'Compare', category: 'Tools' },
             'quick-entry.html': { title: 'Quick Entry', category: 'Tools' },
-            'explorer.html': { title: 'Parts Explorer', category: 'Tools' },
             
             // Analytics pages
             'analytics.html': { title: 'Analytics Tools', category: 'Analytics' },
             'plots.html': { title: 'Plots', category: 'Analytics' },
             'upsets.html': { title: 'Upsets', category: 'Analytics' },
-            'parts.html': { title: 'Parts', category: 'Misc' },
-            'synergy.html': { title: 'Synergy Heatmaps', category: 'Misc' },
             'meta-balance.html': { title: 'Meta Balance', category: 'Analytics' },
             'matchup-matrix.html': { title: 'Matchup Matrix', category: 'Analytics' },
             'archetype-dashboard.html': { title: 'Archetype Dashboard', category: 'Analytics' },

@@ -30,6 +30,15 @@ import math
 import os
 from collections import defaultdict
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import ELO_HISTORY_CSV, ELO_METRICS_JSON  # noqa: E402
+
 # Terminal colour helpers (graceful on systems without ANSI support)
 if os.name == "nt":
     os.system("")
@@ -39,8 +48,8 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # ── File paths ─────────────────────────────────────────────────────────────────
-ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
-OUTPUT_FILE = "./docs/data/elo/elo_metrics.json"
+ELO_HISTORY_FILE = ELO_HISTORY_CSV
+OUTPUT_FILE = ELO_METRICS_JSON
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 ARENA_FILTER = "Xtreme"   # only the ranked arena

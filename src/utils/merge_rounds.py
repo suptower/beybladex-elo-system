@@ -21,16 +21,20 @@ from typing import Optional
 # Add parent directory for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import FINISH_WEIGHTS_JSON, MATCHES_CSV, ROUNDS_CSV, MATCHES_WITH_ROUNDS_JSON   # noqa: E402
+
 # Valid finish types
 VALID_FINISH_TYPES = {"spin", "pocket", "burst", "extreme", "stadium_exit"}
 DEFAULT_FINISH_TYPE = "spin"
 
-# Default weights path
-DEFAULT_WEIGHTS_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "config",
-    "finish_weights.json"
-)
+# Default weights path anchored to repo root via paths.py
+DEFAULT_WEIGHTS_PATH = FINISH_WEIGHTS_JSON
 
 
 def load_finish_weights(weights_path: Optional[str] = None) -> dict:
@@ -435,17 +439,17 @@ Examples:
     parser.add_argument(
         "--challonge",
         help="Path to Challonge export file (CSV or JSON)",
-        default="./docs/data/matches/matches.csv"
+        default=MATCHES_CSV
     )
     parser.add_argument(
         "--rounds",
         help="Path to rounds CSV file",
-        default="./docs/data/matches/rounds.csv"
+        default=ROUNDS_CSV
     )
     parser.add_argument(
         "--output",
         help="Path for output JSON file",
-        default="./docs/data/matches/matches_with_rounds.json"
+        default=MATCHES_WITH_ROUNDS_JSON
     )
     parser.add_argument(
         "--validate",

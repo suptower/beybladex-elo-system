@@ -25,6 +25,14 @@ import re
 from datetime import datetime, timezone
 import argparse
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+
 # Default repository URL for fallback
 DEFAULT_REPO_URL = "https://github.com/suptower/beybladex-elo-system"
 
@@ -200,9 +208,8 @@ def main():
     args = parser.parse_args()
 
     # Determine output path
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(os.path.dirname(script_dir))
-    output_path = os.path.join(repo_root, "docs", "data", "changelog.json")
+    from src.config.paths import CHANGELOG_JSON
+    output_path = CHANGELOG_JSON
 
     print(f"Generating changelog with up to {args.limit} commits...")
     commits = get_commit_history(limit=args.limit)

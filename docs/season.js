@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 async function loadRoundsData() {
     try {
-        const response = await fetch('data/matches/matches_with_rounds.json');
+        const response = await fetch(DATA_PATHS.MATCHES_WITH_ROUNDS_JSON);
         const data = await response.json();
         
         // Create a mapping of match_id to rounds and ELO values
@@ -82,7 +82,7 @@ async function loadRoundsData() {
  */
 async function loadXtremeEloData() {
     try {
-        const response = await fetch('data/leaderboard/leaderboard_xtreme.csv');
+        const response = await fetch(DATA_PATHS.LEADERBOARD_XTREME_CSV);
         if (!response.ok) {
             throw new Error('Failed to load Xtreme leaderboard');
         }
@@ -118,7 +118,7 @@ async function loadXtremeEloData() {
  */
 async function loadTableSnapshots(seasonId, tier) {
     try {
-        const response = await fetch(`data/table_snapshots_${seasonId}_tier${tier}.csv`);
+        const response = await fetch(DATA_PATHS.tableSnapshots(seasonId, tier));
         if (!response.ok) {
             console.log(`No table snapshots found for ${seasonId} Tier ${tier}`);
             return [];
@@ -182,7 +182,7 @@ async function loadTableSnapshots(seasonId, tier) {
  */
 async function loadSeason(seasonId) {
     try {
-        const response = await fetch('data/season/season_data.json');
+        const response = await fetch(DATA_PATHS.SEASON_DATA_JSON);
         if (!response.ok) {
             throw new Error('Failed to load season data');
         }

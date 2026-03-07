@@ -26,28 +26,35 @@ from typing import Dict, List
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
 
-from season_cup import (  # noqa: E402
+from season_cup import (   # noqa: E402
     load_season_cup_data,
     export_bracket_for_display
 )
-from season_manager import (  # noqa: E402
+from season_manager import (   # noqa: E402
     get_league_table,
     get_promotion_relegation,
     generate_season_archive,
     load_season_data,
     save_season_data
 )
-from table_snapshots import (  # noqa: E402
+from table_snapshots import (   # noqa: E402
     generate_all_table_snapshots
 )
 
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import MATCHES_CSV, SEASON_DATA_JSON, SEASON_DIR, LEADERBOARD_CSV, FIXTURES_CSV   # noqa: E402
 
 # Default paths
-DEFAULT_DATA_DIR = "./docs/data"
-DEFAULT_MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches.csv")
-DEFAULT_FIXTURES_FILE = os.path.join(DEFAULT_DATA_DIR, "fixtures.csv")
-DEFAULT_LEADERBOARD_FILE = os.path.join(DEFAULT_DATA_DIR, "leaderboard.csv")
-DEFAULT_OUTPUT_FILE = os.path.join(DEFAULT_DATA_DIR, "season_data.json")
+DEFAULT_DATA_DIR = SEASON_DIR
+DEFAULT_MATCHES_FILE = MATCHES_CSV
+DEFAULT_FIXTURES_FILE = FIXTURES_CSV
+DEFAULT_LEADERBOARD_FILE = LEADERBOARD_CSV
+DEFAULT_OUTPUT_FILE = SEASON_DATA_JSON
 
 # Colors for output
 RESET = "\033[0m"
@@ -289,7 +296,7 @@ def refresh_qualification_pool(
         The refreshed qualification pool list, or an empty list if the season
         or leaderboard cannot be found.
     """
-    leaderboard_file = os.path.join(data_dir, "leaderboard.csv")
+    leaderboard_file = LEADERBOARD_CSV
 
     # Load current ELOs from leaderboard.
     # Canonical column names are "Name" (bey name) and "ELO" (rating).
@@ -605,9 +612,9 @@ def main():
 
     # Load matches with ELO data
     print(f"{YELLOW}Loading matches...{RESET}")
-    matches_file = os.path.join(args.data_dir, "matches.csv")
-    fixtures_file = os.path.join(args.data_dir, "fixtures.csv")
-    leaderboard_file = os.path.join(args.data_dir, "leaderboard.csv")
+    matches_file = DEFAULT_MATCHES_FILE
+    fixtures_file = DEFAULT_FIXTURES_FILE
+    leaderboard_file = DEFAULT_LEADERBOARD_FILE
 
     try:
         matches = load_matches_with_elo(matches_file, leaderboard_file)

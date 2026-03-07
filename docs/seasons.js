@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 async function loadGlobalEloData() {
     try {
-        const response = await fetch('data/leaderboard/leaderboard_xtreme.csv');
+        const response = await fetch(DATA_PATHS.LEADERBOARD_XTREME_CSV);
         if (!response.ok) throw new Error('Failed to load leaderboard');
         const csvText = await response.text();
         const lines = csvText.trim().split('\n');
@@ -45,7 +45,7 @@ async function loadGlobalEloData() {
 async function loadSeasons() {
     try {
         const [seasonResponse] = await Promise.all([
-            fetch('data/season/season_data.json'),
+            fetch(DATA_PATHS.SEASON_DATA_JSON),
             loadGlobalEloData()
         ]);
         if (!seasonResponse.ok) {

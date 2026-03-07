@@ -26,13 +26,20 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
-from plot_styles import configure_dark_mode, configure_light_mode  # noqa: E402
+from plot_styles import configure_dark_mode, configure_light_mode   # noqa: E402
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import SEASON_COMPARISON_JSON, PLOTS_SEASON_COMPARISON_DIR, PLOTS_SEASON_DIR   # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-COMPARISON_FILE = "./docs/data/season/season_comparison.json"
-BASE_OUTPUT_DIR = "./docs/plots/season/comparison"
+COMPARISON_FILE = SEASON_COMPARISON_JSON
+BASE_OUTPUT_DIR = PLOTS_SEASON_COMPARISON_DIR
 
 
 # ---------------------------------------------------------------------------
@@ -334,12 +341,14 @@ def write_manifest(out_dir: str, plots: list) -> None:
 def update_season_manifest(
     season_id: str,
     light_plots: list,
-    season_plots_base: str = "./docs/plots/season",
+    season_plots_base: str = None,
 ) -> None:
     """
     Update the season's manifest.json to include the comparison section.
     The base_path stored in the manifest is relative to the docs/ root.
     """
+    if season_plots_base is None:
+        season_plots_base = PLOTS_SEASON_DIR
     manifest_path = os.path.join(season_plots_base, season_id, "manifest.json")
     if not os.path.exists(manifest_path):
         return

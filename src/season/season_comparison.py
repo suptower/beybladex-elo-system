@@ -33,15 +33,31 @@ import os
 from collections import defaultdict
 from typing import Dict, List, Optional
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
+    DATA_DIR,
+    MATCHES_CSV,
+    ELO_HISTORY_CSV,
+    LEADERBOARD_CSV,
+    SEASON_DATA_JSON,
+    SEASON_COMPARISON_JSON,
+)
+
 # ---------------------------------------------------------------------------
 # Default paths
 # ---------------------------------------------------------------------------
-DEFAULT_DATA_DIR = "./docs/data"
-MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches.csv")
-ELO_HISTORY_FILE = os.path.join(DEFAULT_DATA_DIR, "elo_history.csv")
-LEADERBOARD_FILE = os.path.join(DEFAULT_DATA_DIR, "leaderboard.csv")
-SEASON_DATA_FILE = os.path.join(DEFAULT_DATA_DIR, "season_data.json")
-OUTPUT_FILE = os.path.join(DEFAULT_DATA_DIR, "season_comparison.json")
+DEFAULT_DATA_DIR = DATA_DIR
+MATCHES_FILE = MATCHES_CSV
+ELO_HISTORY_FILE = ELO_HISTORY_CSV
+LEADERBOARD_FILE = LEADERBOARD_CSV
+SEASON_DATA_FILE = SEASON_DATA_JSON
+OUTPUT_FILE = SEASON_COMPARISON_JSON
 
 # Colors for terminal output
 RESET = "\033[0m"
@@ -466,9 +482,9 @@ def main(
     tier_filter: Optional[int] = None,
 ) -> None:
     """Load data, compute comparison metrics and write output JSON."""
-    matches_path = os.path.join(data_dir, "matches.csv")
-    elo_history_path = os.path.join(data_dir, "elo_history.csv")
-    leaderboard_path = os.path.join(data_dir, "leaderboard.csv")
+    matches_path = MATCHES_FILE
+    elo_history_path = ELO_HISTORY_FILE
+    leaderboard_path = LEADERBOARD_FILE
 
     matches = load_matches(matches_path)
     elo_history = load_elo_history(elo_history_path)

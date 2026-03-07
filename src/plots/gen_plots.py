@@ -17,6 +17,25 @@ from plot_styles import generate_dynamic_yticks, calculate_dynamic_plot_dimensio
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (   # noqa: E402
+    LEADERBOARD_CSV,
+    ELO_HISTORY_CSV,
+    ELO_TIMESERIES_CSV,
+    POSITION_TIMESERIES_CSV,
+    PLOTS_DIR,
+    PLOTS_PRIVATE_DIR,
+    PRIVATE_LEADERBOARD_CSV,
+    PRIVATE_ELO_HISTORY_CSV,
+    PRIVATE_ELO_TIMESERIES_CSV,
+    PRIVATE_POSITION_TIMESERIES_CSV,
+)
+
 env = os.environ.copy()
 env["PYTHONUTF8"] = "1"  # Ensure UTF-8 encoding for subprocesses
 
@@ -53,19 +72,19 @@ MEDIAN_LINE_STYLE = {
 def load_files(mode):
     if mode == "official":
         return {
-            "leaderboard": "./docs/data/leaderboard/leaderboard.csv",
-            "history": "./docs/data/elo/elo_history.csv",
-            "timeseries": "./docs/data/elo/elo_timeseries.csv",
-            "positions": "./docs/data/analytics/position_timeseries.csv",
-            "outdir": "./docs/plots/"
+            "leaderboard": LEADERBOARD_CSV,
+            "history": ELO_HISTORY_CSV,
+            "timeseries": ELO_TIMESERIES_CSV,
+            "positions": POSITION_TIMESERIES_CSV,
+            "outdir": PLOTS_DIR,
         }
     else:
         return {
-            "leaderboard": "./docs/data/leaderboard/private_leaderboard.csv",
-            "history": "./docs/data/elo/private_elo_history.csv",
-            "timeseries": "./docs/data/elo/private_elo_timeseries.csv",
-            "positions": "./docs/data/private_position_timeseries.csv",
-            "outdir": "./plots/private/"
+            "leaderboard": PRIVATE_LEADERBOARD_CSV,
+            "history": PRIVATE_ELO_HISTORY_CSV,
+            "timeseries": PRIVATE_ELO_TIMESERIES_CSV,
+            "positions": PRIVATE_POSITION_TIMESERIES_CSV,
+            "outdir": PLOTS_PRIVATE_DIR,
         }
 
 # -------------------
@@ -333,7 +352,6 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
     df_pos["Event"] = df_pos["Event"].astype(int)
     df_pos["MatchIndex"] = df_pos["MatchIndex"].astype(int)
     df_pos = df_pos.sort_values(["Bey", "Event"]).reset_index(drop=True)
-    max_rank = len(df_pos["Bey"].unique())
 
     subdir = os.path.join(outdir, "dark") if dark_mode else outdir
     suffix = "_dark" if dark_mode else ""
@@ -356,8 +374,7 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
         # Calculate dynamic plot dimensions based on actual position range
         min_pos = group["Position"].min()
         max_pos = group["Position"].max()
-        height = max_rank * 0.15
-        ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
+        height, ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
 
         plt.figure(figsize=(6, height))
         plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2, label="Position History")
@@ -871,7 +888,7 @@ def generate_all_plots(mode):
 
 
 def generate_plot_jsons():
-    base = "docs/plots"
+    base = PLOTS_DIR
     subfolders = ["bars", "elo", "heatmaps", "positions"]
 
     for folder in subfolders:
