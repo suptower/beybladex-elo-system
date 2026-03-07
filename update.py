@@ -45,6 +45,29 @@ import argparse
 import time
 from datetime import datetime
 
+from src.config.paths import (
+    ELO_DIR,
+    LEADERBOARD_DIR,
+    LEADERBOARD_SNAPSHOTS_DIR,
+    ANALYTICS_DIR,
+    PLOTS_DIR,
+    PLOTS_ELO_DIR,
+    PLOTS_ELO_INTERACTIVE_DIR,
+    PLOTS_ELO_INTERACTIVE_DARK_DIR,
+    PLOTS_POSITIONS_DIR,
+    PLOTS_POSITIONS_INTERACTIVE_DIR,
+    PLOTS_POSITIONS_INTERACTIVE_DARK_DIR,
+    PLOTS_SEASON_DIR,
+    PLOTS_SEASON_ADVANCED_DIR,
+    PLOTS_SEASON_COMPARISON_DIR,
+    PLOTS_PRIVATE_DIR,
+)
+
+# Add repo root to sys.path so src.config.paths can be imported.
+_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+
 # --- Script Paths ---
 # Version generation
 SCRIPT_GENERATE_VERSION = "./src/utils/generate_version.py"
@@ -101,6 +124,36 @@ _REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
 env["PYTHONPATH"] = os.pathsep.join(
     filter(None, [_REPO_ROOT, os.environ.get("PYTHONPATH", "")])
 )
+
+
+def ensure_output_dirs():
+    """
+    Create all pipeline output directories if they do not already exist.
+
+    Generated artifact directories are listed in .gitignore and are therefore
+    absent in a fresh CI checkout.  Every script that writes to one of these
+    locations will raise ``FileNotFoundError`` unless the directory is created
+    first.
+    """
+    dirs = [
+        ELO_DIR,
+        LEADERBOARD_DIR,
+        LEADERBOARD_SNAPSHOTS_DIR,
+        ANALYTICS_DIR,
+        PLOTS_DIR,
+        PLOTS_ELO_DIR,
+        PLOTS_ELO_INTERACTIVE_DIR,
+        PLOTS_ELO_INTERACTIVE_DARK_DIR,
+        PLOTS_POSITIONS_DIR,
+        PLOTS_POSITIONS_INTERACTIVE_DIR,
+        PLOTS_POSITIONS_INTERACTIVE_DARK_DIR,
+        PLOTS_SEASON_DIR,
+        PLOTS_SEASON_ADVANCED_DIR,
+        PLOTS_SEASON_COMPARISON_DIR,
+        PLOTS_PRIVATE_DIR,
+    ]
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
 
 
 def parse_args():
@@ -556,6 +609,11 @@ def main():
 
     log_step("Beyblade X Update Pipeline", "header")
 
+    # Ensure all output directories exist before any script tries to write to
+    # them.  These directories are gitignored and therefore absent in a fresh
+    # CI checkout.
+    ensure_output_dirs()
+
     # Always generate version information first
     results = run_version_generation(verbose=args.verbose)
     all_results.extend(results)
@@ -588,6 +646,14 @@ def main():
     total_time = time.time() - start_time
     print_summary(all_results, total_time)
 
+    # Exit with a non-zero code when any step failed so that CI workflows can
+    # detect pipeline failures reliably.
+    failures = sum(1 for _, success, _ in all_results if not success)
+    if failures > 0:
+        return 1
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
