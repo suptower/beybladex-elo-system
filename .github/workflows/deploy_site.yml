@@ -3,10 +3,10 @@ name: Deploy Site
 on:
   workflow_dispatch:
     inputs:
-        reason:
-          description: 'Reason for manual deployment'
-          required: false
-          default: 'Manual deployment from main'
+      reason:
+        description: 'Reason for manual deployment'
+        required: false
+        default: 'Manual deployment from main'
 
 permissions:
   contents: write
