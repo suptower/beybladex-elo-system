@@ -53,4 +53,4 @@ jobs:
 
           git push --force \
             "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
-            HEAD:gh-pagesW
+            HEAD:gh-pages
