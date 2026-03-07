@@ -482,9 +482,9 @@ def main(
     tier_filter: Optional[int] = None,
 ) -> None:
     """Load data, compute comparison metrics and write output JSON."""
-    matches_path = os.path.join(data_dir, "matches/matches.csv")
-    elo_history_path = os.path.join(data_dir, "elo/elo_history.csv")
-    leaderboard_path = os.path.join(data_dir, "leaderboard/leaderboard.csv")
+    matches_path = MATCHES_FILE
+    elo_history_path = ELO_HISTORY_FILE
+    leaderboard_path = LEADERBOARD_FILE
 
     matches = load_matches(matches_path)
     elo_history = load_elo_history(elo_history_path)

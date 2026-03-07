@@ -296,9 +296,7 @@ def refresh_qualification_pool(
         The refreshed qualification pool list, or an empty list if the season
         or leaderboard cannot be found.
     """
-    leaderboard_file = os.path.join(data_dir, "leaderboard.csv")
-    if not os.path.exists(leaderboard_file):
-        leaderboard_file = LEADERBOARD_CSV
+    leaderboard_file = LEADERBOARD_CSV
 
     # Load current ELOs from leaderboard.
     # Canonical column names are "Name" (bey name) and "ELO" (rating).
