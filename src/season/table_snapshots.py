@@ -29,7 +29,16 @@ import os
 from collections import defaultdict
 from typing import Dict, List
 
-from season_manager import calculate_season_points
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import SEASON_DIR  # noqa: E402
+
+from season_manager import calculate_season_points  # noqa: E402
 
 
 def generate_table_snapshot(matches: List[Dict], matchday: int, tier: int, season_id: str) -> List[Dict]:
@@ -153,7 +162,7 @@ def calculate_position_deltas(current_table: List[Dict], previous_table: List[Di
 
 
 def generate_all_table_snapshots(matches: List[Dict], season_id: str,
-                                 output_dir: str = "./docs/data") -> None:
+                                 output_dir: str = None) -> None:
     """
     Generate table snapshots for all matchdays and tiers in a season.
 
@@ -162,6 +171,8 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
         season_id: Season identifier
         output_dir: Directory to save CSV files
     """
+    if output_dir is None:
+        output_dir = SEASON_DIR
     # Get all matchdays per tier
     matchdays_by_tier = defaultdict(set)
     for match in matches:
@@ -219,7 +230,6 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
 
 
 if __name__ == "__main__":
-    import sys
     sys.path.insert(0, os.path.dirname(__file__))
 
     # Example usage

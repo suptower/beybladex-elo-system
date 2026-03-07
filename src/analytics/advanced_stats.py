@@ -4,6 +4,15 @@ import statistics
 from collections import defaultdict
 import os
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import ELO_HISTORY_CSV, ADVANCED_LEADERBOARD_CSV  # noqa: E402
+
 os.system("")
 
 # Farben
@@ -14,8 +23,8 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 
-HISTORY_FILE = "./docs/data/elo/elo_history.csv"
-ADVANCED_FILE = "./docs/data/leaderboard/advanced_leaderboard.csv"
+HISTORY_FILE = ELO_HISTORY_CSV
+ADVANCED_FILE = ADVANCED_LEADERBOARD_CSV
 
 # --- Power Index Weights ---
 POWER_INDEX_WEIGHTS = {
@@ -174,219 +183,219 @@ def calculate_credibility_score(matches, opponent_elos, volatility, max_matches,
     return round(credibility_score, 3), credibility_label
 
 
-# --- Datenstrukturen ---
-stats = defaultdict(lambda: {
-    "rank": 0,
-    "matches": 0,
-    "wins": 0,
-    "losses": 0,
-    "points_for": 0,
-    "points_against": 0,
-    "elo_deltas": [],
-    "last_elo": 1000,  # letzter PostELO
-    "upset_wins": 0,
-    "upset_losses": 0,
-    "opponent_elos": []  # Track opponent ELOs for credibility calculation
-})
-
-# --- CSV einlesen und Stats sammeln ---
-with open(HISTORY_FILE, newline="", encoding="utf-8") as f:
-    reader = csv.DictReader(f)
-    matches = sorted(reader, key=lambda m: m["Date"])
-    for row in matches:
-        # Only process Xtreme arena matches for advanced statistics
-        # Advanced stats should only reflect Season/Global (Xtreme) performance
-        elo_arena_updated = row.get("elo_arena_updated", "Xtreme")
-        if elo_arena_updated != "Xtreme":
-            continue
-
-        a, b = row["BeyA"], row["BeyB"]
-        pre_a, pre_b = float(row["PreA"]), float(row["PreB"])
-        post_a, post_b = float(row["PostA"]), float(row["PostB"])
-        score_a, score_b = int(row["ScoreA"]), int(row["ScoreB"])
-        total = score_a + score_b
-        if total == 0:
-            continue
-
-        # Statistiken updaten
-        for bey, pre, post, score_self, score_opp, opponent_pre in [
-            (a, pre_a, post_a, score_a, score_b, pre_b),
-            (b, pre_b, post_b, score_b, score_a, pre_a)
-        ]:
-            s = stats[bey]
-            s["matches"] += 1
-            s["points_for"] += score_self
-            s["points_against"] += score_opp
-            delta = post - pre
-            s["elo_deltas"].append(delta)
-            s["last_elo"] = post
-            s["opponent_elos"].append(opponent_pre)  # Track opponent ELO for credibility
-
-            # Win / Loss
-            if score_self > score_opp:
-                s["wins"] += 1
-            else:
-                s["losses"] += 1
-
-            # Upset-Win / Upset-Loss
-            if score_self > score_opp and pre < opponent_pre:
-                s["upset_wins"] += 1
-            if score_self < score_opp and pre > opponent_pre:
-                s["upset_losses"] += 1
-
-# --- Advanced Stats berechnen (Phase 1: Compute intermediate values) ---
-intermediate_data = []
-sorted_stats = sorted(stats.items(), key=lambda x: -x[1]["last_elo"])
-for bey, s in sorted_stats:
-    match_count = s["matches"]
-    wins = s["wins"]
-    losses = s["losses"]
-    points_for = s["points_for"]
-    points_against = s["points_against"]
-    delta_sum = sum(s["elo_deltas"])
-    last_elo = s["last_elo"]
-    # Volatilität
-    volatility = statistics.stdev(s["elo_deltas"]) if len(s["elo_deltas"]) > 1 else 0.0
-    # Avg ΔELO
-    avg_delta = sum(abs(d) for d in s["elo_deltas"]) / match_count if match_count > 0 else 0.0
-    # Max/Min ΔELO
-    max_delta = max(s["elo_deltas"]) if s["elo_deltas"] else 0.0
-    min_delta = min(s["elo_deltas"]) if s["elo_deltas"] else 0.0
-    # Winrate
-    winrate = wins / match_count if match_count > 0 else 0.0
-    # Average Punktedifferenz
-    avg_point_diff = (points_for - points_against) / match_count if match_count > 0 else 0.0
-    # ELO-Trend
-    elo_trend = delta_sum
-
-    intermediate_data.append({
-        "bey": bey,
-        "elo": last_elo,
-        "matches": match_count,
-        "wins": wins,
-        "losses": losses,
-        "winrate": winrate,
-        "points_for": points_for,
-        "points_against": points_against,
-        "avg_point_diff": avg_point_diff,
-        "volatility": volatility,
-        "avg_delta": avg_delta,
-        "max_delta": max_delta,
-        "min_delta": min_delta,
-        "upset_wins": s["upset_wins"],
-        "upset_losses": s["upset_losses"],
-        "elo_trend": elo_trend,
-        "opponent_elos": s["opponent_elos"]  # For credibility calculation
+if __name__ == "__main__":
+    # --- Datenstrukturen ---
+    stats = defaultdict(lambda: {
+        "rank": 0,
+        "matches": 0,
+        "wins": 0,
+        "losses": 0,
+        "points_for": 0,
+        "points_against": 0,
+        "elo_deltas": [],
+        "last_elo": 1000,  # letzter PostELO
+        "upset_wins": 0,
+        "upset_losses": 0,
+        "opponent_elos": []  # Track opponent ELOs for credibility calculation
     })
 
-# --- Phase 2: Calculate normalization parameters for Power Index ---
-all_elos = [d["elo"] for d in intermediate_data]
-all_trends = [d["elo_trend"] for d in intermediate_data]
-all_matches = [d["matches"] for d in intermediate_data]
-all_volatilities = [d["volatility"] for d in intermediate_data]
+    # --- CSV einlesen und Stats sammeln ---
+    with open(HISTORY_FILE, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        matches = sorted(reader, key=lambda m: m["Date"])
+        for row in matches:
+            # Only process Xtreme arena matches for advanced statistics
+            # Advanced stats should only reflect Season/Global (Xtreme) performance
+            elo_arena_updated = row.get("elo_arena_updated", "Xtreme")
+            if elo_arena_updated != "Xtreme":
+                continue
 
-max_elo = max(all_elos) if all_elos else 1000
-min_elo = min(all_elos) if all_elos else 1000
-max_trend = max(all_trends) if all_trends else 0
-min_trend = min(all_trends) if all_trends else 0
-max_matches = max(all_matches) if all_matches else 1
-max_volatility = max(all_volatilities) if all_volatilities else 1
+            a, b = row["BeyA"], row["BeyB"]
+            pre_a, pre_b = float(row["PreA"]), float(row["PreB"])
+            post_a, post_b = float(row["PostA"]), float(row["PostB"])
+            score_a, score_b = int(row["ScoreA"]), int(row["ScoreB"])
+            total = score_a + score_b
+            if total == 0:
+                continue
 
-# --- Phase 3: Calculate Power Index and Credibility Score, build final data ---
-advanced_data = []
-for d in intermediate_data:
-    power_index = calculate_power_index(
-        elo=d["elo"],
-        winrate=d["winrate"],
-        trend=d["elo_trend"],
-        matches=d["matches"],
-        volatility=d["volatility"],
-        max_elo=max_elo,
-        min_elo=min_elo,
-        max_trend=max_trend,
-        min_trend=min_trend,
-        max_matches=max_matches,
-        max_volatility=max_volatility
-    )
+            # Statistiken updaten
+            for bey, pre, post, score_self, score_opp, opponent_pre in [
+                (a, pre_a, post_a, score_a, score_b, pre_b),
+                (b, pre_b, post_b, score_b, score_a, pre_a)
+            ]:
+                s = stats[bey]
+                s["matches"] += 1
+                s["points_for"] += score_self
+                s["points_against"] += score_opp
+                delta = post - pre
+                s["elo_deltas"].append(delta)
+                s["last_elo"] = post
+                s["opponent_elos"].append(opponent_pre)  # Track opponent ELO for credibility
 
-    # Calculate credibility score
-    credibility_score, credibility_label = calculate_credibility_score(
-        matches=d["matches"],
-        opponent_elos=d["opponent_elos"],
-        volatility=d["volatility"],
-        max_matches=max_matches,
-        max_volatility=max_volatility
-    )
+                # Win / Loss
+                if score_self > score_opp:
+                    s["wins"] += 1
+                else:
+                    s["losses"] += 1
 
-    advanced_data.append({
-        "bey": d["bey"],
-        "elo": round(d["elo"]),
-        "matches": d["matches"],
-        "wins": d["wins"],
-        "losses": d["losses"],
-        "winrate": f"{d['winrate'] * 100:.1f}%",
-        "points_for": d["points_for"],
-        "points_against": d["points_against"],
-        "avg_point_diff": round(d["avg_point_diff"], 2),
-        "volatility": round(d["volatility"], 2),
-        "avg_delta": round(d["avg_delta"], 2),
-        "max_delta": round(d["max_delta"], 2),
-        "min_delta": round(d["min_delta"], 2),
-        "upset_wins": d["upset_wins"],
-        "upset_losses": d["upset_losses"],
-        "elo_trend": round(d["elo_trend"], 2),
-        "power_index": power_index,
-        "credibility_score": credibility_score,
-        "credibility_label": credibility_label
-    })
+                # Upset-Win / Upset-Loss
+                if score_self > score_opp and pre < opponent_pre:
+                    s["upset_wins"] += 1
+                if score_self < score_opp and pre > opponent_pre:
+                    s["upset_losses"] += 1
 
-# --- Phase 4: Sort by ELO and assign ranks ---
-advanced_data_sorted = sorted(advanced_data, key=lambda x: -x["elo"])
-for rank, d in enumerate(advanced_data_sorted, start=1):
-    d["rank"] = rank
+    # --- Advanced Stats berechnen (Phase 1: Compute intermediate values) ---
+    intermediate_data = []
+    sorted_stats = sorted(stats.items(), key=lambda x: -x[1]["last_elo"])
+    for bey, s in sorted_stats:
+        match_count = s["matches"]
+        wins = s["wins"]
+        losses = s["losses"]
+        points_for = s["points_for"]
+        points_against = s["points_against"]
+        delta_sum = sum(s["elo_deltas"])
+        last_elo = s["last_elo"]
+        # Volatilität
+        volatility = statistics.stdev(s["elo_deltas"]) if len(s["elo_deltas"]) > 1 else 0.0
+        # Avg ΔELO
+        avg_delta = sum(abs(d) for d in s["elo_deltas"]) / match_count if match_count > 0 else 0.0
+        # Max/Min ΔELO
+        max_delta = max(s["elo_deltas"]) if s["elo_deltas"] else 0.0
+        min_delta = min(s["elo_deltas"]) if s["elo_deltas"] else 0.0
+        # Winrate
+        winrate = wins / match_count if match_count > 0 else 0.0
+        # Average Punktedifferenz
+        avg_point_diff = (points_for - points_against) / match_count if match_count > 0 else 0.0
+        # ELO-Trend
+        elo_trend = delta_sum
 
-# --- CSV speichern (nach Power Index sortiert) ---
-header = [
-    "Platz", "Bey", "ELO", "PowerIndex", "Matches", "Wins", "Losses", "Winrate",
-    "PointsFor", "PointsAgainst", "AvgPointDiff", "Volatility",
-    "AvgΔELO", "MaxΔELO", "MinΔELO", "UpsetWins", "UpsetLosses", "ELOTrend",
-    "CredibilityScore", "CredibilityLabel"
-]
+        intermediate_data.append({
+            "bey": bey,
+            "elo": last_elo,
+            "matches": match_count,
+            "wins": wins,
+            "losses": losses,
+            "winrate": winrate,
+            "points_for": points_for,
+            "points_against": points_against,
+            "avg_point_diff": avg_point_diff,
+            "volatility": volatility,
+            "avg_delta": avg_delta,
+            "max_delta": max_delta,
+            "min_delta": min_delta,
+            "upset_wins": s["upset_wins"],
+            "upset_losses": s["upset_losses"],
+            "elo_trend": elo_trend,
+            "opponent_elos": s["opponent_elos"]  # For credibility calculation
+        })
 
-with open(ADVANCED_FILE, "w", newline="", encoding="utf-8") as f:
-    writer = csv.writer(f)
-    writer.writerow(header)
-    for d in advanced_data_sorted:
-        writer.writerow([
-            d["rank"], d["bey"], d["elo"], d["power_index"], d["matches"],
-            d["wins"], d["losses"], d["winrate"], d["points_for"],
-            d["points_against"], d["avg_point_diff"], d["volatility"],
-            d["avg_delta"], d["max_delta"], d["min_delta"],
-            d["upset_wins"], d["upset_losses"], d["elo_trend"],
-            d["credibility_score"], d["credibility_label"]
-        ])
+    # --- Phase 2: Calculate normalization parameters for Power Index ---
+    all_elos = [d["elo"] for d in intermediate_data]
+    all_trends = [d["elo_trend"] for d in intermediate_data]
+    all_matches = [d["matches"] for d in intermediate_data]
+    all_volatilities = [d["volatility"] for d in intermediate_data]
 
-# No need to copy to docs folder since ADVANCED_FILE already points to docs/data
+    max_elo = max(all_elos) if all_elos else 1000
+    min_elo = min(all_elos) if all_elos else 1000
+    max_trend = max(all_trends) if all_trends else 0
+    min_trend = min(all_trends) if all_trends else 0
+    max_matches = max(all_matches) if all_matches else 1
+    max_volatility = max(all_volatilities) if all_volatilities else 1
 
-print(f"{GREEN} Advanced Leaderboard erstellt: {ADVANCED_FILE}")
+    # --- Phase 3: Calculate Power Index and Credibility Score, build final data ---
+    advanced_data = []
+    for d in intermediate_data:
+        power_index = calculate_power_index(
+            elo=d["elo"],
+            winrate=d["winrate"],
+            trend=d["elo_trend"],
+            matches=d["matches"],
+            volatility=d["volatility"],
+            max_elo=max_elo,
+            min_elo=min_elo,
+            max_trend=max_trend,
+            min_trend=min_trend,
+            max_matches=max_matches,
+            max_volatility=max_volatility
+        )
 
+        # Calculate credibility score
+        credibility_score, credibility_label = calculate_credibility_score(
+            matches=d["matches"],
+            opponent_elos=d["opponent_elos"],
+            volatility=d["volatility"],
+            max_matches=max_matches,
+            max_volatility=max_volatility
+        )
 
-# | Spalte            | Beschreibung                                                                                                                        |
-# | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-# | **Bey**           | Name des Beyblades.                                                                                                                 |
-# | **ELO**           | Aktuelle ELO nach allen bisherigen Matches (letzter PostELO-Wert). Zeigt die Gesamtstärke des Bey im Turnierverlauf.                |
-# | **Matches**       | Anzahl der gespielten Matches.                                                                                                      |
-# | **Wins**          | Anzahl der gewonnenen Matches.                                                                                                      |
-# | **Losses**        | Anzahl der verlorenen Matches.                                                                                                      |
-# | **Winrate**       | Prozentsatz der gewonnenen Matches (`Wins / Matches`). Zeigt die allgemeine Erfolgsquote.                                           |
-# | **PointsFor**     | Summe aller Punkte, die der Bey über alle Matches erzielt hat.                                                                      |
-# | **PointsAgainst** | Summe aller Punkte, die der Bey gegen sich kassiert hat.                                                                            |
-# | **AvgPointDiff**  | Durchschnittliche Punktedifferenz pro Match (`PointsFor − PointsAgainst / Matches`). Zeigt, wie klar ein Bey gewinnt oder verliert. |
-# | **Volatility**    | Standardabweichung der ELO-Änderungen pro Match. Misst, wie stark die Leistung von Match zu Match schwankt.                         |
-# | **AvgΔELO**       | Durchschnittlicher Betrag der ELO-Änderung pro Match. Zeigt, wie stark ein Match typischerweise die Bewertung verändert.            |
-# | **MaxΔELO**       | Größte einzelne ELO-Zunahme in einem Match. Zeigt den stärksten Match-Erfolg.                                                       |
-# | **MinΔELO**       | Größte einzelne ELO-Abnahme in einem Match. Zeigt die größte Niederlage.                                                            |
-# | **UpsetWins**     | Anzahl der Siege gegen Gegner, die vor dem Match eine höhere ELO hatten. Zeigt „Überraschungssiege“.                                |
-# | **UpsetLosses**   | Anzahl der Niederlagen gegen Gegner, die vor dem Match eine niedrigere ELO hatten. Zeigt unerwartete Niederlagen.                   |
-# | **ELOTrend**      | Gesamte ELO-Änderung über alle Matches (`sum(PostELO-PreELO)`). Zeigt, ob der Bey insgesamt stärker oder schwächer geworden ist.    |
-# | **PowerIndex**    | Composite score (0-100) combining ELO (40%), Winrate (25%), Trend (15%), Activity (10%), and Consistency (10%).                     |
+        advanced_data.append({
+            "bey": d["bey"],
+            "elo": round(d["elo"]),
+            "matches": d["matches"],
+            "wins": d["wins"],
+            "losses": d["losses"],
+            "winrate": f"{d['winrate'] * 100:.1f}%",
+            "points_for": d["points_for"],
+            "points_against": d["points_against"],
+            "avg_point_diff": round(d["avg_point_diff"], 2),
+            "volatility": round(d["volatility"], 2),
+            "avg_delta": round(d["avg_delta"], 2),
+            "max_delta": round(d["max_delta"], 2),
+            "min_delta": round(d["min_delta"], 2),
+            "upset_wins": d["upset_wins"],
+            "upset_losses": d["upset_losses"],
+            "elo_trend": round(d["elo_trend"], 2),
+            "power_index": power_index,
+            "credibility_score": credibility_score,
+            "credibility_label": credibility_label
+        })
+
+    # --- Phase 4: Sort by ELO and assign ranks ---
+    advanced_data_sorted = sorted(advanced_data, key=lambda x: -x["elo"])
+    for rank, d in enumerate(advanced_data_sorted, start=1):
+        d["rank"] = rank
+
+    # --- CSV speichern (nach Power Index sortiert) ---
+    header = [
+        "Platz", "Bey", "ELO", "PowerIndex", "Matches", "Wins", "Losses", "Winrate",
+        "PointsFor", "PointsAgainst", "AvgPointDiff", "Volatility",
+        "AvgΔELO", "MaxΔELO", "MinΔELO", "UpsetWins", "UpsetLosses", "ELOTrend",
+        "CredibilityScore", "CredibilityLabel"
+    ]
+
+    with open(ADVANCED_FILE, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        for d in advanced_data_sorted:
+            writer.writerow([
+                d["rank"], d["bey"], d["elo"], d["power_index"], d["matches"],
+                d["wins"], d["losses"], d["winrate"], d["points_for"],
+                d["points_against"], d["avg_point_diff"], d["volatility"],
+                d["avg_delta"], d["max_delta"], d["min_delta"],
+                d["upset_wins"], d["upset_losses"], d["elo_trend"],
+                d["credibility_score"], d["credibility_label"]
+            ])
+
+    # No need to copy to docs folder since ADVANCED_FILE already points to docs/data
+
+    print(f"{GREEN} Advanced Leaderboard erstellt: {ADVANCED_FILE}")
+
+    # | Spalte            | Beschreibung                                                                                                                        |
+    # | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+    # | **Bey**           | Name des Beyblades.                                                                                                                 |
+    # | **ELO**           | Aktuelle ELO nach allen bisherigen Matches (letzter PostELO-Wert). Zeigt die Gesamtstärke des Bey im Turnierverlauf.                |
+    # | **Matches**       | Anzahl der gespielten Matches.                                                                                                      |
+    # | **Wins**          | Anzahl der gewonnenen Matches.                                                                                                      |
+    # | **Losses**        | Anzahl der verlorenen Matches.                                                                                                      |
+    # | **Winrate**       | Prozentsatz der gewonnenen Matches (`Wins / Matches`). Zeigt die allgemeine Erfolgsquote.                                           |
+    # | **PointsFor**     | Summe aller Punkte, die der Bey über alle Matches erzielt hat.                                                                      |
+    # | **PointsAgainst** | Summe aller Punkte, die der Bey gegen sich kassiert hat.                                                                            |
+    # | **AvgPointDiff**  | Durchschnittliche Punktedifferenz pro Match (`PointsFor − PointsAgainst / Matches`). Zeigt, wie klar ein Bey gewinnt oder verliert. |
+    # | **Volatility**    | Standardabweichung der ELO-Änderungen pro Match. Misst, wie stark die Leistung von Match zu Match schwankt.                         |
+    # | **AvgΔELO**       | Durchschnittlicher Betrag der ELO-Änderung pro Match. Zeigt, wie stark ein Match typischerweise die Bewertung verändert.            |
+    # | **MaxΔELO**       | Größte einzelne ELO-Zunahme in einem Match. Zeigt den stärksten Match-Erfolg.                                                       |
+    # | **MinΔELO**       | Größte einzelne ELO-Abnahme in einem Match. Zeigt die größte Niederlage.                                                            |
+    # | **UpsetWins**     | Anzahl der Siege gegen Gegner, die vor dem Match eine höhere ELO hatten. Zeigt „Überraschungssiege“.                                |
+    # | **UpsetLosses**   | Anzahl der Niederlagen gegen Gegner, die vor dem Match eine niedrigere ELO hatten. Zeigt unerwartete Niederlagen.                   |
+    # | **ELOTrend**      | Gesamte ELO-Änderung über alle Matches (`sum(PostELO-PreELO)`). Zeigt, ob der Bey insgesamt stärker oder schwächer geworden ist.    |
+    # | **PowerIndex**    | Composite score (0-100) combining ELO (40%), Winrate (25%), Trend (15%), Activity (10%), and Consistency (10%).                     |

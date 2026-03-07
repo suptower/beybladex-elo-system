@@ -6,6 +6,7 @@
     <title>Tournament Brackets - Beyblade X ELO Analytics</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -93,7 +94,6 @@
         <div class="footer-section">
             <h4>Tools</h4>
             <a href="compare.html">Compare</a>
-            <a href="explorer.html">Parts Explorer</a>
             <a href="counters.html">Counters</a>
             <a href="simulator.html">Simulator</a>
             <a href="predictor.html">Predictor</a>
@@ -102,8 +102,6 @@
         <div class="footer-section">
             <h4>Analytics</h4>
             <a href="plots.html">Plots</a>
-            <a href="parts.html">Parts</a>
-            <a href="synergy.html">Synergy Heatmaps</a>
             <a href="meta-balance.html">Meta Balance</a>
             <a href="https://github.com/suptower/beybladex-elo-system" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
@@ -155,7 +153,7 @@ function getFormatClass(format) {
 // Load tournament data
 async function loadTournaments() {
     try {
-        const response = await fetch('data/tournaments/tournaments.json');
+        const response = await fetch(DATA_PATHS.TOURNAMENTS_JSON);
         const data = await response.json();
         tournamentsData = data.tournaments || [];
         

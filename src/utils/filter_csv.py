@@ -1,8 +1,17 @@
 import pandas as pd
 import argparse
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import MATCHES_CSV  # noqa: E402
+
 # ---- CONFIG ----
-INPUT_CSV = "./docs/data/matches/matches.csv"           # Originaldatei
+INPUT_CSV = MATCHES_CSV                   # Originaldatei
 OUTPUT_CSV = "debug_bey.csv"      # Ziel-Datei
 FILTER_DATE = None           # Das Datum, nach dem du filtern willst (Format: YYYY-MM-DD)
 # -----------------

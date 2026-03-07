@@ -22,6 +22,21 @@ import statistics
 from collections import Counter, defaultdict
 from datetime import datetime
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
+    MATCHES_CSV as _MATCHES_CSV,
+    ROUNDS_CSV as _ROUNDS_CSV,
+    ELO_HISTORY_CSV as _ELO_HISTORY_CSV,
+    RPG_STATS_JSON as _RPG_STATS_JSON,
+    STADIUM_ANALYTICS_JSON as _STADIUM_ANALYTICS_JSON,
+)
+
 # Colors for terminal output (ANSI escape codes work on most modern terminals)
 RESET = "\033[0m"
 GREEN = "\033[32m"
@@ -31,11 +46,11 @@ BOLD = "\033[1m"
 RED = "\033[31m"
 
 # File paths
-MATCHES_CSV = "./docs/data/matches/matches.csv"
-ROUNDS_CSV = "./docs/data/matches/rounds.csv"
-ELO_HISTORY_CSV = "./docs/data/elo/elo_history.csv"
-RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
-STADIUM_ANALYTICS_JSON = "./docs/data/analytics/stadium_analytics.json"
+MATCHES_CSV = _MATCHES_CSV
+ROUNDS_CSV = _ROUNDS_CSV
+ELO_HISTORY_CSV = _ELO_HISTORY_CSV
+RPG_STATS_JSON = _RPG_STATS_JSON
+STADIUM_ANALYTICS_JSON = _STADIUM_ANALYTICS_JSON
 
 # Stadium name normalization
 STADIUM_ALIASES = {

@@ -20,6 +20,15 @@ import math
 import os
 from collections import defaultdict
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import MATCHES_CSV, ELO_METRICS_V1_JSON, ELO_METRICS_V2_JSON  # noqa: E402
+
 # Terminal colour helpers
 if os.name == "nt":
     os.system("")
@@ -29,9 +38,9 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # ── File paths ─────────────────────────────────────────────────────────────────
-MATCHES_FILE = "./docs/data/matches/matches.csv"
-OUTPUT_V1 = "./docs/data/elo/elo_metrics_v1.json"
-OUTPUT_V2 = "./docs/data/elo/elo_metrics_v2.json"
+MATCHES_FILE = MATCHES_CSV
+OUTPUT_V1 = ELO_METRICS_V1_JSON
+OUTPUT_V2 = ELO_METRICS_V2_JSON
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 START_ELO = 1000

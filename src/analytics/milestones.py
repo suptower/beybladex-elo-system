@@ -25,6 +25,22 @@ import datetime
 from collections import defaultdict
 from typing import Dict, List, Any, Tuple
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
+    MATCHES_CSV,
+    ROUNDS_CSV,
+    ELO_HISTORY_CSV,
+    ELO_TIMESERIES_CSV,
+    TOURNAMENTS_JSON,
+    MILESTONES_JSON,
+)
+
 # Initialize Windows terminal for ANSI color support (no-op on Unix systems)
 if os.name == 'nt':
     os.system("")
@@ -36,12 +52,12 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # File paths
-MATCHES_FILE = "./docs/data/matches/matches.csv"
-ROUNDS_FILE = "./docs/data/matches/rounds.csv"
-ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
-ELO_TIMESERIES_FILE = "./docs/data/elo/elo_timeseries.csv"
-TOURNAMENTS_FILE = "./docs/data/tournaments/tournaments.json"
-MILESTONES_FILE = "./docs/data/analytics/milestones.json"
+MATCHES_FILE = MATCHES_CSV
+ROUNDS_FILE = ROUNDS_CSV
+ELO_HISTORY_FILE = ELO_HISTORY_CSV
+ELO_TIMESERIES_FILE = ELO_TIMESERIES_CSV
+TOURNAMENTS_FILE = TOURNAMENTS_JSON
+MILESTONES_FILE = MILESTONES_JSON
 
 # Configuration
 MIN_MATCHES_FOR_WINRATE = 20  # Minimum matches to qualify for win rate records

@@ -38,9 +38,18 @@ import math
 import os
 from typing import Optional
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import ELO_HISTORY_CSV, ELO_TUNE_RESULTS_CSV  # noqa: E402
+
 # ── File paths ──────────────────────────────────────────────────────────────
-ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
-OUTPUT_CSV = "./docs/data/elo/elo_tune_results.csv"
+ELO_HISTORY_FILE = ELO_HISTORY_CSV
+OUTPUT_CSV = ELO_TUNE_RESULTS_CSV
 
 ARENA_FILTER = "Xtreme"
 START_ELO = 1000

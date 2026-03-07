@@ -6,6 +6,7 @@
     <title>Meta Balance Analyzer - Beyblade X ELO</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -351,7 +352,7 @@ function formatPercent(value) {
 async function loadMetaBalanceData() {
     try {
         // Fetch meta balance data first (required)
-        const metaResponse = await fetch('data/analytics/meta_balance.json');
+        const metaResponse = await fetch(DATA_PATHS.META_BALANCE_JSON);
         if (!metaResponse.ok) {
             throw new Error(`Failed to load meta_balance.json: ${metaResponse.status}`);
         }
@@ -359,7 +360,7 @@ async function loadMetaBalanceData() {
         
         // Try to fetch leaderboard data (optional for charts)
         try {
-            const leaderboardResponse = await fetch('data/leaderboard/advanced_leaderboard.csv');
+            const leaderboardResponse = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV);
             if (leaderboardResponse.ok) {
                 const csvText = await leaderboardResponse.text();
                 leaderboardData = parseCSV(csvText);

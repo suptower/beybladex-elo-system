@@ -19,6 +19,19 @@ import statistics
 from collections import defaultdict
 from datetime import date, timedelta
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
+    LEADERBOARD_CSV,
+    MATCHES_CSV,
+    TOURNAMENT_BRACKETS_JSON,
+)
+
 # Colors for terminal output
 RESET = "\033[0m"
 BOLD = "\033[1m"
@@ -28,9 +41,7 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 
 # File paths
-LEADERBOARD_CSV = "./docs/data/leaderboard/leaderboard.csv"
-MATCHES_CSV = "./docs/data/matches/matches.csv"
-TOURNAMENT_BRACKETS_OUTPUT = "./docs/data/tournaments/tournament_brackets.json"
+TOURNAMENT_BRACKETS_OUTPUT = TOURNAMENT_BRACKETS_JSON
 
 # Configuration constants
 CONFIG = {

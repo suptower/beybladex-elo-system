@@ -13,6 +13,15 @@ import os
 from datetime import date, timedelta
 from collections import defaultdict
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import BEYS_CSV, LEADERBOARD_CSV, MATCHES_CSV  # noqa: E402
+
 # Aktiviert ANSI-Farben in Windows-Terminals (macht nix auf anderen Systemen)
 os.system("")
 
@@ -25,9 +34,9 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 
 # File paths
-BEYS_FILE = "./docs/data/beys/beys.csv"
-LEADERBOARD_FILE = "./docs/data/leaderboard/leaderboard.csv"
-MATCHES_FILE = "./docs/data/matches/matches.csv"
+BEYS_FILE = BEYS_CSV
+LEADERBOARD_FILE = LEADERBOARD_CSV
+MATCHES_FILE = MATCHES_CSV
 
 # Default Elo values
 DEFAULT_ELO = 1000

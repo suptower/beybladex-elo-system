@@ -6,6 +6,7 @@
     <title>suptower Beyblade X</title>
     <link rel="icon" type="image/svg+xml" href="x.svg" />
     <link rel="stylesheet" href="styles.css" />
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="navigation-loader.js"></script>
     <script defer src="hamburger.js"></script>
@@ -54,13 +55,13 @@ const plotFiles = [
     // Python kann eine "plots.json" erzeugen, die hier eingelesen wird.
 ];
 
-fetch("plots/plots.json")
+fetch(DATA_PATHS.PLOTS_JSON)
     .then(r => r.json())
     .then(files => {
         const gallery = document.getElementById("gallery");
         files.forEach(f => {
             const img = document.createElement("img");
-            img.src = "plots/" + f;
+            img.src = DATA_PATHS.PLOTS_BASE + f;
             img.alt = f;
             img.className = "plot";
             img.onclick = () => window.open(img.src, "_blank");

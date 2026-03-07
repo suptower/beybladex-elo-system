@@ -19,8 +19,15 @@ Output:
 """
 
 import subprocess
-import os
 from datetime import datetime, timezone
+
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
 
 
 def get_git_info():
@@ -130,10 +137,8 @@ if (typeof window !== 'undefined') {{
 
 def main():
     """Main entry point."""
-    # Determine output path (relative to script location)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(os.path.dirname(script_dir))
-    output_path = os.path.join(repo_root, "docs", "version.js")
+    from src.config.paths import VERSION_JS
+    output_path = VERSION_JS
 
     print("Generating version information...")
     version_info = get_git_info()

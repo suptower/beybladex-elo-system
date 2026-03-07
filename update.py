@@ -15,9 +15,7 @@ Pipeline Stages:
    - RPG Stats & Archetypes (rpg_stats.py)
    - Upset Analysis (upset_analysis.py)
    - Meta Balance (meta_balance.py)
-   - Synergy Heatmaps (synergy_heatmaps.py)
    - Bey Counters (counter_checker.py)
-   - Combo Explorer (combo_explorer.py)
    - Milestones (milestones.py)
    - Recommended Matches (recommended_matches.py)
    - Tournament Brackets (tournament_brackets.py)
@@ -50,6 +48,7 @@ from datetime import datetime
 # --- Script Paths ---
 # Version generation
 SCRIPT_GENERATE_VERSION = "./src/utils/generate_version.py"
+SCRIPT_GENERATE_CHANGELOG = "./src/utils/generate_changelog.py"
 
 # Core data generation
 SCRIPT_BLADE_ELO = "./src/elo/beyblade_elo.py"
@@ -59,9 +58,7 @@ SCRIPT_ADVANCED_STATS = "./src/analytics/advanced_stats.py"
 SCRIPT_RPG_STATS = "./src/analytics/rpg_stats.py"
 SCRIPT_UPSET_ANALYSIS = "./src/analytics/upset_analysis.py"
 SCRIPT_META_BALANCE = "./src/analytics/meta_balance.py"
-SCRIPT_SYNERGY_HEATMAPS = "./src/analytics/synergy_heatmaps.py"
 SCRIPT_COUNTER_CHECKER = "./src/analytics/counter_checker.py"
-SCRIPT_COMBO_EXPLORER = "./src/analytics/combo_explorer.py"
 SCRIPT_MILESTONES = "./src/analytics/milestones.py"
 SCRIPT_RECOMMENDED_MATCHES = "./src/analytics/recommended_matches.py"
 SCRIPT_TOURNAMENT_BRACKETS = "./src/analytics/tournament_brackets.py"
@@ -98,6 +95,12 @@ DIM = "\033[2m"
 
 env = os.environ.copy()
 env["PYTHONUTF8"] = "1"  # Ensure UTF-8 encoding for subprocesses
+# Ensure the repo root is on PYTHONPATH so that `from src.config.paths import ...`
+# resolves correctly in every subprocess, regardless of the script's own directory.
+_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+env["PYTHONPATH"] = os.pathsep.join(
+    filter(None, [_REPO_ROOT, os.environ.get("PYTHONPATH", "")])
+)
 
 
 def parse_args():
@@ -271,6 +274,21 @@ def run_version_generation(verbose=False):
     return results
 
 
+def run_changelog_generation(verbose=False):
+    """Generate changelog from Git history."""
+    log_step("Changelog Generation", "section")
+    results = []
+
+    success, duration = run_script(
+        SCRIPT_GENERATE_CHANGELOG,
+        "Generate Changelog",
+        verbose=verbose
+    )
+    results.append(("Changelog Generation", success, duration))
+
+    return results
+
+
 def run_core_stats(verbose=False):
     """Run core statistics generation (ELO + Advanced Stats)."""
     log_step("Core Statistics", "section")
@@ -324,14 +342,6 @@ def run_analysis_modules(verbose=False):
     )
     results.append(("Meta Balance", success, duration))
 
-    # Synergy Heatmaps
-    success, duration = run_script(
-        SCRIPT_SYNERGY_HEATMAPS,
-        "Synergy Heatmaps",
-        verbose=verbose
-    )
-    results.append(("Synergy Heatmaps", success, duration))
-
     # Bey Counters
     success, duration = run_script(
         SCRIPT_COUNTER_CHECKER,
@@ -339,14 +349,6 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Bey Counters", success, duration))
-
-    # Combo Explorer (depends on beys_data, parts_stats, synergy_data, rpg_stats)
-    success, duration = run_script(
-        SCRIPT_COMBO_EXPLORER,
-        "Combo Explorer Data",
-        verbose=verbose
-    )
-    results.append(("Combo Explorer", success, duration))
 
     # Milestones (depends on matches, rounds, elo_history, elo_timeseries)
     success, duration = run_script(
@@ -556,6 +558,10 @@ def main():
 
     # Always generate version information first
     results = run_version_generation(verbose=args.verbose)
+    all_results.extend(results)
+
+    # Also generate changelog
+    results = run_changelog_generation(verbose=args.verbose)
     all_results.extend(results)
 
     # Determine what to run based on arguments

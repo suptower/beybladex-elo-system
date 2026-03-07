@@ -13,8 +13,16 @@ import random
 import os
 from collections import defaultdict, Counter
 
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import LEADERBOARD_CSV  # noqa: E402
+
 # ---------- Konfiguration ----------
-LEADERBOARD_CSV = "./docs/data/leaderboard/leaderboard.csv"
 OUT_DIR = "./sim_output"
 N_SIMULATIONS = 1000    # Anzahl Simulationen (anpassen)
 RANDOM_SEED = 42        # für Reproduzierbarkeit (setze None für Zufall)

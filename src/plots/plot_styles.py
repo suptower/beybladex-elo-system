@@ -101,11 +101,10 @@ def generate_dynamic_yticks(min_pos, max_pos):
         List of ytick positions
     """
     # Always start with position 1 (best possible position)
-    # ticks = [1]
+    ticks = [1]
 
     # Calculate the range of positions
     pos_range = max_pos - min_pos
-    ticks = [min_pos, max_pos]
 
     # Determine appropriate step size based on range
     # We want about 5-8 ticks for good readability
@@ -179,6 +178,9 @@ def calculate_dynamic_plot_dimensions(min_pos, max_pos):
     else:
         padding = 2.5
 
+    # Calculate figure height based on range (min 3.0, max 12.0 inches)
+    height = max(3.0, min(12.0, 3.0 + pos_range * 0.22))
+
     # Calculate y-axis limits with padding
     # For position plots, lower numbers are better (at top), so ylim is (max, min)
     ylim_min = max_pos + padding  # Bottom of chart (worse position)
@@ -188,4 +190,4 @@ def calculate_dynamic_plot_dimensions(min_pos, max_pos):
     if min_pos <= 5:
         ylim_max = 0.5
 
-    return ylim_max, ylim_min
+    return height, ylim_max, ylim_min
