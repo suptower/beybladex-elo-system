@@ -62,7 +62,7 @@ from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 
 import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import DATA_DIR, MATCHES_CSV
+from src.config.paths import SEASON_DIR, MATCHES_CSV
 
 # Constants
 # Per-season league format configuration.
@@ -141,7 +141,7 @@ RELEGATION_MATCH_POSITION_HIGH = 7  # 7th place in higher tier (T1/T2 boundary)
 RELEGATION_MATCH_POSITION_LOW = 2   # 2nd place in lower tier (T1/T2 boundary)
 
 # Default paths
-DEFAULT_DATA_DIR = DATA_DIR
+DEFAULT_DATA_DIR = SEASON_DIR
 DEFAULT_SEASONS_FILE = os.path.join(DEFAULT_DATA_DIR, "seasons.json")
 DEFAULT_MATCHES_FILE = MATCHES_CSV
 

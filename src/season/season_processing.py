@@ -42,13 +42,13 @@ from table_snapshots import (  # noqa: E402
 )
 
 import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import DATA_DIR, MATCHES_CSV, SEASON_DATA_JSON
+from src.config.paths import DATA_DIR, MATCHES_CSV, SEASON_DATA_JSON, SEASON_DIR, LEADERBOARD_CSV, FIXTURES_CSV
 
 # Default paths
-DEFAULT_DATA_DIR = DATA_DIR
+DEFAULT_DATA_DIR = SEASON_DIR
 DEFAULT_MATCHES_FILE = MATCHES_CSV
-DEFAULT_FIXTURES_FILE = os.path.join(DEFAULT_DATA_DIR, "fixtures.csv")
-DEFAULT_LEADERBOARD_FILE = os.path.join(DEFAULT_DATA_DIR, "leaderboard", "leaderboard.csv")
+DEFAULT_FIXTURES_FILE = FIXTURES_CSV
+DEFAULT_LEADERBOARD_FILE = LEADERBOARD_CSV
 DEFAULT_OUTPUT_FILE = SEASON_DATA_JSON
 
 # Colors for output
@@ -292,6 +292,8 @@ def refresh_qualification_pool(
         or leaderboard cannot be found.
     """
     leaderboard_file = os.path.join(data_dir, "leaderboard.csv")
+    if not os.path.exists(leaderboard_file):
+        leaderboard_file = LEADERBOARD_CSV
 
     # Load current ELOs from leaderboard.
     # Canonical column names are "Name" (bey name) and "ELO" (rating).
@@ -607,9 +609,9 @@ def main():
 
     # Load matches with ELO data
     print(f"{YELLOW}Loading matches...{RESET}")
-    matches_file = os.path.join(args.data_dir, "matches.csv")
-    fixtures_file = os.path.join(args.data_dir, "fixtures.csv")
-    leaderboard_file = os.path.join(args.data_dir, "leaderboard.csv")
+    matches_file = DEFAULT_MATCHES_FILE
+    fixtures_file = DEFAULT_FIXTURES_FILE
+    leaderboard_file = DEFAULT_LEADERBOARD_FILE
 
     try:
         matches = load_matches_with_elo(matches_file, leaderboard_file)

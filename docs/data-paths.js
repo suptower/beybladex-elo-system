@@ -20,6 +20,7 @@ const DATA_PATHS = Object.freeze({
     MATCHES_CSV:              'data/matches/matches.csv',
     ROUNDS_CSV:               'data/matches/rounds.csv',
     MATCHES_WITH_ROUNDS_JSON: 'data/matches/matches_with_rounds.json',
+    FIXTURES_CSV:             'data/matches/fixtures.csv',
 
     // -----------------------------------------------------------------------
     // Beys

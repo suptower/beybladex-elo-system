@@ -68,6 +68,7 @@ MATCHES_CSV              = os.path.join(MATCHES_DIR, "matches.csv")
 ROUNDS_CSV               = os.path.join(MATCHES_DIR, "rounds.csv")
 MATCHES_WITH_ROUNDS_JSON = os.path.join(MATCHES_DIR, "matches_with_rounds.json")
 PRIVATE_MATCHES_CSV      = os.path.join(MATCHES_DIR, "private_matches.csv")
+FIXTURES_CSV             = os.path.join(MATCHES_DIR, "fixtures.csv")
 
 # ---------------------------------------------------------------------------
 # Beys files

@@ -30,7 +30,7 @@ from collections import defaultdict
 from typing import Dict, List
 
 import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import DATA_DIR
+from src.config.paths import SEASON_DIR
 
 from season_manager import calculate_season_points
 
@@ -166,7 +166,7 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
         output_dir: Directory to save CSV files
     """
     if output_dir is None:
-        output_dir = DATA_DIR
+        output_dir = SEASON_DIR
     # Get all matchdays per tier
     matchdays_by_tier = defaultdict(set)
     for match in matches:
