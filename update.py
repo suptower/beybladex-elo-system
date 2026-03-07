@@ -45,11 +45,6 @@ import argparse
 import time
 from datetime import datetime
 
-# Add repo root to sys.path so src.config.paths can be imported.
-_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
-if _REPO_ROOT not in sys.path:
-    sys.path.insert(0, _REPO_ROOT)
-
 from src.config.paths import (
     ELO_DIR,
     LEADERBOARD_DIR,
@@ -67,6 +62,11 @@ from src.config.paths import (
     PLOTS_SEASON_COMPARISON_DIR,
     PLOTS_PRIVATE_DIR,
 )
+
+# Add repo root to sys.path so src.config.paths can be imported.
+_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 # --- Script Paths ---
 # Version generation
