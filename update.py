@@ -48,6 +48,7 @@ from datetime import datetime
 # --- Script Paths ---
 # Version generation
 SCRIPT_GENERATE_VERSION = "./src/utils/generate_version.py"
+SCRIPT_GENERATE_CHANGELOG = "./src/utils/generate_changelog.py"
 
 # Core data generation
 SCRIPT_BLADE_ELO = "./src/elo/beyblade_elo.py"
@@ -269,6 +270,20 @@ def run_version_generation(verbose=False):
         verbose=verbose
     )
     results.append(("Version Generation", success, duration))
+
+    return results
+
+def run_changelog_generation(verbose=False):
+    """Generate changelog from Git history."""
+    log_step("Changelog Generation", "section")
+    results = []
+
+    success, duration = run_script(
+        SCRIPT_GENERATE_CHANGELOG,
+        "Generate Changelog",
+        verbose=verbose
+    )
+    results.append(("Changelog Generation", success, duration))
 
     return results
 
@@ -542,6 +557,10 @@ def main():
 
     # Always generate version information first
     results = run_version_generation(verbose=args.verbose)
+    all_results.extend(results)
+
+    # Also generate changelog
+    results = run_changelog_generation(verbose=args.verbose)
     all_results.extend(results)
 
     # Determine what to run based on arguments

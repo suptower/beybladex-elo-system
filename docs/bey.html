@@ -1028,6 +1028,7 @@ function renderRpgStats() {
     // Sub-metric display names for tooltips
     const subMetricNames = {
         attack: {
+            aggressive_finish_rate: 'Aggressive Finish Rate',
             burst_finish_rate: 'Burst Finish Rate',
             pocket_finish_rate: 'Pocket Finish Rate',
             stadium_exit_finish_rate: 'Stadium Exit Finish Rate',
@@ -1036,11 +1037,13 @@ function renderRpgStats() {
             opening_dominance: 'Opening Dominance'
         },
         defense: {
+            impact_resistance: 'Impact Resistance',
             burst_resistance: 'Burst Resistance',
             pocket_resistance: 'Pocket Resistance',
             stadium_exit_resistance: 'Stadium Exit Resistance',
             extreme_resistance: 'Extreme Resistance',
-            defensive_conversion: 'Defensive Conversion'
+            defensive_conversion: 'Defensive Conversion',
+            round_survival_rate: 'Round Survival Rate'
         },
         stamina: {
             spin_finish_win_rate: 'Spin Win Rate',
@@ -1050,7 +1053,8 @@ function renderRpgStats() {
         control: {
             volatility_inverse: 'Consistency',
             first_contact_advantage: 'First Contact Advantage',
-            match_flow_stability: 'Match Flow Stability'
+            match_flow_stability: 'Match Flow Stability',
+            type_versatility: 'Type Versatility'
         },
         meta_impact: {
             elo_normalized: 'Normalized ELO',
@@ -1064,6 +1068,7 @@ function renderRpgStats() {
     // Sub-metric descriptions for detailed explanations
     const subMetricDescriptions = {
         attack: {
+            aggressive_finish_rate: 'Percentage of wins via non-spin finishes',
             burst_finish_rate: 'Percentage of wins via burst finishes',
             pocket_finish_rate: 'Percentage of wins via pocket finishes',
             stadium_exit_finish_rate: 'Percentage of wins via stadium exit finishes',
@@ -1072,11 +1077,13 @@ function renderRpgStats() {
             opening_dominance: 'Win rate in the first round of matches'
         },
         defense: {
+            impact_resistance: 'Resistance to opponent non-spin finishes',
             burst_resistance: 'Resistance to opponent burst finishes',
             pocket_resistance: 'Resistance to opponent pocket finishes',
             stadium_exit_resistance: 'Resistance to opponent stadium exit finishes',
             extreme_resistance: 'Resistance to opponent extreme finishes',
-            defensive_conversion: 'Win rate after losing a round'
+            defensive_conversion: 'Win rate after losing a round',
+            round_survival_rate: 'Percentage of rounds not lost'
         },
         stamina: {
             spin_finish_win_rate: 'Frequency of winning via spin-out finishes',
@@ -1086,7 +1093,8 @@ function renderRpgStats() {
         control: {
             volatility_inverse: 'Match result predictability (higher = more consistent)',
             first_contact_advantage: 'Match win rate when winning first round',
-            match_flow_stability: 'Consistency of match score patterns'
+            match_flow_stability: 'Consistency of match score patterns',
+            type_versatility: 'Cross-type win rate consistency'
         },
         meta_impact: {
             elo_normalized: 'ELO rating compared to dataset',
