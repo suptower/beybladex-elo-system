@@ -1,0 +1,55 @@
+name: Compress Bey Images
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/data/beys/**.png'
+
+permissions:
+  contents: write
+
+jobs:
+  compress:
+    name: Compress new/modified bey images
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Install pngquant
+        run: sudo apt-get install -y pngquant
+
+      - name: Detect changed bey images
+        id: changed
+        run: |
+          # Find PNG files added or modified in this PR vs base branch
+          git diff --name-only --diff-filter=AM origin/${{ github.base_ref }}...HEAD -- docs/data/beys/*.png > /tmp/changed_pngs.txt
+          echo "Changed PNGs:"
+          cat /tmp/changed_pngs.txt
+          echo "count=$(wc -l < /tmp/changed_pngs.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Compress changed bey images
+        if: steps.changed.outputs.count > 0
+        run: |
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            before=$(du -sh "$file" | cut -f1)
+            pngquant --quality=75-90 --strip --force --ext .png "$file" 2>/dev/null && \
+              after=$(du -sh "$file" | cut -f1) && \
+              echo "Compressed $file: $before → $after" || \
+              echo "Skipped $file (already optimal or error)"
+          done < /tmp/changed_pngs.txt
+
+      - name: Commit compressed images
+        if: steps.changed.outputs.count > 0
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: compress bey images with pngquant"
+          file_pattern: "docs/data/beys/*.png"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
