@@ -32,6 +32,7 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import RPG_STATS_JSON, ADVANCED_LEADERBOARD_CSV, PLOTS_DIR
 
 # --- File paths ---

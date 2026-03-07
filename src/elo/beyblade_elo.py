@@ -63,6 +63,7 @@ import os
 import pandas as pd
 import json
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import (
     BEYS_DATA_JSON,
     MATCHES_CSV,

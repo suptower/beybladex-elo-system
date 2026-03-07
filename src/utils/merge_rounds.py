@@ -21,6 +21,7 @@ from typing import Optional
 # Add parent directory for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import FINISH_WEIGHTS_JSON, MATCHES_CSV, ROUNDS_CSV, MATCHES_WITH_ROUNDS_JSON
 
 # Valid finish types

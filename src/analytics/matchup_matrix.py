@@ -16,6 +16,7 @@ import csv
 from collections import defaultdict
 from typing import Dict, List, Tuple
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import (
     MATCHES_CSV,
     BEYS_DATA_JSON,

@@ -94,6 +94,12 @@ DIM = "\033[2m"
 
 env = os.environ.copy()
 env["PYTHONUTF8"] = "1"  # Ensure UTF-8 encoding for subprocesses
+# Ensure the repo root is on PYTHONPATH so that `from src.config.paths import ...`
+# resolves correctly in every subprocess, regardless of the script's own directory.
+_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+env["PYTHONPATH"] = os.pathsep.join(
+    filter(None, [_REPO_ROOT, os.environ.get("PYTHONPATH", "")])
+)
 
 
 def parse_args():

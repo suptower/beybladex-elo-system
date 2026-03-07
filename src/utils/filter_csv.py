@@ -1,6 +1,7 @@
 import pandas as pd
 import argparse
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import MATCHES_CSV
 
 # ---- CONFIG ----

@@ -20,6 +20,7 @@ import csv
 import os
 from collections import defaultdict
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import ELO_HISTORY_CSV, UPSET_ANALYSIS_CSV, UPSET_MATCHES_CSV
 
 os.system("")

@@ -13,6 +13,7 @@ import os
 from datetime import date, timedelta
 from collections import defaultdict
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import BEYS_CSV, LEADERBOARD_CSV, MATCHES_CSV
 
 # Aktiviert ANSI-Farben in Windows-Terminals (macht nix auf anderen Systemen)

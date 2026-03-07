@@ -18,6 +18,8 @@ Output:
     Creates/updates docs/version.js with version information
 """
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
+
 import subprocess
 import os
 from datetime import datetime, timezone

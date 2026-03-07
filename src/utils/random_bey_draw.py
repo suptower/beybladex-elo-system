@@ -19,6 +19,7 @@ import math
 from typing import List, Dict, Set, Optional
 from collections import defaultdict
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import LEADERBOARD_CSV as _LEADERBOARD_CSV, BEYS_DATA_JSON as _BEYS_DATA_JSON, RPG_STATS_JSON as _RPG_STATS_JSON
 
 

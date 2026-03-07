@@ -30,6 +30,7 @@ from season_manager import (  # noqa: E402
     BEYS_PER_TIER
 )
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import DATA_DIR, LEADERBOARD_CSV
 
 # Default paths

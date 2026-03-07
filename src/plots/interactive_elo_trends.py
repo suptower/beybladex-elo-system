@@ -11,6 +11,7 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 from plot_styles import get_text_color, get_bg_color, get_plot_bg_color  # noqa: E402
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import PLOTS_DIR, ELO_TIMESERIES_CSV, ELO_HISTORY_CSV, ADVANCED_LEADERBOARD_CSV, LEADERBOARD_DIR
 
 # --- Ordner für Diagramme ---

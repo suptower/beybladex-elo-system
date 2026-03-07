@@ -34,6 +34,7 @@ import statistics
 from collections import defaultdict
 from typing import Dict, List, Optional, Tuple
 
+import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
 from src.config.paths import DATA_DIR
 
 # ---------------------------------------------------------------------------
