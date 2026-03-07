@@ -28,15 +28,23 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 from plot_styles import configure_dark_mode, configure_light_mode  # noqa: E402
+from src.config.paths import (
+    MATCHES_CSV,
+    ROUNDS_CSV,
+    SEASON_DATA_JSON,
+    SEASON_STATS_JSON,
+    PLOTS_SEASON_DIR,
+    DATA_DIR,
+)
 
 # ---------------------------------------------------------------------------
 # File paths
 # ---------------------------------------------------------------------------
-MATCHES_FILE = "./docs/data/matches/matches.csv"
-ROUNDS_FILE = "./docs/data/matches/rounds.csv"
-SEASON_DATA_FILE = "./docs/data/season/season_data.json"
-SEASON_STATS_FILE = "./docs/data/season/season_statistics.json"
-BASE_OUTPUT_DIR = "./docs/plots/season"
+MATCHES_FILE = MATCHES_CSV
+ROUNDS_FILE = ROUNDS_CSV
+SEASON_DATA_FILE = SEASON_DATA_JSON
+SEASON_STATS_FILE = SEASON_STATS_JSON
+BASE_OUTPUT_DIR = PLOTS_SEASON_DIR
 
 # Finish type colours (consistent across all plots)
 FINISH_COLORS = {
@@ -1486,7 +1494,7 @@ def generate_season_plots():
 
     for season_id, s_data in seasons.items():
         # Load per-season statistics file if it exists
-        season_stats_path = f"./docs/data/season_statistics_{season_id}.json"
+        season_stats_path = os.path.join(DATA_DIR, f"season_statistics_{season_id}.json")
         if os.path.exists(season_stats_path):
             with open(season_stats_path, encoding="utf-8") as f:
                 season_stats_s = json.load(f)

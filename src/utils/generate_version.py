@@ -130,10 +130,8 @@ if (typeof window !== 'undefined') {{
 
 def main():
     """Main entry point."""
-    # Determine output path (relative to script location)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(os.path.dirname(script_dir))
-    output_path = os.path.join(repo_root, "docs", "version.js")
+    from src.config.paths import VERSION_JS
+    output_path = VERSION_JS
 
     print("Generating version information...")
     version_info = get_git_info()

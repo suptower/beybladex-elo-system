@@ -1,8 +1,10 @@
 import pandas as pd
 import argparse
 
+from src.config.paths import MATCHES_CSV
+
 # ---- CONFIG ----
-INPUT_CSV = "./docs/data/matches/matches.csv"           # Originaldatei
+INPUT_CSV = MATCHES_CSV                   # Originaldatei
 OUTPUT_CSV = "debug_bey.csv"      # Ziel-Datei
 FILTER_DATE = None           # Das Datum, nach dem du filtern willst (Format: YYYY-MM-DD)
 # -----------------

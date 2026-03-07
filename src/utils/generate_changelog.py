@@ -200,9 +200,8 @@ def main():
     args = parser.parse_args()
 
     # Determine output path
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(os.path.dirname(script_dir))
-    output_path = os.path.join(repo_root, "docs", "data", "changelog.json")
+    from src.config.paths import CHANGELOG_JSON
+    output_path = CHANGELOG_JSON
 
     print(f"Generating changelog with up to {args.limit} commits...")
     commits = get_commit_history(limit=args.limit)

@@ -30,6 +30,14 @@ import os
 import statistics
 from collections import defaultdict
 
+from src.config.paths import (
+    RPG_STATS_JSON as _RPG_STATS_JSON,
+    ADVANCED_LEADERBOARD_CSV as _ADVANCED_LEADERBOARD_CSV,
+    MATCHES_CSV as _MATCHES_CSV,
+    ELO_HISTORY_CSV as _ELO_HISTORY_CSV,
+    ARCHETYPE_ANALYTICS_JSON as _ARCHETYPE_ANALYTICS_JSON,
+)
+
 # Initialize Windows terminal for ANSI color support (no-op on Unix systems)
 os.system("")
 
@@ -41,11 +49,11 @@ CYAN = "\033[36m"
 BOLD = "\033[1m"
 
 # File paths
-RPG_STATS_JSON = "./docs/data/analytics/rpg_stats.json"
-ADVANCED_LEADERBOARD_CSV = "./docs/data/leaderboard/advanced_leaderboard.csv"
-MATCHES_CSV = "./docs/data/matches/matches.csv"
-ELO_HISTORY_CSV = "./docs/data/elo/elo_history.csv"
-ARCHETYPE_ANALYTICS_JSON = "./docs/data/analytics/archetype_analytics.json"
+RPG_STATS_JSON = _RPG_STATS_JSON
+ADVANCED_LEADERBOARD_CSV = _ADVANCED_LEADERBOARD_CSV
+MATCHES_CSV = _MATCHES_CSV
+ELO_HISTORY_CSV = _ELO_HISTORY_CSV
+ARCHETYPE_ANALYTICS_JSON = _ARCHETYPE_ANALYTICS_JSON
 
 # Minimum matches threshold for archetype analysis
 MIN_MATCHES_FOR_ARCHETYPE = 3

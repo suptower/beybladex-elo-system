@@ -41,13 +41,14 @@ from table_snapshots import (  # noqa: E402
     generate_all_table_snapshots
 )
 
+from src.config.paths import DATA_DIR, MATCHES_CSV, SEASON_DATA_JSON
 
 # Default paths
-DEFAULT_DATA_DIR = "./docs/data"
-DEFAULT_MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches.csv")
+DEFAULT_DATA_DIR = DATA_DIR
+DEFAULT_MATCHES_FILE = MATCHES_CSV
 DEFAULT_FIXTURES_FILE = os.path.join(DEFAULT_DATA_DIR, "fixtures.csv")
-DEFAULT_LEADERBOARD_FILE = os.path.join(DEFAULT_DATA_DIR, "leaderboard.csv")
-DEFAULT_OUTPUT_FILE = os.path.join(DEFAULT_DATA_DIR, "season_data.json")
+DEFAULT_LEADERBOARD_FILE = os.path.join(DEFAULT_DATA_DIR, "leaderboard", "leaderboard.csv")
+DEFAULT_OUTPUT_FILE = SEASON_DATA_JSON
 
 # Colors for output
 RESET = "\033[0m"

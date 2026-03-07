@@ -28,6 +28,8 @@ from collections import defaultdict
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 
+from src.config.paths import DATA_DIR, MATCHES_CSV, ROUNDS_CSV
+
 # Colors for output
 RESET = "\033[0m"
 BOLD = "\033[1m"
@@ -36,9 +38,9 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 # Default paths
-DEFAULT_DATA_DIR = "./docs/data"
-DEFAULT_MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches.csv")
-DEFAULT_ROUNDS_FILE = os.path.join(DEFAULT_DATA_DIR, "rounds.csv")
+DEFAULT_DATA_DIR = DATA_DIR
+DEFAULT_MATCHES_FILE = MATCHES_CSV
+DEFAULT_ROUNDS_FILE = ROUNDS_CSV
 DEFAULT_OUTPUT_DIR = DEFAULT_DATA_DIR
 
 

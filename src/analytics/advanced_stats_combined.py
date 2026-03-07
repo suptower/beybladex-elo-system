@@ -4,6 +4,8 @@ import statistics
 from collections import defaultdict
 import os
 
+from src.config.paths import ELO_HISTORY_CSV, ADVANCED_LEADERBOARD_COMBINED_CSV
+
 os.system("")
 
 # Farben
@@ -14,8 +16,8 @@ YELLOW = "\033[33m"
 CYAN = "\033[36m"
 
 
-HISTORY_FILE = "./docs/data/elo/elo_history.csv"
-ADVANCED_FILE = "./docs/data/leaderboard/advanced_leaderboard_combined.csv"
+HISTORY_FILE = ELO_HISTORY_CSV
+ADVANCED_FILE = ADVANCED_LEADERBOARD_COMBINED_CSV
 
 # --- Power Index Weights ---
 POWER_INDEX_WEIGHTS = {

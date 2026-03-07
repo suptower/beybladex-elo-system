@@ -36,10 +36,12 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
+from src.config.paths import ELO_TIMESERIES_CSV, LEADERBOARD_CSV, PLOTS_DIR
+
 # --- File paths ---
-ELO_TIMESERIES_FILE = "./docs/data/elo/elo_timeseries.csv"
-LEADERBOARD_FILE = "./docs/data/leaderboard/leaderboard.csv"
-OUTPUT_DIR = "./docs/plots"
+ELO_TIMESERIES_FILE = ELO_TIMESERIES_CSV
+LEADERBOARD_FILE = LEADERBOARD_CSV
+OUTPUT_DIR = PLOTS_DIR
 
 # Ensure output directories exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)

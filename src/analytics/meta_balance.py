@@ -23,6 +23,13 @@ import os
 import statistics
 from collections import defaultdict
 
+from src.config.paths import (
+    ELO_HISTORY_CSV as _ELO_HISTORY_CSV,
+    BEYS_DATA_JSON as _BEYS_DATA_JSON,
+    ADVANCED_LEADERBOARD_CSV as _ADVANCED_LEADERBOARD_CSV,
+    META_BALANCE_JSON,
+)
+
 # Colors for terminal output
 RESET = "\033[0m"
 BOLD = "\033[1m"
@@ -32,10 +39,10 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 
 # File paths
-ELO_HISTORY_CSV = "./docs/data/elo/elo_history.csv"
-BEYS_DATA_JSON = "./docs/data/beys/beys_data.json"
-ADVANCED_LEADERBOARD_CSV = "./docs/data/leaderboard/advanced_leaderboard.csv"
-META_BALANCE_OUTPUT_JSON = "./docs/data/analytics/meta_balance.json"
+ELO_HISTORY_CSV = _ELO_HISTORY_CSV
+BEYS_DATA_JSON = _BEYS_DATA_JSON
+ADVANCED_LEADERBOARD_CSV = _ADVANCED_LEADERBOARD_CSV
+META_BALANCE_OUTPUT_JSON = META_BALANCE_JSON
 
 # Metric weights for overall meta health score
 META_HEALTH_WEIGHTS = {

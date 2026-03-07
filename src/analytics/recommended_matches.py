@@ -25,6 +25,13 @@ import json
 import statistics
 from collections import defaultdict
 
+from src.config.paths import (
+    ELO_HISTORY_CSV,
+    LEADERBOARD_CSV,
+    ADVANCED_LEADERBOARD_CSV,
+    MATCHES_CSV,
+    RECOMMENDED_MATCHES_JSON,
+)
 
 # Colors for terminal output
 RESET = "\033[0m"
@@ -35,11 +42,7 @@ CYAN = "\033[36m"
 RED = "\033[31m"
 
 # File paths
-ELO_HISTORY_CSV = "./docs/data/elo/elo_history.csv"
-LEADERBOARD_CSV = "./docs/data/leaderboard/leaderboard.csv"
-ADVANCED_LEADERBOARD_CSV = "./docs/data/leaderboard/advanced_leaderboard.csv"
-MATCHES_CSV = "./docs/data/matches/matches.csv"
-RECOMMENDED_MATCHES_OUTPUT = "./docs/data/analytics/recommended_matches.json"
+RECOMMENDED_MATCHES_OUTPUT = RECOMMENDED_MATCHES_JSON
 
 # Configuration constants
 CONFIG = {

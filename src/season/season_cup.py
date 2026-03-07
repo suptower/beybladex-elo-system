@@ -28,6 +28,8 @@ import json
 import os
 from typing import Dict, List, Optional
 
+from src.config.paths import DATA_DIR
+
 # Qualification slots per tier
 TIER_QUALIFICATION = {
     1: 4,  # Tier I: Top 4
@@ -37,7 +39,7 @@ TIER_QUALIFICATION = {
 }
 
 # Default paths
-DEFAULT_DATA_DIR = "./docs/data"
+DEFAULT_DATA_DIR = DATA_DIR
 
 
 def get_qualified_beys(league_tables: Dict[int, List[Dict]]) -> List[Dict]:

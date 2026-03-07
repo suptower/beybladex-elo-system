@@ -63,6 +63,27 @@ import os
 import pandas as pd
 import json
 
+from src.config.paths import (
+    BEYS_DATA_JSON,
+    MATCHES_CSV,
+    BEYS_CSV,
+    MATCHES_WITH_ROUNDS_JSON,
+    LEADERBOARD_CSV,
+    LEADERBOARD_DIR,
+    LEADERBOARD_ALL_ARENAS_CSV,
+    ELO_HISTORY_CSV,
+    ELO_TIMESERIES_CSV,
+    ELO_DIR,
+    ANALYTICS_DIR,
+    POSITION_TIMESERIES_CSV,
+    PRIVATE_MATCHES_CSV,
+    PRIVATE_LEADERBOARD_CSV,
+    PRIVATE_ELO_HISTORY_CSV,
+    PRIVATE_ELO_TIMESERIES_CSV,
+    PRIVATE_POSITION_TIMESERIES_CSV,
+    LEADERBOARD_SNAPSHOTS_DIR,
+)
+
 # Colors for Windows
 os.system("")
 
@@ -89,8 +110,8 @@ MARGIN_A = 0.18
 MARGIN_B = 2.6
 TARGET_POINTS = 4  # Default target for regular matches (Race to 4)
 
-# Default path forhttps://www.desmos.com/calculator?lang=de beyblade registry
-DEFAULT_BEYS_DATA_FILE = "./docs/data/beys/beys_data.json"
+# Default path for beyblade registry
+DEFAULT_BEYS_DATA_FILE = BEYS_DATA_JSON
 # ELO version for calculation changes
 ELO_VERSION = 3  # Version 3: Smooth K-factor, form adjustment, tanh margin model
 
@@ -627,7 +648,7 @@ def run_elo_pipeline(pipeline_config):
         matches = sorted(reader, key=lambda m: datetime.date.fromisoformat(m["Date"]))
 
         # Generate match-by-match snapshots
-        snapshots_dir = pipeline_config.get("snapshots_dir", "./docs/data/leaderboard_snapshots")
+        snapshots_dir = pipeline_config.get("snapshots_dir", LEADERBOARD_SNAPSHOTS_DIR)
         generate_match_snapshots(matches, input_file, snapshots_dir, pipeline_start_elos, all_bey_blades)
 
         # Identify tournament dates for tracking state at second-to-last date
@@ -769,7 +790,7 @@ def run_elo_pipeline(pipeline_config):
                     "ELOdelta": elo_delta_str
                 })
 
-            out_file = f"./docs/data/leaderboard/leaderboard_{t_idx}.csv"
+            out_file = os.path.join(LEADERBOARD_DIR, f"leaderboard_{t_idx}.csv")
             pd.DataFrame(tour_rows).to_csv(out_file, index=False)
 
             # Update für nächstes Turnier
@@ -833,11 +854,11 @@ def run_elo_pipeline(pipeline_config):
     tour_rows_df.to_csv(leaderboard_file, index=False)
 
     # Write names-only-leaderboard to docs/data/beys/beys.csv for easy access but remove header line
-    pd.DataFrame(tour_rows_names_only).to_csv("./docs/data/beys/beys.csv", index=False, header=False)
+    pd.DataFrame(tour_rows_names_only).to_csv(BEYS_CSV, index=False, header=False)
 
     # matches_with_rounds.json is already in docs/data from merge_rounds.py
     # No need to copy from ./data anymore
-    rounds_json_path = "./docs/data/matches/matches_with_rounds.json"
+    rounds_json_path = MATCHES_WITH_ROUNDS_JSON
     if not os.path.exists(rounds_json_path):
         print(f"{YELLOW}Warning: Round data file not found at {rounds_json_path}{RESET}")
 
@@ -847,7 +868,7 @@ def run_elo_pipeline(pipeline_config):
     print(f"{CYAN}Generating arena-specific leaderboards...{RESET}")
     for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
         arena_file_name = arena.lower().replace(" ", "_")
-        arena_leaderboard_file = f"./docs/data/leaderboard/leaderboard_{arena_file_name}.csv"
+        arena_leaderboard_file = os.path.join(LEADERBOARD_DIR, f"leaderboard_{arena_file_name}.csv")
 
         # Sort by arena-specific ELO
         arena_sorted_beys = sorted(arena_elos[arena].items(), key=lambda x: x[1], reverse=True)
@@ -899,7 +920,7 @@ def run_elo_pipeline(pipeline_config):
 
     # --- Generate Combined Leaderboard with All Arena ELOs ---
     print(f"{CYAN}Generating combined leaderboard with all arena ELOs...{RESET}")
-    combined_leaderboard_file = "./docs/data/leaderboard/leaderboard_all_arenas.csv"
+    combined_leaderboard_file = LEADERBOARD_ALL_ARENAS_CSV
 
     # Use Xtreme ELO for primary sorting (global/season ELO)
     xtreme_sorted_beys = sorted(arena_elos[ARENA_XTREME].items(), key=lambda x: x[1], reverse=True)
@@ -955,7 +976,7 @@ def run_elo_pipeline(pipeline_config):
     # --- Generate arena-specific timeseries ---
     for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
         arena_file_name = arena.lower().replace(" ", "_")
-        arena_timeseries_file = f"./docs/data/elo/elo_timeseries_{arena_file_name}.csv"
+        arena_timeseries_file = os.path.join(ELO_DIR, f"elo_timeseries_{arena_file_name}.csv")
 
         # For Combined arena, include ALL matches; for specific arenas, filter by arena
         if arena == ARENA_COMBINED:
@@ -1006,7 +1027,7 @@ def run_elo_pipeline(pipeline_config):
         arena_file_name = arena.lower().replace(" ", "_")
         arena_position_file = (
             position_file if arena == ARENA_XTREME
-            else f"./docs/data/analytics/position_timeseries_{arena_file_name}.csv"
+            else os.path.join(ANALYTICS_DIR, f"position_timeseries_{arena_file_name}.csv")
         )
 
         # Filter to only this arena's updates
@@ -1141,23 +1162,23 @@ if __name__ == "__main__":
     if mode == "official":
         config = {
             "mode": "official",
-            "input_file": "./docs/data/matches/matches.csv",
-            "leaderboard": "./docs/data/leaderboard/leaderboard.csv",
-            "history": "./docs/data/elo/elo_history.csv",
-            "timeseries": "./docs/data/elo/elo_timeseries.csv",
-            "positions": "./docs/data/analytics/position_timeseries.csv",
+            "input_file": MATCHES_CSV,
+            "leaderboard": LEADERBOARD_CSV,
+            "history": ELO_HISTORY_CSV,
+            "timeseries": ELO_TIMESERIES_CSV,
+            "positions": POSITION_TIMESERIES_CSV,
             "start_elos": None
         }
     else:
-        df = pd.read_csv("./docs/data/leaderboard/leaderboard.csv")
+        df = pd.read_csv(LEADERBOARD_CSV)
         start_elos = dict(zip(df["Name"], df["ELO"]))
         config = {
             "mode": "private",
-            "input_file": "./docs/data/matches/private_matches.csv",
-            "leaderboard": "./docs/data/leaderboard/private_leaderboard.csv",
-            "history": "./docs/data/elo/private_elo_history.csv",
-            "timeseries": "./docs/data/elo/private_elo_timeseries.csv",
-            "positions": "./docs/data/analytics/private_position_timeseries.csv",
+            "input_file": PRIVATE_MATCHES_CSV,
+            "leaderboard": PRIVATE_LEADERBOARD_CSV,
+            "history": PRIVATE_ELO_HISTORY_CSV,
+            "timeseries": PRIVATE_ELO_TIMESERIES_CSV,
+            "positions": PRIVATE_POSITION_TIMESERIES_CSV,
             "start_elos": start_elos
         }
 

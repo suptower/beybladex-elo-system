@@ -29,6 +29,8 @@ import os
 from collections import defaultdict
 from typing import Dict, List
 
+from src.config.paths import DATA_DIR
+
 from season_manager import calculate_season_points
 
 
@@ -153,7 +155,7 @@ def calculate_position_deltas(current_table: List[Dict], previous_table: List[Di
 
 
 def generate_all_table_snapshots(matches: List[Dict], season_id: str,
-                                 output_dir: str = "./docs/data") -> None:
+                                 output_dir: str = None) -> None:
     """
     Generate table snapshots for all matchdays and tiers in a season.
 
@@ -162,6 +164,8 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
         season_id: Season identifier
         output_dir: Directory to save CSV files
     """
+    if output_dir is None:
+        output_dir = DATA_DIR
     # Get all matchdays per tier
     matchdays_by_tier = defaultdict(set)
     for match in matches:

@@ -19,8 +19,10 @@ import math
 from typing import List, Dict, Set, Optional
 from collections import defaultdict
 
+from src.config.paths import LEADERBOARD_CSV as _LEADERBOARD_CSV, BEYS_DATA_JSON as _BEYS_DATA_JSON, RPG_STATS_JSON as _RPG_STATS_JSON
 
-def load_leaderboard_data(leaderboard_path: str = './docs/data/leaderboard/leaderboard.csv') -> List[Dict]:
+
+def load_leaderboard_data(leaderboard_path: str = _LEADERBOARD_CSV) -> List[Dict]:
     """Load leaderboard data from CSV."""
     import csv
     beys = []
@@ -38,7 +40,7 @@ def load_leaderboard_data(leaderboard_path: str = './docs/data/leaderboard/leade
     return beys
 
 
-def load_bey_metadata(beys_data_path: str = './docs/data/beys/beys_data.json') -> Dict[str, Dict]:
+def load_bey_metadata(beys_data_path: str = _BEYS_DATA_JSON) -> Dict[str, Dict]:
     """Load Bey metadata including types and descriptions."""
     with open(beys_data_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -55,7 +57,7 @@ def load_bey_metadata(beys_data_path: str = './docs/data/beys/beys_data.json') -
     return bey_metadata
 
 
-def load_rpg_stats(rpg_path: str = './docs/data/analytics/rpg_stats.json') -> Dict[str, Dict]:
+def load_rpg_stats(rpg_path: str = _RPG_STATS_JSON) -> Dict[str, Dict]:
     """Load RPG stats including archetype information."""
     with open(rpg_path, 'r', encoding='utf-8') as f:
         return json.load(f)
@@ -401,9 +403,9 @@ def custom_constraints(
 def draw_beys(
     algorithm: str,
     count: int,
-    leaderboard_path: str = './docs/data/leaderboard/leaderboard.csv',
-    beys_data_path: str = './docs/data/beys/beys_data.json',
-    rpg_path: str = './docs/data/analytics/rpg_stats.json',
+    leaderboard_path: str = _LEADERBOARD_CSV,
+    beys_data_path: str = _BEYS_DATA_JSON,
+    rpg_path: str = _RPG_STATS_JSON,
     **kwargs
 ) -> List[Dict]:
     """

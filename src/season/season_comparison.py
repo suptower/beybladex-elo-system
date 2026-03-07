@@ -33,15 +33,24 @@ import os
 from collections import defaultdict
 from typing import Dict, List, Optional
 
+from src.config.paths import (
+    DATA_DIR,
+    MATCHES_CSV,
+    ELO_HISTORY_CSV,
+    LEADERBOARD_CSV,
+    SEASON_DATA_JSON,
+    SEASON_COMPARISON_JSON,
+)
+
 # ---------------------------------------------------------------------------
 # Default paths
 # ---------------------------------------------------------------------------
-DEFAULT_DATA_DIR = "./docs/data"
-MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches/matches.csv")
-ELO_HISTORY_FILE = os.path.join(DEFAULT_DATA_DIR, "elo/elo_history.csv")
-LEADERBOARD_FILE = os.path.join(DEFAULT_DATA_DIR, "leaderboard/leaderboard.csv")
-SEASON_DATA_FILE = os.path.join(DEFAULT_DATA_DIR, "season/season_data.json")
-OUTPUT_FILE = os.path.join(DEFAULT_DATA_DIR, "season/season_comparison.json")
+DEFAULT_DATA_DIR = DATA_DIR
+MATCHES_FILE = MATCHES_CSV
+ELO_HISTORY_FILE = ELO_HISTORY_CSV
+LEADERBOARD_FILE = LEADERBOARD_CSV
+SEASON_DATA_FILE = SEASON_DATA_JSON
+OUTPUT_FILE = SEASON_COMPARISON_JSON
 
 # Colors for terminal output
 RESET = "\033[0m"

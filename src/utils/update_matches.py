@@ -4,11 +4,13 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
+from src.config.paths import MATCHES_CSV, ROUNDS_CSV
+
 RAW_DIR = Path("archive/raw_sessions")
 PROCESSED_DIR = Path("archive/processed_sessions")
 
-GLOBAL_MATCHES = Path("docs/data/matches/matches.csv")
-GLOBAL_ROUNDS = Path("docs/data/matches/rounds.csv")
+GLOBAL_MATCHES = Path(MATCHES_CSV)
+GLOBAL_ROUNDS = Path(ROUNDS_CSV)
 
 
 def extract_numeric_id(match_id: str) -> int:

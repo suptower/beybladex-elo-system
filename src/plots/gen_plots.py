@@ -17,6 +17,19 @@ from plot_styles import generate_dynamic_yticks, calculate_dynamic_plot_dimensio
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
+from src.config.paths import (
+    LEADERBOARD_CSV,
+    ELO_HISTORY_CSV,
+    ELO_TIMESERIES_CSV,
+    POSITION_TIMESERIES_CSV,
+    PLOTS_DIR,
+    PLOTS_PRIVATE_DIR,
+    PRIVATE_LEADERBOARD_CSV,
+    PRIVATE_ELO_HISTORY_CSV,
+    PRIVATE_ELO_TIMESERIES_CSV,
+    PRIVATE_POSITION_TIMESERIES_CSV,
+)
+
 env = os.environ.copy()
 env["PYTHONUTF8"] = "1"  # Ensure UTF-8 encoding for subprocesses
 
@@ -53,19 +66,19 @@ MEDIAN_LINE_STYLE = {
 def load_files(mode):
     if mode == "official":
         return {
-            "leaderboard": "./docs/data/leaderboard/leaderboard.csv",
-            "history": "./docs/data/elo/elo_history.csv",
-            "timeseries": "./docs/data/elo/elo_timeseries.csv",
-            "positions": "./docs/data/analytics/position_timeseries.csv",
-            "outdir": "./docs/plots/"
+            "leaderboard": LEADERBOARD_CSV,
+            "history": ELO_HISTORY_CSV,
+            "timeseries": ELO_TIMESERIES_CSV,
+            "positions": POSITION_TIMESERIES_CSV,
+            "outdir": PLOTS_DIR,
         }
     else:
         return {
-            "leaderboard": "./docs/data/leaderboard/private_leaderboard.csv",
-            "history": "./docs/data/elo/private_elo_history.csv",
-            "timeseries": "./docs/data/elo/private_elo_timeseries.csv",
-            "positions": "./docs/data/analytics/private_position_timeseries.csv",
-            "outdir": "./plots/private/"
+            "leaderboard": PRIVATE_LEADERBOARD_CSV,
+            "history": PRIVATE_ELO_HISTORY_CSV,
+            "timeseries": PRIVATE_ELO_TIMESERIES_CSV,
+            "positions": PRIVATE_POSITION_TIMESERIES_CSV,
+            "outdir": PLOTS_PRIVATE_DIR,
         }
 
 # -------------------
@@ -869,7 +882,7 @@ def generate_all_plots(mode):
 
 
 def generate_plot_jsons():
-    base = "docs/plots"
+    base = PLOTS_DIR
     subfolders = ["bars", "elo", "heatmaps", "positions"]
 
     for folder in subfolders:

@@ -61,6 +61,8 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 
+from src.config.paths import DATA_DIR, MATCHES_CSV
+
 # Constants
 # Per-season league format configuration.
 # This allows legacy seasons (e.g., Season 1 with 3×10 structure) to coexist
@@ -138,9 +140,9 @@ RELEGATION_MATCH_POSITION_HIGH = 7  # 7th place in higher tier (T1/T2 boundary)
 RELEGATION_MATCH_POSITION_LOW = 2   # 2nd place in lower tier (T1/T2 boundary)
 
 # Default paths
-DEFAULT_DATA_DIR = "./docs/data"
+DEFAULT_DATA_DIR = DATA_DIR
 DEFAULT_SEASONS_FILE = os.path.join(DEFAULT_DATA_DIR, "seasons.json")
-DEFAULT_MATCHES_FILE = os.path.join(DEFAULT_DATA_DIR, "matches.csv")
+DEFAULT_MATCHES_FILE = MATCHES_CSV
 
 
 def calculate_season_points(score_a: int, score_b: int) -> Tuple[int, int]:

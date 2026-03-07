@@ -34,6 +34,8 @@ import statistics
 from collections import defaultdict
 from typing import Dict, List, Optional, Tuple
 
+from src.config.paths import DATA_DIR
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -1057,9 +1059,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Advanced Season Meta Analytics – compute & export JSON"
     )
-    parser.add_argument("--data-dir", default="./docs/data",
+    parser.add_argument("--data-dir", default=DATA_DIR,
                         help="Directory containing input CSV/JSON files")
-    parser.add_argument("--output-dir", default="./docs/data",
+    parser.add_argument("--output-dir", default=DATA_DIR,
                         help="Directory to write output JSON files")
     parser.add_argument("--season", default=None,
                         help="Season ID to process (default: all active seasons)")

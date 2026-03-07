@@ -11,18 +11,19 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 from plot_styles import get_text_color, get_bg_color, get_plot_bg_color  # noqa: E402
+from src.config.paths import PLOTS_DIR, ELO_TIMESERIES_CSV, ELO_HISTORY_CSV, ADVANCED_LEADERBOARD_CSV, LEADERBOARD_DIR
 
 # --- Ordner für Diagramme ---
-OUTPUT_DIR = "./docs/plots"
+OUTPUT_DIR = PLOTS_DIR
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "elo_trends_interactive.html")
 OUTPUT_FILE_DARK = os.path.join(OUTPUT_DIR, "dark", "elo_trends_interactive_dark.html")
 
 # --- CSVs einlesen ---
-df_ts = pd.read_csv("./docs/data/elo/elo_timeseries.csv")      # Date,Bey,ELO,match_id,MatchIndex
-df_hist = pd.read_csv("./docs/data/elo/elo_history.csv")       # Date,BeyA,BeyB,ScoreA,ScoreB,PreA,PreB,PostA,PostB
-df_adv = pd.read_csv("./docs/data/leaderboard/advanced_leaderboard.csv")  # ELO, Volatility etc.
+df_ts = pd.read_csv(ELO_TIMESERIES_CSV)       # Date,Bey,ELO,match_id,MatchIndex
+df_hist = pd.read_csv(ELO_HISTORY_CSV)        # Date,BeyA,BeyB,ScoreA,ScoreB,PreA,PreB,PostA,PostB
+df_adv = pd.read_csv(ADVANCED_LEADERBOARD_CSV)  # ELO, Volatility etc.
 
 # --- Gegner-Spalte automatisch füllen ---
 
@@ -56,7 +57,7 @@ def fill_opponent(df_ts, df_hist):
 df_ts = fill_opponent(df_ts, df_hist)
 
 # --- Turnierbasierte Deltas einfügen ---
-delta_files = sorted(glob.glob("./docs/data/leaderboard/leaderboard_*.csv"))
+delta_files = sorted(glob.glob(os.path.join(LEADERBOARD_DIR, "leaderboard_*.csv")))
 df_ts['Positionsdelta'] = 0
 df_ts['ELODelta'] = 0
 

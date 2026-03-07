@@ -30,9 +30,11 @@ from season_manager import (  # noqa: E402
     BEYS_PER_TIER
 )
 
+from src.config.paths import DATA_DIR, LEADERBOARD_CSV
+
 # Default paths
-DEFAULT_DATA_DIR = "./docs/data"
-DEFAULT_LEADERBOARD = os.path.join(DEFAULT_DATA_DIR, "leaderboard.csv")
+DEFAULT_DATA_DIR = DATA_DIR
+DEFAULT_LEADERBOARD = LEADERBOARD_CSV
 
 # Colors for output
 RESET = "\033[0m"

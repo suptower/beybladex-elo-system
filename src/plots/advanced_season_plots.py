@@ -40,14 +40,15 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 from plot_styles import configure_dark_mode, configure_light_mode  # noqa: E402
+from src.config.paths import PLOTS_SEASON_ADVANCED_DIR, PLOTS_SEASON_DIR
 
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
 
-BASE_OUTPUT_DIR = "./docs/plots/season/advanced"
+BASE_OUTPUT_DIR = PLOTS_SEASON_ADVANCED_DIR
 # Season manifest directory (season-specific sub-folder)
-SEASON_BASE_DIR = "./docs/plots/season"
+SEASON_BASE_DIR = PLOTS_SEASON_DIR
 
 TIER_COLORS = {1: "#ef4444", 2: "#f59e0b", 3: "#3b82f6"}
 

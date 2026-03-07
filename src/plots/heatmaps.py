@@ -12,16 +12,17 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
+from src.config.paths import PLOTS_DIR, ELO_HISTORY_CSV, ADVANCED_LEADERBOARD_CSV
 
 # --- Ordner für Diagramme ---
-OUTPUT_DIR = "./docs/plots"
+OUTPUT_DIR = PLOTS_DIR
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 
 # --- CSV einlesen ---
-df_hist = pd.read_csv("./docs/data/elo/elo_history.csv")  # Date,BeyA,BeyB,ScoreA,ScoreB,...
+df_hist = pd.read_csv(ELO_HISTORY_CSV)  # Date,BeyA,BeyB,ScoreA,ScoreB,...
 
-df_adv = pd.read_csv("./docs/data/leaderboard/advanced_leaderboard.csv")  # enthält ELO
+df_adv = pd.read_csv(ADVANCED_LEADERBOARD_CSV)  # enthält ELO
 
 # --- Gewinner-Spalte ---
 df_hist['winner'] = df_hist.apply(lambda r: r['BeyA'] if r['ScoreA'] > r['ScoreB'] else r['BeyB'], axis=1)

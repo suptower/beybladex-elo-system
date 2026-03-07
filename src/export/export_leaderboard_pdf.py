@@ -6,7 +6,9 @@ from reportlab.lib.styles import ParagraphStyle
 import csv
 import os
 
-input_file = "./docs/data/leaderboard/leaderboard.csv"
+from src.config.paths import LEADERBOARD_CSV
+
+input_file = LEADERBOARD_CSV
 output_dir = "./docs/tournament-charts"
 output_file = os.path.join(output_dir, "leaderboard.pdf")
 

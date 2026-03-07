@@ -38,9 +38,11 @@ import math
 import os
 from typing import Optional
 
+from src.config.paths import ELO_HISTORY_CSV, ELO_TUNE_RESULTS_CSV
+
 # ── File paths ──────────────────────────────────────────────────────────────
-ELO_HISTORY_FILE = "./docs/data/elo/elo_history.csv"
-OUTPUT_CSV = "./docs/data/elo/elo_tune_results.csv"
+ELO_HISTORY_FILE = ELO_HISTORY_CSV
+OUTPUT_CSV = ELO_TUNE_RESULTS_CSV
 
 ARENA_FILTER = "Xtreme"
 START_ELO = 1000

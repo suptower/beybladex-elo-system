@@ -10,14 +10,15 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
+from src.config.paths import ELO_TIMESERIES_CSV, ADVANCED_LEADERBOARD_CSV, PLOTS_DIR
 
-OUTPUT_DIR = "./docs/plots"
+OUTPUT_DIR = PLOTS_DIR
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(os.path.join(OUTPUT_DIR, "dark"), exist_ok=True)
 
 # --- CSV einlesen ---
-df_ts = pd.read_csv("./docs/data/elo/elo_timeseries.csv")
-df_adv = pd.read_csv("./docs/data/leaderboard/advanced_leaderboard.csv")
+df_ts = pd.read_csv(ELO_TIMESERIES_CSV)
+df_adv = pd.read_csv(ADVANCED_LEADERBOARD_CSV)
 
 # --- Top 5 nach ELO ---
 top5_beys = df_adv.sort_values(by='ELO', ascending=False).head(5)['Bey'].tolist()

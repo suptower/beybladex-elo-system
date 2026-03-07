@@ -13,8 +13,9 @@ import random
 import os
 from collections import defaultdict, Counter
 
+from src.config.paths import LEADERBOARD_CSV
+
 # ---------- Konfiguration ----------
-LEADERBOARD_CSV = "./docs/data/leaderboard/leaderboard.csv"
 OUT_DIR = "./sim_output"
 N_SIMULATIONS = 1000    # Anzahl Simulationen (anpassen)
 RANDOM_SEED = 42        # für Reproduzierbarkeit (setze None für Zufall)

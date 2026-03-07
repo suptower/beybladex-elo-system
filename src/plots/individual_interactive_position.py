@@ -16,19 +16,26 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 from plot_styles import get_text_color, get_bg_color, get_grid_color, get_plot_bg_color, get_accent_color  # noqa: E402
+from src.config.paths import (
+    PLOTS_POSITIONS_INTERACTIVE_DIR,
+    PLOTS_POSITIONS_INTERACTIVE_DARK_DIR,
+    POSITION_TIMESERIES_CSV,
+    ELO_HISTORY_CSV,
+    MATCHES_CSV,
+)
 
 # Output directories
-OUTPUT_DIR = "./docs/plots/positions/interactive"
-OUTPUT_DIR_DARK = "./docs/plots/positions/interactive/dark"
+OUTPUT_DIR = PLOTS_POSITIONS_INTERACTIVE_DIR
+OUTPUT_DIR_DARK = PLOTS_POSITIONS_INTERACTIVE_DARK_DIR
 
 # Ensure output directories exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR_DARK, exist_ok=True)
 
 # Data files
-TIMESERIES_FILE = "./docs/data/analytics/position_timeseries.csv"
-HISTORY_FILE = "./docs/data/elo/elo_history.csv"
-MATCHES_FILE = "./docs/data/matches/matches.csv"
+TIMESERIES_FILE = POSITION_TIMESERIES_CSV
+HISTORY_FILE = ELO_HISTORY_CSV
+MATCHES_FILE = MATCHES_CSV
 
 
 def load_data():

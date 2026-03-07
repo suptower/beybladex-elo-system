@@ -32,11 +32,12 @@ parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
 from plot_styles import configure_light_mode, configure_dark_mode  # noqa: E402
+from src.config.paths import RPG_STATS_JSON, ADVANCED_LEADERBOARD_CSV, PLOTS_DIR
 
 # --- File paths ---
-RPG_STATS_FILE = "./docs/data/analytics/rpg_stats.json"
-ADVANCED_LEADERBOARD_FILE = "./docs/data/leaderboard/advanced_leaderboard.csv"
-OUTPUT_DIR = "./docs/plots"
+RPG_STATS_FILE = RPG_STATS_JSON
+ADVANCED_LEADERBOARD_FILE = ADVANCED_LEADERBOARD_CSV
+OUTPUT_DIR = PLOTS_DIR
 
 # Ensure output directories exist
 os.makedirs(OUTPUT_DIR, exist_ok=True)
