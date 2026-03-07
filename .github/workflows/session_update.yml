@@ -35,17 +35,29 @@ jobs:
           MATCH_COUNT=0
           ROUND_COUNT=0
 
+          # Find the latest complete session prefix (has both matches and rounds
+          # files) — mirrors the selection logic in update_matches.py.
           shopt -s nullglob
+          LATEST_PREFIX=""
           for f in "$RAW_DIR"/*_session_matches.csv; do
-            LINES=$(( $(wc -l < "$f") - 1 ))
-            MATCH_COUNT=$(( MATCH_COUNT + LINES ))
-          done
-
-          for f in "$RAW_DIR"/*_session_rounds.csv; do
-            LINES=$(( $(wc -l < "$f") - 1 ))
-            ROUND_COUNT=$(( ROUND_COUNT + LINES ))
+            base="$(basename "$f")"
+            prefix="${base%_session_matches.csv}"
+            if [[ -f "$RAW_DIR/${prefix}_session_rounds.csv" ]]; then
+              if [[ -z "$LATEST_PREFIX" || "$prefix" > "$LATEST_PREFIX" ]]; then
+                LATEST_PREFIX="$prefix"
+              fi
+            fi
           done
           shopt -u nullglob
+
+          if [[ -n "$LATEST_PREFIX" ]]; then
+            MATCH_FILE="$RAW_DIR/${LATEST_PREFIX}_session_matches.csv"
+            ROUND_FILE="$RAW_DIR/${LATEST_PREFIX}_session_rounds.csv"
+            RAW_MATCHES=$(( $(wc -l < "$MATCH_FILE") - 1 ))
+            RAW_ROUNDS=$(( $(wc -l < "$ROUND_FILE") - 1 ))
+            MATCH_COUNT=$(( RAW_MATCHES > 0 ? RAW_MATCHES : 0 ))
+            ROUND_COUNT=$(( RAW_ROUNDS > 0 ? RAW_ROUNDS : 0 ))
+          fi
 
           TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M UTC')
 
@@ -106,6 +118,7 @@ Session: ${SESSION_NAME}
 Matches: ${MATCH_COUNT}
 Rounds: ${ROUND_COUNT}
 Source branch: ${{ github.ref_name }}
+Processed at: ${TIMESTAMP}
 
 Workflow run:
 ${RUN_URL}"
