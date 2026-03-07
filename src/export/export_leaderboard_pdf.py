@@ -6,8 +6,14 @@ from reportlab.lib.styles import ParagraphStyle
 import csv
 import os
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import LEADERBOARD_CSV
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import LEADERBOARD_CSV  # noqa: E402
 
 input_file = LEADERBOARD_CSV
 output_dir = "./docs/tournament-charts"

@@ -21,8 +21,13 @@ from typing import Optional
 # Add parent directory for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import FINISH_WEIGHTS_JSON, MATCHES_CSV, ROUNDS_CSV, MATCHES_WITH_ROUNDS_JSON
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import FINISH_WEIGHTS_JSON, MATCHES_CSV, ROUNDS_CSV, MATCHES_WITH_ROUNDS_JSON   # noqa: E402
 
 # Valid finish types
 VALID_FINISH_TYPES = {"spin", "pocket", "burst", "extreme", "stadium_exit"}

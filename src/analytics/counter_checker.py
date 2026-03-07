@@ -1,8 +1,14 @@
 import csv
 from collections import defaultdict
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import MATCHES_CSV as matches_file, BEY_COUNTERS_CSV as output_file
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import MATCHES_CSV as matches_file, BEY_COUNTERS_CSV as output_file  # noqa: E402
 
 results = defaultdict(lambda: defaultdict(lambda: {"wins": 0, "losses": 0, "score_for": 0, "score_against": 0}))
 totals = defaultdict(lambda: {"wins": 0, "losses": 0, "games": 0})

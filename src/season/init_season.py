@@ -22,7 +22,7 @@ import sys
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
 
-from season_manager import (  # noqa: E402
+from season_manager import (   # noqa: E402
     initialize_season,
     save_season_data,
     schedule_round_robin,
@@ -30,8 +30,13 @@ from season_manager import (  # noqa: E402
     BEYS_PER_TIER
 )
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import DATA_DIR, LEADERBOARD_CSV
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import DATA_DIR, LEADERBOARD_CSV   # noqa: E402
 
 # Default paths
 DEFAULT_DATA_DIR = DATA_DIR

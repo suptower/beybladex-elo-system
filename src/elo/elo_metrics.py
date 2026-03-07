@@ -30,8 +30,14 @@ import math
 import os
 from collections import defaultdict
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import ELO_HISTORY_CSV, ELO_METRICS_JSON
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import ELO_HISTORY_CSV, ELO_METRICS_JSON  # noqa: E402
 
 # Terminal colour helpers (graceful on systems without ANSI support)
 if os.name == "nt":

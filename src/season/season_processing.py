@@ -26,23 +26,28 @@ from typing import Dict, List
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
 
-from season_cup import (  # noqa: E402
+from season_cup import (   # noqa: E402
     load_season_cup_data,
     export_bracket_for_display
 )
-from season_manager import (  # noqa: E402
+from season_manager import (   # noqa: E402
     get_league_table,
     get_promotion_relegation,
     generate_season_archive,
     load_season_data,
     save_season_data
 )
-from table_snapshots import (  # noqa: E402
+from table_snapshots import (   # noqa: E402
     generate_all_table_snapshots
 )
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import DATA_DIR, MATCHES_CSV, SEASON_DATA_JSON, SEASON_DIR, LEADERBOARD_CSV, FIXTURES_CSV
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import MATCHES_CSV, SEASON_DATA_JSON, SEASON_DIR, LEADERBOARD_CSV, FIXTURES_CSV   # noqa: E402
 
 # Default paths
 DEFAULT_DATA_DIR = SEASON_DIR

@@ -19,8 +19,14 @@ from collections import defaultdict
 from typing import Any
 import os
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import (
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
     MATCHES_CSV,
     ROUNDS_CSV,
     ELO_HISTORY_CSV,

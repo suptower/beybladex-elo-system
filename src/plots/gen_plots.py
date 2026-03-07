@@ -17,8 +17,13 @@ from plot_styles import generate_dynamic_yticks, calculate_dynamic_plot_dimensio
 # Add scripts directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__)))
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import (
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (   # noqa: E402
     LEADERBOARD_CSV,
     ELO_HISTORY_CSV,
     ELO_TIMESERIES_CSV,

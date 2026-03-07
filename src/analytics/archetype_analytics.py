@@ -30,8 +30,14 @@ import os
 import statistics
 from collections import defaultdict
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import (
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
     RPG_STATS_JSON as _RPG_STATS_JSON,
     ADVANCED_LEADERBOARD_CSV as _ADVANCED_LEADERBOARD_CSV,
     MATCHES_CSV as _MATCHES_CSV,

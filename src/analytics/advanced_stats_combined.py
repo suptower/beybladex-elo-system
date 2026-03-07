@@ -4,8 +4,14 @@ import statistics
 from collections import defaultdict
 import os
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import ELO_HISTORY_CSV, ADVANCED_LEADERBOARD_COMBINED_CSV
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import ELO_HISTORY_CSV, ADVANCED_LEADERBOARD_COMBINED_CSV  # noqa: E402
 
 os.system("")
 

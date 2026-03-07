@@ -27,9 +27,14 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
-from plot_styles import configure_dark_mode, configure_light_mode  # noqa: E402
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import (
+from plot_styles import configure_dark_mode, configure_light_mode   # noqa: E402
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (   # noqa: E402
     MATCHES_CSV,
     ROUNDS_CSV,
     SEASON_DATA_JSON,

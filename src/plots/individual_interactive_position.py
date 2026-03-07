@@ -15,9 +15,14 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(script_dir)
 sys.path.insert(0, parent_dir)
 
-from plot_styles import get_text_color, get_bg_color, get_grid_color, get_plot_bg_color, get_accent_color  # noqa: E402
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import (
+from plot_styles import get_text_color, get_bg_color, get_grid_color, get_plot_bg_color, get_accent_color   # noqa: E402
+import os as _os   # noqa: E402
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (   # noqa: E402
     PLOTS_POSITIONS_INTERACTIVE_DIR,
     PLOTS_POSITIONS_INTERACTIVE_DARK_DIR,
     POSITION_TIMESERIES_CSV,

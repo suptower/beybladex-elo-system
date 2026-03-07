@@ -273,6 +273,7 @@ def run_version_generation(verbose=False):
 
     return results
 
+
 def run_changelog_generation(verbose=False):
     """Generate changelog from Git history."""
     log_step("Changelog Generation", "section")

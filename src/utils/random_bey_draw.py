@@ -19,8 +19,18 @@ import math
 from typing import List, Dict, Set, Optional
 from collections import defaultdict
 
-import sys as _sys, os as _os; _sys.path.insert(0, _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))); del _sys, _os
-from src.config.paths import LEADERBOARD_CSV as _LEADERBOARD_CSV, BEYS_DATA_JSON as _BEYS_DATA_JSON, RPG_STATS_JSON as _RPG_STATS_JSON
+import sys
+import os as _os
+_root = _os.path.dirname(
+    _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))))
+if _root not in sys.path:
+    sys.path.insert(0, _root)
+del _os, _root
+from src.config.paths import (  # noqa: E402
+    LEADERBOARD_CSV as _LEADERBOARD_CSV,
+    BEYS_DATA_JSON as _BEYS_DATA_JSON,
+    RPG_STATS_JSON as _RPG_STATS_JSON,
+)
 
 
 def load_leaderboard_data(leaderboard_path: str = _LEADERBOARD_CSV) -> List[Dict]:
