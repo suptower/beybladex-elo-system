@@ -96,6 +96,8 @@ ADVANCED_LEADERBOARD_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard.c
 ADVANCED_LEADERBOARD_DROP_ATTACK_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard_drop_attack.csv")
 ADVANCED_LEADERBOARD_COMBINED_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard_combined.csv")
 LEADERBOARD_ALL_ARENAS_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_all_arenas.csv")
+LEADERBOARD_COMBINED_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_combined.csv")
+LEADERBOARD_DROP_ATTACK_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_drop_attack.csv")
 PRIVATE_LEADERBOARD_CSV = os.path.join(LEADERBOARD_DIR, "private_leaderboard.csv")
 
 # ---------------------------------------------------------------------------
