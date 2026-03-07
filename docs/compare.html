@@ -6,6 +6,7 @@
     <title>Compare Beys - suptower Beyblade X</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -260,11 +261,11 @@ async function loadData() {
     try {
         // Load all data in parallel
         const [rpgResponse, beysResponse, countersResponse, historyResponse, advancedResponse] = await Promise.all([
-            fetch('data/analytics/rpg_stats.json'),
-            fetch('data/beys/beys_data.json'),
-            fetch('data/analytics/bey_counters.csv'),
-            fetch('data/elo/elo_history.csv'),
-            fetch('data/leaderboard/advanced_leaderboard.csv')
+            fetch(DATA_PATHS.RPG_STATS_JSON),
+            fetch(DATA_PATHS.BEYS_DATA_JSON),
+            fetch(DATA_PATHS.BEY_COUNTERS_CSV),
+            fetch(DATA_PATHS.ELO_HISTORY_CSV),
+            fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV)
         ]);
         
         rpgStatsData = await rpgResponse.json();

@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Load beyblade data from CSV
 async function loadBeybladeData() {
     try {
-        const response = await fetch('data/leaderboard/leaderboard.csv');
+        const response = await fetch(DATA_PATHS.LEADERBOARD_CSV);
         const text = await response.text();
         const lines = text.trim().split(/\r?\n/);
         
@@ -217,7 +217,7 @@ async function loadBeybladeData() {
 // Load historical match data
 async function loadMatchHistory() {
     try {
-        const response = await fetch('data/matches/matches.csv');
+        const response = await fetch(DATA_PATHS.MATCHES_CSV);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -246,7 +246,7 @@ async function loadMatchHistory() {
 // Load historical rounds data
 async function loadRoundsHistory() {
     try {
-        const response = await fetch('data/matches/rounds.csv');
+        const response = await fetch(DATA_PATHS.ROUNDS_CSV);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -272,7 +272,7 @@ async function loadRoundsHistory() {
 // Load recommended matches data
 async function loadRecommendedMatches() {
     try {
-        const response = await fetch('data/analytics/recommended_matches.json');
+        const response = await fetch(DATA_PATHS.RECOMMENDED_MATCHES_JSON);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -302,7 +302,7 @@ async function loadRecommendedMatches() {
 // Load season data (tier assignments)
 async function loadSeasonData() {
     try {
-        const response = await fetch('data/season/season_data.json');
+        const response = await fetch(DATA_PATHS.SEASON_DATA_JSON);
         if (!response.ok) {
             console.log('No season data found, season tier leaderboard will be disabled');
             return;

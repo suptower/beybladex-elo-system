@@ -138,7 +138,7 @@ function parseCSV(text) {
 }
 
 function loadUpsetAnalysis() {
-    fetch("./data/analytics/upset_analysis.csv")
+    fetch(DATA_PATHS.UPSET_ANALYSIS_CSV)
         .then(res => res.text())
         .then(csv => {
             const parsed = parseCSV(csv);
@@ -155,7 +155,7 @@ function loadUpsetAnalysis() {
 }
 
 function loadUpsetMatches() {
-    fetch("./data/analytics/upset_matches.csv")
+    fetch(DATA_PATHS.UPSET_MATCHES_CSV)
         .then(res => res.text())
         .then(csv => {
             const parsed = parseCSV(csv);

@@ -172,26 +172,25 @@ function loadLeaderboard(isAdvanced = false, matchIndex = null) {
     // Determine which CSV to load
     if (matchIndex !== null && historicalMode) {
         // Load historical snapshot
-        const paddedIndex = String(matchIndex).padStart(4, '0');
-        csvPath = `./data/leaderboard/leaderboard_${paddedIndex}.csv`;
+        csvPath = DATA_PATHS.leaderboardSnapshot(matchIndex);
     } else if (currentArena === "all_arenas") {
         // Load combined arena leaderboard
-        csvPath = "./data/leaderboard/leaderboard_all_arenas.csv";
+        csvPath = DATA_PATHS.LEADERBOARD_ALL_ARENAS_CSV;
     } else if (currentArena === "combined") {
         // Load Combined/Global arena leaderboard (with advanced stats support)
         csvPath = isAdvanced
-            ? "./data/leaderboard/advanced_leaderboard_combined.csv"
-            : "./data/leaderboard/leaderboard_combined.csv";
+            ? DATA_PATHS.ADVANCED_LEADERBOARD_COMBINED_CSV
+            : DATA_PATHS.LEADERBOARD_COMBINED_CSV;
     } else if (currentArena === "drop_attack") {
         // Load Drop Attack arena leaderboard (advanced if requested)
-        csvPath = isAdvanced 
-            ? "./data/leaderboard/advanced_leaderboard_drop_attack.csv" 
-            : "./data/leaderboard/leaderboard_drop_attack.csv";
+        csvPath = isAdvanced
+            ? DATA_PATHS.ADVANCED_LEADERBOARD_DROP_ATTACK_CSV
+            : DATA_PATHS.LEADERBOARD_DROP_ATTACK_CSV;
     } else {
         // Load current leaderboard (standard or advanced for Xtreme/default)
-        csvPath = isAdvanced 
-            ? "./data/leaderboard/advanced_leaderboard.csv" 
-            : (currentArena === "xtreme" ? "./data/leaderboard/leaderboard_xtreme.csv" : "./data/leaderboard/leaderboard.csv");
+        csvPath = isAdvanced
+            ? DATA_PATHS.ADVANCED_LEADERBOARD_CSV
+            : (currentArena === "xtreme" ? DATA_PATHS.LEADERBOARD_XTREME_CSV : DATA_PATHS.LEADERBOARD_CSV);
     }
     
     fetch(csvPath)
@@ -1287,7 +1286,7 @@ function setupHistoricalControls() {
     const DEFAULT_MAX_MATCHES = 224;
     
     // Determine max match index by checking for matches.csv
-    fetch('./data/matches/matches.csv')
+    fetch(DATA_PATHS.MATCHES_CSV)
         .then(res => {
             if (!res.ok) {
                 throw new Error(`Failed to load matches.csv: ${res.status}`);

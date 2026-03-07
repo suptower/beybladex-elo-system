@@ -6,6 +6,7 @@
     <title>suptower Beyblade X</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -425,7 +426,7 @@ function formatDate(dateStr) {
 async function loadData() {
     try {
         // Load bey wiki data
-        const beyResponse = await fetch('data/beys/beys_data.json');
+        const beyResponse = await fetch(DATA_PATHS.BEYS_DATA_JSON);
         const beys = await beyResponse.json();
         allBeysData = beys;
         beyData = findBeyByName(beys, beyName);
@@ -434,14 +435,14 @@ async function loadData() {
         try {
             // Try advanced leaderboard first for both arenas
             if (currentArena === 'xtreme') {
-                const advancedResponse = await fetch('data/leaderboard/advanced_leaderboard.csv');
+                const advancedResponse = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV);
                 const advancedText = await advancedResponse.text();
                 const advancedData = parseCSV(advancedText);
                 allLeaderboardData = advancedData;
                 leaderboardData = findLeaderboardEntry(advancedData, beyName);
             } else if (currentArena === 'drop_attack') {
                 // Try Drop Attack advanced leaderboard
-                const advancedResponse = await fetch('data/leaderboard/advanced_leaderboard_drop_attack.csv');
+                const advancedResponse = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_DROP_ATTACK_CSV);
                 const advancedText = await advancedResponse.text();
                 const advancedData = parseCSV(advancedText);
                 allLeaderboardData = advancedData;
@@ -455,8 +456,7 @@ async function loadData() {
             }
         } catch (e) {
             // Fallback to arena-specific standard leaderboard
-            const arenaPath = currentArena === 'xtreme' ? 'leaderboard.csv' : `leaderboard_${currentArena}.csv`;
-            const standardResponse = await fetch(`data/${arenaPath}`);
+            const standardResponse = await fetch(DATA_PATHS.leaderboardForArena(currentArena));
             const standardText = await standardResponse.text();
             const standardData = parseCSV(standardText);
             allLeaderboardData = standardData;
@@ -464,7 +464,7 @@ async function loadData() {
         }
         
         // Load matches data
-        const matchesResponse = await fetch('data/matches/matches.csv');
+        const matchesResponse = await fetch(DATA_PATHS.MATCHES_CSV);
         const matchesText = await matchesResponse.text();
         const allMatchesRaw = parseCSV(matchesText);
         // Build arena lookup map (match_id string -> normalized arena)
@@ -487,7 +487,7 @@ async function loadData() {
         
         // Load matches with rounds data (for finish type distribution)
         try {
-            const roundsResponse = await fetch('data/matches/matches_with_rounds.json');
+            const roundsResponse = await fetch(DATA_PATHS.MATCHES_WITH_ROUNDS_JSON);
             const roundsJson = await roundsResponse.json();
             matchesWithRoundsData = roundsJson.matches || [];
         } catch (e) {
@@ -497,7 +497,7 @@ async function loadData() {
         
         // Load tournaments data
         try {
-            const tournamentsResponse = await fetch('data/tournaments/tournaments.json');
+            const tournamentsResponse = await fetch(DATA_PATHS.TOURNAMENTS_JSON);
             const tournaments = await tournamentsResponse.json();
             const normalizedBeyName = normalizeBeyName(beyName);
             tournamentsData = tournaments.tournaments.filter(t => 
@@ -510,8 +510,7 @@ async function loadData() {
         
         // Load ELO timeseries data
         try {
-            const arenaPath = currentArena === 'xtreme' ? 'elo_timeseries.csv' : `elo_timeseries_${currentArena}.csv`;
-            const eloTsResponse = await fetch(`data/${arenaPath}`);
+            const eloTsResponse = await fetch(DATA_PATHS.eloTimeseries(currentArena));
             const eloTsText = await eloTsResponse.text();
             eloTimeseriesData = parseCSV(eloTsText);
         } catch (e) {
@@ -521,8 +520,7 @@ async function loadData() {
         
         // Load position timeseries data
         try {
-            const arenaPath = currentArena === 'xtreme' ? 'position_timeseries.csv' : `position_timeseries_${currentArena}.csv`;
-            const posTsResponse = await fetch(`data/${arenaPath}`);
+            const posTsResponse = await fetch(DATA_PATHS.positionTimeseries(currentArena));
             const posTsText = await posTsResponse.text();
             positionTimeseriesData = parseCSV(posTsText);
         } catch (e) {
@@ -532,7 +530,7 @@ async function loadData() {
         
         // Load ELO history data (for milestones)
         try {
-            const eloHistoryResponse = await fetch('data/elo/elo_history.csv');
+            const eloHistoryResponse = await fetch(DATA_PATHS.ELO_HISTORY_CSV);
             const eloHistoryText = await eloHistoryResponse.text();
             allEloHistoryData = parseCSV(eloHistoryText);
         } catch (e) {
@@ -542,7 +540,7 @@ async function loadData() {
         
         // Load RPG stats data
         try {
-            const rpgStatsResponse = await fetch('data/analytics/rpg_stats.json');
+            const rpgStatsResponse = await fetch(DATA_PATHS.RPG_STATS_JSON);
             const allRpgStats = await rpgStatsResponse.json();
             // Find RPG stats for this bey
             const normalizedName = normalizeBeyName(beyName);
@@ -559,7 +557,7 @@ async function loadData() {
         
         // Load counters data
         try {
-            const countersResponse = await fetch('data/analytics/bey_counters.csv');
+            const countersResponse = await fetch(DATA_PATHS.BEY_COUNTERS_CSV);
             const countersText = await countersResponse.text();
             countersData = parseCSV(countersText);
         } catch (e) {
@@ -569,7 +567,7 @@ async function loadData() {
         
         // Load season data
         try {
-            const seasonResponse = await fetch('data/season/season_data.json');
+            const seasonResponse = await fetch(DATA_PATHS.SEASON_DATA_JSON);
             const allSeasonData = await seasonResponse.json();
             seasonData = allSeasonData.seasons || {};
         } catch (e) {

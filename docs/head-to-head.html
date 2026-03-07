@@ -6,6 +6,7 @@
     <title>Head-to-Head Comparison - suptower Beyblade X</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -211,10 +212,10 @@ async function loadAllData() {
     try {
         console.log('Starting data load...');
         const [beysRes, matchesRes, eloRes, roundsRes] = await Promise.all([
-            fetch('data/beys/beys.csv'),
-            fetch('data/matches/matches.csv'),
-            fetch('data/elo/elo_history.csv'),
-            fetch('data/matches/matches_with_rounds.json')
+            fetch(DATA_PATHS.BEYS_CSV),
+            fetch(DATA_PATHS.MATCHES_CSV),
+            fetch(DATA_PATHS.ELO_HISTORY_CSV),
+            fetch(DATA_PATHS.MATCHES_WITH_ROUNDS_JSON)
         ]);
 
         // Check response status

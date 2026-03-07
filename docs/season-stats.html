@@ -6,6 +6,7 @@
     <title>Season Statistics - BeybladeX ELO System</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -752,14 +753,14 @@
     async function loadStats(season) {
         try {
             currentSeason = season;
-            const filename = `data/season_statistics_${season}.json`;
+            const filename = DATA_PATHS.seasonStats(season);
             
             let response;
             try {
                 response = await fetch(filename);
                 if (!response.ok) throw new Error('Season-specific file not found');
             } catch {
-                response = await fetch('data/season/season_statistics.json');
+                response = await fetch(DATA_PATHS.SEASON_STATS_JSON);
                 if (!response.ok) throw new Error('Failed to load statistics');
             }
             
@@ -1226,7 +1227,7 @@
         // Try to load statistics JSON (always attempted)
         let statsLoaded = false;
         try {
-            const statsResp = await fetch(`data/season_meta_analytics_${season}.json`);
+            const statsResp = await fetch(DATA_PATHS.seasonMetaAnalytics(season));
             if (statsResp.ok) {
                 advancedMetaStats = await statsResp.json();
                 statsLoaded = true;

@@ -6,6 +6,7 @@
     <title>suptower Beyblade X - Milestones</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -58,7 +59,7 @@
 // Load and display milestones
 async function loadMilestones() {
     try {
-        const response = await fetch('data/analytics/milestones.json');
+        const response = await fetch(DATA_PATHS.MILESTONES_JSON);
         const data = await response.json();
         
         const container = document.getElementById('milestones-container');

@@ -6,6 +6,7 @@
     <title>Beyblade X ELO Analytics - suptower</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -301,7 +302,7 @@ function getRankMedal(rank) {
 // Load and display top 5 Beys
 async function loadTopBeys() {
     try {
-        const response = await fetch('data/leaderboard/leaderboard.csv');
+        const response = await fetch(DATA_PATHS.LEADERBOARD_CSV);
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -332,7 +333,7 @@ async function loadTopBeys() {
 // Load and display recent matches
 async function loadRecentMatches() {
     try {
-        const response = await fetch('data/matches/matches.csv');
+        const response = await fetch(DATA_PATHS.MATCHES_CSV);
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -362,7 +363,7 @@ async function loadRecentMatches() {
 // Load and display giant killers (upset specialists)
 async function loadGiantKillers() {
     try {
-        const response = await fetch('data/analytics/upset_analysis.csv');
+        const response = await fetch(DATA_PATHS.UPSET_ANALYSIS_CSV);
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -398,7 +399,7 @@ async function loadGiantKillers() {
 // Load and display power rankings (by Power Index)
 async function loadPowerRankings() {
     try {
-        const response = await fetch('data/leaderboard/advanced_leaderboard.csv');
+        const response = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV);
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -445,9 +446,9 @@ async function loadPowerRankings() {
 async function loadQuickStats() {
     try {
         const [matchesRes, leaderboardRes, upsetRes] = await Promise.all([
-            fetch('data/matches/matches.csv'),
-            fetch('data/leaderboard/advanced_leaderboard.csv'),
-            fetch('data/analytics/upset_analysis.csv')
+            fetch(DATA_PATHS.MATCHES_CSV),
+            fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV),
+            fetch(DATA_PATHS.UPSET_ANALYSIS_CSV)
         ]);
         
         const [matchesText, leaderboardText, upsetText] = await Promise.all([
@@ -651,7 +652,7 @@ function weightedRandomSelection(items, count) {
 // Load and display meta health (archetype diversity)
 async function loadMetaHealth() {
     try {
-        const response = await fetch('data/analytics/rpg_stats.csv');
+        const response = await fetch(DATA_PATHS.RPG_STATS_CSV);
         const text = await response.text();
         const data = parseCSV(text);
         
@@ -779,9 +780,9 @@ async function loadFeaturedBey() {
     try {
         // Load all necessary data
         const [leaderboardRes, rpgStatsRes, advancedRes] = await Promise.all([
-            fetch('data/leaderboard/leaderboard.csv'),
-            fetch('data/analytics/rpg_stats.csv'),
-            fetch('data/leaderboard/advanced_leaderboard.csv')
+            fetch(DATA_PATHS.LEADERBOARD_CSV),
+            fetch(DATA_PATHS.RPG_STATS_CSV),
+            fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV)
         ]);
         
         const [leaderboardText, rpgStatsText, advancedText] = await Promise.all([
@@ -929,7 +930,7 @@ async function loadFeaturedBey() {
 // Load and display newsfeed
 async function loadNewsfeed() {
     try {
-        const response = await fetch('data/newsfeed.json');
+        const response = await fetch(DATA_PATHS.NEWSFEED_JSON);
         const data = await response.json();
         const container = document.getElementById('newsfeedList');
 

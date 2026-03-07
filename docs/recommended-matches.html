@@ -6,6 +6,7 @@
     <title>Recommended Matches - Beyblade X ELO</title>
     <link rel="icon" type="image/svg+xml" href="x.svg">
     <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
@@ -239,7 +240,7 @@ function createRecommendationCard(rec, index) {
 // Load and display recommendations
 async function loadRecommendations() {
     try {
-        const response = await fetch('data/analytics/recommended_matches.json');
+        const response = await fetch(DATA_PATHS.RECOMMENDED_MATCHES_JSON);
         const data = await response.json();
         
         // Display summary
