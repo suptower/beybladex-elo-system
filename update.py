@@ -46,9 +46,9 @@ import time
 from datetime import datetime
 
 # Add repo root to sys.path so src.config.paths can be imported.
-_SELF_DIR = os.path.dirname(os.path.abspath(__file__))
-if _SELF_DIR not in sys.path:
-    sys.path.insert(0, _SELF_DIR)
+_REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 from src.config.paths import (
     ELO_DIR,
@@ -650,8 +650,10 @@ def main():
     # detect pipeline failures reliably.
     failures = sum(1 for _, success, _ in all_results if not success)
     if failures > 0:
-        sys.exit(1)
+        return 1
+
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
