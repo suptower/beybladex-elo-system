@@ -25,6 +25,35 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Extract Session Metadata
+        id: session_meta
+        run: |
+          SESSION_NAME="${{ github.ref_name }}"
+          SESSION_NAME="${SESSION_NAME#session-}"
+
+          RAW_DIR="archive/raw_sessions"
+          MATCH_COUNT=0
+          ROUND_COUNT=0
+
+          shopt -s nullglob
+          for f in "$RAW_DIR"/*_session_matches.csv; do
+            LINES=$(( $(wc -l < "$f") - 1 ))
+            MATCH_COUNT=$(( MATCH_COUNT + LINES ))
+          done
+
+          for f in "$RAW_DIR"/*_session_rounds.csv; do
+            LINES=$(( $(wc -l < "$f") - 1 ))
+            ROUND_COUNT=$(( ROUND_COUNT + LINES ))
+          done
+          shopt -u nullglob
+
+          TIMESTAMP=$(date -u +'%Y-%m-%d %H:%M UTC')
+
+          echo "session_name=$SESSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "match_count=$MATCH_COUNT" >> "$GITHUB_OUTPUT"
+          echo "round_count=$ROUND_COUNT" >> "$GITHUB_OUTPUT"
+          echo "timestamp=$TIMESTAMP" >> "$GITHUB_OUTPUT"
+
       - name: Append Matches
         run: python src/utils/update_matches.py
 
@@ -54,17 +83,38 @@ jobs:
             docs/data/season/seasons_backup.json \
             docs/data/tournaments/tournaments.json \
             archive/
-          git diff --cached --quiet || git commit -m "Process ${{ github.ref_name }} - $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git diff --cached --quiet || git commit -m "session: process ${{ steps.session_meta.outputs.match_count }} matches (${{ steps.session_meta.outputs.session_name }})
+
+Matches: ${{ steps.session_meta.outputs.match_count }}
+Rounds: ${{ steps.session_meta.outputs.round_count }}
+Source branch: ${{ github.ref_name }}
+Processed at: ${{ steps.session_meta.outputs.timestamp }}"
           git push origin HEAD:${{ github.ref_name }}
 
       - name: Create Pull Request
         run: |
-          BODY="Automated session processing."
+          SESSION_NAME="${{ steps.session_meta.outputs.session_name }}"
+          MATCH_COUNT="${{ steps.session_meta.outputs.match_count }}"
+          ROUND_COUNT="${{ steps.session_meta.outputs.round_count }}"
+          TIMESTAMP="${{ steps.session_meta.outputs.timestamp }}"
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          PR_TITLE="Session ${SESSION_NAME} • ${MATCH_COUNT} matches"
+          PR_BODY="Automated session processing.
+
+Session: ${SESSION_NAME}
+Matches: ${MATCH_COUNT}
+Rounds: ${ROUND_COUNT}
+Source branch: ${{ github.ref_name }}
+
+Workflow run:
+${RUN_URL}"
+
           gh pr create \
             --base main \
             --head "${{ github.ref_name }}" \
-            --title "Process ${{ github.ref_name }}" \
-            --body "$BODY" \
+            --title "$PR_TITLE" \
+            --body "$PR_BODY" \
           || gh pr view --head "${{ github.ref_name }}" --json url --jq '"PR already exists: " + .url'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
