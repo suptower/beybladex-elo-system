@@ -128,7 +128,7 @@ ${RUN_URL}"
             --head "${{ github.ref_name }}" \
             --title "$PR_TITLE" \
             --body "$PR_BODY" \
-          || gh pr view --head "${{ github.ref_name }}" --json url --jq '"PR already exists: " + .url'
+          || gh pr view --head "${{ github.ref_name }}" --json url --jq '.url'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
