@@ -95,12 +95,13 @@ jobs:
             docs/data/season/seasons_backup.json \
             docs/data/tournaments/tournaments.json \
             archive/
-          git diff --cached --quiet || git commit -m "session: process ${{ steps.session_meta.outputs.match_count }} matches (${{ steps.session_meta.outputs.session_name }})
-
-Matches: ${{ steps.session_meta.outputs.match_count }}
-Rounds: ${{ steps.session_meta.outputs.round_count }}
-Source branch: ${{ github.ref_name }}
-Processed at: ${{ steps.session_meta.outputs.timestamp }}"
+          COMMIT_MSG=$(printf '%s\n\nMatches: %s\nRounds: %s\nSource branch: %s\nProcessed at: %s' \
+            "session: process ${{ steps.session_meta.outputs.match_count }} matches (${{ steps.session_meta.outputs.session_name }})" \
+            "${{ steps.session_meta.outputs.match_count }}" \
+            "${{ steps.session_meta.outputs.round_count }}" \
+            "${{ github.ref_name }}" \
+            "${{ steps.session_meta.outputs.timestamp }}")
+          git diff --cached --quiet || git commit -m "$COMMIT_MSG"
           git push origin HEAD:${{ github.ref_name }}
 
       - name: Create Pull Request
@@ -112,16 +113,13 @@ Processed at: ${{ steps.session_meta.outputs.timestamp }}"
           RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
           PR_TITLE="Session ${SESSION_NAME} • ${MATCH_COUNT} matches"
-          PR_BODY="Automated session processing.
-
-Session: ${SESSION_NAME}
-Matches: ${MATCH_COUNT}
-Rounds: ${ROUND_COUNT}
-Source branch: ${{ github.ref_name }}
-Processed at: ${TIMESTAMP}
-
-Workflow run:
-${RUN_URL}"
+          PR_BODY=$(printf 'Automated session processing.\n\nSession: %s\nMatches: %s\nRounds: %s\nSource branch: %s\nProcessed at: %s\n\nWorkflow run:\n%s' \
+            "${SESSION_NAME}" \
+            "${MATCH_COUNT}" \
+            "${ROUND_COUNT}" \
+            "${{ github.ref_name }}" \
+            "${TIMESTAMP}" \
+            "${RUN_URL}")
 
           gh pr create \
             --base main \
