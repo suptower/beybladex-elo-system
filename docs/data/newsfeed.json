@@ -1,7 +1,16 @@
 {
   "news": [
     {
-      "id": "news-001",
+      "id": "news-005",
+      "date": "2026-03-07",
+      "category": "system",
+      "title": "RPG System Update",
+      "content": "The RPG system has been adapted to introduce more variance and variety in stat results with better and more intuitive metrics.",
+      "link": "compare.html",
+      "pinned": false
+    },
+    {
+      "id": "news-004",
       "date": "2026-03-05",
       "category": "announcement",
       "title": "ELO System Overhaul Live",
@@ -10,39 +19,30 @@
       "pinned": true
     },
     {
-      "id": "news-002",
-      "date": "2026-03-04",
-      "category": "tournament",
-      "title": "Tournament 3 Results",
-      "content": "Tournament 3 has concluded! Check out the final standings and see how the results impacted ELO ratings across the board.",
-      "link": "tournaments.html",
-      "pinned": false
-    },
-    {
       "id": "news-003",
       "date": "2026-03-03",
       "category": "announcement",
       "title": "Season 2 Format Launched",
-      "content": "Season 2 introduces a brand new match format with best-of-5 rounds, new arenas, and enhanced tracking. Read the full announcement for details on what has changed.",
+      "content": "The next upcoming season introduces 4 tiers of 8 beys and individual per-tier relegation and promotion. Get ready for more competitive play.",
       "link": "seasons.html",
       "pinned": false
     },
     {
-      "id": "news-004",
-      "date": "2026-03-02",
-      "category": "feature",
-      "title": "New Analytics Tools Available",
-      "content": "Explore the revamped analytics dashboard featuring archetype diversity charts, upset analysis, part synergy heatmaps, and the power rankings overview.",
-      "link": "analytics.html",
+      "id": "news-002",
+      "date": "2026-03-01",
+      "category": "tournament",
+      "title": "Season 1 Results",
+      "content": "The first season has concluded! Check out the final standings and see who mastered each tier.",
+      "link": "season.html?id=S1",
       "pinned": false
     },
     {
-      "id": "news-005",
+      "id": "news-001",
       "date": "2026-03-01",
       "category": "match",
-      "title": "Record-Breaking Match Result",
-      "content": "An incredible upset was recorded in the latest session — a C-Tier Bey took down the current #1 ranked Bey in a stunning 3-0 victory. Check the upset analysis for full details.",
-      "link": "upsets.html",
+      "title": "LeonCrest takes it home!",
+      "content": "In an exiciting final on last matchday of Season 1, LeonCrest manages to claim the top spot by scoring a last-second pocket finish to win against ImpactDrake and secure rank 1!",
+      "link": "matches.html",
       "pinned": false
     }
   ]
