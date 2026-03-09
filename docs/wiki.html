@@ -242,7 +242,7 @@ async function loadAllData() {
             const tierIcons = { '1': '🥇', '2': '🥈', '3': '🥉' };
             const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
             Object.entries(seasons).forEach(([seasonId, season]) => {
-                if (season.league_tables) {
+                if (season.league_tables && season.league_champion) {
                     Object.entries(season.league_tables).forEach(([tierId, table]) => {
                         if (table && table.length > 0) {
                             const winnerName = normalizeBeyName(table[0].bey);

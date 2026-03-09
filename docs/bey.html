@@ -754,7 +754,7 @@ function getSeasonAchievements() {
 
     Object.entries(seasonData).forEach(([seasonId, season]) => {
         // Check tier champions
-        if (season.league_tables) {
+        if (season.league_tables && season.league_champion) {
             Object.entries(season.league_tables).forEach(([tierId, table]) => {
                 if (table && table.length > 0 && normalizeBeyName(table[0].bey) === normalizedName) {
                     achievements.push({
