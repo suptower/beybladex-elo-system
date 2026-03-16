@@ -94,6 +94,7 @@ SCRIPT_SEASON_COMPARISON = "./src/season/season_comparison.py"
 SCRIPT_SEASON_META_ANALYTICS = "./src/season/season_meta_analytics.py"
 SCRIPT_ELO_METRICS = "./src/elo/elo_metrics.py"
 SCRIPT_VERSION_METRICS = "./src/elo/compute_version_metrics.py"
+SCRIPT_VERSION_LEADERBOARDS = "./src/elo/generate_version_leaderboards.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/plots/gen_plots.py"
@@ -355,7 +356,15 @@ def run_core_stats(verbose=False):
     )
     results.append(("ELO Calculations", success, duration))
 
-    # Step 2: Advanced Statistics (depends on ELO)
+    # Step 2: Historical Version Leaderboards (V1/V2, depends on matches.csv)
+    success, duration = run_script(
+        SCRIPT_VERSION_LEADERBOARDS,
+        "Historical ELO Version Leaderboards",
+        verbose=verbose
+    )
+    results.append(("Historical ELO Version Leaderboards", success, duration))
+
+    # Step 3: Advanced Statistics (depends on ELO)
     success, duration = run_script(
         SCRIPT_ADVANCED_STATS,
         "Advanced Statistics",

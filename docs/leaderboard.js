@@ -4,6 +4,7 @@ let currentSort = { column: null, asc: true };
 let currentSearchQuery = ""; // Track the current search query
 let isAdvancedMode = false; // Track which leaderboard is being displayed
 let currentArena = "xtreme"; // Track currently selected arena
+let currentVersion = "v3"; // Track currently selected ELO version (v1, v2, v3)
 
 // Historical match index tracking
 let historicalMode = false;
@@ -169,28 +170,36 @@ function parseCSV(text) {
 function loadLeaderboard(isAdvanced = false, matchIndex = null) {
     let csvPath;
     
-    // Determine which CSV to load
-    if (matchIndex !== null && historicalMode) {
-        // Load historical snapshot
-        csvPath = DATA_PATHS.leaderboardSnapshot(matchIndex);
-    } else if (currentArena === "all_arenas") {
-        // Load combined arena leaderboard
-        csvPath = DATA_PATHS.LEADERBOARD_ALL_ARENAS_CSV;
-    } else if (currentArena === "combined") {
-        // Load Combined/Global arena leaderboard (with advanced stats support)
-        csvPath = isAdvanced
-            ? DATA_PATHS.ADVANCED_LEADERBOARD_COMBINED_CSV
-            : DATA_PATHS.LEADERBOARD_COMBINED_CSV;
-    } else if (currentArena === "drop_attack") {
-        // Load Drop Attack arena leaderboard (advanced if requested)
-        csvPath = isAdvanced
-            ? DATA_PATHS.ADVANCED_LEADERBOARD_DROP_ATTACK_CSV
-            : DATA_PATHS.LEADERBOARD_DROP_ATTACK_CSV;
+    // V1/V2 versions only have a simple Xtreme leaderboard — no arena variants,
+    // advanced stats, or historical snapshots.
+    if (currentVersion === "v1") {
+        csvPath = DATA_PATHS.LEADERBOARD_V1_CSV;
+    } else if (currentVersion === "v2") {
+        csvPath = DATA_PATHS.LEADERBOARD_V2_CSV;
     } else {
-        // Load current leaderboard (standard or advanced for Xtreme/default)
-        csvPath = isAdvanced
-            ? DATA_PATHS.ADVANCED_LEADERBOARD_CSV
-            : (currentArena === "xtreme" ? DATA_PATHS.LEADERBOARD_XTREME_CSV : DATA_PATHS.LEADERBOARD_CSV);
+        // V3: determine which CSV to load based on arena/mode
+        if (matchIndex !== null && historicalMode) {
+            // Load historical snapshot
+            csvPath = DATA_PATHS.leaderboardSnapshot(matchIndex);
+        } else if (currentArena === "all_arenas") {
+            // Load combined arena leaderboard
+            csvPath = DATA_PATHS.LEADERBOARD_ALL_ARENAS_CSV;
+        } else if (currentArena === "combined") {
+            // Load Combined/Global arena leaderboard (with advanced stats support)
+            csvPath = isAdvanced
+                ? DATA_PATHS.ADVANCED_LEADERBOARD_COMBINED_CSV
+                : DATA_PATHS.LEADERBOARD_COMBINED_CSV;
+        } else if (currentArena === "drop_attack") {
+            // Load Drop Attack arena leaderboard (advanced if requested)
+            csvPath = isAdvanced
+                ? DATA_PATHS.ADVANCED_LEADERBOARD_DROP_ATTACK_CSV
+                : DATA_PATHS.LEADERBOARD_DROP_ATTACK_CSV;
+        } else {
+            // Load current leaderboard (standard or advanced for Xtreme/default)
+            csvPath = isAdvanced
+                ? DATA_PATHS.ADVANCED_LEADERBOARD_CSV
+                : (currentArena === "xtreme" ? DATA_PATHS.LEADERBOARD_XTREME_CSV : DATA_PATHS.LEADERBOARD_CSV);
+        }
     }
     
     fetch(csvPath)
@@ -915,6 +924,50 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             
             // Reload leaderboard with selected arena
+            loadLeaderboard(isAdvancedMode);
+        });
+    }
+
+    // ELO Version selector handler
+    const versionSelector = document.getElementById("versionSelector");
+    if (versionSelector) {
+        versionSelector.addEventListener("change", (e) => {
+            currentVersion = e.target.value;
+            const isLegacyVersion = currentVersion !== "v3";
+
+            // Disable/reset features that are V3-only
+            if (isLegacyVersion) {
+                // Disable historical (time travel) mode
+                if (historicalMode) {
+                    historicalMode = false;
+                    const historicalToggle = document.getElementById('historicalToggle');
+                    if (historicalToggle) historicalToggle.checked = false;
+                    const matchIndexContainer = document.getElementById('matchIndexContainer');
+                    if (matchIndexContainer) matchIndexContainer.style.display = 'none';
+                }
+
+                // Disable advanced mode
+                if (isAdvancedMode) {
+                    isAdvancedMode = false;
+                    const toggleInput = document.getElementById("leaderboardToggle");
+                    if (toggleInput) toggleInput.checked = false;
+                }
+
+                // Reset arena to xtreme (V1/V2 only have one Xtreme leaderboard)
+                currentArena = "xtreme";
+                if (arenaSelector) arenaSelector.value = "xtreme";
+            }
+
+            // Grey out V3-only controls when a legacy version is selected
+            const controlsToDisable = [
+                document.getElementById("arenaSelector"),
+                document.getElementById("leaderboardToggle"),
+                document.getElementById("historicalToggle"),
+            ];
+            controlsToDisable.forEach(el => {
+                if (el) el.disabled = isLegacyVersion;
+            });
+
             loadLeaderboard(isAdvancedMode);
         });
     }

@@ -92,6 +92,8 @@ PRIVATE_ELO_TIMESERIES_CSV = os.path.join(ELO_DIR, "private_elo_timeseries.csv")
 # Leaderboard files
 # ---------------------------------------------------------------------------
 LEADERBOARD_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard.csv")
+LEADERBOARD_V1_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_v1.csv")
+LEADERBOARD_V2_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_v2.csv")
 ADVANCED_LEADERBOARD_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard.csv")
 ADVANCED_LEADERBOARD_DROP_ATTACK_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard_drop_attack.csv")
 ADVANCED_LEADERBOARD_COMBINED_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard_combined.csv")
