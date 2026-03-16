@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsfeed - Beyblade X ELO System</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="newsfeed.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Newsfeed</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="page-header">
+        <h2>📰 Newsfeed</h2>
+        <p class="page-description">All news and announcements for the Beyblade X ELO System</p>
+    </div>
+
+    <div class="newsfeed-controls">
+        <div class="search-container">
+            <input type="text" id="newsfeedSearch" placeholder="Search news by title or content...">
+        </div>
+
+        <div class="filter-group">
+            <label for="newsfeedCategoryFilter">Category:</label>
+            <select id="newsfeedCategoryFilter">
+                <option value="all">All Categories</option>
+                <option value="announcement">📢 Announcement</option>
+                <option value="tournament">🏆 Tournament</option>
+                <option value="match">⚔️ Match</option>
+                <option value="feature">✨ New Feature</option>
+                <option value="system">⚙️ System</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="newsfeed-stats" id="newsfeedStats">
+        <div class="stat-card">
+            <div class="stat-value" id="newsfeedTotal">-</div>
+            <div class="stat-label">Total News</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="newsfeedCount">-</div>
+            <div class="stat-label">Showing</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="newsfeedLatest">-</div>
+            <div class="stat-label">Latest</div>
+        </div>
+    </div>
+
+    <div id="newsfeedContainer" class="newsfeed-list">
+        <div class="loading-placeholder">
+            <p>Loading news...</p>
+        </div>
+    </div>
+
+    <div id="noResultsMessage" class="no-results" style="display: none;">
+        <p>No news found matching your filters.</p>
+    </div>
+</main>
+
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-description {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+    }
+
+    .newsfeed-controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .search-container {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .search-container input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        color: var(--text);
+        font-size: 1rem;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-group label {
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .filter-group select {
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        color: var(--text);
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .newsfeed-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: var(--card);
+        padding: 1.25rem;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        color: var(--text-light);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .loading-placeholder {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+        background: var(--card);
+        border-radius: var(--radius);
+    }
+
+    @media (max-width: 768px) {
+        .newsfeed-controls {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-container {
+            width: 100%;
+        }
+
+        .filter-group {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-group select {
+            width: 100%;
+        }
+    }
+</style>
+
+</body>
+</html>

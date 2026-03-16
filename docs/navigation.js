@@ -43,6 +43,7 @@
             'milestones.html': { title: 'Milestones', category: 'Data' },
             'tournaments.html': { title: 'Tournaments', category: 'Data' },
             'changelog.html': { title: 'Changelog', category: 'Data' },
+            'newsfeed.html': { title: 'Newsfeed', category: 'Data' },
             'seasons.html': { title: 'Seasons', category: 'Data' },
             'season.html': { title: 'Season Details', category: 'Data' },
             
