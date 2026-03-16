@@ -17,7 +17,6 @@ Usage:
 
 import csv
 import json
-import math
 import os
 from collections import defaultdict
 
