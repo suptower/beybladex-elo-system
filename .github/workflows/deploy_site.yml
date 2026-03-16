@@ -20,10 +20,10 @@ jobs:
       cancel-in-progress: false
 
     steps:
-      - name: Checkout main
+      - name: Checkout branch
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref}}
           fetch-depth: 0
 
       - name: Setup Python
@@ -50,7 +50,7 @@ jobs:
 
           git init
           git add -A
-          git commit -m "Manual deploy from main on $(date -u +'%Y-%m-%d %H:%M UTC') - Reason: ${{ github.event.inputs.reason }}"
+          git commit -m "Manual deploy from ${{ github.ref }} on $(date -u +'%Y-%m-%d %H:%M UTC') - Reason: ${{ github.event.inputs.reason }}"
 
           git push --force \
             "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
