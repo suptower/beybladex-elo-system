@@ -45,36 +45,38 @@
         <p class="page-description">All news and announcements for the Beyblade X ELO System</p>
     </div>
 
-    <div class="newsfeed-controls">
-        <div class="search-container">
-            <input type="text" id="newsfeedSearch" placeholder="Search news by title or content...">
+    <div class="newsfeed-toolbar">
+        <div class="newsfeed-controls">
+            <div class="search-container">
+                <input type="text" id="newsfeedSearch" placeholder="Search news...">
+            </div>
+
+            <div class="filter-group">
+                <label for="newsfeedCategoryFilter">Category:</label>
+                <select id="newsfeedCategoryFilter">
+                    <option value="all">All Categories</option>
+                    <option value="announcement">📢 Announcement</option>
+                    <option value="tournament">🏆 Tournament</option>
+                    <option value="match">⚔️ Match</option>
+                    <option value="feature">✨ New Feature</option>
+                    <option value="system">⚙️ System</option>
+                </select>
+            </div>
         </div>
 
-        <div class="filter-group">
-            <label for="newsfeedCategoryFilter">Category:</label>
-            <select id="newsfeedCategoryFilter">
-                <option value="all">All Categories</option>
-                <option value="announcement">📢 Announcement</option>
-                <option value="tournament">🏆 Tournament</option>
-                <option value="match">⚔️ Match</option>
-                <option value="feature">✨ New Feature</option>
-                <option value="system">⚙️ System</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="newsfeed-stats" id="newsfeedStats">
-        <div class="stat-card">
-            <div class="stat-value" id="newsfeedTotal">-</div>
-            <div class="stat-label">Total News</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value" id="newsfeedCount">-</div>
-            <div class="stat-label">Showing</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-value" id="newsfeedLatest">-</div>
-            <div class="stat-label">Latest</div>
+        <div class="newsfeed-stats" id="newsfeedStats">
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="newsfeedTotal">-</span>
+                <span class="stat-pill-label">Total</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="newsfeedCount">-</span>
+                <span class="stat-pill-label">Showing</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="newsfeedLatest">-</span>
+                <span class="stat-pill-label">Latest</span>
+            </div>
         </div>
     </div>
 
@@ -101,77 +103,92 @@
         margin-top: 0.5rem;
     }
 
-    .newsfeed-controls {
+    .newsfeed-toolbar {
         display: flex;
+        align-items: center;
         gap: 1rem;
         margin-bottom: 2rem;
         flex-wrap: wrap;
+    }
+
+    .newsfeed-controls {
+        display: flex;
         align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+        flex-wrap: wrap;
+        min-width: 0;
     }
 
     .search-container {
         flex: 1;
-        min-width: 250px;
+        min-width: 180px;
+        max-width: 320px;
     }
 
     .search-container input {
         width: 100%;
-        padding: 0.75rem;
+        padding: 0.6rem 0.75rem;
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
         background: var(--card);
         color: var(--text);
-        font-size: 1rem;
+        font-size: 0.9375rem;
     }
 
     .filter-group {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        white-space: nowrap;
     }
 
     .filter-group label {
         font-weight: 600;
         color: var(--text);
+        font-size: 0.9375rem;
     }
 
     .filter-group select {
-        padding: 0.75rem;
+        padding: 0.6rem 0.75rem;
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
         background: var(--card);
         color: var(--text);
-        font-size: 1rem;
+        font-size: 0.9375rem;
         cursor: pointer;
     }
 
     .newsfeed-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 1rem;
-        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
     }
 
-    .stat-card {
+    .stat-pill {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         background: var(--card);
-        padding: 1.25rem;
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        text-align: center;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 0.35rem 0.75rem;
+        min-width: 70px;
     }
 
-    .stat-value {
-        font-size: 1.75rem;
+    .stat-pill-value {
+        font-size: 1rem;
         font-weight: 700;
         color: var(--accent);
-        margin-bottom: 0.25rem;
+        line-height: 1.2;
     }
 
-    .stat-label {
+    .stat-pill-label {
+        font-size: 0.7rem;
         color: var(--text-light);
-        font-size: 0.85rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.04em;
     }
 
     .loading-placeholder {
@@ -189,23 +206,31 @@
     }
 
     @media (max-width: 768px) {
+        .newsfeed-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
         .newsfeed-controls {
             flex-direction: column;
             align-items: stretch;
         }
 
         .search-container {
-            width: 100%;
+            max-width: 100%;
         }
 
         .filter-group {
             width: 100%;
-            flex-direction: column;
-            align-items: stretch;
         }
 
         .filter-group select {
-            width: 100%;
+            flex: 1;
+        }
+
+        .newsfeed-stats {
+            justify-content: flex-start;
+            flex-wrap: wrap;
         }
     }
 </style>
