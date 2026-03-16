@@ -47,36 +47,40 @@
             <input type="text" id="searchInput" placeholder="Suche nach Bey…">
         </div>
         
-        <!-- Arena Selector -->
-        <div class="arena-selector-container">
-            <label for="arenaSelector" class="arena-label">🏟️ Arena:</label>
-            <select id="arenaSelector" class="arena-select">
-                <option value="xtreme" selected>Xtreme Stadium (Season/Global)</option>
-                <option value="drop_attack">Drop Attack Beystadium</option>
-                <option value="combined">Combined/Global (All Matches)</option>
-                <option value="all_arenas">All Arenas (Comparison)</option>
-            </select>
-        </div>
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center;">
 
-        <!-- ELO Version Selector -->
-        <div class="version-selector-container">
-            <label for="versionSelector" class="version-label">📊 ELO Version:</label>
-            <select id="versionSelector" class="version-select">
-                <option value="v3" selected>V3 (Current)</option>
-                <option value="v2">V2</option>
-                <option value="v1">V1</option>
-            </select>
-        </div>
-        
-        <div class="toggle-container">
-            <label class="toggle-label">
-                <span class="toggle-text">Standard</span>
-                <div class="toggle-switch">
-                    <input type="checkbox" id="leaderboardToggle">
-                    <span class="toggle-slider"></span>
-                </div>
-                <span class="toggle-text">Advanced</span>
-            </label>
+            <!-- Arena Selector -->
+            <div class="arena-selector-container">
+                <label for="arenaSelector" class="arena-label">🏟️ Arena:</label>
+                <select id="arenaSelector" class="arena-select">
+                    <option value="xtreme" selected>Xtreme Stadium (Season/Global)</option>
+                    <option value="drop_attack">Drop Attack Beystadium</option>
+                    <option value="combined">Combined/Global (All Matches)</option>
+                    <option value="all_arenas">All Arenas (Comparison)</option>
+                </select>
+            </div>
+
+            <!-- ELO Version Selector -->
+            <div class="version-selector-container">
+                <label for="versionSelector" class="version-label">📊 ELO Version:</label>
+                <select id="versionSelector" class="version-select">
+                    <option value="v3" selected>V3 (Current)</option>
+                    <option value="v2">V2</option>
+                    <option value="v1">V1</option>
+                </select>
+            </div>
+            
+            <div class="toggle-container">
+                <label class="toggle-label">
+                    <span class="toggle-text">Standard</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="leaderboardToggle">
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span class="toggle-text">Advanced</span>
+                </label>
+            </div>
+
         </div>
     </div>
 
