@@ -39,7 +39,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run Update Pipeline and skip plots if requested
-        run: python update.py ${--skip-plots} if ${{ github.event.inputs.skip_plots }} == 'true' else ''
+        run: python update.py ${{ github.event.inputs.skip_plots == 'true' && '--skip-plots' || '' }}
 
       - name: Deploy generated docs to gh-pages
         run: |
