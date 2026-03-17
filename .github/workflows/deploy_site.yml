@@ -3,6 +3,10 @@ name: Deploy Site
 on:
   workflow_dispatch:
     inputs:
+      skip_plots:
+        type: boolean
+        description: 'Skip plot generation (if true, plots will not be updated)'
+        required: false
       reason:
         description: 'Reason for manual deployment'
         required: false
@@ -34,8 +38,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run Update Pipeline
-        run: python update.py
+      - name: Run Update Pipeline and skip plots if requested
+        run: python update.py ${{ github.event.inputs.skip_plots == 'true' && '--skip-plots' || '' }}
 
       - name: Deploy generated docs to gh-pages
         run: |
