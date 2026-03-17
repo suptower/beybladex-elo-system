@@ -14,11 +14,12 @@
     let network = null;        // vis.Network instance
     let nodesDataSet = null;
     let edgesDataSet = null;
-    let currentFilter = 'all'; // 'all' | 'ratchet' | 'bit' | 'type'
+    let currentFilter = 'all'; // 'all' | 'family' | 'ratchet' | 'bit' | 'type'
     let selectedNodeId = null;
 
     // Edge colours per relationship type
     const EDGE_COLORS = {
+        family:  { color: '#8b5cf6', highlight: '#a78bfa' },
         ratchet: { color: '#3b82f6', highlight: '#60a5fa' },
         bit:     { color: '#f59e0b', highlight: '#fbbf24' },
         type:    { color: '#10b981', highlight: '#34d399' },
@@ -102,6 +103,13 @@
         return bey.name.toLowerCase().replace(/\s+/g, '_');
     }
 
+    /** Extract the blade family name (first CamelCase word), e.g. "DranSword" → "Dran". */
+    function bladeFamilyOf(bey) {
+        if (!bey.blade) return null;
+        const m = bey.blade.match(/^([A-Z][a-z]*)/);
+        return m ? m[1] : null;
+    }
+
     function buildNodes(beys) {
         return beys.map(bey => {
             const id      = buildNodeId(bey);
@@ -160,6 +168,12 @@
                 const ai = buildNodeId(a);
                 const bi = buildNodeId(b);
 
+                // Same blade family (e.g. Dran* → "Dran")
+                const famA = bladeFamilyOf(a);
+                const famB = bladeFamilyOf(b);
+                if (famA && famA === famB) {
+                    addEdge(ai, bi, 'family', famA);
+                }
                 // Same ratchet
                 if (a.ratchet && b.ratchet && a.ratchet === b.ratchet) {
                     addEdge(ai, bi, 'ratchet', a.ratchet);
@@ -356,6 +370,7 @@
                     </div>
                     <table class="info-parts-table">
                         <tr><td class="ipt-label">Blade</td><td>${bey.blade || '–'}</td></tr>
+                        ${(() => { const fam = bladeFamilyOf(bey); return fam ? `<tr><td class="ipt-label">Family</td><td>${fam}</td></tr>` : ''; })()}
                         ${bey.assist_blade ? `<tr><td class="ipt-label">Assist</td><td>${bey.assist_blade}</td></tr>` : ''}
                         <tr><td class="ipt-label">Ratchet</td><td>${bey.ratchet || '–'}</td></tr>
                         <tr><td class="ipt-label">Bit</td><td>${bey.bit || '–'}</td></tr>
@@ -383,21 +398,25 @@
     function updateEdgeCounts() {
         if (!edgesDataSet) return;
         const edges = edgesDataSet.get();
-        const counts = { ratchet: 0, bit: 0, type: 0 };
+        const counts = { family: 0, ratchet: 0, bit: 0, type: 0 };
         edges.forEach(e => { if (counts[e._type] !== undefined) counts[e._type]++; });
 
         // Button badges
+        const fEl = el('edge-count-family');
         const rEl = el('edge-count-ratchet');
         const bEl = el('edge-count-bit');
         const tEl = el('edge-count-type');
+        if (fEl) fEl.textContent = counts.family;
         if (rEl) rEl.textContent = counts.ratchet;
         if (bEl) bEl.textContent = counts.bit;
         if (tEl) tEl.textContent = counts.type;
 
         // Stats bar
+        const fBar = el('edge-count-family-bar');
         const rBar = el('edge-count-ratchet-bar');
         const bBar = el('edge-count-bit-bar');
         const tBar = el('edge-count-type-bar');
+        if (fBar) fBar.textContent = counts.family;
         if (rBar) rBar.textContent = counts.ratchet;
         if (bBar) bBar.textContent = counts.bit;
         if (tBar) tBar.textContent = counts.type;
