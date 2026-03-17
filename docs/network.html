@@ -288,6 +288,7 @@
         }
 
         .info-rel-family  { background: #8b5cf6; }
+        .info-rel-suffix  { background: #ec4899; }
         .info-rel-ratchet { background: #3b82f6; }
         .info-rel-bit     { background: #f59e0b; color: #000; }
         .info-rel-type    { background: #10b981; }
@@ -418,6 +419,9 @@
             <button class="filter-btn" data-filter="family">
                 Family <span class="edge-count" id="edge-count-family">0</span>
             </button>
+            <button class="filter-btn" data-filter="suffix">
+                Suffix <span class="edge-count" id="edge-count-suffix">0</span>
+            </button>
             <button class="filter-btn" data-filter="ratchet">
                 Ratchet <span class="edge-count" id="edge-count-ratchet">0</span>
             </button>
@@ -445,6 +449,7 @@
     <div class="stats-bar" aria-live="polite">
         <span>Nodes: <strong id="node-count">–</strong></span>
         <span style="color:#8b5cf6">● Family edges: <strong id="edge-count-family-bar"></strong></span>
+        <span style="color:#ec4899">● Suffix edges: <strong id="edge-count-suffix-bar"></strong></span>
         <span style="color:#3b82f6">● Ratchet edges: <strong id="edge-count-ratchet-bar"></strong></span>
         <span style="color:#f59e0b">● Bit edges: <strong id="edge-count-bit-bar"></strong></span>
         <span style="color:#10b981">● Type edges: <strong id="edge-count-type-bar"></strong></span>

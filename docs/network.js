@@ -14,12 +14,13 @@
     let network = null;        // vis.Network instance
     let nodesDataSet = null;
     let edgesDataSet = null;
-    let currentFilter = 'all'; // 'all' | 'family' | 'ratchet' | 'bit' | 'type'
+    let currentFilter = 'all'; // 'all' | 'family' | 'suffix' | 'ratchet' | 'bit' | 'type'
     let selectedNodeId = null;
 
     // Edge colours per relationship type
     const EDGE_COLORS = {
         family:  { color: '#8b5cf6', highlight: '#a78bfa' },
+        suffix:  { color: '#ec4899', highlight: '#f472b6' },
         ratchet: { color: '#3b82f6', highlight: '#60a5fa' },
         bit:     { color: '#f59e0b', highlight: '#fbbf24' },
         type:    { color: '#10b981', highlight: '#34d399' },
@@ -110,6 +111,14 @@
         return m ? m[1] : null;
     }
 
+    /** Extract the blade suffix name (last CamelCase word), e.g. "CerberusFlame" → "Flame". */
+    function bladeSuffixOf(bey) {
+        if (!bey.blade) return null;
+        const words = bey.blade.match(/[A-Z][a-z]*/g);
+        if (!words || words.length < 2) return null; // single-word blade has no meaningful suffix distinct from family
+        return words[words.length - 1];
+    }
+
     function buildNodes(beys) {
         return beys.map(bey => {
             const id      = buildNodeId(bey);
@@ -173,6 +182,12 @@
                 const famB = bladeFamilyOf(b);
                 if (famA && famA === famB) {
                     addEdge(ai, bi, 'family', famA);
+                }
+                // Same blade suffix, different family (e.g. CerberusFlame ↔ WhaleFlame → "Flame")
+                const sufA = bladeSuffixOf(a);
+                const sufB = bladeSuffixOf(b);
+                if (sufA && sufA === sufB && famA !== famB) {
+                    addEdge(ai, bi, 'suffix', sufA);
                 }
                 // Same ratchet
                 if (a.ratchet && b.ratchet && a.ratchet === b.ratchet) {
@@ -398,25 +413,29 @@
     function updateEdgeCounts() {
         if (!edgesDataSet) return;
         const edges = edgesDataSet.get();
-        const counts = { family: 0, ratchet: 0, bit: 0, type: 0 };
+        const counts = { family: 0, suffix: 0, ratchet: 0, bit: 0, type: 0 };
         edges.forEach(e => { if (counts[e._type] !== undefined) counts[e._type]++; });
 
         // Button badges
         const fEl = el('edge-count-family');
+        const sEl = el('edge-count-suffix');
         const rEl = el('edge-count-ratchet');
         const bEl = el('edge-count-bit');
         const tEl = el('edge-count-type');
         if (fEl) fEl.textContent = counts.family;
+        if (sEl) sEl.textContent = counts.suffix;
         if (rEl) rEl.textContent = counts.ratchet;
         if (bEl) bEl.textContent = counts.bit;
         if (tEl) tEl.textContent = counts.type;
 
         // Stats bar
         const fBar = el('edge-count-family-bar');
+        const sBar = el('edge-count-suffix-bar');
         const rBar = el('edge-count-ratchet-bar');
         const bBar = el('edge-count-bit-bar');
         const tBar = el('edge-count-type-bar');
         if (fBar) fBar.textContent = counts.family;
+        if (sBar) sBar.textContent = counts.suffix;
         if (rBar) rBar.textContent = counts.ratchet;
         if (bBar) bBar.textContent = counts.bit;
         if (tBar) tBar.textContent = counts.type;
