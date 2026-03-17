@@ -5,7 +5,7 @@ on:
     inputs:
       skip_plots:
         type: boolean
-        description: 'Skip plot generation (if true, plots will not be updated)'
+        description: 'Skip plot generation'
         required: false
       reason:
         description: 'Reason for manual deployment'
