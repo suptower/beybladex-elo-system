@@ -58,7 +58,10 @@
 
     <!-- Newsfeed -->
     <section class="newsfeed-section">
-        <h2 class="section-title">📰 Latest News &amp; Announcements</h2>
+        <div class="newsfeed-section-header">
+            <h2 class="section-title">📰 Latest News &amp; Announcements</h2>
+            <a href="newsfeed.html" class="view-all-news-link">View all →</a>
+        </div>
         <div id="newsfeedList" class="newsfeed-list">
             <div class="loading-placeholder">Loading news...</div>
         </div>
@@ -927,7 +930,7 @@ async function loadFeaturedBey() {
     }
 }
 
-// Load and display newsfeed
+// Load and display newsfeed (compact: top 3 + teaser for next item)
 async function loadNewsfeed() {
     try {
         const response = await fetch(DATA_PATHS.NEWSFEED_JSON);
@@ -955,23 +958,25 @@ async function loadNewsfeed() {
             system:       { label: 'System',         emoji: '⚙️' }
         };
 
-        container.innerHTML = sorted.map(item => {
+        function buildSafeLink(link) {
+            if (typeof link !== 'string') return '';
+            const trimmed = link.trim();
+            if (/^https?:\/\//i.test(trimmed)) return trimmed;
+            if (trimmed !== '' && !trimmed.includes(':') && !trimmed.startsWith('//')) return trimmed;
+            return '';
+        }
+
+        // Display only the top 3 items
+        const displayItems = sorted.slice(0, 3);
+        const teaserItem = sorted.length > 3 ? sorted[3] : null;
+        const remainingCount = sorted.length - 3;
+
+        const itemsHtml = displayItems.map(item => {
             const cat = categoryConfig[item.category] || { label: escapeHtml(item.category), emoji: '📌' };
             const dateObj = new Date(item.date);
             const formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
             const pinnedBadge = item.pinned ? '<span class="news-pinned-badge">📌 Pinned</span>' : '';
-            // Only allow relative paths and http/https URLs to prevent javascript: injection
-            let safeLink = '';
-            if (typeof item.link === 'string') {
-                const trimmedLink = item.link.trim();
-                if (/^https?:\/\//i.test(trimmedLink)) {
-                    // Allow explicit http/https URLs
-                    safeLink = trimmedLink;
-                } else if (trimmedLink !== '' && !trimmedLink.includes(':') && !trimmedLink.startsWith('//')) {
-                    // Allow relative paths without any scheme or protocol-relative prefix
-                    safeLink = trimmedLink;
-                }
-            }
+            const safeLink = buildSafeLink(item.link);
             const linkHtml = safeLink
                 ? `<a href="${escapeHtml(safeLink)}" class="news-read-more">Read more →</a>`
                 : '';
@@ -991,6 +996,28 @@ async function loadNewsfeed() {
                 </article>
             `;
         }).join('');
+
+        // Build teaser card for the next item (item 4) linking to full newsfeed page
+        let teaserHtml = '';
+        if (teaserItem) {
+            const teaserCat = categoryConfig[teaserItem.category] || { label: escapeHtml(teaserItem.category), emoji: '📌' };
+            const teaserDate = new Date(teaserItem.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            const moreLabel = remainingCount === 1
+                ? '1 more story'
+                : `${remainingCount} more stories`;
+            teaserHtml = `
+                <a href="newsfeed.html" class="news-teaser" aria-label="View all news">
+                    <div class="news-teaser-preview">
+                        <span class="news-category-badge news-category-${escapeHtml(teaserItem.category)}">${teaserCat.emoji} ${teaserCat.label}</span>
+                        <span class="news-date">${teaserDate}</span>
+                    </div>
+                    <p class="news-teaser-title">${escapeHtml(teaserItem.title)}</p>
+                    <span class="news-teaser-cta">+ ${moreLabel} — See all news →</span>
+                </a>
+            `;
+        }
+
+        container.innerHTML = itemsHtml + teaserHtml;
     } catch (error) {
         console.error('Error loading newsfeed:', error);
         document.getElementById('newsfeedList').innerHTML = '<p class="error-text">Failed to load news</p>';
