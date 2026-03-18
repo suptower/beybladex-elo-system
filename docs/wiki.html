@@ -239,7 +239,11 @@ async function loadAllData() {
             const allSeasonData = await seasonResponse.json();
             const seasons = allSeasonData.seasons || {};
             seasonChampionsData = {};
-            const tierIcons = { '1': '🥇', '2': '🥈', '3': '🥉' };
+            const tierIcons = {
+                '1': '<img class="achievement-icon" src="icons/medal-gold.svg" alt="Gold Medal">',
+                '2': '<img class="achievement-icon" src="icons/medal-silver.svg" alt="Silver Medal">',
+                '3': '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Bronze Medal">'
+            };
             const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
             Object.entries(seasons).forEach(([seasonId, season]) => {
                 if (season.league_tables && season.league_champion) {
@@ -253,7 +257,7 @@ async function loadAllData() {
                                 tier: tierId,
                                 label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
                                 badgeClass: `season-badge-tier${tierId}`,
-                                icon: tierIcons[tierId] || '🏅'
+                                icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Medal">'
                             });
                         }
                     });
@@ -266,7 +270,7 @@ async function loadAllData() {
                         seasonId,
                         label: `${seasonId} Season Cup Winner`,
                         badgeClass: 'season-badge-cup',
-                        icon: '🌟'
+                        icon: '<img class="achievement-icon" src="icons/star.svg" alt="Season Cup">'
                     });
                 }
             });
@@ -375,7 +379,7 @@ function renderBeys() {
         let trophiesHtml = '';
         if (trophies.length > 0) {
             const trophyIcons = trophies.map(t => 
-                `<span class="trophy-icon" title="${t.name}">🏆</span>`
+                `<span class="trophy-icon" title="${t.name}"><img class="achievement-icon" src="icons/trophy.svg" alt="Trophy"></span>`
             ).join('');
             trophiesHtml = `<div class="wiki-card-trophies">${trophyIcons}</div>`;
         }
