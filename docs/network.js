@@ -8,9 +8,9 @@
     // State
     // -----------------------------------------------------------------------
     let allBeys = [];          // raw beys_data.json array
-    let eloMap = {};           // bey name → ELO value (from leaderboard CSV)
-    let winrateMap = {};       // bey name → winrate (%)
-    let matchesMap = {};       // bey name → match count
+    let eloMap = {};           // leaderboard key (blade/name) → ELO value
+    let winrateMap = {};       // leaderboard key (blade/name) → winrate (%)
+    let matchesMap = {};       // leaderboard key (blade/name) → match count
     let profileArchetypeMap = {}; // normalized blade → RPG/profile archetype object
     let network = null;        // vis.Network instance
     let nodesDataSet = null;
@@ -64,18 +64,42 @@
             const lines = text.trim().split('\n');
             if (lines.length < 2) return;
             const headers = lines[0].split(',').map(h => h.trim());
-            const nameIdx    = headers.indexOf('Name');
+            const nameIdx    = headers.findIndex(h => h === 'Bey' || h === 'Name');
             const eloIdx     = headers.indexOf('ELO');
             const wrIdx      = headers.findIndex(h => h === 'Winrate' || h === 'Winrate_Xtreme');
             const matchesIdx = headers.findIndex(h => h === 'Matches' || h === 'Spiele');
+            if (nameIdx < 0) {
+                console.warn('Leaderboard CSV missing name column (expected "Bey" or "Name").');
+                return;
+            }
 
             for (let i = 1; i < lines.length; i++) {
                 const cols = lines[i].split(',');
-                if (nameIdx < 0 || !cols[nameIdx]) continue;
-                const name = cols[nameIdx].trim();
-                if (eloIdx >= 0 && cols[eloIdx])  eloMap[name]      = parseFloat(cols[eloIdx]);
-                if (wrIdx >= 0 && cols[wrIdx])     winrateMap[name]  = parseFloat(cols[wrIdx]);
-                if (matchesIdx >= 0 && cols[matchesIdx]) matchesMap[name] = parseInt(cols[matchesIdx], 10);
+                if (!cols[nameIdx]) continue;
+                const key = cols[nameIdx].trim();
+                const normalizedKey = normalizeBeyName(key);
+
+                if (eloIdx >= 0 && cols[eloIdx]) {
+                    const parsedElo = parseFloat(cols[eloIdx]);
+                    if (Number.isFinite(parsedElo)) {
+                        eloMap[key] = parsedElo;
+                        if (normalizedKey && normalizedKey !== key) eloMap[normalizedKey] = parsedElo;
+                    }
+                }
+                if (wrIdx >= 0 && cols[wrIdx]) {
+                    const parsedWr = parseWinrateValue(cols[wrIdx]);
+                    if (parsedWr !== null) {
+                        winrateMap[key] = parsedWr;
+                        if (normalizedKey && normalizedKey !== key) winrateMap[normalizedKey] = parsedWr;
+                    }
+                }
+                if (matchesIdx >= 0 && cols[matchesIdx]) {
+                    const parsedMatches = parseInt(cols[matchesIdx], 10);
+                    if (Number.isFinite(parsedMatches)) {
+                        matchesMap[key] = parsedMatches;
+                        if (normalizedKey && normalizedKey !== key) matchesMap[normalizedKey] = parsedMatches;
+                    }
+                }
             }
         } catch (err) {
             if (err instanceof SyntaxError) {
@@ -88,6 +112,32 @@
     function normalizeBeyName(name) {
         if (!name) return '';
         return name.toLowerCase().replace(/[\s\-_]/g, '');
+    }
+
+    function hasOwn(map, key) {
+        return Object.prototype.hasOwnProperty.call(map, key);
+    }
+
+    function parseWinrateValue(raw) {
+        const value = String(raw || '').trim().replace('%', '');
+        if (!value) return null;
+        const parsed = parseFloat(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+
+    function leaderboardLookup(map, bey) {
+        const blade = String((bey && bey.blade) || '').trim();
+        const name = String((bey && bey.name) || '').trim();
+
+        if (blade && hasOwn(map, blade)) return map[blade];
+        if (name && hasOwn(map, name)) return map[name];
+
+        const normalizedBlade = normalizeBeyName(blade);
+        if (normalizedBlade && hasOwn(map, normalizedBlade)) return map[normalizedBlade];
+        const normalizedName = normalizeBeyName(name);
+        if (normalizedName && hasOwn(map, normalizedName)) return map[normalizedName];
+
+        return undefined;
     }
 
     async function loadProfileArchetypes() {
@@ -177,7 +227,7 @@
     function buildNodes(beys) {
         return beys.map(bey => {
             const id      = buildNodeId(bey);
-            const rawElo  = eloMap[bey.name];
+            const rawElo  = leaderboardLookup(eloMap, bey);
             const hasElo  = rawElo !== undefined && rawElo !== null && Number.isFinite(Number(rawElo));
             const elo     = hasElo ? Number(rawElo) : ELO_DEFAULT;
             const size    = eloToSize(elo);
@@ -428,8 +478,8 @@
         const bey   = node._bey;
         const elo   = node._elo;
         const hasElo = node._hasElo;
-        const wr    = winrateMap[bey.name];
-        const games = matchesMap[bey.name];
+        const wr    = leaderboardLookup(winrateMap, bey);
+        const games = leaderboardLookup(matchesMap, bey);
         const panel = el('info-panel');
         const tc    = TYPE_COLORS[bey.type] || DEFAULT_NODE_COLOR;
         const safeName = escapeHtml(bey.name || '–');
@@ -496,7 +546,7 @@
                     </table>
                     ${safeDescription ? `<p class="info-desc">${safeDescription}</p>` : ''}
                     ${relLines ? `<div class="info-rels">${relLines}</div>` : ''}
-                    <a class="info-wiki-link" href="bey.html?bey=${encodeURIComponent(String(bey.name || ''))}">View full stats →</a>
+                    <a class="info-wiki-link" href="bey.html?name=${encodeURIComponent(String(bey.blade || bey.name || ''))}">View full stats →</a>
                 </div>
             </div>
         `;
