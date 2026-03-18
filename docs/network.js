@@ -14,7 +14,7 @@
     let network = null;        // vis.Network instance
     let nodesDataSet = null;
     let edgesDataSet = null;
-    let currentFilter = 'all'; // 'all' | 'family' | 'suffix' | 'ratchet' | 'bit' | 'type'
+    let currentFilter = 'all'; // 'all' | 'family' | 'suffix' | 'ratchet' | 'bit' | 'archetype'
     let selectedNodeId = null;
 
     // Edge colours per relationship type
@@ -23,7 +23,7 @@
         suffix:  { color: '#ec4899', highlight: '#f472b6' },
         ratchet: { color: '#3b82f6', highlight: '#60a5fa' },
         bit:     { color: '#f59e0b', highlight: '#fbbf24' },
-        type:    { color: '#10b981', highlight: '#34d399' },
+        archetype: { color: '#10b981', highlight: '#34d399' },
     };
 
     // Archetype colours for node backgrounds
@@ -197,12 +197,29 @@
                 if (a.bit && b.bit && a.bit === b.bit) {
                     addEdge(ai, bi, 'bit', a.bit);
                 }
-                // Same type (archetype)
-                if (a.type && b.type && a.type === b.type) {
-                    addEdge(ai, bi, 'type', a.type);
-                }
             }
         }
+
+        // Archetype links (sparse): connect each archetype as a simple chain.
+        const archetypeGroups = new Map();
+        beys.forEach(bey => {
+            if (!bey.type) return;
+            if (!archetypeGroups.has(bey.type)) archetypeGroups.set(bey.type, []);
+            archetypeGroups.get(bey.type).push(bey);
+        });
+        archetypeGroups.forEach((group, archetype) => {
+            if (group.length < 2) return;
+            const sortedGroup = group.slice().sort((a, b) => a.name.localeCompare(b.name));
+            for (let i = 1; i < sortedGroup.length; i++) {
+                addEdge(
+                    buildNodeId(sortedGroup[i - 1]),
+                    buildNodeId(sortedGroup[i]),
+                    'archetype',
+                    archetype
+                );
+            }
+        });
+
         return edges;
     }
 
@@ -413,7 +430,7 @@
     function updateEdgeCounts() {
         if (!edgesDataSet) return;
         const edges = edgesDataSet.get();
-        const counts = { family: 0, suffix: 0, ratchet: 0, bit: 0, type: 0 };
+        const counts = { family: 0, suffix: 0, ratchet: 0, bit: 0, archetype: 0 };
         edges.forEach(e => { if (counts[e._type] !== undefined) counts[e._type]++; });
 
         // Button badges
@@ -421,24 +438,24 @@
         const sEl = el('edge-count-suffix');
         const rEl = el('edge-count-ratchet');
         const bEl = el('edge-count-bit');
-        const tEl = el('edge-count-type');
+        const tEl = el('edge-count-archetype');
         if (fEl) fEl.textContent = counts.family;
         if (sEl) sEl.textContent = counts.suffix;
         if (rEl) rEl.textContent = counts.ratchet;
         if (bEl) bEl.textContent = counts.bit;
-        if (tEl) tEl.textContent = counts.type;
+        if (tEl) tEl.textContent = counts.archetype;
 
         // Stats bar
         const fBar = el('edge-count-family-bar');
         const sBar = el('edge-count-suffix-bar');
         const rBar = el('edge-count-ratchet-bar');
         const bBar = el('edge-count-bit-bar');
-        const tBar = el('edge-count-type-bar');
+        const tBar = el('edge-count-archetype-bar');
         if (fBar) fBar.textContent = counts.family;
         if (sBar) sBar.textContent = counts.suffix;
         if (rBar) rBar.textContent = counts.ratchet;
         if (bBar) bBar.textContent = counts.bit;
-        if (tBar) tBar.textContent = counts.type;
+        if (tBar) tBar.textContent = counts.archetype;
     }
 
     function applyFilter(filter) {
@@ -491,7 +508,7 @@
         const legendEl = el('legend');
         if (!legendEl) return;
         legendEl.innerHTML = `
-            <h4>Node type</h4>
+            <h4>Node archetype</h4>
             ${Object.entries(TYPE_COLORS).map(([t, c]) =>
                 `<div class="legend-item"><span class="legend-dot" style="background:${c.bg};border-color:${c.border}"></span>${t}</div>`
             ).join('')}
