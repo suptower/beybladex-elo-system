@@ -148,10 +148,28 @@
         return data && data.name ? data.name : null;
     }
 
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function sanitizeImageSrc(value) {
+        const src = String(value || '').trim();
+        if (!src) return '';
+        if (/^(https?:|\/|\.\/|\.\.\/)/i.test(src)) return src;
+        return '';
+    }
+
     function buildNodes(beys) {
         return beys.map(bey => {
             const id      = buildNodeId(bey);
-            const elo     = eloMap[bey.name] || ELO_DEFAULT;
+            const rawElo  = eloMap[bey.name];
+            const hasElo  = Number.isFinite(rawElo);
+            const elo     = hasElo ? rawElo : ELO_DEFAULT;
             const size    = eloToSize(elo);
             const tc      = TYPE_COLORS[bey.type] || DEFAULT_NODE_COLOR;
 
@@ -175,6 +193,7 @@
                 // store extra data for the info panel
                 _bey: bey,
                 _elo: elo,
+                _hasElo: hasElo,
             };
         });
     }
@@ -398,10 +417,22 @@
         if (!node) return;
         const bey   = node._bey;
         const elo   = node._elo;
+        const hasElo = node._hasElo;
         const wr    = winrateMap[bey.name];
         const games = matchesMap[bey.name];
         const panel = el('info-panel');
         const tc    = TYPE_COLORS[bey.type] || DEFAULT_NODE_COLOR;
+        const safeName = escapeHtml(bey.name || '–');
+        const safeType = escapeHtml(bey.type || '–');
+        const safeBlade = escapeHtml(bey.blade || '–');
+        const safeFamily = escapeHtml(bladeFamilyOf(bey) || '');
+        const safeAssistBlade = escapeHtml(bey.assist_blade || '');
+        const safeRatchet = escapeHtml(bey.ratchet || '–');
+        const safeBit = escapeHtml(bey.bit || '–');
+        const safeCode = escapeHtml(bey.code || '–');
+        const safeDescription = escapeHtml(bey.description || '');
+        const safeImage = sanitizeImageSrc(bey.image);
+        const safeBeyLink = `bey.html?bey=${encodeURIComponent(String(bey.name || ''))}`;
 
         // Build connected neighbours info
         const connectedEdges = edgesDataSet.get({
@@ -412,21 +443,21 @@
             relSummary[e._type] = (relSummary[e._type] || 0) + 1;
         });
         const relLines = Object.entries(relSummary)
-            .map(([t, c]) => `<span class="info-rel info-rel-${t}">${c} ${t}</span>`)
+            .map(([t, c]) => `<span class="info-rel info-rel-${escapeHtml(t)}">${c} ${escapeHtml(t)}</span>`)
             .join('');
 
         panel.innerHTML = `
             <div class="info-panel-inner">
                 <div class="info-header" style="background:${tc.bg};">
-                    <h3 class="info-title" style="color:${tc.font}">${bey.name}</h3>
-                    <span class="info-type-badge" style="color:${tc.font}">${bey.type || '–'}</span>
+                    <h3 class="info-title" style="color:${tc.font}">${safeName}</h3>
+                    <span class="info-type-badge" style="color:${tc.font}">${safeType}</span>
                 </div>
                 <div class="info-body">
-                    ${bey.image ? `<img class="info-bey-img" src="${bey.image}" alt="${bey.name}" loading="lazy">` : ''}
+                    ${safeImage ? `<img class="info-bey-img" src="${safeImage}" alt="${safeName}" loading="lazy">` : ''}
                     <div class="info-stats">
                         <div class="info-stat">
                             <span class="info-stat-label">ELO</span>
-                            <span class="info-stat-value">${elo !== ELO_DEFAULT ? Math.round(elo) : '–'}</span>
+                            <span class="info-stat-value">${hasElo ? Math.round(elo) : '–'}</span>
                         </div>
                         <div class="info-stat">
                             <span class="info-stat-label">Win rate</span>
@@ -438,16 +469,16 @@
                         </div>
                     </div>
                     <table class="info-parts-table">
-                        <tr><td class="ipt-label">Blade</td><td>${bey.blade || '–'}</td></tr>
-                        ${(() => { const fam = bladeFamilyOf(bey); return fam ? `<tr><td class="ipt-label">Family</td><td>${fam}</td></tr>` : ''; })()}
-                        ${bey.assist_blade ? `<tr><td class="ipt-label">Assist</td><td>${bey.assist_blade}</td></tr>` : ''}
-                        <tr><td class="ipt-label">Ratchet</td><td>${bey.ratchet || '–'}</td></tr>
-                        <tr><td class="ipt-label">Bit</td><td>${bey.bit || '–'}</td></tr>
-                        <tr><td class="ipt-label">Code</td><td>${bey.code || '–'}</td></tr>
+                        <tr><td class="ipt-label">Blade</td><td>${safeBlade}</td></tr>
+                        ${safeFamily ? `<tr><td class="ipt-label">Family</td><td>${safeFamily}</td></tr>` : ''}
+                        ${safeAssistBlade ? `<tr><td class="ipt-label">Assist</td><td>${safeAssistBlade}</td></tr>` : ''}
+                        <tr><td class="ipt-label">Ratchet</td><td>${safeRatchet}</td></tr>
+                        <tr><td class="ipt-label">Bit</td><td>${safeBit}</td></tr>
+                        <tr><td class="ipt-label">Code</td><td>${safeCode}</td></tr>
                     </table>
-                    ${bey.description ? `<p class="info-desc">${bey.description}</p>` : ''}
+                    ${safeDescription ? `<p class="info-desc">${safeDescription}</p>` : ''}
                     ${relLines ? `<div class="info-rels">${relLines}</div>` : ''}
-                    <a class="info-wiki-link" href="bey.html?bey=${encodeURIComponent(bey.name)}">View full stats →</a>
+                    <a class="info-wiki-link" href="${safeBeyLink}">View full stats →</a>
                 </div>
             </div>
         `;
@@ -501,7 +532,6 @@
             btn.classList.toggle('active', btn.dataset.filter === filter);
         });
 
-        const isDark = document.body.classList.contains('dark');
         // Rebuild edges only (nodes stay the same)
         const edges = buildEdges(allBeys, filter);
         edgesDataSet.clear();
@@ -627,8 +657,8 @@
         // Dark-mode toggle – re-init so the canvas background updates
         const darkToggle = el('darkToggle');
         if (darkToggle) {
-            darkToggle.addEventListener('change', () => {
-                const dark = document.body.classList.contains('dark');
+            darkToggle.addEventListener('change', (event) => {
+                const dark = Boolean(event.target && event.target.checked);
                 initOrRefreshNetwork(dark);
                 buildLegend();
             });
