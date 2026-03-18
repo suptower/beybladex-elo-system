@@ -142,6 +142,7 @@
             height: calc(100vh - 280px);
             min-height: 480px;
             overflow: hidden;
+            position: relative;
         }
 
         /* ── Canvas ── */
@@ -150,9 +151,12 @@
             height: 100%;
             background: var(--bg-alt);
             border-right: 1px solid var(--border);
+            min-width: 0;
+            overflow: hidden;
+            position: relative;
         }
 
-                /* ── Sidebar ── */
+        /* ── Sidebar ── */
         .network-sidebar {
             width: 290px;
             flex-shrink: 0;
@@ -161,13 +165,16 @@
             gap: 0;
             background: var(--card);
             overflow-y: auto;
+            border-left: 1px solid var(--border);
+            position: relative;
+            z-index: 2;
         }
 
         /* ── Info panel ── */
         #info-panel {
             padding: 16px;
-            border-bottom: 1px solid var(--border);
             min-height: 120px;
+            overflow-y: auto;
         }
 
         .info-placeholder {
@@ -307,6 +314,8 @@
         /* ── Legend ── */
         #legend {
             padding: 16px;
+            border-top: 1px solid var(--border);
+            background: var(--card);
         }
 
         #legend h4 {
@@ -360,6 +369,16 @@
         }
 
         .stats-bar strong { color: var(--text); }
+        .edge-stat-family { color: #6d28d9; }
+        .edge-stat-suffix { color: #be185d; }
+        .edge-stat-ratchet { color: #1d4ed8; }
+        .edge-stat-bit { color: #b45309; }
+        .edge-stat-archetype { color: #047857; }
+        body.dark .edge-stat-family { color: #a78bfa; }
+        body.dark .edge-stat-suffix { color: #f472b6; }
+        body.dark .edge-stat-ratchet { color: #60a5fa; }
+        body.dark .edge-stat-bit { color: #fbbf24; }
+        body.dark .edge-stat-archetype { color: #34d399; }
 
         /* ── Loading ── */
         #loading-message {
@@ -448,11 +467,11 @@
     <!-- Stats bar -->
     <div class="stats-bar" aria-live="polite">
         <span>Nodes: <strong id="node-count">–</strong></span>
-        <span style="color:#8b5cf6">● Family edges: <strong id="edge-count-family-bar"></strong></span>
-        <span style="color:#ec4899">● Suffix edges: <strong id="edge-count-suffix-bar"></strong></span>
-        <span style="color:#3b82f6">● Ratchet edges: <strong id="edge-count-ratchet-bar"></strong></span>
-        <span style="color:#f59e0b">● Bit edges: <strong id="edge-count-bit-bar"></strong></span>
-        <span style="color:#10b981">● Profile archetype edges: <strong id="edge-count-archetype-bar"></strong></span>
+        <span class="edge-stat-family">● Family edges: <strong id="edge-count-family-bar"></strong></span>
+        <span class="edge-stat-suffix">● Suffix edges: <strong id="edge-count-suffix-bar"></strong></span>
+        <span class="edge-stat-ratchet">● Ratchet edges: <strong id="edge-count-ratchet-bar"></strong></span>
+        <span class="edge-stat-bit">● Bit edges: <strong id="edge-count-bit-bar"></strong></span>
+        <span class="edge-stat-archetype">● Profile archetype edges: <strong id="edge-count-archetype-bar"></strong></span>
     </div>
 
     <!-- Loading indicator -->

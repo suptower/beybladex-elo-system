@@ -267,7 +267,13 @@
             edges: {
                 width: 2,
                 shadow: false,
-                font: { size: 10, align: 'middle' },
+                font: {
+                    size: 10,
+                    align: 'middle',
+                    color: isDark ? '#e5e7eb' : '#1f2937',
+                    strokeWidth: 2,
+                    strokeColor: isDark ? 'rgba(17,24,39,0.9)' : 'rgba(255,255,255,0.9)',
+                },
                 arrows: { to: false },
             },
             physics: {
