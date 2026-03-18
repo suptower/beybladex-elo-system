@@ -160,8 +160,15 @@
     function sanitizeImageSrc(value) {
         const src = String(value || '').trim();
         if (!src) return '';
-        if (/^(https?:|\/|\.\/|\.\.\/)/i.test(src)) return src;
+        if (/^https?:\/\//i.test(src)) return src;
+        if (/[\u0000-\u001F\u007F]/.test(src)) return '';
+        if (src.includes('..') || src.includes('\\')) return '';
+        if (/^(\/|\.\/)?[a-zA-Z0-9/_-]+\.(png|jpe?g|gif|webp|svg)$/i.test(src)) return src;
         return '';
+    }
+
+    function sanitizeClassToken(value) {
+        return String(value || '').replace(/[^a-z0-9_-]/gi, '').toLowerCase();
     }
 
     function buildNodes(beys) {
@@ -442,8 +449,11 @@
         connectedEdges.forEach(e => {
             relSummary[e._type] = (relSummary[e._type] || 0) + 1;
         });
-        const relLines = Object.entries(relSummary)
-            .map(([t, c]) => `<span class="info-rel info-rel-${escapeHtml(t)}">${c} ${escapeHtml(t)}</span>`)
+        const relEntries = Object.entries(relSummary)
+            .map(([t, c]) => ({ type: t, count: c, token: sanitizeClassToken(t) }))
+            .filter(entry => entry.token);
+        const relLines = relEntries
+            .map(({ type, count, token }) => `<span class="info-rel info-rel-${token}">${count} ${escapeHtml(type)}</span>`)
             .join('');
 
         panel.innerHTML = `
