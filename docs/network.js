@@ -32,7 +32,7 @@
         Attack:  { bg: '#ef4444', border: '#b91c1c', font: '#ffffff' },
         Defense: { bg: '#3b82f6', border: '#1d4ed8', font: '#ffffff' },
         Stamina: { bg: '#10b981', border: '#047857', font: '#ffffff' },
-        Balance: { bg: '#f59e0b', border: '#b45309', font: '#000000' },
+        Balance: { bg: '#f59e0b', border: '#b45309', font: '#ffffff' },
     };
     const DEFAULT_NODE_COLOR = { bg: '#6b7280', border: '#374151', font: '#ffffff' };
 
