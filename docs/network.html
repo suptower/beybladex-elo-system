@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beyblade Network – suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <!-- data-paths.js must be non-deferred and loaded first -->
+    <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="version-display.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <!-- vis-network (bundled locally) -->
+    <script src="vis-network.min.js"></script>
+    <script defer src="network.js"></script>
+
+    <style>
+        /* ── Page layout ── */
+        .network-page {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            padding: 0;
+        }
+
+        .network-hero {
+            background: var(--gradient-primary);
+            color: #fff;
+            padding: 28px 32px 20px;
+            text-align: center;
+        }
+
+        .network-hero h2 {
+            margin: 0 0 8px;
+            font-size: 1.9rem;
+            font-weight: 800;
+        }
+
+        .network-hero p {
+            margin: 0;
+            opacity: 0.88;
+            font-size: 0.97rem;
+        }
+
+        /* ── Controls bar ── */
+        .network-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            padding: 14px 20px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .controls-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg-subtle);
+            color: var(--text);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover { background: var(--accent-hover-subtle); border-color: var(--accent); }
+
+        .filter-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
+        }
+
+        .filter-btn .edge-count {
+            display: inline-block;
+            margin-left: 4px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 10px;
+            padding: 0 5px;
+            font-size: 0.75rem;
+        }
+
+        .filter-btn:not(.active) .edge-count {
+            background: var(--bg-secondary);
+            color: var(--text-light);
+        }
+
+        .search-input {
+            padding: 7px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.85rem;
+            outline: none;
+            width: 180px;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-hover-subtle);
+        }
+
+        .icon-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-subtle);
+            color: var(--text);
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover { background: var(--accent-hover-subtle); border-color: var(--accent); }
+
+        /* ── Graph wrapper ── */
+        #graph-wrapper {
+            display: none; /* shown by JS after data loads */
+            flex-direction: row;
+            height: calc(100vh - 280px);
+            min-height: 480px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── Canvas ── */
+        #network-canvas {
+            flex: 1;
+            height: 100%;
+            background: var(--bg-alt);
+            border-right: 1px solid var(--border);
+            min-width: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── Sidebar ── */
+        .network-sidebar {
+            width: 290px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            background: var(--card);
+            overflow-y: auto;
+            border-left: 1px solid var(--border);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ── Info panel ── */
+        #info-panel {
+            padding: 16px;
+            min-height: 120px;
+            overflow-y: auto;
+        }
+
+        .info-placeholder {
+            color: var(--text-light);
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .info-panel-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-header {
+            padding: 10px 12px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 700;
+            word-break: break-word;
+        }
+
+        .info-type-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0.85;
+            white-space: nowrap;
+            margin-left: 8px;
+        }
+
+        .info-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-bey-img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            align-self: center;
+            border-radius: 8px;
+            background: var(--bg-subtle);
+        }
+
+        .info-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .info-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 4px;
+            background: var(--bg-subtle);
+            border-radius: var(--radius-sm);
+        }
+
+        .info-stat-label {
+            font-size: 0.68rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .info-parts-table {
+            width: 100%;
+            font-size: 0.82rem;
+            border-collapse: collapse;
+        }
+
+        .info-parts-table td {
+            padding: 3px 4px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ipt-label {
+            font-weight: 600;
+            color: var(--text-light);
+            width: 60px;
+        }
+
+        .info-desc {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin: 0;
+            font-style: italic;
+        }
+
+        .info-rels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .info-rel {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .info-rel-family  { background: #8b5cf6; }
+        .info-rel-suffix  { background: #ec4899; }
+        .info-rel-ratchet { background: #3b82f6; }
+        .info-rel-bit     { background: #f59e0b; color: #000; }
+        .info-rel-archetype { background: #10b981; }
+
+        .info-wiki-link {
+            display: inline-block;
+            margin-top: 2px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .info-wiki-link:hover { text-decoration: underline; }
+
+        /* ── Legend ── */
+        #legend {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            background: var(--card);
+        }
+
+        #legend h4 {
+            margin: 0 0 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            flex-shrink: 0;
+        }
+
+        .legend-line {
+            width: 24px;
+            height: 3px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .legend-size-hint {
+            font-style: italic;
+            color: var(--text-light);
+        }
+
+        /* ── Node/edge badge counts ── */
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            padding: 10px 20px;
+            background: var(--bg-subtle);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-light);
+            flex-wrap: wrap;
+        }
+
+        .stats-bar strong { color: var(--text); }
+        .edge-stat-family { color: #6d28d9; }
+        .edge-stat-suffix { color: #be185d; }
+        .edge-stat-ratchet { color: #1d4ed8; }
+        .edge-stat-bit { color: #b45309; }
+        .edge-stat-archetype { color: #047857; }
+        body.dark .edge-stat-family { color: #a78bfa; }
+        body.dark .edge-stat-suffix { color: #f472b6; }
+        body.dark .edge-stat-ratchet { color: #60a5fa; }
+        body.dark .edge-stat-bit { color: #fbbf24; }
+        body.dark .edge-stat-archetype { color: #34d399; }
+
+        /* ── Loading ── */
+        #loading-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+
+        /* ── Mobile tweaks ── */
+        @media (max-width: 768px) {
+            .network-page { height: auto; overflow: auto; }
+            #graph-wrapper { flex-direction: column; }
+            .network-sidebar { width: 100%; }
+            #network-canvas { height: 400px; flex: none; }
+            .network-controls { padding: 10px 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Beyblade Network</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main class="network-page" id="main-content">
+
+    <section class="network-hero">
+        <h2>🧠 Beyblade Network Graph</h2>
+        <p>Explore structural relationships between Beys – shared ratchets, bits, and archetypes.</p>
+    </section>
+
+    <!-- Controls -->
+    <div class="network-controls" role="toolbar" aria-label="Graph controls">
+        <div class="controls-group">
+            <span class="controls-label">Filter edges</span>
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="family">
+                Family <span class="edge-count" id="edge-count-family">0</span>
+            </button>
+            <button class="filter-btn" data-filter="suffix">
+                Suffix <span class="edge-count" id="edge-count-suffix">0</span>
+            </button>
+            <button class="filter-btn" data-filter="ratchet">
+                Ratchet <span class="edge-count" id="edge-count-ratchet">0</span>
+            </button>
+            <button class="filter-btn" data-filter="bit">
+                Bit <span class="edge-count" id="edge-count-bit">0</span>
+            </button>
+            <button class="filter-btn" data-filter="archetype">
+                Profile Archetype <span class="edge-count" id="edge-count-archetype">0</span>
+            </button>
+        </div>
+        <div class="controls-group" style="margin-left:auto">
+            <input
+                class="search-input"
+                id="search-input"
+                type="search"
+                placeholder="🔍 Search bey…"
+                aria-label="Search bey"
+            >
+            <button class="icon-btn" id="fit-btn" title="Fit graph to screen">⊡ Fit</button>
+            <button class="icon-btn" id="reset-btn" title="Reset view and selection">↺ Reset</button>
+        </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar" aria-live="polite">
+        <span>Nodes: <strong id="node-count">–</strong></span>
+        <span class="edge-stat-family">● Family edges: <strong id="edge-count-family-bar"></strong></span>
+        <span class="edge-stat-suffix">● Suffix edges: <strong id="edge-count-suffix-bar"></strong></span>
+        <span class="edge-stat-ratchet">● Ratchet edges: <strong id="edge-count-ratchet-bar"></strong></span>
+        <span class="edge-stat-bit">● Bit edges: <strong id="edge-count-bit-bar"></strong></span>
+        <span class="edge-stat-archetype">● Profile archetype edges: <strong id="edge-count-archetype-bar"></strong></span>
+    </div>
+
+    <!-- Loading indicator -->
+    <p id="loading-message">Loading graph…</p>
+
+    <!-- Graph + sidebar -->
+    <div id="graph-wrapper">
+        <div id="network-canvas" role="region" aria-label="Beyblade relationship graph"></div>
+        <aside class="network-sidebar">
+            <div id="info-panel">
+                <p class="info-placeholder">Click a node to see details</p>
+            </div>
+            <div id="legend"></div>
+        </aside>
+    </div>
+
+</main>
+
+<footer>
+    <div class="version-info" id="site-version"></div>
+</footer>
+
+</body>
+</html>
