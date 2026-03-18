@@ -738,7 +738,7 @@ function renderTrophies() {
     // Generate trophy HTML
     trophiesContainer.innerHTML = tournamentsData.map(tournament => `
         <div class="profile-trophy" title="${tournament.name} - ${tournament.date}">
-            <span class="profile-trophy-icon">🏆</span>
+            <span class="profile-trophy-icon"><img class="achievement-icon" src="icons/trophy.svg" alt="Trophy"></span>
             <span class="profile-trophy-name">${tournament.name}</span>
         </div>
     `).join('');
@@ -750,7 +750,11 @@ function getSeasonAchievements() {
     const normalizedName = normalizeBeyName(beyName);
     const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
     const tierBadgeClasses = { '1': 'season-badge-tier1', '2': 'season-badge-tier2', '3': 'season-badge-tier3' };
-    const tierIcons = { '1': '🥇', '2': '🥈', '3': '🥉' };
+    const tierIcons = {
+        '1': '<img class="achievement-icon" src="icons/medal-gold.svg" alt="Gold Medal">',
+        '2': '<img class="achievement-icon" src="icons/medal-silver.svg" alt="Silver Medal">',
+        '3': '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Bronze Medal">'
+    };
 
     Object.entries(seasonData).forEach(([seasonId, season]) => {
         // Check tier champions
@@ -763,7 +767,7 @@ function getSeasonAchievements() {
                         tier: tierId,
                         label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
                         badgeClass: tierBadgeClasses[tierId] || 'season-badge-tier3',
-                        icon: tierIcons[tierId] || '🏅'
+                        icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Medal">'
                     });
                 }
             });
@@ -775,7 +779,7 @@ function getSeasonAchievements() {
                 seasonId,
                 label: `${seasonId} Season Cup Winner`,
                 badgeClass: 'season-badge-cup',
-                icon: '🌟'
+                icon: '<img class="achievement-icon" src="icons/star.svg" alt="Season Cup">'
             });
         }
     });
@@ -829,12 +833,17 @@ function renderSeasonSection() {
 
     seasonSection.style.display = 'block';
 
+    const tierMedalFiles = { '1': 'medal-gold', '2': 'medal-silver', '3': 'medal-bronze' };
+    const tierMedalAlts  = { '1': 'Gold Medal', '2': 'Silver Medal', '3': 'Bronze Medal' };
+
     const tableRows = entries.map(({ seasonId, tierId, entry, isTierChampion, isCupWinner }) => {
         const tierLabel = tierLabels[tierId] || `Tier ${tierId}`;
         const posClass = entry.position === 1 ? 'trend-very-positive' : entry.position <= 3 ? 'trend-positive' : '';
+        const medalFile = tierMedalFiles[tierId] || 'medal-bronze';
+        const medalAlt  = tierMedalAlts[tierId]  || 'Medal';
         const achievementBadges = [
-            isTierChampion ? `<span class="season-table-badge season-badge-tier${tierId}" title="${seasonId} ${tierLabel} Champion">${tierId === '1' ? '🥇' : tierId === '2' ? '🥈' : '🥉'}</span>` : '',
-            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner">🌟</span>` : ''
+            isTierChampion ? `<span class="season-table-badge season-badge-tier${tierId}" title="${seasonId} ${tierLabel} Champion"><img class="achievement-icon" src="icons/${medalFile}.svg" alt="${medalAlt}"></span>` : '',
+            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner"><img class="achievement-icon" src="icons/star.svg" alt="Season Cup"></span>` : ''
         ].filter(Boolean).join('');
         const winrate = entry.matches > 0 ? Math.round((entry.wins / entry.matches) * 100) : 0;
         const wrClass = winrate >= 60 ? 'trend-positive' : winrate < 40 ? 'trend-negative' : '';
