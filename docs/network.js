@@ -11,6 +11,7 @@
     let eloMap = {};           // bey name → ELO value (from leaderboard CSV)
     let winrateMap = {};       // bey name → winrate (%)
     let matchesMap = {};       // bey name → match count
+    let profileArchetypeMap = {}; // normalized blade → RPG/profile archetype object
     let network = null;        // vis.Network instance
     let nodesDataSet = null;
     let edgesDataSet = null;
@@ -84,6 +85,28 @@
         }
     }
 
+    function normalizeBeyName(name) {
+        if (!name) return '';
+        return name.toLowerCase().replace(/[\s\-_]/g, '');
+    }
+
+    async function loadProfileArchetypes() {
+        try {
+            const res = await fetch(DATA_PATHS.RPG_STATS_JSON);
+            if (!res.ok) return;
+            const rpgStats = await res.json();
+            profileArchetypeMap = {};
+            for (const [key, value] of Object.entries(rpgStats)) {
+                if (value && value.archetype) {
+                    profileArchetypeMap[normalizeBeyName(key)] = value.archetype;
+                }
+            }
+        } catch (err) {
+            // Running locally without generated analytics files is valid.
+            profileArchetypeMap = {};
+        }
+    }
+
     // -----------------------------------------------------------------------
     // Graph construction helpers
     // -----------------------------------------------------------------------
@@ -117,6 +140,12 @@
         const words = bey.blade.match(/[A-Z][a-z]*/g);
         if (!words || words.length < 2) return null; // single-word blade has no meaningful suffix distinct from family
         return words[words.length - 1];
+    }
+
+    function profileArchetypeNameOf(bey) {
+        if (!bey || !bey.blade) return null;
+        const data = profileArchetypeMap[normalizeBeyName(bey.blade)];
+        return data && data.name ? data.name : null;
     }
 
     function buildNodes(beys) {
@@ -200,12 +229,14 @@
             }
         }
 
-        // Archetype links (sparse): connect each archetype as a simple chain.
+        // Profile archetype links (sparse): chain nodes that share the same RPG archetype.
+        // If RPG data is unavailable, fallback to the broad type field so the graph stays usable.
         const archetypeGroups = new Map();
         beys.forEach(bey => {
-            if (!bey.type) return;
-            if (!archetypeGroups.has(bey.type)) archetypeGroups.set(bey.type, []);
-            archetypeGroups.get(bey.type).push(bey);
+            const archetypeName = profileArchetypeNameOf(bey) || bey.type;
+            if (!archetypeName) return;
+            if (!archetypeGroups.has(archetypeName)) archetypeGroups.set(archetypeName, []);
+            archetypeGroups.get(archetypeName).push(bey);
         });
         archetypeGroups.forEach((group, archetype) => {
             if (group.length < 2) return;
@@ -508,13 +539,13 @@
         const legendEl = el('legend');
         if (!legendEl) return;
         legendEl.innerHTML = `
-            <h4>Node archetype</h4>
+            <h4>Node class type</h4>
             ${Object.entries(TYPE_COLORS).map(([t, c]) =>
                 `<div class="legend-item"><span class="legend-dot" style="background:${c.bg};border-color:${c.border}"></span>${t}</div>`
             ).join('')}
             <h4 style="margin-top:12px">Edge relationship</h4>
             ${Object.entries(EDGE_COLORS).map(([t, c]) =>
-                `<div class="legend-item"><span class="legend-line" style="background:${c.color}"></span>${t.charAt(0).toUpperCase() + t.slice(1)}</div>`
+                `<div class="legend-item"><span class="legend-line" style="background:${c.color}"></span>${t === 'archetype' ? 'Profile archetype' : t.charAt(0).toUpperCase() + t.slice(1)}</div>`
             ).join('')}
             <h4 style="margin-top:12px">Node size</h4>
             <div class="legend-item legend-size-hint">Larger = higher ELO</div>
@@ -532,6 +563,7 @@
             [allBeys] = await Promise.all([
                 loadBeysData(),
                 loadLeaderboardData(),
+                loadProfileArchetypes(),
             ]);
         } catch (err) {
             el('loading-message').textContent = 'Error loading data: ' + err.message;
