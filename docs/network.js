@@ -161,22 +161,25 @@
         const src = String(value || '').trim();
         if (!src) return '';
         if (/^https?:\/\//i.test(src)) return src;
-        if (/[\u0000-\u001F\u007F]/.test(src)) return '';
+        if (/[\u0000-\u001F\u007F-\u009F]/.test(src)) return '';
         if (src.includes('..') || src.includes('\\')) return '';
-        if (/^(\/|\.\/)?[a-zA-Z0-9/_-]+\.(png|jpe?g|gif|webp|svg)$/i.test(src)) return src;
+        if (/\/\//.test(src)) return '';
+        if (/^(\.\/)?[a-zA-Z][a-zA-Z0-9/_-]*\.(png|jpe?g|gif|webp)$/i.test(src)) return src;
         return '';
     }
 
     function sanitizeClassToken(value) {
-        return String(value || '').replace(/[^a-z0-9_-]/gi, '').toLowerCase();
+        const input = String(value || '').trim();
+        if (!input || !/^[a-z0-9_-]+$/i.test(input)) return '';
+        return input.toLowerCase();
     }
 
     function buildNodes(beys) {
         return beys.map(bey => {
             const id      = buildNodeId(bey);
             const rawElo  = eloMap[bey.name];
-            const hasElo  = Number.isFinite(rawElo);
-            const elo     = hasElo ? rawElo : ELO_DEFAULT;
+            const hasElo  = rawElo !== undefined && rawElo !== null && Number.isFinite(Number(rawElo));
+            const elo     = hasElo ? Number(rawElo) : ELO_DEFAULT;
             const size    = eloToSize(elo);
             const tc      = TYPE_COLORS[bey.type] || DEFAULT_NODE_COLOR;
 
@@ -439,7 +442,6 @@
         const safeCode = escapeHtml(bey.code || '–');
         const safeDescription = escapeHtml(bey.description || '');
         const safeImage = sanitizeImageSrc(bey.image);
-        const safeBeyLink = `bey.html?bey=${encodeURIComponent(String(bey.name || ''))}`;
 
         // Build connected neighbours info
         const connectedEdges = edgesDataSet.get({
@@ -449,9 +451,15 @@
         connectedEdges.forEach(e => {
             relSummary[e._type] = (relSummary[e._type] || 0) + 1;
         });
-        const relEntries = Object.entries(relSummary)
-            .map(([t, c]) => ({ type: t, count: c, token: sanitizeClassToken(t) }))
-            .filter(entry => entry.token);
+        const relationBadgeEntries = Object.entries(relSummary)
+            .map(([t, c]) => ({ type: t, count: c, token: sanitizeClassToken(t) }));
+        const relEntries = relationBadgeEntries.filter(entry => entry.token);
+        const droppedTypes = relationBadgeEntries
+            .filter(entry => !entry.token)
+            .map(entry => entry.type);
+        if (droppedTypes.length > 0) {
+            console.warn('Skipped relation badges with invalid token values:', droppedTypes);
+        }
         const relLines = relEntries
             .map(({ type, count, token }) => `<span class="info-rel info-rel-${token}">${count} ${escapeHtml(type)}</span>`)
             .join('');
@@ -488,7 +496,7 @@
                     </table>
                     ${safeDescription ? `<p class="info-desc">${safeDescription}</p>` : ''}
                     ${relLines ? `<div class="info-rels">${relLines}</div>` : ''}
-                    <a class="info-wiki-link" href="${safeBeyLink}">View full stats →</a>
+                    <a class="info-wiki-link" href="bey.html?bey=${encodeURIComponent(String(bey.name || ''))}">View full stats →</a>
                 </div>
             </div>
         `;
