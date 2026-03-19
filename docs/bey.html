@@ -1075,18 +1075,18 @@ function renderXpHistorySection() {
                                     `Base ${s.base_xp || 0}`,
                                     `Result ${s.result_bonus || 0}`,
                                     `Perf ${Number(s.performance_bonus || 0).toFixed(1)}`,
-                                    `Streak ${s.streak_bonus || 0}`,
                                 ];
                                 if (s.season_matchday_xp || 0) {
                                     whyParts.push(`Season ${s.season_matchday_xp}`);
                                 }
                                 const why = whyParts.join(' + ');
+                                const whyWithStreak = s.streak_bonus ? `${why} | Streak ${(s.streak_bonus * 100).toFixed(0)}%` : why;
                                 return `
                                     <tr>
                                         <td>${escapeHtml(r.date)}</td>
                                         <td><a href="matches.html" class="season-link">${escapeHtml(r.source)}</a></td>
                                         <td>${escapeHtml(r.opponent || '—')}</td>
-                                        <td>${escapeHtml(why)}</td>
+                                        <td>${escapeHtml(whyWithStreak)}</td>
                                         <td class="trend-positive">+${Number(s.total_xp || 0).toFixed(1)}</td>
                                     </tr>
                                 `;

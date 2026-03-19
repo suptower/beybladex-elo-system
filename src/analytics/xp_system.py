@@ -32,23 +32,23 @@ Prestige:
 Tournament XP:
     base   = 150 + participants * 25
     factor per placement:
-        1st          → 3.0×
-        2nd          → 2.5×
-        Finalist     → 2.5× (same bracket position as 2nd)
-        Top 10%      → 2.0×
-        Top 25%      → 1.5×
-        Top 50%      → 1.15×
-        Participation → 1.0×
+        1st          → 3.0x
+        2nd          → 2.5x
+        Finalist     → 2.5x (same bracket position as 2nd)
+        Top 10%      → 2.0x
+        Top 25%      → 1.5x
+        Top 50%      → 1.15x
+        Participation → 1.0x
 
 Season XP:
     Per matchday flat bonus:   Tier 1 → +150 / Tier 2 → +120 / Tier 3 → +100 / Tier 4 → +80
     End-of-season multiplier applied to total season XP earned:
-        1st  → 3.0×  |  2nd → 2.2×  |  3rd → 1.8×
-        4th  → 1.3×  |  Rest → 1.0×
+        1st  → 3.0x  |  2nd → 2.2x  |  3rd → 1.8x
+        4th  → 1.3x  |  Rest → 1.0x
 
 Output files:
-    docs/data/analytics/xp_leaderboard.json  – Current XP / level / prestige per Bey
-    docs/data/analytics/xp_history.json      – Per-match XP breakdown (keyed by MatchID)
+    docs/data/analytics/xp_leaderboard.json  - Current XP / level / prestige per Bey
+    docs/data/analytics/xp_history.json      - Per-match XP breakdown (keyed by MatchID)
 
 Usage:
     python xp_system.py
@@ -90,26 +90,33 @@ CYAN = "\033[36m"
 # ---------------------------------------------------------------------------
 # XP constants
 # ---------------------------------------------------------------------------
-BASE_XP = 100
+BASE_XP = 130
 WIN_BONUS = 80
 LOSS_BONUS = 20
 
 PERFORMANCE_WIN_MULTIPLIER = 1.5
 PERFORMANCE_WIN_CAP = 50
 
-PERFORMANCE_LOSS_MULTIPLIER = 0.3
+PERFORMANCE_LOSS_MULTIPLIER = 0.7
 PERFORMANCE_LOSS_CAP = 40
 
-# Streak bonuses indexed by streak length (index 0 unused, 1 unused, 2…5+)
-STREAK_BONUS = {2: 10, 3: 20, 4: 30}
-STREAK_BONUS_MAX = 40        # 5+ wins
-STREAK_BONUS_MAX_THRESHOLD = 5
+# Streak bonus (proportional multiplier on raw XP)
+STREAK_BONUS_START = 2          # Minimum streak length for any bonus
+STREAK_BONUS_PER_WIN_EARLY = 0.08   # +8% per win for streaks 2–3
+STREAK_BONUS_EARLY_CAP = 3      # Last streak length using early rate
+STREAK_BONUS_MID_BASE = 0.16    # Base bonus at streak 4 (= 2 * early rate)
+STREAK_BONUS_PER_WIN_MID = 0.09  # +9% per win for streaks 4–5
+STREAK_BONUS_MID_CAP = 5        # Last streak length using mid rate
+STREAK_BONUS_LATE_BASE = 0.35   # Base bonus at streak 6
+STREAK_BONUS_PER_WIN_LATE = 0.05  # +5% per win for streaks 6+
+STREAK_BONUS_MAX = 1.0          # Hard cap at +100%
 
-MAX_XP_PER_MATCH = 300
+MAX_XP_PER_MATCH = 500
 
 # Level curve
-LEVEL_XP_BASE = 50
-LEVEL_XP_EXPONENT = 1.3
+LEVEL_XP_BASE = 300
+LEVEL_XP_MULTIPLIER = 4
+LEVEL_XP_EXPONENT = 1.55
 
 # Prestige
 PRESTIGE_LEVEL = 50
@@ -117,14 +124,15 @@ PRESTIGE_XP_BONUS_PER_LEVEL = 0.05  # +5 % per prestige
 PRESTIGE_XP_BONUS_CAP = 0.25        # max +25 %
 
 # Tournament XP
-TOURNAMENT_BASE = 150
-TOURNAMENT_PARTICIPANTS_FACTOR = 25
+TOURNAMENT_BASE = 210
+TOURNAMENT_PARTICIPANTS_FACTOR = 32
 
 # Season per-matchday XP by tier (1-indexed)
 SEASON_MATCHDAY_XP = {1: 150, 2: 120, 3: 100, 4: 80}
 
 # Season end-of-season placement multipliers (1-indexed, fallback 1.0)
-SEASON_PLACEMENT_MULTIPLIER = {1: 3.0, 2: 2.2, 3: 1.8, 4: 1.3}
+SEASON_PLACEMENT_MULTIPLIER = {1: 2.5, 2: 2.25, 3: 1.8, 4: 1.3}
+SEASON_PLACEMENT_TIER_MULTIPLIER = {1: 2.0, 2: 1.5, 3: 1.25, 4: 1.0}
 
 
 # ---------------------------------------------------------------------------
@@ -135,7 +143,7 @@ def xp_needed_for_level(level: int) -> float:
     """Return the XP required to advance from level-1 to *level* (≥1)."""
     if level < 1:
         return 0.0
-    return LEVEL_XP_BASE * (level ** LEVEL_XP_EXPONENT)
+    return LEVEL_XP_BASE + (level ** LEVEL_XP_EXPONENT) * LEVEL_XP_MULTIPLIER
 
 
 def compute_level_and_xp(total_xp: float) -> tuple:
@@ -162,7 +170,7 @@ def compute_level_and_xp(total_xp: float) -> tuple:
         remaining -= needed
         level += 1
         if level >= PRESTIGE_LEVEL:
-            # Reached prestige threshold – cap here (caller handles prestige logic)
+            # Reached prestige threshold - cap here (caller handles prestige logic)
             break
     return level, remaining
 
@@ -179,9 +187,16 @@ def prestige_multiplier(prestige: int) -> float:
 
 def streak_bonus(current_streak: int) -> int:
     """Return streak XP bonus for the given consecutive-win count."""
-    if current_streak >= STREAK_BONUS_MAX_THRESHOLD:
-        return STREAK_BONUS_MAX
-    return STREAK_BONUS.get(current_streak, 0)
+    if current_streak < STREAK_BONUS_START:
+        return 0.0
+    if current_streak <= STREAK_BONUS_EARLY_CAP:
+        return STREAK_BONUS_PER_WIN_EARLY * (current_streak - 1)
+    if current_streak <= STREAK_BONUS_MID_CAP:
+        return STREAK_BONUS_MID_BASE + STREAK_BONUS_PER_WIN_MID * (current_streak - STREAK_BONUS_EARLY_CAP)
+    return min(
+        STREAK_BONUS_LATE_BASE + STREAK_BONUS_PER_WIN_LATE * (current_streak - STREAK_BONUS_MID_CAP),
+        STREAK_BONUS_MAX
+    )
 
 
 def performance_bonus_win(elo_gain: float) -> float:
@@ -196,18 +211,16 @@ def performance_bonus_loss(
     opp_score: int,
 ) -> float:
     """
-    Performance bonus for an underdog loss.
-
-    Only applies when opponent_elo > own_elo.
+    Performance bonus for a loss.
     """
     elo_diff = opp_pre_elo - own_pre_elo
-    if elo_diff <= 0:
-        return 0.0
     max_score = max(own_score, opp_score)
     if max_score == 0:
         return 0.0
     score_diff = abs(opp_score - own_score)
     closeness = 1.0 - (score_diff / max_score)
+    if elo_diff <= 20:
+        return min(PERFORMANCE_LOSS_MULTIPLIER * 20 * closeness, PERFORMANCE_LOSS_CAP)
     return min(PERFORMANCE_LOSS_MULTIPLIER * elo_diff * closeness, PERFORMANCE_LOSS_CAP)
 
 
@@ -233,7 +246,7 @@ def compute_match_xp(
     else:
         perf_bonus = performance_bonus_loss(own_pre_elo, opp_pre_elo, own_score, opp_score)
     s_bonus = streak_bonus(win_streak) if won else 0
-    raw_xp = base + result_bonus + perf_bonus + s_bonus
+    raw_xp = (base + result_bonus + perf_bonus) * (1.0 + s_bonus)
     mult = prestige_multiplier(prestige)
     total = min(raw_xp * mult, MAX_XP_PER_MATCH)
     return {
@@ -270,16 +283,17 @@ def placement_multiplier(rank: int, total: int) -> float:
     if pct <= 0.10:
         return 2.0
     if pct <= 0.25:
-        return 1.5
+        return 1.75
     if pct <= 0.50:
-        return 1.15
-    return 1.0
+        return 1.25
+    return 0.75
 
 
 def compute_tournament_xp(rank: int, participants: int) -> float:
     """Return XP awarded for a tournament placement."""
     base = TOURNAMENT_BASE + TOURNAMENT_PARTICIPANTS_FACTOR * participants
-    mult = placement_multiplier(rank, participants)
+    size_bonus = 1 + (((participants / 8) ** 2) / 100)
+    mult = placement_multiplier(rank, participants) * size_bonus
     return round(base * mult, 2)
 
 
@@ -288,18 +302,18 @@ def compute_tournament_xp(rank: int, participants: int) -> float:
 # ---------------------------------------------------------------------------
 
 def season_matchday_xp(tier: int) -> int:
-    """Return per-matchday XP bonus for the given tier (1–4)."""
+    """Return per-matchday XP bonus for the given tier (1-4)."""
     return SEASON_MATCHDAY_XP.get(tier, 0)
 
 
-def season_end_xp(season_total_xp: float, placement: int) -> float:
+def season_end_xp(season_total_xp: float, placement: int, tier: int) -> float:
     """
     Return the end-of-season bonus XP.
 
     The bonus is (multiplier - 1) * season_total_xp so that the total
     season contribution becomes season_total_xp * multiplier.
     """
-    mult = SEASON_PLACEMENT_MULTIPLIER.get(placement, 1.0)
+    mult = SEASON_PLACEMENT_MULTIPLIER.get(placement, 1.0) * SEASON_PLACEMENT_TIER_MULTIPLIER.get(tier, 1.0)
     return round((mult - 1.0) * season_total_xp, 2)
 
 
@@ -308,6 +322,7 @@ def normalize_bey_key(name: str) -> str:
     if not name:
         return ""
     return "".join(ch for ch in str(name).lower() if ch not in " _-")
+
 
 def normalize_season_id(season_id: str) -> str:
     """Normalize season ID for consistent matching."""
@@ -583,7 +598,6 @@ def run_xp_pipeline() -> None:
             season_id = normalize_season_id(m.get("SeasonID", ""))
             tier_str = m.get("Tier", "")
             tier = int(tier_str) if tier_str.isdigit() else None
-            print(f"DEBUG MATCH: {m.get('MatchID')} | type={match_type} | season={season_id} | tier_str='{tier_str}' | tier={tier}")
 
             won_a = score_a > score_b
             won_b = score_b > score_a
@@ -643,11 +657,9 @@ def run_xp_pipeline() -> None:
                 xp_a["season_matchday_xp"] = 0
                 xp_b["season_matchday_xp"] = 0
 
-            # Track season XP (matchday bonus only – for end-of-season multiplier)
+            # Track season XP (matchday bonus only - for end-of-season multiplier)
             if season_id and tier is not None:
                 md_xp_for_season = season_matchday_xp(tier)
-
-                print(f"DEBUG STORE: season_id='{season_id}' | tier={tier} | md_xp_for_season={md_xp_for_season}")
 
                 tier_key = str(tier)
                 season_a = state_a["season_xp"].setdefault(season_id, {})
@@ -658,11 +670,6 @@ def run_xp_pipeline() -> None:
                 season_b[tier_key] = (
                     season_b.get(tier_key, 0.0) + md_xp_for_season
                 )
-
-                # NEU:
-                print(f"DEBUG WRITTEN: {bey_a} season_xp={state_a['season_xp']}")
-                print(f"DEBUG WRITTEN: {bey_b} season_xp={state_b['season_xp']}")
-
 
             # Apply XP to state
             _apply_xp(state_a, xp_a["total_xp"])
@@ -711,11 +718,6 @@ def run_xp_pipeline() -> None:
 
         elif etype == "season_end":
             sid = event["season_id"]
-            print(f"DEBUG SEASON_END: sid='{sid}' | date='{event.get('date')}'")
-            # Zeig die season_xp keys von ein paar bekannten Beys
-            for bey in ["LeonCrest", "ImpactDrake", "TuskMammoth"]:
-                state = bey_states.get(bey, {})
-                print(f"  {bey} | season_xp={state.get('season_xp', 'NOT IN STATE')}")
             sdata = event["data"]
             for tier_key, placements_list in _iter_tier_placements(sdata):
                 for rank_idx, bey in enumerate(placements_list):
@@ -725,14 +727,12 @@ def run_xp_pipeline() -> None:
                     rank = rank_idx + 1
                     state = get_state(bey)
                     season_bucket = state["season_xp"].get(normalize_season_id(sid), {})
-                    print(f"{YELLOW}      Season XP bucket for this bey: {season_bucket}{RESET}")
                     if tier_key == "all":
                         season_total = sum(season_bucket.values())
                     else:
                         season_total = season_bucket.get(str(tier_key), 0.0)
-                    print(f"{YELLOW}      Total season XP for this tier: {season_total}{RESET}")
                     if season_total > 0:
-                        bonus = season_end_xp(season_total, rank)
+                        bonus = season_end_xp(season_total, rank, int(tier_key))
                         _apply_xp(state, bonus)
                         xp_history.setdefault("__events__", []).append({
                             "type": "season_end",

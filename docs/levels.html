@@ -259,6 +259,9 @@
                     <th data-col="xp_in_level" data-dir="desc">
                         XP Progress <span class="sort-arrow">▼</span>
                     </th>
+                    <th data-col="total_xp" data-dir="desc">
+                        Total XP <span class="sort-arrow">▼</span>
+                    </th>
                     <th data-col="total_matches" data-dir="desc">
                         Matches <span class="sort-arrow">▼</span>
                     </th>
@@ -334,6 +337,11 @@ function renderStreak(streak) {
     return `<span class="streak-badge ${cls}" title="${streak}-win streak">🔥 ${streak}</span>`;
 }
 
+function renderTotalXp(xp) {
+    // put dot every 3 digits, e.g. 1.234.567
+    return Math.floor(xp).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
 function renderRows(data) {
     const tbody = document.getElementById('xpTableBody');
     if (!data.length) {
@@ -347,12 +355,14 @@ function renderRows(data) {
         const beyLink = `<a href="bey.html?name=${beyEncoded}" data-bey="${beyEscaped}">${beyEscaped}</a>`;
         const levelDisplay = `<span class="level-badge">Lv.${entry.level}${renderPrestige(entry.prestige)}</span>`;
         const progressBar = renderXpBar(entry.xp_in_level, entry.xp_needed_for_level);
+        const totalXpDisplay = renderTotalXp(entry.xp);
         const streakDisplay = renderStreak(entry.win_streak);
         return `<tr>
             <td class="rank-cell ${rClass}">${entry.rank}</td>
             <td class="bey-name-cell">${beyLink}</td>
             <td>${levelDisplay}</td>
             <td>${progressBar}</td>
+            <td>${totalXpDisplay}</td>
             <td>${entry.total_matches}</td>
             <td>${entry.total_wins}</td>
             <td>${streakDisplay}</td>
