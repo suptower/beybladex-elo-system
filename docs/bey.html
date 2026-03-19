@@ -351,6 +351,7 @@ let allEloHistoryData = [];
 let rpgStatsData = null;
 let countersData = [];
 let seasonData = {};
+let xpLeaderboardData = null;
 let currentArena = localStorage.getItem('beyPageArena') || 'xtreme'; // Track current arena for plots, load from localStorage
 
 // Helper function to normalize bey names for comparison
@@ -573,6 +574,19 @@ async function loadData() {
         } catch (e) {
             console.warn('Could not load season data:', e);
             seasonData = {};
+        }
+
+        // Load XP leaderboard data
+        try {
+            const xpResponse = await fetch(DATA_PATHS.XP_LEADERBOARD_JSON);
+            const xpAll = await xpResponse.json();
+            const normalizedName = normalizeBeyName(beyName);
+            xpLeaderboardData = xpAll.find(e =>
+                normalizeBeyName(e.bey) === normalizedName
+            ) || null;
+        } catch (e) {
+            console.warn('Could not load XP leaderboard data:', e);
+            xpLeaderboardData = null;
         }
         
         // Render the profile
@@ -893,15 +907,15 @@ function renderKeyStats() {
     const keyStatsSection = document.getElementById('keyStatsSection');
     keyStatsGrid.innerHTML = '';
     
-    if (!leaderboardData) {
+    if (!leaderboardData && !xpLeaderboardData) {
         return;
     }
     
-    const elo = leaderboardData.ELO;
-    const powerIndex = leaderboardData.PowerIndex;
+    const elo = leaderboardData ? leaderboardData.ELO : null;
+    const powerIndex = leaderboardData ? leaderboardData.PowerIndex : null;
     
     // Only show if we have at least one key stat
-    if (!elo && !powerIndex) {
+    if (!elo && !powerIndex && !xpLeaderboardData) {
         return;
     }
     
@@ -932,6 +946,32 @@ function renderKeyStats() {
             <div class="key-stat-desc">Meta Score (0-100)</div>
         `;
         keyStatsGrid.appendChild(pwrCard);
+    }
+
+    // XP Level Card
+    if (xpLeaderboardData) {
+        const lvl = xpLeaderboardData.level;
+        const prestige = xpLeaderboardData.prestige || 0;
+        const xpIn = xpLeaderboardData.xp_in_level || 0;
+        const xpNeeded = xpLeaderboardData.xp_needed_for_level || 1;
+        const pct = Math.min((xpIn / xpNeeded) * 100, 100).toFixed(1);
+        const prestigeStars = prestige > 0 ? ' ' + '⭐'.repeat(Math.min(prestige, 5)) : '';
+        const xpCard = document.createElement('div');
+        xpCard.className = 'key-stat-card';
+        xpCard.innerHTML = `
+            <div class="key-stat-label">Level</div>
+            <div class="key-stat-value">Lv.${lvl}${escapeHtml(prestigeStars)}</div>
+            <div class="key-stat-desc">
+                <div style="margin-bottom:4px;">${Math.round(xpIn)} / ${Math.round(xpNeeded)} XP</div>
+                <div style="background:var(--bg-light,#e0e0e0);border-radius:4px;height:6px;overflow:hidden;">
+                    <div style="background:var(--accent,#4CAF50);width:${pct}%;height:100%;border-radius:4px;"></div>
+                </div>
+            </div>
+        `;
+        xpCard.title = `Rank #${xpLeaderboardData.rank} on XP Leaderboard`;
+        xpCard.style.cursor = 'pointer';
+        xpCard.onclick = () => { window.location.href = 'levels.html'; };
+        keyStatsGrid.appendChild(xpCard);
     }
 }
 

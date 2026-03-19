@@ -291,6 +291,14 @@ let leaderboardData = [];
 let sortCol = 'rank';
 let sortDir = 'asc';
 
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 function rankClass(rank) {
     if (rank === 1) return 'top1';
     if (rank === 2) return 'top2';
@@ -330,7 +338,9 @@ function renderRows(data) {
     }
     tbody.innerHTML = data.map(entry => {
         const rClass = rankClass(entry.rank);
-        const beyLink = `<a href="bey.html?bey=${encodeURIComponent(entry.bey)}" data-bey="${entry.bey}">${entry.bey}</a>`;
+        const beyEncoded = encodeURIComponent(entry.bey);
+        const beyEscaped = escapeHtml(entry.bey);
+        const beyLink = `<a href="bey.html?name=${beyEncoded}" data-bey="${beyEscaped}">${beyEscaped}</a>`;
         const levelDisplay = `<span class="level-badge">Lv.${entry.level}${renderPrestige(entry.prestige)}</span>`;
         const progressBar = renderXpBar(entry.xp_in_level, entry.xp_needed_for_level);
         const streakDisplay = renderStreak(entry.win_streak);

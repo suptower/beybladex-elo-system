@@ -20,6 +20,7 @@ from src.analytics.xp_system import (
     placement_multiplier,
     season_matchday_xp,
     season_end_xp,
+    load_tournament_placements,
     _apply_xp,
     _default_bey_state,
     BASE_XP,
@@ -263,6 +264,15 @@ class TestTournamentXp:
         # 25/32 ≈ 78% → participation
         assert placement_multiplier(25, 32) == 1.0
 
+    def test_placement_multiplier_zero_total_returns_participation(self):
+        # Zero or negative total should not raise ZeroDivisionError
+        assert placement_multiplier(1, 0) == 1.0
+        assert placement_multiplier(1, -1) == 1.0
+
+    def test_placement_multiplier_invalid_rank_returns_participation(self):
+        assert placement_multiplier(0, 32) == 1.0
+        assert placement_multiplier(-5, 32) == 1.0
+
     def test_tournament_xp_formula(self):
         participants = 32
         base = 150 + 25 * participants
@@ -331,3 +341,48 @@ class TestApplyXp:
         _apply_xp(state, total_needed)
         assert state["xp"] == 0.0
         assert state["xp_in_level"] == 0.0
+
+
+class TestLoadTournamentPlacements:
+    """Tests for load_tournament_placements supporting both file formats."""
+
+    def _write_json(self, tmp_path, data):
+        import json, tempfile, pathlib
+        p = pathlib.Path(tmp_path) / "placements.json"
+        p.write_text(json.dumps(data), encoding="utf-8")
+        return str(p)
+
+    def test_missing_file_returns_empty_dicts(self, tmp_path):
+        t, s = load_tournament_placements(str(tmp_path / "nonexistent.json"))
+        assert t == {}
+        assert s == {}
+
+    def test_flat_legacy_format(self, tmp_path):
+        data = {
+            "_comment": "ignored",
+            "T1": {"participants": 8, "placements": ["BeyA", "BeyB"]},
+        }
+        path = self._write_json(tmp_path, data)
+        t, s = load_tournament_placements(path)
+        assert "T1" in t
+        assert s == {}
+
+    def test_nested_format_with_season_end(self, tmp_path):
+        data = {
+            "tournaments": {"T1": {"participants": 8, "placements": ["BeyA"]}},
+            "season_end_placements": {"S1": {"date": "2025-12-31", "placements": ["BeyA"]}},
+        }
+        path = self._write_json(tmp_path, data)
+        t, s = load_tournament_placements(path)
+        assert "T1" in t
+        assert "S1" in s
+
+    def test_flat_format_skips_comment_keys(self, tmp_path):
+        data = {
+            "_comment": "metadata",
+            "T1": {"participants": 4, "placements": []},
+        }
+        path = self._write_json(tmp_path, data)
+        t, _ = load_tournament_placements(path)
+        assert "_comment" not in t
+        assert "T1" in t

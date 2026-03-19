@@ -1,9 +1,20 @@
 {
-  "_comment": "Manually maintained tournament placement data for XP calculation. Each key is a tournament ID matching an entry in docs/data/tournaments/tournaments.json. 'placements' is an ordered list of beys by placement (index 0 = 1st place). The 'participants' count must match the tournament entry.",
-  "tournament-1": {
-    "participants": 32,
-    "placements": [
-      "ImpactDrake"
-    ]
+  "_comment": "Manually maintained extra XP events for the XP pipeline. See src/analytics/xp_system.py for format details.",
+  "tournaments": {
+    "_comment": "Tournament placements keyed by tournament ID (matches docs/data/tournaments/tournaments.json). 'placements' is an ordered list of beys by finishing position (index 0 = 1st). 'participants' overrides the player count from tournaments.json when set to a positive integer. Optional 'date' (YYYY-MM-DD) ensures the XP is applied at the correct point in the chronological timeline.",
+    "tournament-1": {
+      "participants": 32,
+      "date": "2025-09-07",
+      "placements": [
+        "ImpactDrake"
+      ]
+    }
+  },
+  "season_end_placements": {
+    "_comment": "End-of-season XP bonuses. Each key is a season ID matching SeasonID in matches.csv. 'date' (YYYY-MM-DD) must be the last day of the season so XP is applied after all season matches. 'placements' is an ordered list of beys by final standing (index 0 = 1st).",
+    "example_S1": {
+      "date": "2025-12-31",
+      "placements": []
+    }
   }
 }

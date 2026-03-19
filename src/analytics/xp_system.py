@@ -56,7 +56,6 @@ Usage:
 
 import csv
 import json
-import math
 import os
 import sys
 
@@ -258,8 +257,11 @@ def placement_multiplier(rank: int, total: int) -> float:
     """
     Return the XP multiplier for a bey finishing *rank*-th out of *total*.
 
-    rank is 1-indexed (1 = winner).
+    rank is 1-indexed (1 = winner).  Returns 1.0 (participation) when *total*
+    or *rank* is not positive (invalid input).
     """
+    if total <= 0 or rank <= 0:
+        return 1.0
     if rank == 1:
         return 3.0
     if rank == 2:
@@ -380,19 +382,37 @@ def load_elo_history(path: str) -> dict:
     return index
 
 
-def load_tournament_placements(path: str) -> dict:
+def load_tournament_placements(path: str) -> tuple:
     """
     Load manually maintained tournament_placements.json.
 
-    Returns {tournament_id: {"participants": int, "placements": [bey, ...]}}
-    Returns empty dict if file does not exist.
+    Supports two layouts of the JSON file:
+
+    *Flat (legacy)*: tournament IDs are top-level keys.
+    *Nested*: a ``"tournaments"`` key holds the placements dict and an optional
+    ``"season_end_placements"`` key holds end-of-season placement data.
+
+    Returns:
+        (tournaments_dict, season_end_dict) where each value is a plain dict.
+        Both dicts are empty when the file does not exist.
     """
     if not os.path.exists(path):
-        return {}
+        return {}, {}
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
-    # Strip metadata key
-    return {k: v for k, v in data.items() if not k.startswith("_")}
+
+    season_end = data.get("season_end_placements", {})
+
+    if "tournaments" in data:
+        tournaments = data["tournaments"]
+    else:
+        # Legacy flat format: filter out metadata keys
+        tournaments = {
+            k: v for k, v in data.items()
+            if not k.startswith("_") and k != "season_end_placements"
+        }
+
+    return tournaments, season_end
 
 
 def load_tournaments(path: str) -> dict:
@@ -421,13 +441,54 @@ def run_xp_pipeline() -> None:
     print(f"{GREEN}  {len(elo_history)} ELO history entries loaded.{RESET}")
 
     print(f"{YELLOW}Loading tournament placements from {TOURNAMENT_PLACEMENTS_JSON}...{RESET}")
-    tournament_placements = load_tournament_placements(TOURNAMENT_PLACEMENTS_JSON)
+    tournament_placements, season_end_placements = load_tournament_placements(
+        TOURNAMENT_PLACEMENTS_JSON
+    )
     print(f"{GREEN}  {len(tournament_placements)} tournament placement entries loaded.{RESET}")
+    print(f"{GREEN}  {len(season_end_placements)} season end-placement entries loaded.{RESET}")
 
     tournaments = load_tournaments(TOURNAMENTS_JSON)
 
     # ------------------------------------------------------------------
-    # Process matches in chronological order
+    # Build a unified chronological event list
+    # ------------------------------------------------------------------
+    # Each event has: {"type": "match"|"tournament"|"season_end", "date": str, ...}
+    # Tournaments/season-ends use the date from their data or from tournaments.json;
+    # events with no date fall back to "9999-12-31" so they are applied last.
+    # Within the same date, matches are processed before non-match events.
+    _DATE_LAST = "9999-12-31"
+
+    events = []
+
+    for m in matches:
+        events.append({"type": "match", "date": m.get("Date", ""), "data": m})
+
+    for tid, pdata in tournament_placements.items():
+        # Prefer explicit date in the placement entry, then look up tournaments.json
+        t_date = pdata.get("date", "")
+        if not t_date:
+            t_date = tournaments.get(tid, {}).get("date", _DATE_LAST)
+        events.append({
+            "type": "tournament",
+            "date": t_date or _DATE_LAST,
+            "tid": tid,
+            "data": pdata,
+        })
+
+    for sid, sdata in season_end_placements.items():
+        events.append({
+            "type": "season_end",
+            "date": sdata.get("date", _DATE_LAST),
+            "season_id": sid,
+            "data": sdata,
+        })
+
+    # Stable sort: matches first within any given date
+    _EVENT_ORDER = {"match": 0, "tournament": 1, "season_end": 1}
+    events.sort(key=lambda e: (e["date"], _EVENT_ORDER.get(e["type"], 2)))
+
+    # ------------------------------------------------------------------
+    # Process events in chronological order
     # ------------------------------------------------------------------
     bey_states: dict = {}   # bey_name → state dict
     xp_history: dict = {}   # match_id → per-bey breakdown
@@ -437,123 +498,136 @@ def run_xp_pipeline() -> None:
             bey_states[bey] = _default_bey_state()
         return bey_states[bey]
 
-    for m in matches:
-        match_id = m.get("MatchID", "")
-        bey_a = m["BeyA"]
-        bey_b = m["BeyB"]
-        score_a = int(m["ScoreA"])
-        score_b = int(m["ScoreB"])
-        match_type = m.get("MatchType", "exhibition")
-        season_id = m.get("SeasonID", "")
-        tier_str = m.get("Tier", "")
-        tier = int(tier_str) if tier_str.isdigit() else None
+    for event in events:
+        etype = event["type"]
 
-        won_a = score_a > score_b
-        won_b = score_b > score_a
+        if etype == "match":
+            m = event["data"]
+            match_id = m.get("MatchID", "")
+            bey_a = m["BeyA"]
+            bey_b = m["BeyB"]
+            score_a = int(m["ScoreA"])
+            score_b = int(m["ScoreB"])
+            match_type = m.get("MatchType", "exhibition")
+            season_id = m.get("SeasonID", "")
+            tier_str = m.get("Tier", "")
+            tier = int(tier_str) if tier_str.isdigit() else None
 
-        state_a = get_state(bey_a)
-        state_b = get_state(bey_b)
+            won_a = score_a > score_b
+            won_b = score_b > score_a
 
-        # ELO info for this match
-        elo_info = elo_history.get(match_id, {})
-        pre_a = elo_info.get("PreA", 0.0)
-        pre_b = elo_info.get("PreB", 0.0)
-        post_a = elo_info.get("PostA", 0.0)
-        post_b = elo_info.get("PostB", 0.0)
-        elo_gain_a = post_a - pre_a
-        elo_gain_b = post_b - pre_b
+            state_a = get_state(bey_a)
+            state_b = get_state(bey_b)
 
-        # Update win streaks before computing XP
-        if won_a:
-            state_a["win_streak"] += 1
-            state_b["win_streak"] = 0
-        elif won_b:
-            state_b["win_streak"] += 1
-            state_a["win_streak"] = 0
-        # draws: no update (shouldn't exist in this system)
+            # ELO info for this match
+            elo_info = elo_history.get(match_id, {})
+            pre_a = elo_info.get("PreA", 0.0)
+            pre_b = elo_info.get("PreB", 0.0)
+            post_a = elo_info.get("PostA", 0.0)
+            post_b = elo_info.get("PostB", 0.0)
+            elo_gain_a = post_a - pre_a
+            elo_gain_b = post_b - pre_b
 
-        # Compute match XP
-        xp_a = compute_match_xp(
-            won=won_a,
-            elo_gain=elo_gain_a,
-            own_pre_elo=pre_a,
-            opp_pre_elo=pre_b,
-            own_score=score_a,
-            opp_score=score_b,
-            win_streak=state_a["win_streak"],
-            prestige=state_a["prestige"],
-        )
-        xp_b = compute_match_xp(
-            won=won_b,
-            elo_gain=elo_gain_b,
-            own_pre_elo=pre_b,
-            opp_pre_elo=pre_a,
-            own_score=score_b,
-            opp_score=score_a,
-            win_streak=state_b["win_streak"],
-            prestige=state_b["prestige"],
-        )
+            # Update win streaks before computing XP
+            if won_a:
+                state_a["win_streak"] += 1
+                state_b["win_streak"] = 0
+            elif won_b:
+                state_b["win_streak"] += 1
+                state_a["win_streak"] = 0
+            # draws: no update (shouldn't exist in this system)
 
-        # Add season matchday XP bonus when applicable
-        if match_type in ("season", "relegation") and tier is not None:
-            md_xp = season_matchday_xp(tier)
-            for xp_dict in (xp_a, xp_b):
-                xp_dict["season_matchday_xp"] = md_xp
-                xp_dict["total_xp"] = round(
-                    min(xp_dict["total_xp"] + md_xp, MAX_XP_PER_MATCH), 2
+            # Compute match XP
+            xp_a = compute_match_xp(
+                won=won_a,
+                elo_gain=elo_gain_a,
+                own_pre_elo=pre_a,
+                opp_pre_elo=pre_b,
+                own_score=score_a,
+                opp_score=score_b,
+                win_streak=state_a["win_streak"],
+                prestige=state_a["prestige"],
+            )
+            xp_b = compute_match_xp(
+                won=won_b,
+                elo_gain=elo_gain_b,
+                own_pre_elo=pre_b,
+                opp_pre_elo=pre_a,
+                own_score=score_b,
+                opp_score=score_a,
+                win_streak=state_b["win_streak"],
+                prestige=state_b["prestige"],
+            )
+
+            # Add season matchday XP bonus when applicable
+            if match_type in ("season", "relegation") and tier is not None:
+                md_xp = season_matchday_xp(tier)
+                for xp_dict in (xp_a, xp_b):
+                    xp_dict["season_matchday_xp"] = md_xp
+                    xp_dict["total_xp"] = round(
+                        min(xp_dict["total_xp"] + md_xp, MAX_XP_PER_MATCH), 2
+                    )
+            else:
+                xp_a["season_matchday_xp"] = 0
+                xp_b["season_matchday_xp"] = 0
+
+            # Track season XP (matchday bonus only – for end-of-season multiplier)
+            if season_id and tier is not None:
+                md_xp_for_season = season_matchday_xp(tier)
+                state_a["season_xp"][season_id] = (
+                    state_a["season_xp"].get(season_id, 0.0) + md_xp_for_season
                 )
-        else:
-            xp_a["season_matchday_xp"] = 0
-            xp_b["season_matchday_xp"] = 0
+                state_b["season_xp"][season_id] = (
+                    state_b["season_xp"].get(season_id, 0.0) + md_xp_for_season
+                )
 
-        # Track season XP (matchday bonus only – for end-of-season multiplier)
-        if season_id and tier is not None:
-            md_xp_for_season = season_matchday_xp(tier)
-            state_a.setdefault("season_xp", {})
-            state_b.setdefault("season_xp", {})
-            state_a["season_xp"][season_id] = (
-                state_a["season_xp"].get(season_id, 0.0) + md_xp_for_season
-            )
-            state_b["season_xp"][season_id] = (
-                state_b["season_xp"].get(season_id, 0.0) + md_xp_for_season
-            )
+            # Apply XP to state
+            _apply_xp(state_a, xp_a["total_xp"])
+            _apply_xp(state_b, xp_b["total_xp"])
 
-        # Apply XP to state
-        _apply_xp(state_a, xp_a["total_xp"])
-        _apply_xp(state_b, xp_b["total_xp"])
+            state_a["total_matches"] += 1
+            state_b["total_matches"] += 1
+            if won_a:
+                state_a["total_wins"] += 1
+            if won_b:
+                state_b["total_wins"] += 1
 
-        state_a["total_matches"] += 1
-        state_b["total_matches"] += 1
-        if won_a:
-            state_a["total_wins"] += 1
-        if won_b:
-            state_b["total_wins"] += 1
+            # Record history entry
+            if match_id:
+                xp_history[match_id] = {
+                    "date": m.get("Date", ""),
+                    "bey_a": {**xp_a, "bey": bey_a},
+                    "bey_b": {**xp_b, "bey": bey_b},
+                }
 
-        # Record history entry
-        if match_id:
-            xp_history[match_id] = {
-                "date": m.get("Date", ""),
-                "bey_a": {**xp_a, "bey": bey_a},
-                "bey_b": {**xp_b, "bey": bey_b},
-            }
+        elif etype == "tournament":
+            placement_data = event["data"]
+            tid = event["tid"]
+            placements_list = placement_data.get("placements", [])
+            participants = placement_data.get("participants", 0)
+            if participants <= 0:
+                participants = tournaments.get(tid, {}).get("players", 0)
+            for rank_idx, bey in enumerate(placements_list):
+                if not bey:
+                    continue
+                rank = rank_idx + 1
+                t_xp = compute_tournament_xp(rank, participants)
+                _apply_xp(get_state(bey), t_xp)
 
-    # ------------------------------------------------------------------
-    # Tournament XP
-    # ------------------------------------------------------------------
-    print(f"{YELLOW}Applying tournament XP bonuses...{RESET}")
-    for tid, placement_data in tournament_placements.items():
-        placements_list = placement_data.get("placements", [])
-        participants = placement_data.get("participants", 0)
-        if participants <= 0 and tid in tournaments:
-            participants = tournaments[tid].get("players", 0)
-        for rank_idx, bey in enumerate(placements_list):
-            if not bey:
-                continue
-            rank = rank_idx + 1
-            t_xp = compute_tournament_xp(rank, participants)
-            state = get_state(bey)
-            _apply_xp(state, t_xp)
-    print(f"{GREEN}  Tournament XP applied.{RESET}")
+        elif etype == "season_end":
+            sid = event["season_id"]
+            placements_list = event["data"].get("placements", [])
+            for rank_idx, bey in enumerate(placements_list):
+                if not bey:
+                    continue
+                rank = rank_idx + 1
+                state = get_state(bey)
+                season_total = state["season_xp"].get(sid, 0.0)
+                if season_total > 0:
+                    bonus = season_end_xp(season_total, rank)
+                    _apply_xp(state, bonus)
+
+    print(f"{GREEN}  XP events processed ({len(events)} total events).{RESET}")
 
     # ------------------------------------------------------------------
     # Build leaderboard output
