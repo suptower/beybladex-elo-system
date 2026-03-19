@@ -283,6 +283,62 @@
         @media (max-width: 760px) {
             .xp-table {
                 font-size: 0.8rem;
+                display: block;
+            }
+
+            .xp-table thead {
+                display: none;
+            }
+
+            .xp-table tbody {
+                display: grid;
+                gap: 12px;
+            }
+
+            .xp-table tr {
+                display: block;
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 8px 12px;
+                box-shadow: var(--shadow);
+            }
+
+            .xp-table td {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                width: 100%;
+                padding: 6px 0;
+                border-bottom: 1px solid var(--border);
+                white-space: normal;
+                text-overflow: clip;
+            }
+
+            .xp-table td:last-child {
+                border-bottom: none;
+            }
+
+            .xp-table td::before {
+                content: attr(data-label);
+                color: var(--text-light);
+                font-size: 0.76rem;
+                font-weight: 600;
+                letter-spacing: 0.01em;
+            }
+
+            .xp-table td:nth-child(4) .xp-bar-container {
+                justify-content: flex-end;
+            }
+
+            .xp-table td:nth-child(4) .xp-bar-label {
+                min-width: 90px;
+                text-align: right;
+            }
+
+            .xp-table-wrapper {
+                overflow-x: visible;
             }
 
             .xp-table th,
@@ -290,14 +346,10 @@
                 padding: 7px 6px;
             }
 
-            .xp-table th:nth-child(7),
+            .xp-table td:nth-child(5),
+            .xp-table td:nth-child(6),
             .xp-table td:nth-child(7) {
-                display: none;
-            }
-
-            .xp-table th:nth-child(6),
-            .xp-table td:nth-child(6) {
-                display: none;
+                display: flex;
             }
         }
     </style>
@@ -462,7 +514,7 @@ function renderTotalXp(xp) {
 function renderRows(data) {
     const tbody = document.getElementById('xpTableBody');
     if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-light);">No results found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-light);">No results found.</td></tr>';
         return;
     }
     tbody.innerHTML = data.map(entry => {
@@ -475,14 +527,14 @@ function renderRows(data) {
         const totalXpDisplay = renderTotalXp(entry.xp);
         const streakDisplay = renderStreak(entry.win_streak);
         return `<tr>
-            <td class="rank-cell ${rClass}">${entry.rank}</td>
-            <td class="bey-name-cell">${beyLink}</td>
-            <td>${levelDisplay}</td>
-            <td>${progressBar}</td>
-            <td>${totalXpDisplay}</td>
-            <td>${entry.total_matches}</td>
-            <td>${entry.total_wins}</td>
-            <td>${streakDisplay}</td>
+            <td class="rank-cell ${rClass}" data-label="Rank">${entry.rank}</td>
+            <td class="bey-name-cell" data-label="Bey">${beyLink}</td>
+            <td data-label="Level">${levelDisplay}</td>
+            <td data-label="XP Progress">${progressBar}</td>
+            <td data-label="Total XP">${totalXpDisplay}</td>
+            <td data-label="Matches">${entry.total_matches}</td>
+            <td data-label="Wins">${entry.total_wins}</td>
+            <td data-label="Win Streak">${streakDisplay}</td>
         </tr>`;
     }).join('');
 }
@@ -545,7 +597,7 @@ async function loadLevels() {
         applyAndRender();
     } catch (err) {
         document.getElementById('xpTableBody').innerHTML =
-            `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-light);">
+            `<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-light);">
                 Could not load level data. Run the update pipeline to generate XP data.
             </td></tr>`;
         console.error('Failed to load XP leaderboard:', err);
