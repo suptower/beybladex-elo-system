@@ -17,6 +17,11 @@
             margin-bottom: 16px;
         }
 
+        #main-content {
+            display: block;
+            overflow-x: hidden;
+        }
+
         .xp-table-wrapper {
             overflow-x: visible;
         }
@@ -226,6 +231,40 @@
             .xp-table td:nth-child(4) { width: 30%; }
         }
 
+        @media (max-width: 900px) {
+            .xp-legend-box,
+            .xp-controls,
+            .xp-table-wrapper {
+                width: 100%;
+                float: none;
+                clear: both;
+            }
+
+            .xp-legend-box {
+                padding: 12px 14px;
+                margin-bottom: 14px;
+            }
+
+            .xp-legend-grid {
+                grid-template-columns: 1fr;
+                gap: 6px 0;
+            }
+
+            .xp-controls {
+                justify-content: stretch;
+                margin-bottom: 12px;
+            }
+
+            .xp-controls .search-container {
+                width: 100%;
+            }
+
+            .xp-controls #searchInput {
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
         @media (max-width: 760px) {
             .xp-table {
                 font-size: 0.8rem;
@@ -238,6 +277,11 @@
 
             .xp-table th:nth-child(7),
             .xp-table td:nth-child(7) {
+                display: none;
+            }
+
+            .xp-table th:nth-child(6),
+            .xp-table td:nth-child(6) {
                 display: none;
             }
         }
@@ -333,7 +377,7 @@
             </thead>
             <tbody id="xpTableBody">
                 <tr>
-                    <td colspan="7" style="text-align:center;padding:32px;color:var(--text-light);">
+                    <td colspan="8" style="text-align:center;padding:32px;color:var(--text-light);">
                         Loading level data…
                     </td>
                 </tr>
