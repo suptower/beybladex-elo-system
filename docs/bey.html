@@ -1095,12 +1095,32 @@ function renderXpHistorySection() {
                             const why = r.type === 'tournament'
                                 ? `Tournament rank ${d.rank || '—'} / ${d.participants || '—'}`
                                 : `Season ${d.season_id || ''} tier ${d.tier || 'all'} rank ${d.rank || '—'}`;
-                            const oppOrTier = r.type === 'season_end' ? `Tier ${d.tier || 'all'}` : '—';
+                            let eventClass = 'xp-event-row';
+                            if (r.type === 'tournament') {
+                                eventClass += ' event-tournament';
+                            } else if (r.type === 'season_end') {
+                                eventClass += ' event-season';
+                            } else {
+                                eventClass += ' event-generic';
+                            }
+                            const sourceBadge = r.type === 'tournament'
+                                ? '<span class="tier-badge-subtle">Tournament</span>'
+                                : (r.type === 'season_end'
+                                    ? '<span class="tier-badge-subtle">Season End</span>'
+                                    : '<span class="tier-badge-subtle">XP Event</span>');
+                            const sourceText = r.type === 'tournament'
+                                ? `🏆 ${escapeHtml(r.source)}`
+                                : (r.type === 'season_end'
+                                    ? `📅 ${escapeHtml(r.source)}`
+                                    : `🎯 ${escapeHtml(r.source)}`);
+                            const oppOrTier = r.type === 'season_end'
+                                ? `<span class="tier-badge-subtle">${String(d.tier || 'all').toLowerCase() === 'all' ? 'All Tiers' : `Tier ${escapeHtml(d.tier)}`}</span>`
+                                : '—';
                             return `
-                                <tr>
+                                <tr class="${eventClass}">
                                     <td>${escapeHtml(r.date)}</td>
-                                    <td>${escapeHtml(r.source)}</td>
-                                    <td>${escapeHtml(oppOrTier)}</td>
+                                    <td>${sourceBadge} ${sourceText}</td>
+                                    <td>${oppOrTier}</td>
                                     <td>${escapeHtml(why)}</td>
                                     <td class="trend-positive">+${Number(r.side.total_xp || 0).toFixed(1)}</td>
                                 </tr>
