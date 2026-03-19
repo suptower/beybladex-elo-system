@@ -18,21 +18,24 @@
         }
 
         .xp-table-wrapper {
-            overflow-x: auto;
+            overflow-x: visible;
         }
 
         .xp-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.93rem;
+            table-layout: fixed;
         }
 
         .xp-table th,
         .xp-table td {
-            padding: 10px 14px;
+            padding: 9px 10px;
             text-align: left;
             border-bottom: 1px solid var(--border);
-            white-space: nowrap;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-break: normal;
         }
 
         .xp-table th {
@@ -103,7 +106,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            min-width: 160px;
+            width: 100%;
+            min-width: 0;
         }
 
         .xp-bar-outer {
@@ -164,24 +168,78 @@
             color: var(--text);
         }
 
-        .legend-grid {
+        .xp-legend-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 8px 24px;
         }
 
-        .legend-item {
+        .xp-legend-item {
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .legend-dot {
+        .xp-legend-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
             background: var(--accent);
             flex-shrink: 0;
+        }
+
+        .xp-table th:nth-child(1),
+        .xp-table td:nth-child(1) { width: 3.5rem; }
+        .xp-table th:nth-child(2),
+        .xp-table td:nth-child(2) { width: 18%; }
+        .xp-table th:nth-child(3),
+        .xp-table td:nth-child(3) { width: 9%; }
+        .xp-table th:nth-child(4),
+        .xp-table td:nth-child(4) { width: 24%; }
+        .xp-table th:nth-child(5),
+        .xp-table td:nth-child(5) { width: 10%; }
+        .xp-table th:nth-child(6),
+        .xp-table td:nth-child(6) { width: 9%; }
+        .xp-table th:nth-child(7),
+        .xp-table td:nth-child(7) { width: 8%; }
+        .xp-table th:nth-child(8),
+        .xp-table td:nth-child(8) { width: 11%; }
+
+        @media (max-width: 1100px) {
+            .xp-table {
+                font-size: 0.86rem;
+            }
+
+            .xp-table th,
+            .xp-table td {
+                padding: 8px 8px;
+            }
+
+            .xp-table th:nth-child(5),
+            .xp-table td:nth-child(5) {
+                display: none;
+            }
+
+            .xp-table th:nth-child(2),
+            .xp-table td:nth-child(2) { width: 23%; }
+            .xp-table th:nth-child(4),
+            .xp-table td:nth-child(4) { width: 30%; }
+        }
+
+        @media (max-width: 760px) {
+            .xp-table {
+                font-size: 0.8rem;
+            }
+
+            .xp-table th,
+            .xp-table td {
+                padding: 7px 6px;
+            }
+
+            .xp-table th:nth-child(7),
+            .xp-table td:nth-child(7) {
+                display: none;
+            }
         }
     </style>
         <script src="data-paths.js"></script>
@@ -225,13 +283,13 @@
     <!-- Legend / Info box -->
     <div class="xp-legend-box">
         <h3>ℹ️ How XP is calculated</h3>
-        <div class="legend-grid">
-            <div class="legend-item"><span class="legend-dot"></span>Base: 100 XP per match</div>
-            <div class="legend-item"><span class="legend-dot"></span>Win bonus: +80 XP / Loss bonus: +20 XP</div>
-            <div class="legend-item"><span class="legend-dot"></span>Performance: up to +50 XP (win ELO gain) or +40 XP (underdog loss)</div>
-            <div class="legend-item"><span class="legend-dot"></span>Win streak: +10 / +20 / +30 / +40 XP (2–5+ wins)</div>
-            <div class="legend-item"><span class="legend-dot"></span>Max per match: 300 XP</div>
-            <div class="legend-item"><span class="legend-dot"></span>Prestige ⭐ at Level 50 — +5% XP bonus (cap +25%)</div>
+        <div class="xp-legend-grid">
+            <div class="xp-legend-item"><span class="xp-legend-dot"></span>Base: 100 XP per match</div>
+            <div class="xp-legend-item"><span class="xp-legend-dot"></span>Win bonus: +80 XP / Loss bonus: +20 XP</div>
+            <div class="xp-legend-item"><span class="xp-legend-dot"></span>Performance: up to +50 XP (win ELO gain) or +40 XP (underdog loss)</div>
+            <div class="xp-legend-item"><span class="xp-legend-dot"></span>Win streak: +10 / +20 / +30 / +40 XP (2–5+ wins)</div>
+            <div class="xp-legend-item"><span class="xp-legend-dot"></span>Max per match: 300 XP</div>
+            <div class="xp-legend-item"><span class="xp-legend-dot"></span>Prestige ⭐ at Level 50 — +5% XP bonus (cap +25%)</div>
         </div>
     </div>
 
