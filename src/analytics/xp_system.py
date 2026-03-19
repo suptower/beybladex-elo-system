@@ -309,6 +309,12 @@ def normalize_bey_key(name: str) -> str:
         return ""
     return "".join(ch for ch in str(name).lower() if ch not in " _-")
 
+def normalize_season_id(season_id: str) -> str:
+    """Normalize season ID for consistent matching."""
+    if not season_id:
+        return ""
+    return str(season_id).strip().upper()
+
 
 # ---------------------------------------------------------------------------
 # State helpers
@@ -529,12 +535,12 @@ def run_xp_pipeline() -> None:
         events.append({
             "type": "season_end",
             "date": sdata.get("date", _DATE_LAST),
-            "season_id": sid,
+            "season_id": normalize_season_id(sid),
             "data": sdata,
         })
 
     # Stable sort: matches first within any given date
-    _EVENT_ORDER = {"match": 0, "tournament": 1, "season_end": 1}
+    _EVENT_ORDER = {"match": 0, "tournament": 1, "season_end": 2}
     events.sort(key=lambda e: (e["date"], _EVENT_ORDER.get(e["type"], 2)))
 
     # Build quick normalized lookup so manual config names can still match
@@ -574,9 +580,10 @@ def run_xp_pipeline() -> None:
             score_a = int(m["ScoreA"])
             score_b = int(m["ScoreB"])
             match_type = m.get("MatchType", "exhibition")
-            season_id = m.get("SeasonID", "")
+            season_id = normalize_season_id(m.get("SeasonID", ""))
             tier_str = m.get("Tier", "")
             tier = int(tier_str) if tier_str.isdigit() else None
+            print(f"DEBUG MATCH: {m.get('MatchID')} | type={match_type} | season={season_id} | tier_str='{tier_str}' | tier={tier}")
 
             won_a = score_a > score_b
             won_b = score_b > score_a
@@ -639,6 +646,9 @@ def run_xp_pipeline() -> None:
             # Track season XP (matchday bonus only – for end-of-season multiplier)
             if season_id and tier is not None:
                 md_xp_for_season = season_matchday_xp(tier)
+
+                print(f"DEBUG STORE: season_id='{season_id}' | tier={tier} | md_xp_for_season={md_xp_for_season}")
+
                 tier_key = str(tier)
                 season_a = state_a["season_xp"].setdefault(season_id, {})
                 season_b = state_b["season_xp"].setdefault(season_id, {})
@@ -648,6 +658,11 @@ def run_xp_pipeline() -> None:
                 season_b[tier_key] = (
                     season_b.get(tier_key, 0.0) + md_xp_for_season
                 )
+
+                # NEU:
+                print(f"DEBUG WRITTEN: {bey_a} season_xp={state_a['season_xp']}")
+                print(f"DEBUG WRITTEN: {bey_b} season_xp={state_b['season_xp']}")
+
 
             # Apply XP to state
             _apply_xp(state_a, xp_a["total_xp"])
@@ -696,6 +711,11 @@ def run_xp_pipeline() -> None:
 
         elif etype == "season_end":
             sid = event["season_id"]
+            print(f"DEBUG SEASON_END: sid='{sid}' | date='{event.get('date')}'")
+            # Zeig die season_xp keys von ein paar bekannten Beys
+            for bey in ["LeonCrest", "ImpactDrake", "TuskMammoth"]:
+                state = bey_states.get(bey, {})
+                print(f"  {bey} | season_xp={state.get('season_xp', 'NOT IN STATE')}")
             sdata = event["data"]
             for tier_key, placements_list in _iter_tier_placements(sdata):
                 for rank_idx, bey in enumerate(placements_list):
@@ -704,18 +724,20 @@ def run_xp_pipeline() -> None:
                     bey = resolve_bey_name(bey)
                     rank = rank_idx + 1
                     state = get_state(bey)
-                    season_bucket = state["season_xp"].get(sid, {})
+                    season_bucket = state["season_xp"].get(normalize_season_id(sid), {})
+                    print(f"{YELLOW}      Season XP bucket for this bey: {season_bucket}{RESET}")
                     if tier_key == "all":
                         season_total = sum(season_bucket.values())
                     else:
                         season_total = season_bucket.get(str(tier_key), 0.0)
+                    print(f"{YELLOW}      Total season XP for this tier: {season_total}{RESET}")
                     if season_total > 0:
                         bonus = season_end_xp(season_total, rank)
                         _apply_xp(state, bonus)
                         xp_history.setdefault("__events__", []).append({
                             "type": "season_end",
                             "date": event.get("date", ""),
-                            "season_id": sid,
+                            "season_id": normalize_season_id(sid),
                             "tier": tier_key,
                             "bey": bey,
                             "rank": rank,

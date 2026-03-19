@@ -268,20 +268,50 @@
   },
   "season_end_placements": {
     "_comment": "End-of-season XP bonuses. Each key is a season ID matching SeasonID in matches.csv. 'date' (YYYY-MM-DD) must be the last day of the season so XP is applied after all season matches. Legacy format supports one global 'placements' array. Tiered format supports 'tiers' where each tier has its own ordered placements list.",
-    "example_S1": {
-      "date": "2025-12-31",
+    "S1": {
+      "date": "2026-03-02",
       "tiers": {
         "1": {
-          "placements": []
+          "placements": [
+            "LeonCrest",
+            "ImpactDrake",
+            "TuskMammoth",
+            "ScorpioSpear",
+            "FoxBrush",
+            "ViperTail",
+            "DranSword",
+            "CobaltDragoon",
+            "GolemRock",
+            "CerberusFlame"
+          ]
         },
         "2": {
-          "placements": []
+          "placements": [
+            "SharkScale",
+            "KnightMail",
+            "WeissTiger",
+            "DranBrave",
+            "WyvernHover",
+            "PerseusDark",
+            "HellsReaper",
+            "DranDagger",
+            "PhoenixWing",
+            "SolEclipse"
+          ]
         },
         "3": {
-          "placements": []
-        },
-        "4": {
-          "placements": []
+          "placements": [
+            "ValkyrieVolt",
+            "HellsChain",
+            "LeonClaw",
+            "SilverWolf",
+            "SharkEdge",
+            "RhinoReaper",
+            "UnicornSting",
+            "CrimsonGaruda",
+            "WhaleWave",
+            "WizardRod"
+          ]
         }
       }
     }

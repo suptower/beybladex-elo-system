@@ -1093,8 +1093,8 @@ function renderXpHistorySection() {
                             }
                             const d = r.details || {};
                             const why = r.type === 'tournament'
-                                ? `Tournament rank ${d.rank || '—'} / ${d.participants || '—'}`
-                                : `Season ${d.season_id || ''} tier ${d.tier || 'all'} rank ${d.rank || '—'}`;
+                                ? `Tournament Rank ${d.rank || '—'} / ${d.participants || '—'}`
+                                : `Season ${d.season_id || ''} | Tier ${d.tier || 'all'} | Rank ${d.rank || '—'}`;
                             let eventClass = 'xp-event-row';
                             if (r.type === 'tournament') {
                                 eventClass += ' event-tournament';
