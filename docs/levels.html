@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X - Level Leaderboard</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ── Level Leaderboard page styles ── */
+        .xp-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .xp-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .xp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.93rem;
+        }
+
+        .xp-table th,
+        .xp-table td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .xp-table th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .xp-table th:hover {
+            background: var(--accent-hover-subtle);
+        }
+
+        .xp-table th .sort-arrow {
+            margin-left: 4px;
+            opacity: 0.5;
+            font-size: 0.8em;
+        }
+
+        .xp-table th.sorted .sort-arrow {
+            opacity: 1;
+        }
+
+        .xp-table tr:hover td {
+            background: var(--bg-subtle);
+        }
+
+        .rank-cell {
+            font-weight: 700;
+            color: var(--text-light);
+            width: 48px;
+        }
+
+        .rank-cell.top1 { color: #d4af37; }
+        .rank-cell.top2 { color: #9e9e9e; }
+        .rank-cell.top3 { color: #cd7f32; }
+
+        .bey-name-cell a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .bey-name-cell a:hover {
+            text-decoration: underline;
+        }
+
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .prestige-stars {
+            color: #f4c430;
+            font-size: 0.9em;
+            margin-left: 2px;
+        }
+
+        .xp-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 160px;
+        }
+
+        .xp-bar-outer {
+            flex: 1;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .xp-bar-inner {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .xp-bar-label {
+            font-size: 0.78rem;
+            color: var(--text-light);
+            white-space: nowrap;
+        }
+
+        .streak-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .streak-badge.hot {
+            background: rgba(255, 80, 30, 0.15);
+            color: #c0392b;
+        }
+
+        .streak-badge.none {
+            color: var(--text-light);
+        }
+
+        .legend-box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            font-size: 0.88rem;
+            color: var(--text-light);
+        }
+
+        .legend-box h3 {
+            margin: 0 0 8px;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 8px 24px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+    </style>
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Level Leaderboard</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="page-intro">
+        <p>Bey progression through match participation, ELO performance, win streaks, tournament placements and season play. XP is awarded after every valid match.</p>
+    </div>
+
+    <!-- Legend / Info box -->
+    <div class="legend-box">
+        <h3>ℹ️ How XP is calculated</h3>
+        <div class="legend-grid">
+            <div class="legend-item"><span class="legend-dot"></span>Base: 100 XP per match</div>
+            <div class="legend-item"><span class="legend-dot"></span>Win bonus: +80 XP / Loss bonus: +20 XP</div>
+            <div class="legend-item"><span class="legend-dot"></span>Performance: up to +50 XP (win ELO gain) or +40 XP (underdog loss)</div>
+            <div class="legend-item"><span class="legend-dot"></span>Win streak: +10 / +20 / +30 / +40 XP (2–5+ wins)</div>
+            <div class="legend-item"><span class="legend-dot"></span>Max per match: 300 XP</div>
+            <div class="legend-item"><span class="legend-dot"></span>Prestige ⭐ at Level 50 — +5% XP bonus (cap +25%)</div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="xp-controls">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search Bey…" aria-label="Search Bey">
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="xp-table-wrapper">
+        <table class="xp-table" id="xpTable" aria-label="Level leaderboard">
+            <thead>
+                <tr>
+                    <th class="rank-cell" data-col="rank" data-dir="asc">
+                        # <span class="sort-arrow">▲</span>
+                    </th>
+                    <th data-col="bey" data-dir="asc">
+                        Bey <span class="sort-arrow">▲</span>
+                    </th>
+                    <th data-col="level" data-dir="desc">
+                        Level <span class="sort-arrow">▼</span>
+                    </th>
+                    <th data-col="xp_in_level" data-dir="desc">
+                        XP Progress <span class="sort-arrow">▼</span>
+                    </th>
+                    <th data-col="total_matches" data-dir="desc">
+                        Matches <span class="sort-arrow">▼</span>
+                    </th>
+                    <th data-col="total_wins" data-dir="desc">
+                        Wins <span class="sort-arrow">▼</span>
+                    </th>
+                    <th data-col="win_streak" data-dir="desc">
+                        Win Streak <span class="sort-arrow">▼</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="xpTableBody">
+                <tr>
+                    <td colspan="7" style="text-align:center;padding:32px;color:var(--text-light);">
+                        Loading level data…
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 suptower • <span id="site-version">Loading version…</span></p>
+</footer>
+
+<script src="version-display.js"></script>
+<script>
+// ──────────────────────────────────────────────────────────────────────────────
+// Level Leaderboard script
+// ──────────────────────────────────────────────────────────────────────────────
+
+let leaderboardData = [];
+let sortCol = 'rank';
+let sortDir = 'asc';
+
+function rankClass(rank) {
+    if (rank === 1) return 'top1';
+    if (rank === 2) return 'top2';
+    if (rank === 3) return 'top3';
+    return '';
+}
+
+function renderPrestige(prestige) {
+    if (!prestige) return '';
+    // Display at most 5 stars — matches PRESTIGE_XP_BONUS_CAP / PRESTIGE_XP_BONUS_PER_LEVEL = 5
+    const stars = '⭐'.repeat(Math.min(prestige, 5));
+    return `<span class="prestige-stars" title="Prestige ${prestige}">${stars}</span>`;
+}
+
+function renderXpBar(xpInLevel, xpNeeded) {
+    const pct = xpNeeded > 0 ? Math.min((xpInLevel / xpNeeded) * 100, 100) : 0;
+    return `
+        <div class="xp-bar-container">
+            <div class="xp-bar-outer" title="${xpInLevel.toFixed(0)} / ${xpNeeded.toFixed(0)} XP">
+                <div class="xp-bar-inner" style="width:${pct.toFixed(1)}%"></div>
+            </div>
+            <span class="xp-bar-label">${xpInLevel.toFixed(0)} / ${xpNeeded.toFixed(0)}</span>
+        </div>`;
+}
+
+function renderStreak(streak) {
+    if (!streak) return `<span class="streak-badge none">—</span>`;
+    const cls = streak >= 3 ? 'hot' : '';
+    return `<span class="streak-badge ${cls}" title="${streak}-win streak">🔥 ${streak}</span>`;
+}
+
+function renderRows(data) {
+    const tbody = document.getElementById('xpTableBody');
+    if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-light);">No results found.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = data.map(entry => {
+        const rClass = rankClass(entry.rank);
+        const beyLink = `<a href="bey.html?bey=${encodeURIComponent(entry.bey)}" data-bey="${entry.bey}">${entry.bey}</a>`;
+        const levelDisplay = `<span class="level-badge">Lv.${entry.level}${renderPrestige(entry.prestige)}</span>`;
+        const progressBar = renderXpBar(entry.xp_in_level, entry.xp_needed_for_level);
+        const streakDisplay = renderStreak(entry.win_streak);
+        return `<tr>
+            <td class="rank-cell ${rClass}">${entry.rank}</td>
+            <td class="bey-name-cell">${beyLink}</td>
+            <td>${levelDisplay}</td>
+            <td>${progressBar}</td>
+            <td>${entry.total_matches}</td>
+            <td>${entry.total_wins}</td>
+            <td>${streakDisplay}</td>
+        </tr>`;
+    }).join('');
+}
+
+function sortData(data, col, dir) {
+    return [...data].sort((a, b) => {
+        let va = a[col], vb = b[col];
+        if (typeof va === 'string') va = va.toLowerCase();
+        if (typeof vb === 'string') vb = vb.toLowerCase();
+        if (va < vb) return dir === 'asc' ? -1 : 1;
+        if (va > vb) return dir === 'asc' ? 1 : -1;
+        return 0;
+    });
+}
+
+function filterData(data, query) {
+    if (!query) return data;
+    const q = query.toLowerCase();
+    return data.filter(e => e.bey.toLowerCase().includes(q));
+}
+
+function applyAndRender() {
+    const query = document.getElementById('searchInput').value.trim();
+    let data = filterData(leaderboardData, query);
+    data = sortData(data, sortCol, sortDir);
+    renderRows(data);
+}
+
+// Header sort click
+document.querySelectorAll('.xp-table th[data-col]').forEach(th => {
+    th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        if (sortCol === col) {
+            sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortCol = col;
+            sortDir = th.dataset.dir || 'asc';
+        }
+        // Update arrows
+        document.querySelectorAll('.xp-table th[data-col]').forEach(t => {
+            t.classList.remove('sorted');
+            t.querySelector('.sort-arrow').textContent = t.dataset.dir === 'desc' ? '▼' : '▲';
+        });
+        th.classList.add('sorted');
+        th.querySelector('.sort-arrow').textContent = sortDir === 'asc' ? '▲' : '▼';
+        applyAndRender();
+    });
+});
+
+document.getElementById('searchInput').addEventListener('input', applyAndRender);
+
+// Load data
+async function loadLevels() {
+    try {
+        const response = await fetch(DATA_PATHS.XP_LEADERBOARD_JSON);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        leaderboardData = await response.json();
+        // Mark first-sorted column
+        document.querySelector('.xp-table th[data-col="rank"]').classList.add('sorted');
+        applyAndRender();
+    } catch (err) {
+        document.getElementById('xpTableBody').innerHTML =
+            `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-light);">
+                Could not load level data. Run the update pipeline to generate XP data.
+            </td></tr>`;
+        console.error('Failed to load XP leaderboard:', err);
+    }
+}
+
+loadLevels();
+</script>
+</body>
+</html>

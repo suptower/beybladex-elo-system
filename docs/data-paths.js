@@ -64,6 +64,8 @@ const DATA_PATHS = Object.freeze({
     ARCHETYPE_ANALYTICS_JSON: 'data/analytics/archetype_analytics.json',
     RECOMMENDED_MATCHES_JSON: 'data/analytics/recommended_matches.json',
     MILESTONES_JSON:          'data/analytics/milestones.json',
+    XP_LEADERBOARD_JSON:      'data/analytics/xp_leaderboard.json',
+    XP_HISTORY_JSON:          'data/analytics/xp_history.json',
 
     // -----------------------------------------------------------------------
     // Season

@@ -60,6 +60,7 @@ PLOTS_PRIVATE_DIR = os.path.join(REPO_ROOT, "plots", "private")
 # Config files
 # ---------------------------------------------------------------------------
 FINISH_WEIGHTS_JSON = os.path.join(CONFIG_DIR, "finish_weights.json")
+TOURNAMENT_PLACEMENTS_JSON = os.path.join(CONFIG_DIR, "tournament_placements.json")
 
 # ---------------------------------------------------------------------------
 # Matches files
@@ -118,6 +119,8 @@ RECOMMENDED_MATCHES_JSON = os.path.join(ANALYTICS_DIR, "recommended_matches.json
 MILESTONES_JSON = os.path.join(ANALYTICS_DIR, "milestones.json")
 POSITION_TIMESERIES_CSV = os.path.join(ANALYTICS_DIR, "position_timeseries.csv")
 PRIVATE_POSITION_TIMESERIES_CSV = os.path.join(ANALYTICS_DIR, "private_position_timeseries.csv")
+XP_LEADERBOARD_JSON = os.path.join(ANALYTICS_DIR, "xp_leaderboard.json")
+XP_HISTORY_JSON = os.path.join(ANALYTICS_DIR, "xp_history.json")
 
 # ---------------------------------------------------------------------------
 # Season files
