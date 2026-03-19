@@ -347,7 +347,8 @@ class TestLoadTournamentPlacements:
     """Tests for load_tournament_placements supporting both file formats."""
 
     def _write_json(self, tmp_path, data):
-        import json, tempfile, pathlib
+        import json
+        import pathlib
         p = pathlib.Path(tmp_path) / "placements.json"
         p.write_text(json.dumps(data), encoding="utf-8")
         return str(p)
