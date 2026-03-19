@@ -134,6 +134,7 @@ SEASON_COMPARISON_JSON = os.path.join(SEASON_DIR, "season_comparison.json")
 # ---------------------------------------------------------------------------
 TOURNAMENTS_JSON = os.path.join(TOURNAMENTS_DIR, "tournaments.json")
 TOURNAMENT_BRACKETS_JSON = os.path.join(TOURNAMENTS_DIR, "tournament_brackets.json")
+TOURNAMENT_API_JSONS_DIR = os.path.join(TOURNAMENTS_DIR, "api_jsons")
 
 # ---------------------------------------------------------------------------
 # Miscellaneous data files
