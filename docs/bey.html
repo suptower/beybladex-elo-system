@@ -1063,7 +1063,7 @@ function renderXpHistorySection() {
                             <th>Date</th>
                             <th>Source</th>
                             <th>Opponent / Tier</th>
-                            <th>Why</th>
+                            <th>Calculation</th>
                             <th>XP</th>
                         </tr>
                     </thead>
@@ -1104,7 +1104,7 @@ function renderXpHistorySection() {
                                 eventClass += ' event-generic';
                             }
                             const sourceBadge = r.type === 'tournament'
-                                ? '<span class="tier-badge-subtle">Tournament</span>'
+                                ? '<span class="tier-badge-subtle">TOURN.</span>'
                                 : (r.type === 'season_end'
                                     ? '<span class="tier-badge-subtle">Season End</span>'
                                     : '<span class="tier-badge-subtle">XP Event</span>');
