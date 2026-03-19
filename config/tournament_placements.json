@@ -41,10 +41,23 @@
     }
   },
   "season_end_placements": {
-    "_comment": "End-of-season XP bonuses. Each key is a season ID matching SeasonID in matches.csv. 'date' (YYYY-MM-DD) must be the last day of the season so XP is applied after all season matches. 'placements' is an ordered list of beys by final standing (index 0 = 1st).",
+    "_comment": "End-of-season XP bonuses. Each key is a season ID matching SeasonID in matches.csv. 'date' (YYYY-MM-DD) must be the last day of the season so XP is applied after all season matches. Legacy format supports one global 'placements' array. Tiered format supports 'tiers' where each tier has its own ordered placements list.",
     "example_S1": {
       "date": "2025-12-31",
-      "placements": []
+      "tiers": {
+        "1": {
+          "placements": []
+        },
+        "2": {
+          "placements": []
+        },
+        "3": {
+          "placements": []
+        },
+        "4": {
+          "placements": []
+        }
+      }
     }
   }
 }

@@ -352,6 +352,7 @@ let rpgStatsData = null;
 let countersData = [];
 let seasonData = {};
 let xpLeaderboardData = null;
+let xpHistoryData = null;
 let currentArena = localStorage.getItem('beyPageArena') || 'xtreme'; // Track current arena for plots, load from localStorage
 
 // Helper function to normalize bey names for comparison
@@ -588,6 +589,15 @@ async function loadData() {
             console.warn('Could not load XP leaderboard data:', e);
             xpLeaderboardData = null;
         }
+
+        // Load XP history data
+        try {
+            const xpHistoryResponse = await fetch(DATA_PATHS.XP_HISTORY_JSON);
+            xpHistoryData = await xpHistoryResponse.json();
+        } catch (e) {
+            console.warn('Could not load XP history data:', e);
+            xpHistoryData = null;
+        }
         
         // Render the profile
         renderProfile();
@@ -684,6 +694,9 @@ function renderProfile() {
     
     // Render history and timeline section
     renderHistorySection();
+
+    // Render XP history section
+    renderXpHistorySection();
     
     // Render counters and matchups section
     renderCountersSection();
@@ -983,6 +996,128 @@ function getPowerIndexClass(pwr) {
     if (pwr >= 40) return 'trend-neutral';
     if (pwr >= 20) return 'trend-negative';
     return 'trend-very-negative';
+}
+
+function renderXpHistorySection() {
+    const profileContent = document.getElementById('profileContent');
+    if (!profileContent || !xpHistoryData) return;
+
+    // Remove old section if rerendering
+    const existing = document.getElementById('xpHistorySection');
+    if (existing) existing.remove();
+
+    const normalizedTarget = normalizeBeyName(
+        beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName)
+    );
+
+    const rows = [];
+    for (const [matchId, entry] of Object.entries(xpHistoryData)) {
+        if (!entry || matchId === '__events__') continue;
+        const a = entry.bey_a;
+        const b = entry.bey_b;
+        if (a && normalizeBeyName(a.bey) === normalizedTarget) {
+            rows.push({
+                type: 'match',
+                date: entry.date || '',
+                source: matchId,
+                side: a,
+                opponent: b ? b.bey : '',
+            });
+        } else if (b && normalizeBeyName(b.bey) === normalizedTarget) {
+            rows.push({
+                type: 'match',
+                date: entry.date || '',
+                source: matchId,
+                side: b,
+                opponent: a ? a.bey : '',
+            });
+        }
+    }
+
+    const events = Array.isArray(xpHistoryData.__events__) ? xpHistoryData.__events__ : [];
+    events.forEach(e => {
+        if (normalizeBeyName(e.bey) !== normalizedTarget) return;
+        rows.push({
+            type: e.type || 'event',
+            date: e.date || '',
+            source: e.tournament_id || e.season_id || 'manual',
+            side: { total_xp: e.xp_awarded || 0 },
+            details: e,
+        });
+    });
+
+    if (!rows.length) return;
+
+    rows.sort((x, y) => (x.date || '').localeCompare(y.date || ''));
+
+    const section = document.createElement('details');
+    section.className = 'profile-section-details';
+    section.id = 'xpHistorySection';
+    section.innerHTML = `
+        <summary class="section-summary">🎮 XP History</summary>
+        <div class="profile-section-content" style="padding: 12px 16px;">
+            <div style="overflow-x:auto;">
+                <table class="advanced-table" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Source</th>
+                            <th>Opponent / Tier</th>
+                            <th>Why</th>
+                            <th>XP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(r => {
+                            if (r.type === 'match') {
+                                const s = r.side || {};
+                                const whyParts = [
+                                    `Base ${s.base_xp || 0}`,
+                                    `Result ${s.result_bonus || 0}`,
+                                    `Perf ${Number(s.performance_bonus || 0).toFixed(1)}`,
+                                    `Streak ${s.streak_bonus || 0}`,
+                                ];
+                                if (s.season_matchday_xp || 0) {
+                                    whyParts.push(`Season ${s.season_matchday_xp}`);
+                                }
+                                const why = whyParts.join(' + ');
+                                return `
+                                    <tr>
+                                        <td>${escapeHtml(r.date)}</td>
+                                        <td><a href="matches.html" class="season-link">${escapeHtml(r.source)}</a></td>
+                                        <td>${escapeHtml(r.opponent || '—')}</td>
+                                        <td>${escapeHtml(why)}</td>
+                                        <td class="trend-positive">+${Number(s.total_xp || 0).toFixed(1)}</td>
+                                    </tr>
+                                `;
+                            }
+                            const d = r.details || {};
+                            const why = r.type === 'tournament'
+                                ? `Tournament rank ${d.rank || '—'} / ${d.participants || '—'}`
+                                : `Season ${d.season_id || ''} tier ${d.tier || 'all'} rank ${d.rank || '—'}`;
+                            const oppOrTier = r.type === 'season_end' ? `Tier ${d.tier || 'all'}` : '—';
+                            return `
+                                <tr>
+                                    <td>${escapeHtml(r.date)}</td>
+                                    <td>${escapeHtml(r.source)}</td>
+                                    <td>${escapeHtml(oppOrTier)}</td>
+                                    <td>${escapeHtml(why)}</td>
+                                    <td class="trend-positive">+${Number(r.side.total_xp || 0).toFixed(1)}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    const historySection = document.getElementById('historySection');
+    if (historySection && historySection.parentNode === profileContent) {
+        profileContent.insertBefore(section, historySection);
+    } else {
+        profileContent.appendChild(section);
+    }
 }
 
 // Render Archetype Section

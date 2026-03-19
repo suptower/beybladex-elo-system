@@ -303,6 +303,13 @@ def season_end_xp(season_total_xp: float, placement: int) -> float:
     return round((mult - 1.0) * season_total_xp, 2)
 
 
+def normalize_bey_key(name: str) -> str:
+    """Normalize bey name for loose matching across manual config files."""
+    if not name:
+        return ""
+    return "".join(ch for ch in str(name).lower() if ch not in " _-")
+
+
 # ---------------------------------------------------------------------------
 # State helpers
 # ---------------------------------------------------------------------------
@@ -315,7 +322,7 @@ def _default_bey_state() -> dict:
         "prestige": 0,
         "xp_in_level": 0.0,
         "win_streak": 0,
-        "season_xp": {},   # season_id → xp earned from matchday bonuses
+        "season_xp": {},   # season_id -> {tier -> xp earned from matchday bonuses}
         "total_matches": 0,
         "total_wins": 0,
     }
@@ -404,7 +411,14 @@ def load_tournament_placements(path: str) -> tuple:
     season_end = data.get("season_end_placements", {})
 
     if "tournaments" in data:
-        tournaments = data["tournaments"]
+        tournaments = {
+            k: v for k, v in data.get("tournaments", {}).items()
+            if not str(k).startswith("_")
+        }
+        season_end = {
+            k: v for k, v in season_end.items()
+            if not str(k).startswith("_")
+        }
     else:
         # Legacy flat format: filter out metadata keys
         tournaments = {
@@ -413,6 +427,38 @@ def load_tournament_placements(path: str) -> tuple:
         }
 
     return tournaments, season_end
+
+
+def _iter_tier_placements(season_end_entry: dict):
+    """
+    Yield (tier_key, placements_list) pairs from a season_end entry.
+
+    Supports both:
+      1) Legacy single list: {"placements": [...]}
+      2) Tiered format:
+         {"tiers": {"1": {"placements": [...]}, "2": {"placements": [...]}}}
+         or {"tiers": {"1": [...], "2": [...]}}
+    """
+    if not isinstance(season_end_entry, dict):
+        return
+
+    # Legacy single-placement list
+    legacy = season_end_entry.get("placements")
+    if isinstance(legacy, list):
+        yield "all", legacy
+        return
+
+    tiers = season_end_entry.get("tiers", {})
+    if not isinstance(tiers, dict):
+        return
+
+    for tier_key, tier_data in tiers.items():
+        if isinstance(tier_data, list):
+            yield str(tier_key), tier_data
+        elif isinstance(tier_data, dict):
+            placements = tier_data.get("placements", [])
+            if isinstance(placements, list):
+                yield str(tier_key), placements
 
 
 def load_tournaments(path: str) -> dict:
@@ -490,6 +536,21 @@ def run_xp_pipeline() -> None:
     # Stable sort: matches first within any given date
     _EVENT_ORDER = {"match": 0, "tournament": 1, "season_end": 1}
     events.sort(key=lambda e: (e["date"], _EVENT_ORDER.get(e["type"], 2)))
+
+    # Build quick normalized lookup so manual config names can still match
+    # canonical names used in matches.csv / elo_history.csv.
+    canonical_by_norm = {}
+    for m in matches:
+        for b in (m.get("BeyA", ""), m.get("BeyB", "")):
+            n = normalize_bey_key(b)
+            if n and n not in canonical_by_norm:
+                canonical_by_norm[n] = b
+
+    def resolve_bey_name(name: str) -> str:
+        """Map a manual-config bey name to canonical match name when possible."""
+        if not name:
+            return ""
+        return canonical_by_norm.get(normalize_bey_key(name), name)
 
     # ------------------------------------------------------------------
     # Process events in chronological order
@@ -578,11 +639,14 @@ def run_xp_pipeline() -> None:
             # Track season XP (matchday bonus only – for end-of-season multiplier)
             if season_id and tier is not None:
                 md_xp_for_season = season_matchday_xp(tier)
-                state_a["season_xp"][season_id] = (
-                    state_a["season_xp"].get(season_id, 0.0) + md_xp_for_season
+                tier_key = str(tier)
+                season_a = state_a["season_xp"].setdefault(season_id, {})
+                season_b = state_b["season_xp"].setdefault(season_id, {})
+                season_a[tier_key] = (
+                    season_a.get(tier_key, 0.0) + md_xp_for_season
                 )
-                state_b["season_xp"][season_id] = (
-                    state_b["season_xp"].get(season_id, 0.0) + md_xp_for_season
+                season_b[tier_key] = (
+                    season_b.get(tier_key, 0.0) + md_xp_for_season
                 )
 
             # Apply XP to state
@@ -614,22 +678,50 @@ def run_xp_pipeline() -> None:
             for rank_idx, bey in enumerate(placements_list):
                 if not bey:
                     continue
+                bey = resolve_bey_name(bey)
                 rank = rank_idx + 1
                 t_xp = compute_tournament_xp(rank, participants)
-                _apply_xp(get_state(bey), t_xp)
+                state = get_state(bey)
+                _apply_xp(state, t_xp)
+                # Transparency: record non-match XP event history
+                xp_history.setdefault("__events__", []).append({
+                    "type": "tournament",
+                    "date": event.get("date", ""),
+                    "tournament_id": tid,
+                    "bey": bey,
+                    "rank": rank,
+                    "participants": participants,
+                    "xp_awarded": round(t_xp, 2),
+                })
 
         elif etype == "season_end":
             sid = event["season_id"]
-            placements_list = event["data"].get("placements", [])
-            for rank_idx, bey in enumerate(placements_list):
-                if not bey:
-                    continue
-                rank = rank_idx + 1
-                state = get_state(bey)
-                season_total = state["season_xp"].get(sid, 0.0)
-                if season_total > 0:
-                    bonus = season_end_xp(season_total, rank)
-                    _apply_xp(state, bonus)
+            sdata = event["data"]
+            for tier_key, placements_list in _iter_tier_placements(sdata):
+                for rank_idx, bey in enumerate(placements_list):
+                    if not bey:
+                        continue
+                    bey = resolve_bey_name(bey)
+                    rank = rank_idx + 1
+                    state = get_state(bey)
+                    season_bucket = state["season_xp"].get(sid, {})
+                    if tier_key == "all":
+                        season_total = sum(season_bucket.values())
+                    else:
+                        season_total = season_bucket.get(str(tier_key), 0.0)
+                    if season_total > 0:
+                        bonus = season_end_xp(season_total, rank)
+                        _apply_xp(state, bonus)
+                        xp_history.setdefault("__events__", []).append({
+                            "type": "season_end",
+                            "date": event.get("date", ""),
+                            "season_id": sid,
+                            "tier": tier_key,
+                            "bey": bey,
+                            "rank": rank,
+                            "season_total_xp": round(season_total, 2),
+                            "xp_awarded": round(bonus, 2),
+                        })
 
     print(f"{GREEN}  XP events processed ({len(events)} total events).{RESET}")
 

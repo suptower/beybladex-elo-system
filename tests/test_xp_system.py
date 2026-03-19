@@ -21,6 +21,8 @@ from src.analytics.xp_system import (
     season_matchday_xp,
     season_end_xp,
     load_tournament_placements,
+    _iter_tier_placements,
+    normalize_bey_key,
     _apply_xp,
     _default_bey_state,
     BASE_XP,
@@ -387,3 +389,26 @@ class TestLoadTournamentPlacements:
         t, _ = load_tournament_placements(path)
         assert "_comment" not in t
         assert "T1" in t
+
+
+class TestSeasonEndTierParsing:
+    def test_iter_tier_placements_legacy(self):
+        entry = {"placements": ["A", "B"]}
+        got = list(_iter_tier_placements(entry))
+        assert got == [("all", ["A", "B"])]
+
+    def test_iter_tier_placements_tiered_dict(self):
+        entry = {"tiers": {"1": {"placements": ["A"]}, "2": {"placements": ["B"]}}}
+        got = dict(_iter_tier_placements(entry))
+        assert got["1"] == ["A"]
+        assert got["2"] == ["B"]
+
+    def test_iter_tier_placements_tiered_list(self):
+        entry = {"tiers": {"1": ["A"], "2": ["B"]}}
+        got = dict(_iter_tier_placements(entry))
+        assert got["1"] == ["A"]
+        assert got["2"] == ["B"]
+
+    def test_normalize_bey_key(self):
+        assert normalize_bey_key("Dran Sword") == "dransword"
+        assert normalize_bey_key("dran-sword") == "dransword"
