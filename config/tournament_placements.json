@@ -1,12 +1,42 @@
 {
-  "_comment": "Manually maintained extra XP events for the XP pipeline. See src/analytics/xp_system.py for format details.",
   "tournaments": {
     "_comment": "Tournament placements keyed by tournament ID (matches docs/data/tournaments/tournaments.json). 'placements' is an ordered list of beys by finishing position (index 0 = 1st). 'participants' overrides the player count from tournaments.json when set to a positive integer. Optional 'date' (YYYY-MM-DD) ensures the XP is applied at the correct point in the chronological timeline.",
     "tournament-1": {
       "participants": 32,
       "date": "2025-09-07",
       "placements": [
-        "ImpactDrake"
+        "ImpactDrake",
+        "FoxBrush",
+        "DranSword",
+        "WizardRod",
+        "PhoenixRudder",
+        "PhoenixWing",
+        "TuskMammoth",
+        "UnicornSting",
+        "CobaltDragoon",
+        "DranBrave",
+        "DranDagger",
+        "GolemRock",
+        "PerseusDark",
+        "TyrannoBeat",
+        "ViperTail",
+        "WeissTiger",
+        "BlackShell",
+        "CrimsonGaruda",
+        "DranBuster",
+        "HellsChain",
+        "HellsHammer",
+        "HellsReaper",
+        "KeelShark",
+        "LeonClaw",
+        "LeonCrest",
+        "RhinoReaper",
+        "SamuraiSaber",
+        "ScorpioSpear",
+        "SilverWolf",
+        "WhaleWave",
+        "WizardArc",
+        "WizardArrow"
       ]
     }
   },

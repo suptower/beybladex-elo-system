@@ -464,6 +464,8 @@ def run_xp_pipeline() -> None:
         events.append({"type": "match", "date": m.get("Date", ""), "data": m})
 
     for tid, pdata in tournament_placements.items():
+        if not isinstance(pdata, dict):
+            continue
         # Prefer explicit date in the placement entry, then look up tournaments.json
         t_date = pdata.get("date", "")
         if not t_date:
@@ -476,6 +478,8 @@ def run_xp_pipeline() -> None:
         })
 
     for sid, sdata in season_end_placements.items():
+        if not isinstance(sdata, dict):
+            continue
         events.append({
             "type": "season_end",
             "date": sdata.get("date", _DATE_LAST),
