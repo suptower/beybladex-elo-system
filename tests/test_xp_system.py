@@ -4,7 +4,6 @@ Tests XP calculation, level curve, prestige, tournament XP, and season XP.
 """
 import sys
 import os
-import math
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 

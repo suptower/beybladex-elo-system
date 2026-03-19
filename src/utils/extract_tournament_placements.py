@@ -1,7 +1,3 @@
-import csv
-import re
-import shutil
-from datetime import datetime
 from pathlib import Path
 import json
 
@@ -12,11 +8,13 @@ _root = _os.path.dirname(
 if _root not in sys.path:
     sys.path.insert(0, _root)
 del _os, _root
-from src.config.paths import TOURNAMENT_API_JSONS_DIR, TOURNAMENT_PLACEMENTS_JSON
+from src.config.paths import TOURNAMENT_API_JSONS_DIR, TOURNAMENT_PLACEMENTS_JSON  # noqa: E402
+
 
 def extract_tournament_placements():
     """
-    Extract tournament placements from the raw API JSON files and return a structured dictionary indexed by tournament ID.
+    Extract tournament placements from the raw API JSON files and
+    return a structured dictionary indexed by tournament ID.
     """
     tournaments = {}
     for json_file in Path(TOURNAMENT_API_JSONS_DIR).glob("*.json"):
@@ -38,10 +36,14 @@ def extract_tournament_placements():
 
     return tournaments
 
+
 def create_tournament_placements_json(tournament_data):
     """
-    Create a JSON section with the required format for the tournament_placements.json file. 
-    Therefore we iterate the dictionary and sort the placements by final_rank and create a list of only bey names per tournament in the correct order, also adding the participants count.
+    Create a JSON section with the required format for
+    the tournament_placements.json file.
+    Therefore we iterate the dictionary and sort the placements by final_rank
+    and create a list of only bey names per tournament in the correct order,
+    also adding the participants count.
     """
     output = {"tournaments": {}}
     for tournament_name, data in tournament_data.items():
@@ -54,10 +56,13 @@ def create_tournament_placements_json(tournament_data):
 
     return output
 
+
 def write_to_json_file(data, file_path):
     """
     Write the given data to a JSON file at the specified path.
-    The data has to be pasted into the "tournaments" section of the tournament_placements.json file, so we read the existing file and overwrite the "tournaments" section with the new data. If the file does not exist, we create a new one with the given data.
+    The data has to be pasted into the "tournaments" section of the tournament_placements.json file,
+    so we read the existing file and overwrite the "tournaments" section with the new data.
+    If the file does not exist, we create a new one with the given data.
     """
     try:
         with open(file_path, "r") as f:
@@ -68,6 +73,7 @@ def write_to_json_file(data, file_path):
     except FileNotFoundError:
         with open(file_path, "w") as f:
             json.dump(data, f, indent=2)
+
 
 if __name__ == "__main__":
     tournament_data = extract_tournament_placements()
