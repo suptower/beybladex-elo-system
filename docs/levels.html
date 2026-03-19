@@ -19,7 +19,17 @@
 
         #main-content {
             display: block;
-            overflow-x: hidden;
+            overflow: visible;
+        }
+
+        main#main-content > .page-intro,
+        main#main-content > .xp-legend-box,
+        main#main-content > .xp-controls,
+        main#main-content > .xp-table-wrapper {
+            display: block;
+            width: 100%;
+            float: none;
+            clear: both;
         }
 
         .xp-table-wrapper {
@@ -238,6 +248,11 @@
                 width: 100%;
                 float: none;
                 clear: both;
+            }
+
+            .xp-table-wrapper {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             .xp-legend-box {
