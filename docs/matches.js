@@ -1464,7 +1464,13 @@ function createXpBreakdownHtml(match) {
     const fmt1 = v => Number(numOrZero(v)).toFixed(1);
     const fmtMult = v => (v != null ? `×${Number(v).toFixed(2)}` : '—');
 
-    const streakLabel = s => s >= 5 ? '5+ 🔥' : (s >= 2 ? `${s} 🔥` : '—');
+    const streakPct = bonus => {
+        const n = Number(numOrZero(bonus));
+        if (!Number.isFinite(n)) return 0;
+        if (Math.abs(n) <= 1) return Math.round(n * 100);
+        return Math.round(n);
+    };
+    const streakText = side => `${streakPct(side.streak_bonus)}% (${Number(side.win_streak || 0)})`;
 
     return `
         <div class="elo-breakdown">
@@ -1513,8 +1519,8 @@ function createXpBreakdownHtml(match) {
                         </tr>
                         <tr>
                             <td class="elo-param-label">Streak Bonus</td>
-                            <td class="elo-param-value">+${fmt1(xpA.streak_bonus)} ${xpA.win_streak >= 2 ? streakLabel(xpA.win_streak) : ''}</td>
-                            <td class="elo-param-value">+${fmt1(xpB.streak_bonus)} ${xpB.win_streak >= 2 ? streakLabel(xpB.win_streak) : ''}</td>
+                            <td class="elo-param-value">${streakText(xpA)}</td>
+                            <td class="elo-param-value">${streakText(xpB)}</td>
                         </tr>
                         ${(xpA.season_matchday_xp || xpB.season_matchday_xp) ? `
                         <tr>

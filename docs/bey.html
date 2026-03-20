@@ -1052,17 +1052,21 @@ function renderXpHistorySection() {
 
     const calcParts = side => {
         const s = side || {};
+        const streakPctRaw = Number(s.streak_bonus || 0);
+        const streakPct = Math.abs(streakPctRaw) <= 1
+            ? Math.round(streakPctRaw * 100)
+            : Math.round(streakPctRaw);
         const parts = [
             `🎮${Number(s.base_xp || 0).toFixed(0)}`,
             `🏆${Number(s.result_bonus || 0).toFixed(0)}`,
             `📈${Number(s.performance_bonus || 0).toFixed(1)}`,
             `🔥${Number(s.high_stakes_bonus || 0).toFixed(1)}`,
             `⏱️${Number(s.match_length_bonus || 0).toFixed(1)}`,
-            `⚡${Number(s.streak_bonus || 0).toFixed(1)}`,
         ];
         if (s.season_matchday_xp) {
             parts.push(`🏟️${Number(s.season_matchday_xp ?? 0).toFixed(0)}`);
         }
+        parts.push(`⚡${streakPct}%(${Number(s.win_streak || 0)})`);
         return parts.join(' ');
     };
 
@@ -1078,7 +1082,7 @@ function renderXpHistorySection() {
                 <span><b>📈</b> Perf</span>
                 <span><b>🔥</b> High-Stakes</span>
                 <span><b>⏱️</b> Length</span>
-                <span><b>⚡</b> Streak</span>
+                <span><b>⚡</b> Streak % (count)</span>
                 <span><b>🏟️</b> Season</span>
             </div>
             <div style="overflow-x:auto;">
