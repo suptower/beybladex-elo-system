@@ -123,7 +123,8 @@ STREAK_BONUS_LATE_BASE = 0.35   # Base bonus at streak 6
 STREAK_BONUS_PER_WIN_LATE = 0.05  # +5% per win for streaks 6+
 STREAK_BONUS_MAX = 1.2          # Hard cap at +100%
 
-MAX_XP_PER_MATCH = 500
+SOFT_CAP_THRESHOLD = 500
+SOFT_CAP_SCALE = 200
 
 # Level curve
 LEVEL_XP_BASE = 250
@@ -257,6 +258,14 @@ def performance_bonus_loss(
 
     return min(elo_bonus + score_factor, PERFORMANCE_LOSS_CAP)
 
+def apply_soft_cap(xp: float) -> float:
+    """Apply a soft cap to XP gains above the threshold."""
+    if xp <= SOFT_CAP_THRESHOLD:
+        return xp
+    overflow = xp - SOFT_CAP_THRESHOLD
+    scaled_excess = SOFT_CAP_THRESHOLD + SOFT_CAP_SCALE * (1- exp(-overflow / SOFT_CAP_SCALE))
+    return round(scaled_excess, 2)
+
 
 def compute_match_xp(
     won: bool,
@@ -284,7 +293,7 @@ def compute_match_xp(
     ml_bonus = match_length_bonus(own_score, opp_score)
     raw_xp = (base + result_bonus + perf_bonus + h_bonus + ml_bonus) * (1.0 + s_bonus)
     mult = prestige_multiplier(prestige)
-    total = min(raw_xp * mult, MAX_XP_PER_MATCH)
+    total = apply_soft_cap(raw_xp * mult)
     return {
         "base_xp": base,
         "result_bonus": result_bonus,
@@ -689,7 +698,7 @@ def run_xp_pipeline() -> None:
                 for xp_dict in (xp_a, xp_b):
                     xp_dict["season_matchday_xp"] = md_xp
                     xp_dict["total_xp"] = round(
-                        min(xp_dict["total_xp"] + md_xp, MAX_XP_PER_MATCH), 2
+                        apply_soft_cap(xp_dict["total_xp"] + md_xp), 2
                     )
             else:
                 xp_a["season_matchday_xp"] = 0
