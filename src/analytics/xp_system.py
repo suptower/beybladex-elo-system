@@ -11,7 +11,7 @@ XP Formula (per match):
          * prestige_multiplier
     Max XP per match: 300
 
-    Base XP:        100 (any valid match)
+    Base XP:        130 (any valid match)
     Result Bonus:   +80 (win) / +20 (loss)
     Performance Bonus (Win):  min(1.5 * elo_gain, 50)
     Performance Bonus (Loss, underdog only):
@@ -54,10 +54,12 @@ Usage:
     python xp_system.py
 """
 
+
 import csv
 import json
 import os
 import sys
+from math import exp
 
 import os as _os
 _root = _os.path.dirname(
@@ -94,10 +96,20 @@ BASE_XP = 130
 WIN_BONUS = 80
 LOSS_BONUS = 20
 
-PERFORMANCE_WIN_MULTIPLIER = 1.5
-PERFORMANCE_WIN_CAP = 50
+SCORE_FACTOR_MULTIPLIER = 40
 
-PERFORMANCE_LOSS_MULTIPLIER = 0.7
+HIGH_STAKES_BONUS_SCALE = 50
+HIGH_STAKES_ELO_REFERENCE = 2000
+
+MATCH_LENGTH_BONUS_SCALE = 15
+MATCH_LENGTH_BONUS_OFFSET = 15
+
+PERFORMANCE_WIN_BASE = 60
+PERFORMANCE_WIN_MULTIPLIER = 1.5
+PERFORMANCE_WIN_CAP = 70
+
+PERFORMANCE_LOSS_BASE = 35
+PERFORMANCE_LOSS_MULTIPLIER = 0.9
 PERFORMANCE_LOSS_CAP = 40
 
 # Streak bonus (proportional multiplier on raw XP)
@@ -109,14 +121,14 @@ STREAK_BONUS_PER_WIN_MID = 0.09  # +9% per win for streaks 4–5
 STREAK_BONUS_MID_CAP = 5        # Last streak length using mid rate
 STREAK_BONUS_LATE_BASE = 0.35   # Base bonus at streak 6
 STREAK_BONUS_PER_WIN_LATE = 0.05  # +5% per win for streaks 6+
-STREAK_BONUS_MAX = 1.0          # Hard cap at +100%
+STREAK_BONUS_MAX = 1.2          # Hard cap at +100%
 
 MAX_XP_PER_MATCH = 500
 
 # Level curve
-LEVEL_XP_BASE = 300
+LEVEL_XP_BASE = 250
 LEVEL_XP_MULTIPLIER = 4
-LEVEL_XP_EXPONENT = 1.55
+LEVEL_XP_EXPONENT = 1.65
 
 # Prestige
 PRESTIGE_LEVEL = 50
@@ -124,15 +136,15 @@ PRESTIGE_XP_BONUS_PER_LEVEL = 0.05  # +5 % per prestige
 PRESTIGE_XP_BONUS_CAP = 0.25        # max +25 %
 
 # Tournament XP
-TOURNAMENT_BASE = 210
+TOURNAMENT_BASE = 180
 TOURNAMENT_PARTICIPANTS_FACTOR = 32
 
 # Season per-matchday XP by tier (1-indexed)
-SEASON_MATCHDAY_XP = {1: 150, 2: 120, 3: 100, 4: 80}
+SEASON_MATCHDAY_XP = {1: 100, 2: 80, 3: 60, 4: 40}
 
 # Season end-of-season placement multipliers (1-indexed, fallback 1.0)
 SEASON_PLACEMENT_MULTIPLIER = {1: 2.5, 2: 2.25, 3: 1.8, 4: 1.3}
-SEASON_PLACEMENT_TIER_MULTIPLIER = {1: 2.0, 2: 1.5, 3: 1.25, 4: 1.0}
+SEASON_PLACEMENT_TIER_MULTIPLIER = {1: 1.5, 2: 1.3, 3: 1.15, 4: 1.0}
 
 
 # ---------------------------------------------------------------------------
@@ -198,10 +210,28 @@ def streak_bonus(current_streak: int) -> int:
         STREAK_BONUS_MAX
     )
 
+def high_stakes_bonus(own_elo: float, opp_elo: float) -> float:
+    """Additional bonus for matches with high ELO stakes."""
+    combined = own_elo + opp_elo
+    diff = abs(own_elo - opp_elo) if opp_elo > own_elo else 0.0
+    return round((combined + diff) / HIGH_STAKES_ELO_REFERENCE * HIGH_STAKES_BONUS_SCALE, 2)
 
-def performance_bonus_win(elo_gain: float) -> float:
-    """Performance bonus for a win based on ELO gain."""
-    return min(PERFORMANCE_WIN_MULTIPLIER * max(elo_gain, 0.0), PERFORMANCE_WIN_CAP)
+def match_length_bonus(own_score: int, opp_score: int) -> float:
+    """Bonus for longer matches, based on total score."""
+    total_score = own_score + opp_score
+    # normalize score so 4:0 is base 0
+    score_base = exp((2 * total_score - 8) / 4)
+    win_mult = 1.1 if own_score > opp_score else 1.0
+    return round(MATCH_LENGTH_BONUS_SCALE * score_base - MATCH_LENGTH_BONUS_OFFSET, 2) * win_mult
+
+def performance_bonus_win(elo_gain: float, own_score: int, opp_score: int) -> float:
+    """Performance bonus for a win based on ELO gain and score difference."""
+    perf = PERFORMANCE_WIN_MULTIPLIER * max(elo_gain, 0.0)
+    perf_bonus = PERFORMANCE_WIN_BASE * (1 - exp(-perf / PERFORMANCE_WIN_BASE))
+    score_factor = 1.0 + (own_score - opp_score) / max(own_score, opp_score) if max(own_score, opp_score) > 0 else 0
+    score_factor *= SCORE_FACTOR_MULTIPLIER
+    perf_bonus += score_factor
+    return perf_bonus
 
 
 def performance_bonus_loss(
@@ -210,18 +240,22 @@ def performance_bonus_loss(
     own_score: int,
     opp_score: int,
 ) -> float:
-    """
-    Performance bonus for a loss.
-    """
-    elo_diff = opp_pre_elo - own_pre_elo
+    """Performance bonus for a loss, mirroring win bonus structure."""
     max_score = max(own_score, opp_score)
     if max_score == 0:
         return 0.0
+
+    # ELO-Anteil: sättigende Kurve analog zu Win, aber auf elo_diff basierend
+    elo_diff = max(opp_pre_elo - own_pre_elo, 0.0)  # nur positiv (Underdog-Fall)
+    perf = PERFORMANCE_LOSS_MULTIPLIER * elo_diff
+    elo_bonus = PERFORMANCE_LOSS_BASE * (1 - exp(-perf / PERFORMANCE_LOSS_BASE))
+
+    # Score-Anteil: enge Niederlage = höherer Bonus (Inverse des Win score_factor)
     score_diff = abs(opp_score - own_score)
-    closeness = 1.0 - (score_diff / max_score)
-    if elo_diff <= 20:
-        return min(PERFORMANCE_LOSS_MULTIPLIER * 20 * closeness, PERFORMANCE_LOSS_CAP)
-    return min(PERFORMANCE_LOSS_MULTIPLIER * elo_diff * closeness, PERFORMANCE_LOSS_CAP)
+    closeness = 1.0 - (score_diff / max_score)  # 1.0 = knapp, 0.0 = deutlich
+    score_factor = closeness * SCORE_FACTOR_MULTIPLIER
+
+    return min(elo_bonus + score_factor, PERFORMANCE_LOSS_CAP)
 
 
 def compute_match_xp(
@@ -242,17 +276,21 @@ def compute_match_xp(
     base = BASE_XP
     result_bonus = WIN_BONUS if won else LOSS_BONUS
     if won:
-        perf_bonus = performance_bonus_win(elo_gain)
+        perf_bonus = performance_bonus_win(elo_gain, own_score, opp_score)
     else:
         perf_bonus = performance_bonus_loss(own_pre_elo, opp_pre_elo, own_score, opp_score)
     s_bonus = streak_bonus(win_streak) if won else 0
-    raw_xp = (base + result_bonus + perf_bonus) * (1.0 + s_bonus)
+    h_bonus = high_stakes_bonus(own_pre_elo, opp_pre_elo)
+    ml_bonus = match_length_bonus(own_score, opp_score)
+    raw_xp = (base + result_bonus + perf_bonus + h_bonus + ml_bonus) * (1.0 + s_bonus)
     mult = prestige_multiplier(prestige)
     total = min(raw_xp * mult, MAX_XP_PER_MATCH)
     return {
         "base_xp": base,
         "result_bonus": result_bonus,
         "performance_bonus": round(perf_bonus, 2),
+        "high_stakes_bonus": h_bonus,
+        "match_length_bonus": ml_bonus,
         "streak_bonus": s_bonus,
         "prestige_multiplier": round(mult, 4),
         "total_xp": round(total, 2),
@@ -276,17 +314,17 @@ def placement_multiplier(rank: int, total: int) -> float:
     if total <= 0 or rank <= 0:
         return 1.0
     if rank == 1:
-        return 3.0
+        return 2.2
     if rank == 2:
-        return 2.5
+        return 1.8
     pct = rank / total
     if pct <= 0.10:
-        return 2.0
+        return 1.5
     if pct <= 0.25:
-        return 1.75
-    if pct <= 0.50:
         return 1.25
-    return 0.75
+    if pct <= 0.50:
+        return 1.15
+    return 1.0
 
 
 def compute_tournament_xp(rank: int, participants: int) -> float:

@@ -20,9 +20,11 @@ def extract_tournament_placements():
     for json_file in Path(TOURNAMENT_API_JSONS_DIR).glob("*.json"):
         with open(json_file, "r") as f:
             data = json.load(f)
+            ident = data.get("data", {}).get("id")
             name = data.get("data", {}).get("attributes", {}).get("name")
             participants_count = data.get("data", {}).get("attributes", {}).get("participants_count")
-            tournaments[name] = {
+            tournaments[ident] = {
+                "name": name,
                 "participants_count": participants_count,
                 "placements": []
             }
@@ -32,7 +34,7 @@ def extract_tournament_placements():
                 if item.get("type") == "participant":
                     bey = item.get("attributes", {}).get("name")
                     final_rank = item.get("attributes", {}).get("final_rank")
-                    tournaments[name]["placements"].append((bey, final_rank))
+                    tournaments[ident]["placements"].append((bey, final_rank))
 
     return tournaments
 
@@ -46,10 +48,14 @@ def create_tournament_placements_json(tournament_data):
     also adding the participants count.
     """
     output = {"tournaments": {}}
-    for tournament_name, data in tournament_data.items():
-        placements = sorted(data["placements"], key=lambda x: x[1])  # sort by final_rank
+    for tournament_id, data in tournament_data.items():
+        placements = sorted(data["placements"], key=lambda x: (
+            x[1] is None or not isinstance(x[1], (int, float)),
+            x[1] if isinstance(x[1], (int, float)) else float('inf'),
+        ))
         bey_placements = [bey for bey, rank in placements]  # extract only bey names
-        output["tournaments"][tournament_name] = {
+        output["tournaments"][tournament_id] = {
+            "name": data["name"],
             "participants": data["participants_count"],
             "placements": bey_placements
         }
