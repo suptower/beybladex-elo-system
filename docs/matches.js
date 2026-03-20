@@ -1460,7 +1460,8 @@ function createXpBreakdownHtml(match) {
     const xpA = match.xpEntry.bey_a;
     const xpB = match.xpEntry.bey_b;
 
-    const fmt1 = v => (v != null ? Number(v).toFixed(1) : '—');
+    const numOrZero = v => Number(v || 0);
+    const fmt1 = v => Number(numOrZero(v)).toFixed(1);
     const fmtMult = v => (v != null ? `×${Number(v).toFixed(2)}` : '—');
 
     const streakLabel = s => s >= 5 ? '5+ 🔥' : (s >= 2 ? `${s} 🔥` : '—');
@@ -1501,9 +1502,19 @@ function createXpBreakdownHtml(match) {
                             <td class="elo-param-value">+${fmt1(xpB.performance_bonus)}</td>
                         </tr>
                         <tr>
+                            <td class="elo-param-label">High Stakes Bonus</td>
+                            <td class="elo-param-value">+${fmt1(xpA.high_stakes_bonus)}</td>
+                            <td class="elo-param-value">+${fmt1(xpB.high_stakes_bonus)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Match Length Bonus</td>
+                            <td class="elo-param-value">+${fmt1(xpA.match_length_bonus)}</td>
+                            <td class="elo-param-value">+${fmt1(xpB.match_length_bonus)}</td>
+                        </tr>
+                        <tr>
                             <td class="elo-param-label">Streak Bonus</td>
-                            <td class="elo-param-value">+${xpA.streak_bonus} ${xpA.win_streak >= 2 ? streakLabel(xpA.win_streak) : ''}</td>
-                            <td class="elo-param-value">+${xpB.streak_bonus} ${xpB.win_streak >= 2 ? streakLabel(xpB.win_streak) : ''}</td>
+                            <td class="elo-param-value">+${fmt1(xpA.streak_bonus)} ${xpA.win_streak >= 2 ? streakLabel(xpA.win_streak) : ''}</td>
+                            <td class="elo-param-value">+${fmt1(xpB.streak_bonus)} ${xpB.win_streak >= 2 ? streakLabel(xpB.win_streak) : ''}</td>
                         </tr>
                         ${(xpA.season_matchday_xp || xpB.season_matchday_xp) ? `
                         <tr>

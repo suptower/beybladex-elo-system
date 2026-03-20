@@ -1050,12 +1050,37 @@ function renderXpHistorySection() {
 
     rows.sort((x, y) => (x.date || '').localeCompare(y.date || ''));
 
+    const calcParts = side => {
+        const s = side || {};
+        const parts = [
+            `🎮${Number(s.base_xp || 0).toFixed(0)}`,
+            `🏆${Number(s.result_bonus || 0).toFixed(0)}`,
+            `📈${Number(s.performance_bonus || 0).toFixed(1)}`,
+            `🔥${Number(s.high_stakes_bonus || 0).toFixed(1)}`,
+            `⏱️${Number(s.match_length_bonus || 0).toFixed(1)}`,
+            `⚡${Number(s.streak_bonus || 0).toFixed(1)}`,
+        ];
+        if (s.season_matchday_xp) {
+            parts.push(`🏟️${Number(s.season_matchday_xp ?? 0).toFixed(0)}`);
+        }
+        return parts.join(' ');
+    };
+
     const section = document.createElement('details');
     section.className = 'profile-section-details';
     section.id = 'xpHistorySection';
     section.innerHTML = `
         <summary class="section-summary">🎮 XP History</summary>
         <div class="profile-section-content" style="padding: 12px 16px;">
+            <div class="xp-history-calc-legend">
+                <span><b>🎮</b> Base</span>
+                <span><b>🏆</b> Result</span>
+                <span><b>📈</b> Perf</span>
+                <span><b>🔥</b> High-Stakes</span>
+                <span><b>⏱️</b> Length</span>
+                <span><b>⚡</b> Streak</span>
+                <span><b>🏟️</b> Season</span>
+            </div>
             <div style="overflow-x:auto;">
                 <table class="advanced-table" style="width:100%;">
                     <thead>
@@ -1071,22 +1096,12 @@ function renderXpHistorySection() {
                         ${rows.map(r => {
                             if (r.type === 'match') {
                                 const s = r.side || {};
-                                const whyParts = [
-                                    `Base ${s.base_xp || 0}`,
-                                    `Result ${s.result_bonus || 0}`,
-                                    `Perf ${Number(s.performance_bonus || 0).toFixed(1)}`,
-                                ];
-                                if (s.season_matchday_xp || 0) {
-                                    whyParts.push(`Season ${s.season_matchday_xp}`);
-                                }
-                                const why = whyParts.join(' + ');
-                                const whyWithStreak = s.streak_bonus ? `${why} | Streak ${(s.streak_bonus * 100).toFixed(0)}%` : why;
                                 return `
                                     <tr>
                                         <td>${escapeHtml(r.date)}</td>
                                         <td><a href="matches.html" class="season-link">${escapeHtml(r.source)}</a></td>
                                         <td>${escapeHtml(r.opponent || '—')}</td>
-                                        <td>${escapeHtml(whyWithStreak)}</td>
+                                        <td class="xp-calc-cell">${escapeHtml(calcParts(s))}</td>
                                         <td class="trend-positive">+${Number(s.total_xp || 0).toFixed(1)}</td>
                                     </tr>
                                 `;

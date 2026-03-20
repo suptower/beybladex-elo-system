@@ -11839,6 +11839,21 @@ select:focus-visible {
     border-left-color: var(--accent);
 }
 
+.xp-history-calc-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin: 0 0 0.6rem 0;
+}
+
+.xp-calc-cell {
+    font-family: 'Courier New', monospace;
+    font-size: 0.74rem;
+    white-space: nowrap;
+}
+
 .elo-param-label {
     color: var(--text-light);
     font-size: 0.8125rem;
@@ -11878,6 +11893,10 @@ select:focus-visible {
 
     .elo-param-label {
         font-size: 0.75rem;
+    }
+
+    .xp-calc-cell {
+        font-size: 0.68rem;
     }
 }
 
