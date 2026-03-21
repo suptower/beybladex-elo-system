@@ -7,44 +7,72 @@ participation, ELO performance, win streaks, tournament placements and season
 tier bonuses.
 
 XP Formula (per match):
-    XP = (Base XP + Result Bonus + Performance Bonus + Streak Bonus)
-         * prestige_multiplier
-    Max XP per match: 300
+    raw_xp = (Base XP + Result Bonus + Performance Bonus + High Stakes Bonus
+              + Match Length Bonus) * (1 + streak_multiplier)
+    total_xp = apply_soft_cap(raw_xp * prestige_multiplier)
 
     Base XP:        130 (any valid match)
     Result Bonus:   +80 (win) / +20 (loss)
-    Performance Bonus (Win):  min(1.5 * elo_gain, 50)
-    Performance Bonus (Loss, underdog only):
-        elo_diff  = opponent_elo - own_elo  (only when positive)
+
+    Performance Bonus (Win):
+        perf   = 1.5 * elo_gain
+        bonus  = 60 * (1 - exp(-perf / 60)) + score_factor
+        score_factor = (1 + (own_score - opp_score) / max_score) * 40
+        soft cap: threshold=90, scale=25
+
+    Performance Bonus (Loss):
+        elo_diff = max(opp_elo - own_elo, 0)   (underdog component only)
+        elo_bonus = 35 * (1 - exp(-0.9 * elo_diff / 35))
         closeness = 1 - (score_diff / max_score)
-        bonus     = min(0.3 * elo_diff * closeness, 40)
-    Streak Bonus:
-        2 wins → +10, 3 wins → +20, 4 wins → +30, 5+ wins → +40
+        bonus = elo_bonus + closeness * 40
+        soft cap: threshold=30, scale=15
+
+    High Stakes Bonus:
+        raw = (own_elo + opp_elo + max(opp_elo - own_elo, 0)) / 2000 * 25
+        soft cap: threshold=50, scale=20
+        typical value: ~25 XP at 1000 ELO each
+
+    Match Length Bonus:
+        score_base = exp((2 * total_score - 8) / 4)
+        raw = (15 * score_base - 10) * (1.1 if win else 1.0)
+        soft cap: threshold=50, scale=30
+        examples: 4:0 → ~5.5 XP (win), 4:3 → ~60.5 XP (win)
+
+    Streak Multiplier (wins only):
+        streak 2 → +8% | streak 3 → +16% | streak 4 → +25% | streak 5 → +34%
+        streak 6 → +40% (soft cap starts here, scale=20%, safety hard cap=+120%)
+
+    Total Soft Cap: threshold=500, scale=200 (asymptotic ~700 XP)
 
 Level Curve:
-    XP_needed(level) = 50 * level ** 1.3
+    XP_needed(level) = 250 + level^1.65 * 4
+    examples: level 1 → 254 XP | level 10 → 429 XP | level 30 → 1345 XP
     (XP to advance from level-1 → level; cumulative total determines current level)
 
 Prestige:
-    Triggered at level 50.  Level resets to 1, XP to 0, prestige counter +1.
+    Triggered at level 50. Level resets to 1, XP to 0, prestige counter +1.
     Prestige bonus: +5% XP per prestige level, capped at +25% (prestige ≥ 5).
 
 Tournament XP:
-    base   = 150 + participants * 25
-    factor per placement:
-        1st          → 3.0x
-        2nd          → 2.5x
-        Finalist     → 2.5x (same bracket position as 2nd)
-        Top 10%      → 2.0x
-        Top 25%      → 1.5x
+    base       = 180 + 32 * participants
+    size_bonus = 1 + ((participants / 8)^2 / 100)
+    total      = base * placement_multiplier * size_bonus
+
+    Placement multipliers:
+        1st          → 2.2x
+        2nd          → 1.8x
+        Top 10%      → 1.5x
+        Top 25%      → 1.25x
         Top 50%      → 1.15x
         Participation → 1.0x
 
 Season XP:
-    Per matchday flat bonus:   Tier 1 → +150 / Tier 2 → +120 / Tier 3 → +100 / Tier 4 → +80
-    End-of-season multiplier applied to total season XP earned:
-        1st  → 3.0x  |  2nd → 2.2x  |  3rd → 1.8x
-        4th  → 1.3x  |  Rest → 1.0x
+    Per matchday flat bonus by tier:
+        Tier 1 → +100 / Tier 2 → +80 / Tier 3 → +60 / Tier 4 → +40
+
+    End-of-season bonus: (placement_mult * tier_mult - 1) * season_total_xp
+        Placement multipliers: 1st → 2.5x | 2nd → 2.25x | 3rd → 1.8x | 4th → 1.3x | rest → 1.0x
+        Tier multipliers:      Tier 1 → 1.5x | Tier 2 → 1.3x | Tier 3 → 1.15x | Tier 4 → 1.0x
 
 Output files:
     docs/data/analytics/xp_leaderboard.json  - Current XP / level / prestige per Bey
@@ -161,7 +189,18 @@ SEASON_PLACEMENT_TIER_MULTIPLIER = {1: 1.5, 2: 1.3, 3: 1.15, 4: 1.0}
 # ---------------------------------------------------------------------------
 
 def xp_needed_for_level(level: int) -> float:
-    """Return the XP required to advance from level-1 to *level* (≥1)."""
+    """
+    Return the XP required to advance from level-1 to *level* (≥1).
+
+    Formula: 250 + level^1.65 * 4
+
+    Examples:
+        level  1 →   254 XP
+        level 10 →   429 XP
+        level 20 →   811 XP
+        level 30 → 1,345 XP
+        level 49 → 2,710 XP
+    """
     if level < 1:
         return 0.0
     return LEVEL_XP_BASE + (level ** LEVEL_XP_EXPONENT) * LEVEL_XP_MULTIPLIER
@@ -197,7 +236,17 @@ def compute_level_and_xp(total_xp: float) -> tuple:
 
 
 def prestige_multiplier(prestige: int) -> float:
-    """Return the XP gain multiplier for the given prestige count."""
+    """
+    Return the XP gain multiplier for the given prestige count.
+
+    Each prestige level adds +5%, capped at +25% (prestige ≥ 5):
+        prestige 0 → 1.00x
+        prestige 1 → 1.05x
+        prestige 2 → 1.10x
+        prestige 3 → 1.15x
+        prestige 4 → 1.20x
+        prestige 5+ → 1.25x
+    """
     bonus = min(prestige * PRESTIGE_XP_BONUS_PER_LEVEL, PRESTIGE_XP_BONUS_CAP)
     return 1.0 + bonus
 
@@ -210,9 +259,11 @@ def _soft_cap(value: float, threshold: float, scale: float) -> float:
     """
     Apply a soft cap to *value*.
 
-    Values at or below *threshold* are returned unchanged.  Above the threshold
+    Values at or below *threshold* are returned unchanged. Above the threshold
     the excess is compressed via an exponential curve so the result approaches
     (threshold + scale) asymptotically without a hard ceiling.
+
+    Formula: threshold + scale * (1 - exp(-(value - threshold) / scale))
     """
     if value <= threshold:
         return value
@@ -226,10 +277,21 @@ def _soft_cap(value: float, threshold: float, scale: float) -> float:
 
 def streak_bonus(current_streak: int) -> float:
     """
-    Return streak XP multiplier for the given consecutive-win count.
+    Return the streak XP multiplier for the given consecutive-win count.
 
-    A soft cap is applied above +40% so that very long streaks still reward
-    the player but with diminishing returns instead of a hard ceiling.
+    The raw multiplier is computed in three phases, then soft-capped:
+        streak 2      → +8%
+        streak 3      → +16%
+        streak 4      → +25%
+        streak 5      → +34%
+        streak 6      → +40%  (soft cap threshold)
+        streak 8      → +48%  (after soft cap compression)
+        streak 10     → +53%
+        streak 15     → +58%
+        streak 20+    → ~+59% (asymptote)
+
+    A hard safety cap of +120% remains in place but is never reached in
+    practice due to the soft cap (threshold=+40%, scale=+20%).
     """
     if current_streak < STREAK_BONUS_START:
         return 0.0
@@ -247,10 +309,21 @@ def streak_bonus(current_streak: int) -> float:
 
 def high_stakes_bonus(own_elo: float, opp_elo: float) -> float:
     """
-    Additional bonus for matches with high ELO stakes.
+    Additional flat bonus reflecting the ELO weight of the match.
 
-    Scales linearly with combined ELO up to the soft cap threshold, then
-    compresses so extreme ELO differences do not dominate the XP total.
+    Formula:
+        raw = (own_elo + opp_elo + max(opp_elo - own_elo, 0)) / 2000 * 25
+        result = soft_cap(raw, threshold=50, scale=20)
+
+    The underdog side (opp_elo > own_elo) receives a slightly higher raw
+    value due to the diff term. Soft cap keeps extreme ELO gaps from
+    dominating the XP total.
+
+    Examples (no soft cap active until combined ELO > ~2000):
+        1000 vs 1000 → 25.0 XP
+        1200 vs 1200 → 30.0 XP
+        2000 vs 2000 → 50.0 XP  (threshold)
+        1000 vs 2000 → 50.0 XP  (threshold, underdog side)
     """
     combined = own_elo + opp_elo
     diff = abs(own_elo - opp_elo) if opp_elo > own_elo else 0.0
@@ -260,13 +333,26 @@ def high_stakes_bonus(own_elo: float, opp_elo: float) -> float:
 
 def match_length_bonus(own_score: int, opp_score: int) -> float:
     """
-    Bonus for longer matches based on total score.
+    Bonus for longer, more competitive matches based on total points scored.
 
-    The underlying exponential growth is soft-capped so high-scoring matches
-    (e.g. 6:4, 7:4) reward meaningful play without producing runaway XP totals.
+    Formula:
+        score_base = exp((2 * total_score - 8) / 4)
+        raw = (15 * score_base - 10) * (1.1 if win else 1.0)
+        result = soft_cap(raw, threshold=50, scale=30)
+
+    The offset of 10 means even short matches yield a small positive bonus.
+    The winner receives a 10% premium. The soft cap prevents very high-scoring
+    matches from producing runaway XP totals.
+
+    Examples (win / loss):
+        4:0  →   5.5 /  5.0 XP
+        4:1  →  16.2 / 14.7 XP
+        4:2  →  33.9 / 30.8 XP
+        4:3  →  60.5 / 56.4 XP  (soft cap active)
+        5:3  →  76.1 / 74.5 XP
+        6:4+ →  ~80 XP (asymptote)
     """
     total_score = own_score + opp_score
-    # normalize score so 4:0 is base
     score_base = exp((2 * total_score - 8) / 4)
     win_mult = 1.1 if own_score > opp_score else 1.0
     raw = (MATCH_LENGTH_BONUS_SCALE * score_base - MATCH_LENGTH_BONUS_OFFSET) * win_mult
@@ -275,10 +361,22 @@ def match_length_bonus(own_score: int, opp_score: int) -> float:
 
 def performance_bonus_win(elo_gain: float, own_score: int, opp_score: int) -> float:
     """
-    Performance bonus for a win based on ELO gain and score difference.
+    Performance bonus for a win, combining ELO gain and score dominance.
 
-    A soft cap is applied to prevent outsized rewards from simultaneously
-    high ELO gains and dominant score margins.
+    Formula:
+        perf_bonus   = 60 * (1 - exp(-1.5 * elo_gain / 60))
+        score_factor = (1 + (own_score - opp_score) / max_score) * 40
+        raw = perf_bonus + score_factor
+        result = soft_cap(raw, threshold=90, scale=25)
+
+    The ELO component uses a saturating curve so upset wins (high elo_gain)
+    are rewarded but cannot grow unboundedly. The score factor rewards
+    dominant victories. Soft cap keeps combined extremes in check.
+
+    Examples (elo_gain=20):
+        4:0 →  87.1 XP   4:2 →  78.8 XP   4:3 →  72.5 XP
+    Examples (elo_gain=100):
+        4:0 → 110.9 XP   4:2 → 102.6 XP
     """
     perf = PERFORMANCE_WIN_MULTIPLIER * max(elo_gain, 0.0)
     perf_bonus = PERFORMANCE_WIN_BASE * (1 - exp(-perf / PERFORMANCE_WIN_BASE))
@@ -294,10 +392,24 @@ def performance_bonus_loss(
     opp_score: int,
 ) -> float:
     """
-    Performance bonus for a loss, mirroring win bonus structure.
+    Performance bonus for a loss, rewarding underdogs and close defeats.
 
-    Only underdogs (opponent ELO > own ELO) receive the ELO-based component.
-    A soft cap replaces the previous hard cap for smoother scaling.
+    Formula:
+        elo_diff     = max(opp_elo - own_elo, 0)   (0 when not an underdog)
+        elo_bonus    = 35 * (1 - exp(-0.9 * elo_diff / 35))
+        closeness    = 1 - (score_diff / max_score)   (1.0 = close, 0.0 = dominant)
+        score_factor = closeness * 40
+        raw = elo_bonus + score_factor
+        result = soft_cap(raw, threshold=30, scale=15)
+
+    Only underdogs (opp_elo > own_elo) receive the ELO component. The score
+    component is available to any loser based on match closeness.
+
+    Examples:
+        1000 vs 1000, 3:4 → 30.0 XP  (score component only)
+        1000 vs 1000, 0:4 →  0.0 XP  (no closeness, no underdog advantage)
+        900 vs 1100,  3:4 → 43.5 XP  (soft cap active)
+        900 vs 1100,  0:4 → 34.1 XP
     """
     max_score = max(own_score, opp_score)
     if max_score == 0:
@@ -317,7 +429,15 @@ def performance_bonus_loss(
 
 
 def apply_soft_cap(xp: float) -> float:
-    """Apply a soft cap to total XP gains above the match threshold."""
+    """
+    Apply a soft cap to the total XP for a single match event.
+
+    Values at or below 500 XP pass through unchanged. Above 500, gains are
+    compressed asymptotically toward ~700 XP (threshold=500, scale=200).
+
+    This cap is applied to the fully assembled match XP (after prestige
+    multiplier) and also to the season matchday bonus addition.
+    """
     if xp <= SOFT_CAP_THRESHOLD:
         return xp
     overflow = xp - SOFT_CAP_THRESHOLD
@@ -336,9 +456,22 @@ def compute_match_xp(
     prestige: int,
 ) -> dict:
     """
-    Compute XP breakdown for a single bey in a single match.
+    Compute the full XP breakdown for a single bey in a single match.
 
-    Returns a dict with all component values and the capped total.
+    Assembly order:
+        1. base_xp + result_bonus + performance_bonus + high_stakes_bonus
+           + match_length_bonus  →  component_sum
+        2. component_sum * (1 + streak_multiplier)  →  raw_xp
+        3. raw_xp * prestige_multiplier             →  pre_cap_xp
+        4. apply_soft_cap(pre_cap_xp)               →  total_xp
+
+    The streak multiplier is only applied on wins; prestige multiplier
+    applies to all matches.
+
+    Returns a dict with keys:
+        base_xp, result_bonus, performance_bonus, high_stakes_bonus,
+        match_length_bonus, streak_bonus, prestige_multiplier,
+        total_xp, elo_gain, won, win_streak
     """
     base = BASE_XP
     result_bonus = WIN_BONUS if won else LOSS_BONUS
@@ -375,8 +508,16 @@ def placement_multiplier(rank: int, total: int) -> float:
     """
     Return the XP multiplier for a bey finishing *rank*-th out of *total*.
 
-    rank is 1-indexed (1 = winner).  Returns 1.0 (participation) when *total*
+    rank is 1-indexed (1 = winner). Returns 1.0 (participation) when *total*
     or *rank* is not positive (invalid input).
+
+    Multiplier table:
+        1st       → 2.2x
+        2nd       → 1.8x
+        Top 10%   → 1.5x
+        Top 25%   → 1.25x
+        Top 50%   → 1.15x
+        Rest      → 1.0x
     """
     if total <= 0 or rank <= 0:
         return 1.0
@@ -395,7 +536,17 @@ def placement_multiplier(rank: int, total: int) -> float:
 
 
 def compute_tournament_xp(rank: int, participants: int) -> float:
-    """Return XP awarded for a tournament placement."""
+    """
+    Return the XP awarded for a tournament placement.
+
+    Formula:
+        base       = 180 + 32 * participants
+        size_bonus = 1 + ((participants / 8)^2 / 100)
+        total      = base * placement_multiplier(rank, participants) * size_bonus
+
+    The size_bonus provides a small quadratic scaling for larger tournaments,
+    e.g. 8 participants → 1.01x, 16 participants → 1.04x, 32 → 1.16x.
+    """
     base = TOURNAMENT_BASE + TOURNAMENT_PARTICIPANTS_FACTOR * participants
     size_bonus = 1 + (((participants / 8) ** 2) / 100)
     mult = placement_multiplier(rank, participants) * size_bonus
@@ -407,16 +558,30 @@ def compute_tournament_xp(rank: int, participants: int) -> float:
 # ---------------------------------------------------------------------------
 
 def season_matchday_xp(tier: int) -> int:
-    """Return per-matchday XP bonus for the given tier (1-4)."""
+    """
+    Return the flat per-matchday XP bonus for the given season tier (1–4).
+
+    Tier 1 → 100 XP | Tier 2 → 80 XP | Tier 3 → 60 XP | Tier 4 → 40 XP
+
+    Returns 0 for any tier not in the table.
+    """
     return SEASON_MATCHDAY_XP.get(tier, 0)
 
 
 def season_end_xp(season_total_xp: float, placement: int, tier: int) -> float:
     """
-    Return the end-of-season bonus XP.
+    Return the end-of-season bonus XP for a bey.
 
-    The bonus is (multiplier - 1) * season_total_xp so that the total
-    season contribution becomes season_total_xp * multiplier.
+    The bonus is additive: (combined_multiplier - 1) * season_total_xp,
+    so the bey's total season contribution becomes season_total_xp * combined_multiplier.
+
+    combined_multiplier = placement_mult * tier_mult
+
+    Placement multipliers: 1st → 2.5x | 2nd → 2.25x | 3rd → 1.8x | 4th → 1.3x | rest → 1.0x
+    Tier multipliers:      Tier 1 → 1.5x | Tier 2 → 1.3x | Tier 3 → 1.15x | Tier 4 → 1.0x
+
+    Example: 1st place in Tier 1 with 900 XP earned during the season:
+        combined = 2.5 * 1.5 = 3.75x  →  bonus = (3.75 - 1) * 900 = 2,475 XP
     """
     mult = SEASON_PLACEMENT_MULTIPLIER.get(placement, 1.0) * SEASON_PLACEMENT_TIER_MULTIPLIER.get(tier, 1.0)
     return round((mult - 1.0) * season_total_xp, 2)
@@ -455,7 +620,14 @@ def _default_bey_state() -> dict:
 
 
 def _apply_xp(state: dict, xp: float) -> None:
-    """Add *xp* to bey *state*, handling level-ups and prestige resets."""
+    """
+    Add *xp* to bey *state*, handling level-ups and prestige resets.
+
+    Level-ups cascade: if enough XP is added to cross multiple level
+    thresholds in one call, all intermediate levels are processed.
+    When level reaches PRESTIGE_LEVEL (50), prestige is incremented,
+    level resets to 1, and both xp and xp_in_level reset to 0.
+    """
     state["xp"] += xp
     state["xp_in_level"] += xp
     # Check for level-ups (may cascade)
@@ -479,7 +651,7 @@ def _apply_xp(state: dict, xp: float) -> None:
 # ---------------------------------------------------------------------------
 
 def load_matches(path: str) -> list:
-    """Load matches CSV, sorted chronologically."""
+    """Load matches CSV, sorted chronologically by Date."""
     rows = []
     with open(path, newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
@@ -492,8 +664,11 @@ def load_elo_history(path: str) -> dict:
     """
     Load ELO history CSV and index by MatchID.
 
-    Returns a dict: {match_id: {"bey_a": ..., "bey_b": ...}}
-    where each inner value is a dict with pre/post ELO for BeyA and BeyB.
+    Returns a dict: {match_id: {"BeyA": str, "BeyB": str,
+                                "PreA": float, "PreB": float,
+                                "PostA": float, "PostB": float,
+                                "arena_updated": str}}
+    Returns an empty dict if the file does not exist.
     """
     index = {}
     if not os.path.exists(path):
@@ -524,6 +699,8 @@ def load_tournament_placements(path: str) -> tuple:
     *Flat (legacy)*: tournament IDs are top-level keys.
     *Nested*: a ``"tournaments"`` key holds the placements dict and an optional
     ``"season_end_placements"`` key holds end-of-season placement data.
+
+    Keys starting with ``_`` are treated as comments and ignored in both formats.
 
     Returns:
         (tournaments_dict, season_end_dict) where each value is a plain dict.
@@ -559,11 +736,16 @@ def _iter_tier_placements(season_end_entry: dict):
     """
     Yield (tier_key, placements_list) pairs from a season_end entry.
 
-    Supports both:
-      1) Legacy single list: {"placements": [...]}
-      2) Tiered format:
-         {"tiers": {"1": {"placements": [...]}, "2": {"placements": [...]}}}
-         or {"tiers": {"1": [...], "2": [...]}}
+    Supports two formats:
+
+    1) Legacy single list:
+       {"placements": ["BeyA", "BeyB", ...]}
+       → yields ("all", [...])
+
+    2) Tiered format (tier values may be a list or a dict with a
+       "placements" key):
+       {"tiers": {"1": ["BeyA", ...], "2": {"placements": ["BeyC", ...]}}}
+       → yields ("1", [...]), ("2", [...])
     """
     if not isinstance(season_end_entry, dict):
         return
