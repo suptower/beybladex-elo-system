@@ -135,7 +135,8 @@ const MATCH_TYPE_STYLES = {
     exhibition: { color: '#6b7280', bgColor: 'rgba(107, 114, 128, 0.15)', label: 'Exhibition', icon: '⚔️' },
     season: { color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.15)', label: 'Season', icon: '🏆' },
     relegation: { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', label: 'Relegation', icon: '⚠️' },
-    season_cup: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Season Cup', icon: '🏅' }
+    season_cup: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Season Cup', icon: '🏅' },
+    qualification: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.15)', label: 'Qualification', icon: '💰' }
 };
 
 // Helper function to create match type badge
