@@ -18,8 +18,11 @@ from src.analytics.xp_system import (
     PRESTIGE_LEVEL,
     PRESTIGE_XP_BONUS_CAP,
     PRESTIGE_XP_BONUS_PER_LEVEL,
+    QUALIFICATION_XP,
+    SEASON_CUP_XP,
     SOFT_CAP_SCALE,
     SOFT_CAP_THRESHOLD,
+    TOURNAMENT_MATCH_XP,
     WIN_BONUS,
     _apply_xp,
     _default_bey_state,
@@ -33,9 +36,12 @@ from src.analytics.xp_system import (
     performance_bonus_win,
     placement_multiplier,
     prestige_multiplier,
+    qualification_match_xp,
+    season_cup_match_xp,
     season_end_xp,
     season_matchday_xp,
     streak_bonus,
+    tournament_match_xp,
     xp_needed_for_level,
 )
 
@@ -231,6 +237,49 @@ class TestSeasonXp:
 
     def test_season_end_no_bonus_outside_top4(self):
         assert season_end_xp(1000.0, 5, 4) == 0.0
+
+
+class TestQualificationXp:
+    def test_returns_qualification_xp_constant(self):
+        assert qualification_match_xp() == QUALIFICATION_XP
+
+    def test_value_is_positive(self):
+        assert QUALIFICATION_XP > 0
+
+
+class TestSeasonCupMatchXp:
+    def test_known_rounds(self):
+        assert season_cup_match_xp("season_cup") == SEASON_CUP_XP["season_cup"]
+        assert season_cup_match_xp("season_cup_quarter") == SEASON_CUP_XP["season_cup_quarter"]
+        assert season_cup_match_xp("season_cup_semi") == SEASON_CUP_XP["season_cup_semi"]
+        assert season_cup_match_xp("season_cup_final") == SEASON_CUP_XP["season_cup_final"]
+
+    def test_unknown_returns_zero(self):
+        assert season_cup_match_xp("unknown_type") == 0
+
+    def test_later_rounds_award_more_xp(self):
+        assert SEASON_CUP_XP["season_cup_final"] > SEASON_CUP_XP["season_cup_semi"]
+        assert SEASON_CUP_XP["season_cup_semi"] > SEASON_CUP_XP["season_cup_quarter"]
+        assert SEASON_CUP_XP["season_cup_quarter"] > SEASON_CUP_XP["season_cup"]
+
+
+class TestTournamentMatchXp:
+    def test_known_rounds(self):
+        assert tournament_match_xp("tournament") == TOURNAMENT_MATCH_XP["tournament"]
+        assert tournament_match_xp("tournament_ro16") == TOURNAMENT_MATCH_XP["tournament_ro16"]
+        assert tournament_match_xp("tournament_quarter") == TOURNAMENT_MATCH_XP["tournament_quarter"]
+        assert tournament_match_xp("tournament_semi") == TOURNAMENT_MATCH_XP["tournament_semi"]
+        assert tournament_match_xp("tournament_final") == TOURNAMENT_MATCH_XP["tournament_final"]
+
+    def test_unknown_returns_zero(self):
+        assert tournament_match_xp("exhibition") == 0
+        assert tournament_match_xp("unknown_type") == 0
+
+    def test_later_rounds_award_more_xp(self):
+        assert TOURNAMENT_MATCH_XP["tournament_final"] > TOURNAMENT_MATCH_XP["tournament_semi"]
+        assert TOURNAMENT_MATCH_XP["tournament_semi"] > TOURNAMENT_MATCH_XP["tournament_quarter"]
+        assert TOURNAMENT_MATCH_XP["tournament_quarter"] > TOURNAMENT_MATCH_XP["tournament_ro16"]
+        assert TOURNAMENT_MATCH_XP["tournament_ro16"] > TOURNAMENT_MATCH_XP["tournament"]
 
 
 class TestApplyXp:
