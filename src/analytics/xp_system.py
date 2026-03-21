@@ -46,11 +46,16 @@ XP Formula (per match):
 
 Match Type Bonuses (added to total_xp, then re-soft-capped):
     season / relegation  →  season_matchday_xp(tier): 40–100 XP (tier-dependent)
-    qualification        →  QUALIFICATION_XP: 60 XP (flat, no tier context)
+    qualification        →  QUALIFICATION_XP: 30 XP (flat, no tier context)
     season_cup           →  SEASON_CUP_XP["season_cup"]: 80 XP
     season_cup_quarter   →  SEASON_CUP_XP["season_cup_quarter"]: 100 XP
     season_cup_semi      →  SEASON_CUP_XP["season_cup_semi"]: 130 XP
     season_cup_final     →  SEASON_CUP_XP["season_cup_final"]: 180 XP
+    tournament           →  TOURNAMENT_MATCH_XP["tournament"]: 60 XP
+    tournament_ro16      →  TOURNAMENT_MATCH_XP["tournament_ro16"]: 80 XP
+    tournament_quarter   →  TOURNAMENT_MATCH_XP["tournament_quarter"]: 100 XP
+    tournament_semi      →  TOURNAMENT_MATCH_XP["tournament_semi"]: 130 XP
+    tournament_final     →  TOURNAMENT_MATCH_XP["tournament_final"]: 180 XP
     exhibition           →  no bonus
 
 Level Curve:
@@ -205,6 +210,20 @@ SEASON_CUP_XP = {
     "season_cup_quarter": 100,
     "season_cup_semi": 130,
     "season_cup_final": 180,
+}
+
+# Tournament match per-round XP bonus (keyed by MatchType value).
+# Use 'tournament'        for regular matches (group stage / default),
+#     'tournament_ro16'   for round of 16,
+#     'tournament_quarter' for quarter-finals,
+#     'tournament_semi'   for semi-finals,
+#     'tournament_final'  for the final.
+TOURNAMENT_MATCH_XP = {
+    "tournament": 60,
+    "tournament_ro16": 80,
+    "tournament_quarter": 100,
+    "tournament_semi": 130,
+    "tournament_final": 180,
 }
 
 
@@ -599,7 +618,7 @@ def qualification_match_xp() -> int:
     Qualification matches have no tier context; both participants receive
     the same bonus regardless of their current ranking.
 
-    Value: QUALIFICATION_XP (default 60 XP)
+    Value: QUALIFICATION_XP (default 30 XP)
     """
     return QUALIFICATION_XP
 
@@ -617,6 +636,22 @@ def season_cup_match_xp(match_type: str) -> int:
     Returns 0 for unrecognised match types (fail-safe).
     """
     return SEASON_CUP_XP.get(match_type, 0)
+
+
+def tournament_match_xp(match_type: str) -> int:
+    """
+    Return the XP bonus for a tournament match based on the round.
+
+    The round is encoded directly in the MatchType field:
+        tournament         →  60 XP  (regular / group stage)
+        tournament_ro16    →  80 XP  (round of 16)
+        tournament_quarter → 100 XP  (quarter-final)
+        tournament_semi    → 130 XP  (semi-final)
+        tournament_final   → 180 XP  (final)
+
+    Returns 0 for unrecognised match types (fail-safe).
+    """
+    return TOURNAMENT_MATCH_XP.get(match_type, 0)
 
 
 def season_end_xp(season_total_xp: float, placement: int, tier: int) -> float:
@@ -975,6 +1010,7 @@ def run_xp_pipeline() -> None:
                     xp_dict["season_matchday_xp"] = md_xp
                     xp_dict["qualification_xp"] = 0
                     xp_dict["season_cup_xp"] = 0
+                    xp_dict["tournament_match_xp"] = 0
                     xp_dict["total_xp"] = round(
                         apply_soft_cap(xp_dict["total_xp"] + md_xp), 2
                     )
@@ -984,6 +1020,7 @@ def run_xp_pipeline() -> None:
                     xp_dict["season_matchday_xp"] = 0
                     xp_dict["qualification_xp"] = q_xp
                     xp_dict["season_cup_xp"] = 0
+                    xp_dict["tournament_match_xp"] = 0
                     xp_dict["total_xp"] = round(
                         apply_soft_cap(xp_dict["total_xp"] + q_xp), 2
                     )
@@ -993,8 +1030,19 @@ def run_xp_pipeline() -> None:
                     xp_dict["season_matchday_xp"] = 0
                     xp_dict["qualification_xp"] = 0
                     xp_dict["season_cup_xp"] = cup_xp
+                    xp_dict["tournament_match_xp"] = 0
                     xp_dict["total_xp"] = round(
                         apply_soft_cap(xp_dict["total_xp"] + cup_xp), 2
+                    )
+            elif match_type in TOURNAMENT_MATCH_XP:
+                t_match_xp = tournament_match_xp(match_type)
+                for xp_dict in (xp_a, xp_b):
+                    xp_dict["season_matchday_xp"] = 0
+                    xp_dict["qualification_xp"] = 0
+                    xp_dict["season_cup_xp"] = 0
+                    xp_dict["tournament_match_xp"] = t_match_xp
+                    xp_dict["total_xp"] = round(
+                        apply_soft_cap(xp_dict["total_xp"] + t_match_xp), 2
                     )
             else:
                 xp_a["season_matchday_xp"] = 0
@@ -1003,6 +1051,8 @@ def run_xp_pipeline() -> None:
                 xp_b["qualification_xp"] = 0
                 xp_a["season_cup_xp"] = 0
                 xp_b["season_cup_xp"] = 0
+                xp_a["tournament_match_xp"] = 0
+                xp_b["tournament_match_xp"] = 0
 
             if season_id and tier is not None:
                 md_xp_for_season = season_matchday_xp(tier)
