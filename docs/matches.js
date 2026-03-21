@@ -5,6 +5,7 @@ let beysData = [];
 let rpgStatsData = {};
 let archetypeMap = {}; // Lookup map for O(1) archetype access
 let roundsData = {}; // Mapping of match_id to rounds array
+let xpHistoryData = {}; // XP breakdown per match, keyed by raw MatchID
 let currentSort = { column: 0, asc: false }; // Default: Match ID descending (Match ID is now column index 0)
 let currentPage = 1;
 let pageSize = 50;
@@ -184,6 +185,18 @@ async function loadRoundsData() {
     }
 }
 
+// Load XP history data from xp_history.json
+async function loadXpHistory() {
+    try {
+        const response = await fetch(DATA_PATHS.XP_HISTORY_JSON);
+        xpHistoryData = await response.json();
+        console.log(`Loaded XP history for ${Object.keys(xpHistoryData).length} matches`);
+    } catch (error) {
+        // XP data may not yet exist (pipeline not yet run) – degrade gracefully
+        xpHistoryData = {};
+    }
+}
+
 // Load extended match history from elo_history.csv
 async function loadMatches() {
     try {
@@ -240,6 +253,7 @@ async function loadMatches() {
                 eloDiff: Math.round(Math.abs(preA - preB)),
                 winner: scoreA > scoreB ? values[2] : values[3],
                 rounds: roundsData[rawMatchId] || [], // Use original ID for roundsData lookup
+                xpEntry: xpHistoryData[rawMatchId] || null, // XP breakdown for this match
                 arena: arena,
                 matchType: matchType,
                 seasonId: seasonId,
@@ -789,11 +803,12 @@ function displayMatches() {
         tdRounds.className = 'rounds-cell';
         const hasRounds = match.rounds && match.rounds.length > 0;
         const hasEloCalc = match.kBaseA !== null;
-        if (hasRounds || hasEloCalc) {
+        const hasXpData = match.xpEntry !== null;
+        if (hasRounds || hasEloCalc || hasXpData) {
             const expandBtn = document.createElement('button');
             expandBtn.className = 'rounds-expand-btn';
             expandBtn.dataset.matchId = match.matchId;
-            expandBtn.title = hasRounds ? `Show ${match.rounds.length} rounds & ELO details` : 'Show ELO details';
+            expandBtn.title = hasRounds ? `Show ${match.rounds.length} rounds & details` : 'Show details';
             const isExpanded = expandedMatches.has(match.matchId);
             expandBtn.innerHTML = isExpanded ? '▲' : '▼';
             expandBtn.setAttribute('aria-expanded', isExpanded);
@@ -811,7 +826,7 @@ function displayMatches() {
         tbody.appendChild(row);
         
         // Add rounds detail row if expanded
-        if ((match.rounds && match.rounds.length > 0 || match.kBaseA !== null) && expandedMatches.has(match.matchId)) {
+        if ((match.rounds && match.rounds.length > 0 || match.kBaseA !== null || match.xpEntry !== null) && expandedMatches.has(match.matchId)) {
             const roundsRow = createRoundsDetailRow(match);
             tbody.appendChild(roundsRow);
         }
@@ -826,8 +841,10 @@ function displayMatches() {
         
         const hasRounds = match.rounds && match.rounds.length > 0;
         const hasEloCalc = match.kBaseA !== null;
+        const hasXpData = match.xpEntry !== null;
         const roundsHtml = hasRounds ? createMobileRoundsHtml(match) : '';
         const eloBreakdownHtml = createEloBreakdownHtml(match);
+        const xpBreakdownHtml = createXpBreakdownHtml(match);
         const isExpanded = expandedMatches.has(match.matchId);
         
         // Create delta badge HTML for mobile using utility function
@@ -877,15 +894,16 @@ function displayMatches() {
             <div class="card-footer">
                 Winner: <strong><a href="bey.html?name=${encodeURIComponent(match.winner)}" class="bey-link">${match.winner}</a></strong>
             </div>
-            ${(hasRounds || hasEloCalc) ? `
+            ${(hasRounds || hasEloCalc || hasXpData) ? `
             <div class="card-rounds-section">
                 <button class="card-rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMobileRounds('${match.matchId}')">
                     <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
-                    ${hasRounds ? `Show Rounds (${match.rounds.length}) & ELO Details` : 'Show ELO Details'}
+                    ${hasRounds ? `Show Rounds (${match.rounds.length}) & Details` : 'Show Details'}
                 </button>
                 <div class="card-rounds-content ${isExpanded ? 'expanded' : ''}" id="mobile-rounds-${match.matchId}">
                     ${roundsHtml}
                     ${eloBreakdownHtml}
+                    ${xpBreakdownHtml}
                 </div>
             </div>
             ` : ''}
@@ -1218,6 +1236,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Load rounds data before loading matches
     await loadRoundsData();
+
+    // Load XP history data before loading matches
+    await loadXpHistory();
     
     // Load matches
     await loadMatches();
@@ -1344,6 +1365,7 @@ function createRoundsDetailRow(match) {
 
     html += `
             ${createEloBreakdownHtml(match)}
+            ${createXpBreakdownHtml(match)}
         </div>
     `;
     
@@ -1366,65 +1388,159 @@ function createEloBreakdownHtml(match) {
 
     return `
         <div class="elo-breakdown">
-            <div class="elo-breakdown-header">
-                <span class="elo-breakdown-title">⚡ ELO Calculation Breakdown</span>
-            </div>
-            <table class="elo-breakdown-table">
-                <thead>
-                    <tr>
-                        <th>Parameter</th>
-                        <th>${match.beyA}</th>
-                        <th>${match.beyB}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="elo-param-label">Pre-Match ELO</td>
-                        <td class="elo-param-value">${match.preEloA}</td>
-                        <td class="elo-param-value">${match.preEloB}</td>
-                    </tr>
-                    <tr>
-                        <td class="elo-param-label">K<sub>base</sub> (smooth)</td>
-                        <td class="elo-param-value">${fmt2(match.kBaseA)}</td>
-                        <td class="elo-param-value">${fmt2(match.kBaseB)}</td>
-                    </tr>
-                    <tr>
-                        <td class="elo-param-label">K<sub>eff</sub> (form adj.)</td>
-                        <td class="elo-param-value">${fmt2(match.kEffA)}</td>
-                        <td class="elo-param-value">${fmt2(match.kEffB)}</td>
-                    </tr>
-                    <tr>
-                        <td class="elo-param-label">form<sub>ema</sub></td>
-                        <td class="elo-param-value">${match.formEmaA != null ? fmt4(match.formEmaA) : '—'}</td>
-                        <td class="elo-param-value">${match.formEmaB != null ? fmt4(match.formEmaB) : '—'}</td>
-                    </tr>
-                    <tr>
-                        <td class="elo-param-label">E (expected)</td>
-                        <td class="elo-param-value">${fmt4(match.expA)}</td>
-                        <td class="elo-param-value">${fmt4(match.expB)}</td>
-                    </tr>
-                    <tr>
-                        <td class="elo-param-label">S (actual / margin)</td>
-                        <td class="elo-param-value">${fmt4(match.actA)}</td>
-                        <td class="elo-param-value">${fmt4(match.actB)}</td>
-                    </tr>
-                    <tr>
-                        <td class="elo-param-label">S − E</td>
-                        <td class="elo-param-value">${fmt4(match.actA - match.expA)}</td>
-                        <td class="elo-param-value">${fmt4(match.actB - match.expB)}</td>
-                    </tr>
-                    <tr class="elo-result-row">
-                        <td class="elo-param-label">ΔR = K<sub>eff</sub> · (S − E)</td>
-                        <td class="elo-param-value ${eloChangeA >= 0 ? 'elo-gain' : 'elo-loss'}">${signA}${eloChangeA}</td>
-                        <td class="elo-param-value ${eloChangeB >= 0 ? 'elo-gain' : 'elo-loss'}">${signB}${eloChangeB}</td>
-                    </tr>
-                    <tr>
-                        <td class="elo-param-label">Post-Match ELO</td>
-                        <td class="elo-param-value">${match.postEloA}</td>
-                        <td class="elo-param-value">${match.postEloB}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <details class="calc-breakdown-details">
+                <summary class="elo-breakdown-header calc-breakdown-header">
+                    <span class="elo-breakdown-title">⚡ ELO Calculation Breakdown</span>
+                </summary>
+                <table class="elo-breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>${match.beyA}</th>
+                            <th>${match.beyB}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="elo-param-label">Pre-Match ELO</td>
+                            <td class="elo-param-value">${match.preEloA}</td>
+                            <td class="elo-param-value">${match.preEloB}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">K<sub>base</sub> (smooth)</td>
+                            <td class="elo-param-value">${fmt2(match.kBaseA)}</td>
+                            <td class="elo-param-value">${fmt2(match.kBaseB)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">K<sub>eff</sub> (form adj.)</td>
+                            <td class="elo-param-value">${fmt2(match.kEffA)}</td>
+                            <td class="elo-param-value">${fmt2(match.kEffB)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">form<sub>ema</sub></td>
+                            <td class="elo-param-value">${match.formEmaA != null ? fmt4(match.formEmaA) : '—'}</td>
+                            <td class="elo-param-value">${match.formEmaB != null ? fmt4(match.formEmaB) : '—'}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">E (expected)</td>
+                            <td class="elo-param-value">${fmt4(match.expA)}</td>
+                            <td class="elo-param-value">${fmt4(match.expB)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">S (actual / margin)</td>
+                            <td class="elo-param-value">${fmt4(match.actA)}</td>
+                            <td class="elo-param-value">${fmt4(match.actB)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">S − E</td>
+                            <td class="elo-param-value">${fmt4(match.actA - match.expA)}</td>
+                            <td class="elo-param-value">${fmt4(match.actB - match.expB)}</td>
+                        </tr>
+                        <tr class="elo-result-row">
+                            <td class="elo-param-label">ΔR = K<sub>eff</sub> · (S − E)</td>
+                            <td class="elo-param-value ${eloChangeA >= 0 ? 'elo-gain' : 'elo-loss'}">${signA}${eloChangeA}</td>
+                            <td class="elo-param-value ${eloChangeB >= 0 ? 'elo-gain' : 'elo-loss'}">${signB}${eloChangeB}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Post-Match ELO</td>
+                            <td class="elo-param-value">${match.postEloA}</td>
+                            <td class="elo-param-value">${match.postEloB}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </details>
+        </div>
+    `;
+}
+
+// Create XP calculation breakdown HTML for a match
+function createXpBreakdownHtml(match) {
+    if (!match.xpEntry) return '';
+
+    const xpA = match.xpEntry.bey_a;
+    const xpB = match.xpEntry.bey_b;
+
+    const numOrZero = v => Number(v || 0);
+    const fmt1 = v => Number(numOrZero(v)).toFixed(1);
+    const fmtMult = v => (v != null ? `×${Number(v).toFixed(2)}` : '—');
+
+    const streakPct = bonus => {
+        const n = Number(numOrZero(bonus));
+        if (!Number.isFinite(n)) return 0;
+        if (Math.abs(n) <= 1) return Math.round(n * 100);
+        return Math.round(n);
+    };
+    const streakText = side => `${streakPct(side.streak_bonus)}% (${Number(side.win_streak || 0)})`;
+
+    return `
+        <div class="elo-breakdown">
+            <details class="calc-breakdown-details">
+                <summary class="elo-breakdown-header calc-breakdown-header">
+                    <span class="elo-breakdown-title">🎮 XP Calculation Breakdown</span>
+                </summary>
+                <table class="elo-breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>${match.beyA}</th>
+                            <th>${match.beyB}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="elo-param-label">Result</td>
+                            <td class="elo-param-value">${xpA.won ? '🏆 Win' : '💀 Loss'}</td>
+                            <td class="elo-param-value">${xpB.won ? '🏆 Win' : '💀 Loss'}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Base XP</td>
+                            <td class="elo-param-value">${xpA.base_xp}</td>
+                            <td class="elo-param-value">${xpB.base_xp}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Result Bonus</td>
+                            <td class="elo-param-value">+${xpA.result_bonus}</td>
+                            <td class="elo-param-value">+${xpB.result_bonus}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Performance Bonus</td>
+                            <td class="elo-param-value">+${fmt1(xpA.performance_bonus)}</td>
+                            <td class="elo-param-value">+${fmt1(xpB.performance_bonus)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">High Stakes Bonus</td>
+                            <td class="elo-param-value">+${fmt1(xpA.high_stakes_bonus)}</td>
+                            <td class="elo-param-value">+${fmt1(xpB.high_stakes_bonus)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Match Length Bonus</td>
+                            <td class="elo-param-value">+${fmt1(xpA.match_length_bonus)}</td>
+                            <td class="elo-param-value">+${fmt1(xpB.match_length_bonus)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Streak Bonus</td>
+                            <td class="elo-param-value">${streakText(xpA)}</td>
+                            <td class="elo-param-value">${streakText(xpB)}</td>
+                        </tr>
+                        ${(xpA.season_matchday_xp || xpB.season_matchday_xp) ? `
+                        <tr>
+                            <td class="elo-param-label">Season Tier Bonus</td>
+                            <td class="elo-param-value">+${xpA.season_matchday_xp}</td>
+                            <td class="elo-param-value">+${xpB.season_matchday_xp}</td>
+                        </tr>` : ''}
+                        <tr>
+                            <td class="elo-param-label">Prestige Multiplier</td>
+                            <td class="elo-param-value">${fmtMult(xpA.prestige_multiplier)}</td>
+                            <td class="elo-param-value">${fmtMult(xpB.prestige_multiplier)}</td>
+                        </tr>
+                        <tr class="elo-result-row">
+                            <td class="elo-param-label">Total XP Gained</td>
+                            <td class="elo-param-value elo-gain">+${fmt1(xpA.total_xp)}</td>
+                            <td class="elo-param-value elo-gain">+${fmt1(xpB.total_xp)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </details>
         </div>
     `;
 }
@@ -1511,7 +1627,7 @@ function toggleRoundsRow(matchId) {
         
         // Find the match data
         const match = filteredMatches.find(m => m.matchId === matchId);
-        if (match && (match.rounds && match.rounds.length > 0 || match.kBaseA !== null)) {
+        if (match && (match.rounds && match.rounds.length > 0 || match.kBaseA !== null || match.xpEntry !== null)) {
             // Find the main row and insert rounds row after it
             const mainRow = document.querySelector(`tr[data-match-id="${matchId}"]:not(.rounds-detail-row)`);
             if (mainRow) {

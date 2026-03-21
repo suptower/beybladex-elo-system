@@ -351,6 +351,8 @@ let allEloHistoryData = [];
 let rpgStatsData = null;
 let countersData = [];
 let seasonData = {};
+let xpLeaderboardData = null;
+let xpHistoryData = null;
 let currentArena = localStorage.getItem('beyPageArena') || 'xtreme'; // Track current arena for plots, load from localStorage
 
 // Helper function to normalize bey names for comparison
@@ -574,6 +576,28 @@ async function loadData() {
             console.warn('Could not load season data:', e);
             seasonData = {};
         }
+
+        // Load XP leaderboard data
+        try {
+            const xpResponse = await fetch(DATA_PATHS.XP_LEADERBOARD_JSON);
+            const xpAll = await xpResponse.json();
+            const normalizedName = normalizeBeyName(beyName);
+            xpLeaderboardData = xpAll.find(e =>
+                normalizeBeyName(e.bey) === normalizedName
+            ) || null;
+        } catch (e) {
+            console.warn('Could not load XP leaderboard data:', e);
+            xpLeaderboardData = null;
+        }
+
+        // Load XP history data
+        try {
+            const xpHistoryResponse = await fetch(DATA_PATHS.XP_HISTORY_JSON);
+            xpHistoryData = await xpHistoryResponse.json();
+        } catch (e) {
+            console.warn('Could not load XP history data:', e);
+            xpHistoryData = null;
+        }
         
         // Render the profile
         renderProfile();
@@ -670,6 +694,9 @@ function renderProfile() {
     
     // Render history and timeline section
     renderHistorySection();
+
+    // Render XP history section
+    renderXpHistorySection();
     
     // Render counters and matchups section
     renderCountersSection();
@@ -893,15 +920,15 @@ function renderKeyStats() {
     const keyStatsSection = document.getElementById('keyStatsSection');
     keyStatsGrid.innerHTML = '';
     
-    if (!leaderboardData) {
+    if (!leaderboardData && !xpLeaderboardData) {
         return;
     }
     
-    const elo = leaderboardData.ELO;
-    const powerIndex = leaderboardData.PowerIndex;
+    const elo = leaderboardData ? leaderboardData.ELO : null;
+    const powerIndex = leaderboardData ? leaderboardData.PowerIndex : null;
     
     // Only show if we have at least one key stat
-    if (!elo && !powerIndex) {
+    if (!elo && !powerIndex && !xpLeaderboardData) {
         return;
     }
     
@@ -933,6 +960,32 @@ function renderKeyStats() {
         `;
         keyStatsGrid.appendChild(pwrCard);
     }
+
+    // XP Level Card
+    if (xpLeaderboardData) {
+        const lvl = xpLeaderboardData.level;
+        const prestige = xpLeaderboardData.prestige || 0;
+        const xpIn = xpLeaderboardData.xp_in_level || 0;
+        const xpNeeded = xpLeaderboardData.xp_needed_for_level || 1;
+        const pct = Math.min((xpIn / xpNeeded) * 100, 100).toFixed(1);
+        const prestigeStars = prestige > 0 ? ' ' + '⭐'.repeat(Math.min(prestige, 5)) : '';
+        const xpCard = document.createElement('div');
+        xpCard.className = 'key-stat-card';
+        xpCard.innerHTML = `
+            <div class="key-stat-label">Level</div>
+            <div class="key-stat-value">Lv.${lvl}${escapeHtml(prestigeStars)}</div>
+            <div class="key-stat-desc">
+                <div style="margin-bottom:4px;">${Math.round(xpIn)} / ${Math.round(xpNeeded)} XP</div>
+                <div style="background:var(--bg-light,#e0e0e0);border-radius:4px;height:6px;overflow:hidden;">
+                    <div style="background:var(--accent,#4CAF50);width:${pct}%;height:100%;border-radius:4px;"></div>
+                </div>
+            </div>
+        `;
+        xpCard.title = `Rank #${xpLeaderboardData.rank} on XP Leaderboard`;
+        xpCard.style.cursor = 'pointer';
+        xpCard.onclick = () => { window.location.href = 'levels.html'; };
+        keyStatsGrid.appendChild(xpCard);
+    }
 }
 
 // Get Power Index color class
@@ -943,6 +996,181 @@ function getPowerIndexClass(pwr) {
     if (pwr >= 40) return 'trend-neutral';
     if (pwr >= 20) return 'trend-negative';
     return 'trend-very-negative';
+}
+
+function renderXpHistorySection() {
+    const profileContent = document.getElementById('profileContent');
+    if (!profileContent || !xpHistoryData) return;
+
+    // Remove old section if rerendering
+    const existing = document.getElementById('xpHistorySection');
+    if (existing) existing.remove();
+
+    const normalizedTarget = normalizeBeyName(
+        beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName)
+    );
+
+    const rows = [];
+    for (const [matchId, entry] of Object.entries(xpHistoryData)) {
+        if (!entry || matchId === '__events__') continue;
+        const a = entry.bey_a;
+        const b = entry.bey_b;
+        if (a && normalizeBeyName(a.bey) === normalizedTarget) {
+            rows.push({
+                type: 'match',
+                date: entry.date || '',
+                source: matchId,
+                side: a,
+                opponent: b ? b.bey : '',
+            });
+        } else if (b && normalizeBeyName(b.bey) === normalizedTarget) {
+            rows.push({
+                type: 'match',
+                date: entry.date || '',
+                source: matchId,
+                side: b,
+                opponent: a ? a.bey : '',
+            });
+        }
+    }
+
+    const events = Array.isArray(xpHistoryData.__events__) ? xpHistoryData.__events__ : [];
+    events.forEach(e => {
+        if (normalizeBeyName(e.bey) !== normalizedTarget) return;
+        rows.push({
+            type: e.type || 'event',
+            date: e.date || '',
+            source: e.tournament_id || e.season_id || 'manual',
+            side: { total_xp: e.xp_awarded || 0 },
+            details: e,
+        });
+    });
+
+    if (!rows.length) return;
+
+    rows.sort((x, y) => (x.date || '').localeCompare(y.date || ''));
+
+    const calcParts = side => {
+        const s = side || {};
+        const streakPctRaw = Number(s.streak_bonus || 0);
+        const streakPct = Math.abs(streakPctRaw) <= 1
+            ? Math.round(streakPctRaw * 100)
+            : Math.round(streakPctRaw);
+        // only push parts that have a non-zero value to avoid clutter (except for base and result bonus as these are always non-zero)
+        const parts = [
+            `🎮${Number(s.base_xp || 0).toFixed(0)}`,
+            `🏆${Number(s.result_bonus || 0).toFixed(0)}`
+        ];
+        if (s.performance_bonus > 0) {
+            parts.push(`📈${Number(s.performance_bonus || 0).toFixed(1)}`)
+        }
+        if (s.high_stakes_bonus > 0) {
+            parts.push(`🔥${Number(s.high_stakes_bonus || 0).toFixed(1)}`);
+        }
+        if (s.match_length_bonus > 0) {
+            parts.push(`⏱️${Number(s.match_length_bonus || 0).toFixed(1)}`);
+        }
+        if (s.season_matchday_xp) {
+            parts.push(`🏟️${Number(s.season_matchday_xp ?? 0).toFixed(0)}`);
+        }
+        if (streakPct > 0) {
+            parts.push(`⚡${streakPct}%(${Number(s.win_streak || 0)})`);
+        }
+        const prestigeMultiplier = Number(s.prestige_multiplier || 0);
+        if (prestigeMultiplier && prestigeMultiplier !== 1) {
+            parts.push(`⭐×${prestigeMultiplier.toFixed(2)}`);
+        }
+        return parts.join(' ');
+    };
+
+    const section = document.createElement('details');
+    section.className = 'profile-section-details';
+    section.id = 'xpHistorySection';
+    section.innerHTML = `
+        <summary class="section-summary">🎮 XP History</summary>
+        <div class="profile-section-content" style="padding: 12px 16px;">
+            <div class="xp-history-calc-legend">
+                <span><b>🎮</b> Base</span>
+                <span><b>🏆</b> Result</span>
+                <span><b>📈</b> Perf</span>
+                <span><b>🔥</b> High-Stakes</span>
+                <span><b>⏱️</b> Length</span>
+                <span><b>⚡</b> Streak % (count)</span>
+                <span><b>🏟️</b> Season</span>
+                <span><b>⭐</b> Prestige</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="advanced-table" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Source</th>
+                            <th>Opponent / Tier</th>
+                            <th>Calculation</th>
+                            <th>XP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(r => {
+                            if (r.type === 'match') {
+                                const s = r.side || {};
+                                return `
+                                    <tr>
+                                        <td>${escapeHtml(r.date)}</td>
+                                        <td><a href="matches.html" class="season-link">${escapeHtml(r.source)}</a></td>
+                                        <td>${escapeHtml(r.opponent || '—')}</td>
+                                        <td class="xp-calc-cell">${escapeHtml(calcParts(s))}</td>
+                                        <td class="trend-positive">+${Number(s.total_xp || 0).toFixed(1)}</td>
+                                    </tr>
+                                `;
+                            }
+                            const d = r.details || {};
+                            const why = r.type === 'tournament'
+                                ? `Tournament Rank ${d.rank || '—'} / ${d.participants || '—'}`
+                                : `Season ${d.season_id || ''} | Tier ${d.tier || 'all'} | Rank ${d.rank || '—'}`;
+                            let eventClass = 'xp-event-row';
+                            if (r.type === 'tournament') {
+                                eventClass += ' event-tournament';
+                            } else if (r.type === 'season_end') {
+                                eventClass += ' event-season';
+                            } else {
+                                eventClass += ' event-generic';
+                            }
+                            const sourceBadge = r.type === 'tournament'
+                                ? '<span class="tier-badge-subtle">TOURNAMENT</span>'
+                                : (r.type === 'season_end'
+                                    ? '<span class="tier-badge-subtle">Season End</span>'
+                                    : '<span class="tier-badge-subtle">XP Event</span>');
+                            const sourceText = r.type === 'tournament'
+                                ? `🏆 ${escapeHtml(r.source)}`
+                                : (r.type === 'season_end'
+                                    ? `📅 ${escapeHtml(r.source)}`
+                                    : `🎯 ${escapeHtml(r.source)}`);
+                            const oppOrTier = r.type === 'season_end'
+                                ? `<span class="tier-badge-subtle">${String(d.tier || 'all').toLowerCase() === 'all' ? 'All Tiers' : `Tier ${escapeHtml(d.tier)}`}</span>`
+                                : '—';
+                            return `
+                                <tr class="${eventClass}">
+                                    <td>${escapeHtml(r.date)}</td>
+                                    <td>${sourceBadge} ${sourceText}</td>
+                                    <td>${oppOrTier}</td>
+                                    <td>${escapeHtml(why)}</td>
+                                    <td class="trend-positive">+${Number(r.side.total_xp || 0).toFixed(1)}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    const historySection = document.getElementById('historySection');
+    if (historySection && historySection.parentNode === profileContent) {
+        profileContent.insertBefore(section, historySection);
+    } else {
+        profileContent.appendChild(section);
+    }
 }
 
 // Render Archetype Section

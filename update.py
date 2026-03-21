@@ -95,6 +95,7 @@ SCRIPT_SEASON_META_ANALYTICS = "./src/season/season_meta_analytics.py"
 SCRIPT_ELO_METRICS = "./src/elo/elo_metrics.py"
 SCRIPT_VERSION_METRICS = "./src/elo/compute_version_metrics.py"
 SCRIPT_VERSION_LEADERBOARDS = "./src/elo/generate_version_leaderboards.py"
+SCRIPT_XP_SYSTEM = "./src/analytics/xp_system.py"
 
 # Visualization
 SCRIPT_GEN_PLOTS = "./src/plots/gen_plots.py"
@@ -507,6 +508,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Historical ELO Version Metrics", success, duration))
+
+    # XP / Level System (depends on matches.csv + elo_history.csv)
+    success, duration = run_script(
+        SCRIPT_XP_SYSTEM,
+        "XP & Level System",
+        verbose=verbose
+    )
+    results.append(("XP & Level System", success, duration))
 
     return results
 

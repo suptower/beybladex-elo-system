@@ -15,6 +15,8 @@
     --accent: #3d6e00;
     --accent-hover: #2d5200;
     --accent-hover-subtle: rgba(61, 110, 0, 0.15);
+    --xp-event-tournament: #f59e0b;
+    --xp-event-season-end: #6366f1;
     --card: #ffffff;
     --border: #e5e7eb;
     --border-dark: #cbd5e1;
@@ -50,6 +52,8 @@ body.dark {
     --accent: #7bc618;
     --accent-hover: #65a814;
     --accent-hover-subtle: rgba(123, 198, 24, 0.12);
+    --xp-event-tournament: #f59e0b;
+    --xp-event-season-end: #818cf8;
     --card: #121212;
     --border: #222222;
     --border-dark: #333333;
@@ -11743,6 +11747,36 @@ select:focus-visible {
     margin-bottom: 0.625rem;
 }
 
+.calc-breakdown-details > .calc-breakdown-header {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    margin-bottom: 0;
+    user-select: none;
+}
+
+.calc-breakdown-details > .calc-breakdown-header::-webkit-details-marker {
+    display: none;
+}
+
+.calc-breakdown-details > .calc-breakdown-header::before {
+    content: "▸";
+    color: var(--text-light);
+    font-size: 0.85rem;
+    line-height: 1;
+    transition: transform 0.15s ease;
+}
+
+.calc-breakdown-details[open] > .calc-breakdown-header {
+    margin-bottom: 0.625rem;
+}
+
+.calc-breakdown-details[open] > .calc-breakdown-header::before {
+    transform: rotate(90deg);
+}
+
 .elo-breakdown-title {
     font-weight: 700;
     font-size: 0.9375rem;
@@ -11785,6 +11819,41 @@ select:focus-visible {
     background: var(--card);
 }
 
+.xp-event-row td {
+    background: var(--bg-subtle);
+}
+
+.xp-event-row td:first-child {
+    border-left: 3px solid var(--accent);
+}
+
+.xp-event-row.event-tournament td:first-child {
+    border-left-color: var(--xp-event-tournament);
+}
+
+.xp-event-row.event-season td:first-child {
+    border-left-color: var(--xp-event-season-end);
+}
+
+.xp-event-row.event-generic td:first-child {
+    border-left-color: var(--accent);
+}
+
+.xp-history-calc-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin: 0 0 0.6rem 0;
+}
+
+.xp-calc-cell {
+    font-family: 'Courier New', monospace;
+    font-size: 0.74rem;
+    white-space: nowrap;
+}
+
 .elo-param-label {
     color: var(--text-light);
     font-size: 0.8125rem;
@@ -11824,6 +11893,10 @@ select:focus-visible {
 
     .elo-param-label {
         font-size: 0.75rem;
+    }
+
+    .xp-calc-cell {
+        font-size: 0.68rem;
     }
 }
 
