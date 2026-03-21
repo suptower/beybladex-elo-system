@@ -1056,17 +1056,29 @@ function renderXpHistorySection() {
         const streakPct = Math.abs(streakPctRaw) <= 1
             ? Math.round(streakPctRaw * 100)
             : Math.round(streakPctRaw);
+        // only push parts that have a non-zero value to avoid clutter (except for base and result bonus as these are always non-zero)
         const parts = [
             `🎮${Number(s.base_xp || 0).toFixed(0)}`,
-            `🏆${Number(s.result_bonus || 0).toFixed(0)}`,
-            `📈${Number(s.performance_bonus || 0).toFixed(1)}`,
-            `🔥${Number(s.high_stakes_bonus || 0).toFixed(1)}`,
-            `⏱️${Number(s.match_length_bonus || 0).toFixed(1)}`,
+            `🏆${Number(s.result_bonus || 0).toFixed(0)}`
         ];
+        if (s.performance_bonus > 0) {
+            parts.push(`📈${Number(s.performance_bonus || 0).toFixed(1)}`)
+        }
+        if (s.high_stakes_bonus > 0) {
+            parts.push(`🔥${Number(s.high_stakes_bonus || 0).toFixed(1)}`);
+        }
+        if (s.match_length_bonus > 0) {
+            parts.push(`⏱️${Number(s.match_length_bonus || 0).toFixed(1)}`);
+        }
         if (s.season_matchday_xp) {
             parts.push(`🏟️${Number(s.season_matchday_xp ?? 0).toFixed(0)}`);
         }
-        parts.push(`⚡${streakPct}%(${Number(s.win_streak || 0)})`);
+        if (streakPct > 0) {
+            parts.push(`⚡${streakPct}%(${Number(s.win_streak || 0)})`);
+        }
+        if (s.prestige_bonus > 0) {
+            parts.push(`⭐${Number(s.prestige_bonus || 0).toFixed(1)}`);
+        }
         return parts.join(' ');
     };
 
@@ -1084,6 +1096,7 @@ function renderXpHistorySection() {
                 <span><b>⏱️</b> Length</span>
                 <span><b>⚡</b> Streak % (count)</span>
                 <span><b>🏟️</b> Season</span>
+                <span><b>⭐</b> Prestige</span>
             </div>
             <div style="overflow-x:auto;">
                 <table class="advanced-table" style="width:100%;">
