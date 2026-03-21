@@ -1076,8 +1076,9 @@ function renderXpHistorySection() {
         if (streakPct > 0) {
             parts.push(`⚡${streakPct}%(${Number(s.win_streak || 0)})`);
         }
-        if (s.prestige_bonus > 0) {
-            parts.push(`⭐${Number(s.prestige_bonus || 0).toFixed(1)}`);
+        const prestigeMultiplier = Number(s.prestige_multiplier || 0);
+        if (prestigeMultiplier && prestigeMultiplier !== 1) {
+            parts.push(`⭐×${prestigeMultiplier.toFixed(2)}`);
         }
         return parts.join(' ');
     };

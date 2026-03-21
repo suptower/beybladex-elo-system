@@ -1016,10 +1016,14 @@ def run_xp_pipeline() -> None:
                     season_bucket = state["season_xp"].get(normalize_season_id(sid), {})
                     if tier_key == "all":
                         season_total = sum(season_bucket.values())
+                        # Legacy single-list format has no tier context.
+                        # Use Tier 4 (neutral 1.0x tier multiplier).
+                        tier_for_bonus = 4
                     else:
                         season_total = season_bucket.get(str(tier_key), 0.0)
+                        tier_for_bonus = int(tier_key)
                     if season_total > 0:
-                        bonus = season_end_xp(season_total, rank, int(tier_key))
+                        bonus = season_end_xp(season_total, rank, tier_for_bonus)
                         _apply_xp(state, bonus)
                         xp_history.setdefault("__events__", []).append({
                             "type": "season_end",
