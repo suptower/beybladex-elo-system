@@ -9,10 +9,10 @@ This script helps initialize a new season by:
 4. Optionally generating match schedule CSV templates
 
 Usage:
-    python src/init_season.py S1
-    python src/init_season.py S2 --generate-schedule
-    python src/init_season.py S3 --data-dir ./docs/data
-    python src/init_season.py S3 --from-season S2
+    python src/season/init_season.py S1
+    python src/season/init_season.py S2 --generate-schedule
+    python src/season/init_season.py S3 --data-dir ./docs/data
+    python src/season/init_season.py S3 --from-season S2
 """
 
 import argparse
@@ -40,7 +40,7 @@ _root = _os.path.dirname(
 if _root not in sys.path:
     sys.path.insert(0, _root)
 del _os, _root
-from src.config.paths import DATA_DIR, LEADERBOARD_CSV   # noqa: E402
+from src.config.paths import DATA_DIR, LEADERBOARD_CSV, SEASON_DATA_JSON   # noqa: E402
 
 # Default paths
 DEFAULT_DATA_DIR = DATA_DIR
@@ -191,9 +191,13 @@ def load_season_archive(prev_season_id: str, data_dir: str) -> dict:
     ``season_processing.py``) after a season ends and contains the
     ``promotion_relegation`` result produced by ``get_promotion_relegation()``.
 
+    The archive is always read from the canonical location
+    ``<data_dir>/season/season_data.json`` (i.e. ``SEASON_DATA_JSON``).
+
     Args:
         prev_season_id: Identifier of the completed season (e.g., "S1").
-        data_dir: Data directory that contains ``season_data.json``.
+        data_dir: Root data directory (e.g., ``docs/data``).  The archive is
+            resolved under the ``season/`` subdirectory of this path.
 
     Returns:
         The archive dict for the season.
@@ -202,7 +206,7 @@ def load_season_archive(prev_season_id: str, data_dir: str) -> dict:
         FileNotFoundError: If ``season_data.json`` does not exist.
         ValueError: If no data is found for ``prev_season_id``.
     """
-    archive_file = os.path.join(data_dir, "season_data.json")
+    archive_file = os.path.join(data_dir, "season", "season_data.json")
     if not os.path.exists(archive_file):
         raise FileNotFoundError(
             f"Processed season archive not found: {archive_file}\n"

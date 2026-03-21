@@ -555,8 +555,10 @@ def initialize_season_from_results(
     in relegation playoff matches are left in their current tier with a
     warning (the user must resolve those matches and adjust manually).
     Vacancies created in Tier IV by qualification candidates dropping to the
-    qualification pool are filled in ELO order from the combined pool of
-    qualification candidates and any beys already in the previous pool.
+    qualification pool are filled in ELO order from the previous season's
+    qualification pool only; current-season qualification candidates
+    (``qual_out``) are not used to fill these vacancies — they enter the
+    qualification tournament to compete for re-entry.
 
     Args:
         new_season_id: The new season identifier (e.g., "S3").
@@ -652,17 +654,21 @@ def initialize_season_from_results(
         key=lambda x: -x[1],
     )
 
-    # Fill any tier vacancies (primarily Tier IV) from the pool.
-    for t in range(1, tiers + 1):
-        while len(tier_comp[t]) < beys_per_tier and fill_pool:
+    # Fill vacancies in the bottom tier only from the qualification pool.
+    # Upper tiers are expected to be size-stable via promotions/relegations;
+    # placing qualification-pool beys into higher tiers is never correct.
+    bottom_tier = tiers
+    if bottom_tier in tier_comp:
+        while len(tier_comp[bottom_tier]) < beys_per_tier and fill_pool:
             bey, elo = fill_pool.pop(0)
-            tier_comp[t].append(bey)
+            tier_comp[bottom_tier].append(bey)
             warnings.append(
-                f"Tier {t} vacancy filled from qualification pool: "
+                f"Tier {bottom_tier} vacancy filled from qualification pool: "
                 f"{bey} (ELO {elo:.0f})"
             )
 
-    # Warn about any tiers still short (should not happen in practice).
+    # Warn about any tiers still short (upper tiers require manual fixes;
+    # Tier IV shortage means not enough pool beys were available).
     for t in range(1, tiers + 1):
         shortage = beys_per_tier - len(tier_comp[t])
         if shortage > 0:
