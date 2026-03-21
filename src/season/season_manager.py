@@ -540,6 +540,184 @@ def schedule_round_robin(beys: List[str]) -> List[Tuple[str, str]]:
     return matches
 
 
+def initialize_season_from_results(
+        new_season_id: str,
+        prev_tier_assignments: Dict[str, Dict],
+        prev_qualification_pool: List[Dict],
+        promotion_relegation: Dict,
+        elo_lookup: Dict[str, float],
+) -> Tuple[Dict, List[str]]:
+    """
+    Initialize a new season's tier assignments from a completed season's
+    promotion/relegation results.
+
+    Automatic promotions and relegations are applied directly.  Beys involved
+    in relegation playoff matches are left in their current tier with a
+    warning (the user must resolve those matches and adjust manually).
+    Vacancies created in Tier IV by qualification candidates dropping to the
+    qualification pool are filled in ELO order from the combined pool of
+    qualification candidates and any beys already in the previous pool.
+
+    Args:
+        new_season_id: The new season identifier (e.g., "S3").
+        prev_tier_assignments: ``tier_assignments`` dict from the previous
+            season in ``seasons.json`` — maps bey name to
+            ``{"tier": N, "start_elo": ...}``.
+        prev_qualification_pool: ``qualification_pool`` list from the
+            previous season in ``seasons.json`` — each entry is a dict with
+            at least a ``"bey"`` key.
+        promotion_relegation: Result dict produced by
+            ``get_promotion_relegation()`` (stored in ``season_data.json``
+            under ``seasons.<prev_id>.promotion_relegation``).
+        elo_lookup: Dict mapping bey name to current ELO rating, used both
+            to sort qualification-pool fill-ins and to set ``start_elo`` for
+            each tier assignment.
+
+    Returns:
+        Tuple of (season_data dict, warnings list).  ``season_data`` has the
+        same structure as the output of ``initialize_season()`` and is ready
+        to be passed to ``save_season_data()``.  ``warnings`` is a list of
+        human-readable strings describing unresolved situations (e.g., pending
+        relegation playoffs, vacancies filled from the pool).
+    """
+    season_format = get_season_format(new_season_id)
+    tiers = season_format["tiers"]
+    beys_per_tier = season_format["beys_per_tier"]
+
+    warnings: List[str] = []
+
+    # Build mutable tier composition from the previous season.
+    # Only include tiers that are valid for the new season format.
+    tier_comp: Dict[int, List[str]] = {t: [] for t in range(1, tiers + 1)}
+    for bey, data in prev_tier_assignments.items():
+        t = data.get("tier", 0)
+        if t in tier_comp:
+            tier_comp[t].append(bey)
+
+    # Collect relegation-playoff participants — they stay in their current
+    # tier until the playoff is resolved manually.
+    playoff_beys: set = set()
+    for match in promotion_relegation.get("relegation_matches", []):
+        playoff_beys.add(match["higher_bey"])
+        playoff_beys.add(match["lower_bey"])
+    if playoff_beys:
+        warnings.append(
+            "Relegation playoff participants kept in their current tier "
+            "(resolve playoff matches and adjust manually): "
+            + ", ".join(sorted(playoff_beys))
+        )
+
+    # Apply automatic promotions.
+    for move in promotion_relegation.get("automatic_promotion", []):
+        bey = move["bey"]
+        from_tier = move["from_tier"]
+        to_tier = move["to_tier"]
+        if bey in tier_comp.get(from_tier, []) and to_tier in tier_comp:
+            tier_comp[from_tier].remove(bey)
+            tier_comp[to_tier].append(bey)
+
+    # Apply automatic relegations.
+    for move in promotion_relegation.get("automatic_relegation", []):
+        bey = move["bey"]
+        from_tier = move["from_tier"]
+        to_tier = move["to_tier"]
+        if bey in tier_comp.get(from_tier, []) and to_tier in tier_comp:
+            tier_comp[from_tier].remove(bey)
+            tier_comp[to_tier].append(bey)
+
+    # Remove qualification candidates from Tier IV — they drop to the pool.
+    # These beys will compete in the qualification tournament for re-entry;
+    # they do NOT automatically fill their own vacancies.
+    qual_out: List[str] = []
+    for candidate in promotion_relegation.get("qualification_candidates", []):
+        bey = candidate["bey"]
+        t = candidate.get("tier", tiers)
+        if t in tier_comp and bey in tier_comp[t]:
+            tier_comp[t].remove(bey)
+            qual_out.append(bey)
+
+    # Build the fill-in pool from the PREVIOUS qualification pool only.
+    # Qualification candidates (qual_out) go to the remaining pool to compete
+    # in the qualification tournament; they are not auto-placed in any tier.
+    in_league: set = {b for beys in tier_comp.values() for b in beys}
+    fill_pool_beys: List[str] = []
+    for entry in prev_qualification_pool:
+        b = entry.get("bey") or entry.get("name", "")
+        if b and b not in in_league and b not in fill_pool_beys:
+            fill_pool_beys.append(b)
+
+    # Sort fill pool by ELO descending.
+    fill_pool: List[Tuple[str, float]] = sorted(
+        [(b, elo_lookup.get(b, 0.0)) for b in fill_pool_beys],
+        key=lambda x: -x[1],
+    )
+
+    # Fill any tier vacancies (primarily Tier IV) from the pool.
+    for t in range(1, tiers + 1):
+        while len(tier_comp[t]) < beys_per_tier and fill_pool:
+            bey, elo = fill_pool.pop(0)
+            tier_comp[t].append(bey)
+            warnings.append(
+                f"Tier {t} vacancy filled from qualification pool: "
+                f"{bey} (ELO {elo:.0f})"
+            )
+
+    # Warn about any tiers still short (should not happen in practice).
+    for t in range(1, tiers + 1):
+        shortage = beys_per_tier - len(tier_comp[t])
+        if shortage > 0:
+            warnings.append(
+                f"Tier {t} is still {shortage} bey(s) short — "
+                "add qualification tournament results manually."
+            )
+
+    # Build tier_assignments with current ELO as start_elo.
+    tier_assignments: Dict[str, Dict] = {}
+    for t, beys in tier_comp.items():
+        for bey in beys:
+            tier_assignments[bey] = {
+                "tier": t,
+                "start_elo": elo_lookup.get(bey),
+            }
+
+    # Remaining qualification pool:
+    # - fill_pool entries that were not placed in a tier (unused pool beys)
+    # - qual_out beys (dropped from Tier IV; they enter the qual tournament)
+    in_league_new: set = set(tier_assignments.keys())
+    unused_pool = [
+        {"bey": bey, "elo": elo}
+        for bey, elo in fill_pool
+        if bey not in in_league_new
+    ]
+    qual_out_entries = [
+        {"bey": bey, "elo": elo_lookup.get(bey, 0.0)}
+        for bey in qual_out
+        if bey not in in_league_new
+    ]
+    remaining_qual_pool = qual_out_entries + unused_pool
+
+    season_data = {
+        "season_id": new_season_id,
+        "start_date": datetime.now().isoformat(),
+        "status": "active",
+        "tier_assignments": tier_assignments,
+        "qualification_pool": remaining_qual_pool,
+        "league_champion": None,
+        "cup_winner": None,
+        "tiers": {},
+    }
+
+    for t in range(1, tiers + 1):
+        tier_beys = [bey for bey, data in tier_assignments.items() if data["tier"] == t]
+        season_data["tiers"][str(t)] = {
+            "beys": tier_beys,
+            "matches_played": 0,
+            "matches_total": int(beys_per_tier * (beys_per_tier - 1) / 2),
+        }
+
+    return season_data, warnings
+
+
 def save_season_data(season_data: Dict, data_dir: str = DEFAULT_DATA_DIR) -> None:
     """
     Save season data to JSON file.
