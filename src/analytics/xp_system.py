@@ -98,18 +98,25 @@ LOSS_BONUS = 20
 
 SCORE_FACTOR_MULTIPLIER = 40
 
-HIGH_STAKES_BONUS_SCALE = 50
+HIGH_STAKES_BONUS_SCALE = 25
 HIGH_STAKES_ELO_REFERENCE = 2000
+HIGH_STAKES_SOFT_CAP_THRESHOLD = 50
+HIGH_STAKES_SOFT_CAP_SCALE = 20
 
 MATCH_LENGTH_BONUS_SCALE = 15
-MATCH_LENGTH_BONUS_OFFSET = 15
+MATCH_LENGTH_BONUS_OFFSET = 10
+MATCH_LENGTH_SOFT_CAP_THRESHOLD = 50
+MATCH_LENGTH_SOFT_CAP_SCALE = 30
 
 PERFORMANCE_WIN_BASE = 60
 PERFORMANCE_WIN_MULTIPLIER = 1.5
+PERF_WIN_SOFT_CAP_THRESHOLD = 90
+PERF_WIN_SOFT_CAP_SCALE = 25
 
 PERFORMANCE_LOSS_BASE = 35
 PERFORMANCE_LOSS_MULTIPLIER = 0.9
-PERFORMANCE_LOSS_CAP = 40
+PERF_LOSS_SOFT_CAP_THRESHOLD = 30
+PERF_LOSS_SOFT_CAP_SCALE = 15
 
 # Streak bonus (proportional multiplier on raw XP)
 STREAK_BONUS_START = 2          # Minimum streak length for any bonus
@@ -120,7 +127,9 @@ STREAK_BONUS_PER_WIN_MID = 0.09  # +9% per win for streaks 4–5
 STREAK_BONUS_MID_CAP = 5        # Last streak length using mid rate
 STREAK_BONUS_LATE_BASE = 0.35   # Base bonus at streak 6
 STREAK_BONUS_PER_WIN_LATE = 0.05  # +5% per win for streaks 6+
-STREAK_BONUS_MAX = 1.2          # Hard cap at +100%
+STREAK_BONUS_MAX = 1.2          # Hard safety cap (soft cap takes effect well before this)
+STREAK_SOFT_CAP_THRESHOLD = 0.40  # +40% — soft cap starts here
+STREAK_SOFT_CAP_SCALE = 0.20
 
 SOFT_CAP_THRESHOLD = 500
 SOFT_CAP_SCALE = 200
@@ -194,47 +203,88 @@ def prestige_multiplier(prestige: int) -> float:
 
 
 # ---------------------------------------------------------------------------
+# Shared soft cap helper
+# ---------------------------------------------------------------------------
+
+def _soft_cap(value: float, threshold: float, scale: float) -> float:
+    """
+    Apply a soft cap to *value*.
+
+    Values at or below *threshold* are returned unchanged.  Above the threshold
+    the excess is compressed via an exponential curve so the result approaches
+    (threshold + scale) asymptotically without a hard ceiling.
+    """
+    if value <= threshold:
+        return value
+    overflow = value - threshold
+    return threshold + scale * (1 - exp(-overflow / scale))
+
+
+# ---------------------------------------------------------------------------
 # Match XP calculation helpers
 # ---------------------------------------------------------------------------
 
 def streak_bonus(current_streak: int) -> float:
-    """Return streak XP multiplier for the given consecutive-win count."""
+    """
+    Return streak XP multiplier for the given consecutive-win count.
+
+    A soft cap is applied above +40% so that very long streaks still reward
+    the player but with diminishing returns instead of a hard ceiling.
+    """
     if current_streak < STREAK_BONUS_START:
         return 0.0
     if current_streak <= STREAK_BONUS_EARLY_CAP:
-        return STREAK_BONUS_PER_WIN_EARLY * (current_streak - 1)
-    if current_streak <= STREAK_BONUS_MID_CAP:
-        return STREAK_BONUS_MID_BASE + STREAK_BONUS_PER_WIN_MID * (current_streak - STREAK_BONUS_EARLY_CAP)
-    return min(
-        STREAK_BONUS_LATE_BASE + STREAK_BONUS_PER_WIN_LATE * (current_streak - STREAK_BONUS_MID_CAP),
-        STREAK_BONUS_MAX
-    )
+        raw = STREAK_BONUS_PER_WIN_EARLY * (current_streak - 1)
+    elif current_streak <= STREAK_BONUS_MID_CAP:
+        raw = STREAK_BONUS_MID_BASE + STREAK_BONUS_PER_WIN_MID * (current_streak - STREAK_BONUS_EARLY_CAP)
+    else:
+        raw = min(
+            STREAK_BONUS_LATE_BASE + STREAK_BONUS_PER_WIN_LATE * (current_streak - STREAK_BONUS_MID_CAP),
+            STREAK_BONUS_MAX,
+        )
+    return _soft_cap(raw, STREAK_SOFT_CAP_THRESHOLD, STREAK_SOFT_CAP_SCALE)
 
 
 def high_stakes_bonus(own_elo: float, opp_elo: float) -> float:
-    """Additional bonus for matches with high ELO stakes."""
+    """
+    Additional bonus for matches with high ELO stakes.
+
+    Scales linearly with combined ELO up to the soft cap threshold, then
+    compresses so extreme ELO differences do not dominate the XP total.
+    """
     combined = own_elo + opp_elo
     diff = abs(own_elo - opp_elo) if opp_elo > own_elo else 0.0
-    return round((combined + diff) / HIGH_STAKES_ELO_REFERENCE * HIGH_STAKES_BONUS_SCALE, 2)
+    raw = (combined + diff) / HIGH_STAKES_ELO_REFERENCE * HIGH_STAKES_BONUS_SCALE
+    return round(_soft_cap(raw, HIGH_STAKES_SOFT_CAP_THRESHOLD, HIGH_STAKES_SOFT_CAP_SCALE), 2)
 
 
 def match_length_bonus(own_score: int, opp_score: int) -> float:
-    """Bonus for longer matches, based on total score."""
+    """
+    Bonus for longer matches based on total score.
+
+    The underlying exponential growth is soft-capped so high-scoring matches
+    (e.g. 6:4, 7:4) reward meaningful play without producing runaway XP totals.
+    """
     total_score = own_score + opp_score
-    # normalize score so 4:0 is base 0
+    # normalize score so 4:0 is base
     score_base = exp((2 * total_score - 8) / 4)
     win_mult = 1.1 if own_score > opp_score else 1.0
-    return round(MATCH_LENGTH_BONUS_SCALE * score_base - MATCH_LENGTH_BONUS_OFFSET, 2) * win_mult
+    raw = (MATCH_LENGTH_BONUS_SCALE * score_base - MATCH_LENGTH_BONUS_OFFSET) * win_mult
+    return round(_soft_cap(raw, MATCH_LENGTH_SOFT_CAP_THRESHOLD, MATCH_LENGTH_SOFT_CAP_SCALE), 2)
 
 
 def performance_bonus_win(elo_gain: float, own_score: int, opp_score: int) -> float:
-    """Performance bonus for a win based on ELO gain and score difference."""
+    """
+    Performance bonus for a win based on ELO gain and score difference.
+
+    A soft cap is applied to prevent outsized rewards from simultaneously
+    high ELO gains and dominant score margins.
+    """
     perf = PERFORMANCE_WIN_MULTIPLIER * max(elo_gain, 0.0)
     perf_bonus = PERFORMANCE_WIN_BASE * (1 - exp(-perf / PERFORMANCE_WIN_BASE))
     score_factor = 1.0 + (own_score - opp_score) / max(own_score, opp_score) if max(own_score, opp_score) > 0 else 0
     score_factor *= SCORE_FACTOR_MULTIPLIER
-    perf_bonus += score_factor
-    return perf_bonus
+    return _soft_cap(perf_bonus + score_factor, PERF_WIN_SOFT_CAP_THRESHOLD, PERF_WIN_SOFT_CAP_SCALE)
 
 
 def performance_bonus_loss(
@@ -243,26 +293,31 @@ def performance_bonus_loss(
     own_score: int,
     opp_score: int,
 ) -> float:
-    """Performance bonus for a loss, mirroring win bonus structure."""
+    """
+    Performance bonus for a loss, mirroring win bonus structure.
+
+    Only underdogs (opponent ELO > own ELO) receive the ELO-based component.
+    A soft cap replaces the previous hard cap for smoother scaling.
+    """
     max_score = max(own_score, opp_score)
     if max_score == 0:
         return 0.0
 
-    # ELO-Anteil: sättigende Kurve analog zu Win, aber auf elo_diff basierend
-    elo_diff = max(opp_pre_elo - own_pre_elo, 0.0)  # nur positiv (Underdog-Fall)
+    # ELO component: saturating curve based on elo_diff (underdog only)
+    elo_diff = max(opp_pre_elo - own_pre_elo, 0.0)
     perf = PERFORMANCE_LOSS_MULTIPLIER * elo_diff
     elo_bonus = PERFORMANCE_LOSS_BASE * (1 - exp(-perf / PERFORMANCE_LOSS_BASE))
 
-    # Score-Anteil: enge Niederlage = höherer Bonus (Inverse des Win score_factor)
+    # Score component: close loss = higher bonus (inverse of win score_factor)
     score_diff = abs(opp_score - own_score)
-    closeness = 1.0 - (score_diff / max_score)  # 1.0 = knapp, 0.0 = deutlich
+    closeness = 1.0 - (score_diff / max_score)  # 1.0 = close, 0.0 = dominant
     score_factor = closeness * SCORE_FACTOR_MULTIPLIER
 
-    return min(elo_bonus + score_factor, PERFORMANCE_LOSS_CAP)
+    return _soft_cap(elo_bonus + score_factor, PERF_LOSS_SOFT_CAP_THRESHOLD, PERF_LOSS_SOFT_CAP_SCALE)
 
 
 def apply_soft_cap(xp: float) -> float:
-    """Apply a soft cap to XP gains above the threshold."""
+    """Apply a soft cap to total XP gains above the match threshold."""
     if xp <= SOFT_CAP_THRESHOLD:
         return xp
     overflow = xp - SOFT_CAP_THRESHOLD
