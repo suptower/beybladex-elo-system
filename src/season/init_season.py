@@ -40,7 +40,7 @@ _root = _os.path.dirname(
 if _root not in sys.path:
     sys.path.insert(0, _root)
 del _os, _root
-from src.config.paths import DATA_DIR, LEADERBOARD_CSV, SEASON_DIR, SEASONS_JSON   # noqa: E402
+from src.config.paths import DATA_DIR, LEADERBOARD_CSV, SEASONS_JSON   # noqa: E402
 
 # Default paths
 DEFAULT_DATA_DIR = DATA_DIR
@@ -206,7 +206,8 @@ def load_season_archive(prev_season_id: str, data_dir: str) -> dict:
         FileNotFoundError: If ``season_data.json`` does not exist.
         ValueError: If no data is found for ``prev_season_id``.
     """
-    archive_file = os.path.join(data_dir, "season", "season_data.json")
+    season_dir = os.path.join(data_dir, "season")
+    archive_file = os.path.join(season_dir, "season_data.json")
     if not os.path.exists(archive_file):
         raise FileNotFoundError(
             f"Processed season archive not found: {archive_file}\n"
@@ -288,6 +289,10 @@ def main():
 
         elo_lookup = dict(beys_with_elo)
 
+        # Derive the season subdirectory from --data-dir so all reads/writes
+        # respect the user-provided root rather than the repo default.
+        season_dir = os.path.join(args.data_dir, "season")
+
         if args.from_season:
             # --- Promotion/relegation-based initialisation ---
             prev_id = args.from_season
@@ -306,7 +311,7 @@ def main():
             print(f"{GREEN}✓{RESET} Loaded promotion/relegation data\n")
 
             print(f"{YELLOW}Loading '{prev_id}' tier composition from seasons.json...{RESET}")
-            prev_season_data = load_season_data(prev_id, SEASON_DIR)
+            prev_season_data = load_season_data(prev_id, season_dir)
             if not prev_season_data:
                 raise ValueError(
                     f"Season '{prev_id}' not found in seasons.json."
@@ -346,8 +351,9 @@ def main():
 
         # Save season data
         print(f"{YELLOW}Saving season metadata...{RESET}")
-        save_season_data(season_data, SEASON_DIR)
-        print(f"{GREEN}✓{RESET} Saved to {SEASONS_JSON}\n")
+        save_season_data(season_data, season_dir)
+        saved_path = os.path.join(season_dir, os.path.basename(SEASONS_JSON))
+        print(f"{GREEN}✓{RESET} Saved to {saved_path}\n")
 
         # Print tier assignments
         print_tier_assignments(season_data)
