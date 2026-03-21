@@ -1003,56 +1003,43 @@ def run_xp_pipeline() -> None:
                 prestige=state_b["prestige"],
             )
 
+            # Initialise all match-type bonus fields to 0; each branch
+            # overrides only the one field that applies.
+            for xp_dict in (xp_a, xp_b):
+                xp_dict["season_matchday_xp"] = 0
+                xp_dict["qualification_xp"] = 0
+                xp_dict["season_cup_xp"] = 0
+                xp_dict["tournament_match_xp"] = 0
+
             # Add match-type-specific XP bonus when applicable
             if match_type in ("season", "relegation") and tier is not None:
                 md_xp = season_matchday_xp(tier)
                 for xp_dict in (xp_a, xp_b):
                     xp_dict["season_matchday_xp"] = md_xp
-                    xp_dict["qualification_xp"] = 0
-                    xp_dict["season_cup_xp"] = 0
-                    xp_dict["tournament_match_xp"] = 0
                     xp_dict["total_xp"] = round(
                         apply_soft_cap(xp_dict["total_xp"] + md_xp), 2
                     )
             elif match_type == "qualification":
                 q_xp = qualification_match_xp()
                 for xp_dict in (xp_a, xp_b):
-                    xp_dict["season_matchday_xp"] = 0
                     xp_dict["qualification_xp"] = q_xp
-                    xp_dict["season_cup_xp"] = 0
-                    xp_dict["tournament_match_xp"] = 0
                     xp_dict["total_xp"] = round(
                         apply_soft_cap(xp_dict["total_xp"] + q_xp), 2
                     )
             elif match_type in SEASON_CUP_XP:
                 cup_xp = season_cup_match_xp(match_type)
                 for xp_dict in (xp_a, xp_b):
-                    xp_dict["season_matchday_xp"] = 0
-                    xp_dict["qualification_xp"] = 0
                     xp_dict["season_cup_xp"] = cup_xp
-                    xp_dict["tournament_match_xp"] = 0
                     xp_dict["total_xp"] = round(
                         apply_soft_cap(xp_dict["total_xp"] + cup_xp), 2
                     )
             elif match_type in TOURNAMENT_MATCH_XP:
                 t_match_xp = tournament_match_xp(match_type)
                 for xp_dict in (xp_a, xp_b):
-                    xp_dict["season_matchday_xp"] = 0
-                    xp_dict["qualification_xp"] = 0
-                    xp_dict["season_cup_xp"] = 0
                     xp_dict["tournament_match_xp"] = t_match_xp
                     xp_dict["total_xp"] = round(
                         apply_soft_cap(xp_dict["total_xp"] + t_match_xp), 2
                     )
-            else:
-                xp_a["season_matchday_xp"] = 0
-                xp_b["season_matchday_xp"] = 0
-                xp_a["qualification_xp"] = 0
-                xp_b["qualification_xp"] = 0
-                xp_a["season_cup_xp"] = 0
-                xp_b["season_cup_xp"] = 0
-                xp_a["tournament_match_xp"] = 0
-                xp_b["tournament_match_xp"] = 0
 
             if season_id and tier is not None:
                 md_xp_for_season = season_matchday_xp(tier)

@@ -37,7 +37,7 @@ const COLUMN_DESCRIPTIONS = {
     'ID': { short: 'Match ID', long: 'Unique identifier for the match, used for referencing and debugging' },
     'Date': { short: 'Match Date', long: 'The date when the match was played' },
     'Arena': { short: 'Arena', long: 'The arena where the match was played (Xtreme or Drop Attack)' },
-    'Type': { short: 'Match Type', long: 'Type of match: Exhibition, Season, Relegation, or Season Cup' },
+    'Type': { short: 'Match Type', long: 'Type of match: Exhibition, Season, Relegation, Qualification, Season Cup (group / quarter / semi / final), or Tournament (group stage / Round of 16 / quarter / semi / final)' },
     'Season': { short: 'Season', long: 'Season identifier (e.g., S1) - only for season-related matches' },
     'Tier': { short: 'Tier', long: 'Tier number (I-IV) - only for season and relegation matches' },
     'MD': { short: 'Matchday', long: 'Matchday number - groups matches into logical rounds within a season' },
