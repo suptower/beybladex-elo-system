@@ -44,6 +44,15 @@ XP Formula (per match):
 
     Total Soft Cap: threshold=500, scale=200 (asymptotic ~700 XP)
 
+Match Type Bonuses (added to total_xp, then re-soft-capped):
+    season / relegation  →  season_matchday_xp(tier): 40–100 XP (tier-dependent)
+    qualification        →  QUALIFICATION_XP: 60 XP (flat, no tier context)
+    season_cup           →  SEASON_CUP_XP["season_cup"]: 80 XP
+    season_cup_quarter   →  SEASON_CUP_XP["season_cup_quarter"]: 100 XP
+    season_cup_semi      →  SEASON_CUP_XP["season_cup_semi"]: 130 XP
+    season_cup_final     →  SEASON_CUP_XP["season_cup_final"]: 180 XP
+    exhibition           →  no bonus
+
 Level Curve:
     XP_needed(level) = 250 + level^1.65 * 4
     examples: level 1 → 254 XP | level 10 → 429 XP | level 30 → 1345 XP
@@ -182,6 +191,21 @@ SEASON_MATCHDAY_XP = {1: 100, 2: 80, 3: 60, 4: 40}
 # Season end-of-season placement multipliers (1-indexed, fallback 1.0)
 SEASON_PLACEMENT_MULTIPLIER = {1: 2.5, 2: 2.25, 3: 1.8, 4: 1.3}
 SEASON_PLACEMENT_TIER_MULTIPLIER = {1: 1.5, 2: 1.3, 3: 1.15, 4: 1.0}
+
+# Qualification match flat XP bonus (no tier context)
+QUALIFICATION_XP = 30
+
+# Season Cup per-round XP bonus (keyed by MatchType value).
+# Use 'season_cup'         for group stage / default rounds,
+#     'season_cup_quarter' for quarter-finals,
+#     'season_cup_semi'    for semi-finals,
+#     'season_cup_final'   for the final.
+SEASON_CUP_XP = {
+    "season_cup": 80,
+    "season_cup_quarter": 100,
+    "season_cup_semi": 130,
+    "season_cup_final": 180,
+}
 
 
 # ---------------------------------------------------------------------------
@@ -568,6 +592,33 @@ def season_matchday_xp(tier: int) -> int:
     return SEASON_MATCHDAY_XP.get(tier, 0)
 
 
+def qualification_match_xp() -> int:
+    """
+    Return the flat XP bonus awarded for a qualification match.
+
+    Qualification matches have no tier context; both participants receive
+    the same bonus regardless of their current ranking.
+
+    Value: QUALIFICATION_XP (default 60 XP)
+    """
+    return QUALIFICATION_XP
+
+
+def season_cup_match_xp(match_type: str) -> int:
+    """
+    Return the XP bonus for a season cup match based on the round.
+
+    The round is encoded directly in the MatchType field:
+        season_cup         →  80 XP  (group stage / default)
+        season_cup_quarter → 100 XP  (quarter-final)
+        season_cup_semi    → 130 XP  (semi-final)
+        season_cup_final   → 180 XP  (final)
+
+    Returns 0 for unrecognised match types (fail-safe).
+    """
+    return SEASON_CUP_XP.get(match_type, 0)
+
+
 def season_end_xp(season_total_xp: float, placement: int, tier: int) -> float:
     """
     Return the end-of-season bonus XP for a bey.
@@ -806,10 +857,6 @@ def run_xp_pipeline() -> None:
     # ------------------------------------------------------------------
     # Build a unified chronological event list
     # ------------------------------------------------------------------
-    # Each event has: {"type": "match"|"tournament"|"season_end", "date": str, ...}
-    # Tournaments/season-ends use the date from their data or from tournaments.json;
-    # events with no date fall back to "9999-12-31" so they are applied last.
-    # Within the same date, matches are processed before non-match events.
     _DATE_LAST = "9999-12-31"
 
     events = []
@@ -820,7 +867,6 @@ def run_xp_pipeline() -> None:
     for tid, pdata in tournament_placements.items():
         if not isinstance(pdata, dict):
             continue
-        # Prefer explicit date in the placement entry, then look up tournaments.json
         t_date = pdata.get("date", "")
         if not t_date:
             t_date = tournaments.get(tid, {}).get("date", _DATE_LAST)
@@ -841,12 +887,9 @@ def run_xp_pipeline() -> None:
             "data": sdata,
         })
 
-    # Stable sort: matches first within any given date
     _EVENT_ORDER = {"match": 0, "tournament": 1, "season_end": 2}
     events.sort(key=lambda e: (e["date"], _EVENT_ORDER.get(e["type"], 2)))
 
-    # Build quick normalized lookup so manual config names can still match
-    # canonical names used in matches.csv / elo_history.csv.
     canonical_by_norm = {}
     for m in matches:
         for b in (m.get("BeyA", ""), m.get("BeyB", "")):
@@ -860,11 +903,8 @@ def run_xp_pipeline() -> None:
             return ""
         return canonical_by_norm.get(normalize_bey_key(name), name)
 
-    # ------------------------------------------------------------------
-    # Process events in chronological order
-    # ------------------------------------------------------------------
-    bey_states: dict = {}   # bey_name → state dict
-    xp_history: dict = {}   # match_id → per-bey breakdown
+    bey_states: dict = {}
+    xp_history: dict = {}
 
     def get_state(bey: str) -> dict:
         if bey not in bey_states:
@@ -892,7 +932,6 @@ def run_xp_pipeline() -> None:
             state_a = get_state(bey_a)
             state_b = get_state(bey_b)
 
-            # ELO info for this match
             elo_info = elo_history.get(match_id, {})
             pre_a = elo_info.get("PreA", 0.0)
             pre_b = elo_info.get("PreB", 0.0)
@@ -901,16 +940,13 @@ def run_xp_pipeline() -> None:
             elo_gain_a = post_a - pre_a
             elo_gain_b = post_b - pre_b
 
-            # Update win streaks before computing XP
             if won_a:
                 state_a["win_streak"] += 1
                 state_b["win_streak"] = 0
             elif won_b:
                 state_b["win_streak"] += 1
                 state_a["win_streak"] = 0
-            # draws: no update (shouldn't exist in this system)
 
-            # Compute match XP
             xp_a = compute_match_xp(
                 won=won_a,
                 elo_gain=elo_gain_a,
@@ -932,33 +968,50 @@ def run_xp_pipeline() -> None:
                 prestige=state_b["prestige"],
             )
 
-            # Add season matchday XP bonus when applicable
+            # Add match-type-specific XP bonus when applicable
             if match_type in ("season", "relegation") and tier is not None:
                 md_xp = season_matchday_xp(tier)
                 for xp_dict in (xp_a, xp_b):
                     xp_dict["season_matchday_xp"] = md_xp
+                    xp_dict["qualification_xp"] = 0
+                    xp_dict["season_cup_xp"] = 0
                     xp_dict["total_xp"] = round(
                         apply_soft_cap(xp_dict["total_xp"] + md_xp), 2
+                    )
+            elif match_type == "qualification":
+                q_xp = qualification_match_xp()
+                for xp_dict in (xp_a, xp_b):
+                    xp_dict["season_matchday_xp"] = 0
+                    xp_dict["qualification_xp"] = q_xp
+                    xp_dict["season_cup_xp"] = 0
+                    xp_dict["total_xp"] = round(
+                        apply_soft_cap(xp_dict["total_xp"] + q_xp), 2
+                    )
+            elif match_type in SEASON_CUP_XP:
+                cup_xp = season_cup_match_xp(match_type)
+                for xp_dict in (xp_a, xp_b):
+                    xp_dict["season_matchday_xp"] = 0
+                    xp_dict["qualification_xp"] = 0
+                    xp_dict["season_cup_xp"] = cup_xp
+                    xp_dict["total_xp"] = round(
+                        apply_soft_cap(xp_dict["total_xp"] + cup_xp), 2
                     )
             else:
                 xp_a["season_matchday_xp"] = 0
                 xp_b["season_matchday_xp"] = 0
+                xp_a["qualification_xp"] = 0
+                xp_b["qualification_xp"] = 0
+                xp_a["season_cup_xp"] = 0
+                xp_b["season_cup_xp"] = 0
 
-            # Track season XP (matchday bonus only - for end-of-season multiplier)
             if season_id and tier is not None:
                 md_xp_for_season = season_matchday_xp(tier)
-
                 tier_key = str(tier)
                 season_a = state_a["season_xp"].setdefault(season_id, {})
                 season_b = state_b["season_xp"].setdefault(season_id, {})
-                season_a[tier_key] = (
-                    season_a.get(tier_key, 0.0) + md_xp_for_season
-                )
-                season_b[tier_key] = (
-                    season_b.get(tier_key, 0.0) + md_xp_for_season
-                )
+                season_a[tier_key] = season_a.get(tier_key, 0.0) + md_xp_for_season
+                season_b[tier_key] = season_b.get(tier_key, 0.0) + md_xp_for_season
 
-            # Apply XP to state
             _apply_xp(state_a, xp_a["total_xp"])
             _apply_xp(state_b, xp_b["total_xp"])
 
@@ -969,7 +1022,6 @@ def run_xp_pipeline() -> None:
             if won_b:
                 state_b["total_wins"] += 1
 
-            # Record history entry
             if match_id:
                 xp_history[match_id] = {
                     "date": m.get("Date", ""),
@@ -992,7 +1044,6 @@ def run_xp_pipeline() -> None:
                 t_xp = compute_tournament_xp(rank, participants)
                 state = get_state(bey)
                 _apply_xp(state, t_xp)
-                # Transparency: record non-match XP event history
                 xp_history.setdefault("__events__", []).append({
                     "type": "tournament",
                     "date": event.get("date", ""),
@@ -1016,8 +1067,6 @@ def run_xp_pipeline() -> None:
                     season_bucket = state["season_xp"].get(normalize_season_id(sid), {})
                     if tier_key == "all":
                         season_total = sum(season_bucket.values())
-                        # Legacy single-list format has no tier context.
-                        # Use Tier 4 (neutral 1.0x tier multiplier).
                         tier_for_bonus = 4
                     else:
                         season_total = season_bucket.get(str(tier_key), 0.0)
@@ -1038,9 +1087,6 @@ def run_xp_pipeline() -> None:
 
     print(f"{GREEN}  XP events processed ({len(events)} total events).{RESET}")
 
-    # ------------------------------------------------------------------
-    # Build leaderboard output
-    # ------------------------------------------------------------------
     leaderboard = []
     for bey, state in bey_states.items():
         xp_to_next = max(0.0, xp_needed_for_level(state["level"]) - state["xp_in_level"])
@@ -1059,7 +1105,6 @@ def run_xp_pipeline() -> None:
             "win_streak": state["win_streak"],
         })
 
-    # Sort by prestige desc, then level desc, then xp_in_level desc
     leaderboard.sort(
         key=lambda e: (e["prestige"], e["level"], e["xp_in_level"]),
         reverse=True,
@@ -1067,9 +1112,6 @@ def run_xp_pipeline() -> None:
     for i, entry in enumerate(leaderboard):
         entry["rank"] = i + 1
 
-    # ------------------------------------------------------------------
-    # Write outputs
-    # ------------------------------------------------------------------
     os.makedirs(ANALYTICS_DIR, exist_ok=True)
 
     print(f"{YELLOW}Writing XP leaderboard to {XP_LEADERBOARD_JSON}...{RESET}")
