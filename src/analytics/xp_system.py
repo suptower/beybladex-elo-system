@@ -106,7 +106,6 @@ MATCH_LENGTH_BONUS_OFFSET = 15
 
 PERFORMANCE_WIN_BASE = 60
 PERFORMANCE_WIN_MULTIPLIER = 1.5
-PERFORMANCE_WIN_CAP = 70
 
 PERFORMANCE_LOSS_BASE = 35
 PERFORMANCE_LOSS_MULTIPLIER = 0.9
@@ -198,8 +197,8 @@ def prestige_multiplier(prestige: int) -> float:
 # Match XP calculation helpers
 # ---------------------------------------------------------------------------
 
-def streak_bonus(current_streak: int) -> int:
-    """Return streak XP bonus for the given consecutive-win count."""
+def streak_bonus(current_streak: int) -> float:
+    """Return streak XP multiplier for the given consecutive-win count."""
     if current_streak < STREAK_BONUS_START:
         return 0.0
     if current_streak <= STREAK_BONUS_EARLY_CAP:

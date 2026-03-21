@@ -21,6 +21,9 @@ def extract_tournament_placements():
         with open(json_file, "r") as f:
             data = json.load(f)
             ident = data.get("data", {}).get("id")
+            if not ident:
+                print(f"Missing tournament ID in file: {json_file}")
+                continue
             name = data.get("data", {}).get("attributes", {}).get("name")
             participants_count = data.get("data", {}).get("attributes", {}).get("participants_count")
             tournaments[ident] = {
