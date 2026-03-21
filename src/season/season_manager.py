@@ -643,16 +643,26 @@ def initialize_season_from_results(
     # in the qualification tournament; they are not auto-placed in any tier.
     in_league: set = {b for beys in tier_comp.values() for b in beys}
     fill_pool_beys: List[str] = []
+    # Track ELO stored in the previous pool as a fallback for beys missing
+    # from the current leaderboard (elo_lookup).
+    fill_pool_elo_fallback: Dict[str, Optional[float]] = {}
     for entry in prev_qualification_pool:
         b = entry.get("bey") or entry.get("name", "")
         if b and b not in in_league and b not in fill_pool_beys:
             fill_pool_beys.append(b)
+            fill_pool_elo_fallback[b] = entry.get("elo")
 
     # Sort fill pool by ELO descending.
-    fill_pool: List[Tuple[str, float]] = sorted(
-        [(b, elo_lookup.get(b, 0.0)) for b in fill_pool_beys],
-        key=lambda x: -x[1],
-    )
+    # Prefer the current leaderboard ELO; fall back to the previous pool's
+    # stored ELO if the bey is missing from the leaderboard.
+    fill_pool_list: List[Tuple[str, float]] = []
+    for b in fill_pool_beys:
+        elo = elo_lookup.get(b)
+        if elo is None:
+            fallback = fill_pool_elo_fallback.get(b)
+            elo = float(fallback) if fallback is not None else 0.0
+        fill_pool_list.append((b, elo))
+    fill_pool: List[Tuple[str, float]] = sorted(fill_pool_list, key=lambda x: -x[1])
 
     # Fill vacancies in the bottom tier only from the qualification pool.
     # Upper tiers are expected to be size-stable via promotions/relegations;

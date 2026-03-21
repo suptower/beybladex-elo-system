@@ -40,7 +40,7 @@ _root = _os.path.dirname(
 if _root not in sys.path:
     sys.path.insert(0, _root)
 del _os, _root
-from src.config.paths import DATA_DIR, LEADERBOARD_CSV, SEASON_DATA_JSON   # noqa: E402
+from src.config.paths import DATA_DIR, LEADERBOARD_CSV, SEASON_DIR, SEASONS_JSON   # noqa: E402
 
 # Default paths
 DEFAULT_DATA_DIR = DATA_DIR
@@ -191,8 +191,8 @@ def load_season_archive(prev_season_id: str, data_dir: str) -> dict:
     ``season_processing.py``) after a season ends and contains the
     ``promotion_relegation`` result produced by ``get_promotion_relegation()``.
 
-    The archive is always read from the canonical location
-    ``<data_dir>/season/season_data.json`` (i.e. ``SEASON_DATA_JSON``).
+    The archive is read from ``<data_dir>/season/season_data.json``, where
+    ``data_dir`` is the root data directory (e.g., ``docs/data``).
 
     Args:
         prev_season_id: Identifier of the completed season (e.g., "S1").
@@ -306,7 +306,7 @@ def main():
             print(f"{GREEN}✓{RESET} Loaded promotion/relegation data\n")
 
             print(f"{YELLOW}Loading '{prev_id}' tier composition from seasons.json...{RESET}")
-            prev_season_data = load_season_data(prev_id, args.data_dir)
+            prev_season_data = load_season_data(prev_id, SEASON_DIR)
             if not prev_season_data:
                 raise ValueError(
                     f"Season '{prev_id}' not found in seasons.json."
@@ -346,9 +346,8 @@ def main():
 
         # Save season data
         print(f"{YELLOW}Saving season metadata...{RESET}")
-        save_season_data(season_data, args.data_dir)
-        seasons_file = os.path.join(args.data_dir, "seasons.json")
-        print(f"{GREEN}✓{RESET} Saved to {seasons_file}\n")
+        save_season_data(season_data, SEASON_DIR)
+        print(f"{GREEN}✓{RESET} Saved to {SEASONS_JSON}\n")
 
         # Print tier assignments
         print_tier_assignments(season_data)
