@@ -2499,6 +2499,24 @@ body.dark .wiki-card-rank.rank-bronze {
     object-fit: contain;
 }
 
+.level-badge-icon-inline {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.prestige-badge-icon-inline {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.level-stat-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .wiki-card-type.attack {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
@@ -3497,6 +3515,16 @@ body.dark .wiki-card-rank.rank-bronze {
 
 .season-badge-tier3:hover {
     box-shadow: var(--shadow-lg), 0 0 22px rgba(160, 103, 58, 0.65);
+}
+
+.season-badge-tier4 {
+    background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+    color: #fff;
+    box-shadow: var(--shadow-md), 0 0 14px rgba(107, 114, 128, 0.45);
+}
+
+.season-badge-tier4:hover {
+    box-shadow: var(--shadow-lg), 0 0 22px rgba(107, 114, 128, 0.65);
 }
 
 .season-badge-cup {

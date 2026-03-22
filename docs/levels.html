@@ -102,19 +102,19 @@
         .level-badge {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            background: var(--accent);
-            color: #fff;
-            border-radius: 6px;
-            padding: 2px 8px;
-            font-weight: 700;
-            font-size: 0.88rem;
+            gap: 6px;
         }
 
-        .prestige-stars {
-            color: #f4c430;
-            font-size: 0.9em;
-            margin-left: 2px;
+        .level-badge-icon {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+        }
+
+        .prestige-badge-icon {
+            width: 26px;
+            height: 26px;
+            object-fit: contain;
         }
 
         .xp-bar-container {
@@ -486,11 +486,23 @@ function rankClass(rank) {
     return '';
 }
 
-function renderPrestige(prestige) {
+function getPrestigeBadgePath(prestige) {
     if (!prestige) return '';
-    // Display at most 5 stars — matches PRESTIGE_XP_BONUS_CAP / PRESTIGE_XP_BONUS_PER_LEVEL = 5
-    const stars = '⭐'.repeat(Math.min(prestige, 5));
-    return `<span class="prestige-stars" title="Prestige ${prestige}">${stars}</span>`;
+    const p = Math.max(1, Math.floor(Number(prestige) || 0));
+    const romanMap = { 1: 'i', 2: 'ii', 3: 'iii', 4: 'iv', 5: 'v' };
+    if (romanMap[p]) return `icons/badges/prestige/prestige_${romanMap[p]}.svg`;
+    return `icons/badges/prestige/prestige_${Math.min(p, 11)}.svg`;
+}
+
+function renderPrestige(prestige) {
+    const badgePath = getPrestigeBadgePath(prestige);
+    if (!badgePath) return '';
+    return `<img class="prestige-badge-icon" src="${badgePath}" alt="Prestige ${prestige}" title="Prestige ${prestige}" loading="lazy">`;
+}
+
+function getLevelBadgePath(level) {
+    const lv = Math.max(1, Math.floor(Number(level) || 1));
+    return `icons/badges/level/lv${Math.min(lv, 49)}.svg`;
 }
 
 function renderXpBar(xpInLevel, xpNeeded) {
@@ -526,7 +538,7 @@ function renderRows(data) {
         const beyEncoded = encodeURIComponent(entry.bey);
         const beyEscaped = escapeHtml(entry.bey);
         const beyLink = `<a href="bey.html?name=${beyEncoded}" data-bey="${beyEscaped}">${beyEscaped}</a>`;
-        const levelDisplay = `<span class="level-badge">Lv.${entry.level}${renderPrestige(entry.prestige)}</span>`;
+        const levelDisplay = `<span class="level-badge"><img class="level-badge-icon" src="${getLevelBadgePath(entry.level)}" alt="Level ${entry.level}" title="Level ${entry.level}" loading="lazy">${renderPrestige(entry.prestige)}</span>`;
         const progressBar = renderXpBar(entry.xp_in_level, entry.xp_needed_for_level);
         const totalXpDisplay = renderTotalXp(entry.xp);
         const streakDisplay = renderStreak(entry.win_streak);
