@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeybladeX Badge Preview v12</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#07090f; --border:#181c2a; --muted:#404868; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:#e8eaf6; font-family:'Orbitron',monospace; padding:36px 24px 100px; }
+  h1 { font-size:.95rem; letter-spacing:.2em; color:#a78bfa; margin-bottom:5px; }
+  .note { font-size:.72rem; color:var(--muted); margin-bottom:44px; font-family:sans-serif; }
+  section { margin-bottom:50px; }
+  h2 { font-size:.58rem; letter-spacing:.2em; color:var(--muted); text-transform:uppercase;
+    margin-bottom:16px; padding-bottom:7px; border-bottom:1px solid var(--border); }
+  .grid { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  .item { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .lbl { font-size:.6rem; color:var(--muted); letter-spacing:.04em; font-family:sans-serif; }
+  .item svg { transition:transform .2s, filter .2s; cursor:pointer; overflow:visible; }
+  .item svg:hover { transform:translateY(-4px) scale(1.08); filter:brightness(1.12); }
+</style>
+</head>
+<body>
+<h1>BEYBLADEX · BADGE SYSTEM v12</h1>
+<p class="note">Font Preview: Orbitron → finale Site: Presicaw W00 Heavy</p>
+
+<section><h2>Level 1–9 · Bronze · Pentagon · Transition → Silber</h2><div class="grid" id="t1"></div></section>
+<section><h2>Level 10–19 · Silber · Hexagon · Transition → Platin</h2><div class="grid" id="t2"></div></section>
+<section><h2>Level 20–29 · Platin · Starburst · Transition → Lila</h2><div class="grid" id="t3"></div></section>
+<section><h2>Level 30–39 · Lila · Oktagon · Transition → Rot</h2><div class="grid" id="t4"></div></section>
+<section><h2>Level 40–49 · Rot · Doppel-Hex · Power Glow</h2><div class="grid" id="t5"></div></section>
+<section><h2>Prestige I–V · Wappen</h2><div class="grid" id="pre"></div></section>
+<section><h2>Prestige VI+ · Schwarz / Gold</h2><div class="grid" id="pre2"></div></section>
+<section><h2>Tournament · Kristall</h2><div class="grid" id="troph"></div></section>
+<section><h2>Season Champion · Tier 1–4</h2><div class="grid" id="seas"></div></section>
+
+<script>
+const uid = () => Math.random().toString(36).slice(2,7);
+
+// ─── Shape helpers ─────────────────────────────────────────────────
+function poly(cx,cy,r,n,rot=0){
+  let d="";
+  for(let i=0;i<n;i++){const a=(i/n)*Math.PI*2+rot;d+=(i===0?"M":"L")+`${(cx+Math.cos(a)*r).toFixed(2)},${(cy+Math.sin(a)*r).toFixed(2)}`;}
+  return d+"Z";
+}
+function starburst(cx,cy,rO,rI,n=6,rot=0){
+  let d="";
+  for(let i=0;i<n;i++){const a1=(i/n)*Math.PI*2+rot,a2=((i+0.5)/n)*Math.PI*2+rot;d+=(i===0?"M":"L")+`${(cx+Math.cos(a1)*rO).toFixed(2)},${(cy+Math.sin(a1)*rO).toFixed(2)} L${(cx+Math.cos(a2)*rI).toFixed(2)},${(cy+Math.sin(a2)*rI).toFixed(2)}`;}
+  return d+"Z";
+}
+function starPoly(cx,cy,rO,rI,n=5){
+  let d="";
+  for(let i=0;i<n*2;i++){const a=(i/(n*2))*Math.PI*2-Math.PI/2,r=i%2===0?rO:rI;d+=(i===0?"M":"L")+`${(cx+Math.cos(a)*r).toFixed(2)},${(cy+Math.sin(a)*r).toFixed(2)}`;}
+  return d+"Z";
+}
+function hexPath(cx,cy,r,rot=-Math.PI/6){return poly(cx,cy,r,6,rot);}
+function shieldPath(cx,cy,w,h){
+  const l=cx-w/2,r=cx+w/2,t=cy-h/2,b=cy+h/2,wy=cy+h*0.1;
+  return `M${l},${t} L${r},${t} L${r},${wy} C${r},${b-h*.12} ${cx+w*.08},${b-h*.04} ${cx},${b} C${cx-w*.08},${b-h*.04} ${l},${b-h*.12} ${l},${wy} Z`;
+}
+
+// ─── Plate rings ───────────────────────────────────────────────────
+// Each ring: fill outer shape → punch inner with bg → highlight/shadow edges
+// c1/c2 = primary gradient colours for this plate (allows colour transition)
+function drawPlates(shapeFn, n, plateColors, bgDark, id, step=0.085) {
+  let defs="", svg="";
+  for(let i=0;i<n;i++){
+    const {hi,mid,dark} = plateColors[i] || plateColors[plateColors.length-1];
+    defs+=`<linearGradient id="pg${id}_${i}" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="${hi}" stop-opacity="0.95"/>
+      <stop offset="38%" stop-color="${mid}" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="${dark}" stop-opacity="0.85"/>
+    </linearGradient>`;
+    const sO=1+(i+1)*step, sI=1+i*step;
+    svg+=`<path d="${shapeFn(sO)}" fill="url(#pg${id}_${i})"/>`;
+    svg+=`<path d="${shapeFn(sI)}" fill="${bgDark}"/>`;
+    svg+=`<path d="${shapeFn(sO)}" fill="none" stroke="${hi}" stroke-width="0.8" stroke-opacity="${0.48-i*0.08}" stroke-linejoin="round"/>`;
+    svg+=`<path d="${shapeFn(sI)}" fill="none" stroke="${dark}" stroke-width="0.5" stroke-opacity="${0.28-i*0.04}" stroke-linejoin="round"/>`;
+  }
+  return {defs,svg};
+}
+
+// ─── Inset contour lines ───────────────────────────────────────────
+function insetLines(shapeFn, n, hiColor, rimColor, start=0.94, step=0.055){
+  let s="";
+  for(let i=0;i<n;i++){
+    s+=`<path d="${shapeFn(start-i*step)}" fill="none"
+      stroke="${i===0?hiColor:rimColor}" stroke-width="${0.72-i*0.09}"
+      stroke-opacity="${0.36-i*0.06}" stroke-linejoin="round"/>`;
+  }
+  return s;
+}
+
+// ─── Apron (skirt hanging below badge) ────────────────────────────
+// botY = exact bottom vertex y of badge, badgeW = width at equator
+// layers = 1..3, each layer slightly wider and taller
+function apron(cx, botY, badgeW, hi, mid, dark, id, layers=1){
+  let defs="",svg="";
+  for(let i=0;i<layers;i++){
+    const aw=badgeW*(0.62+i*0.08);
+    const ah=badgeW*(0.14+i*0.05);
+    const al=cx-aw/2, ar=cx+aw/2;
+    const ty=botY + i*1.5; // stack layers touching each other
+    defs+=`<linearGradient id="ap${id}_${i}" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${i===0?mid:dark}"/>
+      <stop offset="100%" stop-color="${dark}" stop-opacity="0.7"/>
+    </linearGradient>`;
+    // Main apron body
+    svg+=`<path d="M${al},${ty} L${ar},${ty} L${ar+badgeW*0.028},${ty+ah} L${cx},${ty+ah+badgeW*0.055} L${al-badgeW*0.028},${ty+ah} Z"
+      fill="url(#ap${id}_${i})"/>`;
+    // Top highlight edge
+    svg+=`<path d="M${al},${ty} L${ar},${ty}" fill="none"
+      stroke="${hi}" stroke-width="0.9" stroke-opacity="${0.5-i*0.1}"/>`;
+    // Side edge lines
+    svg+=`<line x1="${al}" y1="${ty}" x2="${al-badgeW*0.028}" y2="${ty+ah}"
+      stroke="${hi}" stroke-width="0.7" stroke-opacity="${0.38-i*0.07}"/>`;
+    svg+=`<line x1="${ar}" y1="${ty}" x2="${ar+badgeW*0.028}" y2="${ty+ah}"
+      stroke="${hi}" stroke-width="0.7" stroke-opacity="${0.38-i*0.07}"/>`;
+    // Inner shine
+    svg+=`<path d="M${al+aw*0.08},${ty+ah*0.15} L${ar-aw*0.08},${ty+ah*0.15}"
+      fill="none" stroke="white" stroke-width="0.6" stroke-opacity="${0.15-i*0.04}"/>`;
+  }
+  return {defs,svg};
+}
+
+// ─── Cross-stripe (horizontal bar behind badge, centred) ──────────
+// Returns SVG for N horizontal stripes behind badge
+// stripeY = vertical centre of stripes cluster, badgeW = badge width
+function crossStripes(cx, stripeY, badgeW, hi, mid, dark, id, count=1){
+  let defs="",svg="";
+  const sh=badgeW*0.075; // stripe height
+  const gap=sh*0.12;
+  for(let i=0;i<count;i++){
+    const sw=badgeW*(1.12+i*0.12);
+    const sy=stripeY+(i-(count-1)/2)*(sh+gap);
+    defs+=`<linearGradient id="cs${id}_${i}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="${dark}" stop-opacity="0.6"/>
+      <stop offset="20%"  stop-color="${mid}"  stop-opacity="0.9"/>
+      <stop offset="50%"  stop-color="${hi}"   stop-opacity="0.95"/>
+      <stop offset="80%"  stop-color="${mid}"  stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="${dark}" stop-opacity="0.6"/>
+    </linearGradient>`;
+    svg+=`<rect x="${cx-sw/2}" y="${sy-sh/2}" width="${sw}" height="${sh}"
+      rx="${sh*0.35}" fill="url(#cs${id}_${i})"/>`;
+    // Top highlight
+    svg+=`<rect x="${cx-sw*0.45}" y="${sy-sh/2+sh*0.12}" width="${sw*0.9}" height="${sh*0.28}"
+      rx="${sh*0.2}" fill="white" opacity="${0.12-i*0.03}"/>`;
+  }
+  return {defs,svg};
+}
+
+// ══════════════════════════════════════════════════════════════════
+// NEXT-TIER COLOUR for transition
+// ══════════════════════════════════════════════════════════════════
+const NEXT_TIER_HI = [
+  "#f0f4f8", // bronze→silver
+  "#b8f0fc", // silver→platin
+  "#ddb8ff", // platin→lila
+  "#ffb0b0", // lila→rot
+  "#ffb0b0", // rot→rot (stays)
+];
+
+// ══════════════════════════════════════════════════════════════════
+// TIER CONFIGS
+// ══════════════════════════════════════════════════════════════════
+const TIERS=[
+  {range:[1,9],   ti:0, bg1:"#2a1808",bg2:"#0d0602",rim1:"#e8922a",rim2:"#8b4a0a",hi:"#fcd08a",glow:"#e8922a"},
+  {range:[10,19], ti:1, bg1:"#141a22",bg2:"#080c12",rim1:"#c8d4e0",rim2:"#5a6878",hi:"#f0f4f8",glow:"#c8d4e0"},
+  {range:[20,29], ti:2, bg1:"#081218",bg2:"#040810",rim1:"#4ad4f0",rim2:"#0c6888",hi:"#b8f0fc",glow:"#4ad4f0"},
+  {range:[30,39], ti:3, bg1:"#100820",bg2:"#060410",rim1:"#b060f8",rim2:"#6018b0",hi:"#ddb8ff",glow:"#b060f8"},
+  {range:[40,49], ti:4, bg1:"#200808",bg2:"#100404",rim1:"#f04040",rim2:"#901818",hi:"#ffb0b0",glow:"#f04040"},
+];
+
+// ══════════════════════════════════════════════════════════════════
+// LEVEL BADGE
+// ══════════════════════════════════════════════════════════════════
+function levelBadge(level, tier, sz=84){
+  const cx=sz/2,cy=sz/2,id=uid();
+  const rO=sz*0.405, rI=sz*0.34, rBg=sz*0.315;
+  const numSz=level>=10?sz*0.30:sz*0.34;
+  const lv0=level-tier.range[0]; // 0..8
+  const isTransition = lv0 >= 6; // lv7,8,9 within tier = transition colours
+  const nextHi = NEXT_TIER_HI[tier.ti];
+
+  // Progression table (lv0 = 0..8):
+  // plates: 0,1,1,1,2,2,2,3,3
+  const plateCount = lv0===0?0 : lv0<=3?1 : lv0<=6?2 : 3;
+  // insets: 1,1,2,2,3,3,4,4,4
+  const insetCount = lv0<=1?1 : lv0<=3?2 : lv0<=5?3 : 4;
+  // apron layers: 0,0,0,1,1,2,2,3,3
+  const apronLayers = lv0<=2?0 : lv0<=4?1 : lv0<=6?2 : 3;
+  // crossstripes: 0,0,0,0,0,0,1,1,2
+  const stripeCount = lv0<=5?0 : lv0<=7?1 : 2;
+
+  // Glow intensity scales with tier and level
+  const glowBase = [0.30,0.35,0.40,0.48,0.65][tier.ti];
+  const glowExtra = lv0>=6 ? 0.15 : lv0>=3 ? 0.07 : 0;
+  const glowOp = Math.min(glowBase + glowExtra, 0.85);
+  const glowBlur = [7,8,9,11,16][tier.ti] + (lv0>=6?3:0);
+
+  // Shape
+  let outerPath,innerPath,bgPath,shapeFn,botY;
+  switch(tier.ti){
+    case 0:{const rot=Math.PI/2;
+      outerPath=poly(cx,cy,rO,5,rot);innerPath=poly(cx,cy,rI,5,rot);bgPath=poly(cx,cy,rBg,5,rot);
+      shapeFn=s=>poly(cx,cy,rO*s,5,rot);
+      // Bottom vertex of pentagon (point down): at (cx, cy+rO)
+      botY=cy+rO; break;}
+    case 1:{const rot=-Math.PI/6;
+      outerPath=poly(cx,cy,rO,6,rot);innerPath=poly(cx,cy,rI,6,rot);bgPath=poly(cx,cy,rBg,6,rot);
+      shapeFn=s=>poly(cx,cy,rO*s,6,rot);
+      botY=cy+rO; break;}
+    case 2:{const rot=-Math.PI/6;
+      outerPath=starburst(cx,cy,rO,rO*0.83,6,rot);
+      innerPath=poly(cx,cy,rI,6,rot);bgPath=poly(cx,cy,rBg,6,rot);
+      shapeFn=s=>starburst(cx,cy,rO*s,rO*s*0.83,6,rot);
+      botY=cy+rO; break;}
+    case 3:{const rot=Math.PI/8;
+      outerPath=poly(cx,cy,rO,8,rot);innerPath=poly(cx,cy,rI,8,rot);bgPath=poly(cx,cy,rBg,8,rot);
+      shapeFn=s=>poly(cx,cy,rO*s,8,rot);
+      // Octagon rot=PI/8: lowest vertex at angle PI/2+PI/8, sin≈0.924
+      botY=cy+rO*Math.sin(Math.PI/2+Math.PI/8); break;}
+    case 4:{
+      outerPath=poly(cx,cy,rO,6,0);innerPath=poly(cx,cy,rI,6,0);bgPath=poly(cx,cy,rBg,6,0);
+      shapeFn=s=>poly(cx,cy,rO*s,6,0);
+      // Hex rot=0: lowest vertices at angle PI/3 and 2PI/3, y=cy+rO*sin(PI/3)
+      botY=cy+rO*Math.sin(Math.PI/3); break;}
+  }
+
+  // Plate colours – last plate gets transition colour for lv7+
+  const plateColors=[];
+  for(let i=0;i<plateCount;i++){
+    const isLastPlate=(i===plateCount-1);
+    const useTransition=isTransition&&isLastPlate;
+    plateColors.push({
+      hi:  useTransition ? lerpColor(tier.hi, nextHi, 0.82) : tier.hi,
+      mid: useTransition ? lerpColor(tier.rim1,nextHi, 0.65) : tier.rim1,
+      dark:tier.rim2,
+    });
+  }
+
+  const {defs:pd,svg:ps}=plateCount>0
+    ? drawPlates(shapeFn,plateCount,plateColors,tier.bg2,id,0.085)
+    : {defs:"",svg:""};
+
+  // Extra outer ring lv7+
+  let extraRing="";
+  if(lv0>=6){
+    const s=1+plateCount*0.085+0.04;
+    const ringColor=isTransition?lerpColor(tier.hi,nextHi,0.6):tier.hi;
+    extraRing=`<path d="${shapeFn(s)}" fill="none"
+      stroke="${ringColor}" stroke-width="1.0" stroke-opacity="0.38" stroke-linejoin="round"/>
+    <path d="${shapeFn(s*1.03)}" fill="none"
+      stroke="${tier.rim1}" stroke-width="0.6" stroke-opacity="0.2" stroke-linejoin="round"/>`;
+  }
+
+  // Tier4 ghost hex
+  let tier4Extra="";
+  if(tier.ti===4){
+    tier4Extra=`<path d="${poly(cx,cy,rO*0.96,6,Math.PI/6)}" fill="none"
+      stroke="${tier.hi}" stroke-width="1.1" stroke-opacity="${0.25+lv0*0.02}" stroke-linejoin="round"/>`;
+  }
+
+  // Inset contours – last 1-2 get transition colour for lv7+
+  const insetHi = isTransition ? lerpColor(tier.hi, nextHi, 0.75) : tier.hi;
+  const contours = insetLines(shapeFn, insetCount, insetHi, tier.rim1);
+
+  // Apron – transition colour bleeds in for lv7+
+  const apronHi  = isTransition ? lerpColor(tier.hi, nextHi, 0.82) : tier.hi;
+  const apronMid = isTransition ? lerpColor(tier.rim1, nextHi, 0.60) : tier.rim1;
+  let apronDefs="", apronSVG="";
+  if(apronLayers>0){
+    const r=apron(cx,botY,rO*2,apronHi,apronMid,tier.rim2,id,apronLayers);
+    apronDefs=r.defs; apronSVG=r.svg;
+  }
+
+  // Cross-stripes behind badge
+  const stripeHi  = isTransition ? lerpColor(tier.hi, nextHi, 0.82) : tier.hi;
+  const stripeMid = isTransition ? lerpColor(tier.rim1,nextHi, 0.6) : tier.rim1;
+  let stripeDefs="", stripeSVG="";
+  if(stripeCount>0){
+    const r=crossStripes(cx,cy,rO*2.1,stripeHi,stripeMid,tier.rim2,id,stripeCount);
+    stripeDefs=r.defs; stripeSVG=r.svg;
+  }
+
+  const pad=sz*1.0;
+  return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="35%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="${tier.bg1}"/>
+      <stop offset="100%" stop-color="${tier.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="${isTransition?lerpColor(tier.hi,nextHi,0.7):tier.hi}"/>
+      <stop offset="40%" stop-color="${tier.rim1}"/>
+      <stop offset="100%" stop-color="${tier.rim2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-150%" y="-150%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="${glowBlur}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    ${pd}${apronDefs}${stripeDefs}
+  </defs>
+  <!-- Glow -->
+  <path d="${outerPath}" fill="${tier.glow}" fill-opacity="${glowOp}" filter="url(#halo${id})"/>
+  <!-- Cross-stripes BEHIND badge -->
+  ${stripeSVG}
+  <!-- Plates BEHIND badge -->
+  ${ps}
+  ${extraRing}
+  <!-- Apron BEHIND badge (drawn before main body so badge covers top of apron) -->
+  ${apronSVG}
+  <!-- Main badge body (covers all overlap) -->
+  <path d="${outerPath}" fill="url(#rim${id})"/>
+  <path d="${innerPath}" fill="${tier.bg2}"/>
+  <path d="${innerPath}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.019}" stroke-linejoin="round"/>
+  <path d="${bgPath}"    fill="url(#bg${id})"/>
+  <path d="${bgPath}"    fill="url(#sh${id})"/>
+  ${tier4Extra}
+  <!-- Inset contours on badge surface -->
+  ${contours}
+  <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${numSz}"
+    fill="${tier.hi}" filter="url(#gl${id})">${level}</text>
+</svg>`;
+}
+
+// ─── Colour lerp helper ────────────────────────────────────────────
+function lerpColor(a, b, t){
+  const pa=parseInt(a.slice(1),16), pb=parseInt(b.slice(1),16);
+  const ar=(pa>>16)&0xff, ag=(pa>>8)&0xff, ab=pa&0xff;
+  const br=(pb>>16)&0xff, bg_=(pb>>8)&0xff, bb=pb&0xff;
+  const r=Math.round(ar+(br-ar)*t), g=Math.round(ag+(bg_-ag)*t), bv=Math.round(ab+(bb-ab)*t);
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${bv.toString(16).padStart(2,'0')}`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PRESTIGE SHIELD
+// ══════════════════════════════════════════════════════════════════
+const PC=[
+  {c1:"#e8922a",c2:"#8b4a0a",hi:"#fcd08a",bg1:"#1c1006",bg2:"#0a0602",glow:"#e8922a",rim1:"#e8922a",rim2:"#8b4a0a"},
+  {c1:"#c8d4e0",c2:"#5a6878",hi:"#f0f4f8",bg1:"#101418",bg2:"#080c10",glow:"#c8d4e0",rim1:"#c8d4e0",rim2:"#5a6878"},
+  {c1:"#4ad4f0",c2:"#0c6888",hi:"#b8f0fc",bg1:"#04121c",bg2:"#02080f",glow:"#4ad4f0",rim1:"#4ad4f0",rim2:"#0c6888"},
+  {c1:"#f472b6",c2:"#be185d",hi:"#fce7f3",bg1:"#1a0212",bg2:"#0e0009",glow:"#f472b6",rim1:"#f472b6",rim2:"#be185d"},
+  {c1:"#b060f8",c2:"#6018b0",hi:"#ddb8ff",bg1:"#0c0420",bg2:"#060210",glow:"#b060f8",rim1:"#b060f8",rim2:"#6018b0"},
+];
+
+function prestigeShield(stars,sz=86,colOvr=null,lblOvr=null){
+  const cx=sz/2,cy=sz/2,id=uid();
+  const c=colOvr||PC[Math.min(stars,5)-1];
+  const lbl=lblOvr||["I","II","III","IV","V"][Math.min(stars,5)-1];
+  const p=Math.min(stars,5);
+  const sw=sz*0.72,sh=sz*0.80;
+  const oS=shieldPath(cx,cy-sh*0.01,sw,sh);
+  const iS=shieldPath(cx,cy-sh*0.01,sw*0.84,sh*0.86);
+  const bS=shieldPath(cx,cy-sh*0.01,sw*0.78,sh*0.80);
+  const shFn=s=>shieldPath(cx,cy-sh*0.01,sw*s,sh*s);
+  const plateN=Math.max(0,p-1);
+  const plateColors=Array.from({length:plateN},(_,i)=>({hi:c.hi,mid:c.rim1,dark:c.rim2}));
+  const {defs:pd,svg:ps}=plateN>0?drawPlates(shFn,plateN,plateColors,c.bg2,id,0.08):{defs:"",svg:""};
+  const contours=insetLines(shFn,Math.min(p,3),c.hi,c.rim1);
+  // Apron for p>=3
+  let apDefs="",apSVG="";
+  if(p>=3){
+    const shBotY=cy+sh*0.49-sh*0.01;
+    const r=apron(cx,shBotY-sh*0.08,sw*0.9,c.hi,c.rim1,c.rim2,id,Math.min(p-2,3));
+    apDefs=r.defs; apSVG=r.svg;
+  }
+
+  const glowOp=0.3+p*0.06;
+  const sStar=starPoly(cx,cy-sz*0.12,sz*0.12,sz*0.054,5);
+  const orbitR=sz*0.16;
+  let dots="";
+  for(let i=0;i<Math.min(stars,5);i++){
+    const a=(i/Math.min(stars,5))*Math.PI*2-Math.PI/2;
+    dots+=`<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(2)}" cy="${(cy-sz*0.12+Math.sin(a)*orbitR).toFixed(2)}"
+      r="${sz*0.024}" fill="${c.hi}" opacity="0.92"/>`;
+  }
+  const pad=sz*0.85;
+  return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="35%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="${c.bg1}"/>
+      <stop offset="100%" stop-color="${c.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="${c.hi}"/>
+      <stop offset="42%" stop-color="${c.c1}"/>
+      <stop offset="100%" stop-color="${c.c2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-120%" y="-120%" width="440%" height="440%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    ${pd}${apDefs}
+  </defs>
+  <path d="${oS}" fill="${c.glow}" fill-opacity="${glowOp}" filter="url(#halo${id})"/>
+  ${apSVG}
+  ${ps}
+  <path d="${oS}" fill="url(#rim${id})"/>
+  <path d="${iS}" fill="${c.bg2}"/>
+  <path d="${iS}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.016}"/>
+  <path d="${bS}" fill="url(#bg${id})"/>
+  <path d="${bS}" fill="url(#sh${id})"/>
+  ${contours}
+  <circle cx="${cx}" cy="${cy-sz*0.12}" r="${orbitR}" fill="none" stroke="${c.c1}"
+    stroke-width="0.5" stroke-opacity="0.32" stroke-dasharray="2 2"/>
+  ${dots}
+  <path d="${sStar}" fill="url(#rim${id})" filter="url(#gl${id})"/>
+  <text x="${cx}" y="${cy+sz*0.2}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.17}"
+    fill="${c.hi}" filter="url(#gl${id})">${lbl}</text>
+</svg>`;
+}
+
+function prestigeBG(num,sz=86){
+  const c={c1:"#f59e0b",c2:"#78350f",hi:"#fde68a",bg1:"#141008",bg2:"#060402",
+    glow:"#f59e0b",rim1:"#f59e0b",rim2:"#78350f"};
+  const cx=sz/2,cy=sz/2,id=uid();
+  const sw=sz*0.72,sh=sz*0.80;
+  const oS=shieldPath(cx,cy-sh*0.01,sw,sh);
+  const iS=shieldPath(cx,cy-sh*0.01,sw*0.84,sh*0.86);
+  const bS=shieldPath(cx,cy-sh*0.01,sw*0.78,sh*0.80);
+  const shFn=s=>shieldPath(cx,cy-sh*0.01,sw*s,sh*s);
+  const plateColors=Array.from({length:4},()=>({hi:"#fde68a",mid:"#f59e0b",dark:"#78350f"}));
+  const {defs:pd,svg:ps}=drawPlates(shFn,4,plateColors,c.bg2,id,0.08);
+  const contours=insetLines(shFn,3,c.hi,c.rim1);
+  const shBotY=cy+sh*0.49-sh*0.01;
+  const {defs:apDefs,svg:apSVG}=apron(cx,shBotY-sh*0.08,sw*0.9,"#fde68a","#f59e0b","#78350f",id,3);
+  const orbitR=sz*0.16;
+  let dots="";
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2-Math.PI/2;
+    dots+=`<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(2)}" cy="${(cy-sz*0.12+Math.sin(a)*orbitR).toFixed(2)}"
+      r="${sz*0.024}" fill="#fde68a" opacity="${i<(num-5)?0.95:0.13}"/>`;
+  }
+  const sStar=starPoly(cx,cy-sz*0.12,sz*0.12,sz*0.054,5);
+  const pad=sz*0.85;
+  return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="36%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#1a1408"/>
+      <stop offset="100%" stop-color="#060402"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.14"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-120%" y="-120%" width="440%" height="440%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    ${pd}${apDefs}
+  </defs>
+  <path d="${oS}" fill="#f59e0b" fill-opacity="0.5" filter="url(#halo${id})"/>
+  ${apSVG}
+  ${ps}
+  <path d="${oS}" fill="url(#rim${id})"/>
+  <path d="${iS}" fill="#080604"/>
+  <path d="${iS}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.016}"/>
+  <path d="${bS}" fill="url(#bg${id})"/>
+  <path d="${bS}" fill="url(#sh${id})"/>
+  ${contours}
+  <circle cx="${cx}" cy="${cy-sz*0.12}" r="${orbitR}" fill="none" stroke="#f59e0b"
+    stroke-width="0.5" stroke-opacity="0.3" stroke-dasharray="2 2"/>
+  ${dots}
+  <path d="${sStar}" fill="url(#rim${id})" filter="url(#gl${id})"/>
+  <text x="${cx}" y="${cy+sz*0.2}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.17}"
+    fill="#fde68a" filter="url(#gl${id})">${num}</text>
+</svg>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CRYSTAL TROPHY
+// ══════════════════════════════════════════════════════════════════
+function crystalTrophy(sz=110){
+  const cx=sz/2,cy=sz/2,id=uid();
+  const gCx=cx,gCy=cy-sz*0.1,gR=sz*0.22;
+  const gem=`M${gCx},${gCy-gR} L${gCx+gR*.72},${gCy-gR*.18} L${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx-gR*.9},${gCy+gR*.32} L${gCx-gR*.72},${gCy-gR*.18} Z`;
+  const fL=`M${gCx},${gCy-gR} L${gCx-gR*.72},${gCy-gR*.18} L${gCx},${gCy+gR*.08} Z`;
+  const fR=`M${gCx},${gCy-gR} L${gCx+gR*.72},${gCy-gR*.18} L${gCx},${gCy+gR*.08} Z`;
+  const fBL=`M${gCx-gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*.08} Z`;
+  const fBR=`M${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*.08} Z`;
+  const fBC=`M${gCx-gR*.9},${gCy+gR*.32} L${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR*.08} Z`;
+  const sTop=gCy+gR,kY=sTop+sz*.065,sBot=sTop+sz*.13;
+  return `<svg width="${sz}" height="${sz*1.1}" viewBox="0 0 ${sz} ${sz*1.04}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gA${id}" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/><stop offset="45%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="gB${id}"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>
+    <linearGradient id="gC${id}" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/><stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="gold${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="#fde68a"/><stop offset="40%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <linearGradient id="base${id}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#92400e"/><stop offset="50%" stop-color="#fde68a"/><stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <filter id="halo${id}" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="${sz*.11}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="${gem}" fill="#f59e0b88" filter="url(#halo${id})"/>
+  <path d="${gem}" fill="url(#gA${id})"/>
+  <path d="${fL}" fill="url(#gB${id})" opacity=".72"/>
+  <path d="${fR}" fill="url(#gB${id})" opacity=".52"/>
+  <path d="${fBL}" fill="url(#gC${id})" opacity=".78"/>
+  <path d="${fBR}" fill="url(#gC${id})" opacity=".62"/>
+  <path d="${fBC}" fill="#d97706" opacity=".68"/>
+  <path d="${gem}" fill="none" stroke="#fde68a" stroke-width=".85" stroke-opacity=".55"/>
+  <line x1="${gCx}" y1="${gCy-gR}" x2="${gCx}" y2="${gCy+gR*.08}" stroke="#fde68a" stroke-width=".55" stroke-opacity=".38"/>
+  <line x1="${gCx}" y1="${gCy+gR*.08}" x2="${gCx-gR*.9}" y2="${gCy+gR*.32}" stroke="#fde68a" stroke-width=".55" stroke-opacity=".28"/>
+  <line x1="${gCx}" y1="${gCy+gR*.08}" x2="${gCx+gR*.9}" y2="${gCy+gR*.32}" stroke="#fde68a" stroke-width=".55" stroke-opacity=".28"/>
+  <path d="M${gCx-gR*.32},${gCy-gR*.72} L${gCx+gR*.09},${gCy-gR*.86} L${gCx+gR*.04},${gCy-gR*.44} Z" fill="white" opacity=".32"/>
+  <path d="M${cx-sz*.04},${sTop} C${cx-sz*.06},${kY} ${cx-sz*.024},${kY} ${cx-sz*.03},${sBot} L${cx+sz*.03},${sBot} C${cx+sz*.024},${kY} ${cx+sz*.06},${kY} ${cx+sz*.04},${sTop} Z" fill="url(#gold${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*.052}" ry="${sz*.036}" fill="url(#gold${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*.052}" ry="${sz*.036}" fill="none" stroke="#fde68a" stroke-width=".65" stroke-opacity=".45"/>
+  <path d="M${cx-sz*.25},${sBot} L${cx-sz*.27},${sBot+sz*.062} L${cx+sz*.27},${sBot+sz*.062} L${cx+sz*.25},${sBot} Z" fill="url(#gold${id})"/>
+  <rect x="${cx-sz*.21}" y="${sBot+sz*.062}" width="${sz*.42}" height="${sz*.06}" rx="${sz*.012}" fill="url(#base${id})"/>
+</svg>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SEASON BADGE
+// ══════════════════════════════════════════════════════════════════
+const ST=[
+  {c1:"#f59e0b",c2:"#78350f",hi:"#fde68a",bg1:"#150e00",bg2:"#080600",glow:"#f59e0b",rim1:"#f59e0b",rim2:"#78350f",name:"Gold·T1"},
+  {c1:"#c8d4e0",c2:"#5a6878",hi:"#f0f4f8",bg1:"#0e1016",bg2:"#06080c",glow:"#c8d4e0",rim1:"#c8d4e0",rim2:"#5a6878",name:"Silber·T2"},
+  {c1:"#e8922a",c2:"#8b4a0a",hi:"#fcd08a",bg1:"#130a04",bg2:"#080502",glow:"#e8922a",rim1:"#e8922a",rim2:"#8b4a0a",name:"Bronze·T3"},
+  {c1:"#4a7c6f",c2:"#1a3830",hi:"#94c9bb",bg1:"#071210",bg2:"#030908",glow:"#4a7c6f",rim1:"#4a7c6f",rim2:"#1a3830",name:"Schiefer·T4"},
+];
+
+function seasonBadge(tierIdx,seasonNum,sz=84){
+  const cx=sz/2,cy=sz/2,id=uid();
+  const c=ST[tierIdx];
+  const rO=sz*0.41, rot=-Math.PI/6;
+  const oH=hexPath(cx,cy,rO,rot),mH=hexPath(cx,cy,rO*0.845,rot),iH=hexPath(cx,cy,rO*0.785,rot);
+  const hexFn=s=>hexPath(cx,cy,rO*s,rot);
+  const roman=["I","II","III","IV","V","VI","VII","VIII","IX","X"][seasonNum-1]||`${seasonNum}`;
+  const numSz=roman.length>2?sz*0.19:sz*0.24;
+  const layers=tierIdx+1;
+  const plateColors=Array.from({length:layers},()=>({hi:c.hi,mid:c.rim1,dark:c.rim2}));
+  const {defs:pd,svg:ps}=drawPlates(hexFn,layers,plateColors,c.bg2,id,0.085);
+  const contours=insetLines(hexFn,Math.min(layers,3),c.hi,c.rim1);
+  const apDefs="", apSVG=""; // No apron for season badges
+  const pad=sz*0.65;
+  return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="36%" cy="30%" r="72%">
+      <stop offset="0%" stop-color="${c.bg1}"/>
+      <stop offset="100%" stop-color="${c.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="${c.hi}"/>
+      <stop offset="45%" stop-color="${c.c1}"/>
+      <stop offset="100%" stop-color="${c.c2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-120%" y="-120%" width="440%" height="440%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    ${pd}${apDefs}
+  </defs>
+  <path d="${oH}" fill="${c.glow}" fill-opacity="0.35" filter="url(#halo${id})"/>
+  ${apSVG}
+  ${ps}
+  <path d="${oH}" fill="url(#rim${id})"/>
+  <path d="${mH}" fill="${c.bg2}"/>
+  <path d="${mH}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.018}"/>
+  <path d="${iH}" fill="url(#bg${id})"/>
+  <path d="${iH}" fill="url(#sh${id})"/>
+  ${contours}
+  <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${numSz}"
+    fill="${c.hi}" filter="url(#gl${id})">${roman}</text>
+</svg>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════════
+function add(id,svg,label){
+  const el=document.getElementById(id);
+  const div=document.createElement("div");
+  div.className="item";
+  div.innerHTML=svg+`<span class="lbl">${label}</span>`;
+  el.appendChild(div);
+}
+
+TIERS.forEach((t,i)=>{
+  const ids=["t1","t2","t3","t4","t5"];
+  for(let lv=t.range[0];lv<=t.range[1];lv++) add(ids[i],levelBadge(lv,t,84),`Lv.${lv}`);
+});
+for(let p=1;p<=5;p++) add("pre",prestigeShield(p,86),`Prestige ${["I","II","III","IV","V"][p-1]}`);
+for(let p=6;p<=11;p++) add("pre2",prestigeBG(p,86),`Prestige ${p}`);
+add("troph",crystalTrophy(110),"1st Place");
+ST.forEach((t,i)=>{ for(let s=1;s<=4;s++) add("seas",seasonBadge(i,s,84),`${t.name}·S${s}`); });
+</script>
+</body>
+</html>

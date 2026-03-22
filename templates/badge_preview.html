@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeybladeX Badge Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c14;
+    --surface: #12151f;
+    --border: #1e2235;
+    --text: #e8eaf6;
+    --text-muted: #6b7099;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    padding: 40px 24px;
+  }
+
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.4rem;
+    letter-spacing: 0.15em;
+    color: #a78bfa;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 48px;
+  }
+
+  section {
+    margin-bottom: 56px;
+  }
+
+  h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .badge-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-end;
+  }
+
+  .badge-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .badge-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-align: center;
+  }
+
+  /* ─── SVG badge sizes ─── */
+  .badge-sm svg { width: 56px; height: 56px; }
+  .badge-md svg { width: 72px; height: 72px; }
+  .badge-lg svg { width: 96px; height: 96px; }
+  .badge-xl svg { width: 120px; height: 120px; }
+
+  .badge-item svg {
+    filter: drop-shadow(0 4px 12px var(--glow, #0006));
+    transition: transform 0.2s ease, filter 0.2s ease;
+    cursor: pointer;
+  }
+  .badge-item svg:hover {
+    transform: translateY(-4px) scale(1.07);
+    filter: drop-shadow(0 8px 20px var(--glow, #0006)) brightness(1.15);
+  }
+</style>
+</head>
+<body>
+
+<h1>BEYBLADEX · BADGE SYSTEM</h1>
+<p class="subtitle">Preview aller Badges — hover zum Inspizieren</p>
+
+<!-- ═══════════════════════════════════════════
+     LEVEL BADGES  (Tier 1–5, je 10 Level)
+════════════════════════════════════════════ -->
+<section>
+  <h2>Level Badges — Tier 1: Iron (Lv. 1–10)</h2>
+  <div class="badge-grid" id="tier1"></div>
+</section>
+
+<section>
+  <h2>Level Badges — Tier 2: Bronze (Lv. 11–20)</h2>
+  <div class="badge-grid" id="tier2"></div>
+</section>
+
+<section>
+  <h2>Level Badges — Tier 3: Silver (Lv. 21–30)</h2>
+  <div class="badge-grid" id="tier3"></div>
+</section>
+
+<section>
+  <h2>Level Badges — Tier 4: Crystal (Lv. 31–40)</h2>
+  <div class="badge-grid" id="tier4"></div>
+</section>
+
+<section>
+  <h2>Level Badges — Tier 5: Gold (Lv. 41–49)</h2>
+  <div class="badge-grid" id="tier5"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PRESTIGE BADGES
+════════════════════════════════════════════ -->
+<section>
+  <h2>Prestige Badges (★ I – ★ V)</h2>
+  <div class="badge-grid" id="prestige"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TOURNAMENT TROPHIES
+════════════════════════════════════════════ -->
+<section>
+  <h2>Tournament Trophies</h2>
+  <div class="badge-grid" id="trophies"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SEASON BADGES
+════════════════════════════════════════════ -->
+<section>
+  <h2>Season Badges</h2>
+  <div class="badge-grid" id="season"></div>
+</section>
+
+<script>
+// ─── Tier definitions ───────────────────────────────────────────────────────
+const TIERS = [
+  {
+    id: 1, name: "Iron", levels: [1,10],
+    bg1: "#2a2d35", bg2: "#1a1c22",
+    rim1: "#8a8f9e", rim2: "#4a4f5e", rim3: "#c8cdd8",
+    glow: "#6b7099aa",
+    gem: "#9ba4b5",
+    icon: "iron",
+  },
+  {
+    id: 2, name: "Bronze", levels: [11,20],
+    bg1: "#2d1f0e", bg2: "#1a1008",
+    rim1: "#cd7f32", rim2: "#8b5a1a", rim3: "#f4a460",
+    glow: "#cd7f3299",
+    gem: "#e8924a",
+    icon: "flame",
+  },
+  {
+    id: 3, name: "Silver", levels: [21,30],
+    bg1: "#1a1f2d", bg2: "#0e1018",
+    rim1: "#78a4c8", rim2: "#3a5f80", rim3: "#b8d4ec",
+    glow: "#4a90d999",
+    gem: "#90c4e8",
+    icon: "bolt",
+  },
+  {
+    id: 4, name: "Crystal", levels: [31,40],
+    bg1: "#1e1030", bg2: "#0e0818",
+    rim1: "#a855f7", rim2: "#6b21a8", rim3: "#d8a4f8",
+    glow: "#a855f799",
+    gem: "#c084fc",
+    icon: "crystal",
+  },
+  {
+    id: 5, name: "Gold", levels: [41,49],
+    bg1: "#2a1f00", bg2: "#150f00",
+    rim1: "#f59e0b", rim2: "#b45309", rim3: "#fde68a",
+    glow: "#f59e0baa",
+    gem: "#fcd34d",
+    icon: "crown",
+  },
+];
+
+// ─── Icon paths ──────────────────────────────────────────────────────────────
+function iconPath(type, cx, cy, size) {
+  const s = size * 0.38;
+  switch (type) {
+    case "iron":    // shield / anvil shape
+      return `M${cx},${cy - s} L${cx + s},${cy - s*0.5} L${cx + s},${cy + s*0.3} Q${cx},${cy + s} ${cx - s},${cy + s*0.3} L${cx - s},${cy - s*0.5} Z`;
+    case "flame":   // flame
+      return `M${cx},${cy+s} C${cx-s},${cy+s*0.3} ${cx-s*0.6},${cy-s*0.2} ${cx},${cy-s} C${cx+s*0.2},${cy-s*0.5} ${cx+s*0.8},${cy-s*0.1} ${cx+s*0.6},${cy+s*0.4} C${cx+s*0.3},${cy+s*0.7} ${cx+s*0.5},${cy+s} ${cx},${cy+s}Z`;
+    case "bolt":    // lightning
+      return `M${cx+s*0.3},${cy-s} L${cx-s*0.1},${cy-s*0.05} L${cx+s*0.25},${cy-s*0.05} L${cx-s*0.3},${cy+s} L${cx+s*0.1},${cy+s*0.05} L${cx-s*0.2},${cy+s*0.05} Z`;
+    case "crystal": // diamond
+      return `M${cx},${cy-s} L${cx+s},${cy} L${cx},${cy+s} L${cx-s},${cy} Z`;
+    case "crown":   // crown
+      return `M${cx-s},${cy+s*0.4} L${cx-s},${cy-s*0.2} L${cx-s*0.3},${cy+s*0.1} L${cx},${cy-s} L${cx+s*0.3},${cy+s*0.1} L${cx+s},${cy-s*0.2} L${cx+s},${cy+s*0.4} Z`;
+    default: return "";
+  }
+}
+
+// ─── Build a single level badge SVG ─────────────────────────────────────────
+function makeLevelBadge(level, tier, size = 72) {
+  const cx = size / 2, cy = size / 2, r = size * 0.44;
+  const t = tier;
+  const rid = `lg_${level}_${Math.random().toString(36).slice(2,7)}`;
+
+  // Number of "teeth" on rim increases with tier
+  const teeth = [8, 10, 12, 14, 16][t.id - 1];
+  const toothH = size * 0.06;
+  const rimPath = buildGearRim(cx, cy, r, r - toothH, teeth);
+
+  const iconD = iconPath(t.icon, cx, cy - size * 0.07, size);
+  const numY = cy + size * 0.28;
+  const fontSize = size * 0.19;
+
+  return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" style="--glow:${t.glow}">
+  <defs>
+    <radialGradient id="bg_${rid}" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="${t.bg1}"/>
+      <stop offset="100%" stop-color="${t.bg2}"/>
+    </radialGradient>
+    <radialGradient id="gem_${rid}" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="${t.gem}" stop-opacity="0.9"/>
+      <stop offset="60%" stop-color="${t.gem}" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="${t.bg2}" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rim_${rid}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${t.rim3}"/>
+      <stop offset="45%" stop-color="${t.rim1}"/>
+      <stop offset="100%" stop-color="${t.rim2}"/>
+    </linearGradient>
+    <linearGradient id="shine_${rid}" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow_${rid}" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="${size*0.04}" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="clip_${rid}"><circle cx="${cx}" cy="${cy}" r="${r - toothH}"/></clipPath>
+  </defs>
+
+  <!-- Gear rim -->
+  <path d="${rimPath}" fill="url(#rim_${rid})" filter="url(#glow_${rid})"/>
+
+  <!-- Inner circle bg -->
+  <circle cx="${cx}" cy="${cy}" r="${r - toothH - 1}" fill="url(#bg_${rid})"/>
+
+  <!-- Gem overlay -->
+  <circle cx="${cx}" cy="${cy}" r="${r - toothH - 1}" fill="url(#gem_${rid})" clip-path="url(#clip_${rid})"/>
+
+  <!-- Icon -->
+  <path d="${iconD}" fill="${t.gem}" fill-opacity="0.85" filter="url(#glow_${rid})"/>
+
+  <!-- Level number -->
+  <text x="${cx}" y="${numY}" text-anchor="middle" dominant-baseline="middle"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${fontSize}"
+    fill="${t.rim3}" filter="url(#glow_${rid})">${level}</text>
+
+  <!-- Shine overlay -->
+  <circle cx="${cx}" cy="${cy}" r="${r - toothH - 1}" fill="url(#shine_${rid})"/>
+
+  <!-- Rim inner ring -->
+  <circle cx="${cx}" cy="${cy}" r="${r - toothH + 1}" fill="none" stroke="${t.rim2}" stroke-width="0.8" stroke-opacity="0.6"/>
+  <circle cx="${cx}" cy="${cy}" r="${r - toothH - size*0.05}" fill="none" stroke="${t.rim3}" stroke-width="0.6" stroke-opacity="0.4"/>
+</svg>`;
+}
+
+// ─── Gear/cogwheel rim path ───────────────────────────────────────────────────
+function buildGearRim(cx, cy, rOuter, rInner, teeth) {
+  const step = (Math.PI * 2) / teeth;
+  let d = "";
+  for (let i = 0; i < teeth; i++) {
+    const a0 = i * step - Math.PI / 2 - step * 0.3;
+    const a1 = i * step - Math.PI / 2 + step * 0.3;
+    const a2 = i * step - Math.PI / 2 + step * 0.5;
+    const a3 = (i + 1) * step - Math.PI / 2 - step * 0.5;
+    const p = (a, r) => [cx + Math.cos(a)*r, cy + Math.sin(a)*r];
+    const [x0,y0] = p(a0, rInner);
+    const [x1,y1] = p(a1, rInner);
+    const [x2,y2] = p(a1, rOuter);
+    const [x3,y3] = p(a0, rOuter);
+    const [x4,y4] = p(a2, rInner);
+    const [x5,y5] = p(a3, rInner);
+    if (i === 0) d += `M${x3.toFixed(2)},${y3.toFixed(2)}`;
+    d += ` L${x2.toFixed(2)},${y2.toFixed(2)} L${x1.toFixed(2)},${y1.toFixed(2)} L${x4.toFixed(2)},${y4.toFixed(2)} L${x5.toFixed(2)},${y5.toFixed(2)}`;
+  }
+  return d + "Z";
+}
+
+// ─── Prestige badge ───────────────────────────────────────────────────────────
+function makePrestigeBadge(stars, size = 88) {
+  const cx = size/2, cy = size/2, r = size*0.44;
+  const rid = `pr_${stars}_${Math.random().toString(36).slice(2,6)}`;
+
+  const colors = [
+    { c1:"#c0c0c0", c2:"#707070", c3:"#e8e8e8", glow:"#c0c0c0aa", bg1:"#1a1c22", bg2:"#0a0c10" },
+    { c1:"#f59e0b", c2:"#b45309", c3:"#fde68a", glow:"#f59e0bbb", bg1:"#1a1200", bg2:"#0a0800" },
+    { c1:"#60a5fa", c2:"#2563eb", c3:"#bfdbfe", glow:"#60a5faaa", bg1:"#00101a", bg2:"#000810" },
+    { c1:"#f472b6", c2:"#be185d", c3:"#fce7f3", glow:"#f472b6bb", bg1:"#1a0010", bg2:"#0a0008" },
+    { c1:"#a78bfa", c2:"#6d28d9", c3:"#ede9fe", glow:"#a78bfacc", bg1:"#0e0018", bg2:"#060010" },
+  ][stars - 1];
+
+  const starPoints = makeStarPoints(cx, cy - size*0.06, size*0.2, size*0.09, 5);
+  const starStr = starPoints.map((p,i)=>i===0?`M${p[0]},${p[1]}`:`L${p[0]},${p[1]}`).join(" ")+"Z";
+
+  // Orbit ring with star dots
+  const orbitR = r * 0.72;
+  let starDots = "";
+  for (let i = 0; i < stars; i++) {
+    const a = (i / stars) * Math.PI * 2 - Math.PI / 2;
+    const sx = cx + Math.cos(a) * orbitR;
+    const sy = cy + Math.sin(a) * orbitR;
+    starDots += `<circle cx="${sx.toFixed(2)}" cy="${sy.toFixed(2)}" r="${size*0.038}" fill="${colors.c3}" filter="url(#glow_${rid})"/>`;
+  }
+
+  const romanStr = ["I","II","III","IV","V"][stars-1];
+
+  return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" style="--glow:${colors.glow}">
+  <defs>
+    <radialGradient id="bg_${rid}" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="${colors.bg1}"/>
+      <stop offset="100%" stop-color="${colors.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim_${rid}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${colors.c3}"/>
+      <stop offset="50%" stop-color="${colors.c1}"/>
+      <stop offset="100%" stop-color="${colors.c2}"/>
+    </linearGradient>
+    <linearGradient id="shine_${rid}" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow_${rid}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="${size*0.05}" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer halo -->
+  <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors.c1}" stroke-width="${size*0.025}"
+    stroke-opacity="0.3" filter="url(#glow_${rid})"/>
+
+  <!-- Main circle -->
+  <circle cx="${cx}" cy="${cy}" r="${r*0.88}" fill="url(#bg_${rid})"/>
+
+  <!-- Orbit ring -->
+  <circle cx="${cx}" cy="${cy}" r="${orbitR}" fill="none" stroke="${colors.c1}" stroke-width="0.8" stroke-opacity="0.4" stroke-dasharray="3 3"/>
+
+  <!-- Star dots on orbit -->
+  ${starDots}
+
+  <!-- Central star -->
+  <path d="${starStr}" fill="url(#rim_${rid})" filter="url(#glow_${rid})"/>
+
+  <!-- Roman numeral -->
+  <text x="${cx}" y="${cy + size*0.25}" text-anchor="middle" dominant-baseline="middle"
+    font-family="Orbitron,monospace" font-weight="700" font-size="${size*0.16}"
+    fill="${colors.c3}" letter-spacing="2" filter="url(#glow_${rid})">${romanStr}</text>
+
+  <!-- Prestige label -->
+  <text x="${cx}" y="${size*0.88}" text-anchor="middle"
+    font-family="Rajdhani,sans-serif" font-weight="600" font-size="${size*0.12}"
+    fill="${colors.c1}" letter-spacing="3">PRESTIGE</text>
+
+  <!-- Shine -->
+  <circle cx="${cx}" cy="${cy}" r="${r*0.88}" fill="url(#shine_${rid})"/>
+</svg>`;
+}
+
+function makeStarPoints(cx, cy, outerR, innerR, points) {
+  const pts = [];
+  for (let i = 0; i < points * 2; i++) {
+    const a = (i / (points * 2)) * Math.PI * 2 - Math.PI / 2;
+    const r = i % 2 === 0 ? outerR : innerR;
+    pts.push([cx + Math.cos(a)*r, cy + Math.sin(a)*r]);
+  }
+  return pts;
+}
+
+// ─── Tournament Trophy ────────────────────────────────────────────────────────
+function makeTrophy(type, size = 96) {
+  const cx = size/2, cy = size/2;
+  const rid = `tr_${type}_${Math.random().toString(36).slice(2,6)}`;
+
+  const cfg = {
+    winner: { c1:"#f59e0b", c2:"#92400e", c3:"#fde68a", bg1:"#1a1000", bg2:"#0a0800", glow:"#f59e0bcc", label:"1ST", pts:4 },
+    runner: { c1:"#9ca3af", c2:"#374151", c3:"#f3f4f6", bg1:"#111318", bg2:"#080a0e", glow:"#9ca3afaa", label:"2ND", pts:3 },
+    third:  { c1:"#cd7f32", c2:"#7c3f0a", c3:"#f4c483", bg1:"#1a0e06", bg2:"#0a0704", glow:"#cd7f3299", label:"3RD", pts:2 },
+    top10:  { c1:"#60a5fa", c2:"#1e40af", c3:"#bfdbfe", bg1:"#000e18", bg2:"#000810", glow:"#60a5fa88", label:"TOP 10%", pts:1 },
+    participate: { c1:"#6b7280", c2:"#374151", c3:"#d1d5db", bg1:"#0e0f12", bg2:"#08090c", glow:"#6b728077", label:"PARTICIPANT", pts:0 },
+  };
+  const c = cfg[type] || cfg.participate;
+
+  // Trophy cup shape
+  const tw = size*0.38, th = size*0.32, tx = cx - tw/2, ty = cy - th*0.5 - size*0.08;
+  const trophySVG = `
+    <!-- Cup body -->
+    <path d="M${tx},${ty} Q${tx},${ty+th*0.6} ${cx},${ty+th} Q${tx+tw},${ty+th*0.6} ${tx+tw},${ty} Z"
+      fill="url(#rim_${rid})"/>
+    <!-- Cup shine -->
+    <path d="M${tx+tw*0.15},${ty+th*0.1} Q${tx+tw*0.12},${ty+th*0.45} ${tx+tw*0.28},${ty+th*0.72}"
+      fill="none" stroke="white" stroke-width="${size*0.012}" stroke-opacity="0.35" stroke-linecap="round"/>
+    <!-- Handles -->
+    <path d="M${tx},${ty+th*0.2} Q${tx-size*0.1},${ty+th*0.5} ${tx},${ty+th*0.8}"
+      fill="none" stroke="url(#rim_${rid})" stroke-width="${size*0.04}" stroke-linecap="round"/>
+    <path d="M${tx+tw},${ty+th*0.2} Q${tx+tw+size*0.1},${ty+th*0.5} ${tx+tw},${ty+th*0.8}"
+      fill="none" stroke="url(#rim_${rid})" stroke-width="${size*0.04}" stroke-linecap="round"/>
+    <!-- Stem -->
+    <rect x="${cx-size*0.04}" y="${ty+th}" width="${size*0.08}" height="${size*0.12}" fill="url(#rim_${rid})"/>
+    <!-- Base -->
+    <rect x="${cx-size*0.2}" y="${ty+th+size*0.12}" width="${size*0.4}" height="${size*0.06}"
+      rx="${size*0.015}" fill="url(#rim_${rid})"/>
+  `;
+
+  // Stars above
+  let starRow = "";
+  for (let i = 0; i < c.pts; i++) {
+    const sx = cx + (i - (c.pts-1)/2) * size * 0.14;
+    const sy = ty - size * 0.1;
+    const sp = makeStarPoints(sx, sy, size*0.055, size*0.025, 5)
+      .map((p,j)=>j===0?`M${p[0].toFixed(1)},${p[1].toFixed(1)}`:`L${p[0].toFixed(1)},${p[1].toFixed(1)}`).join("")+"Z";
+    starRow += `<path d="${sp}" fill="${c.c3}" filter="url(#glow_${rid})"/>`;
+  }
+
+  return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" style="--glow:${c.glow}">
+  <defs>
+    <radialGradient id="bg_${rid}" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="${c.bg1}"/>
+      <stop offset="100%" stop-color="${c.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim_${rid}" x1="0%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%" stop-color="${c.c3}"/>
+      <stop offset="50%" stop-color="${c.c1}"/>
+      <stop offset="100%" stop-color="${c.c2}"/>
+    </linearGradient>
+    <filter id="glow_${rid}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="${size*0.04}" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="${cx}" cy="${cy}" r="${size*0.46}" fill="url(#bg_${rid})"/>
+  <circle cx="${cx}" cy="${cy}" r="${size*0.46}" fill="none" stroke="${c.c1}" stroke-width="${size*0.02}" stroke-opacity="0.5"/>
+
+  ${starRow}
+  ${trophySVG}
+
+  <!-- Label -->
+  <text x="${cx}" y="${size*0.91}" text-anchor="middle"
+    font-family="Orbitron,monospace" font-weight="700" font-size="${size*0.11}"
+    fill="${c.c3}" letter-spacing="1" filter="url(#glow_${rid})">${c.label}</text>
+</svg>`;
+}
+
+// ─── Season Badge ─────────────────────────────────────────────────────────────
+function makeSeasonBadge(tier, label, size = 88) {
+  const cx = size/2, cy = size/2;
+  const rid = `sb_${tier}_${Math.random().toString(36).slice(2,6)}`;
+
+  const tiers = [
+    { c1:"#f59e0b", c2:"#92400e", c3:"#fde68a", bg1:"#150e00", bg2:"#0a0700", glow:"#f59e0bbb", shape:"hexagon" },
+    { c1:"#9ca3af", c2:"#374151", c3:"#f3f4f6", bg1:"#0e0f12", bg2:"#070809", glow:"#9ca3afaa", shape:"hexagon" },
+    { c1:"#cd7f32", c2:"#7c3f0a", c3:"#f4c483", bg1:"#130a04", bg2:"#080602", glow:"#cd7f3288", shape:"hexagon" },
+    { c1:"#6b7280", c2:"#1f2937", c3:"#d1d5db", bg1:"#0a0b0e", bg2:"#050608", glow:"#6b728077", shape:"hexagon" },
+  ][tier - 1];
+  const t = tiers || tiers[3];
+
+  // Hexagon path
+  const hexPath = makeHexPath(cx, cy, size*0.43);
+  const innerHex = makeHexPath(cx, cy, size*0.35);
+
+  // Roman tier
+  const roman = ["I","II","III","IV"][tier-1];
+
+  return `<svg viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" style="--glow:${t.glow}">
+  <defs>
+    <radialGradient id="bg_${rid}" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="${t.bg1}"/>
+      <stop offset="100%" stop-color="${t.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim_${rid}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="${t.c3}"/>
+      <stop offset="50%" stop-color="${t.c1}"/>
+      <stop offset="100%" stop-color="${t.c2}"/>
+    </linearGradient>
+    <linearGradient id="shine_${rid}" x1="15%" y1="0%" x2="85%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glow_${rid}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="${size*0.045}" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Outer hex -->
+  <path d="${hexPath}" fill="url(#rim_${rid})" filter="url(#glow_${rid})"/>
+  <!-- Inner hex -->
+  <path d="${innerHex}" fill="url(#bg_${rid})"/>
+  <!-- Shine -->
+  <path d="${innerHex}" fill="url(#shine_${rid})"/>
+
+  <!-- Tier roman -->
+  <text x="${cx}" y="${cy - size*0.06}" text-anchor="middle" dominant-baseline="middle"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${size*0.2}"
+    fill="${t.c3}" filter="url(#glow_${rid})">${roman}</text>
+
+  <!-- SEASON label -->
+  <text x="${cx}" y="${cy + size*0.17}" text-anchor="middle"
+    font-family="Rajdhani,sans-serif" font-weight="700" font-size="${size*0.13}"
+    fill="${t.c1}" letter-spacing="2">SEASON</text>
+
+  <!-- Sub label (e.g. "TIER 1 · CHAMPION") -->
+  <text x="${cx}" y="${cy + size*0.3}" text-anchor="middle"
+    font-family="Rajdhani,sans-serif" font-weight="600" font-size="${size*0.1}"
+    fill="${t.c3}" fill-opacity="0.7" letter-spacing="1">${label}</text>
+</svg>`;
+}
+
+function makeHexPath(cx, cy, r) {
+  let d = "";
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r;
+    d += (i === 0 ? "M" : "L") + x.toFixed(2) + "," + y.toFixed(2);
+  }
+  return d + "Z";
+}
+
+// ─── Render all badges ────────────────────────────────────────────────────────
+function addBadge(containerId, svgHTML, label, sizeClass = "badge-md") {
+  const el = document.getElementById(containerId);
+  const item = document.createElement("div");
+  item.className = `badge-item ${sizeClass}`;
+  item.innerHTML = svgHTML + `<span class="badge-label">${label}</span>`;
+  el.appendChild(item);
+}
+
+// Level badges per tier
+TIERS.forEach((tier, ti) => {
+  const containerId = `tier${tier.id}`;
+  const [start, end] = tier.levels;
+  for (let lv = start; lv <= end; lv++) {
+    addBadge(containerId, makeLevelBadge(lv, tier, 72), `Lv. ${lv}`, "badge-md");
+  }
+});
+
+// Prestige
+for (let p = 1; p <= 5; p++) {
+  addBadge("prestige", makePrestigeBadge(p, 88), `Prestige ${["I","II","III","IV","V"][p-1]}`, "badge-lg");
+}
+
+// Trophies
+[
+  ["winner",      "1st Place"],
+  ["runner",      "2nd Place"],
+  ["third",       "3rd Place"],
+  ["top10",       "Top 10%"],
+  ["participate", "Participant"],
+].forEach(([type, label]) => {
+  addBadge("trophies", makeTrophy(type, 96), label, "badge-xl");
+});
+
+// Season badges
+[
+  [1, "CHAMPION"],
+  [1, "2ND PLACE"],
+  [2, "CHAMPION"],
+  [2, "2ND PLACE"],
+  [3, "CHAMPION"],
+  [4, "CHAMPION"],
+].forEach(([tier, label]) => {
+  addBadge("season", makeSeasonBadge(tier, label, 88), `Tier ${tier} · ${label}`, "badge-lg");
+});
+</script>
+</body>
+</html>

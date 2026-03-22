@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeybladeX Badge Preview v6</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#07090f; --border:#181c2a; --muted:#404868; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:#e8eaf6; font-family:'Rajdhani',sans-serif; padding:40px 24px 100px; }
+  h1 { font-family:'Orbitron',monospace; font-size:1rem; letter-spacing:.2em; color:#a78bfa; margin-bottom:5px; }
+  .note { font-size:.76rem; color:var(--muted); margin-bottom:44px; }
+  section { margin-bottom:52px; }
+  h2 { font-family:'Orbitron',monospace; font-size:.6rem; letter-spacing:.22em; color:var(--muted);
+    text-transform:uppercase; margin-bottom:16px; padding-bottom:7px; border-bottom:1px solid var(--border); }
+  .grid { display:flex; flex-wrap:wrap; gap:20px; align-items:flex-end; }
+  .item { display:flex; flex-direction:column; align-items:center; gap:7px; }
+  .lbl { font-size:.64rem; color:var(--muted); letter-spacing:.05em; }
+  .item svg { transition:transform .2s ease; cursor:pointer; overflow:visible; }
+  .item svg:hover { transform:translateY(-5px) scale(1.1); }
+</style>
+</head>
+<body>
+
+<h1>BEYBLADEX · BADGE SYSTEM v6</h1>
+<p class="note">Font Preview: Orbitron → finale Site: Presicaw W00 Heavy</p>
+
+<section><h2>Level 1–9 · Bronze · Kreis + Flügel wachsen</h2><div class="grid" id="t1"></div></section>
+<section><h2>Level 10–19 · Silber · Weiches Polygon + Querstreifen + Flügel</h2><div class="grid" id="t2"></div></section>
+<section><h2>Level 20–29 · Platin · Oktagon + Krone + Schürze</h2><div class="grid" id="t3"></div></section>
+<section><h2>Level 30–39 · Lila · Proto-Hex + Banner + Flügel</h2><div class="grid" id="t4"></div></section>
+<section><h2>Level 40–49 · Rot · Hexagon + Flammen + Volldekor</h2><div class="grid" id="t5"></div></section>
+<section><h2>Prestige I–V · Wappen + wachsende Dekoration</h2><div class="grid" id="pre"></div></section>
+<section><h2>Prestige VI+ · Schwarz / Gold · Volldekor</h2><div class="grid" id="pre2"></div></section>
+<section><h2>Tournament · Kristall-Trophäe</h2><div class="grid" id="troph"></div></section>
+<section><h2>Season Champion · Tier 1–4</h2><div class="grid" id="seas"></div></section>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CORE HELPERS
+// ═══════════════════════════════════════════════════════
+
+function uid() { return Math.random().toString(36).slice(2,7); }
+
+function polyPath(cx, cy, r, n, rot=0) {
+  let d = "";
+  for (let i = 0; i < n; i++) {
+    const a = (i / n) * Math.PI * 2 + rot;
+    d += (i === 0 ? "M" : "L") + `${(cx + Math.cos(a) * r).toFixed(2)},${(cy + Math.sin(a) * r).toFixed(2)}`;
+  }
+  return d + "Z";
+}
+
+function starPoly(cx, cy, rO, rI, n = 5) {
+  let d = "";
+  for (let i = 0; i < n * 2; i++) {
+    const a = (i / (n * 2)) * Math.PI * 2 - Math.PI / 2;
+    const r = i % 2 === 0 ? rO : rI;
+    d += (i === 0 ? "M" : "L") + `${(cx + Math.cos(a) * r).toFixed(2)},${(cy + Math.sin(a) * r).toFixed(2)}`;
+  }
+  return d + "Z";
+}
+
+function hexPath(cx, cy, r) {
+  return polyPath(cx, cy, r, 6, -Math.PI / 6);
+}
+
+function shieldPath(cx, cy, w, h) {
+  const l = cx - w / 2, r = cx + w / 2, t = cy - h / 2, b = cy + h / 2;
+  const waistY = cy + h * 0.1;
+  return `M${l},${t} L${r},${t} L${r},${waistY} C${r},${b - h * 0.12} ${cx + w * 0.08},${b - h * 0.04} ${cx},${b} C${cx - w * 0.08},${b - h * 0.04} ${l},${b - h * 0.12} ${l},${waistY} Z`;
+}
+
+// ═══════════════════════════════════════════════════════
+// DECORATION PRIMITIVES
+// All anchored to exact edge points passed in:
+//   edgeTop    = y coordinate of badge top edge
+//   edgeBottom = y coordinate of badge bottom edge
+//   edgeLeft   = x coordinate of badge left edge
+//   edgeRight  = x coordinate of badge right edge
+// ═══════════════════════════════════════════════════════
+
+// Wings: attach at left/right edges, span outward
+function decoWings(cx, cy, edgeL, edgeR, edgeTop, edgeBot, c, scale = 1) {
+  // Wings meet the badge at mid-height, sweep back and down
+  const attachY = cy - (cy - edgeTop) * 0.15; // slightly above centre
+  const wW = (cx - edgeL) * 0.9 * scale;      // how far wing extends outward
+  const wH = (edgeBot - edgeTop) * 0.55 * scale;
+  const tipY = attachY + wH * 0.6;
+  const tipX_L = edgeL - wW;
+  const tipX_R = edgeR + wW;
+
+  return `
+    <path d="M${edgeL},${attachY}
+             C${edgeL - wW * 0.5},${attachY - wH * 0.3}
+              ${tipX_L - wW * 0.1},${attachY}
+              ${tipX_L},${tipY}
+             C${tipX_L + wW * 0.2},${tipY + wH * 0.25}
+              ${edgeL - wW * 0.2},${tipY + wH * 0.3}
+              ${edgeL},${attachY + wH * 0.55} Z"
+      fill="${c.rim2}" opacity="0.88"/>
+    <path d="M${edgeL},${attachY}
+             C${edgeL - wW * 0.4},${attachY - wH * 0.2}
+              ${tipX_L - wW * 0.05},${attachY + wH * 0.1}
+              ${tipX_L - wW * 0.15},${tipY - wH * 0.05}
+             C${tipX_L + wW * 0.15},${tipY + wH * 0.1}
+              ${edgeL - wW * 0.15},${tipY + wH * 0.15}
+              ${edgeL},${attachY + wH * 0.4} Z"
+      fill="${c.hi}" opacity="0.35"/>
+    <path d="M${edgeR},${attachY}
+             C${edgeR + wW * 0.5},${attachY - wH * 0.3}
+              ${tipX_R + wW * 0.1},${attachY}
+              ${tipX_R},${tipY}
+             C${tipX_R - wW * 0.2},${tipY + wH * 0.25}
+              ${edgeR + wW * 0.2},${tipY + wH * 0.3}
+              ${edgeR},${attachY + wH * 0.55} Z"
+      fill="${c.rim2}" opacity="0.88"/>
+    <path d="M${edgeR},${attachY}
+             C${edgeR + wW * 0.4},${attachY - wH * 0.2}
+              ${tipX_R + wW * 0.05},${attachY + wH * 0.1}
+              ${tipX_R + wW * 0.15},${tipY - wH * 0.05}
+             C${tipX_R - wW * 0.15},${tipY + wH * 0.1}
+              ${edgeR + wW * 0.15},${tipY + wH * 0.15}
+              ${edgeR},${attachY + wH * 0.4} Z"
+      fill="${c.hi}" opacity="0.35"/>`;
+}
+
+// Apron: hangs directly below badge bottom edge
+function decoApron(cx, edgeBot, badgeW, c, layers = 1) {
+  let s = "";
+  for (let i = 0; i < layers; i++) {
+    const ay = edgeBot + i * 1;          // stacks start exactly at bottom edge
+    const aw = badgeW * (0.9 + i * 0.12);
+    const ah = badgeW * (0.18 + i * 0.06);
+    const al = cx - aw / 2, ar = cx + aw / 2;
+    s += `
+    <path d="M${al},${ay}
+             L${al - badgeW * 0.03},${ay + ah}
+             L${cx},${ay + ah + badgeW * 0.07}
+             L${ar + badgeW * 0.03},${ay + ah}
+             L${ar},${ay} Z"
+      fill="${c.rim2}" opacity="${0.86 - i * 0.09}"/>
+    <path d="M${al + badgeW * 0.03},${ay + badgeW * 0.01}
+             L${al},${ay + ah - badgeW * 0.02}
+             L${cx},${ay + ah + badgeW * 0.04}
+             L${ar},${ay + ah - badgeW * 0.02}
+             L${ar - badgeW * 0.03},${ay + badgeW * 0.01} Z"
+      fill="${c.hi}" opacity="${0.16 - i * 0.04}"/>
+    <line x1="${al}" y1="${ay}" x2="${al - badgeW * 0.03}" y2="${ay + ah}"
+      stroke="${c.hi}" stroke-width="0.7" stroke-opacity="0.45"/>
+    <line x1="${ar}" y1="${ay}" x2="${ar + badgeW * 0.03}" y2="${ay + ah}"
+      stroke="${c.hi}" stroke-width="0.7" stroke-opacity="0.45"/>`;
+  }
+  return s;
+}
+
+// Crown: sits on top edge of badge
+function decoCrown(cx, edgeTop, badgeW, c, elaborate = false) {
+  const ch = badgeW * 0.18;
+  const cw = badgeW * 0.78;
+  const cl = cx - cw / 2, cr = cx + cw / 2;
+  const base = edgeTop;            // bottom of crown = top of badge
+  const top  = base - ch;
+  const pts  = elaborate ? 5 : 3;
+  let path = `M${cl},${base}`;
+  for (let i = 0; i <= pts; i++) {
+    const px = cl + cw * (i / pts);
+    const isTop = i % 2 === 0;
+    const centerBoost = (elaborate && i === Math.floor(pts / 2)) ? ch * 0.18 : 0;
+    const py = isTop ? top - centerBoost : top + ch * 0.45;
+    path += ` L${px.toFixed(2)},${py.toFixed(2)}`;
+  }
+  path += ` L${cr},${base} Z`;
+  return `
+    <path d="${path}" fill="${c.rim2}" opacity="0.9"/>
+    <path d="${path}" fill="none" stroke="${c.hi}" stroke-width="0.85" stroke-opacity="0.65"/>
+    <circle cx="${cx}" cy="${top - (elaborate ? ch * 0.18 : 0)}" r="${badgeW * 0.025}" fill="${c.hi}" opacity="${elaborate ? 1 : 0}"/>
+    <circle cx="${cl + cw * 0.22}" cy="${top + ch * 0.42}" r="${badgeW * 0.02}" fill="${c.hi}" opacity="0.85"/>
+    <circle cx="${cr - cw * 0.22}" cy="${top + ch * 0.42}" r="${badgeW * 0.02}" fill="${c.hi}" opacity="0.85"/>`;
+}
+
+// Crossstripes: horizontal bars behind badge, centred vertically
+function decoCrossStripes(cx, cy, badgeW, c, count = 1) {
+  let s = "";
+  for (let i = 0; i < count; i++) {
+    const w = badgeW * (1.05 + i * 0.12);
+    const h = badgeW * 0.08;
+    const yOff = (i - (count - 1) / 2) * h * 1.6;
+    s += `
+    <rect x="${(cx - w / 2).toFixed(2)}" y="${(cy - h / 2 + yOff).toFixed(2)}"
+      width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="${(h * 0.4).toFixed(2)}"
+      fill="${c.rim2}" opacity="${0.72 - i * 0.1}"/>
+    <rect x="${(cx - w * 0.55 / 2).toFixed(2)}" y="${(cy - h * 0.35 / 2 + yOff).toFixed(2)}"
+      width="${(w * 0.55).toFixed(2)}" height="${(h * 0.35).toFixed(2)}" rx="${(h * 0.2).toFixed(2)}"
+      fill="${c.hi}" opacity="${0.22 - i * 0.05}"/>`;
+  }
+  return s;
+}
+
+// Vertical banners: hang from sides of badge
+function decoBanners(cx, edgeL, edgeR, edgeTop, badgeH, c, pairs = 1) {
+  let s = "";
+  for (let p = 0; p < pairs; p++) {
+    const offset = p * badgeH * 0.12;
+    const attachY = edgeTop + badgeH * 0.2 + offset;
+    const bW = badgeH * 0.1;
+    const bH = badgeH * (0.4 + p * 0.08);
+    // Left banner
+    const lx = edgeL - bW * 0.3;
+    s += `
+    <path d="M${lx},${attachY} L${lx + bW},${attachY}
+             L${lx + bW},${attachY + bH} L${lx + bW / 2},${attachY + bH + bH * 0.12}
+             L${lx},${attachY + bH} Z"
+      fill="${c.rim2}" opacity="${0.88 - p * 0.08}"/>
+    <rect x="${lx + bW * 0.15}" y="${attachY + badgeH * 0.01}" width="${bW * 0.7}" height="${bH * 0.85}"
+      rx="1" fill="${c.hi}" opacity="0.18"/>`;
+    // Right banner
+    const rx2 = edgeR - bW * 0.7;
+    s += `
+    <path d="M${rx2},${attachY} L${rx2 + bW},${attachY}
+             L${rx2 + bW},${attachY + bH} L${rx2 + bW / 2},${attachY + bH + bH * 0.12}
+             L${rx2},${attachY + bH} Z"
+      fill="${c.rim2}" opacity="${0.88 - p * 0.08}"/>
+    <rect x="${rx2 + bW * 0.15}" y="${attachY + badgeH * 0.01}" width="${bW * 0.7}" height="${bH * 0.85}"
+      rx="1" fill="${c.hi}" opacity="0.18"/>`;
+  }
+  return s;
+}
+
+// Flames: rise from bottom edge of badge
+function decoFlames(cx, edgeBot, badgeW, c, intensity = 1) {
+  const count = Math.round(3 + intensity * 1.5);
+  let s = "";
+  for (let i = 0; i < count; i++) {
+    const fx = cx + (i - (count - 1) / 2) * badgeW * 0.16;
+    const fh = badgeW * (0.22 + Math.sin(i / count * Math.PI) * 0.14) * intensity;
+    const fw = badgeW * 0.07;
+    s += `
+    <path d="M${(fx - fw).toFixed(2)},${edgeBot.toFixed(2)}
+             C${(fx - fw * 1.3).toFixed(2)},${(edgeBot - fh * 0.4).toFixed(2)}
+              ${(fx - fw * 0.2).toFixed(2)},${(edgeBot - fh * 0.75).toFixed(2)}
+              ${fx.toFixed(2)},${(edgeBot - fh).toFixed(2)}
+             C${(fx + fw * 0.2).toFixed(2)},${(edgeBot - fh * 0.75).toFixed(2)}
+              ${(fx + fw * 1.3).toFixed(2)},${(edgeBot - fh * 0.4).toFixed(2)}
+              ${(fx + fw).toFixed(2)},${edgeBot.toFixed(2)} Z"
+      fill="${c.rim2}" opacity="0.82"/>
+    <path d="M${(fx - fw * 0.5).toFixed(2)},${edgeBot.toFixed(2)}
+             C${(fx - fw * 0.7).toFixed(2)},${(edgeBot - fh * 0.3).toFixed(2)}
+              ${(fx - fw * 0.1).toFixed(2)},${(edgeBot - fh * 0.6).toFixed(2)}
+              ${fx.toFixed(2)},${(edgeBot - fh * 0.78).toFixed(2)}
+             C${(fx + fw * 0.1).toFixed(2)},${(edgeBot - fh * 0.6).toFixed(2)}
+              ${(fx + fw * 0.7).toFixed(2)},${(edgeBot - fh * 0.3).toFixed(2)}
+              ${(fx + fw * 0.5).toFixed(2)},${edgeBot.toFixed(2)} Z"
+      fill="${c.hi}" opacity="0.42"/>`;
+  }
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════
+// TIER CONFIGS
+// ═══════════════════════════════════════════════════════
+
+const TIERS = [
+  { range:[1,9],   ti:0, bg1:"#1f1208", bg2:"#090602", rim1:"#cd7f32", rim2:"#7c3f0a", hi:"#f4c07a", glow:"#cd7f3252" },
+  { range:[10,19], ti:1, bg1:"#141820", bg2:"#070810", rim1:"#b0bac8", rim2:"#4a5568", hi:"#e8eef4", glow:"#b0bac852" },
+  { range:[20,29], ti:2, bg1:"#091018", bg2:"#040810", rim1:"#67e8f9", rim2:"#0e7490", hi:"#cffafe", glow:"#67e8f962" },
+  { range:[30,39], ti:3, bg1:"#120a20", bg2:"#060510", rim1:"#a855f7", rim2:"#6b21a8", hi:"#e9d5ff", glow:"#a855f762" },
+  { range:[40,49], ti:4, bg1:"#200808", bg2:"#100404", rim1:"#ef4444", rim2:"#991b1b", hi:"#fca5a5", glow:"#ef444462" },
+];
+
+// ═══════════════════════════════════════════════════════
+// LEVEL BADGE
+// rO = outer ring radius; used to compute exact edge coords
+// ═══════════════════════════════════════════════════════
+
+function levelBadge(level, tier, sz = 80) {
+  const cx = sz / 2, cy = sz / 2;
+  const id = uid();
+  const rO = sz * 0.42, rI = sz * 0.345, rBg = sz * 0.325;
+  const numSz = level >= 10 ? sz * 0.30 : sz * 0.34;
+  const p = (level - tier.range[0]) / (tier.range[1] - tier.range[0]); // 0..1 within tier
+
+  // Shape sides per tier
+  const sides = [0, 12, 8, 7, 6][tier.ti];
+
+  // Exact edge coordinates for decoration anchoring
+  // For circle: top=(cx,cy-rO), bot=(cx,cy+rO), left=(cx-rO,cy), right=(cx+rO,cy)
+  // For polygon: approximate with bounding circle
+  const edgeTop  = cy - rO;
+  const edgeBot  = cy + rO;
+  const edgeLeft = cx - rO;
+  const edgeRight= cx + rO;
+  const badgeW   = rO * 2;
+
+  // Build ticks
+  const ticks = [12, 16, 16, 18, 18][tier.ti];
+  let tickMarks = "";
+  for (let i = 0; i < ticks; i++) {
+    const a = (i / ticks) * Math.PI * 2;
+    const major = i % 4 === 0;
+    const r1 = rO - 0.5;
+    const r2 = major ? rI + sz * 0.022 : rI + sz * 0.042;
+    tickMarks += `<line x1="${(cx+Math.cos(a)*r1).toFixed(2)}" y1="${(cy+Math.sin(a)*r1).toFixed(2)}"
+      x2="${(cx+Math.cos(a)*r2).toFixed(2)}" y2="${(cy+Math.sin(a)*r2).toFixed(2)}"
+      stroke="${tier.hi}" stroke-width="${major ? 1.1 : 0.5}" stroke-opacity="${major ? 0.6 : 0.27}"/>`;
+  }
+
+  // Build decorations – ordered: behind badge
+  let deco = "";
+  switch (tier.ti) {
+    case 0: // Bronze – wings grow
+      if (p > 0.3) deco += decoWings(cx, cy, edgeLeft, edgeRight, edgeTop, edgeBot, tier, 0.5 + p * 0.6);
+      break;
+    case 1: // Silver – crossstripes + wings mid-tier
+      deco += decoCrossStripes(cx, cy, badgeW, tier, p > 0.55 ? 2 : 1);
+      if (p > 0.45) deco += decoWings(cx, cy, edgeLeft, edgeRight, edgeTop, edgeBot, tier, 0.4 + p * 0.5);
+      break;
+    case 2: // Platin – crown top, apron bottom
+      if (p > 0.15) deco += decoCrown(cx, edgeTop, badgeW, tier, p > 0.6);
+      deco += decoCrossStripes(cx, cy, badgeW, tier, 1);
+      if (p > 0.35) deco += decoApron(cx, edgeBot, badgeW, tier, p > 0.7 ? 2 : 1);
+      break;
+    case 3: // Lila – banners + wings
+      deco += decoBanners(cx, edgeLeft, edgeRight, edgeTop, badgeW, tier, p > 0.5 ? 2 : 1);
+      if (p > 0.4) deco += decoWings(cx, cy, edgeLeft, edgeRight, edgeTop, edgeBot, tier, 0.5 + p * 0.45);
+      break;
+    case 4: // Rot – flames bottom + wings
+      deco += decoFlames(cx, edgeBot, badgeW, tier, 0.55 + p * 0.85);
+      if (p > 0.35) deco += decoWings(cx, cy, edgeLeft, edgeRight, edgeTop, edgeBot, tier, 0.5 + p * 0.65);
+      break;
+  }
+
+  // Main badge shape
+  const outerPath = sides === 0 ? null : polyPath(cx, cy, rO, sides, Math.PI / sides);
+  const innerPath = sides === 0 ? null : polyPath(cx, cy, rI, sides, Math.PI / sides);
+  const bgPath    = sides === 0 ? null : polyPath(cx, cy, rBg, sides, Math.PI / sides);
+
+  const outerEl = sides === 0
+    ? `<circle cx="${cx}" cy="${cy}" r="${rO}" fill="url(#rim${id})"/>`
+    : `<path d="${outerPath}" fill="url(#rim${id})"/>`;
+  const innerEl = sides === 0
+    ? `<circle cx="${cx}" cy="${cy}" r="${rI}" fill="${tier.bg2}"/>
+       <circle cx="${cx}" cy="${cy}" r="${rI}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.019}"/>`
+    : `<path d="${innerPath}" fill="${tier.bg2}"/>
+       <path d="${innerPath}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.019}"/>`;
+  const bgEl = sides === 0
+    ? `<circle cx="${cx}" cy="${cy}" r="${rBg}" fill="url(#bg${id})"/>
+       <circle cx="${cx}" cy="${cy}" r="${rBg}" fill="url(#sh${id})"/>`
+    : `<path d="${bgPath}" fill="url(#bg${id})"/>
+       <path d="${bgPath}" fill="url(#sh${id})"/>`;
+  const haloEl = sides === 0
+    ? `<circle cx="${cx}" cy="${cy}" r="${rO}" fill="${tier.glow}" filter="url(#halo${id})"/>`
+    : `<path d="${outerPath}" fill="${tier.glow}" filter="url(#halo${id})"/>`;
+
+  // Canvas is larger than sz to accommodate decorations
+  const pad = sz * 0.6;
+  return `<svg width="${sz + pad*2}" height="${sz + pad*2}"
+    viewBox="${-pad} ${-pad} ${sz + pad*2} ${sz + pad*2}"
+    xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="36%" cy="30%" r="72%">
+      <stop offset="0%" stop-color="${tier.bg1}"/>
+      <stop offset="100%" stop-color="${tier.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="${tier.hi}"/>
+      <stop offset="45%" stop-color="${tier.rim1}"/>
+      <stop offset="100%" stop-color="${tier.rim2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="${sz*0.025}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="${sz*0.1}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  ${haloEl}
+  ${deco}
+  ${outerEl}
+  ${innerEl}
+  ${bgEl}
+  ${tickMarks}
+  <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${numSz}"
+    fill="${tier.hi}" filter="url(#gl${id})">${level}</text>
+</svg>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// PRESTIGE SHIELD
+// ═══════════════════════════════════════════════════════
+
+const PRE_COLORS = [
+  { c1:"#cd7f32", c2:"#7c3f0a", hi:"#f4c07a", bg1:"#180e04", bg2:"#0a0602", glow:"#cd7f3252" },
+  { c1:"#b0bac8", c2:"#4a5568", hi:"#e8eef4", bg1:"#101318", bg2:"#080a0e", glow:"#b0bac852" },
+  { c1:"#60a5fa", c2:"#1e40af", hi:"#bfdbfe", bg1:"#00101c", bg2:"#00080f", glow:"#60a5fa52" },
+  { c1:"#f472b6", c2:"#be185d", hi:"#fce7f3", bg1:"#1a0012", bg2:"#0e0009", glow:"#f472b652" },
+  { c1:"#a78bfa", c2:"#6d28d9", hi:"#ede9fe", bg1:"#0e0020", bg2:"#080012", glow:"#a78bfa62" },
+];
+
+function prestigeShield(stars, sz = 90, colorsOverride = null, labelOverride = null) {
+  const cx = sz / 2, cy = sz / 2;
+  const id = uid();
+  const c = colorsOverride || PRE_COLORS[Math.min(stars, 5) - 1];
+  const label = labelOverride || ["I","II","III","IV","V"][Math.min(stars,5)-1];
+  const p = Math.min(stars, 5); // prestige level 1..5
+
+  const sw = sz * 0.74, sh = sz * 0.82;
+  const oS = shieldPath(cx, cy - sh * 0.01, sw, sh);
+  const iS = shieldPath(cx, cy - sh * 0.01, sw * 0.84, sh * 0.86);
+  const bS = shieldPath(cx, cy - sh * 0.01, sw * 0.78, sh * 0.80);
+
+  // Shield edge coordinates for decoration
+  const shTop    = cy - sh * 0.5 - sh * 0.01;
+  const shBot    = cy + sh * 0.5 - sh * 0.01; // tip of shield
+  const shLeft   = cx - sw / 2;
+  const shRight  = cx + sw / 2;
+  const shWaistY = cy + sh * 0.1 - sh * 0.01;
+
+  // Decorations anchored to shield edges
+  let deco = "";
+  // Apron starts at waist (where shield starts narrowing toward tip)
+  if (p >= 2) deco += decoApron(cx, shWaistY + sh * 0.28, sw * 0.82, c, p - 1);
+  // Wings at left/right of shield mid
+  if (p >= 3) deco += decoWings(cx, cy, shLeft, shRight, shTop, shWaistY + sh * 0.3, c, (p - 2) * 0.45);
+  // Crown sits on top edge
+  if (p >= 4) deco += decoCrown(cx, shTop, sw, c, p >= 5);
+  // Extra banners for p5
+  if (p >= 5) deco += decoBanners(cx, shLeft, shRight, shTop, sh * 0.7, c, 2);
+
+  // Contour rings (grow with prestige)
+  let contours = "";
+  for (let ci = 0; ci < p - 1; ci++) {
+    const f = 1 + (ci + 1) * 0.065;
+    contours += `<path d="${shieldPath(cx, cy-sh*0.01, sw*f, sh*f)}"
+      fill="none" stroke="${c.hi}" stroke-width="${0.75 - ci * 0.1}" stroke-opacity="${0.38 - ci * 0.06}"/>`;
+  }
+
+  const sStar = starPoly(cx, cy - sz * 0.13, sz * 0.125, sz * 0.055, 5);
+  const orbitR = sz * 0.168;
+  let dots = "";
+  const dc = Math.min(stars, 5);
+  for (let i = 0; i < dc; i++) {
+    const a = (i / dc) * Math.PI * 2 - Math.PI / 2;
+    dots += `<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(2)}" cy="${(cy-sz*0.13+Math.sin(a)*orbitR).toFixed(2)}"
+      r="${sz*0.025}" fill="${c.hi}" opacity="0.92"/>`;
+  }
+
+  const pad = sz * 0.7;
+  return `<svg width="${sz + pad * 2}" height="${sz + pad * 2}"
+    viewBox="${-pad} ${-pad} ${sz + pad * 2} ${sz + pad * 2}"
+    xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="36%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="${c.bg1}"/>
+      <stop offset="100%" stop-color="${c.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="${c.hi}"/>
+      <stop offset="45%" stop-color="${c.c1}"/>
+      <stop offset="100%" stop-color="${c.c2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="${sz*0.028}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="${sz*0.1}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="${oS}" fill="${c.glow}" filter="url(#halo${id})"/>
+  ${deco}
+  ${contours}
+  <path d="${oS}" fill="url(#rim${id})"/>
+  <path d="${iS}" fill="${c.bg2}"/>
+  <path d="${iS}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.017}"/>
+  <path d="${bS}" fill="url(#bg${id})"/>
+  <path d="${bS}" fill="url(#sh${id})"/>
+  <circle cx="${cx}" cy="${cy-sz*0.13}" r="${orbitR}" fill="none" stroke="${c.c1}"
+    stroke-width="0.5" stroke-opacity="0.35" stroke-dasharray="2 2"/>
+  ${dots}
+  <path d="${sStar}" fill="url(#rim${id})" filter="url(#gl${id})"/>
+  <text x="${cx}" y="${cy+sz*0.21}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.17}"
+    fill="${c.hi}" filter="url(#gl${id})">${label}</text>
+</svg>`;
+}
+
+function prestigeBlackGold(num, sz = 90) {
+  const c = { c1:"#f59e0b", c2:"#78350f", hi:"#fde68a", bg1:"#141008", bg2:"#060402", glow:"#f59e0b44" };
+  const cx = sz/2, cy = sz/2, id = uid();
+  const sw = sz*0.74, sh = sz*0.82;
+  const oS = shieldPath(cx, cy-sh*0.01, sw, sh);
+  const iS = shieldPath(cx, cy-sh*0.01, sw*0.84, sh*0.86);
+  const bS = shieldPath(cx, cy-sh*0.01, sw*0.78, sh*0.80);
+  const shTop = cy - sh*0.5 - sh*0.01;
+  const shWaistY = cy + sh*0.1 - sh*0.01;
+  const shLeft = cx - sw/2, shRight = cx + sw/2;
+
+  let deco = decoApron(cx, shWaistY + sh*0.28, sw*0.82, c, 3);
+  deco += decoWings(cx, cy, shLeft, shRight, shTop, shWaistY+sh*0.3, c, 1.0);
+  deco += decoCrown(cx, shTop, sw, c, true);
+  deco += decoBanners(cx, shLeft, shRight, shTop, sh*0.7, c, 3);
+
+  let contours = "";
+  for (let ci = 0; ci < 4; ci++) {
+    const f = 1 + (ci+1)*0.065;
+    contours += `<path d="${shieldPath(cx,cy-sh*0.01,sw*f,sh*f)}"
+      fill="none" stroke="#fde68a" stroke-width="${0.75-ci*0.1}" stroke-opacity="${0.35-ci*0.06}"/>`;
+  }
+
+  const orbitR = sz*0.168;
+  let dots = "";
+  for (let i = 0; i < 6; i++) {
+    const a = (i/6)*Math.PI*2 - Math.PI/2;
+    dots += `<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(2)}" cy="${(cy-sz*0.13+Math.sin(a)*orbitR).toFixed(2)}"
+      r="${sz*0.025}" fill="#fde68a" opacity="${i < (num-5) ? 0.95 : 0.14}"/>`;
+  }
+  const sStar = starPoly(cx, cy-sz*0.13, sz*0.125, sz*0.055, 5);
+
+  const pad = sz*0.7;
+  return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}"
+    xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="36%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#1a1408"/>
+      <stop offset="100%" stop-color="#060402"/>
+    </radialGradient>
+    <linearGradient id="gold${id}" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.14"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="${sz*0.028}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="${sz*0.1}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="${oS}" fill="#f59e0b44" filter="url(#halo${id})"/>
+  ${deco}
+  ${contours}
+  <path d="${oS}" fill="url(#gold${id})"/>
+  <path d="${iS}" fill="#080604"/>
+  <path d="${iS}" fill="none" stroke="url(#gold${id})" stroke-width="${sz*0.017}"/>
+  <path d="${bS}" fill="url(#bg${id})"/>
+  <path d="${bS}" fill="url(#sh${id})"/>
+  <circle cx="${cx}" cy="${cy-sz*0.13}" r="${orbitR}" fill="none" stroke="#f59e0b"
+    stroke-width="0.5" stroke-opacity="0.3" stroke-dasharray="2 2"/>
+  ${dots}
+  <path d="${sStar}" fill="url(#gold${id})" filter="url(#gl${id})"/>
+  <text x="${cx}" y="${cy+sz*0.21}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.17}"
+    fill="#fde68a" filter="url(#gl${id})">${num}</text>
+</svg>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// CRYSTAL TROPHY
+// ═══════════════════════════════════════════════════════
+
+function crystalTrophy(sz = 110) {
+  const cx = sz/2, cy = sz/2, id = uid();
+  const gCx = cx, gCy = cy - sz*0.1, gR = sz*0.21;
+  const gem   = `M${gCx},${gCy-gR} L${gCx+gR*0.72},${gCy-gR*0.18} L${gCx+gR*0.9},${gCy+gR*0.32} L${gCx},${gCy+gR} L${gCx-gR*0.9},${gCy+gR*0.32} L${gCx-gR*0.72},${gCy-gR*0.18} Z`;
+  const fL    = `M${gCx},${gCy-gR} L${gCx-gR*0.72},${gCy-gR*0.18} L${gCx},${gCy+gR*0.08} Z`;
+  const fR    = `M${gCx},${gCy-gR} L${gCx+gR*0.72},${gCy-gR*0.18} L${gCx},${gCy+gR*0.08} Z`;
+  const fBL   = `M${gCx-gR*0.9},${gCy+gR*0.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*0.08} Z`;
+  const fBR   = `M${gCx+gR*0.9},${gCy+gR*0.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*0.08} Z`;
+  const fBC   = `M${gCx-gR*0.9},${gCy+gR*0.32} L${gCx+gR*0.9},${gCy+gR*0.32} L${gCx},${gCy+gR*0.08} Z`;
+  const sTop  = gCy + gR;
+  const sBot  = sTop + sz*0.13;
+  const kY    = sTop + sz*0.065;
+  const bY    = sBot, b2Y = sBot + sz*0.065;
+  const bW    = sz*0.5, b2W = sz*0.42;
+
+  return `<svg width="${sz}" height="${sz*1.08}" viewBox="0 0 ${sz} ${sz*1.04}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gA${id}" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/><stop offset="45%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="gB${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="gC${id}" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/><stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="gold${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="#fde68a"/><stop offset="40%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <linearGradient id="base${id}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#92400e"/><stop offset="50%" stop-color="#fde68a"/><stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="${sz*0.04}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="${sz*0.11}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="${gem}" fill="#f59e0b88" filter="url(#halo${id})"/>
+  <path d="${gem}" fill="url(#gA${id})"/>
+  <path d="${fL}"  fill="url(#gB${id})" opacity="0.72"/>
+  <path d="${fR}"  fill="url(#gB${id})" opacity="0.52"/>
+  <path d="${fBL}" fill="url(#gC${id})" opacity="0.78"/>
+  <path d="${fBR}" fill="url(#gC${id})" opacity="0.62"/>
+  <path d="${fBC}" fill="#d97706" opacity="0.68"/>
+  <path d="${gem}" fill="none" stroke="#fde68a" stroke-width="0.85" stroke-opacity="0.55"/>
+  <line x1="${gCx}" y1="${gCy-gR}" x2="${gCx}" y2="${gCy+gR*0.08}" stroke="#fde68a" stroke-width="0.55" stroke-opacity="0.38"/>
+  <line x1="${gCx}" y1="${gCy+gR*0.08}" x2="${gCx-gR*0.9}" y2="${gCy+gR*0.32}" stroke="#fde68a" stroke-width="0.55" stroke-opacity="0.28"/>
+  <line x1="${gCx}" y1="${gCy+gR*0.08}" x2="${gCx+gR*0.9}" y2="${gCy+gR*0.32}" stroke="#fde68a" stroke-width="0.55" stroke-opacity="0.28"/>
+  <path d="M${gCx-gR*0.32},${gCy-gR*0.72} L${gCx+gR*0.09},${gCy-gR*0.86} L${gCx+gR*0.04},${gCy-gR*0.44} Z" fill="white" opacity="0.32"/>
+  <path d="M${cx-sz*0.04},${sTop} C${cx-sz*0.06},${kY} ${cx-sz*0.024},${kY} ${cx-sz*0.03},${sBot} L${cx+sz*0.03},${sBot} C${cx+sz*0.024},${kY} ${cx+sz*0.06},${kY} ${cx+sz*0.04},${sTop} Z" fill="url(#gold${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*0.052}" ry="${sz*0.036}" fill="url(#gold${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*0.052}" ry="${sz*0.036}" fill="none" stroke="#fde68a" stroke-width="0.65" stroke-opacity="0.45"/>
+  <path d="M${cx-bW/2},${bY} L${cx-bW/2+sz*0.018},${bY+sz*0.062} L${cx+bW/2-sz*0.018},${bY+sz*0.062} L${cx+bW/2},${bY} Z" fill="url(#gold${id})"/>
+  <path d="M${cx-bW/2},${bY} L${cx-bW/2+sz*0.018},${bY+sz*0.062} L${cx+bW/2-sz*0.018},${bY+sz*0.062} L${cx+bW/2},${bY} Z" fill="none" stroke="#fde68a" stroke-width="0.65" stroke-opacity="0.38"/>
+  <rect x="${cx-b2W/2}" y="${b2Y}" width="${b2W}" height="${sz*0.06}" rx="${sz*0.012}" fill="url(#base${id})"/>
+  <rect x="${cx-b2W/2}" y="${b2Y}" width="${b2W}" height="${sz*0.06}" rx="${sz*0.012}" fill="none" stroke="#fde68a" stroke-width="0.6" stroke-opacity="0.32"/>
+</svg>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// SEASON BADGE
+// ═══════════════════════════════════════════════════════
+
+const SEASON_TIERS = [
+  {c1:"#f59e0b",c2:"#78350f",hi:"#fde68a",bg1:"#150e00",bg2:"#080600",glow:"#f59e0b44",name:"Gold · T1"},
+  {c1:"#b0bac8",c2:"#4a5568",hi:"#e8eef4",bg1:"#0e1016",bg2:"#06080c",glow:"#b0bac844",name:"Silber · T2"},
+  {c1:"#cd7f32",c2:"#7c3f0a",hi:"#f4c07a",bg1:"#130a04",bg2:"#080502",glow:"#cd7f3244",name:"Bronze · T3"},
+  {c1:"#4a7c6f",c2:"#1a3830",hi:"#94c9bb",bg1:"#071210",bg2:"#030908",glow:"#4a7c6f44",name:"Schiefer · T4"},
+];
+
+function seasonBadge(tierIdx, seasonNum, sz = 86) {
+  const cx = sz/2, cy = sz/2, id = uid();
+  const c = SEASON_TIERS[tierIdx];
+  const rO = sz*0.43;
+  const oH = hexPath(cx, cy, rO);
+  const mH = hexPath(cx, cy, rO * 0.84);
+  const iH = hexPath(cx, cy, rO * 0.775);
+  const roman = ["I","II","III","IV","V","VI","VII","VIII","IX","X"][seasonNum-1] || `${seasonNum}`;
+  const numSz = roman.length > 2 ? sz*0.19 : sz*0.25;
+
+  // Exact bottom of hexagon: for a flat-top hex (rotated -30°), bottom vertex is at cy+rO
+  const hexBot = cy + rO;
+  const hexLeft  = cx - rO;
+  const hexRight = cx + rO;
+  const layers = tierIdx + 1;
+  const deco = decoApron(cx, hexBot, rO * 1.9, c, layers);
+
+  const pad = sz * 0.55;
+  return `<svg width="${sz + pad*2}" height="${sz + pad*2}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}"
+    xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="36%" cy="30%" r="72%">
+      <stop offset="0%" stop-color="${c.bg1}"/>
+      <stop offset="100%" stop-color="${c.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="${c.hi}"/>
+      <stop offset="45%" stop-color="${c.c1}"/>
+      <stop offset="100%" stop-color="${c.c2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.15"/>
+      <stop offset="55%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="${sz*0.026}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="${sz*0.09}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="${oH}" fill="${c.glow}" filter="url(#halo${id})"/>
+  ${deco}
+  <path d="${oH}" fill="url(#rim${id})"/>
+  <path d="${mH}" fill="${c.bg2}"/>
+  <path d="${mH}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.018}"/>
+  <path d="${iH}" fill="url(#bg${id})"/>
+  <path d="${iH}" fill="url(#sh${id})"/>
+  <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${numSz}"
+    fill="${c.hi}" filter="url(#gl${id})">${roman}</text>
+</svg>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+
+function add(id, svg, label) {
+  const el = document.getElementById(id);
+  const div = document.createElement("div");
+  div.className = "item";
+  div.innerHTML = svg + `<span class="lbl">${label}</span>`;
+  el.appendChild(div);
+}
+
+TIERS.forEach((t, i) => {
+  const ids = ["t1","t2","t3","t4","t5"];
+  for (let lv = t.range[0]; lv <= t.range[1]; lv++) add(ids[i], levelBadge(lv, t, 80), `Lv. ${lv}`);
+});
+
+for (let p = 1; p <= 5; p++) add("pre", prestigeShield(p, 90), `Prestige ${["I","II","III","IV","V"][p-1]}`);
+for (let p = 6; p <= 11; p++) add("pre2", prestigeBlackGold(p, 90), `Prestige ${p}`);
+
+add("troph", crystalTrophy(110), "1st Place");
+
+SEASON_TIERS.forEach((t, i) => {
+  for (let s = 1; s <= 4; s++) add("seas", seasonBadge(i, s, 86), `${t.name} · S${s}`);
+});
+</script>
+</body>
+</html>

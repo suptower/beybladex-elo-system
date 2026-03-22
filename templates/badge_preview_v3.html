@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeybladeX Badge Preview v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0a0c14; --surface:#12151f; --border:#1e2235; --text:#e8eaf6; --muted:#5a6080; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; padding:40px 24px 80px; }
+  h1 { font-family:'Orbitron',monospace; font-size:1.05rem; letter-spacing:.2em; color:#a78bfa; margin-bottom:6px; }
+  .note { font-size:.8rem; color:var(--muted); margin-bottom:48px; line-height:1.7; }
+  section { margin-bottom:50px; }
+  h2 { font-family:'Orbitron',monospace; font-size:.65rem; letter-spacing:.22em; color:var(--muted);
+    text-transform:uppercase; margin-bottom:18px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .grid { display:flex; flex-wrap:wrap; gap:18px; align-items:flex-end; }
+  .item { display:flex; flex-direction:column; align-items:center; gap:7px; }
+  .lbl { font-size:.68rem; color:var(--muted); letter-spacing:.06em; text-align:center; }
+  .item svg { transition:transform .18s ease; cursor:pointer; }
+  .item svg:hover { transform:translateY(-4px) scale(1.09); }
+</style>
+</head>
+<body>
+
+<h1>BEYBLADEX · BADGE SYSTEM v3</h1>
+<p class="note">Font: Orbitron (Preview) → finale Site: Presicaw W00 Heavy · Hover zum Inspizieren</p>
+
+<section><h2>Level 1–9 · Bronze</h2><div class="grid" id="t1"></div></section>
+<section><h2>Level 10–19 · Silber</h2><div class="grid" id="t2"></div></section>
+<section><h2>Level 20–29 · Platin</h2><div class="grid" id="t3"></div></section>
+<section><h2>Level 30–39 · Lila</h2><div class="grid" id="t4"></div></section>
+<section><h2>Level 40–49 · Rot</h2><div class="grid" id="t5"></div></section>
+<section><h2>Prestige I–V</h2><div class="grid" id="pre"></div></section>
+<section><h2>Prestige VI+ · Schwarz / Gold</h2><div class="grid" id="pre2"></div></section>
+<section><h2>Tournament · 1st Place</h2><div class="grid" id="troph"></div></section>
+<section><h2>Season Champion · Tier 1–4</h2><div class="grid" id="seas"></div></section>
+
+<script>
+// ── Tier configs ──────────────────────────────────────────────────────────────
+const TIERS = [
+  { range:[1,9],   name:"Bronze",
+    bg1:"#1f1208", bg2:"#0d0803", rim1:"#cd7f32", rim2:"#7c3f0a", hi:"#f4c07a", ring2:"#e8a24a" },
+  { range:[10,19], name:"Silber",
+    bg1:"#141820", bg2:"#08090f", rim1:"#b0bac8", rim2:"#4a5568", hi:"#e8eef4", ring2:"#8a96a8" },
+  { range:[20,29], name:"Platin",
+    bg1:"#091018", bg2:"#050810", rim1:"#67e8f9", rim2:"#0e7490", hi:"#cffafe", ring2:"#38bcd4" },
+  { range:[30,39], name:"Lila",
+    bg1:"#120a20", bg2:"#080510", rim1:"#a855f7", rim2:"#6b21a8", hi:"#e9d5ff", ring2:"#8b22d9" },
+  { range:[40,49], name:"Rot",
+    bg1:"#200808", bg2:"#100404", rim1:"#ef4444", rim2:"#991b1b", hi:"#fca5a5", ring2:"#dc2626" },
+];
+
+// ── Double-ring level badge ───────────────────────────────────────────────────
+function levelBadge(level, tier, sz=72) {
+  const cx=sz/2, cy=sz/2;
+  const rO=sz*0.46, rI=sz*0.38, rBg=sz*0.355;
+  const id=`lv${level}_${Math.random().toString(36).slice(2,6)}`;
+  const numSz = level >= 10 ? sz*0.30 : sz*0.34;
+  // tick marks on outer ring
+  const ticks=16;
+  let tickMarks="";
+  for(let i=0;i<ticks;i++){
+    const a=(i/ticks)*Math.PI*2;
+    const r1=rO-1, r2= i%4===0 ? rI+sz*0.03 : rI+sz*0.055;
+    tickMarks+=`<line x1="${(cx+Math.cos(a)*r1).toFixed(2)}" y1="${(cy+Math.sin(a)*r1).toFixed(2)}"
+      x2="${(cx+Math.cos(a)*r2).toFixed(2)}" y2="${(cy+Math.sin(a)*r2).toFixed(2)}"
+      stroke="${tier.hi}" stroke-width="${i%4===0?1.2:0.6}" stroke-opacity="${i%4===0?0.7:0.4}"/>`;
+  }
+
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="${tier.bg1}"/>
+      <stop offset="100%" stop-color="${tier.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="${tier.hi}"/>
+      <stop offset="45%" stop-color="${tier.rim1}"/>
+      <stop offset="100%" stop-color="${tier.rim2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.15"/>
+      <stop offset="55%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}">
+      <feGaussianBlur stdDeviation="${sz*0.025}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Outer ring filled -->
+  <circle cx="${cx}" cy="${cy}" r="${rO}" fill="url(#rim${id})"/>
+  <!-- Gap ring (bg colour) -->
+  <circle cx="${cx}" cy="${cy}" r="${rI}" fill="${tier.bg2}"/>
+  <!-- Second inner ring -->
+  <circle cx="${cx}" cy="${cy}" r="${rI}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.022}"/>
+  <!-- Background disc -->
+  <circle cx="${cx}" cy="${cy}" r="${rBg}" fill="url(#bg${id})"/>
+  <!-- Shine -->
+  <circle cx="${cx}" cy="${cy}" r="${rBg}" fill="url(#sh${id})"/>
+  <!-- Tick marks between rings -->
+  ${tickMarks}
+  <!-- Level number dead centre -->
+  <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${numSz}"
+    fill="${tier.hi}" filter="url(#gl${id})">${level}</text>
+</svg>`;
+}
+
+// ── Star polygon helper ───────────────────────────────────────────────────────
+function starPoly(cx,cy,rO,rI,n=5){
+  let d="";
+  for(let i=0;i<n*2;i++){
+    const a=(i/(n*2))*Math.PI*2-Math.PI/2, r=i%2===0?rO:rI;
+    d+=(i===0?"M":"L")+`${(cx+Math.cos(a)*r).toFixed(1)},${(cy+Math.sin(a)*r).toFixed(1)}`;
+  }
+  return d+"Z";
+}
+
+// ── Hex path ──────────────────────────────────────────────────────────────────
+function hexPath(cx,cy,r){
+  let d="";
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2-Math.PI/6;
+    d+=(i===0?"M":"L")+`${(cx+Math.cos(a)*r).toFixed(1)},${(cy+Math.sin(a)*r).toFixed(1)}`;
+  }
+  return d+"Z";
+}
+
+// ── Prestige I–V ──────────────────────────────────────────────────────────────
+const PRESTIGE_COLORS = [
+  { c1:"#cd7f32", c2:"#7c3f0a", hi:"#f4c07a", bg1:"#180e04", bg2:"#0a0602" },
+  { c1:"#b0bac8", c2:"#4a5568", hi:"#e8eef4", bg1:"#101318", bg2:"#080a0e" },
+  { c1:"#60a5fa", c2:"#1e40af", hi:"#bfdbfe", bg1:"#00101c", bg2:"#00080f" },
+  { c1:"#f472b6", c2:"#be185d", hi:"#fce7f3", bg1:"#1a0012", bg2:"#0e0009" },
+  { c1:"#a78bfa", c2:"#6d28d9", hi:"#ede9fe", bg1:"#0e0020", bg2:"#080012" },
+];
+
+function prestigeBadge(stars, sz=88) {
+  const cx=sz/2, cy=sz/2, r=sz*0.44;
+  const id=`pr${stars}_${Math.random().toString(36).slice(2,6)}`;
+  const c=PRESTIGE_COLORS[stars-1];
+  const roman=["I","II","III","IV","V"][stars-1];
+  const rO=r, rI=r-sz*0.07, rBg=rI-sz*0.015;
+  const sStar=starPoly(cx, cy-sz*0.1, sz*0.18, sz*0.08, 5);
+  // orbit dots
+  const orbitR=r*0.62;
+  let dots="";
+  for(let i=0;i<stars;i++){
+    const a=(i/stars)*Math.PI*2-Math.PI/2;
+    dots+=`<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(1)}" cy="${(cy+Math.sin(a)*orbitR).toFixed(1)}"
+      r="${sz*0.032}" fill="${c.hi}" opacity="0.9"/>`;
+  }
+
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="${c.bg1}"/>
+      <stop offset="100%" stop-color="${c.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="${c.hi}"/>
+      <stop offset="45%" stop-color="${c.c1}"/>
+      <stop offset="100%" stop-color="${c.c2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}">
+      <feGaussianBlur stdDeviation="${sz*0.035}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="${cx}" cy="${cy}" r="${rO}" fill="url(#rim${id})"/>
+  <circle cx="${cx}" cy="${cy}" r="${rI}" fill="${c.bg2}"/>
+  <circle cx="${cx}" cy="${cy}" r="${rI}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.018}"/>
+  <circle cx="${cx}" cy="${cy}" r="${rBg}" fill="url(#bg${id})"/>
+  <circle cx="${cx}" cy="${cy}" r="${rBg}" fill="url(#sh${id})"/>
+  <circle cx="${cx}" cy="${cy}" r="${orbitR}" fill="none" stroke="${c.c1}" stroke-width="0.5" stroke-opacity="0.4" stroke-dasharray="2.5 2.5"/>
+  ${dots}
+  <path d="${sStar}" fill="url(#rim${id})" filter="url(#gl${id})"/>
+  <text x="${cx}" y="${cy+sz*0.26}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.17}"
+    fill="${c.hi}" filter="url(#gl${id})">${roman}</text>
+</svg>`;
+}
+
+// ── Prestige VI+ – schwarz / gold ─────────────────────────────────────────────
+function prestigeBlackGold(num, sz=88) {
+  const cx=sz/2, cy=sz/2, r=sz*0.44;
+  const id=`px${num}_${Math.random().toString(36).slice(2,6)}`;
+  const rO=r, rI=r-sz*0.07, rBg=rI-sz*0.015;
+  const sStar=starPoly(cx, cy-sz*0.1, sz*0.18, sz*0.08, 5);
+  // 6 orbit dots for VI+
+  const orbitR=r*0.62;
+  let dots="";
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2-Math.PI/2;
+    dots+=`<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(1)}" cy="${(cy+Math.sin(a)*orbitR).toFixed(1)}"
+      r="${sz*0.032}" fill="#fde68a" opacity="${i < num-5 ? '1' : '0.18'}"/>`;
+  }
+
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#1a1408"/>
+      <stop offset="100%" stop-color="#060504"/>
+    </radialGradient>
+    <linearGradient id="gold${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.12"/>
+      <stop offset="55%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}">
+      <feGaussianBlur stdDeviation="${sz*0.035}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Outer gold ring -->
+  <circle cx="${cx}" cy="${cy}" r="${rO}" fill="url(#gold${id})"/>
+  <!-- Black gap -->
+  <circle cx="${cx}" cy="${cy}" r="${rI}" fill="#080604"/>
+  <!-- Inner gold ring -->
+  <circle cx="${cx}" cy="${cy}" r="${rI}" fill="none" stroke="url(#gold${id})" stroke-width="${sz*0.018}"/>
+  <!-- Near-black background -->
+  <circle cx="${cx}" cy="${cy}" r="${rBg}" fill="url(#bg${id})"/>
+  <circle cx="${cx}" cy="${cy}" r="${rBg}" fill="url(#sh${id})"/>
+  <!-- Orbit -->
+  <circle cx="${cx}" cy="${cy}" r="${orbitR}" fill="none" stroke="#f59e0b" stroke-width="0.5" stroke-opacity="0.35" stroke-dasharray="2.5 2.5"/>
+  ${dots}
+  <!-- Gold star -->
+  <path d="${sStar}" fill="url(#gold${id})" filter="url(#gl${id})"/>
+  <!-- Number -->
+  <text x="${cx}" y="${cy+sz*0.26}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.18}"
+    fill="#fde68a" filter="url(#gl${id})">${num}</text>
+</svg>`;
+}
+
+// ── Tournament Trophy 1st (no stars, no label) ────────────────────────────────
+function trophy1st(sz=100) {
+  const cx=sz/2, cy=sz/2;
+  const id=`tr_${Math.random().toString(36).slice(2,6)}`;
+  const tw=sz*0.36, th=sz*0.30;
+  const tx=cx-tw/2, ty=cy-th*0.6-sz*0.02;
+  const cup=`M${tx},${ty} Q${tx-sz*0.01},${ty+th*0.58} ${cx},${ty+th} Q${tx+tw+sz*0.01},${ty+th*0.58} ${tx+tw},${ty} Z`;
+  const hL=`M${tx+sz*0.01},${ty+th*0.18} Q${tx-sz*0.09},${ty+th*0.52} ${tx+sz*0.01},${ty+th*0.8}`;
+  const hR=`M${tx+tw-sz*0.01},${ty+th*0.18} Q${tx+tw+sz*0.09},${ty+th*0.52} ${tx+tw-sz*0.01},${ty+th*0.8}`;
+
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#1a1000"/>
+      <stop offset="100%" stop-color="#080600"/>
+    </radialGradient>
+    <linearGradient id="gold${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <filter id="gl${id}">
+      <feGaussianBlur stdDeviation="${sz*0.032}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="${cx}" cy="${cy}" r="${sz*0.46}" fill="url(#bg${id})"/>
+  <circle cx="${cx}" cy="${cy}" r="${sz*0.46}" fill="none" stroke="#f59e0b" stroke-width="${sz*0.018}" stroke-opacity="0.55"/>
+  <circle cx="${cx}" cy="${cy}" r="${sz*0.38}" fill="none" stroke="#f59e0b" stroke-width="0.6" stroke-opacity="0.25"/>
+  <!-- Cup -->
+  <path d="${cup}" fill="url(#gold${id})"/>
+  <!-- Shine -->
+  <path d="M${tx+tw*0.15},${ty+th*0.12} Q${tx+tw*0.12},${ty+th*0.48} ${tx+tw*0.26},${ty+th*0.74}"
+    fill="none" stroke="white" stroke-width="${sz*0.011}" stroke-opacity="0.28" stroke-linecap="round"/>
+  <!-- Handles -->
+  <path d="${hL}" fill="none" stroke="url(#gold${id})" stroke-width="${sz*0.04}" stroke-linecap="round"/>
+  <path d="${hR}" fill="none" stroke="url(#gold${id})" stroke-width="${sz*0.04}" stroke-linecap="round"/>
+  <!-- Stem -->
+  <rect x="${cx-sz*0.034}" y="${ty+th}" width="${sz*0.068}" height="${sz*0.115}" fill="url(#gold${id})"/>
+  <!-- Base -->
+  <rect x="${cx-sz*0.185}" y="${ty+th+sz*0.115}" width="${sz*0.37}" height="${sz*0.06}"
+    rx="${sz*0.012}" fill="url(#gold${id})"/>
+</svg>`;
+}
+
+// ── Season Badge (no text, roman numeral only) ────────────────────────────────
+const SEASON_TIERS = [
+  { c1:"#f59e0b", c2:"#78350f", hi:"#fde68a", bg1:"#150e00", bg2:"#080600", name:"Gold · Tier 1"    },
+  { c1:"#b0bac8", c2:"#4a5568", hi:"#e8eef4", bg1:"#0e1016", bg2:"#06080c", name:"Silber · Tier 2"  },
+  { c1:"#cd7f32", c2:"#7c3f0a", hi:"#f4c07a", bg1:"#130a04", bg2:"#080502", name:"Bronze · Tier 3"  },
+  // Tier 4: dark slate-teal, clearly distinct from silver
+  { c1:"#4a7c6f", c2:"#1a3830", hi:"#94c9bb", bg1:"#071210", bg2:"#030908", name:"Schiefer · Tier 4" },
+];
+
+function seasonBadge(tierIdx, seasonNum, sz=88) {
+  const cx=sz/2, cy=sz/2;
+  const id=`sb${tierIdx}s${seasonNum}_${Math.random().toString(36).slice(2,6)}`;
+  const c=SEASON_TIERS[tierIdx];
+  const oH=hexPath(cx,cy,sz*0.44);
+  const mH=hexPath(cx,cy,sz*0.36);
+  const iH=hexPath(cx,cy,sz*0.33);
+  const roman=["I","II","III","IV","V","VI","VII","VIII","IX","X"][seasonNum-1]||`${seasonNum}`;
+  const numSz = seasonNum > 5 ? sz*0.22 : sz*0.26;
+
+  return `<svg width="${sz}" height="${sz}" viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="${c.bg1}"/>
+      <stop offset="100%" stop-color="${c.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="${c.hi}"/>
+      <stop offset="45%" stop-color="${c.c1}"/>
+      <stop offset="100%" stop-color="${c.c2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.14"/>
+      <stop offset="55%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}">
+      <feGaussianBlur stdDeviation="${sz*0.038}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Outer hex (thick rim) -->
+  <path d="${oH}" fill="url(#rim${id})"/>
+  <!-- Gap -->
+  <path d="${mH}" fill="${c.bg2}"/>
+  <!-- Inner hex ring -->
+  <path d="${mH}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.02}"/>
+  <!-- Background -->
+  <path d="${iH}" fill="url(#bg${id})"/>
+  <path d="${iH}" fill="url(#sh${id})"/>
+  <!-- Season number centred -->
+  <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${numSz}"
+    fill="${c.hi}" filter="url(#gl${id})">${roman}</text>
+</svg>`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function add(containerId, svg, label) {
+  const el=document.getElementById(containerId);
+  const div=document.createElement("div");
+  div.className="item";
+  div.innerHTML=svg+`<span class="lbl">${label}</span>`;
+  el.appendChild(div);
+}
+
+TIERS.forEach((t,i)=>{
+  const ids=["t1","t2","t3","t4","t5"];
+  for(let lv=t.range[0];lv<=t.range[1];lv++) add(ids[i], levelBadge(lv,t,72), `Lv. ${lv}`);
+});
+
+for(let p=1;p<=5;p++) add("pre", prestigeBadge(p,88), `Prestige ${["I","II","III","IV","V"][p-1]}`);
+for(let p=6;p<=11;p++) add("pre2", prestigeBlackGold(p,88), `Prestige ${p}`);
+
+add("troph", trophy1st(100), "1st Place");
+
+SEASON_TIERS.forEach((t,i)=>{
+  for(let s=1;s<=4;s++) add("seas", seasonBadge(i,s,88), `${t.name} · S${s}`);
+});
+</script>
+</body>
+</html>
