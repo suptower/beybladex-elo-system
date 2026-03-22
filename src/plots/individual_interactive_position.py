@@ -58,42 +58,31 @@ def load_data():
     return df_pos, df_hist, df_matches
 
 
-def get_match_details(bey, date, df_hist, df_matches):
-    """Get opponent and match result for a specific bey on a specific date"""
-    # Find match in history
-    hist_day = df_hist[
-        (df_hist['Date'] == date) &
-        ((df_hist['BeyA'] == bey) | (df_hist['BeyB'] == bey))
-    ]
+def get_match_details(bey, event_idx, df_hist, df_matches):
+    """Get opponent and match result for a specific bey using event_idx.
 
-    if len(hist_day) == 0:
+    event_idx corresponds to (original row index in df_hist) + 1, so
+    df_hist.iloc[event_idx - 1] retrieves exactly the right match even when
+    multiple matches share the same date.
+    """
+    try:
+        match = df_hist.iloc[int(event_idx) - 1]
+    except (IndexError, ValueError):
         return "Unknown", "N/A", "N/A"
 
-    match = hist_day.iloc[0]
     is_bey_a = match['BeyA'] == bey
     opponent = match['BeyB'] if is_bey_a else match['BeyA']
 
-    # Find match in matches.csv to get score
-    match_day = df_matches[
-        (df_matches['Date'] == date) &
-        (((df_matches['BeyA'] == bey) & (df_matches['BeyB'] == opponent)) |
-         ((df_matches['BeyB'] == bey) & (df_matches['BeyA'] == opponent)))
-    ]
-
-    if len(match_day) > 0:
-        m = match_day.iloc[0]
-        if m['BeyA'] == bey:
-            my_score = m['ScoreA']
-            opp_score = m['ScoreB']
-            result = "Win" if m['ScoreA'] > m['ScoreB'] else "Loss"
-        else:
-            my_score = m['ScoreB']
-            opp_score = m['ScoreA']
-            result = "Win" if m['ScoreB'] > m['ScoreA'] else "Loss"
-        score = f"{my_score}-{opp_score}"
+    # Scores are available directly in the history row
+    if is_bey_a:
+        my_score = match['ScoreA']
+        opp_score = match['ScoreB']
     else:
-        score = "N/A"
-        result = "N/A"
+        my_score = match['ScoreB']
+        opp_score = match['ScoreA']
+
+    result = "Win" if my_score > opp_score else ("Tie" if my_score == opp_score else "Loss")
+    score = f"{my_score}-{opp_score}"
 
     return opponent, score, result
 
@@ -196,7 +185,7 @@ def create_interactive_plot(bey, df_bey, df_hist, df_matches, dark_mode=False):
 
         if played == 1:
             # Active match - get opponent and result
-            opponent, score, result = get_match_details(bey, row['Date'], df_hist, df_matches)
+            opponent, score, result = get_match_details(bey, row['Event'], df_hist, df_matches)
             hover_text = (
                 f"<b>{bey}</b><br>"
                 f"Date: {row['Date']}<br>"
