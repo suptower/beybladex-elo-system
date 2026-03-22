@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BeybladeX Badge Preview v12</title>
@@ -34,9 +36,62 @@
 <section><h2>Prestige VI+ · Schwarz / Gold</h2><div class="grid" id="pre2"></div></section>
 <section><h2>Tournament · Kristall</h2><div class="grid" id="troph"></div></section>
 <section><h2>Season Champion · Tier 1–4</h2><div class="grid" id="seas"></div></section>
+<button onclick="exportAllSVGsToZip()" 
+        style="position:fixed;top:20px;right:20px;z-index:999;">
+  Export All SVGs as ZIP
+</button>
 
 <script>
 const uid = () => Math.random().toString(36).slice(2,7);
+
+async function exportAllSVGsToZip() {
+  const zip = new JSZip();
+
+  const sections = [
+    {id:"t1", prefix:"lv"},
+    {id:"t2", prefix:"lv"},
+    {id:"t3", prefix:"lv"},
+    {id:"t4", prefix:"lv"},
+    {id:"t5", prefix:"lv"},
+    {id:"pre", prefix:"prestige"},
+    {id:"pre2", prefix:"prestige"},
+    {id:"troph", prefix:"trophy"},
+    {id:"seas", prefix:"season"}
+  ];
+
+  sections.forEach(sec => {
+    const container = document.getElementById(sec.id);
+    if(!container) return;
+
+    const items = container.querySelectorAll(".item");
+
+    items.forEach((item, index) => {
+      const svg = item.querySelector("svg");
+      if(!svg) return;
+
+      let label = item.querySelector(".lbl")?.textContent || `${sec.prefix}_${index}`;
+
+      // Sauberer Dateiname
+      const safeName = label
+        .replace(/\s+/g,"_")
+        .replace(/[^\w\-]/g,"")
+        .toLowerCase();
+
+      // SVG serialisieren
+      const serializer = new XMLSerializer();
+      let source = serializer.serializeToString(svg);
+      if(!source.match(/^<\?xml/)) {
+        source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+      }
+
+      zip.file(`${safeName}.svg`, source);
+    });
+  });
+
+  // ZIP generieren & herunterladen
+  const content = await zip.generateAsync({type:"blob"});
+  saveAs(content, "badges.zip");
+}
 
 // ─── Shape helpers ─────────────────────────────────────────────────
 function poly(cx,cy,r,n,rot=0){

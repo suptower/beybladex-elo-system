@@ -1,0 +1,60 @@
+<?xml version="1.0" standalone="no"?>
+<svg width="252" height="252" viewBox="-84 -84 252 252" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgdxga9" cx="35%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#200808"/>
+      <stop offset="100%" stop-color="#100404"/>
+    </radialGradient>
+    <linearGradient id="rimdxga9" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="#ffb0b0"/>
+      <stop offset="50%" stop-color="#f25252"/>
+      <stop offset="100%" stop-color="#901818"/>
+    </linearGradient>
+    <!-- Transition accent ring gradient: full next-tier colour -->
+    <linearGradient id="transRingdxga9" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffb0b0"/>
+      <stop offset="100%" stop-color="#f45d5d"/>
+    </linearGradient>
+    <linearGradient id="shdxga9" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gldxga9" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halodxga9" x="-150%" y="-150%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="16" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="pgdxga9_0" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="#ffb0b0" stop-opacity="0.95"/>
+      <stop offset="38%" stop-color="#f45b5b" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#901818" stop-opacity="0.85"/>
+    </linearGradient><linearGradient id="apdxga9_0" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffb0b0"/>
+      <stop offset="100%" stop-color="#901818" stop-opacity="0.65"/>
+    </linearGradient>
+  </defs>
+  <!-- Glow -->
+  <path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="#f04040" fill-opacity="0.72" filter="url(#halodxga9)"/>
+  <!-- APRON: deepest decoration layer, behind everything -->
+  <path d="M59.01,71.46 L24.99,71.46 L26.93,76.91 L57.07,76.91 Z" fill="url(#apdxga9_0)" opacity="0.9"/><path d="M59.01,71.46 L24.99,71.46" fill="none" stroke="#ffb0b0" stroke-width="0.9" stroke-opacity="0.52" stroke-linejoin="round"/><path d="M59.01,71.46 L24.99,71.46 L26.93,76.91 L57.07,76.91 Z" fill="none" stroke="#901818" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/>
+  <!-- Cross-stripes above apron, behind badge -->
+  
+  <!-- Plates above stripes, behind badge -->
+  <path d="M78.91,42.00L60.46,73.97L23.54,73.97L5.09,42.00L23.54,10.03L60.46,10.03Z" fill="url(#pgdxga9_0)"/><path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="#100404"/><path d="M78.91,42.00L60.46,73.97L23.54,73.97L5.09,42.00L23.54,10.03L60.46,10.03Z" fill="none" stroke="#ffb0b0" stroke-width="0.8" stroke-opacity="0.48" stroke-linejoin="round"/><path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="none" stroke="#901818" stroke-width="0.5" stroke-opacity="0.28" stroke-linejoin="round"/>
+  
+  <!-- Main badge body covers all overlap -->
+  <path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="url(#rimdxga9)"/>
+  <path d="M70.56,42.00L56.28,66.73L27.72,66.73L13.44,42.00L27.72,17.27L56.28,17.27Z" fill="#100404"/>
+  <path d="M70.56,42.00L56.28,66.73L27.72,66.73L13.44,42.00L27.72,17.27L56.28,17.27Z" fill="none" stroke="url(#rimdxga9)" stroke-width="1.5959999999999999" stroke-linejoin="round"/>
+  <path d="M68.46,42.00L55.23,64.92L28.77,64.92L15.54,42.00L28.77,19.08L55.23,19.08Z" fill="url(#bgdxga9)"/>
+  <path d="M68.46,42.00L55.23,64.92L28.77,64.92L15.54,42.00L28.77,19.08L55.23,19.08Z" fill="url(#shdxga9)"/>
+  <path d="M70.28,58.33L42.00,74.66L13.72,58.33L13.72,25.67L42.00,9.34L70.28,25.67Z" fill="none" stroke="#ffb0b0" stroke-width="1.1" stroke-opacity="0.31" stroke-linejoin="round"/>
+  <!-- Bold transition ring (only visible when isTransition) -->
+  <path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="none" stroke="url(#transRingdxga9)" stroke-width="2.352" stroke-opacity="0.27" stroke-linejoin="round"/>
+  <!-- Inset contours on badge surface -->
+  <path d="M73.98,42.00L57.99,69.69L26.01,69.69L10.02,42.00L26.01,14.31L57.99,14.31Z" fill="none" stroke="#ffb0b0" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/><path d="M72.11,42.00L57.05,68.07L26.95,68.07L11.89,42.00L26.95,15.93L57.05,15.93Z" fill="none" stroke="#f04040" stroke-width="0.63" stroke-opacity="0.3" stroke-linejoin="round"/>
+  <text x="42" y="42" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="25.2" fill="#ffb0b0" filter="url(#gldxga9)">43</text>
+</svg>

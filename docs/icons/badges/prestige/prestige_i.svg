@@ -1,0 +1,40 @@
+<?xml version="1.0" standalone="no"?>
+<svg width="232.2" height="232.2" viewBox="-73.1 -73.1 232.2 232.2" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgpxw9j" cx="35%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#1c1006"/>
+      <stop offset="100%" stop-color="#0a0602"/>
+    </radialGradient>
+    <linearGradient id="rimpxw9j" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="#fcd08a"/>
+      <stop offset="42%" stop-color="#e8922a"/>
+      <stop offset="100%" stop-color="#8b4a0a"/>
+    </linearGradient>
+    <linearGradient id="shpxw9j" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glpxw9j" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halopxw9j" x="-120%" y="-120%" width="440%" height="440%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    
+  </defs>
+  <path d="M12.040000000000003,7.911999999999999 L73.96,7.911999999999999 L73.96,49.192 C73.96,68.45599999999999 47.9536,73.96 43,76.71199999999999 C38.0464,73.96 12.040000000000003,68.45599999999999 12.040000000000003,49.192 Z" fill="#e8922a" fill-opacity="0.36" filter="url(#halopxw9j)"/>
+  
+  
+  <path d="M12.040000000000003,7.911999999999999 L73.96,7.911999999999999 L73.96,49.192 C73.96,68.45599999999999 47.9536,73.96 43,76.71199999999999 C38.0464,73.96 12.040000000000003,68.45599999999999 12.040000000000003,49.192 Z" fill="url(#rimpxw9j)"/>
+  <path d="M16.993600000000004,12.727999999999998 L69.0064,12.727999999999998 L69.0064,48.2288 C69.0064,64.79584 47.161024,69.52928 43,71.896 C38.838976,69.52928 16.993600000000004,64.79584 16.993600000000004,48.2288 Z" fill="#0a0602"/>
+  <path d="M16.993600000000004,12.727999999999998 L69.0064,12.727999999999998 L69.0064,48.2288 C69.0064,64.79584 47.161024,69.52928 43,71.896 C38.838976,69.52928 16.993600000000004,64.79584 16.993600000000004,48.2288 Z" fill="none" stroke="url(#rimpxw9j)" stroke-width="1.3760000000000001"/>
+  <path d="M18.851200000000002,14.791999999999998 L67.1488,14.791999999999998 L67.1488,47.815999999999995 C67.1488,63.227199999999996 46.863808,67.6304 43,69.832 C39.136192,67.6304 18.851200000000002,63.227199999999996 18.851200000000002,47.815999999999995 Z" fill="url(#bgpxw9j)"/>
+  <path d="M18.851200000000002,14.791999999999998 L67.1488,14.791999999999998 L67.1488,47.815999999999995 C67.1488,63.227199999999996 46.863808,67.6304 43,69.832 C39.136192,67.6304 18.851200000000002,63.227199999999996 18.851200000000002,47.815999999999995 Z" fill="url(#shpxw9j)"/>
+  <path d="M13.897600000000004,9.975999999999999 L72.10239999999999,9.975999999999999 L72.10239999999999,48.779199999999996 C72.10239999999999,66.88736 47.656384,72.06112 43,74.648 C38.343616,72.06112 13.897600000000004,66.88736 13.897600000000004,48.779199999999996 Z" fill="none" stroke="#fcd08a" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/>
+  <circle cx="43" cy="32.68" r="13.76" fill="none" stroke="#e8922a" stroke-width="0.5" stroke-opacity="0.32" stroke-dasharray="2 2"/>
+  <circle cx="43.00" cy="18.92" r="2.064" fill="#fcd08a" opacity="0.92"/>
+  <path d="M43.00,22.36L45.73,28.92L52.81,29.49L47.42,34.12L49.07,41.03L43.00,37.32L36.93,41.03L38.58,34.12L33.19,29.49L40.27,28.92Z" fill="url(#rimpxw9j)" filter="url(#glpxw9j)"/>
+  <text x="43" y="60.2" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="14.620000000000001" fill="#fcd08a" filter="url(#glpxw9j)">I</text>
+</svg>

@@ -1,0 +1,39 @@
+<?xml version="1.0" standalone="no"?>
+<svg width="110" height="121.00000000000001" viewBox="0 0 110 114.4" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gAy40e0" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/><stop offset="45%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="gBy40e0"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>
+    <linearGradient id="gCy40e0" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/><stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="goldy40e0" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="#fde68a"/><stop offset="40%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <linearGradient id="basey40e0" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#92400e"/><stop offset="50%" stop-color="#fde68a"/><stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <filter id="haloy40e0" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="12.1" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="M55,19.8 L72.424,39.644 L76.78,51.744 L55,68.2 L33.22,51.744 L37.576,39.644 Z" fill="#f59e0b88" filter="url(#haloy40e0)"/>
+  <path d="M55,19.8 L72.424,39.644 L76.78,51.744 L55,68.2 L33.22,51.744 L37.576,39.644 Z" fill="url(#gAy40e0)"/>
+  <path d="M55,19.8 L37.576,39.644 L55,45.936 Z" fill="url(#gBy40e0)" opacity=".72"/>
+  <path d="M55,19.8 L72.424,39.644 L55,45.936 Z" fill="url(#gBy40e0)" opacity=".52"/>
+  <path d="M33.22,51.744 L55,68.2 L55,45.936 Z" fill="url(#gCy40e0)" opacity=".78"/>
+  <path d="M76.78,51.744 L55,68.2 L55,45.936 Z" fill="url(#gCy40e0)" opacity=".62"/>
+  <path d="M33.22,51.744 L76.78,51.744 L55,45.936 Z" fill="#d97706" opacity=".68"/>
+  <path d="M55,19.8 L72.424,39.644 L76.78,51.744 L55,68.2 L33.22,51.744 L37.576,39.644 Z" fill="none" stroke="#fde68a" stroke-width=".85" stroke-opacity=".55"/>
+  <line x1="55" y1="19.8" x2="55" y2="45.936" stroke="#fde68a" stroke-width=".55" stroke-opacity=".38"/>
+  <line x1="55" y1="45.936" x2="33.22" y2="51.744" stroke="#fde68a" stroke-width=".55" stroke-opacity=".28"/>
+  <line x1="55" y1="45.936" x2="76.78" y2="51.744" stroke="#fde68a" stroke-width=".55" stroke-opacity=".28"/>
+  <path d="M47.256,26.576 L57.178,23.188000000000002 L55.968,33.352000000000004 Z" fill="white" opacity=".32"/>
+  <path d="M50.6,68.2 C48.4,75.35000000000001 52.36,75.35000000000001 51.7,82.5 L58.3,82.5 C57.64,75.35000000000001 61.6,75.35000000000001 59.4,68.2 Z" fill="url(#goldy40e0)"/>
+  <ellipse cx="55" cy="75.35000000000001" rx="5.72" ry="3.9599999999999995" fill="url(#goldy40e0)"/>
+  <ellipse cx="55" cy="75.35000000000001" rx="5.72" ry="3.9599999999999995" fill="none" stroke="#fde68a" stroke-width=".65" stroke-opacity=".45"/>
+  <path d="M27.5,82.5 L25.299999999999997,89.32 L84.7,89.32 L82.5,82.5 Z" fill="url(#goldy40e0)"/>
+  <rect x="31.900000000000002" y="89.32" width="46.199999999999996" height="6.6" rx="1.32" fill="url(#basey40e0)"/>
+</svg>
