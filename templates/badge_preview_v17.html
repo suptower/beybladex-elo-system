@@ -134,25 +134,91 @@ function shapeApron(cx, cy, rO, c, id, layers, shapeId){
     if(shapeId===0){
       // Pentagon point-down (rot=PI/2): i=0→tip at PI/2, i=1→lower-left, i=4→lower-right
       const r=rO*scale;
-      const tip=[cx+r*Math.cos(Math.PI/2),   cy+r*Math.sin(Math.PI/2)];
-      const vL =[cx+r*Math.cos(1/5*Math.PI*2+Math.PI/2), cy+r*Math.sin(1/5*Math.PI*2+Math.PI/2)];
-      const vR =[cx+r*Math.cos(4/5*Math.PI*2+Math.PI/2), cy+r*Math.sin(4/5*Math.PI*2+Math.PI/2)];
-      const bl=[vL[0], tip[1]+depth];
-      const br=[vR[0], tip[1]+depth];
-      const btip=[cx, tip[1]+depth+bw*0.025*scale];
-      topPath=`M${vL[0].toFixed(2)},${vL[1].toFixed(2)} L${tip[0].toFixed(2)},${tip[1].toFixed(2)} L${vR[0].toFixed(2)},${vR[1].toFixed(2)}`;
-      bodyPath=`M${vL[0].toFixed(2)},${vL[1].toFixed(2)} L${tip[0].toFixed(2)},${tip[1].toFixed(2)} L${vR[0].toFixed(2)},${vR[1].toFixed(2)} L${br[0].toFixed(2)},${br[1].toFixed(2)} L${btip[0].toFixed(2)},${btip[1].toFixed(2)} L${bl[0].toFixed(2)},${bl[1].toFixed(2)} Z`;
-    } else if(shapeId===1){
-      // Hexagon flat-top (rot=-PI/6): bottom vertex at (cx,cy+r), flanks at i=2,i=4
-      const r=rO*scale;
-      const v3=[cx, cy+r];
-      const v2=[cx+r*Math.cos(2/6*Math.PI*2-Math.PI/6), cy+r*Math.sin(2/6*Math.PI*2-Math.PI/6)];
-      const v4=[cx+r*Math.cos(4/6*Math.PI*2-Math.PI/6), cy+r*Math.sin(4/6*Math.PI*2-Math.PI/6)];
-      const bl=[v2[0], v3[1]+depth];
-      const br=[v4[0], v3[1]+depth];
-      const btip=[cx, v3[1]+depth+bw*0.025*scale];
-      topPath=`M${v2[0].toFixed(2)},${v2[1].toFixed(2)} L${v3[0].toFixed(2)},${v3[1].toFixed(2)} L${v4[0].toFixed(2)},${v4[1].toFixed(2)}`;
-      bodyPath=`M${v2[0].toFixed(2)},${v2[1].toFixed(2)} L${v3[0].toFixed(2)},${v3[1].toFixed(2)} L${v4[0].toFixed(2)},${v4[1].toFixed(2)} L${br[0].toFixed(2)},${br[1].toFixed(2)} L${btip[0].toFixed(2)},${btip[1].toFixed(2)} L${bl[0].toFixed(2)},${bl[1].toFixed(2)} Z`;
+
+      // echte Vertex-Winkel (wie poly)
+      const rot = Math.PI/2;
+      const angles = Array.from({length:5}, (_,i)=> (i/5)*Math.PI*2 + rot);
+
+      const pts = angles.map(a=>[
+        cx + Math.cos(a)*r,
+        cy + Math.sin(a)*r
+      ]);
+
+      // unterster Punkt = max Y
+      const tip = pts.reduce((a,b)=> a[1]>b[1]?a:b);
+
+      // zwei Nachbarn finden
+      const idx = pts.indexOf(tip);
+      const vL = pts[(idx+4)%5];
+      const vR = pts[(idx+1)%5];
+
+      const inset = 0.35; // 0.65–0.8 je nach Geschmack
+
+      const bl=[
+        cx + (vL[0]-cx)*inset,
+        tip[1]+depth
+      ];
+      const br=[
+        cx + (vR[0]-cx)*inset,
+        tip[1]+depth
+      ];
+      const btip=[cx, tip[1]+depth+bw*0.03*scale];
+
+      topPath=`M${vL[0]},${vL[1]} L${tip[0]},${tip[1]} L${vR[0]},${vR[1]}`;
+      bodyPath=`M${vL[0]},${vL[1]} L${tip[0]},${tip[1]} L${vR[0]},${vR[1]} 
+                L${br[0]},${br[1]} L${btip[0]},${btip[1]} L${bl[0]},${bl[1]} Z`;
+    } else if(shapeId===1) {
+      const r = rO * scale;
+      const rot = -Math.PI/6;
+
+      const pts = Array.from({length:6}, (_,i)=>{
+        const a = (i/6)*Math.PI*2 + rot;
+        return [cx + Math.cos(a)*r, cy + Math.sin(a)*r];
+      });
+
+      // 👉 finde den untersten Punkt (Spitze)
+      let tip = pts[0];
+      for(const p of pts){
+        if(p[1] > tip[1]) tip = p;
+      }
+
+      const idx = pts.indexOf(tip);
+
+      // 👉 direkte Nachbarn = Kanten links/rechts
+      const vL = pts[(idx - 1 + 6) % 6];
+      const vR = pts[(idx + 1) % 6];
+
+      const inset = 0.35;
+
+      const bl = [
+        cx + (vL[0] - cx) * inset,
+        tip[1] + depth
+      ];
+      const br = [
+        cx + (vR[0] - cx) * inset,
+        tip[1] + depth
+      ];
+
+      const btip = [
+        cx,
+        tip[1] + depth + bw * 0.025 * scale
+      ];
+
+      topPath = `
+        M${vL[0]},${vL[1]} 
+        L${tip[0]},${tip[1]} 
+        L${vR[0]},${vR[1]}
+      `;
+
+      bodyPath = `
+        M${vL[0]},${vL[1]} 
+        L${tip[0]},${tip[1]} 
+        L${vR[0]},${vR[1]} 
+        L${br[0]},${br[1]} 
+        L${btip[0]},${btip[1]} 
+        L${bl[0]},${bl[1]} 
+        Z
+      `;
     } else if(shapeId===2){
       // Starburst hex (rot=-PI/6): lower contour has two outer tips + inner valleys
       // Outer tip at bottom: (cx, cy+rO*scale)
