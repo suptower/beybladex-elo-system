@@ -2,6 +2,7 @@
   "S1": {
     "season_id": "S1",
     "start_date": "2026-01-24T14:33:20.895227",
+    "end_date": "2026-03-20T20:00:00.000000",
     "status": "active",
     "tier_assignments": {
       "ImpactDrake": {
@@ -191,8 +192,8 @@
         "elo": 832.0
       }
     ],
-    "league_champion": null,
-    "cup_winner": null,
+    "league_champion": "LeonCrest",
+    "cup_winner": "ImpactDrake",
     "tiers": {
       "1": {
         "beys": [
@@ -352,31 +353,39 @@
       "SolEclipse": {
         "tier": 4,
         "start_elo": null
+      },
+      "WolfHunt": {
+        "tier": 4,
+        "start_elo": null
+      },
+      "HellsBrave": {
+        "tier": 4,
+        "start_elo": null
+      },
+      "HellsHammer": {
+        "tier": 4,
+        "start_elo": null
+      },
+      "CobaltDrake": {
+        "tier": 4,
+        "start_elo": null
+      },
+      "PhoenixRudder": {
+        "tier": 4,
+        "start_elo": null
+      },
+      "WizardArc": {
+        "tier": 4,
+        "start_elo": null
       }
     },
     "qualification_pool": [
-      {
-        "bey": "HellsBrave",
-        "elo": 1078.0
-      },
-      {
-        "bey": "WolfHunt",
-        "elo": 1028.0
-      },
       {
         "bey": "TyrannoRoar",
         "elo": 1021.0
       },
       {
-        "bey": "CobaltDrake",
-        "elo": 987.0
-      },
-      {
         "bey": "CrimsonGaruda",
-        "elo": 980.0
-      },
-      {
-        "bey": "PhoenixRudder",
         "elo": 980.0
       },
       {
@@ -388,16 +397,8 @@
         "elo": 963.0
       },
       {
-        "bey": "WizardArc",
-        "elo": 962.0
-      },
-      {
         "bey": "EmperorMight",
         "elo": 952.0
-      },
-      {
-        "bey": "HellsHammer",
-        "elo": 944.0
       },
       {
         "bey": "WhaleWave",
@@ -484,11 +485,16 @@
       "4": {
         "beys": [
           "DranDagger",
-          "SolEclipse"
+          "SolEclipse",
+          "WolfHunt",
+          "HellsBrave",
+          "HellsHammer",
+          "CobaltDrake",
+          "PhoenixRudder",
+          "WizardArc"
         ],
         "matches_played": 0,
-        "matches_total": 28,
-        "note": "6 remaining slots to be filled via qualification tournament"
+        "matches_total": 28
       }
     }
   }

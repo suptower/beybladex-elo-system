@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', 'season'
 from season_manager import (
     calculate_season_points,
     initialize_season,
+    initialize_season_from_results,
     get_league_table,
     get_promotion_relegation,
     schedule_round_robin,
@@ -360,3 +361,261 @@ class TestRoundRobinScheduling:
         """Single bey should return no matches."""
         matches = schedule_round_robin(["Bey1"])
         assert len(matches) == 0
+
+
+class TestInitializeSeasonFromResults:
+    """Tests for initialize_season_from_results()."""
+
+    # ---------------------------------------------------------------------------
+    # Helpers
+    # ---------------------------------------------------------------------------
+
+    @staticmethod
+    def _make_tier_assignments(tiers_beys: dict) -> dict:
+        """Build a tier_assignments dict from {tier: [bey, ...]}."""
+        ta = {}
+        for tier, beys in tiers_beys.items():
+            for bey in beys:
+                ta[bey] = {"tier": tier, "start_elo": 1000.0}
+        return ta
+
+    @staticmethod
+    def _make_elo_lookup(tier_assignments: dict) -> dict:
+        """Build an elo_lookup from tier_assignments (uniform ELO for simplicity)."""
+        return {bey: data["start_elo"] for bey, data in tier_assignments.items()}
+
+    # ---------------------------------------------------------------------------
+    # Basic promotion / relegation
+    # ---------------------------------------------------------------------------
+
+    def test_auto_promotion_moves_bey_up(self):
+        """A bey in automatic_promotion should move from its current tier to tier-1."""
+        ta = self._make_tier_assignments({
+            1: ["T1A", "T1B"],
+            2: ["T2A", "T2B"],
+        })
+        promo_relg = {
+            "automatic_promotion": [
+                {"bey": "T2A", "from_tier": 2, "to_tier": 1}
+            ],
+            "automatic_relegation": [],
+            "relegation_matches": [],
+            "qualification_candidates": [],
+        }
+        elo_lookup = self._make_elo_lookup(ta)
+        season_data, warnings = initialize_season_from_results(
+            "S2", ta, [], promo_relg, elo_lookup
+        )
+        assignments = season_data["tier_assignments"]
+        assert assignments["T2A"]["tier"] == 1, "T2A should be promoted to tier 1"
+
+    def test_auto_relegation_moves_bey_down(self):
+        """A bey in automatic_relegation should move from its current tier to tier+1."""
+        ta = self._make_tier_assignments({
+            1: ["T1A", "T1B"],
+            2: ["T2A", "T2B"],
+        })
+        promo_relg = {
+            "automatic_promotion": [],
+            "automatic_relegation": [
+                {"bey": "T1B", "from_tier": 1, "to_tier": 2}
+            ],
+            "relegation_matches": [],
+            "qualification_candidates": [],
+        }
+        elo_lookup = self._make_elo_lookup(ta)
+        season_data, warnings = initialize_season_from_results(
+            "S2", ta, [], promo_relg, elo_lookup
+        )
+        assignments = season_data["tier_assignments"]
+        assert assignments["T1B"]["tier"] == 2, "T1B should be relegated to tier 2"
+
+    def test_remaining_beys_keep_tier(self):
+        """Beys not involved in any movement should stay in their original tier."""
+        ta = self._make_tier_assignments({
+            1: ["T1A", "T1B"],
+            2: ["T2A", "T2B"],
+        })
+        promo_relg = {
+            "automatic_promotion": [{"bey": "T2A", "from_tier": 2, "to_tier": 1}],
+            "automatic_relegation": [{"bey": "T1B", "from_tier": 1, "to_tier": 2}],
+            "relegation_matches": [],
+            "qualification_candidates": [],
+        }
+        elo_lookup = self._make_elo_lookup(ta)
+        season_data, warnings = initialize_season_from_results(
+            "S2", ta, [], promo_relg, elo_lookup
+        )
+        assignments = season_data["tier_assignments"]
+        assert assignments["T1A"]["tier"] == 1
+        assert assignments["T2B"]["tier"] == 2
+
+    # ---------------------------------------------------------------------------
+    # Qualification candidates and pool filling
+    # ---------------------------------------------------------------------------
+
+    def test_qualification_candidates_removed_and_replaced(self):
+        """Qualification candidates should leave their tier and be replaced from the pool."""
+        # Use full 8-bey tiers (S2 format) so only the expected tier has a vacancy.
+        t1 = [f"T1_{i}" for i in range(8)]
+        t2 = [f"T2_{i}" for i in range(8)]
+        t3 = [f"T3_{i}" for i in range(8)]
+        t4 = [f"T4_{i}" for i in range(7)] + ["QualOut"]
+        ta = self._make_tier_assignments({1: t1, 2: t2, 3: t3, 4: t4})
+        promo_relg = {
+            "automatic_promotion": [],
+            "automatic_relegation": [],
+            "relegation_matches": [],
+            "qualification_candidates": [
+                {"bey": "QualOut", "tier": 4, "position": 8}
+            ],
+        }
+        prev_qual_pool = [{"bey": "PoolBey", "elo": 950.0}]
+        elo_lookup = {**self._make_elo_lookup(ta), "PoolBey": 950.0}
+        season_data, warnings = initialize_season_from_results(
+            "S2", ta, prev_qual_pool, promo_relg, elo_lookup
+        )
+        assignments = season_data["tier_assignments"]
+        # QualOut should no longer be in any tier
+        assert "QualOut" not in assignments
+        # PoolBey should have been placed in tier 4 to fill the vacancy
+        assert "PoolBey" in assignments
+        assert assignments["PoolBey"]["tier"] == 4
+
+    def test_qual_candidates_drop_to_qual_pool_if_no_fill_available(self):
+        """If no fill-in bey is available, the tier stays short and a warning is issued."""
+        # Full tiers except for a single qual candidate with no pool bey to replace it.
+        t1 = [f"T1_{i}" for i in range(8)]
+        t2 = [f"T2_{i}" for i in range(8)]
+        t3 = [f"T3_{i}" for i in range(8)]
+        t4 = [f"T4_{i}" for i in range(7)] + ["QualOut"]
+        ta = self._make_tier_assignments({1: t1, 2: t2, 3: t3, 4: t4})
+        promo_relg = {
+            "automatic_promotion": [],
+            "automatic_relegation": [],
+            "relegation_matches": [],
+            "qualification_candidates": [
+                {"bey": "QualOut", "tier": 4, "position": 8}
+            ],
+        }
+        elo_lookup = self._make_elo_lookup(ta)
+        season_data, warnings = initialize_season_from_results(
+            "S2", ta, [], promo_relg, elo_lookup
+        )
+        assignments = season_data["tier_assignments"]
+        assert "QualOut" not in assignments
+        # A warning about the shortage should exist
+        shortage_warnings = [w for w in warnings if "short" in w.lower()]
+        assert len(shortage_warnings) > 0
+
+    # ---------------------------------------------------------------------------
+    # Relegation playoff warning
+    # ---------------------------------------------------------------------------
+
+    def test_relegation_playoff_beys_stay_and_warning_issued(self):
+        """Playoff beys should stay in their current tier and produce a warning."""
+        ta = self._make_tier_assignments({
+            1: ["T1A", "PlayoffHigh"],
+            2: ["T2A", "PlayoffLow"],
+        })
+        promo_relg = {
+            "automatic_promotion": [],
+            "automatic_relegation": [],
+            "relegation_matches": [
+                {
+                    "higher_bey": "PlayoffHigh",
+                    "higher_tier": 1,
+                    "higher_position": 7,
+                    "lower_bey": "PlayoffLow",
+                    "lower_tier": 2,
+                    "lower_position": 2,
+                }
+            ],
+            "qualification_candidates": [],
+        }
+        elo_lookup = self._make_elo_lookup(ta)
+        season_data, warnings = initialize_season_from_results(
+            "S2", ta, [], promo_relg, elo_lookup
+        )
+        assignments = season_data["tier_assignments"]
+        assert assignments["PlayoffHigh"]["tier"] == 1
+        assert assignments["PlayoffLow"]["tier"] == 2
+        playoff_warnings = [w for w in warnings if "playoff" in w.lower()]
+        assert len(playoff_warnings) > 0
+
+    # ---------------------------------------------------------------------------
+    # Output structure
+    # ---------------------------------------------------------------------------
+
+    def test_output_structure(self):
+        """The returned season_data should have the required keys."""
+        ta = self._make_tier_assignments({1: ["BeyA"], 2: ["BeyB"]})
+        promo_relg = {
+            "automatic_promotion": [],
+            "automatic_relegation": [],
+            "relegation_matches": [],
+            "qualification_candidates": [],
+        }
+        elo_lookup = self._make_elo_lookup(ta)
+        season_data, _ = initialize_season_from_results(
+            "S3", ta, [], promo_relg, elo_lookup
+        )
+        required_keys = {
+            "season_id", "start_date", "status", "tier_assignments",
+            "qualification_pool", "league_champion", "cup_winner", "tiers"
+        }
+        assert required_keys.issubset(set(season_data.keys()))
+        assert season_data["season_id"] == "S3"
+        assert season_data["status"] == "active"
+
+    def test_tiers_block_matches_tier_assignments(self):
+        """tiers.<N>.beys must list exactly the beys assigned to that tier."""
+        ta = self._make_tier_assignments({1: ["T1A", "T1B"], 2: ["T2A", "T2B"]})
+        promo_relg = {
+            "automatic_promotion": [{"bey": "T2A", "from_tier": 2, "to_tier": 1}],
+            "automatic_relegation": [{"bey": "T1B", "from_tier": 1, "to_tier": 2}],
+            "relegation_matches": [],
+            "qualification_candidates": [],
+        }
+        elo_lookup = self._make_elo_lookup(ta)
+        season_data, _ = initialize_season_from_results(
+            "S2", ta, [], promo_relg, elo_lookup
+        )
+        assignments = season_data["tier_assignments"]
+        tiers_block = season_data["tiers"]
+        for tier_str, info in tiers_block.items():
+            tier_num = int(tier_str)
+            beys_in_tier = {bey for bey, d in assignments.items() if d["tier"] == tier_num}
+            assert set(info["beys"]) == beys_in_tier, (
+                f"tiers.{tier_str}.beys does not match tier_assignments for tier {tier_num}"
+            )
+
+    def test_start_elo_set_from_lookup(self):
+        """start_elo should be pulled from elo_lookup for each bey."""
+        ta = self._make_tier_assignments({1: ["Alpha"], 2: ["Beta"]})
+        promo_relg = {
+            "automatic_promotion": [],
+            "automatic_relegation": [],
+            "relegation_matches": [],
+            "qualification_candidates": [],
+        }
+        elo_lookup = {"Alpha": 1234.5, "Beta": 987.0}
+        season_data, _ = initialize_season_from_results(
+            "S2", ta, [], promo_relg, elo_lookup
+        )
+        assert season_data["tier_assignments"]["Alpha"]["start_elo"] == 1234.5
+        assert season_data["tier_assignments"]["Beta"]["start_elo"] == 987.0
+
+    def test_returns_are_tuple(self):
+        """Function must return a (dict, list) tuple."""
+        ta = self._make_tier_assignments({1: ["A"]})
+        promo_relg = {
+            "automatic_promotion": [],
+            "automatic_relegation": [],
+            "relegation_matches": [],
+            "qualification_candidates": [],
+        }
+        result = initialize_season_from_results("S2", ta, [], promo_relg, {})
+        assert isinstance(result, tuple) and len(result) == 2
+        assert isinstance(result[0], dict)
+        assert isinstance(result[1], list)

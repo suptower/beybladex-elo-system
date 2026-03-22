@@ -125,6 +125,7 @@ XP_HISTORY_JSON = os.path.join(ANALYTICS_DIR, "xp_history.json")
 # ---------------------------------------------------------------------------
 # Season files
 # ---------------------------------------------------------------------------
+SEASONS_JSON = os.path.join(SEASON_DIR, "seasons.json")
 SEASON_DATA_JSON = os.path.join(SEASON_DIR, "season_data.json")
 SEASON_STATS_JSON = os.path.join(SEASON_DIR, "season_statistics.json")
 SEASON_COMPARISON_JSON = os.path.join(SEASON_DIR, "season_comparison.json")

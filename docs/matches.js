@@ -37,7 +37,7 @@ const COLUMN_DESCRIPTIONS = {
     'ID': { short: 'Match ID', long: 'Unique identifier for the match, used for referencing and debugging' },
     'Date': { short: 'Match Date', long: 'The date when the match was played' },
     'Arena': { short: 'Arena', long: 'The arena where the match was played (Xtreme or Drop Attack)' },
-    'Type': { short: 'Match Type', long: 'Type of match: Exhibition, Season, Relegation, or Season Cup' },
+    'Type': { short: 'Match Type', long: 'Type of match: Exhibition, Season, Relegation, Qualification, Season Cup (group / quarter / semi / final), or Tournament (group stage / Round of 16 / quarter / semi / final)' },
     'Season': { short: 'Season', long: 'Season identifier (e.g., S1) - only for season-related matches' },
     'Tier': { short: 'Tier', long: 'Tier number (I-IV) - only for season and relegation matches' },
     'MD': { short: 'Matchday', long: 'Matchday number - groups matches into logical rounds within a season' },
@@ -136,7 +136,15 @@ const MATCH_TYPE_STYLES = {
     season: { color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.15)', label: 'Season', icon: '🏆' },
     relegation: { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', label: 'Relegation', icon: '⚠️' },
     season_cup: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Season Cup', icon: '🏅' },
-    qualification: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.15)', label: 'Qualification', icon: '💰' }
+    season_cup_quarter: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Cup Quarter-Final', icon: '🏅' },
+    season_cup_semi: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Cup Semi-Final', icon: '🏅' },
+    season_cup_final: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Cup Final', icon: '🏅' },
+    qualification: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.15)', label: 'Qualification', icon: '💰' },
+    tournament: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Tournament', icon: '🏟️' },
+    tournament_ro16: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Round of 16', icon: '🏟️' },
+    tournament_quarter: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Quarter-Final', icon: '🏟️' },
+    tournament_semi: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Semi-Final', icon: '🏟️' },
+    tournament_final: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Final', icon: '🏟️' }
 };
 
 // Helper function to create match type badge
@@ -1528,6 +1536,24 @@ function createXpBreakdownHtml(match) {
                             <td class="elo-param-label">Season Tier Bonus</td>
                             <td class="elo-param-value">+${xpA.season_matchday_xp}</td>
                             <td class="elo-param-value">+${xpB.season_matchday_xp}</td>
+                        </tr>` : ''}
+                        ${(xpA.qualification_xp || xpB.qualification_xp) ? `
+                        <tr>
+                            <td class="elo-param-label">Qualification Bonus</td>
+                            <td class="elo-param-value">+${xpA.qualification_xp}</td>
+                            <td class="elo-param-value">+${xpB.qualification_xp}</td>
+                        </tr>` : ''}
+                        ${(xpA.season_cup_xp || xpB.season_cup_xp) ? `
+                        <tr>
+                            <td class="elo-param-label">Season Cup Bonus</td>
+                            <td class="elo-param-value">+${xpA.season_cup_xp}</td>
+                            <td class="elo-param-value">+${xpB.season_cup_xp}</td>
+                        </tr>` : ''}
+                        ${(xpA.tournament_match_xp || xpB.tournament_match_xp) ? `
+                        <tr>
+                            <td class="elo-param-label">Tournament Bonus</td>
+                            <td class="elo-param-value">+${xpA.tournament_match_xp}</td>
+                            <td class="elo-param-value">+${xpB.tournament_match_xp}</td>
                         </tr>` : ''}
                         <tr>
                             <td class="elo-param-label">Prestige Multiplier</td>
