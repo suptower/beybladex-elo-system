@@ -142,8 +142,9 @@ SCORE_FACTOR_MULTIPLIER = 40
 
 HIGH_STAKES_BONUS_SCALE = 25
 HIGH_STAKES_ELO_REFERENCE = 2000
+HIGH_STAKES_ELO_RESISTANCE = 250
 HIGH_STAKES_SOFT_CAP_THRESHOLD = 50
-HIGH_STAKES_SOFT_CAP_SCALE = 20
+HIGH_STAKES_SOFT_CAP_SCALE = 15
 
 MATCH_LENGTH_BONUS_SCALE = 15
 MATCH_LENGTH_BONUS_OFFSET = 10
@@ -369,8 +370,8 @@ def high_stakes_bonus(own_elo: float, opp_elo: float) -> float:
         1000 vs 2000 → 50.0 XP  (threshold, underdog side)
     """
     combined = own_elo + opp_elo
-    diff = abs(own_elo - opp_elo) if opp_elo > own_elo else 0.0
-    raw = (combined + diff) / HIGH_STAKES_ELO_REFERENCE * HIGH_STAKES_BONUS_SCALE
+    diff = opp_elo - own_elo
+    raw = HIGH_STAKES_BONUS_SCALE * exp(((combined + diff) - HIGH_STAKES_ELO_REFERENCE) / HIGH_STAKES_ELO_RESISTANCE)
     return round(_soft_cap(raw, HIGH_STAKES_SOFT_CAP_THRESHOLD, HIGH_STAKES_SOFT_CAP_SCALE), 2)
 
 
