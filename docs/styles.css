@@ -2500,21 +2500,30 @@ body.dark .wiki-card-rank.rank-bronze {
 }
 
 .level-badge-icon-inline {
-    width: 60px;
-    height: 60px;
+    width: 72px;
+    height: 72px;
     object-fit: contain;
+    object-position: center;
+    display: block;
+    flex-shrink: 0;
 }
 
 .prestige-badge-icon-inline {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     object-fit: contain;
+    object-position: center;
+    display: block;
+    flex-shrink: 0;
 }
 
 .level-stat-badges {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.625rem;
+    line-height: 0;
+    min-height: 72px;
 }
 
 .wiki-card-type.attack {
@@ -10706,6 +10715,20 @@ html {
     
     .key-stat-value {
         font-size: 2.5rem;
+    }
+
+    .level-badge-icon-inline {
+        width: 64px;
+        height: 64px;
+    }
+
+    .prestige-badge-icon-inline {
+        width: 34px;
+        height: 34px;
+    }
+
+    .level-stat-badges {
+        min-height: 64px;
     }
     
     /* Profile header */
