@@ -62,8 +62,8 @@ function cropSVG(svg){
     return svg.cloneNode(true);
   }
 
-  // ✨ Glow / Filter Padding (WICHTIG!)
-  const padding = Math.max(bbox.width, bbox.height) * 0.25;
+  // Keep a small safety margin for glow/filter extents
+  const padding = Math.max(bbox.width, bbox.height) * 0.08;
 
   const x = bbox.x - padding;
   const y = bbox.y - padding;
@@ -113,7 +113,7 @@ async function exportAllSVGsToZip() {
           .toLowerCase();
 
         // SVG serialisieren
-        const cropped = svg.cloneNode(true);
+        const cropped = cropSVG(svg);
 
         const serializer = new XMLSerializer();
         let source = serializer.serializeToString(cropped);
@@ -750,7 +750,7 @@ function levelBadge(level, tier, sz=84){
     crownDefs=cd.defs; crownSVG=cd.svg;
   }
 
-  const pad=sz*1.0;
+  const pad=sz*0.35;
   return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
     viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -864,7 +864,7 @@ function prestigeShield(stars,sz=86,colOvr=null,lblOvr=null){
     dots+=`<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(2)}" cy="${(cy-sz*0.12+Math.sin(a)*orbitR).toFixed(2)}"
       r="${sz*0.024}" fill="${c.hi}" opacity="0.92"/>`;
   }
-  const pad=sz*0.85;
+  const pad=sz*0.33;
   return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
     viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -932,7 +932,7 @@ function prestigeBG(num,sz=86){
       r="${sz*0.024}" fill="#fde68a" opacity="${i<(num-5)?0.95:0.13}"/>`;
   }
   const sStar=starPoly(cx,cy-sz*0.12,sz*0.12,sz*0.054,5);
-  const pad=sz*0.85;
+  const pad=sz*0.33;
   return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
     viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -1054,7 +1054,7 @@ function seasonBadge(tierIdx,seasonNum,sz=84){
   const {defs:pd,svg:ps}=drawPlates(hexFn,layers,plateColors,c.bg2,id,0.085);
   const contours=insetLines(hexFn,Math.min(layers,3),c.hi,c.rim1);
   const apDefs="", apSVG=""; // No apron for season badges
-  const pad=sz*0.65;
+  const pad=sz*0.28;
   return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
     viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
   <defs>
