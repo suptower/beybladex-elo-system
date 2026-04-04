@@ -733,19 +733,30 @@
         'volatility': 'Volatility'
     };
 
-    // Detect available seasons from CSV or use default
+    // Detect available seasons from seasons.json
     async function loadAvailableSeasons() {
         try {
-            availableSeasons = ['S1']; // Can be expanded based on actual data
-            
+            const resp = await fetch(DATA_PATHS.SEASONS_JSON);
+            if (resp.ok) {
+                const seasonsData = await resp.json();
+                availableSeasons = Object.keys(seasonsData).sort();
+            } else {
+                availableSeasons = ['S1'];
+            }
+
             const select = document.getElementById('season-select');
-            select.innerHTML = availableSeasons.map(season => 
-                `<option value="${season}">${season === 'S1' ? 'Season 1' : 'Season ' + season.substring(1)}</option>`
+            select.innerHTML = availableSeasons.map(season =>
+                `<option value="${season}">Season ${season.substring(1)}</option>`
             ).join('');
-            
+
+            // Keep the requested season if available, otherwise fall back to the latest
+            if (!availableSeasons.includes(currentSeason)) {
+                currentSeason = availableSeasons[availableSeasons.length - 1];
+            }
             select.value = currentSeason;
         } catch (error) {
             console.error('Error loading seasons:', error);
+            availableSeasons = ['S1'];
         }
     }
 

@@ -70,6 +70,7 @@ const DATA_PATHS = Object.freeze({
     // -----------------------------------------------------------------------
     // Season
     // -----------------------------------------------------------------------
+    SEASONS_JSON:      'data/season/seasons.json',
     SEASON_DATA_JSON:  'data/season/season_data.json',
     SEASON_STATS_JSON: 'data/season/season_statistics.json',
 
