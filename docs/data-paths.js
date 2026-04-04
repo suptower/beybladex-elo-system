@@ -112,7 +112,7 @@ const DATA_PATHS = Object.freeze({
      * @returns {string}
      */
     leaderboardSnapshot(index) {
-        return `data/leaderboard/leaderboard_${String(index).padStart(4, '0')}.csv`;
+        return `data/leaderboard_snapshots/leaderboard_${String(index).padStart(4, '0')}.csv`;
     },
 
     /**
