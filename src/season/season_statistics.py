@@ -654,7 +654,10 @@ class SeasonStatistics:
 
         Args:
             phase: "all", "swiss", or "playoffs"
-            min_matches: Minimum matches required for award eligibility
+            min_matches: Minimum matches required for award eligibility. When no
+                beys meet this threshold (e.g. early in a season), the threshold
+                is reduced to the maximum matches played by any single bey so
+                that awards are still generated with available data.
 
         Returns:
             Dictionary of awards with winners and their stats
@@ -662,8 +665,15 @@ class SeasonStatistics:
         if phase not in self.stats:
             return {}
 
-        # Filter by minimum matches
+        # Filter by minimum matches; if threshold is too high for current data,
+        # fall back to the actual maximum so awards can still be generated.
         eligible_beys = [s for s in self.stats[phase].values() if s.matches_played >= min_matches]
+
+        if not eligible_beys:
+            max_played = max((s.matches_played for s in self.stats[phase].values()), default=0)
+            if max_played == 0:
+                return {}
+            eligible_beys = [s for s in self.stats[phase].values() if s.matches_played >= max_played]
 
         if not eligible_beys:
             return {}

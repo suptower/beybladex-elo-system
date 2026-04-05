@@ -42,6 +42,7 @@ from src.config.paths import (   # noqa: E402
     PLOTS_SEASON_DIR,
     DATA_DIR,
 )
+from src.season.season_manager import calculate_season_points   # noqa: E402
 
 # ---------------------------------------------------------------------------
 # File paths
@@ -172,15 +173,16 @@ def build_position_table(season_matches, tier):
                     diff[bey] = 0
 
             if sa > sb:
-                pts[a] = pts.get(a, 0) + 3
+                sp_a, sp_b = calculate_season_points(sa, sb)
+                pts[a] = pts.get(a, 0) + sp_a
                 wins[a] = wins.get(a, 0) + 1
             elif sb > sa:
-                pts[b] = pts.get(b, 0) + 3
+                sp_a, sp_b = calculate_season_points(sa, sb)
+                pts[b] = pts.get(b, 0) + sp_b
                 wins[b] = wins.get(b, 0) + 1
             else:
-                # Draw: 1 point each
-                pts[a] = pts.get(a, 0) + 1
-                pts[b] = pts.get(b, 0) + 1
+                # Draw: no points awarded
+                pass
 
             diff[a] = diff.get(a, 0) + (sa - sb)
             diff[b] = diff.get(b, 0) + (sb - sa)
@@ -270,14 +272,11 @@ def plot_cumulative_points(season_matches, tier, outdir, season_id, dark_mode=Fa
             for _, row in md_matches.iterrows():
                 a, b = row["BeyA"], row["BeyB"]
                 sa, sb = int(row["ScoreA"]), int(row["ScoreB"])
-                if sa == sb:
-                    # Draw: 1 point each
-                    if bey in (a, b):
-                        pts += 1
-                elif bey == a and sa > sb:
-                    pts += 3
-                elif bey == b and sb > sa:
-                    pts += 3
+                sp_a, sp_b = calculate_season_points(sa, sb)
+                if bey == a:
+                    pts += sp_a
+                elif bey == b:
+                    pts += sp_b
             cum_points[bey].append(pts)
 
     palette = sns.color_palette("tab20", len(beys))
@@ -905,11 +904,12 @@ def plot_rolling_volatility(season_matches, tier, outdir, season_id, dark_mode=F
             count = 0
             for _, row in md_matches.iterrows():
                 sa, sb = int(row["ScoreA"]), int(row["ScoreB"])
+                sp_a, sp_b = calculate_season_points(sa, sb)
                 if row["BeyA"] == bey:
-                    pts += 3 if sa > sb else (1 if sa == sb else 0)
+                    pts += sp_a
                     count += 1
                 elif row["BeyB"] == bey:
-                    pts += 3 if sb > sa else (1 if sa == sb else 0)
+                    pts += sp_b
                     count += 1
             # Use NaN when bey has no matches on this matchday to show a gap in the plot
             md_points[bey].append(pts / count if count else np.nan)
