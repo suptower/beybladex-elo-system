@@ -1,93 +1,22 @@
-<?xml version="1.0" standalone="no"?>
-<svg width="142.80" height="142.80" viewBox="-29.40 -29.40 142.80 142.80" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <radialGradient id="bgyxteu" cx="35%" cy="28%" r="72%">
-      <stop offset="0%" stop-color="#141a22"/>
-      <stop offset="100%" stop-color="#080c12"/>
-    </radialGradient>
-    <linearGradient id="rimyxteu" x1="5%" y1="5%" x2="95%" y2="95%">
-      <stop offset="0%" stop-color="#c2f1fb"/>
-      <stop offset="50%" stop-color="#c0e1ed"/>
-      <stop offset="100%" stop-color="#5a6878"/>
-    </linearGradient>
-    <!-- Transition accent ring gradient: full next-tier colour -->
-    <linearGradient id="transRingyxteu" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#bbf0fc"/>
-      <stop offset="100%" stop-color="#bce9f5"/>
-    </linearGradient>
-    <linearGradient id="shyxteu" x1="18%" y1="0%" x2="82%" y2="100%">
-      <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
-      <stop offset="50%" stop-color="white" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="glyxteu" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="1.8" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="haloyxteu" x="-150%" y="-150%" width="500%" height="500%">
-      <feGaussianBlur stdDeviation="11" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <linearGradient id="pgyxteu_0" x1="5%" y1="0%" x2="95%" y2="100%">
-      <stop offset="0%" stop-color="#d5f2fa" stop-opacity="0.95"/>
-      <stop offset="38%" stop-color="#c2deea" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.85"/>
-    </linearGradient><linearGradient id="pgyxteu_1" x1="5%" y1="0%" x2="95%" y2="100%">
-      <stop offset="0%" stop-color="#d5f2fa" stop-opacity="0.95"/>
-      <stop offset="38%" stop-color="#c2deea" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.85"/>
-    </linearGradient><linearGradient id="pgyxteu_2" x1="5%" y1="0%" x2="95%" y2="100%">
-      <stop offset="0%" stop-color="#baf0fc" stop-opacity="0.95"/>
-      <stop offset="38%" stop-color="#bde8f4" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.85"/>
-    </linearGradient><linearGradient id="apyxteu_0" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#c0f1fb"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.65"/>
-    </linearGradient><linearGradient id="apyxteu_1" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#bee5f1"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.65"/>
-    </linearGradient><linearGradient id="apyxteu_2" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#bee5f1"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.65"/>
-    </linearGradient><linearGradient id="csyxteu_L0" x1="100%" y1="50%" x2="0%" y2="50%">
-      <stop offset="0%" stop-color="#c0f1fb" stop-opacity="1.0"/>
-      <stop offset="55%" stop-color="#bee5f1" stop-opacity="0.88"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.15"/>
-    </linearGradient>
-    <linearGradient id="csyxteu_R0" x1="0%" y1="50%" x2="100%" y2="50%">
-      <stop offset="0%" stop-color="#c0f1fb" stop-opacity="1.0"/>
-      <stop offset="55%" stop-color="#bee5f1" stop-opacity="0.88"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.15"/>
-    </linearGradient><linearGradient id="csyxteu_L1" x1="100%" y1="50%" x2="0%" y2="50%">
-      <stop offset="0%" stop-color="#c0f1fb" stop-opacity="1.0"/>
-      <stop offset="55%" stop-color="#bee5f1" stop-opacity="0.88"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.15"/>
-    </linearGradient>
-    <linearGradient id="csyxteu_R1" x1="0%" y1="50%" x2="100%" y2="50%">
-      <stop offset="0%" stop-color="#c0f1fb" stop-opacity="1.0"/>
-      <stop offset="55%" stop-color="#bee5f1" stop-opacity="0.88"/>
-      <stop offset="100%" stop-color="#5a6878" stop-opacity="0.15"/>
-    </linearGradient>
-  </defs>
-  <!-- Glow -->
-  <path d="M71.46,24.99L71.46,59.01L42.00,76.02L12.54,59.01L12.54,24.99L42.00,7.98Z" fill="#c8d4e0" fill-opacity="0.5" filter="url(#haloyxteu)"/>
-  <!-- APRON: deepest decoration layer, behind everything -->
-  <path d="&#10;        M71.46218423674661,59.01 &#10;        L42,76.02000000000001 &#10;        L12.537815763253391,59.01 &#10;        L31.688235517138686,81.46320000000001 &#10;        L42,83.07915000000001 &#10;        L52.311764482861314,81.46320000000001 &#10;        Z&#10;      " fill="url(#apyxteu_0)" opacity="0.9"/><path d="&#10;        M71.46218423674661,59.01 &#10;        L42,76.02000000000001 &#10;        L12.537815763253391,59.01&#10;      " fill="none" stroke="#c0f1fb" stroke-width="0.9" stroke-opacity="0.52" stroke-linejoin="round"/><path d="&#10;        M71.46218423674661,59.01 &#10;        L42,76.02000000000001 &#10;        L12.537815763253391,59.01 &#10;        L31.688235517138686,81.46320000000001 &#10;        L42,83.07915000000001 &#10;        L52.311764482861314,81.46320000000001 &#10;        Z&#10;      " fill="none" stroke="#5a6878" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/><path d="&#10;        M74.11378081805381,60.5409 &#10;        L42,79.08180000000002 &#10;        L9.886219181946196,60.5409 &#10;        L30.76017671368117,86.56620000000001 &#10;        L42,88.32758550000001 &#10;        L53.23982328631883,86.56620000000001 &#10;        Z&#10;      " fill="url(#apyxteu_1)" opacity="0.8200000000000001"/><path d="&#10;        M74.11378081805381,60.5409 &#10;        L42,79.08180000000002 &#10;        L9.886219181946196,60.5409&#10;      " fill="none" stroke="#c0f1fb" stroke-width="0.9" stroke-opacity="0.42000000000000004" stroke-linejoin="round"/><path d="&#10;        M74.11378081805381,60.5409 &#10;        L42,79.08180000000002 &#10;        L9.886219181946196,60.5409 &#10;        L30.76017671368117,86.56620000000001 &#10;        L42,88.32758550000001 &#10;        L53.23982328631883,86.56620000000001 &#10;        Z&#10;      " fill="none" stroke="#5a6878" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/><path d="&#10;        M76.765377399361,62.071799999999996 &#10;        L42,82.14359999999999 &#10;        L7.234622600639007,62.071799999999996 &#10;        L29.83211791022365,91.66919999999999 &#10;        L42,93.57602099999998 &#10;        L54.16788208977635,91.66919999999999 &#10;        Z&#10;      " fill="url(#apyxteu_2)" opacity="0.74"/><path d="&#10;        M76.765377399361,62.071799999999996 &#10;        L42,82.14359999999999 &#10;        L7.234622600639007,62.071799999999996&#10;      " fill="none" stroke="#c0f1fb" stroke-width="0.9" stroke-opacity="0.32" stroke-linejoin="round"/><path d="&#10;        M76.765377399361,62.071799999999996 &#10;        L42,82.14359999999999 &#10;        L7.234622600639007,62.071799999999996 &#10;        L29.83211791022365,91.66919999999999 &#10;        L42,93.57602099999998 &#10;        L54.16788208977635,91.66919999999999 &#10;        Z&#10;      " fill="none" stroke="#5a6878" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/>
-  <!-- Cross-stripes above apron, behind badge -->
-  <polygon points="14.85,32.97 14.85,39.60 -9.44,34.71 -9.44,23.28" fill="url(#csyxteu_L0)"/><polygon points="69.15,32.97 69.15,39.60 93.44,34.71 93.44,23.28" fill="url(#csyxteu_R0)"/><polygon points="14.85,32.97 14.85,35.49 -9.44,27.63 -9.44,23.28" fill="white" opacity="0.22"/><polygon points="69.15,32.97 69.15,35.49 93.44,27.63 93.44,23.28" fill="white" opacity="0.22"/><line x1="14.85" y1="39.60" x2="-9.44" y2="34.71" stroke="#5a6878" stroke-width="1.0" stroke-opacity="0.4"/><line x1="69.15" y1="39.60" x2="93.44" y2="34.71" stroke="#5a6878" stroke-width="1.0" stroke-opacity="0.4"/><polygon points="14.85,44.40 14.85,51.03 -9.44,46.14 -9.44,34.71" fill="url(#csyxteu_L1)"/><polygon points="69.15,44.40 69.15,51.03 93.44,46.14 93.44,34.71" fill="url(#csyxteu_R1)"/><polygon points="14.85,44.40 14.85,46.92 -9.44,39.06 -9.44,34.71" fill="white" opacity="0.18"/><polygon points="69.15,44.40 69.15,46.92 93.44,39.06 93.44,34.71" fill="white" opacity="0.18"/><line x1="14.85" y1="51.03" x2="-9.44" y2="46.14" stroke="#5a6878" stroke-width="1.0" stroke-opacity="0.4"/><line x1="69.15" y1="51.03" x2="93.44" y2="46.14" stroke="#5a6878" stroke-width="1.0" stroke-opacity="0.4"/>
-  <!-- Plates above stripes, behind badge -->
-  <path d="M73.97,23.54L73.97,60.46L42.00,78.91L10.03,60.46L10.03,23.54L42.00,5.09Z" fill="url(#pgyxteu_0)"/><path d="M71.46,24.99L71.46,59.01L42.00,76.02L12.54,59.01L12.54,24.99L42.00,7.98Z" fill="#080c12"/><path d="M73.97,23.54L73.97,60.46L42.00,78.91L10.03,60.46L10.03,23.54L42.00,5.09Z" fill="none" stroke="#d5f2fa" stroke-width="0.8" stroke-opacity="0.48" stroke-linejoin="round"/><path d="M71.46,24.99L71.46,59.01L42.00,76.02L12.54,59.01L12.54,24.99L42.00,7.98Z" fill="none" stroke="#5a6878" stroke-width="0.5" stroke-opacity="0.28" stroke-linejoin="round"/><path d="M76.47,22.10L76.47,61.90L42.00,81.80L7.53,61.90L7.53,22.10L42.00,2.20Z" fill="url(#pgyxteu_1)"/><path d="M73.97,23.54L73.97,60.46L42.00,78.91L10.03,60.46L10.03,23.54L42.00,5.09Z" fill="#080c12"/><path d="M76.47,22.10L76.47,61.90L42.00,81.80L7.53,61.90L7.53,22.10L42.00,2.20Z" fill="none" stroke="#d5f2fa" stroke-width="0.8" stroke-opacity="0.39999999999999997" stroke-linejoin="round"/><path d="M73.97,23.54L73.97,60.46L42.00,78.91L10.03,60.46L10.03,23.54L42.00,5.09Z" fill="none" stroke="#5a6878" stroke-width="0.5" stroke-opacity="0.24000000000000002" stroke-linejoin="round"/><path d="M78.98,20.65L78.98,63.35L42.00,84.70L5.02,63.35L5.02,20.65L42.00,-0.70Z" fill="url(#pgyxteu_2)"/><path d="M76.47,22.10L76.47,61.90L42.00,81.80L7.53,61.90L7.53,22.10L42.00,2.20Z" fill="#080c12"/><path d="M78.98,20.65L78.98,63.35L42.00,84.70L5.02,63.35L5.02,20.65L42.00,-0.70Z" fill="none" stroke="#baf0fc" stroke-width="0.8" stroke-opacity="0.31999999999999995" stroke-linejoin="round"/><path d="M76.47,22.10L76.47,61.90L42.00,81.80L7.53,61.90L7.53,22.10L42.00,2.20Z" fill="none" stroke="#5a6878" stroke-width="0.5" stroke-opacity="0.2" stroke-linejoin="round"/>
-  <path d="M80.15,19.97L80.15,64.03L42.00,86.06L3.85,64.03L3.85,19.97L42.00,-2.06Z" fill="none" stroke="#bef0fc" stroke-width="1.0" stroke-opacity="0.38" stroke-linejoin="round"/>
-    <path d="M81.30,19.31L81.30,64.69L42.00,87.38L2.70,64.69L2.70,19.31L42.00,-3.38Z" fill="none" stroke="#c8d4e0" stroke-width="0.6" stroke-opacity="0.2" stroke-linejoin="round"/>
-  <!-- Main badge body covers all overlap -->
-  <path d="M71.46,24.99L71.46,59.01L42.00,76.02L12.54,59.01L12.54,24.99L42.00,7.98Z" fill="url(#rimyxteu)"/>
-  <path d="M66.73,27.72L66.73,56.28L42.00,70.56L17.27,56.28L17.27,27.72L42.00,13.44Z" fill="#080c12"/>
-  <path d="M66.73,27.72L66.73,56.28L42.00,70.56L17.27,56.28L17.27,27.72L42.00,13.44Z" fill="none" stroke="url(#rimyxteu)" stroke-width="1.5959999999999999" stroke-linejoin="round"/>
-  <path d="M64.92,28.77L64.92,55.23L42.00,68.46L19.08,55.23L19.08,28.77L42.00,15.54Z" fill="url(#bgyxteu)"/>
-  <path d="M64.92,28.77L64.92,55.23L42.00,68.46L19.08,55.23L19.08,28.77L42.00,15.54Z" fill="url(#shyxteu)"/>
-  
-  <!-- Bold transition ring (only visible when isTransition) -->
-  <path d="M71.46,24.99L71.46,59.01L42.00,76.02L12.54,59.01L12.54,24.99L42.00,7.98Z" fill="none" stroke="url(#transRingyxteu)" stroke-width="2.352" stroke-opacity="0.81" stroke-linejoin="round"/>
-  <!-- Inset contours on badge surface -->
-  <path d="M69.69,26.01L69.69,57.99L42.00,73.98L14.31,57.99L14.31,26.01L42.00,10.02Z" fill="none" stroke="#c0f1fb" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/><path d="M68.07,26.95L68.07,57.05L42.00,72.11L15.93,57.05L15.93,26.95L42.00,11.89Z" fill="none" stroke="#c8d4e0" stroke-width="0.63" stroke-opacity="0.3" stroke-linejoin="round"/><path d="M66.45,27.88L66.45,56.12L42.00,70.24L17.55,56.12L17.55,27.88L42.00,13.76Z" fill="none" stroke="#c8d4e0" stroke-width="0.54" stroke-opacity="0.24" stroke-linejoin="round"/><path d="M64.83,28.82L64.83,55.18L42.00,68.37L19.17,55.18L19.17,28.82L42.00,15.63Z" fill="none" stroke="#c8d4e0" stroke-width="0.44999999999999996" stroke-opacity="0.18" stroke-linejoin="round"/>
-  <text x="42" y="42" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="25.2" fill="#f0f4f8" filter="url(#glyxteu)">19</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#eef2f6"/>
+    <stop offset="55%" stop-color="#9aa8b6"/>
+    <stop offset="100%" stop-color="#111820"/>
+  </linearGradient>
+  <radialGradient id="bg" cx="35%" cy="28%" r="72%">
+    <stop offset="0%" stop-color="#1f2937"/>
+    <stop offset="100%" stop-color="#030712"/>
+  </radialGradient>
+</defs>
+<path d="M 69.00 17.09 L 88.00 50.00 L 69.00 82.91 L 31.00 82.91 L 12.00 50.00 L 31.00 17.09 Z" fill="#bcc8d6" opacity="0.28"/>
+<path d="M 69.00 17.09 L 88.00 50.00 L 69.00 82.91 L 31.00 82.91 L 12.00 50.00 L 31.00 17.09 Z" fill="url(#g)"/>
+<path d="M 64.50 24.89 L 79.00 50.00 L 64.50 75.11 L 35.50 75.11 L 21.00 50.00 L 35.50 24.89 Z" fill="url(#bg)"/>
+<path d="M 64.50 24.89 L 79.00 50.00 L 64.50 75.11 L 35.50 75.11 L 21.00 50.00 L 35.50 24.89 Z" fill="none" stroke="#eef2f6" stroke-width="2.2" opacity="0.65"/>
+<circle cx="50.00" cy="9.00" r="1.55" fill="#eef2f6" opacity="0.95"/><circle cx="74.10" cy="16.83" r="1.55" fill="#eef2f6" opacity="0.95"/><circle cx="88.99" cy="37.33" r="1.55" fill="#eef2f6" opacity="0.95"/><circle cx="88.99" cy="62.67" r="1.55" fill="#eef2f6" opacity="0.95"/><circle cx="74.10" cy="83.17" r="1.55" fill="#eef2f6" opacity="0.95"/><circle cx="50.00" cy="91.00" r="1.55" fill="#eef2f6" opacity="0.95"/><circle cx="25.90" cy="83.17" r="1.55" fill="#eef2f6" opacity="0.95"/><circle cx="11.01" cy="62.67" r="1.55" fill="#eef2f6" opacity="0.95"/><circle cx="11.01" cy="37.33" r="1.55" fill="#eef2f6" opacity="0.95"/><circle cx="25.90" cy="16.83" r="1.55" fill="#eef2f6" opacity="0.95"/>
+<text x="50" y="55" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="22.96" fill="#eef2f6">19</text>
+
 </svg>
