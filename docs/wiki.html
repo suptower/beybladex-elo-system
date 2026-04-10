@@ -138,6 +138,29 @@ function normalizeBeyName(name) {
     return name.toLowerCase().replace(/[\s\-_]/g, '');
 }
 
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function getSeasonBadgePath(seasonId, tierId) {
+    const seasonMatch = String(seasonId || '').match(/(\d+)/);
+    const seasonNum = Math.min(4, Math.max(1, parseInt(seasonMatch ? seasonMatch[1] : '1', 10) || 1));
+    const tierNum = Math.min(4, Math.max(1, parseInt(String(tierId || '4'), 10) || 4));
+    return `icons/badges/season/tier${tierNum}_s${seasonNum}.svg`;
+}
+
+function getSeasonBadgeIconHtml(seasonId, tierId, label) {
+    return `<img class="achievement-icon" src="${getSeasonBadgePath(seasonId, tierId)}" alt="${escapeHtml(label)}" loading="lazy">`;
+}
+
+function getTournamentBadgeIconHtml(label) {
+    return `<img class="achievement-icon" src="icons/badges/tournament.svg" alt="${escapeHtml(label)}" loading="lazy">`;
+}
+
 // Get archetype data for a bey (O(1) lookup after map is built)
 function getArchetypeData(beyBladeName) {
     const normalizedBlade = normalizeBeyName(beyBladeName);
@@ -239,15 +262,11 @@ async function loadAllData() {
             const allSeasonData = await seasonResponse.json();
             const seasons = allSeasonData.seasons || {};
             seasonChampionsData = {};
-            const tierIcons = {
-                '1': '<img class="achievement-icon" src="icons/medal-gold.svg" alt="Gold Medal">',
-                '2': '<img class="achievement-icon" src="icons/medal-silver.svg" alt="Silver Medal">',
-                '3': '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Bronze Medal">'
-            };
-            const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
+            const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
             Object.entries(seasons).forEach(([seasonId, season]) => {
                 if (season.league_tables && season.league_champion) {
                     Object.entries(season.league_tables).forEach(([tierId, table]) => {
+                        const tierLabel = `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`;
                         if (table && table.length > 0) {
                             const winnerName = normalizeBeyName(table[0].bey);
                             if (!seasonChampionsData[winnerName]) seasonChampionsData[winnerName] = [];
@@ -255,9 +274,9 @@ async function loadAllData() {
                                 type: 'tier_champion',
                                 seasonId,
                                 tier: tierId,
-                                label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
+                                label: tierLabel,
                                 badgeClass: `season-badge-tier${tierId}`,
-                                icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Medal">'
+                                icon: getSeasonBadgeIconHtml(seasonId, tierId, tierLabel)
                             });
                         }
                     });
@@ -270,7 +289,7 @@ async function loadAllData() {
                         seasonId,
                         label: `${seasonId} Season Cup Winner`,
                         badgeClass: 'season-badge-cup',
-                        icon: '<img class="achievement-icon" src="icons/star.svg" alt="Season Cup">'
+                        icon: getTournamentBadgeIconHtml('Season Cup Winner')
                     });
                 }
             });
@@ -379,7 +398,7 @@ function renderBeys() {
         let trophiesHtml = '';
         if (trophies.length > 0) {
             const trophyIcons = trophies.map(t => 
-                `<span class="trophy-icon" title="${t.name}"><img class="achievement-icon" src="icons/trophy.svg" alt="Trophy"></span>`
+                `<span class="trophy-icon" title="${t.name}">${getTournamentBadgeIconHtml('Tournament Winner')}</span>`
             ).join('');
             trophiesHtml = `<div class="wiki-card-trophies">${trophyIcons}</div>`;
         }

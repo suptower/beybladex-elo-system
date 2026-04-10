@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BeybladeX Badge Preview (Copilot)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --line: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #3f6212;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 28px 22px 80px; background: var(--bg); color: var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    h1 { margin: 0 0 8px; font-size: 1.25rem; }
+    p { margin: 0 0 20px; color: var(--muted); }
+    section { margin-bottom: 24px; border: 1px solid var(--line); border-radius: 14px; background: rgba(17, 24, 39, 0.7); }
+    h2 { margin: 0; padding: 12px 14px; font-size: .88rem; color: #d1d5db; border-bottom: 1px solid var(--line); }
+    .grid { padding: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; }
+    .item { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .68rem; color: var(--muted); }
+    .item svg { width: 76px; height: 76px; display: block; }
+    .item.trophy svg { width: 86px; height: 86px; }
+    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; background: rgba(63, 98, 18, .22); color: #d9f99d; border: 1px solid rgba(163, 230, 53, .25); font-size: .72rem; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Badge Preview – Copilot Redesign</h1>
+  <span class="pill">Category set unchanged: Level · Prestige · Season · Tournament</span>
+  <p>Generator/source file for the redesigned, tightly-cropped badge set in <code>docs/icons/badges</code>.</p>
+
+  <section><h2>Level Badges (Lv1–Lv49)</h2><div class="grid" id="levels"></div></section>
+  <section><h2>Prestige Badges (I–V, 6–11)</h2><div class="grid" id="prestige"></div></section>
+  <section><h2>Season Badges (Tier1–4 · S1–S4)</h2><div class="grid" id="season"></div></section>
+  <section><h2>Tournament Winner Badge</h2><div class="grid" id="tournament"></div></section>
+
+  <script>
+    const NS = 'http://www.w3.org/2000/svg';
+    const levelPalettes = [
+      { hi:'#f5d08a', mid:'#b0702e', dark:'#2b1608', glow:'#d88b2f', sides:5, start:1, end:9 },
+      { hi:'#eef2f6', mid:'#9aa8b6', dark:'#111820', glow:'#bcc8d6', sides:6, start:10, end:19 },
+      { hi:'#c9faf4', mid:'#2ea89c', dark:'#081b1a', glow:'#2db7aa', sides:7, start:20, end:29 },
+      { hi:'#ead7ff', mid:'#9a63d6', dark:'#1a0f2c', glow:'#9f67e0', sides:8, start:30, end:39 },
+      { hi:'#ffd1d1', mid:'#cf4b57', dark:'#2a1014', glow:'#dd5a67', sides:9, start:40, end:49 }
+    ];
+    const prestigePalettes = {
+      1:['#b0702e','#f5d08a','#20150b'],
+      2:['#8ea0b3','#edf2f7','#141a20'],
+      3:['#2f998f','#ccfaf4','#071615'],
+      4:['#7b57c2','#ecdfff','#161025'],
+      5:['#bf4853','#ffd6d8','#260e12']
+    };
+    const seasonPalettes = {
+      1:['#e5c000','#fff2a6','#2a1f03'],
+      2:['#a5b3c2','#f4f7fb','#18202a'],
+      3:['#ba7a4a','#ffe0c5','#25160e'],
+      4:['#64748b','#dbe5f3','#111827']
+    };
+
+    const roman = ['I','II','III','IV','V'];
+    const seasonRoman = ['I','II','III','IV'];
+
+    const poly = (cx, cy, r, n, rot = -Math.PI / 2) =>
+      [...Array(n)].map((_, i) => {
+        const a = rot + (Math.PI * 2 * i / n);
+        return `${(cx + Math.cos(a) * r).toFixed(2)} ${(cy + Math.sin(a) * r).toFixed(2)}`;
+      }).join(' L ');
+
+    const star = (cx, cy, ro, ri, n = 5) => {
+      let d = '';
+      for (let i = 0; i < n * 2; i++) {
+        const a = -Math.PI / 2 + (Math.PI * i / n);
+        const r = i % 2 === 0 ? ro : ri;
+        d += `${i ? 'L' : 'M'} ${(cx + Math.cos(a) * r).toFixed(2)} ${(cy + Math.sin(a) * r).toFixed(2)} `;
+      }
+      return d + 'Z';
+    };
+
+    function wrap(inner) {
+      return `<svg xmlns="${NS}" viewBox="0 0 100 100" width="100" height="100">${inner}</svg>`;
+    }
+
+    function levelSvg(level) {
+      const t = levelPalettes.find(x => level >= x.start && level <= x.end);
+      const local = level - t.start + 1;
+      const markers = (t.start === 1 ? 9 : 10);
+      const dots = [...Array(markers)].map((_, i) => {
+        const a = -Math.PI / 2 + (Math.PI * 2 * i / markers);
+        const x = 50 + Math.cos(a) * 41;
+        const y = 50 + Math.sin(a) * 41;
+        return `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="1.55" fill="${t.hi}" opacity="${i < local ? 0.95 : 0.18}"/>`;
+      }).join('');
+      const fs = String(level).length >= 3 ? 17 : String(level).length === 2 ? 23 : 28;
+      return wrap(`
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="${t.hi}"/><stop offset="55%" stop-color="${t.mid}"/><stop offset="100%" stop-color="${t.dark}"/>
+          </linearGradient>
+          <radialGradient id="bg" cx="35%" cy="28%" r="72%">
+            <stop offset="0%" stop-color="#1f2937"/><stop offset="100%" stop-color="#030712"/>
+          </radialGradient>
+        </defs>
+        <path d="M ${poly(50,50,38,t.sides,-Math.PI/2 + Math.PI/t.sides)} Z" fill="${t.glow}" opacity="0.28"/>
+        <path d="M ${poly(50,50,38,t.sides,-Math.PI/2 + Math.PI/t.sides)} Z" fill="url(#lg)"/>
+        <path d="M ${poly(50,50,29,t.sides,-Math.PI/2 + Math.PI/t.sides)} Z" fill="url(#bg)"/>
+        <path d="M ${poly(50,50,29,t.sides,-Math.PI/2 + Math.PI/t.sides)} Z" fill="none" stroke="${t.hi}" stroke-width="2.2" opacity="0.65"/>
+        ${dots}
+        <text x="50" y="55" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="${fs}" fill="${t.hi}">${level}</text>
+      `);
+    }
+
+    function prestigeSvg(prestige) {
+      const high = prestige <= 5;
+      const [mid, hi, bg] = high ? prestigePalettes[prestige] : ['#9b7a2f', '#ffe7a9', '#18120a'];
+      const label = high ? roman[prestige - 1] : String(prestige);
+      const dots = [...Array(5)].map((_, i) => {
+        const a = -Math.PI / 2 + (Math.PI * 2 * i / 5);
+        return `<circle cx="${(50 + Math.cos(a) * 16).toFixed(2)}" cy="${(38 + Math.sin(a) * 16).toFixed(2)}" r="1.7" fill="${hi}" opacity="${i < Math.min(prestige, 5) ? 0.95 : 0.2}"/>`;
+      }).join('');
+      const dotsOuter = high ? '' : [...Array(6)].map((_, i) => {
+        const a = -Math.PI / 2 + (Math.PI * 2 * i / 6);
+        return `<circle cx="${(50 + Math.cos(a) * 22).toFixed(2)}" cy="${(38 + Math.sin(a) * 22).toFixed(2)}" r="1.3" fill="${hi}" opacity="${i < prestige - 5 ? 0.78 : 0.15}"/>`;
+      }).join('');
+      return wrap(`
+        <defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${hi}"/><stop offset="55%" stop-color="${mid}"/><stop offset="100%" stop-color="#111827"/></linearGradient></defs>
+        <path d="M50 8 L80 18 L80 50 C80 72 66 84 50 92 C34 84 20 72 20 50 L20 18 Z" fill="url(#pg)"/>
+        <path d="M50 16 L73 24 L73 49 C73 66 62 76 50 82 C38 76 27 66 27 49 L27 24 Z" fill="${bg}"/>
+        <path d="M50 16 L73 24 L73 49 C73 66 62 76 50 82 C38 76 27 66 27 49 L27 24 Z" fill="none" stroke="${hi}" stroke-width="2" opacity="0.7"/>
+        <path d="${star(50,38,10,4.6)}" fill="${mid}" opacity="0.9"/>
+        ${dots}${dotsOuter}
+        <text x="50" y="69" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="${label.length > 2 ? 11 : label.length === 2 ? 15 : 18}" font-weight="700" fill="${hi}">${label}</text>
+      `);
+    }
+
+    function seasonSvg(tier, season) {
+      const [mid, hi, bg] = seasonPalettes[tier];
+      return wrap(`
+        <defs><linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${hi}"/><stop offset="52%" stop-color="${mid}"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs>
+        <path d="M ${poly(50,50,38,6,-Math.PI/6)} Z" fill="url(#sg)"/>
+        <path d="M ${poly(50,50,29,6,-Math.PI/6)} Z" fill="${bg}"/>
+        <path d="M ${poly(50,50,29,6,-Math.PI/6)} Z" fill="none" stroke="${hi}" stroke-width="2" opacity="0.74"/>
+        <text x="50" y="54" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="${hi}">${seasonRoman[season - 1]}</text>
+        <path d="M22 69 L78 69 L72 84 L28 84 Z" fill="${mid}" opacity="0.95"/>
+        <text x="50" y="80" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="700" fill="#0b1220">T${tier}</text>
+      `);
+    }
+
+    function tournamentSvg() {
+      return wrap(`
+        <defs>
+          <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff0a8"/><stop offset="50%" stop-color="#d9a334"/><stop offset="100%" stop-color="#7b4d15"/></linearGradient>
+          <linearGradient id="base" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1f2937"/><stop offset="50%" stop-color="#334155"/><stop offset="100%" stop-color="#1f2937"/></linearGradient>
+        </defs>
+        <path d="M33 22 L67 22 L62 48 C60 56 55 61 50 64 C45 61 40 56 38 48 Z" fill="url(#gold)"/>
+        <path d="M27 28 C20 29 17 36 20 42 C22 46 26 48 30 48" fill="none" stroke="#d6a24a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M73 28 C80 29 83 36 80 42 C78 46 74 48 70 48" fill="none" stroke="#d6a24a" stroke-width="4" stroke-linecap="round"/>
+        <rect x="46" y="64" width="8" height="12" rx="2" fill="#d6a24a"/>
+        <rect x="35" y="76" width="30" height="8" rx="2" fill="url(#base)"/>
+        <circle cx="50" cy="42" r="6" fill="#0f172a"/>
+        <path d="${star(50,42,8.2,3.6)}" fill="#f5d77b"/>
+      `);
+    }
+
+    function add(container, svg, label, extra='') {
+      const el = document.getElementById(container);
+      const item = document.createElement('div');
+      item.className = `item ${extra}`.trim();
+      item.innerHTML = `${svg}<span>${label}</span>`;
+      el.appendChild(item);
+    }
+
+    for (let i = 1; i <= 49; i++) add('levels', levelSvg(i), `lv${i}`);
+    for (let i = 1; i <= 11; i++) add('prestige', prestigeSvg(i), i <= 5 ? `prestige_${roman[i-1].toLowerCase()}` : `prestige_${i}`);
+    for (let t = 1; t <= 4; t++) for (let s = 1; s <= 4; s++) add('season', seasonSvg(t, s), `tier${t}_s${s}`);
+    add('tournament', tournamentSvg(), 'tournament', 'trophy');
+  </script>
+</body>
+</html>

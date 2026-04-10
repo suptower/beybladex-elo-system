@@ -5,7 +5,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BeybladeX Badge Preview v12</title>
+<title>BeybladeX Badge Preview v17</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --bg:#07090f; --border:#181c2a; --muted:#404868; }
@@ -24,7 +24,8 @@
 </style>
 </head>
 <body>
-<h1>BEYBLADEX · BADGE SYSTEM v12</h1>
+<h1>BEYBLADEX · BADGE SYSTEM v17</h1>
+
 <p class="note">Font Preview: Orbitron → finale Site: Presicaw W00 Heavy</p>
 
 <section><h2>Level 1–9 · Bronze · Pentagon · Transition → Silber</h2><div class="grid" id="t1"></div></section>
@@ -35,6 +36,7 @@
 <section><h2>Prestige I–V · Wappen</h2><div class="grid" id="pre"></div></section>
 <section><h2>Prestige VI+ · Schwarz / Gold</h2><div class="grid" id="pre2"></div></section>
 <section><h2>Tournament · Kristall</h2><div class="grid" id="troph"></div></section>
+<section><h2>Season Cup · Trophy</h2><div class="grid" id="scup"></div></section>
 <section><h2>Season Champion · Tier 1–4</h2><div class="grid" id="seas"></div></section>
 <button onclick="exportAllSVGsToZip()" 
         style="position:fixed;top:20px;right:20px;z-index:999;">
@@ -42,56 +44,99 @@
 </button>
 
 <script>
+
 const uid = () => Math.random().toString(36).slice(2,7);
 
+function cropSVG(svg){
+  const clone = svg.cloneNode(true);
+
+  clone.style.position = "absolute";
+  clone.style.left = "-9999px";
+  document.body.appendChild(clone);
+
+  let bbox = clone.getBBox();
+
+  // ❗ FALLBACK wenn leer
+  if (!bbox.width || !bbox.height) {
+    document.body.removeChild(clone);
+    return svg.cloneNode(true);
+  }
+
+  // Keep a small safety margin for glow/filter extents
+  const padding = Math.max(bbox.width, bbox.height) * 0.08;
+
+  const x = bbox.x - padding;
+  const y = bbox.y - padding;
+  const w = bbox.width + padding * 2;
+  const h = bbox.height + padding * 2;
+
+  clone.setAttribute("viewBox", `${x} ${y} ${w} ${h}`);
+  clone.setAttribute("width", w);
+  clone.setAttribute("height", h);
+
+  document.body.removeChild(clone);
+  return clone;
+}
+
 async function exportAllSVGsToZip() {
+
   const zip = new JSZip();
 
-  const sections = [
-    {id:"t1", prefix:"lv"},
-    {id:"t2", prefix:"lv"},
-    {id:"t3", prefix:"lv"},
-    {id:"t4", prefix:"lv"},
-    {id:"t5", prefix:"lv"},
-    {id:"pre", prefix:"prestige"},
-    {id:"pre2", prefix:"prestige"},
-    {id:"troph", prefix:"trophy"},
-    {id:"seas", prefix:"season"}
-  ];
+    const sections = [
+      {id:"t1", prefix:"lv"},
+      {id:"t2", prefix:"lv"},
+      {id:"t3", prefix:"lv"},
+      {id:"t4", prefix:"lv"},
+      {id:"t5", prefix:"lv"},
+      {id:"pre", prefix:"prestige"},
+      {id:"pre2", prefix:"prestige"},
+      {id:"troph", prefix:"trophy"},
+      {id:"seas", prefix:"season"}
+    ];
 
-  sections.forEach(sec => {
-    const container = document.getElementById(sec.id);
-    if(!container) return;
+    sections.forEach(sec => {
+      const container = document.getElementById(sec.id);
+      if(!container) return;
 
-    const items = container.querySelectorAll(".item");
+      const items = container.querySelectorAll(".item");
 
-    items.forEach((item, index) => {
-      const svg = item.querySelector("svg");
-      if(!svg) return;
+      items.forEach((item, index) => {
+        const svg = item.querySelector("svg");
+        if(!svg) return;
 
-      let label = item.querySelector(".lbl")?.textContent || `${sec.prefix}_${index}`;
+        let label = item.querySelector(".lbl")?.textContent || `${sec.prefix}_${index}`;
 
-      // Sauberer Dateiname
-      const safeName = label
-        .replace(/\s+/g,"_")
-        .replace(/[^\w\-]/g,"")
-        .toLowerCase();
+        // Sauberer Dateiname
+        const safeName = label
+          .replace(/\s+/g,"_")
+          .replace(/[^\w\-]/g,"")
+          .toLowerCase();
 
-      // SVG serialisieren
-      const serializer = new XMLSerializer();
-      let source = serializer.serializeToString(svg);
-      if(!source.match(/^<\?xml/)) {
-        source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
-      }
+        // SVG serialisieren
+        const cropped = cropSVG(svg);
 
-      zip.file(`${safeName}.svg`, source);
+        const serializer = new XMLSerializer();
+        let source = serializer.serializeToString(cropped);
+        if(!source.match(/^<\?xml/)) {
+          source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+        }
+
+        let folder = "misc";
+
+        if(sec.prefix === "lv") folder = "level";
+        if(sec.prefix === "prestige") folder = "prestige";
+        if(sec.prefix === "season") folder = "season";
+        if(sec.prefix === "trophy") folder = "trophy";
+
+        zip.file(`${folder}/${safeName}.svg`, source);
+      });
     });
-  });
 
-  // ZIP generieren & herunterladen
-  const content = await zip.generateAsync({type:"blob"});
-  saveAs(content, "badges.zip");
-}
+    // ZIP generieren & herunterladen
+    const content = await zip.generateAsync({type:"blob"});
+    saveAs(content, "badges.zip");
+  }
+
 
 // ─── Shape helpers ─────────────────────────────────────────────────
 function poly(cx,cy,r,n,rot=0){
@@ -187,93 +232,36 @@ function shapeApron(cx, cy, rO, c, id, layers, shapeId){
     let topPath="", bodyPath="";
 
     if(shapeId===0){
-      // Pentagon point-down (rot=PI/2): i=0→tip at PI/2, i=1→lower-left, i=4→lower-right
+      // Pentagon rot=PI/2: tip=i=0, flanks i=1 and i=4
+      // Use 48% along each edge from tip toward flank to keep apron narrow
       const r=rO*scale;
-
-      // echte Vertex-Winkel (wie poly)
-      const rot = Math.PI/2;
-      const angles = Array.from({length:5}, (_,i)=> (i/5)*Math.PI*2 + rot);
-
-      const pts = angles.map(a=>[
-        cx + Math.cos(a)*r,
-        cy + Math.sin(a)*r
-      ]);
-
-      // unterster Punkt = max Y
-      const tip = pts.reduce((a,b)=> a[1]>b[1]?a:b);
-
-      // zwei Nachbarn finden
-      const idx = pts.indexOf(tip);
-      const vL = pts[(idx+4)%5];
-      const vR = pts[(idx+1)%5];
-
-      const inset = 0.35; // 0.65–0.8 je nach Geschmack
-
-      const bl=[
-        cx + (vL[0]-cx)*inset,
-        tip[1]+depth
-      ];
-      const br=[
-        cx + (vR[0]-cx)*inset,
-        tip[1]+depth
-      ];
-      const btip=[cx, tip[1]+depth+bw*0.03*scale];
-
-      topPath=`M${vL[0]},${vL[1]} L${tip[0]},${tip[1]} L${vR[0]},${vR[1]}`;
-      bodyPath=`M${vL[0]},${vL[1]} L${tip[0]},${tip[1]} L${vR[0]},${vR[1]} 
-                L${br[0]},${br[1]} L${btip[0]},${btip[1]} L${bl[0]},${bl[1]} Z`;
-    } else if(shapeId===1) {
-      const r = rO * scale;
-      const rot = -Math.PI/6;
-
-      const pts = Array.from({length:6}, (_,i)=>{
-        const a = (i/6)*Math.PI*2 + rot;
-        return [cx + Math.cos(a)*r, cy + Math.sin(a)*r];
-      });
-
-      // 👉 finde den untersten Punkt (Spitze)
-      let tip = pts[0];
-      for(const p of pts){
-        if(p[1] > tip[1]) tip = p;
-      }
-
-      const idx = pts.indexOf(tip);
-
-      // 👉 direkte Nachbarn = Kanten links/rechts
-      const vL = pts[(idx - 1 + 6) % 6];
-      const vR = pts[(idx + 1) % 6];
-
-      const inset = 0.35;
-
-      const bl = [
-        cx + (vL[0] - cx) * inset,
-        tip[1] + depth
-      ];
-      const br = [
-        cx + (vR[0] - cx) * inset,
-        tip[1] + depth
-      ];
-
-      const btip = [
-        cx,
-        tip[1] + depth + bw * 0.025 * scale
-      ];
-
-      topPath = `
-        M${vL[0]},${vL[1]} 
-        L${tip[0]},${tip[1]} 
-        L${vR[0]},${vR[1]}
-      `;
-
-      bodyPath = `
-        M${vL[0]},${vL[1]} 
-        L${tip[0]},${tip[1]} 
-        L${vR[0]},${vR[1]} 
-        L${br[0]},${br[1]} 
-        L${btip[0]},${btip[1]} 
-        L${bl[0]},${bl[1]} 
-        Z
-      `;
+      const tip=[cx, cy+r];
+      const f1=[cx+r*Math.cos(1/5*Math.PI*2+Math.PI/2), cy+r*Math.sin(1/5*Math.PI*2+Math.PI/2)];
+      const f4=[cx+r*Math.cos(4/5*Math.PI*2+Math.PI/2), cy+r*Math.sin(4/5*Math.PI*2+Math.PI/2)];
+      const et=0.48;
+      const vL=[tip[0]+(f1[0]-tip[0])*et, tip[1]+(f1[1]-tip[1])*et];
+      const vR=[tip[0]+(f4[0]-tip[0])*et, tip[1]+(f4[1]-tip[1])*et];
+      const bl=[vL[0], tip[1]+depth];
+      const br=[vR[0], tip[1]+depth];
+      const btip=[cx, tip[1]+depth+bw*0.018*scale];
+      topPath=`M${vL[0].toFixed(2)},${vL[1].toFixed(2)} L${tip[0].toFixed(2)},${tip[1].toFixed(2)} L${vR[0].toFixed(2)},${vR[1].toFixed(2)}`;
+      bodyPath=`M${vL[0].toFixed(2)},${vL[1].toFixed(2)} L${tip[0].toFixed(2)},${tip[1].toFixed(2)} L${vR[0].toFixed(2)},${vR[1].toFixed(2)} L${br[0].toFixed(2)},${br[1].toFixed(2)} L${btip[0].toFixed(2)},${btip[1].toFixed(2)} L${bl[0].toFixed(2)},${bl[1].toFixed(2)} Z`;
+    } else if(shapeId===1){
+      // Hex rot=-PI/6: i=2=bottom(cx,cy+r), i=1=lower-right, i=3=lower-left
+      // Use 50% along each edge from bottom vertex toward side to narrow apron
+      const r=rO*scale;
+      const hBot=[cx, cy+r];
+      const hR=[cx+r*Math.cos(1/6*Math.PI*2-Math.PI/6), cy+r*Math.sin(1/6*Math.PI*2-Math.PI/6)];
+      const hL=[cx+r*Math.cos(3/6*Math.PI*2-Math.PI/6), cy+r*Math.sin(3/6*Math.PI*2-Math.PI/6)];
+      const ht=0.50;
+      const heR=[hBot[0]+(hR[0]-hBot[0])*ht, hBot[1]+(hR[1]-hBot[1])*ht];
+      const heL=[hBot[0]+(hL[0]-hBot[0])*ht, hBot[1]+(hL[1]-hBot[1])*ht];
+      const v3=hBot;
+      const bl=[heL[0], v3[1]+depth];
+      const br=[heR[0], v3[1]+depth];
+      const btip=[cx, v3[1]+depth+bw*0.018*scale];
+      topPath=`M${heL[0].toFixed(2)},${heL[1].toFixed(2)} L${v3[0].toFixed(2)},${v3[1].toFixed(2)} L${heR[0].toFixed(2)},${heR[1].toFixed(2)}`;
+      bodyPath=`M${heL[0].toFixed(2)},${heL[1].toFixed(2)} L${v3[0].toFixed(2)},${v3[1].toFixed(2)} L${heR[0].toFixed(2)},${heR[1].toFixed(2)} L${br[0].toFixed(2)},${br[1].toFixed(2)} L${btip[0].toFixed(2)},${btip[1].toFixed(2)} L${bl[0].toFixed(2)},${bl[1].toFixed(2)} Z`;
     } else if(shapeId===2){
       // Starburst hex (rot=-PI/6): lower contour has two outer tips + inner valleys
       // Outer tip at bottom: (cx, cy+rO*scale)
@@ -446,6 +434,154 @@ function crossStripes(cx, stripeY, badgeW, hi, mid, dark, id, count=1){
   return {defs,svg};
 }
 
+
+// ─── Laurel wreath ─────────────────────────────────────────────────
+// coverage 0..1: how much of the circle is covered, spreading upward from bottom
+function laurelWreath(cx, cy, r, coverage, hi, mid, dark, id){
+  if(coverage <= 0) return {defs:"", svg:""};
+  let defs="", svg="";
+  const maxLeaves = 8;
+  const leaves = Math.max(1, Math.round(maxLeaves * coverage));
+
+  // In SVG: y increases downward. Bottom = angle PI/2.
+  // We spread leaves symmetrically from bottom (PI/2) upward on both sides.
+  // Full coverage = almost full circle (small gap at top).
+  // Each side covers an arc of PI * coverage (so both sides = 2*PI*coverage total)
+  const arcSpan = Math.PI * Math.min(coverage * 1.05, 0.92); // max ~168° per side
+
+  defs += `<linearGradient id="lf${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="${hi}" stop-opacity="0.95"/>
+    <stop offset="55%" stop-color="${mid}"/>
+    <stop offset="100%" stop-color="${dark}" stop-opacity="0.65"/>
+  </linearGradient>`;
+
+  // Right side: leaves from PI/2 going counterclockwise (decreasing angle)
+  // Left side:  leaves from PI/2 going clockwise (increasing angle)
+  for(let side=0; side<2; side++){
+    for(let i=0; i<leaves; i++){
+      const t = (i + 0.5) / leaves;
+      // angle along arc from bottom upward
+      const arcAngle = (Math.PI/2) + (side===0 ? -1 : 1) * arcSpan * t;
+
+      // Position on the wreath circle
+      const lx = cx + Math.cos(arcAngle) * r;
+      const ly = cy + Math.sin(arcAngle) * r;
+
+      // Leaf points outward from centre, tilted tangentially
+      // Radial direction = arcAngle; tangent = arcAngle ± PI/2
+      // Leaf long axis: mix of radial outward + slight tangential tilt
+      const tiltDir = arcAngle + (side===0 ? -Math.PI*0.22 : Math.PI*0.22);
+      const leafLen = r * 0.30;
+      const leafWid = r * 0.10;
+
+      // Tip and base of leaf
+      const tipX = lx + Math.cos(tiltDir) * leafLen * 0.55;
+      const tipY = ly + Math.sin(tiltDir) * leafLen * 0.55;
+      const baseX = lx - Math.cos(tiltDir) * leafLen * 0.45;
+      const baseY2 = ly - Math.sin(tiltDir) * leafLen * 0.45;
+
+      // Control points for bulge
+      const perp = tiltDir + Math.PI/2;
+      const c1x = lx + Math.cos(tiltDir)*leafLen*0.1 + Math.cos(perp)*leafWid;
+      const c1y = ly + Math.sin(tiltDir)*leafLen*0.1 + Math.sin(perp)*leafWid;
+      const c2x = lx + Math.cos(tiltDir)*leafLen*0.1 - Math.cos(perp)*leafWid;
+      const c2y = ly + Math.sin(tiltDir)*leafLen*0.1 - Math.sin(perp)*leafWid;
+
+      const leafPath = `M${tipX.toFixed(2)},${tipY.toFixed(2)} C${c1x.toFixed(2)},${c1y.toFixed(2)} ${baseX.toFixed(2)},${baseY2.toFixed(2)} ${baseX.toFixed(2)},${baseY2.toFixed(2)} C${c2x.toFixed(2)},${c2y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} Z`;
+
+      const op = 0.75 + t * 0.22;
+      svg += `<path d="${leafPath}" fill="url(#lf${id})" opacity="${op.toFixed(2)}"/>`;
+      svg += `<path d="${leafPath}" fill="none" stroke="${hi}" stroke-width="0.35" stroke-opacity="0.42"/>`;
+      svg += `<line x1="${tipX.toFixed(2)}" y1="${tipY.toFixed(2)}" x2="${baseX.toFixed(2)}" y2="${baseY2.toFixed(2)}" stroke="${hi}" stroke-width="0.28" stroke-opacity="0.32"/>`;
+    }
+  }
+  return {defs, svg};
+}
+
+// ─── Curved wings (organic, bird-like) ────────────────────────────
+// Attach at badge equator sides, sweep upward and outward in a curve
+// style: 0=small(lila), 1=large+detailed(rot)
+function curvedWings(cx, cy, r, hi, mid, dark, id, style=0){
+  let defs="", svg="";
+
+  defs += `<linearGradient id="wgL${id}" x1="100%" y1="20%" x2="0%" y2="80%">
+    <stop offset="0%"   stop-color="${hi}"  stop-opacity="0.95"/>
+    <stop offset="45%"  stop-color="${mid}" stop-opacity="0.85"/>
+    <stop offset="100%" stop-color="${dark}" stop-opacity="0.3"/>
+  </linearGradient>
+  <linearGradient id="wgR${id}" x1="0%" y1="20%" x2="100%" y2="80%">
+    <stop offset="0%"   stop-color="${hi}"  stop-opacity="0.95"/>
+    <stop offset="45%"  stop-color="${mid}" stop-opacity="0.85"/>
+    <stop offset="100%" stop-color="${dark}" stop-opacity="0.3"/>
+  </linearGradient>`;
+
+  const scale = style===1 ? 1.22 : 1.0;
+  // Attachment point: left/right equator of badge
+  const ax = r * 0.94;       // x offset from centre (badge edge)
+  const ay = cy * 0.0;       // vertical centre
+  // Wing tip: sweeps upward and outward
+  const tipX = r * (1.75 + 0.3*style) * scale;
+  const tipY = -r * (0.78 + 0.2*style) * scale;
+  // Wing body: upper and lower curves
+  // Upper edge: sweeps high then curves back
+  // Lower edge: hugs closer to badge
+
+  // LEFT WING (mirrored on right)
+  const drawWing = (dir) => { // dir: -1=left, +1=right
+    const sx = cx + dir * ax;     // attach x
+    const sy = cy;                 // attach y
+    const tx = cx + dir * tipX;   // tip x
+    const ty = cy + tipY;          // tip y
+
+    // Primary feather curves (3 overlapping layers for depth)
+    const feathers = style===0 ? 2 : 3;
+    for(let fi=0; fi<feathers; fi++){
+      const fScale = 1 - fi * 0.14;
+      const fTipX = cx + dir * tipX * fScale;
+      const fTipY = cy + tipY * fScale - fi * r * 0.08;
+
+      // Upper curve: from attach, sweeps up-outward to tip
+      const uc1x = cx + dir * r * (1.2 + fi*0.1) * scale;
+      const uc1y = cy - r * (0.55 + fi*0.08) * scale;
+      const uc2x = cx + dir * tipX * (0.65 - fi*0.05);
+      const uc2y = cy + tipY * (0.4 - fi*0.05);
+
+      // Lower curve: from tip back to attach, hugging badge
+      const lc1x = cx + dir * tipX * (0.55 - fi*0.05);
+      const lc1y = cy + tipY * (0.25 + fi*0.08);
+      const lc2x = cx + dir * r * (1.15 + fi*0.08) * scale;
+      const lc2y = cy - r * (0.08 - fi*0.06) * scale;
+
+      const wingPath = `M${sx.toFixed(2)},${sy.toFixed(2)}
+        C${uc1x.toFixed(2)},${uc1y.toFixed(2)} ${uc2x.toFixed(2)},${uc2y.toFixed(2)} ${fTipX.toFixed(2)},${fTipY.toFixed(2)}
+        C${lc1x.toFixed(2)},${lc1y.toFixed(2)} ${lc2x.toFixed(2)},${lc2y.toFixed(2)} ${sx.toFixed(2)},${sy.toFixed(2)} Z`;
+
+      const fillId = dir < 0 ? `wgL${id}` : `wgR${id}`;
+      const op = (1 - fi * 0.18).toFixed(2);
+      svg += `<path d="${wingPath}" fill="url(#${fillId})" opacity="${op}"/>`;
+      // Edge highlight on upper curve
+      svg += `<path d="M${sx.toFixed(2)},${sy.toFixed(2)} C${uc1x.toFixed(2)},${uc1y.toFixed(2)} ${uc2x.toFixed(2)},${uc2y.toFixed(2)} ${fTipX.toFixed(2)},${fTipY.toFixed(2)}"
+        fill="none" stroke="${hi}" stroke-width="${(0.9-fi*0.2).toFixed(1)}" stroke-opacity="${(0.45-fi*0.1).toFixed(2)}" stroke-linecap="round"/>`;
+    }
+
+    // Feather tip details: small pointed strokes radiating from tip area
+    const nTips = 3 + style;
+    for(let ti=0; ti<nTips; ti++){
+      const t2 = (ti+0.5)/nTips;
+      const ftx = cx + dir * (tipX*(0.7+t2*0.35));
+      const fty = cy + tipY * (0.55 + t2*0.38);
+      const fex = ftx + dir * r * (0.18 + t2*0.12);
+      const fey = fty - r * (0.10 + t2*0.08);
+      svg += `<line x1="${ftx.toFixed(2)}" y1="${fty.toFixed(2)}" x2="${fex.toFixed(2)}" y2="${fey.toFixed(2)}"
+        stroke="${hi}" stroke-width="${(0.8-ti*0.15).toFixed(1)}" stroke-opacity="${(0.5-ti*0.1).toFixed(2)}" stroke-linecap="round"/>`;
+    }
+  };
+
+  drawWing(-1); // left
+  drawWing(+1); // right
+  return {defs, svg};
+}
+
 // ══════════════════════════════════════════════════════════════════
 // NEXT-TIER COLOUR for transition
 // ══════════════════════════════════════════════════════════════════
@@ -487,9 +623,13 @@ function levelBadge(level, tier, sz=84){
   // insets: 1,1,2,2,3,3,4,4,4
   const insetCount = lv0<=1?1 : lv0<=3?2 : lv0<=5?3 : 4;
   // apron layers: 0,0,0,1,1,2,2,3,3
-  const apronLayers = lv0<=2?0 : lv0<=4?1 : lv0<=6?2 : 3;
+  // Tier personality: apron appears differently per tier
+  const apronThresh=[[2,4,6],[3,5,7],[2,4,6],[3,5,7],[2,4,6]][tier.ti];
+  const apronLayers = lv0<=apronThresh[0]?0 : lv0<=apronThresh[1]?1 : lv0<=apronThresh[2]?2 : 3;
   // crossstripes: 0,0,0,0,0,0,1,1,2
-  const stripeCount = lv0<=5?0 : lv0<=7?1 : 2;
+  // Tier personality: when stripes appear (silver earlier, red more stripes)
+  const stripeThresh=[[5,7],[4,6],[5,7],[5,7],[4,5]][tier.ti];
+  const stripeCount = lv0<=stripeThresh[0]?0 : lv0<=stripeThresh[1]?1 : 2;
 
   // Glow intensity scales with tier and level
   const glowBase = [0.30,0.35,0.40,0.48,0.65][tier.ti];
@@ -539,8 +679,10 @@ function levelBadge(level, tier, sz=84){
     });
   }
 
+  // Tier personality: different plate density
+  const tierPlateStep=[0.085,0.075,0.095,0.070,0.100][tier.ti];
   const {defs:pd,svg:ps}=plateCount>0
-    ? drawPlates(shapeFn,plateCount,plateColors,tier.bg2,id,0.085)
+    ? drawPlates(shapeFn,plateCount,plateColors,tier.bg2,id,tierPlateStep)
     : {defs:"",svg:""};
 
   // Extra outer ring lv7+
@@ -563,7 +705,10 @@ function levelBadge(level, tier, sz=84){
 
   // Inset contours – last 1-2 get transition colour for lv7+
   const insetHi = transT>0 ? lerpColor(tier.hi, nextHi, transT*0.9) : tier.hi;
-  const contours = insetLines(shapeFn, insetCount, insetHi, tier.rim1);
+  // Tier personality: different inset spacing
+  const tierInsetStart=[0.94,0.91,0.95,0.89,0.93][tier.ti];
+  const tierInsetStep =[0.055,0.065,0.050,0.068,0.058][tier.ti];
+  const contours = insetLines(shapeFn, insetCount, insetHi, tier.rim1, tierInsetStart, tierInsetStep);
 
   // Apron – transition colour bleeds in for lv7+
   const apronHi  = transT>0 ? lerpColor(tier.hi,  nextHi, transT*0.9) : tier.hi;
@@ -579,11 +724,33 @@ function levelBadge(level, tier, sz=84){
   const stripeMid = transT>0 ? lerpColor(tier.rim1, nextHi, transT*0.65) : tier.rim1;
   let stripeDefs="", stripeSVG="";
   if(stripeCount>0){
-    const r=crossStripes(cx,cy,rO*2.1,stripeHi,stripeMid,tier.rim2,id,stripeCount);
+    const tierStripeW=[2.1,2.3,1.95,2.5,2.2][tier.ti];
+    const r=crossStripes(cx,cy,rO*tierStripeW,stripeHi,stripeMid,tier.rim2,id,stripeCount);
     stripeDefs=r.defs; stripeSVG=r.svg;
   }
 
-  const pad=sz*1.0;
+  // ── Laurel wreath (Platin tier only, lv0>=5) ─────────────────────
+  let laurelDefs="", laurelSVG="";
+  if(tier.ti===2 && lv0>=4){
+    // lv0=4→0%, lv0=5→~20%, ..., lv0=8→100%
+    const laurelCoverage = lv0<=4 ? 0 : Math.min((lv0-4)/4.0, 1.0);
+    const lColor = transT>0 ? lerpColor(tier.hi,nextHi,transT*0.7) : tier.hi;
+    const lMid   = transT>0 ? lerpColor(tier.rim1,nextHi,transT*0.5) : tier.rim1;
+    const lw = laurelWreath(cx,cy,rO*1.14,laurelCoverage,lColor,lMid,tier.rim2,id);
+    laurelDefs=lw.defs; laurelSVG=lw.svg;
+  }
+
+  // ── Curved wings (Lila=style0, Rot=style1) ──────────────────────
+  let crownDefs="", crownSVG="";
+  if((tier.ti===3||tier.ti===4) && plateCount>=1){
+    const wStyle = tier.ti===4 ? 1 : 0;
+    const cHi  = transT>0 ? lerpColor(tier.hi,nextHi,transT*0.6) : tier.hi;
+    const cMid = transT>0 ? lerpColor(tier.rim1,nextHi,transT*0.4) : tier.rim1;
+    const cd = curvedWings(cx,cy,rO,cHi,cMid,tier.rim2,id,wStyle);
+    crownDefs=cd.defs; crownSVG=cd.svg;
+  }
+
+  const pad=sz*0.35;
   return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
     viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -613,7 +780,7 @@ function levelBadge(level, tier, sz=84){
       <feGaussianBlur stdDeviation="${glowBlur}" result="b"/>
       <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-    ${pd}${apronDefs}${stripeDefs}
+    ${pd}${apronDefs}${stripeDefs}${laurelDefs}${crownDefs}
   </defs>
   <!-- Glow -->
   <path d="${outerPath}" fill="${tier.glow}" fill-opacity="${glowOp}" filter="url(#halo${id})"/>
@@ -621,6 +788,10 @@ function levelBadge(level, tier, sz=84){
   ${apronSVG}
   <!-- Cross-stripes above apron, behind badge -->
   ${stripeSVG}
+  <!-- Curved wings: behind everything except glow -->
+  ${crownSVG}
+  <!-- Laurel wreath: behind badge body, above plates -->
+  ${laurelSVG}
   <!-- Plates above stripes, behind badge -->
   ${ps}
   ${extraRing}
@@ -693,7 +864,7 @@ function prestigeShield(stars,sz=86,colOvr=null,lblOvr=null){
     dots+=`<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(2)}" cy="${(cy-sz*0.12+Math.sin(a)*orbitR).toFixed(2)}"
       r="${sz*0.024}" fill="${c.hi}" opacity="0.92"/>`;
   }
-  const pad=sz*0.85;
+  const pad=sz*0.33;
   return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
     viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -761,7 +932,7 @@ function prestigeBG(num,sz=86){
       r="${sz*0.024}" fill="#fde68a" opacity="${i<(num-5)?0.95:0.13}"/>`;
   }
   const sStar=starPoly(cx,cy-sz*0.12,sz*0.12,sz*0.054,5);
-  const pad=sz*0.85;
+  const pad=sz*0.33;
   return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
     viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -883,7 +1054,7 @@ function seasonBadge(tierIdx,seasonNum,sz=84){
   const {defs:pd,svg:ps}=drawPlates(hexFn,layers,plateColors,c.bg2,id,0.085);
   const contours=insetLines(hexFn,Math.min(layers,3),c.hi,c.rim1);
   const apDefs="", apSVG=""; // No apron for season badges
-  const pad=sz*0.65;
+  const pad=sz*0.28;
   return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
     viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
   <defs>
@@ -925,8 +1096,91 @@ function seasonBadge(tierIdx,seasonNum,sz=84){
 </svg>`;
 }
 
+
 // ══════════════════════════════════════════════════════════════════
-// RENDER
+// SEASON CUP TROPHY
+// Hexagonal base with gold cup rising from it, ornate, season-number
+// ══════════════════════════════════════════════════════════════════
+function seasonCupBadge(seasonNum, sz=110){
+  const cx=sz/2, cy=sz/2, id=uid();
+  // Purple crystal gem – same structure as crystalTrophy but purple palette
+  const gCx=cx, gCy=cy-sz*0.08, gR=sz*0.22;
+  const gem =`M${gCx},${gCy-gR} L${gCx+gR*.72},${gCy-gR*.18} L${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx-gR*.9},${gCy+gR*.32} L${gCx-gR*.72},${gCy-gR*.18} Z`;
+  const fL  =`M${gCx},${gCy-gR} L${gCx-gR*.72},${gCy-gR*.18} L${gCx},${gCy+gR*.08} Z`;
+  const fR  =`M${gCx},${gCy-gR} L${gCx+gR*.72},${gCy-gR*.18} L${gCx},${gCy+gR*.08} Z`;
+  const fBL =`M${gCx-gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*.08} Z`;
+  const fBR =`M${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*.08} Z`;
+  const fBC =`M${gCx-gR*.9},${gCy+gR*.32} L${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR*.08} Z`;
+  const sTop=gCy+gR, kY=sTop+sz*.065, sBot=sTop+sz*.13;
+
+  const roman=["I","II","III","IV","V","VI","VII","VIII","IX","X"][seasonNum-1]||`${seasonNum}`;
+
+  return `<svg width="${sz}" height="${sz*1.1}" viewBox="0 0 ${sz} ${sz*1.04}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gA${id}" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#e9d5ff"/>
+      <stop offset="35%" stop-color="#a855f7"/>
+      <stop offset="75%" stop-color="#7e22ce"/>
+      <stop offset="100%" stop-color="#3b0764"/>
+    </linearGradient>
+    <linearGradient id="gB${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f3e8ff"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="gC${id}" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7e22ce"/>
+      <stop offset="100%" stop-color="#2e1065"/>
+    </linearGradient>
+    <linearGradient id="purp${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="#e9d5ff"/>
+      <stop offset="35%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#4c1d95"/>
+    </linearGradient>
+    <linearGradient id="base${id}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b0764"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#3b0764"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="${sz*.12}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Purple halo glow -->
+  <path d="${gem}" fill="#a855f7" fill-opacity="0.55" filter="url(#halo${id})"/>
+  <!-- Gem facets -->
+  <path d="${gem}"  fill="url(#gA${id})"/>
+  <path d="${fL}"   fill="url(#gB${id})" opacity=".72"/>
+  <path d="${fR}"   fill="url(#gB${id})" opacity=".45"/>
+  <path d="${fBL}"  fill="url(#gC${id})" opacity=".80"/>
+  <path d="${fBR}"  fill="url(#gC${id})" opacity=".65"/>
+  <path d="${fBC}"  fill="#4c1d95"       opacity=".70"/>
+  <path d="${gem}"  fill="none" stroke="#e9d5ff" stroke-width=".9" stroke-opacity=".55"/>
+  <!-- Facet lines -->
+  <line x1="${gCx}" y1="${gCy-gR}" x2="${gCx}" y2="${gCy+gR*.08}" stroke="#e9d5ff" stroke-width=".6" stroke-opacity=".4"/>
+  <line x1="${gCx}" y1="${gCy+gR*.08}" x2="${gCx-gR*.9}" y2="${gCy+gR*.32}" stroke="#e9d5ff" stroke-width=".5" stroke-opacity=".28"/>
+  <line x1="${gCx}" y1="${gCy+gR*.08}" x2="${gCx+gR*.9}" y2="${gCy+gR*.32}" stroke="#e9d5ff" stroke-width=".5" stroke-opacity=".28"/>
+  <!-- Specular highlight -->
+  <path d="M${gCx-gR*.3},${gCy-gR*.7} L${gCx+gR*.08},${gCy-gR*.84} L${gCx+gR*.03},${gCy-gR*.42} Z" fill="white" opacity=".35"/>
+  <!-- Season label below gem -->
+  <text x="${gCx}" y="${gCy+gR*0.45}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.13}"
+    fill="#f3e8ff" filter="url(#gl${id})">${roman}</text>
+  <!-- Shaft -->
+  <path d="M${cx-sz*.04},${sTop} C${cx-sz*.06},${kY} ${cx-sz*.024},${kY} ${cx-sz*.03},${sBot} L${cx+sz*.03},${sBot} C${cx+sz*.024},${kY} ${cx+sz*.06},${kY} ${cx+sz*.04},${sTop} Z" fill="url(#purp${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*.052}" ry="${sz*.036}" fill="url(#purp${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*.052}" ry="${sz*.036}" fill="none" stroke="#e9d5ff" stroke-width=".65" stroke-opacity=".45"/>
+  <!-- Base -->
+  <path d="M${cx-sz*.26},${sBot} L${cx-sz*.28},${sBot+sz*.065} L${cx+sz*.28},${sBot+sz*.065} L${cx+sz*.26},${sBot} Z" fill="url(#purp${id})"/>
+  <rect x="${cx-sz*.22}" y="${sBot+sz*.065}" width="${sz*.44}" height="${sz*.062}" rx="${sz*.012}" fill="url(#base${id})"/>
+</svg>`;
+}
+
+
 // ══════════════════════════════════════════════════════════════════
 function add(id,svg,label){
   const el=document.getElementById(id);
@@ -944,6 +1198,7 @@ for(let p=1;p<=5;p++) add("pre",prestigeShield(p,86),`Prestige ${["I","II","III"
 for(let p=6;p<=11;p++) add("pre2",prestigeBG(p,86),`Prestige ${p}`);
 add("troph",crystalTrophy(110),"1st Place");
 ST.forEach((t,i)=>{ for(let s=1;s<=4;s++) add("seas",seasonBadge(i,s,84),`${t.name}·S${s}`); });
+for(let s=1;s<=4;s++) add("scup",seasonCupBadge(s,110),`Season Cup S${s}`);
 </script>
 </body>
 </html>

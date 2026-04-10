@@ -1,93 +1,22 @@
-<?xml version="1.0" standalone="no"?>
-<svg width="252" height="252" viewBox="-84 -84 252 252" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <radialGradient id="bge03zt" cx="35%" cy="28%" r="72%">
-      <stop offset="0%" stop-color="#2a1808"/>
-      <stop offset="100%" stop-color="#0d0602"/>
-    </radialGradient>
-    <linearGradient id="rime03zt" x1="5%" y1="5%" x2="95%" y2="95%">
-      <stop offset="0%" stop-color="#f3ead9"/>
-      <stop offset="50%" stop-color="#ebbc82"/>
-      <stop offset="100%" stop-color="#8b4a0a"/>
-    </linearGradient>
-    <!-- Transition accent ring gradient: full next-tier colour -->
-    <linearGradient id="transRinge03zt" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f1f2f1"/>
-      <stop offset="100%" stop-color="#edd5b6"/>
-    </linearGradient>
-    <linearGradient id="she03zt" x1="18%" y1="0%" x2="82%" y2="100%">
-      <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
-      <stop offset="50%" stop-color="white" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="gle03zt" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="1.8" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="haloe03zt" x="-150%" y="-150%" width="500%" height="500%">
-      <feGaussianBlur stdDeviation="10" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <linearGradient id="pge03zt_0" x1="5%" y1="0%" x2="95%" y2="100%">
-      <stop offset="0%" stop-color="#f7dfb9" stop-opacity="0.95"/>
-      <stop offset="38%" stop-color="#ebb16c" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.85"/>
-    </linearGradient><linearGradient id="pge03zt_1" x1="5%" y1="0%" x2="95%" y2="100%">
-      <stop offset="0%" stop-color="#f7dfb9" stop-opacity="0.95"/>
-      <stop offset="38%" stop-color="#ebb16c" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.85"/>
-    </linearGradient><linearGradient id="pge03zt_2" x1="5%" y1="0%" x2="95%" y2="100%">
-      <stop offset="0%" stop-color="#f2efe8" stop-opacity="0.95"/>
-      <stop offset="38%" stop-color="#edd0ad" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.85"/>
-    </linearGradient><linearGradient id="ape03zt_0" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#f3ecde"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.65"/>
-    </linearGradient><linearGradient id="ape03zt_1" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ecc89c"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.65"/>
-    </linearGradient><linearGradient id="ape03zt_2" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ecc89c"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.65"/>
-    </linearGradient><linearGradient id="cse03zt_L0" x1="100%" y1="50%" x2="0%" y2="50%">
-      <stop offset="0%" stop-color="#f3ecde" stop-opacity="1.0"/>
-      <stop offset="55%" stop-color="#ecc89c" stop-opacity="0.88"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.15"/>
-    </linearGradient>
-    <linearGradient id="cse03zt_R0" x1="0%" y1="50%" x2="100%" y2="50%">
-      <stop offset="0%" stop-color="#f3ecde" stop-opacity="1.0"/>
-      <stop offset="55%" stop-color="#ecc89c" stop-opacity="0.88"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.15"/>
-    </linearGradient><linearGradient id="cse03zt_L1" x1="100%" y1="50%" x2="0%" y2="50%">
-      <stop offset="0%" stop-color="#f3ecde" stop-opacity="1.0"/>
-      <stop offset="55%" stop-color="#ecc89c" stop-opacity="0.88"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.15"/>
-    </linearGradient>
-    <linearGradient id="cse03zt_R1" x1="0%" y1="50%" x2="100%" y2="50%">
-      <stop offset="0%" stop-color="#f3ecde" stop-opacity="1.0"/>
-      <stop offset="55%" stop-color="#ecc89c" stop-opacity="0.88"/>
-      <stop offset="100%" stop-color="#8b4a0a" stop-opacity="0.15"/>
-    </linearGradient>
-  </defs>
-  <!-- Glow -->
-  <path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="#e8922a" fill-opacity="0.44999999999999996" filter="url(#haloe03zt)"/>
-  <!-- APRON: deepest decoration layer, behind everything -->
-  <path d="M74.35494268436113,52.512758148635704 L42,76.02000000000001 L9.645057315638873,52.51275814863571 &#10;                L30.675770060473607,81.46320000000001 L42,83.40234000000001 L53.3242299395264,81.46320000000001 Z" fill="url(#ape03zt_0)" opacity="0.9"/><path d="M74.35494268436113,52.512758148635704 L42,76.02000000000001 L9.645057315638873,52.51275814863571" fill="none" stroke="#f3ecde" stroke-width="0.9" stroke-opacity="0.52" stroke-linejoin="round"/><path d="M74.35494268436113,52.512758148635704 L42,76.02000000000001 L9.645057315638873,52.51275814863571 &#10;                L30.675770060473607,81.46320000000001 L42,83.40234000000001 L53.3242299395264,81.46320000000001 Z" fill="none" stroke="#8b4a0a" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/><path d="M77.26688752595363,53.45890638201292 L42,79.08180000000002 L6.733112474046365,53.45890638201293 &#10;                L29.65658936591623,86.56620000000001 L42,88.6798626 L54.34341063408377,86.56620000000001 Z" fill="url(#ape03zt_1)" opacity="0.8200000000000001"/><path d="M77.26688752595363,53.45890638201292 L42,79.08180000000002 L6.733112474046365,53.45890638201293" fill="none" stroke="#f3ecde" stroke-width="0.9" stroke-opacity="0.42000000000000004" stroke-linejoin="round"/><path d="M77.26688752595363,53.45890638201292 L42,79.08180000000002 L6.733112474046365,53.45890638201293 &#10;                L29.65658936591623,86.56620000000001 L42,88.6798626 L54.34341063408377,86.56620000000001 Z" fill="none" stroke="#8b4a0a" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/><path d="M80.17883236754614,54.40505461539013 L42,82.14359999999999 L3.8211676324538786,54.40505461539014 &#10;                L28.63740867135886,91.66919999999999 L42,93.95738519999999 L55.362591328641145,91.66919999999999 Z" fill="url(#ape03zt_2)" opacity="0.74"/><path d="M80.17883236754614,54.40505461539013 L42,82.14359999999999 L3.8211676324538786,54.40505461539014" fill="none" stroke="#f3ecde" stroke-width="0.9" stroke-opacity="0.32" stroke-linejoin="round"/><path d="M80.17883236754614,54.40505461539013 L42,82.14359999999999 L3.8211676324538786,54.40505461539014 &#10;                L28.63740867135886,91.66919999999999 L42,93.95738519999999 L55.362591328641145,91.66919999999999 Z" fill="none" stroke="#8b4a0a" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/>
-  <!-- Cross-stripes above apron, behind badge -->
-  <polygon points="14.85,32.97 14.85,39.60 -9.44,34.71 -9.44,23.28" fill="url(#cse03zt_L0)"/><polygon points="69.15,32.97 69.15,39.60 93.44,34.71 93.44,23.28" fill="url(#cse03zt_R0)"/><polygon points="14.85,32.97 14.85,35.49 -9.44,27.63 -9.44,23.28" fill="white" opacity="0.22"/><polygon points="69.15,32.97 69.15,35.49 93.44,27.63 93.44,23.28" fill="white" opacity="0.22"/><line x1="14.85" y1="39.60" x2="-9.44" y2="34.71" stroke="#8b4a0a" stroke-width="1.0" stroke-opacity="0.4"/><line x1="69.15" y1="39.60" x2="93.44" y2="34.71" stroke="#8b4a0a" stroke-width="1.0" stroke-opacity="0.4"/><polygon points="14.85,44.40 14.85,51.03 -9.44,46.14 -9.44,34.71" fill="url(#cse03zt_L1)"/><polygon points="69.15,44.40 69.15,51.03 93.44,46.14 93.44,34.71" fill="url(#cse03zt_R1)"/><polygon points="14.85,44.40 14.85,46.92 -9.44,39.06 -9.44,34.71" fill="white" opacity="0.18"/><polygon points="69.15,44.40 69.15,46.92 93.44,39.06 93.44,34.71" fill="white" opacity="0.18"/><line x1="14.85" y1="51.03" x2="-9.44" y2="46.14" stroke="#8b4a0a" stroke-width="1.0" stroke-opacity="0.4"/><line x1="69.15" y1="51.03" x2="93.44" y2="46.14" stroke="#8b4a0a" stroke-width="1.0" stroke-opacity="0.4"/>
-  <!-- Plates above stripes, behind badge -->
-  <path d="M42.00,78.91L6.89,53.41L20.30,12.14L63.70,12.14L77.11,53.41Z" fill="url(#pge03zt_0)"/><path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="#0d0602"/><path d="M42.00,78.91L6.89,53.41L20.30,12.14L63.70,12.14L77.11,53.41Z" fill="none" stroke="#f7dfb9" stroke-width="0.8" stroke-opacity="0.48" stroke-linejoin="round"/><path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="none" stroke="#8b4a0a" stroke-width="0.5" stroke-opacity="0.28" stroke-linejoin="round"/><path d="M42.00,81.80L4.14,54.30L18.60,9.80L65.40,9.80L79.86,54.30Z" fill="url(#pge03zt_1)"/><path d="M42.00,78.91L6.89,53.41L20.30,12.14L63.70,12.14L77.11,53.41Z" fill="#0d0602"/><path d="M42.00,81.80L4.14,54.30L18.60,9.80L65.40,9.80L79.86,54.30Z" fill="none" stroke="#f7dfb9" stroke-width="0.8" stroke-opacity="0.39999999999999997" stroke-linejoin="round"/><path d="M42.00,78.91L6.89,53.41L20.30,12.14L63.70,12.14L77.11,53.41Z" fill="none" stroke="#8b4a0a" stroke-width="0.5" stroke-opacity="0.24000000000000002" stroke-linejoin="round"/><path d="M42.00,84.70L1.39,55.19L16.90,7.46L67.10,7.46L82.61,55.19Z" fill="url(#pge03zt_2)"/><path d="M42.00,81.80L4.14,54.30L18.60,9.80L65.40,9.80L79.86,54.30Z" fill="#0d0602"/><path d="M42.00,84.70L1.39,55.19L16.90,7.46L67.10,7.46L82.61,55.19Z" fill="none" stroke="#f2efe8" stroke-width="0.8" stroke-opacity="0.31999999999999995" stroke-linejoin="round"/><path d="M42.00,81.80L4.14,54.30L18.60,9.80L65.40,9.80L79.86,54.30Z" fill="none" stroke="#8b4a0a" stroke-width="0.5" stroke-opacity="0.2" stroke-linejoin="round"/>
-  <path d="M42.00,86.06L0.10,55.61L16.10,6.36L67.90,6.36L83.90,55.61Z" fill="none" stroke="#f1f0ed" stroke-width="1.0" stroke-opacity="0.38" stroke-linejoin="round"/>
-    <path d="M42.00,87.38L-1.16,56.02L15.33,5.29L68.67,5.29L85.16,56.02Z" fill="none" stroke="#e8922a" stroke-width="0.6" stroke-opacity="0.2" stroke-linejoin="round"/>
-  <!-- Main badge body covers all overlap -->
-  <path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="url(#rime03zt)"/>
-  <path d="M42.00,70.56L14.84,50.83L25.21,18.89L58.79,18.89L69.16,50.83Z" fill="#0d0602"/>
-  <path d="M42.00,70.56L14.84,50.83L25.21,18.89L58.79,18.89L69.16,50.83Z" fill="none" stroke="url(#rime03zt)" stroke-width="1.5959999999999999" stroke-linejoin="round"/>
-  <path d="M42.00,68.46L16.84,50.18L26.45,20.59L57.55,20.59L67.16,50.18Z" fill="url(#bge03zt)"/>
-  <path d="M42.00,68.46L16.84,50.18L26.45,20.59L57.55,20.59L67.16,50.18Z" fill="url(#she03zt)"/>
-  
-  <!-- Bold transition ring (only visible when isTransition) -->
-  <path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="none" stroke="url(#transRinge03zt)" stroke-width="2.352" stroke-opacity="0.72" stroke-linejoin="round"/>
-  <!-- Inset contours on badge surface -->
-  <path d="M42.00,73.98L11.59,51.88L23.20,16.13L60.80,16.13L72.41,51.88Z" fill="none" stroke="#f3ecde" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/><path d="M42.00,72.11L13.37,51.30L24.30,17.64L59.70,17.64L70.63,51.30Z" fill="none" stroke="#e8922a" stroke-width="0.63" stroke-opacity="0.3" stroke-linejoin="round"/><path d="M42.00,70.24L15.15,50.73L25.40,19.16L58.60,19.16L68.85,50.73Z" fill="none" stroke="#e8922a" stroke-width="0.54" stroke-opacity="0.24" stroke-linejoin="round"/><path d="M42.00,68.37L16.92,50.15L26.50,20.67L57.50,20.67L67.08,50.15Z" fill="none" stroke="#e8922a" stroke-width="0.44999999999999996" stroke-opacity="0.18" stroke-linejoin="round"/>
-  <text x="42" y="42" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="28.560000000000002" fill="#fcd08a" filter="url(#gle03zt)">9</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#f5d08a"/>
+    <stop offset="55%" stop-color="#b0702e"/>
+    <stop offset="100%" stop-color="#2b1608"/>
+  </linearGradient>
+  <radialGradient id="bg" cx="35%" cy="28%" r="72%">
+    <stop offset="0%" stop-color="#1f2937"/>
+    <stop offset="100%" stop-color="#030712"/>
+  </radialGradient>
+</defs>
+<path d="M 72.34 19.26 L 86.14 61.74 L 50.00 88.00 L 13.86 61.74 L 27.66 19.26 Z" fill="#d88b2f" opacity="0.28"/>
+<path d="M 72.34 19.26 L 86.14 61.74 L 50.00 88.00 L 13.86 61.74 L 27.66 19.26 Z" fill="url(#g)"/>
+<path d="M 67.05 26.54 L 77.58 58.96 L 50.00 79.00 L 22.42 58.96 L 32.95 26.54 Z" fill="url(#bg)"/>
+<path d="M 67.05 26.54 L 77.58 58.96 L 50.00 79.00 L 22.42 58.96 L 32.95 26.54 Z" fill="none" stroke="#f5d08a" stroke-width="2.2" opacity="0.65"/>
+<circle cx="50.00" cy="9.00" r="1.55" fill="#f5d08a" opacity="0.95"/><circle cx="76.35" cy="18.59" r="1.55" fill="#f5d08a" opacity="0.95"/><circle cx="90.38" cy="42.88" r="1.55" fill="#f5d08a" opacity="0.95"/><circle cx="85.51" cy="70.50" r="1.55" fill="#f5d08a" opacity="0.95"/><circle cx="64.02" cy="88.53" r="1.55" fill="#f5d08a" opacity="0.95"/><circle cx="35.98" cy="88.53" r="1.55" fill="#f5d08a" opacity="0.95"/><circle cx="14.49" cy="70.50" r="1.55" fill="#f5d08a" opacity="0.95"/><circle cx="9.62" cy="42.88" r="1.55" fill="#f5d08a" opacity="0.95"/><circle cx="23.65" cy="18.59" r="1.55" fill="#f5d08a" opacity="0.95"/>
+<text x="50" y="55" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="28.00" fill="#f5d08a">9</text>
+
 </svg>

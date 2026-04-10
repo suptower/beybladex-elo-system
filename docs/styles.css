@@ -2492,11 +2492,38 @@ body.dark .wiki-card-rank.rank-bronze {
 }
 
 .achievement-icon {
-    width: 1.25em;
-    height: 1.25em;
+    width: 1.7em;
+    height: 1.7em;
     vertical-align: text-bottom;
     display: inline-block;
     object-fit: contain;
+}
+
+.level-badge-icon-inline {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    flex-shrink: 0;
+}
+
+.prestige-badge-icon-inline {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    flex-shrink: 0;
+}
+
+.level-stat-badges {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    line-height: 0;
+    min-height: 76px;
 }
 
 .wiki-card-type.attack {
@@ -3499,6 +3526,16 @@ body.dark .wiki-card-rank.rank-bronze {
     box-shadow: var(--shadow-lg), 0 0 22px rgba(160, 103, 58, 0.65);
 }
 
+.season-badge-tier4 {
+    background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+    color: #fff;
+    box-shadow: var(--shadow-md), 0 0 14px rgba(107, 114, 128, 0.45);
+}
+
+.season-badge-tier4:hover {
+    box-shadow: var(--shadow-lg), 0 0 22px rgba(107, 114, 128, 0.65);
+}
+
 .season-badge-cup {
     background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
     color: #fff;
@@ -3510,7 +3547,7 @@ body.dark .wiki-card-rank.rank-bronze {
 }
 
 .season-badge-icon {
-    font-size: 1.25rem;
+    font-size: 1.55rem;
     display: inline-flex;
     align-items: center;
     line-height: 1;
@@ -3528,7 +3565,7 @@ body.dark .wiki-card-rank.rank-bronze {
 }
 
 .season-icon {
-    font-size: 1.125rem;
+    font-size: 1.45rem;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
     cursor: default;
     transition: var(--transition);
@@ -10678,6 +10715,20 @@ html {
     
     .key-stat-value {
         font-size: 2.5rem;
+    }
+
+    .level-badge-icon-inline {
+        width: 68px;
+        height: 68px;
+    }
+
+    .prestige-badge-icon-inline {
+        width: 36px;
+        height: 36px;
+    }
+
+    .level-stat-badges {
+        min-height: 68px;
     }
     
     /* Profile header */

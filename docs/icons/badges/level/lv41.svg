@@ -1,57 +1,22 @@
-<?xml version="1.0" standalone="no"?>
-<svg width="252" height="252" viewBox="-84 -84 252 252" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <radialGradient id="bg512c0" cx="35%" cy="28%" r="72%">
-      <stop offset="0%" stop-color="#200808"/>
-      <stop offset="100%" stop-color="#100404"/>
-    </radialGradient>
-    <linearGradient id="rim512c0" x1="5%" y1="5%" x2="95%" y2="95%">
-      <stop offset="0%" stop-color="#ffb0b0"/>
-      <stop offset="50%" stop-color="#f14646"/>
-      <stop offset="100%" stop-color="#901818"/>
-    </linearGradient>
-    <!-- Transition accent ring gradient: full next-tier colour -->
-    <linearGradient id="transRing512c0" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffb0b0"/>
-      <stop offset="100%" stop-color="#f14a4a"/>
-    </linearGradient>
-    <linearGradient id="sh512c0" x1="18%" y1="0%" x2="82%" y2="100%">
-      <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
-      <stop offset="50%" stop-color="white" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="gl512c0" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="1.8" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="halo512c0" x="-150%" y="-150%" width="500%" height="500%">
-      <feGaussianBlur stdDeviation="16" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <linearGradient id="pg512c0_0" x1="5%" y1="0%" x2="95%" y2="100%">
-      <stop offset="0%" stop-color="#ffb0b0" stop-opacity="0.95"/>
-      <stop offset="38%" stop-color="#f14949" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#901818" stop-opacity="0.85"/>
-    </linearGradient>
-  </defs>
-  <!-- Glow -->
-  <path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="#f04040" fill-opacity="0.65" filter="url(#halo512c0)"/>
-  <!-- APRON: deepest decoration layer, behind everything -->
-  
-  <!-- Cross-stripes above apron, behind badge -->
-  
-  <!-- Plates above stripes, behind badge -->
-  <path d="M78.91,42.00L60.46,73.97L23.54,73.97L5.09,42.00L23.54,10.03L60.46,10.03Z" fill="url(#pg512c0_0)"/><path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="#100404"/><path d="M78.91,42.00L60.46,73.97L23.54,73.97L5.09,42.00L23.54,10.03L60.46,10.03Z" fill="none" stroke="#ffb0b0" stroke-width="0.8" stroke-opacity="0.48" stroke-linejoin="round"/><path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="none" stroke="#901818" stroke-width="0.5" stroke-opacity="0.28" stroke-linejoin="round"/>
-  
-  <!-- Main badge body covers all overlap -->
-  <path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="url(#rim512c0)"/>
-  <path d="M70.56,42.00L56.28,66.73L27.72,66.73L13.44,42.00L27.72,17.27L56.28,17.27Z" fill="#100404"/>
-  <path d="M70.56,42.00L56.28,66.73L27.72,66.73L13.44,42.00L27.72,17.27L56.28,17.27Z" fill="none" stroke="url(#rim512c0)" stroke-width="1.5959999999999999" stroke-linejoin="round"/>
-  <path d="M68.46,42.00L55.23,64.92L28.77,64.92L15.54,42.00L28.77,19.08L55.23,19.08Z" fill="url(#bg512c0)"/>
-  <path d="M68.46,42.00L55.23,64.92L28.77,64.92L15.54,42.00L28.77,19.08L55.23,19.08Z" fill="url(#sh512c0)"/>
-  <path d="M70.28,58.33L42.00,74.66L13.72,58.33L13.72,25.67L42.00,9.34L70.28,25.67Z" fill="none" stroke="#ffb0b0" stroke-width="1.1" stroke-opacity="0.27" stroke-linejoin="round"/>
-  <!-- Bold transition ring (only visible when isTransition) -->
-  <path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="none" stroke="url(#transRing512c0)" stroke-width="2.352" stroke-opacity="0.09" stroke-linejoin="round"/>
-  <!-- Inset contours on badge surface -->
-  <path d="M73.98,42.00L57.99,69.69L26.01,69.69L10.02,42.00L26.01,14.31L57.99,14.31Z" fill="none" stroke="#ffb0b0" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/>
-  <text x="42" y="42" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="25.2" fill="#ffb0b0" filter="url(#gl512c0)">41</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#ffd1d1"/>
+    <stop offset="55%" stop-color="#cf4b57"/>
+    <stop offset="100%" stop-color="#2a1014"/>
+  </linearGradient>
+  <radialGradient id="bg" cx="35%" cy="28%" r="72%">
+    <stop offset="0%" stop-color="#1f2937"/>
+    <stop offset="100%" stop-color="#030712"/>
+  </radialGradient>
+</defs>
+<path d="M 63.00 14.29 L 82.91 31.00 L 87.42 56.60 L 74.43 79.11 L 50.00 88.00 L 25.57 79.11 L 12.58 56.60 L 17.09 31.00 L 37.00 14.29 Z" fill="#dd5a67" opacity="0.28"/>
+<path d="M 63.00 14.29 L 82.91 31.00 L 87.42 56.60 L 74.43 79.11 L 50.00 88.00 L 25.57 79.11 L 12.58 56.60 L 17.09 31.00 L 37.00 14.29 Z" fill="url(#g)"/>
+<path d="M 59.92 22.75 L 75.11 35.50 L 78.56 55.04 L 68.64 72.22 L 50.00 79.00 L 31.36 72.22 L 21.44 55.04 L 24.89 35.50 L 40.08 22.75 Z" fill="url(#bg)"/>
+<path d="M 59.92 22.75 L 75.11 35.50 L 78.56 55.04 L 68.64 72.22 L 50.00 79.00 L 31.36 72.22 L 21.44 55.04 L 24.89 35.50 L 40.08 22.75 Z" fill="none" stroke="#ffd1d1" stroke-width="2.2" opacity="0.65"/>
+<circle cx="50.00" cy="9.00" r="1.55" fill="#ffd1d1" opacity="0.95"/><circle cx="74.10" cy="16.83" r="1.55" fill="#ffd1d1" opacity="0.95"/><circle cx="88.99" cy="37.33" r="1.55" fill="#ffd1d1" opacity="0.18"/><circle cx="88.99" cy="62.67" r="1.55" fill="#ffd1d1" opacity="0.18"/><circle cx="74.10" cy="83.17" r="1.55" fill="#ffd1d1" opacity="0.18"/><circle cx="50.00" cy="91.00" r="1.55" fill="#ffd1d1" opacity="0.18"/><circle cx="25.90" cy="83.17" r="1.55" fill="#ffd1d1" opacity="0.18"/><circle cx="11.01" cy="62.67" r="1.55" fill="#ffd1d1" opacity="0.18"/><circle cx="11.01" cy="37.33" r="1.55" fill="#ffd1d1" opacity="0.18"/><circle cx="25.90" cy="16.83" r="1.55" fill="#ffd1d1" opacity="0.18"/>
+<text x="50" y="55" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="22.96" fill="#ffd1d1">41</text>
+
 </svg>

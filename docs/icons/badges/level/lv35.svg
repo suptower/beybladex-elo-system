@@ -1,67 +1,22 @@
-<?xml version="1.0" standalone="no"?>
-<svg width="252" height="252" viewBox="-84 -84 252 252" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <radialGradient id="bgsbzer" cx="35%" cy="28%" r="72%">
-      <stop offset="0%" stop-color="#100820"/>
-      <stop offset="100%" stop-color="#060410"/>
-    </radialGradient>
-    <linearGradient id="rimsbzer" x1="5%" y1="5%" x2="95%" y2="95%">
-      <stop offset="0%" stop-color="#ecb4db"/>
-      <stop offset="50%" stop-color="#c575e5"/>
-      <stop offset="100%" stop-color="#6018b0"/>
-    </linearGradient>
-    <!-- Transition accent ring gradient: full next-tier colour -->
-    <linearGradient id="transRingsbzer" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f1b3d1"/>
-      <stop offset="100%" stop-color="#d282d9"/>
-    </linearGradient>
-    <linearGradient id="shsbzer" x1="18%" y1="0%" x2="82%" y2="100%">
-      <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
-      <stop offset="50%" stop-color="white" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="glsbzer" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="1.8" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <filter id="halosbzer" x="-150%" y="-150%" width="500%" height="500%">
-      <feGaussianBlur stdDeviation="11" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-    <linearGradient id="pgsbzer_0" x1="5%" y1="0%" x2="95%" y2="100%">
-      <stop offset="0%" stop-color="#e6b6ea" stop-opacity="0.95"/>
-      <stop offset="38%" stop-color="#c070ea" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#6018b0" stop-opacity="0.85"/>
-    </linearGradient><linearGradient id="pgsbzer_1" x1="5%" y1="0%" x2="95%" y2="100%">
-      <stop offset="0%" stop-color="#efb4d5" stop-opacity="0.95"/>
-      <stop offset="38%" stop-color="#cf80db" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#6018b0" stop-opacity="0.85"/>
-    </linearGradient><linearGradient id="apsbzer_0" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#edb4d9"/>
-      <stop offset="100%" stop-color="#6018b0" stop-opacity="0.65"/>
-    </linearGradient><linearGradient id="apsbzer_1" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#cb7cdf"/>
-      <stop offset="100%" stop-color="#6018b0" stop-opacity="0.65"/>
-    </linearGradient>
-  </defs>
-  <!-- Glow -->
-  <path d="M73.43,55.02L55.02,73.43L28.98,73.43L10.57,55.02L10.57,28.98L28.98,10.57L55.02,10.57L73.43,28.98Z" fill="#b060f8" fill-opacity="0.55" filter="url(#halosbzer)"/>
-  <!-- APRON: deepest decoration layer, behind everything -->
-  <path d="M55.02,73.43 L28.98,73.43 L30.92,78.87 L53.08,78.87 Z" fill="url(#apsbzer_0)" opacity="0.9"/><path d="M55.02,73.43 L28.98,73.43" fill="none" stroke="#edb4d9" stroke-width="0.9" stroke-opacity="0.52" stroke-linejoin="round"/><path d="M55.02,73.43 L28.98,73.43 L30.92,78.87 L53.08,78.87 Z" fill="none" stroke="#6018b0" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/><path d="M56.19,76.26 L27.81,76.26 L29.92,83.74 L54.08,83.74 Z" fill="url(#apsbzer_1)" opacity="0.8200000000000001"/><path d="M56.19,76.26 L27.81,76.26" fill="none" stroke="#edb4d9" stroke-width="0.9" stroke-opacity="0.42000000000000004" stroke-linejoin="round"/><path d="M56.19,76.26 L27.81,76.26 L29.92,83.74 L54.08,83.74 Z" fill="none" stroke="#6018b0" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/>
-  <!-- Cross-stripes above apron, behind badge -->
-  
-  <!-- Plates above stripes, behind badge -->
-  <path d="M76.10,56.13L56.13,76.10L27.87,76.10L7.90,56.13L7.90,27.87L27.87,7.90L56.13,7.90L76.10,27.87Z" fill="url(#pgsbzer_0)"/><path d="M73.43,55.02L55.02,73.43L28.98,73.43L10.57,55.02L10.57,28.98L28.98,10.57L55.02,10.57L73.43,28.98Z" fill="#060410"/><path d="M76.10,56.13L56.13,76.10L27.87,76.10L7.90,56.13L7.90,27.87L27.87,7.90L56.13,7.90L76.10,27.87Z" fill="none" stroke="#e6b6ea" stroke-width="0.8" stroke-opacity="0.48" stroke-linejoin="round"/><path d="M73.43,55.02L55.02,73.43L28.98,73.43L10.57,55.02L10.57,28.98L28.98,10.57L55.02,10.57L73.43,28.98Z" fill="none" stroke="#6018b0" stroke-width="0.5" stroke-opacity="0.28" stroke-linejoin="round"/><path d="M78.77,57.23L57.23,78.77L26.77,78.77L5.23,57.23L5.23,26.77L26.77,5.23L57.23,5.23L78.77,26.77Z" fill="url(#pgsbzer_1)"/><path d="M76.10,56.13L56.13,76.10L27.87,76.10L7.90,56.13L7.90,27.87L27.87,7.90L56.13,7.90L76.10,27.87Z" fill="#060410"/><path d="M78.77,57.23L57.23,78.77L26.77,78.77L5.23,57.23L5.23,26.77L26.77,5.23L57.23,5.23L78.77,26.77Z" fill="none" stroke="#efb4d5" stroke-width="0.8" stroke-opacity="0.39999999999999997" stroke-linejoin="round"/><path d="M76.10,56.13L56.13,76.10L27.87,76.10L7.90,56.13L7.90,27.87L27.87,7.90L56.13,7.90L76.10,27.87Z" fill="none" stroke="#6018b0" stroke-width="0.5" stroke-opacity="0.24000000000000002" stroke-linejoin="round"/>
-  
-  <!-- Main badge body covers all overlap -->
-  <path d="M73.43,55.02L55.02,73.43L28.98,73.43L10.57,55.02L10.57,28.98L28.98,10.57L55.02,10.57L73.43,28.98Z" fill="url(#rimsbzer)"/>
-  <path d="M68.39,52.93L52.93,68.39L31.07,68.39L15.61,52.93L15.61,31.07L31.07,15.61L52.93,15.61L68.39,31.07Z" fill="#060410"/>
-  <path d="M68.39,52.93L52.93,68.39L31.07,68.39L15.61,52.93L15.61,31.07L31.07,15.61L52.93,15.61L68.39,31.07Z" fill="none" stroke="url(#rimsbzer)" stroke-width="1.5959999999999999" stroke-linejoin="round"/>
-  <path d="M66.45,52.13L52.13,66.45L31.87,66.45L17.55,52.13L17.55,31.87L31.87,17.55L52.13,17.55L66.45,31.87Z" fill="url(#bgsbzer)"/>
-  <path d="M66.45,52.13L52.13,66.45L31.87,66.45L17.55,52.13L17.55,31.87L31.87,17.55L52.13,17.55L66.45,31.87Z" fill="url(#shsbzer)"/>
-  
-  <!-- Bold transition ring (only visible when isTransition) -->
-  <path d="M73.43,55.02L55.02,73.43L28.98,73.43L10.57,55.02L10.57,28.98L28.98,10.57L55.02,10.57L73.43,28.98Z" fill="none" stroke="url(#transRingsbzer)" stroke-width="2.352" stroke-opacity="0.45" stroke-linejoin="round"/>
-  <!-- Inset contours on badge surface -->
-  <path d="M71.54,54.24L54.24,71.54L29.76,71.54L12.46,54.24L12.46,29.76L29.76,12.46L54.24,12.46L71.54,29.76Z" fill="none" stroke="#edb4d9" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/><path d="M69.82,53.52L53.52,69.82L30.48,69.82L14.18,53.52L14.18,30.48L30.48,14.18L53.52,14.18L69.82,30.48Z" fill="none" stroke="#b060f8" stroke-width="0.63" stroke-opacity="0.3" stroke-linejoin="round"/><path d="M68.09,52.81L52.81,68.09L31.19,68.09L15.91,52.81L15.91,31.19L31.19,15.91L52.81,15.91L68.09,31.19Z" fill="none" stroke="#b060f8" stroke-width="0.54" stroke-opacity="0.24" stroke-linejoin="round"/>
-  <text x="42" y="42" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="25.2" fill="#ddb8ff" filter="url(#glsbzer)">35</text>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+
+<defs>
+  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#ead7ff"/>
+    <stop offset="55%" stop-color="#9a63d6"/>
+    <stop offset="100%" stop-color="#1a0f2c"/>
+  </linearGradient>
+  <radialGradient id="bg" cx="35%" cy="28%" r="72%">
+    <stop offset="0%" stop-color="#1f2937"/>
+    <stop offset="100%" stop-color="#030712"/>
+  </radialGradient>
+</defs>
+<path d="M 64.54 14.89 L 85.11 35.46 L 85.11 64.54 L 64.54 85.11 L 35.46 85.11 L 14.89 64.54 L 14.89 35.46 L 35.46 14.89 Z" fill="#9f67e0" opacity="0.28"/>
+<path d="M 64.54 14.89 L 85.11 35.46 L 85.11 64.54 L 64.54 85.11 L 35.46 85.11 L 14.89 64.54 L 14.89 35.46 L 35.46 14.89 Z" fill="url(#g)"/>
+<path d="M 61.10 23.21 L 76.79 38.90 L 76.79 61.10 L 61.10 76.79 L 38.90 76.79 L 23.21 61.10 L 23.21 38.90 L 38.90 23.21 Z" fill="url(#bg)"/>
+<path d="M 61.10 23.21 L 76.79 38.90 L 76.79 61.10 L 61.10 76.79 L 38.90 76.79 L 23.21 61.10 L 23.21 38.90 L 38.90 23.21 Z" fill="none" stroke="#ead7ff" stroke-width="2.2" opacity="0.65"/>
+<circle cx="50.00" cy="9.00" r="1.55" fill="#ead7ff" opacity="0.95"/><circle cx="74.10" cy="16.83" r="1.55" fill="#ead7ff" opacity="0.95"/><circle cx="88.99" cy="37.33" r="1.55" fill="#ead7ff" opacity="0.95"/><circle cx="88.99" cy="62.67" r="1.55" fill="#ead7ff" opacity="0.95"/><circle cx="74.10" cy="83.17" r="1.55" fill="#ead7ff" opacity="0.95"/><circle cx="50.00" cy="91.00" r="1.55" fill="#ead7ff" opacity="0.95"/><circle cx="25.90" cy="83.17" r="1.55" fill="#ead7ff" opacity="0.18"/><circle cx="11.01" cy="62.67" r="1.55" fill="#ead7ff" opacity="0.18"/><circle cx="11.01" cy="37.33" r="1.55" fill="#ead7ff" opacity="0.18"/><circle cx="25.90" cy="16.83" r="1.55" fill="#ead7ff" opacity="0.18"/>
+<text x="50" y="55" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="22.96" fill="#ead7ff">35</text>
+
 </svg>
