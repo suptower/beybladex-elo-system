@@ -778,12 +778,13 @@ function renderTrophies() {
 function getSeasonAchievements() {
     const achievements = [];
     const normalizedName = normalizeBeyName(beyName);
-    const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
-    const tierBadgeClasses = { '1': 'season-badge-tier1', '2': 'season-badge-tier2', '3': 'season-badge-tier3' };
+    const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
+    const tierBadgeClasses = { '1': 'season-badge-tier1', '2': 'season-badge-tier2', '3': 'season-badge-tier3', '4': 'season-badge-tier4' };
     const tierIcons = {
-        '1': '<img class="achievement-icon" src="icons/medal-gold.svg" alt="Gold Medal">',
-        '2': '<img class="achievement-icon" src="icons/medal-silver.svg" alt="Silver Medal">',
-        '3': '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Bronze Medal">'
+        '1': '<img class="achievement-icon" src="icons/badges/season/season-tier-1.svg" alt="Tier I Champion">',
+        '2': '<img class="achievement-icon" src="icons/badges/season/season-tier-2.svg" alt="Tier II Champion">',
+        '3': '<img class="achievement-icon" src="icons/badges/season/season-tier-3.svg" alt="Tier III Champion">',
+        '4': '<img class="achievement-icon" src="icons/badges/season/season-tier-4.svg" alt="Tier IV Champion">'
     };
 
     Object.entries(seasonData).forEach(([seasonId, season]) => {
@@ -797,7 +798,7 @@ function getSeasonAchievements() {
                         tier: tierId,
                         label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
                         badgeClass: tierBadgeClasses[tierId] || 'season-badge-tier3',
-                        icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Medal">'
+                        icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/badges/season/season-tier-4.svg" alt="Medal">'
                     });
                 }
             });
@@ -809,7 +810,7 @@ function getSeasonAchievements() {
                 seasonId,
                 label: `${seasonId} Season Cup Winner`,
                 badgeClass: 'season-badge-cup',
-                icon: '<img class="achievement-icon" src="icons/star.svg" alt="Season Cup">'
+                icon: '<img class="achievement-icon" src="icons/badges/tournament/season-cup.svg" alt="Season Cup">'
             });
         }
     });
@@ -863,17 +864,17 @@ function renderSeasonSection() {
 
     seasonSection.style.display = 'block';
 
-    const tierMedalFiles = { '1': 'medal-gold', '2': 'medal-silver', '3': 'medal-bronze' };
-    const tierMedalAlts  = { '1': 'Gold Medal', '2': 'Silver Medal', '3': 'Bronze Medal' };
+    const tierMedalFiles = { '1': 'badges/season/season-tier-1', '2': 'badges/season/season-tier-2', '3': 'badges/season/season-tier-3', '4': 'badges/season/season-tier-4' };
+    const tierMedalAlts  = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
 
     const tableRows = entries.map(({ seasonId, tierId, entry, isTierChampion, isCupWinner }) => {
         const tierLabel = tierLabels[tierId] || `Tier ${tierId}`;
         const posClass = entry.position === 1 ? 'trend-very-positive' : entry.position <= 3 ? 'trend-positive' : '';
-        const medalFile = tierMedalFiles[tierId] || 'medal-bronze';
+        const medalFile = tierMedalFiles[tierId] || 'badges/season/season-tier-4';
         const medalAlt  = tierMedalAlts[tierId]  || 'Medal';
         const achievementBadges = [
             isTierChampion ? `<span class="season-table-badge season-badge-tier${tierId}" title="${seasonId} ${tierLabel} Champion"><img class="achievement-icon" src="icons/${medalFile}.svg" alt="${medalAlt}"></span>` : '',
-            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner"><img class="achievement-icon" src="icons/star.svg" alt="Season Cup"></span>` : ''
+            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner"><img class="achievement-icon" src="icons/badges/tournament/season-cup.svg" alt="Season Cup"></span>` : ''
         ].filter(Boolean).join('');
         const winrate = entry.matches > 0 ? Math.round((entry.wins / entry.matches) * 100) : 0;
         const wrClass = winrate >= 60 ? 'trend-positive' : winrate < 40 ? 'trend-negative' : '';
@@ -971,12 +972,12 @@ function renderKeyStats() {
         const xpIn = xpLeaderboardData.xp_in_level || 0;
         const xpNeeded = xpLeaderboardData.xp_needed_for_level || 1;
         const pct = Math.min((xpIn / xpNeeded) * 100, 100).toFixed(1);
-        const prestigeStars = prestige > 0 ? ' ' + '⭐'.repeat(Math.min(prestige, 5)) : '';
+        const prestigeStars = prestige > 0 ? ` <img style="width:18px;height:18px;vertical-align:middle;" src="icons/badges/prestige/prestige${Math.min(prestige,5)}.svg" alt="Prestige ${prestige}" title="Prestige ${prestige}">` : '';
         const xpCard = document.createElement('div');
         xpCard.className = 'key-stat-card';
         xpCard.innerHTML = `
             <div class="key-stat-label">Level</div>
-            <div class="key-stat-value">Lv.${lvl}${escapeHtml(prestigeStars)}</div>
+            <div class="key-stat-value"><img style="width:32px;height:32px;vertical-align:middle;" src="icons/badges/level/lv${lvl}.svg" alt="Level ${lvl}">${prestigeStars}</div>
             <div class="key-stat-desc">
                 <div style="margin-bottom:4px;">${Math.round(xpIn)} / ${Math.round(xpNeeded)} XP</div>
                 <div style="background:var(--bg-light,#e0e0e0);border-radius:4px;height:6px;overflow:hidden;">

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Season Cup">
+  <defs>
+    <radialGradient id="scbg" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#A5B4FC"/>
+      <stop offset="100%" stop-color="#3730A3"/>
+    </radialGradient>
+    <linearGradient id="sccup" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E0E7FF"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <circle cx="24" cy="24" r="23" fill="#312E81"/>
+  <circle cx="24" cy="24" r="22" fill="url(#scbg)"/>
+  <circle cx="24" cy="24" r="21" fill="none" stroke="#A5B4FC" stroke-width="0.75" opacity="0.5"/>
+  <path d="M13,10 L13,17 A4,4 0 0 1 9,17 L9,13 Z" fill="#818CF8" opacity="0.9"/>
+  <path d="M35,10 L35,17 A4,4 0 0 0 39,17 L39,13 Z" fill="#818CF8" opacity="0.9"/>
+  <path d="M13,8 H35 V20 A11,11 0 0 1 13,20 Z" fill="url(#sccup)"/>
+  <rect x="21" y="20" width="6" height="7" fill="#6366F1"/>
+  <rect x="15" y="27" width="18" height="3" rx="1.5" fill="#6366F1"/>
+  <rect x="13" y="30" width="22" height="3" rx="1.5" fill="#3730A3"/>
+  <path d="M24.000,9.000 L25.469,11.977 L28.755,12.455 L26.378,14.773 L26.939,18.045 L24.000,16.500 L21.061,18.045 L21.622,14.773 L19.245,12.455 L22.531,11.977 Z" fill="#312E81" opacity="0.5"/>
+  <ellipse cx="19" cy="13" rx="3" ry="4" fill="white" opacity="0.2"/>
+  <text x="24" y="43.5" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="7" font-weight="900" fill="#E0E7FF" opacity="0.95">CUP</text>
+</svg>

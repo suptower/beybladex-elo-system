@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Level 43 Badge">
+  <defs>
+    <radialGradient id="lg_43" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#E1F5FE"/>
+      <stop offset="100%" stop-color="#0277BD"/>
+    </radialGradient>
+    <filter id="glow_43" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <circle cx="24" cy="24" r="23" fill="#0277BD"/>
+  <circle cx="24" cy="24" r="22" fill="url(#lg_43)"/>
+  <path d="M24.000,3.000 L36.021,11.979 L45.000,24.000 L36.021,36.021 L24.000,45.000 L11.979,36.021 L3.000,24.000 L11.979,11.979 Z" fill="#0277BD" opacity="0.35"/>
+  <circle cx="24" cy="24" r="18" fill="none" stroke="#039BE5" stroke-width="1.5" opacity="0.7"/>
+  <circle cx="24" cy="24" r="14" fill="none" stroke="#039BE5" stroke-width="0.75" opacity="0.4"/>
+  <circle cx="24" cy="24" r="20.5" fill="none" stroke="#E1F5FE" stroke-width="0.75" opacity="0.5"/>
+  <circle cx="24.00" cy="3.50" r="1.6" fill="#E1F5FE" opacity="0.85"/>
+  <circle cx="38.50" cy="9.50" r="1.6" fill="#E1F5FE" opacity="0.85"/>
+  <circle cx="44.50" cy="24.00" r="1.6" fill="#E1F5FE" opacity="0.85"/>
+  <circle cx="38.50" cy="38.50" r="1.6" fill="#E1F5FE" opacity="0.85"/>
+  <circle cx="24.00" cy="44.50" r="1.6" fill="#E1F5FE" opacity="0.85"/>
+  <circle cx="9.50" cy="38.50" r="1.6" fill="#E1F5FE" opacity="0.85"/>
+  <circle cx="3.50" cy="24.00" r="1.6" fill="#E1F5FE" opacity="0.85"/>
+  <circle cx="9.50" cy="9.50" r="1.6" fill="#E1F5FE" opacity="0.85"/>
+  <text x="24" y="18" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#E3F2FD" opacity="0.9">LV</text>
+  <text x="24" y="32" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="11" font-weight="900" fill="#FFFFFF" filter="url(#glow_43)">43</text>
+  <ellipse cx="18" cy="16" rx="5" ry="3" fill="white" opacity="0.12"/>
+</svg>

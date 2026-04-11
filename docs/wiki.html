@@ -240,11 +240,12 @@ async function loadAllData() {
             const seasons = allSeasonData.seasons || {};
             seasonChampionsData = {};
             const tierIcons = {
-                '1': '<img class="achievement-icon" src="icons/medal-gold.svg" alt="Gold Medal">',
-                '2': '<img class="achievement-icon" src="icons/medal-silver.svg" alt="Silver Medal">',
-                '3': '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Bronze Medal">'
+                '1': '<img class="achievement-icon" src="icons/badges/season/season-tier-1.svg" alt="Tier I Champion">',
+                '2': '<img class="achievement-icon" src="icons/badges/season/season-tier-2.svg" alt="Tier II Champion">',
+                '3': '<img class="achievement-icon" src="icons/badges/season/season-tier-3.svg" alt="Tier III Champion">',
+                '4': '<img class="achievement-icon" src="icons/badges/season/season-tier-4.svg" alt="Tier IV Champion">'
             };
-            const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
+            const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
             Object.entries(seasons).forEach(([seasonId, season]) => {
                 if (season.league_tables && season.league_champion) {
                     Object.entries(season.league_tables).forEach(([tierId, table]) => {
@@ -257,7 +258,7 @@ async function loadAllData() {
                                 tier: tierId,
                                 label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
                                 badgeClass: `season-badge-tier${tierId}`,
-                                icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Medal">'
+                                icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/badges/season/season-tier-4.svg" alt="Medal">'
                             });
                         }
                     });
@@ -270,7 +271,7 @@ async function loadAllData() {
                         seasonId,
                         label: `${seasonId} Season Cup Winner`,
                         badgeClass: 'season-badge-cup',
-                        icon: '<img class="achievement-icon" src="icons/star.svg" alt="Season Cup">'
+                        icon: '<img class="achievement-icon" src="icons/badges/tournament/season-cup.svg" alt="Season Cup">'
                     });
                 }
             });

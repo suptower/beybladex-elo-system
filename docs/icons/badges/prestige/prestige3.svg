@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Prestige 3 Badge">
+  <defs>
+    <linearGradient id="pg_3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8E24AA"/>
+      <stop offset="100%" stop-color="#5D0080"/>
+    </linearGradient>
+    <filter id="psh_3">
+      <feGaussianBlur stdDeviation="1" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="M24,4 L42,8 L44,26 C44,38 24,46 24,46 C24,46 4,38 4,26 L6,8 Z" fill="#1A0030" opacity="0.4" transform="translate(1,1.5)"/>
+  <path d="M24,4 L42,8 L44,26 C44,38 24,46 24,46 C24,46 4,38 4,26 L6,8 Z" fill="url(#pg_3)"/>
+  <path d="M24,4 L42,8 L44,26 C44,38 24,46 24,46 C24,46 4,38 4,26 L6,8 Z" fill="none" stroke="#CE93D8" stroke-width="1.5"/>
+  <path d="M24,8 L38,11 L40,26 C40,35 24,42 24,42 C24,42 8,35 8,26 L10,11 Z" fill="none" stroke="white" stroke-width="0.75" opacity="0.2"/>
+  <line x1="8" y1="26" x2="40" y2="26" stroke="#CE93D8" stroke-width="0.75" opacity="0.5"/>
+  <text x="24" y="24" text-anchor="middle" dominant-baseline="middle" font-family="Georgia,serif" font-size="12" font-weight="700" fill="#FFD700" filter="url(#psh_3)">III</text>
+  <path d="M16.500,33.500 L17.364,35.811 L19.829,35.918 L17.898,37.454 L18.557,39.832 L16.500,38.470 L14.443,39.832 L15.102,37.454 L13.171,35.918 L15.636,35.811 Z" fill="#FFD700"/>
+  <path d="M24.000,33.500 L24.864,35.811 L27.329,35.918 L25.398,37.454 L26.057,39.832 L24.000,38.470 L21.943,39.832 L22.602,37.454 L20.671,35.918 L23.136,35.811 Z" fill="#FFD700"/>
+  <path d="M31.500,33.500 L32.364,35.811 L34.829,35.918 L32.898,37.454 L33.557,39.832 L31.500,38.470 L29.443,39.832 L30.102,37.454 L28.171,35.918 L30.636,35.811 Z" fill="#FFD700"/>
+  <ellipse cx="18" cy="14" rx="4" ry="2.5" fill="white" opacity="0.12"/>
+</svg>

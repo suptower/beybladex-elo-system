@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Prestige 2 Badge">
+  <defs>
+    <linearGradient id="pg_2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7B1FA2"/>
+      <stop offset="100%" stop-color="#4A0072"/>
+    </linearGradient>
+    <filter id="psh_2">
+      <feGaussianBlur stdDeviation="1" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="M24,4 L42,8 L44,26 C44,38 24,46 24,46 C24,46 4,38 4,26 L6,8 Z" fill="#1A0030" opacity="0.4" transform="translate(1,1.5)"/>
+  <path d="M24,4 L42,8 L44,26 C44,38 24,46 24,46 C24,46 4,38 4,26 L6,8 Z" fill="url(#pg_2)"/>
+  <path d="M24,4 L42,8 L44,26 C44,38 24,46 24,46 C24,46 4,38 4,26 L6,8 Z" fill="none" stroke="#AB47BC" stroke-width="1.5"/>
+  <path d="M24,8 L38,11 L40,26 C40,35 24,42 24,42 C24,42 8,35 8,26 L10,11 Z" fill="none" stroke="white" stroke-width="0.75" opacity="0.2"/>
+  <line x1="8" y1="26" x2="40" y2="26" stroke="#AB47BC" stroke-width="0.75" opacity="0.5"/>
+  <text x="24" y="24" text-anchor="middle" dominant-baseline="middle" font-family="Georgia,serif" font-size="12" font-weight="700" fill="#FFD700" filter="url(#psh_2)">II</text>
+  <path d="M20.250,33.500 L21.114,35.811 L23.579,35.918 L21.648,37.454 L22.307,39.832 L20.250,38.470 L18.193,39.832 L18.852,37.454 L16.921,35.918 L19.386,35.811 Z" fill="#FFD700"/>
+  <path d="M27.750,33.500 L28.614,35.811 L31.079,35.918 L29.148,37.454 L29.807,39.832 L27.750,38.470 L25.693,39.832 L26.352,37.454 L24.421,35.918 L26.886,35.811 Z" fill="#FFD700"/>
+  <ellipse cx="18" cy="14" rx="4" ry="2.5" fill="white" opacity="0.12"/>
+</svg>

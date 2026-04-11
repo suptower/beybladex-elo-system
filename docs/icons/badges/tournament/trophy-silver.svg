@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="2nd Place Trophy">
+  <defs>
+    <radialGradient id="trg_silver" cx="40%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#ECEFF1"/>
+      <stop offset="100%" stop-color="#546E7A"/>
+    </radialGradient>
+    <linearGradient id="cg_silver" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ECEFF1"/>
+      <stop offset="100%" stop-color="#78909C"/>
+    </linearGradient>
+  </defs>
+  <circle cx="24" cy="24" r="23" fill="#546E7A"/>
+  <circle cx="24" cy="24" r="22" fill="url(#trg_silver)"/>
+  <circle cx="24" cy="24" r="21" fill="none" stroke="#ECEFF1" stroke-width="0.75" opacity="0.5"/>
+  <path d="M13,10 L13,17 A4,4 0 0 1 9,17 L9,13 Z" fill="#B0BEC5" opacity="0.9"/>
+  <path d="M35,10 L35,17 A4,4 0 0 0 39,17 L39,13 Z" fill="#B0BEC5" opacity="0.9"/>
+  <path d="M13,8 H35 V20 A11,11 0 0 1 13,20 Z" fill="url(#cg_silver)"/>
+  <rect x="21" y="20" width="6" height="7" fill="#78909C"/>
+  <rect x="15" y="27" width="18" height="3" rx="1.5" fill="#78909C"/>
+  <rect x="13" y="30" width="22" height="3" rx="1.5" fill="#546E7A"/>
+  <path d="M24.000,9.000 L25.469,11.977 L28.755,12.455 L26.378,14.773 L26.939,18.045 L24.000,16.500 L21.061,18.045 L21.622,14.773 L19.245,12.455 L22.531,11.977 Z" fill="#546E7A" opacity="0.5"/>
+  <ellipse cx="19" cy="13" rx="3" ry="4" fill="white" opacity="0.18"/>
+  <text x="24" y="43.5" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="7" font-weight="900" fill="#ECEFF1" opacity="0.95">2nd</text>
+</svg>
