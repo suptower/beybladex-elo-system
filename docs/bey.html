@@ -880,7 +880,7 @@ function renderSeasonSection() {
 
         return `
             <tr>
-                <td><a href="season.html?season=${encodeURIComponent(seasonId)}" class="season-link">${escapeHtml(seasonId)}</a></td>
+                <td><a href="season.html?id=${encodeURIComponent(seasonId)}" class="season-link">${escapeHtml(seasonId)}</a></td>
                 <td>${escapeHtml(tierLabel)}</td>
                 <td class="${posClass}">#${entry.position} ${achievementBadges}</td>
                 <td>${entry.matches}</td>
