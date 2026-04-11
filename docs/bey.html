@@ -972,12 +972,12 @@ function renderKeyStats() {
         const xpIn = xpLeaderboardData.xp_in_level || 0;
         const xpNeeded = xpLeaderboardData.xp_needed_for_level || 1;
         const pct = Math.min((xpIn / xpNeeded) * 100, 100).toFixed(1);
-        const prestigeStars = prestige > 0 ? ` <img style="width:18px;height:18px;vertical-align:middle;" src="icons/badges/prestige/prestige${Math.min(prestige,5)}.svg" alt="Prestige ${prestige}" title="Prestige ${prestige}">` : '';
+        const prestigeStars = prestige > 0 ? ` <img style="width:30px;height:30px;vertical-align:middle;" src="icons/badges/prestige/prestige${Math.min(prestige,5)}.svg" alt="Prestige ${prestige}" title="Prestige ${prestige}">` : '';
         const xpCard = document.createElement('div');
         xpCard.className = 'key-stat-card';
         xpCard.innerHTML = `
             <div class="key-stat-label">Level</div>
-            <div class="key-stat-value"><img style="width:32px;height:32px;vertical-align:middle;" src="icons/badges/level/lv${lvl}.svg" alt="Level ${lvl}">${prestigeStars}</div>
+            <div class="key-stat-value"><img style="width:56px;height:56px;vertical-align:middle;" src="icons/badges/level/lv${lvl}.svg" alt="Level ${lvl}">${prestigeStars}</div>
             <div class="key-stat-desc">
                 <div style="margin-bottom:4px;">${Math.round(xpIn)} / ${Math.round(xpNeeded)} XP</div>
                 <div style="background:var(--bg-light,#e0e0e0);border-radius:4px;height:6px;overflow:hidden;">

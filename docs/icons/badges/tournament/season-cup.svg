@@ -22,8 +22,8 @@
     <feGaussianBlur stdDeviation="1.8" result="b"/>
     <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
   </filter>
-  <filter id="haloscup" x="-100%" y="-100%" width="400%" height="400%">
-    <feGaussianBlur stdDeviation="13.20" result="b"/>
+  <filter id="haloscup" x="-80%" y="-80%" width="360%" height="360%">
+    <feGaussianBlur stdDeviation="11.0" result="b"/>
     <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
   </filter>
 </defs>
