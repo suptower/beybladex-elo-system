@@ -44,8 +44,9 @@ async function loadGlobalEloData() {
  */
 async function loadSeasons() {
     try {
-        const [seasonResponse] = await Promise.all([
+        const [seasonResponse, seasonsMetaResponse] = await Promise.all([
             fetch(DATA_PATHS.SEASON_DATA_JSON),
+            fetch(DATA_PATHS.SEASONS_JSON),
             loadGlobalEloData()
         ]);
         if (!seasonResponse.ok) {
@@ -54,7 +55,22 @@ async function loadSeasons() {
         
         const data = await seasonResponse.json();
         const seasons = data.seasons || {};
-        
+
+        // seasons.json is the authoritative source for status/start_date/end_date.
+        // Override those fields so the UI stays accurate even when season_data.json
+        // was generated before a status change (e.g. upcoming → active).
+        if (seasonsMetaResponse.ok) {
+            const seasonsMeta = await seasonsMetaResponse.json();
+            for (const [seasonId, season] of Object.entries(seasons)) {
+                const meta = seasonsMeta[seasonId];
+                if (meta) {
+                    season.status = meta.status;
+                    season.start_date = meta.start_date;
+                    if (meta.end_date !== undefined) season.end_date = meta.end_date;
+                }
+            }
+        }
+
         displaySeasons(seasons);
     } catch (error) {
         console.error('Error loading seasons:', error);

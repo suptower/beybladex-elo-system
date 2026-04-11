@@ -366,7 +366,7 @@ function renderBeys() {
         const powerIndex = leaderboardEntry ? leaderboardEntry.PowerIndex : null;
         
         // Get tournament wins
-        const trophies = tournamentsData[normalizedBlade] || [];
+        const trophies = (tournamentsData[normalizedBlade] || []).filter(t => !t.season_cup);
         
         // Generate rank badge HTML with color classes for top 3
         let rankClass = '';
