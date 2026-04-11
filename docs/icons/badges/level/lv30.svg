@@ -1,27 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Level 30 Badge">
-  <defs>
-    <radialGradient id="lg_30" cx="40%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#FFF3A0"/>
-      <stop offset="100%" stop-color="#92700A"/>
-    </radialGradient>
-    <filter id="glow_30" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="1.5" result="blur"/>
-      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-  <circle cx="24" cy="24" r="23" fill="#92700A"/>
-  <circle cx="24" cy="24" r="22" fill="url(#lg_30)"/>
-  <path d="M24.000,3.000 L38.722,15.500 L42.187,34.500 L24.000,41.000 L5.813,34.500 L9.278,15.500 Z" fill="#92700A" opacity="0.35"/>
-  <circle cx="24" cy="24" r="18" fill="none" stroke="#B8860B" stroke-width="1.5" opacity="0.7"/>
-  <circle cx="24" cy="24" r="14" fill="none" stroke="#B8860B" stroke-width="0.75" opacity="0.4"/>
-  <circle cx="24" cy="24" r="20.5" fill="none" stroke="#FFF3A0" stroke-width="0.75" opacity="0.5"/>
-  <circle cx="24.00" cy="3.50" r="1.6" fill="#FFF3A0" opacity="0.85"/>
-  <circle cx="41.75" cy="13.75" r="1.6" fill="#FFF3A0" opacity="0.85"/>
-  <circle cx="41.75" cy="34.25" r="1.6" fill="#FFF3A0" opacity="0.85"/>
-  <circle cx="24.00" cy="44.50" r="1.6" fill="#FFF3A0" opacity="0.85"/>
-  <circle cx="6.25" cy="34.25" r="1.6" fill="#FFF3A0" opacity="0.85"/>
-  <circle cx="6.25" cy="13.75" r="1.6" fill="#FFF3A0" opacity="0.85"/>
-  <text x="24" y="18" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#FFF8DC" opacity="0.9">LV</text>
-  <text x="24" y="32" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="11" font-weight="900" fill="#FFFFFF" filter="url(#glow_30)">30</text>
-  <ellipse cx="18" cy="16" rx="5" ry="3" fill="white" opacity="0.12"/>
+<svg width="84" height="84" viewBox="-96.60 -96.60 277.20 277.20" overflow="visible" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Level 30 Badge">
+<defs>
+  <radialGradient id="bglv30" cx="35%" cy="28%" r="72%">
+    <stop offset="0%" stop-color="#050d14"/>
+    <stop offset="100%" stop-color="#020507"/>
+  </radialGradient>
+  <linearGradient id="rimlv30" x1="5%" y1="5%" x2="95%" y2="95%">
+    <stop offset="0%" stop-color="#98c8e8"/>
+    <stop offset="50%" stop-color="#4898c8"/>
+    <stop offset="100%" stop-color="#164060"/>
+  </linearGradient>
+  <linearGradient id="transRinglv30" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#98c8e8"/>
+    <stop offset="100%" stop-color="#4898c8"/>
+  </linearGradient>
+  <linearGradient id="shlv30" x1="18%" y1="0%" x2="82%" y2="100%">
+    <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
+    <stop offset="50%" stop-color="white" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="gllv30" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="halolv30" x="-150%" y="-150%" width="500%" height="500%">
+    <feGaussianBlur stdDeviation="10" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <linearGradient id="arclv30" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#98c8e8" stop-opacity="0.95"/><stop offset="60%" stop-color="#4898c8" stop-opacity="0.80"/><stop offset="100%" stop-color="#164060" stop-opacity="0.50"/></linearGradient><filter id="arcGlowlv30" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.0" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="arBlurlv30" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><radialGradient id="orblv30" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#98c8e8" stop-opacity="0.22"/><stop offset="100%" stop-color="#98c8e8" stop-opacity="0"/></radialGradient>
+</defs>
+<path d="M73.43,55.02L55.02,73.43L28.98,73.43L10.57,55.02L10.57,28.98L28.98,10.57L55.02,10.57L73.43,28.98Z" fill="#3080b8" fill-opacity="0.42" filter="url(#halolv30)"/>
+
+
+<path d="M57.36,79.09 A40.14,40.14 0 0,1 44.21,82.08" fill="none" stroke="#98c8e8" stroke-width="4.8" stroke-opacity="0.18" stroke-linecap="round" filter="url(#arcGlowlv30)"/><path d="M57.36,79.09 A40.14,40.14 0 0,1 44.21,82.08" fill="none" stroke="url(#arclv30)" stroke-width="2.8" stroke-opacity="0.75" stroke-linecap="round"/><path d="M57.36,79.09 A40.14,40.14 0 0,1 44.21,82.08" fill="none" stroke="#98c8e8" stroke-width="0.8" stroke-opacity="0.40" stroke-linecap="round"/><path d="M42.00,82.14 A40.14,40.14 0 0,1 28.70,79.88" fill="none" stroke="#98c8e8" stroke-width="4.8" stroke-opacity="0.18" stroke-linecap="round" filter="url(#arcGlowlv30)"/><path d="M42.00,82.14 A40.14,40.14 0 0,1 28.70,79.88" fill="none" stroke="url(#arclv30)" stroke-width="2.8" stroke-opacity="0.75" stroke-linecap="round"/><path d="M42.00,82.14 A40.14,40.14 0 0,1 28.70,79.88" fill="none" stroke="#98c8e8" stroke-width="0.8" stroke-opacity="0.40" stroke-linecap="round"/><circle cx="57.36" cy="79.09" r="1.54" fill="#98c8e8" opacity="0.65"/><circle cx="26.64" cy="79.09" r="1.54" fill="#98c8e8" opacity="0.65"/>
+
+
+
+<path d="M73.43,55.02L55.02,73.43L28.98,73.43L10.57,55.02L10.57,28.98L28.98,10.57L55.02,10.57L73.43,28.98Z" fill="url(#rimlv30)"/>
+<path d="M68.39,52.93L52.93,68.39L31.07,68.39L15.61,52.93L15.61,31.07L31.07,15.61L52.93,15.61L68.39,31.07Z" fill="#020507"/>
+<path d="M68.39,52.93L52.93,68.39L31.07,68.39L15.61,52.93L15.61,31.07L31.07,15.61L52.93,15.61L68.39,31.07Z" fill="none" stroke="url(#rimlv30)" stroke-width="1.60" stroke-linejoin="round"/>
+<path d="M66.45,52.13L52.13,66.45L31.87,66.45L17.55,52.13L17.55,31.87L31.87,17.55L52.13,17.55L66.45,31.87Z" fill="url(#bglv30)"/>
+<path d="M66.45,52.13L52.13,66.45L31.87,66.45L17.55,52.13L17.55,31.87L31.87,17.55L52.13,17.55L66.45,31.87Z" fill="url(#shlv30)"/>
+<path d="M75.32,55.80L55.80,75.32L28.20,75.32L8.68,55.80L8.68,28.20L28.20,8.68L55.80,8.68L75.32,28.20Z" fill="none" stroke="#98c8e8" stroke-width="1.2" stroke-opacity="0.22" filter="url(#arBlurlv30)" stroke-linejoin="round"/><path d="M75.32,55.80L55.80,75.32L28.20,75.32L8.68,55.80L8.68,28.20L28.20,8.68L55.80,8.68L75.32,28.20Z" fill="none" stroke="#98c8e8" stroke-width="0.45" stroke-opacity="0.18" stroke-linejoin="round"/>
+<path d="M45.53,39.96L45.53,44.04L42.00,46.07L38.47,44.04L38.47,39.96L42.00,37.93Z" fill="none" stroke="#98c8e8" stroke-width="0.38" stroke-opacity="0.12"/><path d="M55.60,39.96L55.60,44.04L52.07,46.07L48.54,44.04L48.54,39.96L52.07,37.93Z" fill="none" stroke="#98c8e8" stroke-width="0.38" stroke-opacity="0.12"/><path d="M40.46,48.69L40.46,52.77L36.94,54.81L33.41,52.77L33.41,48.69L36.94,46.66Z" fill="none" stroke="#98c8e8" stroke-width="0.38" stroke-opacity="0.12"/><path d="M50.59,48.69L50.59,52.77L47.06,54.81L43.54,52.77L43.54,48.69L47.06,46.66Z" fill="none" stroke="#98c8e8" stroke-width="0.38" stroke-opacity="0.12"/><path d="M50.59,31.23L50.59,35.31L47.06,37.34L43.54,35.31L43.54,31.23L47.06,29.19Z" fill="none" stroke="#98c8e8" stroke-width="0.38" stroke-opacity="0.12"/><path d="M40.46,31.23L40.46,35.31L36.94,37.34L33.41,35.31L33.41,31.23L36.94,29.19Z" fill="none" stroke="#98c8e8" stroke-width="0.38" stroke-opacity="0.12"/>
+<circle cx="42.00" cy="42.00" r="14.55" fill="url(#orblv30)"/>
+<path d="M72.62,42.00L63.65,63.65L42.00,72.62L20.35,63.65L11.38,42.00L20.35,20.35L42.00,11.38L63.65,20.35Z" fill="none" stroke="#98c8e8" stroke-width="0.92" stroke-opacity="0.15" stroke-linejoin="round"/>
+
+<path d="M69.97,53.59L53.59,69.97L30.41,69.97L14.03,53.59L14.03,30.41L30.41,14.03L53.59,14.03L69.97,30.41Z" fill="none" stroke="#98c8e8" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/>
+<text x="42.0" y="42.0" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="25.2" fill="#98c8e8" filter="url(#gllv30)">30</text>
 </svg>

@@ -1,24 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Season Cup">
-  <defs>
-    <radialGradient id="scbg" cx="40%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#A5B4FC"/>
-      <stop offset="100%" stop-color="#3730A3"/>
-    </radialGradient>
-    <linearGradient id="sccup" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#E0E7FF"/>
-      <stop offset="100%" stop-color="#6366F1"/>
-    </linearGradient>
-  </defs>
-  <circle cx="24" cy="24" r="23" fill="#312E81"/>
-  <circle cx="24" cy="24" r="22" fill="url(#scbg)"/>
-  <circle cx="24" cy="24" r="21" fill="none" stroke="#A5B4FC" stroke-width="0.75" opacity="0.5"/>
-  <path d="M13,10 L13,17 A4,4 0 0 1 9,17 L9,13 Z" fill="#818CF8" opacity="0.9"/>
-  <path d="M35,10 L35,17 A4,4 0 0 0 39,17 L39,13 Z" fill="#818CF8" opacity="0.9"/>
-  <path d="M13,8 H35 V20 A11,11 0 0 1 13,20 Z" fill="url(#sccup)"/>
-  <rect x="21" y="20" width="6" height="7" fill="#6366F1"/>
-  <rect x="15" y="27" width="18" height="3" rx="1.5" fill="#6366F1"/>
-  <rect x="13" y="30" width="22" height="3" rx="1.5" fill="#3730A3"/>
-  <path d="M24.000,9.000 L25.469,11.977 L28.755,12.455 L26.378,14.773 L26.939,18.045 L24.000,16.500 L21.061,18.045 L21.622,14.773 L19.245,12.455 L22.531,11.977 Z" fill="#312E81" opacity="0.5"/>
-  <ellipse cx="19" cy="13" rx="3" ry="4" fill="white" opacity="0.2"/>
-  <text x="24" y="43.5" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="7" font-weight="900" fill="#E0E7FF" opacity="0.95">CUP</text>
+<svg width="110" height="121" viewBox="0 0 110 114.4" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Season Cup">
+<defs>
+  <linearGradient id="gAscup" x1="10%" y1="0%" x2="90%" y2="100%">
+    <stop offset="0%" stop-color="#e9d5ff"/>
+    <stop offset="35%" stop-color="#a855f7"/>
+    <stop offset="75%" stop-color="#7e22ce"/>
+    <stop offset="100%" stop-color="#3b0764"/>
+  </linearGradient>
+  <linearGradient id="gBscup"><stop offset="0%" stop-color="#f3e8ff"/><stop offset="100%" stop-color="#a855f7"/></linearGradient>
+  <linearGradient id="gCscup" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#7e22ce"/><stop offset="100%" stop-color="#2e1065"/></linearGradient>
+  <linearGradient id="purpscup" x1="5%" y1="5%" x2="95%" y2="95%">
+    <stop offset="0%" stop-color="#e9d5ff"/>
+    <stop offset="35%" stop-color="#a855f7"/>
+    <stop offset="100%" stop-color="#4c1d95"/>
+  </linearGradient>
+  <linearGradient id="basescup" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#3b0764"/>
+    <stop offset="50%" stop-color="#a855f7"/>
+    <stop offset="100%" stop-color="#3b0764"/>
+  </linearGradient>
+  <filter id="glscup" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="haloscup" x="-100%" y="-100%" width="400%" height="400%">
+    <feGaussianBlur stdDeviation="13.20" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+<path d="M55.0,22.000000000000004 L72.424,41.844 L76.78,53.944 L55.0,70.4 L33.22,53.944 L37.576,41.844 Z" fill="#a855f7" fill-opacity="0.55" filter="url(#haloscup)"/>
+<path d="M55.0,22.000000000000004 L72.424,41.844 L76.78,53.944 L55.0,70.4 L33.22,53.944 L37.576,41.844 Z" fill="url(#gAscup)"/>
+<path d="M55.0,22.000000000000004 L37.576,41.844 L55.0,48.136 Z"  fill="url(#gBscup)" opacity=".72"/>
+<path d="M55.0,22.000000000000004 L72.424,41.844 L55.0,48.136 Z"  fill="url(#gBscup)" opacity=".45"/>
+<path d="M33.22,53.944 L55.0,70.4 L55.0,48.136 Z" fill="url(#gCscup)" opacity=".80"/>
+<path d="M76.78,53.944 L55.0,70.4 L55.0,48.136 Z" fill="url(#gCscup)" opacity=".65"/>
+<path d="M33.22,53.944 L76.78,53.944 L55.0,48.136 Z" fill="#4c1d95" opacity=".70"/>
+<path d="M55.0,22.000000000000004 L72.424,41.844 L76.78,53.944 L55.0,70.4 L33.22,53.944 L37.576,41.844 Z" fill="none" stroke="#e9d5ff" stroke-width=".9" stroke-opacity=".55"/>
+<line x1="55.0" y1="22.000000000000004" x2="55.0" y2="48.136" stroke="#e9d5ff" stroke-width=".6" stroke-opacity=".4"/>
+<line x1="55.0" y1="48.136" x2="33.22" y2="53.944" stroke="#e9d5ff" stroke-width=".5" stroke-opacity=".28"/>
+<line x1="55.0" y1="48.136" x2="76.78" y2="53.944" stroke="#e9d5ff" stroke-width=".5" stroke-opacity=".28"/>
+<path d="M47.74,29.260000000000005 L56.936,25.872000000000003 L55.726,36.036 Z" fill="white" opacity=".35"/>
+<text x="55.00" y="57.09" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="14.3" fill="#f3e8ff" filter="url(#glscup)">I</text>
+<path d="M50.6,70.4 C48.4,77.55000000000001 52.36,77.55000000000001 51.7,84.7 L58.3,84.7 C57.64,77.55000000000001 61.6,77.55000000000001 59.4,70.4 Z" fill="url(#purpscup)"/>
+<ellipse cx="55.0" cy="77.55000000000001" rx="5.72" ry="3.9599999999999995" fill="url(#purpscup)"/>
+<ellipse cx="55.0" cy="77.55000000000001" rx="5.72" ry="3.9599999999999995" fill="none" stroke="#e9d5ff" stroke-width=".65" stroke-opacity=".45"/>
+<path d="M26.4,84.7 L24.199999999999996,91.85000000000001 L85.80000000000001,91.85000000000001 L83.6,84.7 Z" fill="url(#purpscup)"/>
+<rect x="30.8" y="91.85000000000001" width="48.4" height="6.82" rx="1.32" fill="url(#basescup)"/>
 </svg>

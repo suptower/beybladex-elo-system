@@ -1,24 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="1st Place Trophy">
-  <defs>
-    <radialGradient id="trg_gold" cx="40%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#FFF3A0"/>
-      <stop offset="100%" stop-color="#92700A"/>
-    </radialGradient>
-    <linearGradient id="cg_gold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#FFF3A0"/>
-      <stop offset="100%" stop-color="#B8860B"/>
-    </linearGradient>
-  </defs>
-  <circle cx="24" cy="24" r="23" fill="#92700A"/>
-  <circle cx="24" cy="24" r="22" fill="url(#trg_gold)"/>
-  <circle cx="24" cy="24" r="21" fill="none" stroke="#FFF3A0" stroke-width="0.75" opacity="0.5"/>
-  <path d="M13,10 L13,17 A4,4 0 0 1 9,17 L9,13 Z" fill="#D4AF37" opacity="0.9"/>
-  <path d="M35,10 L35,17 A4,4 0 0 0 39,17 L39,13 Z" fill="#D4AF37" opacity="0.9"/>
-  <path d="M13,8 H35 V20 A11,11 0 0 1 13,20 Z" fill="url(#cg_gold)"/>
-  <rect x="21" y="20" width="6" height="7" fill="#B8860B"/>
-  <rect x="15" y="27" width="18" height="3" rx="1.5" fill="#B8860B"/>
-  <rect x="13" y="30" width="22" height="3" rx="1.5" fill="#92700A"/>
-  <path d="M24.000,9.000 L25.469,11.977 L28.755,12.455 L26.378,14.773 L26.939,18.045 L24.000,16.500 L21.061,18.045 L21.622,14.773 L19.245,12.455 L22.531,11.977 Z" fill="#92700A" opacity="0.5"/>
-  <ellipse cx="19" cy="13" rx="3" ry="4" fill="white" opacity="0.18"/>
-  <text x="24" y="43.5" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="7" font-weight="900" fill="#FFF3A0" opacity="0.95">1st</text>
+<svg width="110" height="121" viewBox="0 0 110 114.4" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trophy Gold">
+<defs>
+  <linearGradient id="gAtroph_gold" x1="10%" y1="0%" x2="90%" y2="100%"><stop offset="0%" stop-color="#fde68a"/><stop offset="45%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#b45309"/></linearGradient>
+  <linearGradient id="gBtroph_gold"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>
+  <linearGradient id="gCtroph_gold" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#92400e"/></linearGradient>
+  <linearGradient id="goldtroph_gold" x1="5%" y1="5%" x2="95%" y2="95%"><stop offset="0%" stop-color="#fde68a"/><stop offset="40%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#92400e"/></linearGradient>
+  <linearGradient id="basetroph_gold" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#92400e"/><stop offset="50%" stop-color="#fde68a"/><stop offset="100%" stop-color="#92400e"/></linearGradient>
+  <filter id="halotroph_gold" x="-100%" y="-100%" width="400%" height="400%">
+    <feGaussianBlur stdDeviation="12.10" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+<path d="M55.0,19.8 L72.424,39.644 L76.78,51.744 L55.0,68.2 L33.22,51.744 L37.576,39.644 Z" fill="#f59e0b88" filter="url(#halotroph_gold)"/>
+<path d="M55.0,19.8 L72.424,39.644 L76.78,51.744 L55.0,68.2 L33.22,51.744 L37.576,39.644 Z" fill="url(#gAtroph_gold)"/>
+<path d="M55.0,19.8 L37.576,39.644 L55.0,45.936 Z"  fill="url(#gBtroph_gold)" opacity=".72"/>
+<path d="M55.0,19.8 L72.424,39.644 L55.0,45.936 Z"  fill="url(#gBtroph_gold)" opacity=".52"/>
+<path d="M33.22,51.744 L55.0,68.2 L55.0,45.936 Z" fill="url(#gCtroph_gold)" opacity=".78"/>
+<path d="M76.78,51.744 L55.0,68.2 L55.0,45.936 Z" fill="url(#gCtroph_gold)" opacity=".62"/>
+<path d="M33.22,51.744 L76.78,51.744 L55.0,45.936 Z" fill="#f59e0b" opacity=".68"/>
+<path d="M55.0,19.8 L72.424,39.644 L76.78,51.744 L55.0,68.2 L33.22,51.744 L37.576,39.644 Z" fill="none" stroke="#fde68a" stroke-width=".85" stroke-opacity=".55"/>
+<line x1="55.0" y1="19.8" x2="55.0" y2="45.936" stroke="#fde68a" stroke-width=".55" stroke-opacity=".38"/>
+<line x1="55.0" y1="45.936" x2="33.22" y2="51.744" stroke="#fde68a" stroke-width=".55" stroke-opacity=".28"/>
+<line x1="55.0" y1="45.936" x2="76.78" y2="51.744" stroke="#fde68a" stroke-width=".55" stroke-opacity=".28"/>
+<path d="M47.256,26.576 L57.178,23.188000000000002 L55.968,33.352000000000004 Z" fill="white" opacity=".32"/>
+<path d="M50.6,68.2 C48.4,75.35000000000001 52.36,75.35000000000001 51.7,82.5 L58.3,82.5 C57.64,75.35000000000001 61.6,75.35000000000001 59.4,68.2 Z" fill="url(#goldtroph_gold)"/>
+<ellipse cx="55.0" cy="75.35000000000001" rx="5.72" ry="3.9599999999999995" fill="url(#goldtroph_gold)"/>
+<ellipse cx="55.0" cy="75.35000000000001" rx="5.72" ry="3.9599999999999995" fill="none" stroke="#fde68a" stroke-width=".65" stroke-opacity=".45"/>
+<path d="M27.5,82.5 L25.299999999999997,89.32 L84.7,89.32 L82.5,82.5 Z" fill="url(#goldtroph_gold)"/>
+<rect x="31.900000000000002" y="89.32" width="46.199999999999996" height="6.6" rx="1.32" fill="url(#basetroph_gold)"/>
 </svg>

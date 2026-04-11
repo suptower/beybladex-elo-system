@@ -1,17 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Level 11 Badge">
-  <defs>
-    <radialGradient id="lg_11" cx="40%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#F4C27A"/>
-      <stop offset="100%" stop-color="#7B3F00"/>
-    </radialGradient>
-  </defs>
-  <circle cx="24" cy="24" r="23" fill="#7B3F00"/>
-  <circle cx="24" cy="24" r="22" fill="url(#lg_11)"/>
-  <circle cx="24" cy="24" r="18" fill="none" stroke="#A0522D" stroke-width="1.5" opacity="0.7"/>
-  <circle cx="24" cy="24" r="14" fill="none" stroke="#A0522D" stroke-width="0.75" opacity="0.4"/>
-  <circle cx="24.00" cy="3.50" r="1.6" fill="#F4C27A" opacity="0.85"/>
-  <circle cx="24.00" cy="44.50" r="1.6" fill="#F4C27A" opacity="0.85"/>
-  <text x="24" y="18" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#FDE68A" opacity="0.9">LV</text>
-  <text x="24" y="32" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="11" font-weight="900" fill="#FFF3CD">11</text>
-  <ellipse cx="18" cy="16" rx="5" ry="3" fill="white" opacity="0.12"/>
+<svg width="84" height="84" viewBox="-96.60 -96.60 277.20 277.20" overflow="visible" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Level 11 Badge">
+<defs>
+  <radialGradient id="bglv11" cx="35%" cy="28%" r="72%">
+    <stop offset="0%" stop-color="#0c1014"/>
+    <stop offset="100%" stop-color="#060809"/>
+  </radialGradient>
+  <linearGradient id="rimlv11" x1="5%" y1="5%" x2="95%" y2="95%">
+    <stop offset="0%" stop-color="#ccd7da"/>
+    <stop offset="50%" stop-color="#8fa0a9"/>
+    <stop offset="100%" stop-color="#3a4858"/>
+  </linearGradient>
+  <linearGradient id="transRinglv11" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#cdd6d6"/>
+    <stop offset="100%" stop-color="#93a2a6"/>
+  </linearGradient>
+  <linearGradient id="shlv11" x1="18%" y1="0%" x2="82%" y2="100%">
+    <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
+    <stop offset="50%" stop-color="white" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="gllv11" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="halolv11" x="-150%" y="-150%" width="500%" height="500%">
+    <feGaussianBlur stdDeviation="7" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  
+</defs>
+<path d="M71.46,24.99L71.46,59.01L42.00,76.02L12.54,59.01L12.54,24.99L42.00,7.98Z" fill="#8a9eae" fill-opacity="0.30" filter="url(#halolv11)"/>
+
+
+
+
+
+
+<path d="M71.46,24.99L71.46,59.01L42.00,76.02L12.54,59.01L12.54,24.99L42.00,7.98Z" fill="url(#rimlv11)"/>
+<path d="M66.73,27.72L66.73,56.28L42.00,70.56L17.27,56.28L17.27,27.72L42.00,13.44Z" fill="#060809"/>
+<path d="M66.73,27.72L66.73,56.28L42.00,70.56L17.27,56.28L17.27,27.72L42.00,13.44Z" fill="none" stroke="url(#rimlv11)" stroke-width="1.60" stroke-linejoin="round"/>
+<path d="M64.92,28.77L64.92,55.23L42.00,68.46L19.08,55.23L19.08,28.77L42.00,15.54Z" fill="url(#bglv11)"/>
+<path d="M64.92,28.77L64.92,55.23L42.00,68.46L19.08,55.23L19.08,28.77L42.00,15.54Z" fill="url(#shlv11)"/>
+
+<line x1="42.00" y1="42.00" x2="65.81" y2="42.00" stroke="#c8d8e8" stroke-width="0.4" stroke-opacity="0.12"/><line x1="42.00" y1="42.00" x2="53.91" y2="62.62" stroke="#c8d8e8" stroke-width="0.4" stroke-opacity="0.12"/><line x1="42.00" y1="42.00" x2="30.09" y2="62.62" stroke="#c8d8e8" stroke-width="0.4" stroke-opacity="0.12"/><line x1="42.00" y1="42.00" x2="18.19" y2="42.00" stroke="#c8d8e8" stroke-width="0.4" stroke-opacity="0.12"/><line x1="42.00" y1="42.00" x2="30.09" y2="21.38" stroke="#c8d8e8" stroke-width="0.4" stroke-opacity="0.12"/><line x1="42.00" y1="42.00" x2="53.91" y2="21.38" stroke="#c8d8e8" stroke-width="0.4" stroke-opacity="0.12"/><circle cx="42.00" cy="42.00" r="10.05" fill="none" stroke="#c8d8e8" stroke-width="0.35" stroke-opacity="0.10"/><circle cx="42.00" cy="42.00" r="20.11" fill="none" stroke="#c8d8e8" stroke-width="0.35" stroke-opacity="0.10"/>
+<path d="M30.09,49.41 Q42.00,52.05 53.91,49.41" fill="none" stroke="#c8d8e8" stroke-width="1.2" stroke-opacity="0.35" stroke-linecap="round"/>
+
+<path d="M71.46,24.99L71.46,59.01L42.00,76.02L12.54,59.01L12.54,24.99L42.00,7.98Z" fill="none" stroke="url(#transRinglv11)" stroke-width="2.35" stroke-opacity="0.09" stroke-linejoin="round"/>
+<path d="M68.81,26.52L68.81,57.48L42.00,72.96L15.19,57.48L15.19,26.52L42.00,11.04Z" fill="none" stroke="#ccd6d9" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/><path d="M66.90,27.63L66.90,56.37L42.00,70.75L17.10,56.37L17.10,27.63L42.00,13.25Z" fill="none" stroke="#8a9eae" stroke-width="0.63" stroke-opacity="0.30" stroke-linejoin="round"/>
+<text x="42.0" y="42.0" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="25.2" fill="#c8d8e8" filter="url(#gllv11)">11</text>
 </svg>

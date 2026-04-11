@@ -1,14 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Level 7 Badge">
-  <defs>
-    <radialGradient id="lg_7" cx="40%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#CFD8DC"/>
-      <stop offset="100%" stop-color="#455A64"/>
-    </radialGradient>
-  </defs>
-  <circle cx="24" cy="24" r="23" fill="#455A64"/>
-  <circle cx="24" cy="24" r="22" fill="url(#lg_7)"/>
-  <circle cx="24" cy="24" r="18" fill="none" stroke="#546E7A" stroke-width="1.5" opacity="0.7"/>
-  <text x="24" y="18" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" font-weight="700" fill="#ECEFF1" opacity="0.9">LV</text>
-  <text x="24" y="32" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-size="13" font-weight="900" fill="#FFFFFF">7</text>
-  <ellipse cx="18" cy="16" rx="5" ry="3" fill="white" opacity="0.12"/>
+<svg width="84" height="84" viewBox="-96.60 -96.60 277.20 277.20" overflow="visible" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Level 7 Badge">
+<defs>
+  <radialGradient id="bglv7" cx="35%" cy="28%" r="72%">
+    <stop offset="0%" stop-color="#160a02"/>
+    <stop offset="100%" stop-color="#070300"/>
+  </radialGradient>
+  <linearGradient id="rimlv7" x1="5%" y1="5%" x2="95%" y2="95%">
+    <stop offset="0%" stop-color="#d7b8a0"/>
+    <stop offset="50%" stop-color="#bb8d60"/>
+    <stop offset="100%" stop-color="#6b3008"/>
+  </linearGradient>
+  <linearGradient id="transRinglv7" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#d2c3b9"/>
+    <stop offset="100%" stop-color="#bfa286"/>
+  </linearGradient>
+  <linearGradient id="shlv7" x1="18%" y1="0%" x2="82%" y2="100%">
+    <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
+    <stop offset="50%" stop-color="white" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="gllv7" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="halolv7" x="-150%" y="-150%" width="500%" height="500%">
+    <feGaussianBlur stdDeviation="11" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <linearGradient id="pglv7_0" x1="5%" y1="0%" x2="95%" y2="100%"><stop offset="0%" stop-color="#dea87c" stop-opacity="0.95"/><stop offset="38%" stop-color="#ba8450" stop-opacity="0.9"/><stop offset="100%" stop-color="#6b3008" stop-opacity="0.85"/></linearGradient><linearGradient id="pglv7_1" x1="5%" y1="0%" x2="95%" y2="100%"><stop offset="0%" stop-color="#d4bfaf" stop-opacity="0.95"/><stop offset="38%" stop-color="#be9f80" stop-opacity="0.9"/><stop offset="100%" stop-color="#6b3008" stop-opacity="0.85"/></linearGradient><linearGradient id="aplv7_0" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#d6baa5"/><stop offset="100%" stop-color="#6b3008" stop-opacity="0.65"/></linearGradient><linearGradient id="aplv7_1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#bd9873"/><stop offset="100%" stop-color="#6b3008" stop-opacity="0.65"/></linearGradient><linearGradient id="csLlv7_0" x1="100%" y1="50%" x2="0%" y2="50%"><stop offset="0%" stop-color="#d6baa5" stop-opacity="1.0"/><stop offset="55%" stop-color="#bd9873" stop-opacity="0.88"/><stop offset="100%" stop-color="#6b3008" stop-opacity="0.15"/></linearGradient><linearGradient id="csRlv7_0" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="#d6baa5" stop-opacity="1.0"/><stop offset="55%" stop-color="#bd9873" stop-opacity="0.88"/><stop offset="100%" stop-color="#6b3008" stop-opacity="0.15"/></linearGradient>
+</defs>
+<path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="#b56a20" fill-opacity="0.46" filter="url(#halolv7)"/>
+<path d="M26.47,64.74 L42.00,76.02 L57.53,64.74 L57.53,81.46 L42.00,82.63 L26.47,81.46 Z" fill="url(#aplv7_0)" opacity="0.90"/><path d="M26.47,64.74 L42.00,76.02 L57.53,64.74" fill="none" stroke="#d6baa5" stroke-width="0.9" stroke-opacity="0.52" stroke-linejoin="round"/><path d="M26.47,64.74 L42.00,76.02 L57.53,64.74 L57.53,81.46 L42.00,82.63 L26.47,81.46 Z" fill="none" stroke="#6b3008" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/><path d="M25.07,66.78 L42.00,79.08 L58.93,66.78 L58.93,86.57 L42.00,87.83 L25.07,86.57 Z" fill="url(#aplv7_1)" opacity="0.82"/><path d="M25.07,66.78 L42.00,79.08 L58.93,66.78" fill="none" stroke="#d6baa5" stroke-width="0.9" stroke-opacity="0.42" stroke-linejoin="round"/><path d="M25.07,66.78 L42.00,79.08 L58.93,66.78 L58.93,86.57 L42.00,87.83 L25.07,86.57 Z" fill="none" stroke="#6b3008" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/>
+<polygon points="14.85,38.69 14.85,45.31 -9.44,40.43 -9.44,29.00" fill="url(#csLlv7_0)"/><polygon points="69.15,38.69 69.15,45.31 93.44,40.43 93.44,29.00" fill="url(#csRlv7_0)"/><polygon points="14.85,38.69 14.85,41.20 -9.44,33.34 -9.44,29.00" fill="white" opacity="0.22"/><polygon points="69.15,38.69 69.15,41.20 93.44,33.34 93.44,29.00" fill="white" opacity="0.22"/><line x1="14.85" y1="45.31" x2="-9.44" y2="40.43" stroke="#6b3008" stroke-width="1.0" stroke-opacity="0.4"/><line x1="69.15" y1="45.31" x2="93.44" y2="40.43" stroke="#6b3008" stroke-width="1.0" stroke-opacity="0.4"/>
+
+
+<path d="M42.00,78.91L6.89,53.41L20.30,12.14L63.70,12.14L77.11,53.41Z" fill="url(#pglv7_0)"/><path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="#070300"/><path d="M42.00,78.91L6.89,53.41L20.30,12.14L63.70,12.14L77.11,53.41Z" fill="none" stroke="#dea87c" stroke-width="0.8" stroke-opacity="0.48" stroke-linejoin="round"/><path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="none" stroke="#6b3008" stroke-width="0.5" stroke-opacity="0.28" stroke-linejoin="round"/><path d="M42.00,81.80L4.14,54.30L18.60,9.80L65.40,9.80L79.86,54.30Z" fill="url(#pglv7_1)"/><path d="M42.00,78.91L6.89,53.41L20.30,12.14L63.70,12.14L77.11,53.41Z" fill="#070300"/><path d="M42.00,81.80L4.14,54.30L18.60,9.80L65.40,9.80L79.86,54.30Z" fill="none" stroke="#d4bfaf" stroke-width="0.8" stroke-opacity="0.40" stroke-linejoin="round"/><path d="M42.00,78.91L6.89,53.41L20.30,12.14L63.70,12.14L77.11,53.41Z" fill="none" stroke="#6b3008" stroke-width="0.5" stroke-opacity="0.24" stroke-linejoin="round"/>
+<path d="M42.00,83.16L2.85,54.72L17.80,8.70L66.20,8.70L81.15,54.72Z" fill="none" stroke="#d0c8c3" stroke-width="1.0" stroke-opacity="0.38" stroke-linejoin="round"/><path d="M42.00,84.40L1.68,55.10L17.08,7.70L66.92,7.70L82.32,55.10Z" fill="none" stroke="#b56a20" stroke-width="0.6" stroke-opacity="0.2" stroke-linejoin="round"/>
+<path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="url(#rimlv7)"/>
+<path d="M42.00,70.56L14.84,50.83L25.21,18.89L58.79,18.89L69.16,50.83Z" fill="#070300"/>
+<path d="M42.00,70.56L14.84,50.83L25.21,18.89L58.79,18.89L69.16,50.83Z" fill="none" stroke="url(#rimlv7)" stroke-width="1.60" stroke-linejoin="round"/>
+<path d="M42.00,68.46L16.84,50.18L26.45,20.59L57.55,20.59L67.16,50.18Z" fill="url(#bglv7)"/>
+<path d="M42.00,68.46L16.84,50.18L26.45,20.59L57.55,20.59L67.16,50.18Z" fill="url(#shlv7)"/>
+
+
+
+
+<path d="M42.00,76.02L9.65,52.51L22.00,14.48L62.00,14.48L74.35,52.51Z" fill="none" stroke="url(#transRinglv7)" stroke-width="2.35" stroke-opacity="0.54" stroke-linejoin="round"/>
+<path d="M42.00,73.98L11.59,51.88L23.20,16.13L60.80,16.13L72.41,51.88Z" fill="none" stroke="#d6baa5" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/><path d="M42.00,72.11L13.37,51.30L24.30,17.64L59.70,17.64L70.63,51.30Z" fill="none" stroke="#b56a20" stroke-width="0.63" stroke-opacity="0.30" stroke-linejoin="round"/><path d="M42.00,70.24L15.15,50.73L25.40,19.16L58.60,19.16L68.85,50.73Z" fill="none" stroke="#b56a20" stroke-width="0.54" stroke-opacity="0.24" stroke-linejoin="round"/><path d="M42.00,68.37L16.92,50.15L26.50,20.67L57.50,20.67L67.08,50.15Z" fill="none" stroke="#b56a20" stroke-width="0.45" stroke-opacity="0.18" stroke-linejoin="round"/>
+<text x="42.0" y="42.0" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="28.6" fill="#e8924a" filter="url(#gllv7)">7</text>
 </svg>
