@@ -84,6 +84,7 @@
                     <select id="arenaPlotSelect" class="arena-plot-select">
                         <option value="xtreme" selected>Xtreme Stadium (Season/Global)</option>
                         <option value="drop_attack">Drop Attack Beystadium</option>
+                        <option value="double_xtreme">Double Xtreme Stadium</option>
                         <option value="combined">Combined/Global (All Matches)</option>
                     </select>
                 </div>
@@ -450,6 +451,13 @@ async function loadData() {
                 const advancedData = parseCSV(advancedText);
                 allLeaderboardData = advancedData;
                 leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            } else if (currentArena === 'double_xtreme') {
+                // Try Double Xtreme advanced leaderboard
+                const advancedResponse = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_DOUBLE_XTREME_CSV);
+                const advancedText = await advancedResponse.text();
+                const advancedData = parseCSV(advancedText);
+                allLeaderboardData = advancedData;
+                leaderboardData = findLeaderboardEntry(advancedData, beyName);
             } else if (currentArena === 'combined') {
                 // Combined arena - no advanced stats, use standard leaderboard
                 throw new Error('Use arena-specific leaderboard');
@@ -473,8 +481,11 @@ async function loadData() {
         // Build arena lookup map (match_id string -> normalized arena)
         allMatchesRaw.forEach(m => {
             const raw = m.arena || 'Xtreme';
-            // Normalize 'DropAttack' variant to 'Drop Attack'
-            matchArenaMap[m.MatchID] = raw === 'DropAttack' ? 'Drop Attack' : raw;
+            // Normalize arena variants to canonical names
+            let normalized = raw;
+            if (raw === 'DropAttack') normalized = 'Drop Attack';
+            else if (raw === 'DoubleXtreme' || raw === 'double_xtreme') normalized = 'Double Xtreme';
+            matchArenaMap[m.MatchID] = normalized;
         });
         const allMatches = allMatchesRaw.map(m => ({
             matchId: parseInt(m.MatchID.slice(1).replace(/^0+/, ''), 10),
@@ -1916,6 +1927,7 @@ function renderScoreDistribution() {
     // Filter matches by current arena
     const arenaLabel = currentArena === 'xtreme' ? 'Xtreme' :
                        currentArena === 'drop_attack' ? 'Drop Attack' :
+                       currentArena === 'double_xtreme' ? 'Double Xtreme' :
                        currentArena === 'combined' ? null : currentArena;
 
     const filteredMatches = arenaLabel
@@ -2069,6 +2081,7 @@ function renderFinishTypeDistribution() {
     // Arena filter label
     const arenaLabel = currentArena === 'xtreme' ? 'Xtreme' :
                        currentArena === 'drop_attack' ? 'Drop Attack' :
+                       currentArena === 'double_xtreme' ? 'Double Xtreme' :
                        currentArena === 'combined' ? null : currentArena;
 
     // Filter rounds data to matches involving this bey, then by arena

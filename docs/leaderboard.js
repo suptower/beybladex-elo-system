@@ -41,7 +41,11 @@ const ALL_ARENAS_HEADER_NAMES = {
     'ELO_DropAttack': 'Drop Attack ELO',
     'Matches_DropAttack': 'Drop Attack Matches',
     'Wins_DropAttack': 'Drop Attack Wins',
-    'Winrate_DropAttack': 'Drop Attack Win%'
+    'Winrate_DropAttack': 'Drop Attack Win%',
+    'ELO_DoubleXtreme': 'Double Xtreme ELO',
+    'Matches_DoubleXtreme': 'Double Xtreme Matches',
+    'Wins_DoubleXtreme': 'Double Xtreme Wins',
+    'Winrate_DoubleXtreme': 'Double Xtreme Win%'
 };
 
 // Full descriptions for legend with detailed explanations
@@ -194,6 +198,11 @@ function loadLeaderboard(isAdvanced = false, matchIndex = null) {
             csvPath = isAdvanced
                 ? DATA_PATHS.ADVANCED_LEADERBOARD_DROP_ATTACK_CSV
                 : DATA_PATHS.LEADERBOARD_DROP_ATTACK_CSV;
+        } else if (currentArena === "double_xtreme") {
+            // Load Double Xtreme arena leaderboard (advanced if requested)
+            csvPath = isAdvanced
+                ? DATA_PATHS.ADVANCED_LEADERBOARD_DOUBLE_XTREME_CSV
+                : DATA_PATHS.LEADERBOARD_DOUBLE_XTREME_CSV;
         } else {
             // Load current leaderboard (standard or advanced for Xtreme/default)
             csvPath = isAdvanced
@@ -258,10 +267,12 @@ function renderTable(headers, rows) {
 
         // Add arena data attribute for comparison view visual grouping
         if (currentArena === "all_arenas") {
-            if (h.includes("Xtreme")) {
+            if (h.includes("Xtreme") && !h.includes("Double")) {
                 th.setAttribute("data-arena", "xtreme");
             } else if (h.includes("DropAttack")) {
                 th.setAttribute("data-arena", "drop_attack");
+            } else if (h.includes("DoubleXtreme")) {
+                th.setAttribute("data-arena", "double_xtreme");
             } else if (h.includes("Global")) {
                 th.setAttribute("data-arena", "combined");
             }
@@ -292,10 +303,12 @@ function renderTable(headers, rows) {
             
             // Add arena data attribute for comparison view visual grouping
             if (currentArena === "all_arenas") {
-                if (h.includes("Xtreme")) {
+                if (h.includes("Xtreme") && !h.includes("Double")) {
                     td.setAttribute("data-arena", "xtreme");
                 } else if (h.includes("DropAttack")) {
                     td.setAttribute("data-arena", "drop_attack");
+                } else if (h.includes("DoubleXtreme")) {
+                    td.setAttribute("data-arena", "double_xtreme");
                 } else if (h.includes("Global")) {
                     td.setAttribute("data-arena", "combined");
                 }

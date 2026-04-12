@@ -43,12 +43,14 @@ const DATA_PATHS = Object.freeze({
     LEADERBOARD_V1_CSV:                   'data/leaderboard/leaderboard_v1.csv',
     LEADERBOARD_V2_CSV:                   'data/leaderboard/leaderboard_v2.csv',
     LEADERBOARD_XTREME_CSV:               'data/leaderboard/leaderboard_xtreme.csv',
-    LEADERBOARD_DROP_ATTACK_CSV:          'data/leaderboard/leaderboard_drop_attack.csv',
-    LEADERBOARD_COMBINED_CSV:             'data/leaderboard/leaderboard_combined.csv',
-    LEADERBOARD_ALL_ARENAS_CSV:           'data/leaderboard/leaderboard_all_arenas.csv',
-    ADVANCED_LEADERBOARD_CSV:             'data/leaderboard/advanced_leaderboard.csv',
-    ADVANCED_LEADERBOARD_DROP_ATTACK_CSV: 'data/leaderboard/advanced_leaderboard_drop_attack.csv',
-    ADVANCED_LEADERBOARD_COMBINED_CSV:    'data/leaderboard/advanced_leaderboard_combined.csv',
+    LEADERBOARD_DROP_ATTACK_CSV:              'data/leaderboard/leaderboard_drop_attack.csv',
+    LEADERBOARD_DOUBLE_XTREME_CSV:            'data/leaderboard/leaderboard_double_xtreme.csv',
+    LEADERBOARD_COMBINED_CSV:                 'data/leaderboard/leaderboard_combined.csv',
+    LEADERBOARD_ALL_ARENAS_CSV:               'data/leaderboard/leaderboard_all_arenas.csv',
+    ADVANCED_LEADERBOARD_CSV:                 'data/leaderboard/advanced_leaderboard.csv',
+    ADVANCED_LEADERBOARD_DROP_ATTACK_CSV:     'data/leaderboard/advanced_leaderboard_drop_attack.csv',
+    ADVANCED_LEADERBOARD_DOUBLE_XTREME_CSV:   'data/leaderboard/advanced_leaderboard_double_xtreme.csv',
+    ADVANCED_LEADERBOARD_COMBINED_CSV:        'data/leaderboard/advanced_leaderboard_combined.csv',
 
     // -----------------------------------------------------------------------
     // Analytics
