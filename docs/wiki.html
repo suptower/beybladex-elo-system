@@ -380,7 +380,7 @@ function renderBeys() {
         let trophiesHtml = '';
         if (trophies.length > 0) {
             const trophyIcons = trophies.map(t => 
-                `<span class="trophy-icon" title="${t.name}"><img class="achievement-icon" src="icons/trophy.svg" alt="Trophy"></span>`
+                `<span class="trophy-icon" title="${t.name}"><img class="achievement-icon" src="icons/badges/tournament/trophy-gold.svg" alt="Trophy"></span>`
             ).join('');
             trophiesHtml = `<div class="wiki-card-trophies">${trophyIcons}</div>`;
         }

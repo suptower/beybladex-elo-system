@@ -768,7 +768,7 @@ function renderTrophies() {
     // Generate trophy HTML
     trophiesContainer.innerHTML = regularTrophies.map(tournament => `
         <div class="profile-trophy" title="${tournament.name} - ${tournament.date}">
-            <span class="profile-trophy-icon"><img class="achievement-icon" src="icons/trophy.svg" alt="Trophy"></span>
+            <span class="profile-trophy-icon"><img class="achievement-icon" src="icons/badges/tournament/trophy-gold.svg" alt="Trophy"></span>
             <span class="profile-trophy-name">${tournament.name}</span>
         </div>
     `).join('');

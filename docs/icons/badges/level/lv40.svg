@@ -1,47 +1,15 @@
-<svg width="84" height="84" viewBox="-20 -20 124 124" overflow="visible" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Level 40 Badge">
+<svg width="84" height="84" viewBox="0 0 84 84" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Level 40 Badge">
 <defs>
-  <radialGradient id="bglv40" cx="35%" cy="28%" r="72%">
-    <stop offset="0%" stop-color="#140303"/>
-    <stop offset="100%" stop-color="#080101"/>
-  </radialGradient>
-  <linearGradient id="rimlv40" x1="5%" y1="5%" x2="95%" y2="95%">
-    <stop offset="0%" stop-color="#e87070"/>
-    <stop offset="50%" stop-color="#c02828"/>
-    <stop offset="100%" stop-color="#6a0e0e"/>
-  </linearGradient>
-  <linearGradient id="transRinglv40" x1="0%" y1="0%" x2="100%" y2="100%">
-    <stop offset="0%" stop-color="#e87070"/>
-    <stop offset="100%" stop-color="#c02828"/>
-  </linearGradient>
-  <linearGradient id="shlv40" x1="18%" y1="0%" x2="82%" y2="100%">
-    <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
-    <stop offset="50%" stop-color="white" stop-opacity="0"/>
-  </linearGradient>
-  <filter id="gllv40" x="-40%" y="-40%" width="180%" height="180%">
-    <feGaussianBlur stdDeviation="1.8" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-  <filter id="halolv40" x="-80%" y="-80%" width="360%" height="360%">
-    <feGaussianBlur stdDeviation="16" result="b"/>
-    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-  </filter>
-  <filter id="crGlowlv40" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="0.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<radialGradient id="bglv40" cx="35%" cy="28%" r="72%"><stop offset="0%" stop-color="#0c0002"/><stop offset="100%" stop-color="#0c0002"/></radialGradient><linearGradient id="rimlv40" x1="5%" y1="5%" x2="95%" y2="95%"><stop offset="0%" stop-color="#f06070"/><stop offset="50%" stop-color="#b03040"/><stop offset="100%" stop-color="#601018"/></linearGradient><linearGradient id="shlv40" x1="18%" y1="0%" x2="82%" y2="100%"><stop offset="0%" stop-color="white" stop-opacity="0.18"/><stop offset="55%" stop-color="white" stop-opacity="0"/></linearGradient><filter id="gllv40" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><filter id="halolv40" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="pglv40_0" x1="5%" y1="0%" x2="95%" y2="100%"><stop offset="0%" stop-color="#f06070" stop-opacity="0.95"/><stop offset="38%" stop-color="#b03040" stop-opacity="0.90"/><stop offset="100%" stop-color="#601018" stop-opacity="0.85"/></linearGradient><linearGradient id="pglv40_1" x1="5%" y1="0%" x2="95%" y2="100%"><stop offset="0%" stop-color="#f06070" stop-opacity="0.95"/><stop offset="38%" stop-color="#b03040" stop-opacity="0.90"/><stop offset="100%" stop-color="#601018" stop-opacity="0.85"/></linearGradient><linearGradient id="pglv40_2" x1="5%" y1="0%" x2="95%" y2="100%"><stop offset="0%" stop-color="#f06070" stop-opacity="0.95"/><stop offset="38%" stop-color="#b03040" stop-opacity="0.90"/><stop offset="100%" stop-color="#601018" stop-opacity="0.85"/></linearGradient><filter id="crGlowlv40" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="0.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
-<path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="#c02828" fill-opacity="0.72" filter="url(#halolv40)"/>
-
-
-<path d="M80.10,42.00L61.05,75.00L22.95,75.00L3.90,42.00L22.95,9.00L61.05,9.00Z" fill="none" stroke="#e87070" stroke-width="2.0" stroke-opacity="0.55" stroke-dasharray="6 3" stroke-dashoffset="0" stroke-linejoin="round"/><path d="M84.53,42.00L63.26,78.83L20.74,78.83L-0.53,42.00L20.74,5.17L63.26,5.17Z" fill="none" stroke="#c02828" stroke-width="1.7" stroke-opacity="0.45" stroke-dasharray="8 4" stroke-dashoffset="18" stroke-linejoin="round"/>
-
-
-
-<path d="M76.02,42.00L59.01,71.46L24.99,71.46L7.98,42.00L24.99,12.54L59.01,12.54Z" fill="url(#rimlv40)"/>
-<path d="M70.56,42.00L56.28,66.73L27.72,66.73L13.44,42.00L27.72,17.27L56.28,17.27Z" fill="#080101"/>
-<path d="M70.56,42.00L56.28,66.73L27.72,66.73L13.44,42.00L27.72,17.27L56.28,17.27Z" fill="none" stroke="url(#rimlv40)" stroke-width="1.60" stroke-linejoin="round"/>
-<path d="M68.46,42.00L55.23,64.92L28.77,64.92L15.54,42.00L28.77,19.08L55.23,19.08Z" fill="url(#bglv40)"/>
-<path d="M68.46,42.00L55.23,64.92L28.77,64.92L15.54,42.00L28.77,19.08L55.23,19.08Z" fill="url(#shlv40)"/>
-<polyline points="50.51,42.00 58.39,40.63 66.33,43.62 74.28,40.38" fill="none" stroke="#e87070" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.58"/><polyline points="36.72,48.67 32.90,55.70 25.63,60.06 23.23,68.31" fill="none" stroke="#e87070" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.58"/><polyline points="37.27,34.93 31.75,29.15 29.82,20.88 22.70,16.08" fill="none" stroke="#e87070" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.58"/>
-<circle cx="42.00" cy="42.00" r="7.41" fill="none" stroke="#e87070" stroke-width="0.42" stroke-opacity="0.13" stroke-dasharray="3 2"/><circle cx="42.00" cy="42.00" r="14.82" fill="none" stroke="#e87070" stroke-width="0.34" stroke-opacity="0.10" stroke-dasharray="3 2"/><circle cx="42.00" cy="42.00" r="22.23" fill="none" stroke="#e87070" stroke-width="0.26" stroke-opacity="0.07" stroke-dasharray="3 2"/>
-
-<path d="M73.98,42.00L57.99,69.69L26.01,69.69L10.02,42.00L26.01,14.31L57.99,14.31Z" fill="none" stroke="#e87070" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/>
-<text x="42.0" y="42.0" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="25.2" fill="#e87070" filter="url(#gllv40)">40</text>
+<path d="M73.18,24.00 L73.18,60.00 L42.00,78.00 L10.82,60.00 L10.82,24.00 L42.00,6.00Z" fill="#d04050" fill-opacity="0.30" filter="url(#halolv40)"/>
+<path d="M75.98,22.38 L75.98,61.62 L42.00,81.24 L8.02,61.62 L8.02,22.38 L42.00,2.76Z" fill="url(#pglv40_0)"/><path d="M73.18,24.00 L73.18,60.00 L42.00,78.00 L10.82,60.00 L10.82,24.00 L42.00,6.00Z" fill="#0c0002"/><path d="M75.98,22.38 L75.98,61.62 L42.00,81.24 L8.02,61.62 L8.02,22.38 L42.00,2.76Z" fill="none" stroke="#f06070" stroke-width="0.8" stroke-opacity="0.48" stroke-linejoin="round"/><path d="M73.18,24.00 L73.18,60.00 L42.00,78.00 L10.82,60.00 L10.82,24.00 L42.00,6.00Z" fill="none" stroke="#601018" stroke-width="0.5" stroke-opacity="0.28" stroke-linejoin="round"/><path d="M77.51,21.50 L77.51,62.50 L42.00,83.00 L6.49,62.50 L6.49,21.50 L42.00,1.00Z" fill="url(#pglv40_1)"/><path d="M75.98,22.38 L75.98,61.62 L42.00,81.24 L8.02,61.62 L8.02,22.38 L42.00,2.76Z" fill="#0c0002"/><path d="M77.51,21.50 L77.51,62.50 L42.00,83.00 L6.49,62.50 L6.49,21.50 L42.00,1.00Z" fill="none" stroke="#f06070" stroke-width="0.8" stroke-opacity="0.40" stroke-linejoin="round"/><path d="M75.98,22.38 L75.98,61.62 L42.00,81.24 L8.02,61.62 L8.02,22.38 L42.00,2.76Z" fill="none" stroke="#601018" stroke-width="0.5" stroke-opacity="0.24" stroke-linejoin="round"/><path d="M77.51,21.50 L77.51,62.50 L42.00,83.00 L6.49,62.50 L6.49,21.50 L42.00,1.00Z" fill="url(#pglv40_2)"/><path d="M77.51,21.50 L77.51,62.50 L42.00,83.00 L6.49,62.50 L6.49,21.50 L42.00,1.00Z" fill="#0c0002"/><path d="M77.51,21.50 L77.51,62.50 L42.00,83.00 L6.49,62.50 L6.49,21.50 L42.00,1.00Z" fill="none" stroke="#f06070" stroke-width="0.8" stroke-opacity="0.32" stroke-linejoin="round"/><path d="M77.51,21.50 L77.51,62.50 L42.00,83.00 L6.49,62.50 L6.49,21.50 L42.00,1.00Z" fill="none" stroke="#601018" stroke-width="0.5" stroke-opacity="0.20" stroke-linejoin="round"/>
+<path d="M73.18,24.00 L73.18,60.00 L42.00,78.00 L10.82,60.00 L10.82,24.00 L42.00,6.00Z" fill="url(#rimlv40)"/>
+<path d="M69.44,26.16 L69.44,57.84 L42.00,73.68 L14.56,57.84 L14.56,26.16 L42.00,10.32Z" fill="#0c0002"/>
+<path d="M69.44,26.16 L69.44,57.84 L42.00,73.68 L14.56,57.84 L14.56,26.16 L42.00,10.32Z" fill="none" stroke="url(#rimlv40)" stroke-width="1.5" stroke-linejoin="round"/>
+<path d="M68.81,26.52 L68.81,57.48 L42.00,72.96 L15.19,57.48 L15.19,26.52 L42.00,11.04Z" fill="url(#bglv40)"/>
+<path d="M68.81,26.52 L68.81,57.48 L42.00,72.96 L15.19,57.48 L15.19,26.52 L42.00,11.04Z" fill="url(#shlv40)"/>
+<polyline points="49.92,42.00 57.76,40.42 65.68,43.90 73.62,40.10" fill="none" stroke="#ff8888" stroke-width="2.5" stroke-linecap="round" filter="url(#crGlowlv40)" opacity="0.24"/><polyline points="49.92,42.00 57.76,40.42 65.68,43.90 73.62,40.10" fill="none" stroke="#ff8888" stroke-width="1.0" stroke-linecap="round" opacity="0.55"/><polyline points="49.92,42.00 57.76,40.42 65.68,43.90 73.62,40.10" fill="none" stroke="white" stroke-width="0.55" stroke-linecap="round" opacity="0.30"/><polyline points="37.08,48.21 33.46,55.34 25.81,59.39 23.86,67.97" fill="none" stroke="#ff8888" stroke-width="2.5" stroke-linecap="round" filter="url(#crGlowlv40)" opacity="0.24"/><polyline points="37.08,48.21 33.46,55.34 25.81,59.39 23.86,67.97" fill="none" stroke="#ff8888" stroke-width="1.0" stroke-linecap="round" opacity="0.55"/><polyline points="37.08,48.21 33.46,55.34 25.81,59.39 23.86,67.97" fill="none" stroke="white" stroke-width="0.55" stroke-linecap="round" opacity="0.30"/><polyline points="37.59,35.42 31.92,29.78 30.40,21.26 22.83,16.78" fill="none" stroke="#ff8888" stroke-width="2.5" stroke-linecap="round" filter="url(#crGlowlv40)" opacity="0.24"/><polyline points="37.59,35.42 31.92,29.78 30.40,21.26 22.83,16.78" fill="none" stroke="#ff8888" stroke-width="1.0" stroke-linecap="round" opacity="0.55"/><polyline points="37.59,35.42 31.92,29.78 30.40,21.26 22.83,16.78" fill="none" stroke="white" stroke-width="0.55" stroke-linecap="round" opacity="0.30"/>
+<path d="M71.62,24.90 L71.62,59.10 L42.00,76.20 L12.38,59.10 L12.38,24.90 L42.00,7.80Z" fill="none" stroke="#f06070" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/><path d="M69.44,26.16 L69.44,57.84 L42.00,73.68 L14.56,57.84 L14.56,26.16 L42.00,10.32Z" fill="none" stroke="#c03040" stroke-width="0.63" stroke-opacity="0.30" stroke-linejoin="round"/><path d="M67.25,27.42 L67.25,56.58 L42.00,71.16 L16.75,56.58 L16.75,27.42 L42.00,12.84Z" fill="none" stroke="#c03040" stroke-width="0.54" stroke-opacity="0.24" stroke-linejoin="round"/>
+<text x="42" y="43" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="22" fill="#ff9090" filter="url(#gllv40)">40</text>
 </svg>
