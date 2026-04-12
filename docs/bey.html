@@ -775,30 +775,32 @@ function renderTrophies() {
 }
 
 // Get season achievements (tier wins, cup wins) for the current bey
+function seasonIdToRoman(seasonId) {
+    const ROMAN = ['I', 'II', 'III', 'IV'];
+    const num = parseInt((seasonId || '').replace(/\D/g, ''), 10);
+    return ROMAN[(num - 1) % 4] || 'I';
+}
+
 function getSeasonAchievements() {
     const achievements = [];
     const normalizedName = normalizeBeyName(beyName);
     const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
     const tierBadgeClasses = { '1': 'season-badge-tier1', '2': 'season-badge-tier2', '3': 'season-badge-tier3', '4': 'season-badge-tier4' };
-    const tierIcons = {
-        '1': '<img class="achievement-icon" src="icons/badges/season/season-tier-1.svg" alt="Tier I Champion">',
-        '2': '<img class="achievement-icon" src="icons/badges/season/season-tier-2.svg" alt="Tier II Champion">',
-        '3': '<img class="achievement-icon" src="icons/badges/season/season-tier-3.svg" alt="Tier III Champion">',
-        '4': '<img class="achievement-icon" src="icons/badges/season/season-tier-4.svg" alt="Tier IV Champion">'
-    };
 
     Object.entries(seasonData).forEach(([seasonId, season]) => {
+        const roman = seasonIdToRoman(seasonId);
         // Check tier champions
         if (season.league_tables && season.league_champion) {
             Object.entries(season.league_tables).forEach(([tierId, table]) => {
                 if (table && table.length > 0 && normalizeBeyName(table[0].bey) === normalizedName) {
+                    const badgeFile = `icons/badges/season/season-tier-${tierId}-${roman}.svg`;
                     achievements.push({
                         type: 'tier_champion',
                         seasonId,
                         tier: tierId,
                         label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
                         badgeClass: tierBadgeClasses[tierId] || 'season-badge-tier3',
-                        icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/badges/season/season-tier-4.svg" alt="Medal">'
+                        icon: `<img class="achievement-icon" src="${badgeFile}" alt="${seasonId} Tier ${tierId} Champion">`
                     });
                 }
             });
@@ -810,7 +812,7 @@ function getSeasonAchievements() {
                 seasonId,
                 label: `${seasonId} Season Cup Winner`,
                 badgeClass: 'season-badge-cup',
-                icon: '<img class="achievement-icon" src="icons/badges/tournament/season-cup.svg" alt="Season Cup">'
+                icon: `<img class="achievement-icon" src="icons/badges/tournament/season-cup-${roman}.svg" alt="${seasonId} Season Cup">`
             });
         }
     });
@@ -864,17 +866,17 @@ function renderSeasonSection() {
 
     seasonSection.style.display = 'block';
 
-    const tierMedalFiles = { '1': 'badges/season/season-tier-1', '2': 'badges/season/season-tier-2', '3': 'badges/season/season-tier-3', '4': 'badges/season/season-tier-4' };
     const tierMedalAlts  = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
 
     const tableRows = entries.map(({ seasonId, tierId, entry, isTierChampion, isCupWinner }) => {
+        const roman = seasonIdToRoman(seasonId);
         const tierLabel = tierLabels[tierId] || `Tier ${tierId}`;
         const posClass = entry.position === 1 ? 'trend-very-positive' : entry.position <= 3 ? 'trend-positive' : '';
-        const medalFile = tierMedalFiles[tierId] || 'badges/season/season-tier-4';
+        const medalFile = `badges/season/season-tier-${tierId}-${roman}`;
         const medalAlt  = tierMedalAlts[tierId]  || 'Medal';
         const achievementBadges = [
             isTierChampion ? `<span class="season-table-badge season-badge-tier${tierId}" title="${seasonId} ${tierLabel} Champion"><img class="achievement-icon" src="icons/${medalFile}.svg" alt="${medalAlt}"></span>` : '',
-            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner"><img class="achievement-icon" src="icons/badges/tournament/season-cup.svg" alt="Season Cup"></span>` : ''
+            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner"><img class="achievement-icon" src="icons/badges/tournament/season-cup-${roman}.svg" alt="Season Cup"></span>` : ''
         ].filter(Boolean).join('');
         const winrate = entry.matches > 0 ? Math.round((entry.wins / entry.matches) * 100) : 0;
         const wrClass = winrate >= 60 ? 'trend-positive' : winrate < 40 ? 'trend-negative' : '';

@@ -239,26 +239,24 @@ async function loadAllData() {
             const allSeasonData = await seasonResponse.json();
             const seasons = allSeasonData.seasons || {};
             seasonChampionsData = {};
-            const tierIcons = {
-                '1': '<img class="achievement-icon" src="icons/badges/season/season-tier-1.svg" alt="Tier I Champion">',
-                '2': '<img class="achievement-icon" src="icons/badges/season/season-tier-2.svg" alt="Tier II Champion">',
-                '3': '<img class="achievement-icon" src="icons/badges/season/season-tier-3.svg" alt="Tier III Champion">',
-                '4': '<img class="achievement-icon" src="icons/badges/season/season-tier-4.svg" alt="Tier IV Champion">'
-            };
+            const ROMAN_SEASONS = ['I', 'II', 'III', 'IV'];
+            const seasonIdToRoman = (sid) => { const n = parseInt((sid||'').replace(/\D/g,''),10); return ROMAN_SEASONS[(n-1)%4]||'I'; };
             const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
             Object.entries(seasons).forEach(([seasonId, season]) => {
+                const roman = seasonIdToRoman(seasonId);
                 if (season.league_tables && season.league_champion) {
                     Object.entries(season.league_tables).forEach(([tierId, table]) => {
                         if (table && table.length > 0) {
                             const winnerName = normalizeBeyName(table[0].bey);
                             if (!seasonChampionsData[winnerName]) seasonChampionsData[winnerName] = [];
+                            const badgeFile = `icons/badges/season/season-tier-${tierId}-${roman}.svg`;
                             seasonChampionsData[winnerName].push({
                                 type: 'tier_champion',
                                 seasonId,
                                 tier: tierId,
                                 label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
                                 badgeClass: `season-badge-tier${tierId}`,
-                                icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/badges/season/season-tier-4.svg" alt="Medal">'
+                                icon: `<img class="achievement-icon" src="${badgeFile}" alt="${seasonId} Tier ${tierId} Champion">`
                             });
                         }
                     });
@@ -271,7 +269,7 @@ async function loadAllData() {
                         seasonId,
                         label: `${seasonId} Season Cup Winner`,
                         badgeClass: 'season-badge-cup',
-                        icon: '<img class="achievement-icon" src="icons/badges/tournament/season-cup.svg" alt="Season Cup">'
+                        icon: `<img class="achievement-icon" src="icons/badges/tournament/season-cup-${roman}.svg" alt="${seasonId} Season Cup">`
                     });
                 }
             });
