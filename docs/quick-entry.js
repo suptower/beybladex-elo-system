@@ -1623,7 +1623,7 @@ function renderSeasonFields(matchIndex, match) {
                 <select class="season-field-select" onchange="updateArena(${matchIndex}, this.value)" data-match="${matchIndex}">
                     <option value="Xtreme" ${arena === 'Xtreme' ? 'selected' : ''}>⚡ Xtreme Stadium</option>
                     <option value="DropAttack" ${arena === 'DropAttack' ? 'selected' : ''}>🎯 Drop Attack Beystadium</option>
-                    <option value="DoubleXtreme" ${arena === 'DoubleXtreme' ? 'selected' : ''}>⚡⚡ Double Xtreme Stadium</option>
+                    <option value="DoubleXtreme" ${arena === 'DoubleXtreme' ? 'selected' : ''}>💢 Double Xtreme Stadium</option>
                 </select>
             </div>
             <div class="season-field-group ${needsSeasonId ? '' : 'field-disabled'}">
