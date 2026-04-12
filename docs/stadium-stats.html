@@ -602,7 +602,7 @@ document.addEventListener('DOMContentLoaded', loadStadiumData);
 }
 
 .stadium-description {
-    color: var(--text-muted);
+    color: var(--text-light);
     max-width: 800px;
     margin: 10px auto;
 }
@@ -620,9 +620,9 @@ document.addEventListener('DOMContentLoaded', loadStadiumData);
 
 .stadium-button {
     padding: 12px 24px;
-    border: 2px solid var(--border-color);
-    background: var(--card-bg);
-    color: var(--text-primary);
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -630,14 +630,18 @@ document.addEventListener('DOMContentLoaded', loadStadiumData);
 }
 
 .stadium-button:hover {
-    background: var(--hover-bg);
+    background: var(--bg-subtle);
+    border-color: var(--accent);
     transform: translateY(-2px);
 }
 
 .stadium-button.active {
-    background: var(--primary-color);
+    background: var(--accent);
     color: white;
-    border-color: var(--primary-color);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-hover-subtle), 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    font-weight: 700;
 }
 
 .stadium-overview-grid,
@@ -650,8 +654,8 @@ document.addEventListener('DOMContentLoaded', loadStadiumData);
 }
 
 .stat-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 20px;
     text-align: center;
@@ -659,14 +663,14 @@ document.addEventListener('DOMContentLoaded', loadStadiumData);
 
 .stat-label {
     font-size: 0.9em;
-    color: var(--text-muted);
+    color: var(--text-light);
     margin-bottom: 8px;
 }
 
 .stat-value {
     font-size: 1.8em;
     font-weight: bold;
-    color: var(--primary-color);
+    color: var(--accent);
 }
 
 .finish-chart-container {
@@ -684,32 +688,32 @@ document.addEventListener('DOMContentLoaded', loadStadiumData);
 
 .performers-column h4 {
     margin-bottom: 15px;
-    color: var(--text-primary);
+    color: var(--text);
 }
 
 .performer-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 10px;
 }
 
 .performer-card.struggling {
-    border-left: 3px solid var(--danger-color);
+    border-left: 3px solid #ef4444;
 }
 
 .performer-name {
     font-weight: bold;
     margin-bottom: 8px;
-    color: var(--text-primary);
+    color: var(--text);
 }
 
 .performer-stats {
     display: flex;
     gap: 10px;
     font-size: 0.9em;
-    color: var(--text-muted);
+    color: var(--text-light);
 }
 
 .comparison-grid {
@@ -720,15 +724,15 @@ document.addEventListener('DOMContentLoaded', loadStadiumData);
 }
 
 .comparison-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 8px;
     padding: 20px;
 }
 
 .comparison-card h4 {
     margin-bottom: 15px;
-    color: var(--primary-color);
+    color: var(--accent);
 }
 
 .comparison-section {
@@ -754,17 +758,17 @@ document.addEventListener('DOMContentLoaded', loadStadiumData);
 .data-table td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border);
 }
 
 .data-table th {
-    background: var(--card-bg);
+    background: var(--card);
     font-weight: bold;
-    color: var(--text-primary);
+    color: var(--text);
 }
 
 .data-table tbody tr:hover {
-    background: var(--hover-bg);
+    background: var(--bg-subtle);
 }
 
 section {
@@ -772,10 +776,10 @@ section {
 }
 
 section h3 {
-    color: var(--text-primary);
+    color: var(--text);
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border);
 }
 
 .loading-placeholder,
@@ -783,15 +787,15 @@ section h3 {
 .error-message {
     padding: 20px;
     text-align: center;
-    color: var(--text-muted);
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    color: var(--text-light);
+    background: var(--card);
+    border: 1px solid var(--border);
     border-radius: 8px;
 }
 
 .error-message {
-    color: var(--danger-color);
-    border-color: var(--danger-color);
+    color: #ef4444;
+    border-color: #ef4444;
 }
 
 .help-text {
@@ -799,8 +803,8 @@ section h3 {
     align-items: center;
     gap: 8px;
     padding: 10px;
-    background: var(--card-bg);
-    border-left: 3px solid var(--primary-color);
+    background: var(--card);
+    border-left: 3px solid var(--accent);
     margin: 10px 0;
     border-radius: 4px;
 }
