@@ -351,6 +351,7 @@ let allEloHistoryData = [];
 let rpgStatsData = null;
 let countersData = [];
 let seasonData = {};
+let seasonsMeta = {};   // populated from seasons.json — used to determine if a season is finished
 let xpLeaderboardData = null;
 let xpHistoryData = null;
 let currentArena = localStorage.getItem('beyPageArena') || 'xtreme'; // Track current arena for plots, load from localStorage
@@ -577,6 +578,14 @@ async function loadData() {
             seasonData = {};
         }
 
+        // Load seasons metadata (end_date / status) used to determine finished seasons
+        try {
+            const metaResponse = await fetch(DATA_PATHS.SEASONS_JSON);
+            seasonsMeta = metaResponse.ok ? await metaResponse.json() : {};
+        } catch (e) {
+            seasonsMeta = {};
+        }
+
         // Load XP leaderboard data
         try {
             const xpResponse = await fetch(DATA_PATHS.XP_LEADERBOARD_JSON);
@@ -781,6 +790,17 @@ function seasonIdToRoman(seasonId) {
     return ROMAN[(num - 1) % 4] || 'I';
 }
 
+/**
+ * Returns true only if the season with the given ID is fully finished
+ * (has an end_date in the past).  Ongoing/upcoming seasons return false.
+ */
+function isSeasonFinished(seasonId) {
+    const meta = seasonsMeta[seasonId];
+    if (!meta) return false;
+    if (!meta.end_date) return false;
+    return new Date(meta.end_date) < new Date();
+}
+
 function getSeasonAchievements() {
     const achievements = [];
     const normalizedName = normalizeBeyName(beyName);
@@ -788,6 +808,8 @@ function getSeasonAchievements() {
     const tierBadgeClasses = { '1': 'season-badge-tier1', '2': 'season-badge-tier2', '3': 'season-badge-tier3', '4': 'season-badge-tier4' };
 
     Object.entries(seasonData).forEach(([seasonId, season]) => {
+        // Only show achievements for fully finished (past end_date) seasons
+        if (!isSeasonFinished(seasonId)) return;
         const roman = seasonIdToRoman(seasonId);
         // Check tier champions
         if (season.league_tables && season.league_champion) {
@@ -874,10 +896,12 @@ function renderSeasonSection() {
         const posClass = entry.position === 1 ? 'trend-very-positive' : entry.position <= 3 ? 'trend-positive' : '';
         const medalFile = `badges/season/season-tier-${tierId}-${roman}`;
         const medalAlt  = tierMedalAlts[tierId]  || 'Medal';
-        const achievementBadges = [
+        // Only display champion/cup badges for fully finished seasons
+        const seasonDone = isSeasonFinished(seasonId);
+        const achievementBadges = seasonDone ? [
             isTierChampion ? `<span class="season-table-badge season-badge-tier${tierId}" title="${seasonId} ${tierLabel} Champion"><img class="achievement-icon" src="icons/${medalFile}.svg" alt="${medalAlt}"></span>` : '',
             isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner"><img class="achievement-icon" src="icons/badges/tournament/season-cup-${roman}.svg" alt="Season Cup"></span>` : ''
-        ].filter(Boolean).join('');
+        ].filter(Boolean).join('') : '';
         const winrate = entry.matches > 0 ? Math.round((entry.wins / entry.matches) * 100) : 0;
         const wrClass = winrate >= 60 ? 'trend-positive' : winrate < 40 ? 'trend-negative' : '';
 
