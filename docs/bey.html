@@ -351,6 +351,7 @@ let allEloHistoryData = [];
 let rpgStatsData = null;
 let countersData = [];
 let seasonData = {};
+let seasonsMeta = {};   // populated from seasons.json — used to determine if a season is finished
 let xpLeaderboardData = null;
 let xpHistoryData = null;
 let currentArena = localStorage.getItem('beyPageArena') || 'xtreme'; // Track current arena for plots, load from localStorage
@@ -577,6 +578,14 @@ async function loadData() {
             seasonData = {};
         }
 
+        // Load seasons metadata (end_date / status) used to determine finished seasons
+        try {
+            const metaResponse = await fetch(DATA_PATHS.SEASONS_JSON);
+            seasonsMeta = metaResponse.ok ? await metaResponse.json() : {};
+        } catch (e) {
+            seasonsMeta = {};
+        }
+
         // Load XP leaderboard data
         try {
             const xpResponse = await fetch(DATA_PATHS.XP_LEADERBOARD_JSON);
@@ -768,36 +777,52 @@ function renderTrophies() {
     // Generate trophy HTML
     trophiesContainer.innerHTML = regularTrophies.map(tournament => `
         <div class="profile-trophy" title="${tournament.name} - ${tournament.date}">
-            <span class="profile-trophy-icon"><img class="achievement-icon" src="icons/trophy.svg" alt="Trophy"></span>
+            <span class="profile-trophy-icon"><img class="achievement-icon" src="icons/badges/tournament/trophy-gold.svg" alt="Trophy"></span>
             <span class="profile-trophy-name">${tournament.name}</span>
         </div>
     `).join('');
 }
 
 // Get season achievements (tier wins, cup wins) for the current bey
+function seasonIdToRoman(seasonId) {
+    const ROMAN = ['I', 'II', 'III', 'IV'];
+    const num = parseInt((seasonId || '').replace(/\D/g, ''), 10);
+    return ROMAN[(num - 1) % 4] || 'I';
+}
+
+/**
+ * Returns true only if the season with the given ID is fully finished
+ * (has an end_date in the past).  Ongoing/upcoming seasons return false.
+ */
+function isSeasonFinished(seasonId) {
+    const meta = seasonsMeta[seasonId];
+    if (!meta) return false;
+    if (!meta.end_date) return false;
+    return new Date(meta.end_date) < new Date();
+}
+
 function getSeasonAchievements() {
     const achievements = [];
     const normalizedName = normalizeBeyName(beyName);
-    const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
-    const tierBadgeClasses = { '1': 'season-badge-tier1', '2': 'season-badge-tier2', '3': 'season-badge-tier3' };
-    const tierIcons = {
-        '1': '<img class="achievement-icon" src="icons/medal-gold.svg" alt="Gold Medal">',
-        '2': '<img class="achievement-icon" src="icons/medal-silver.svg" alt="Silver Medal">',
-        '3': '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Bronze Medal">'
-    };
+    const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
+    const tierBadgeClasses = { '1': 'season-badge-tier1', '2': 'season-badge-tier2', '3': 'season-badge-tier3', '4': 'season-badge-tier4' };
 
     Object.entries(seasonData).forEach(([seasonId, season]) => {
+        // Only show achievements for fully finished (past end_date) seasons
+        if (!isSeasonFinished(seasonId)) return;
+        const roman = seasonIdToRoman(seasonId);
         // Check tier champions
         if (season.league_tables && season.league_champion) {
             Object.entries(season.league_tables).forEach(([tierId, table]) => {
                 if (table && table.length > 0 && normalizeBeyName(table[0].bey) === normalizedName) {
+                    const badgeFile = `icons/badges/season/season-tier-${tierId}-${roman}.svg`;
                     achievements.push({
                         type: 'tier_champion',
                         seasonId,
                         tier: tierId,
                         label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
                         badgeClass: tierBadgeClasses[tierId] || 'season-badge-tier3',
-                        icon: tierIcons[tierId] || '<img class="achievement-icon" src="icons/medal-bronze.svg" alt="Medal">'
+                        icon: `<img class="achievement-icon" src="${badgeFile}" alt="${seasonId} Tier ${tierId} Champion">`
                     });
                 }
             });
@@ -809,7 +834,7 @@ function getSeasonAchievements() {
                 seasonId,
                 label: `${seasonId} Season Cup Winner`,
                 badgeClass: 'season-badge-cup',
-                icon: '<img class="achievement-icon" src="icons/star.svg" alt="Season Cup">'
+                icon: `<img class="achievement-icon" src="icons/badges/tournament/season-cup-${roman}.svg" alt="${seasonId} Season Cup">`
             });
         }
     });
@@ -863,18 +888,20 @@ function renderSeasonSection() {
 
     seasonSection.style.display = 'block';
 
-    const tierMedalFiles = { '1': 'medal-gold', '2': 'medal-silver', '3': 'medal-bronze' };
-    const tierMedalAlts  = { '1': 'Gold Medal', '2': 'Silver Medal', '3': 'Bronze Medal' };
+    const tierMedalAlts  = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
 
     const tableRows = entries.map(({ seasonId, tierId, entry, isTierChampion, isCupWinner }) => {
+        const roman = seasonIdToRoman(seasonId);
         const tierLabel = tierLabels[tierId] || `Tier ${tierId}`;
         const posClass = entry.position === 1 ? 'trend-very-positive' : entry.position <= 3 ? 'trend-positive' : '';
-        const medalFile = tierMedalFiles[tierId] || 'medal-bronze';
+        const medalFile = `badges/season/season-tier-${tierId}-${roman}`;
         const medalAlt  = tierMedalAlts[tierId]  || 'Medal';
-        const achievementBadges = [
+        // Only display champion/cup badges for fully finished seasons
+        const seasonDone = isSeasonFinished(seasonId);
+        const achievementBadges = seasonDone ? [
             isTierChampion ? `<span class="season-table-badge season-badge-tier${tierId}" title="${seasonId} ${tierLabel} Champion"><img class="achievement-icon" src="icons/${medalFile}.svg" alt="${medalAlt}"></span>` : '',
-            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner"><img class="achievement-icon" src="icons/star.svg" alt="Season Cup"></span>` : ''
-        ].filter(Boolean).join('');
+            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner"><img class="achievement-icon" src="icons/badges/tournament/season-cup-${roman}.svg" alt="Season Cup"></span>` : ''
+        ].filter(Boolean).join('') : '';
         const winrate = entry.matches > 0 ? Math.round((entry.wins / entry.matches) * 100) : 0;
         const wrClass = winrate >= 60 ? 'trend-positive' : winrate < 40 ? 'trend-negative' : '';
 
@@ -971,12 +998,12 @@ function renderKeyStats() {
         const xpIn = xpLeaderboardData.xp_in_level || 0;
         const xpNeeded = xpLeaderboardData.xp_needed_for_level || 1;
         const pct = Math.min((xpIn / xpNeeded) * 100, 100).toFixed(1);
-        const prestigeStars = prestige > 0 ? ' ' + '⭐'.repeat(Math.min(prestige, 5)) : '';
+        const prestigeStars = prestige > 0 ? ` <img style="width:30px;height:30px;vertical-align:middle;" src="icons/badges/prestige/prestige${Math.min(prestige,5)}.svg" alt="Prestige ${prestige}" title="Prestige ${prestige}">` : '';
         const xpCard = document.createElement('div');
         xpCard.className = 'key-stat-card';
         xpCard.innerHTML = `
             <div class="key-stat-label">Level</div>
-            <div class="key-stat-value">Lv.${lvl}${escapeHtml(prestigeStars)}</div>
+            <div class="key-stat-value"><img style="width:56px;height:56px;vertical-align:middle;" src="icons/badges/level/lv${lvl}.svg" alt="Level ${lvl}">${prestigeStars}</div>
             <div class="key-stat-desc">
                 <div style="margin-bottom:4px;">${Math.round(xpIn)} / ${Math.round(xpNeeded)} XP</div>
                 <div style="background:var(--bg-light,#e0e0e0);border-radius:4px;height:6px;overflow:hidden;">

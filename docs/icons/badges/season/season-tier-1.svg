@@ -1,0 +1,35 @@
+<svg width="84" height="84" viewBox="-6 -6 96 96" overflow="visible" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Season Tier I">
+<defs>
+  <radialGradient id="bgseas1" cx="36%" cy="30%" r="72%">
+    <stop offset="0%" stop-color="#150e00"/>
+    <stop offset="100%" stop-color="#080600"/>
+  </radialGradient>
+  <linearGradient id="rimseas1" x1="5%" y1="5%" x2="95%" y2="95%">
+    <stop offset="0%" stop-color="#fde68a"/>
+    <stop offset="45%" stop-color="#f59e0b"/>
+    <stop offset="100%" stop-color="#78350f"/>
+  </linearGradient>
+  <linearGradient id="shseas1" x1="18%" y1="0%" x2="82%" y2="100%">
+    <stop offset="0%" stop-color="white" stop-opacity="0.16"/>
+    <stop offset="55%" stop-color="white" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="glseas1" x="-30%" y="-30%" width="160%" height="160%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="haloseas1" x="-80%" y="-80%" width="360%" height="360%">
+    <feGaussianBlur stdDeviation="6" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <linearGradient id="pgseas1_0" x1="5%" y1="0%" x2="95%" y2="100%"><stop offset="0%" stop-color="#fde68a" stop-opacity="0.95"/><stop offset="38%" stop-color="#f59e0b" stop-opacity="0.9"/><stop offset="100%" stop-color="#78350f" stop-opacity="0.85"/></linearGradient>
+</defs>
+<path d="M71.83,24.78L71.83,59.22L42.00,76.44L12.17,59.22L12.17,24.78L42.00,7.56Z" fill="#f59e0b" fill-opacity="0.35" filter="url(#haloseas1)"/>
+<path d="M74.36,23.32L74.36,60.68L42.00,79.37L9.64,60.68L9.64,23.32L42.00,4.63Z" fill="url(#pgseas1_0)"/><path d="M71.83,24.78L71.83,59.22L42.00,76.44L12.17,59.22L12.17,24.78L42.00,7.56Z" fill="#080600"/><path d="M74.36,23.32L74.36,60.68L42.00,79.37L9.64,60.68L9.64,23.32L42.00,4.63Z" fill="none" stroke="#fde68a" stroke-width="0.8" stroke-opacity="0.48" stroke-linejoin="round"/><path d="M71.83,24.78L71.83,59.22L42.00,76.44L12.17,59.22L12.17,24.78L42.00,7.56Z" fill="none" stroke="#78350f" stroke-width="0.5" stroke-opacity="0.28" stroke-linejoin="round"/>
+<path d="M71.83,24.78L71.83,59.22L42.00,76.44L12.17,59.22L12.17,24.78L42.00,7.56Z" fill="url(#rimseas1)"/>
+<path d="M67.20,27.45L67.20,56.55L42.00,71.10L16.80,56.55L16.80,27.45L42.00,12.90Z" fill="#080600"/>
+<path d="M67.20,27.45L67.20,56.55L42.00,71.10L16.80,56.55L16.80,27.45L42.00,12.90Z" fill="none" stroke="url(#rimseas1)" stroke-width="1.51"/>
+<path d="M65.41,28.48L65.41,55.52L42.00,69.04L18.59,55.52L18.59,28.48L42.00,14.96Z" fill="url(#bgseas1)"/>
+<path d="M65.41,28.48L65.41,55.52L42.00,69.04L18.59,55.52L18.59,28.48L42.00,14.96Z" fill="url(#shseas1)"/>
+<path d="M70.04,25.81L70.04,58.19L42.00,74.37L13.96,58.19L13.96,25.81L42.00,9.63Z" fill="none" stroke="#fde68a" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/>
+<text x="42.00" y="42.00" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="20.2" fill="#fde68a" filter="url(#glseas1)">I</text>
+</svg>

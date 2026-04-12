@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beyblade X – Badge Preview (Copilot)</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #6366f1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 32px 24px;
+    }
+    h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 32px; }
+    h2 {
+      font-size: 1.1rem;
+      margin: 32px 0 12px;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+    .badge-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .badge-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 8px;
+      min-width: 64px;
+    }
+    .badge-item img {
+      width: 48px;
+      height: 48px;
+    }
+    .badge-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    /* Tier separators */
+    .tier-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 6px 0 2px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🏅 Badge Asset Preview</h1>
+<p class="subtitle">Generated SVG assets for Beyblade X ELO System — <code>docs/icons/badges/</code></p>
+
+<!-- ────────────────────────────────── Level Badges ────────────────────────────── -->
+<h2>Level Badges  (lv1 – lv49)</h2>
+
+<div class="tier-label">Tier: Iron (lv 1–9)</div>
+<div class="badge-grid" id="tier-iron"></div>
+
+<div class="tier-label">Tier: Bronze (lv 10–19)</div>
+<div class="badge-grid" id="tier-bronze"></div>
+
+<div class="tier-label">Tier: Silver (lv 20–29)</div>
+<div class="badge-grid" id="tier-silver"></div>
+
+<div class="tier-label">Tier: Gold (lv 30–39)</div>
+<div class="badge-grid" id="tier-gold"></div>
+
+<div class="tier-label">Tier: Diamond (lv 40–49)</div>
+<div class="badge-grid" id="tier-diamond"></div>
+
+
+<!-- ──────────────────────────────── Prestige Badges ──────────────────────────── -->
+<h2>Prestige Badges  (1–5 ⭐)</h2>
+<div class="badge-grid" id="prestige-grid"></div>
+
+
+<!-- ──────────────────────────────── Season Tier Icons ────────────────────────── -->
+<h2>Season Tier Icons  (I – IV)</h2>
+<div class="badge-grid" id="season-grid"></div>
+
+
+<!-- ────────────────────────────── Tournament Trophies ────────────────────────── -->
+<h2>Tournament Trophies  (1st – 3rd)</h2>
+<div class="badge-grid" id="trophy-grid"></div>
+
+
+<!-- ──────────────────────────────── Season Cup ───────────────────────────────── -->
+<h2>Season Cup Icon</h2>
+<div class="badge-grid" id="cup-grid"></div>
+
+
+<script>
+  // Helper
+  function addBadge(containerId, src, label) {
+    const c = document.getElementById(containerId);
+    const div = document.createElement('div');
+    div.className = 'badge-item';
+    div.innerHTML = `<img src="${src}" alt="${label}" loading="lazy"><span class="badge-label">${label}</span>`;
+    c.appendChild(div);
+  }
+
+  // Level badges
+  const tierRanges = {
+    'tier-iron':    Array.from({length: 9},  (_, i) => i + 1),
+    'tier-bronze':  Array.from({length: 10}, (_, i) => i + 10),
+    'tier-silver':  Array.from({length: 10}, (_, i) => i + 20),
+    'tier-gold':    Array.from({length: 10}, (_, i) => i + 30),
+    'tier-diamond': Array.from({length: 10}, (_, i) => i + 40),
+  };
+  for (const [id, levels] of Object.entries(tierRanges)) {
+    levels.forEach(lv => addBadge(id, `../docs/icons/badges/level/lv${lv}.svg`, `Lv ${lv}`));
+  }
+
+  // Prestige badges
+  const prestigeLabels = ['Prestige I', 'Prestige II', 'Prestige III', 'Prestige IV', 'Prestige V'];
+  prestigeLabels.forEach((lbl, i) => {
+    addBadge('prestige-grid', `../docs/icons/badges/prestige/prestige${i + 1}.svg`, lbl);
+  });
+
+  // Season tier icons
+  const seasonTierLabels = ['Tier I (Gold)', 'Tier II (Silver)', 'Tier III (Bronze)', 'Tier IV (Gunmetal)'];
+  seasonTierLabels.forEach((lbl, i) => {
+    addBadge('season-grid', `../docs/icons/badges/season/season-tier-${i + 1}.svg`, lbl);
+  });
+
+  // Tournament trophies
+  [['trophy-gold', '1st Place'], ['trophy-silver', '2nd Place'], ['trophy-bronze', '3rd Place']].forEach(([f, l]) => {
+    addBadge('trophy-grid', `../docs/icons/badges/tournament/${f}.svg`, l);
+  });
+
+  // Season cup
+  addBadge('cup-grid', '../docs/icons/badges/tournament/season-cup.svg', 'Season Cup');
+</script>
+</body>
+</html>
