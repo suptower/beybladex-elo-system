@@ -125,9 +125,10 @@ ELO_VERSION = 3  # Version 3: Smooth K-factor, form adjustment, tanh margin mode
 # Arena constants
 ARENA_XTREME = "Xtreme"
 ARENA_DROP_ATTACK = "Drop Attack"
+ARENA_DOUBLE_XTREME = "Double Xtreme"
 ARENA_COMBINED = "Combined"  # Tracks all matches from all arenas
-SUPPORTED_ARENAS = [ARENA_XTREME, ARENA_DROP_ATTACK]
-ALL_ARENAS = [ARENA_XTREME, ARENA_DROP_ATTACK, ARENA_COMBINED]  # Including combined
+SUPPORTED_ARENAS = [ARENA_XTREME, ARENA_DROP_ATTACK, ARENA_DOUBLE_XTREME]
+ALL_ARENAS = [ARENA_XTREME, ARENA_DROP_ATTACK, ARENA_DOUBLE_XTREME, ARENA_COMBINED]  # Including combined
 
 # ------------ Arena normalization ------------
 
@@ -144,6 +145,10 @@ def normalize_arena_name(arena):
         "Drop Attack": ARENA_DROP_ATTACK,
         "DropAttack": ARENA_DROP_ATTACK,
         "drop_attack": ARENA_DROP_ATTACK,
+        "double xtreme": ARENA_DOUBLE_XTREME,
+        "Double Xtreme": ARENA_DOUBLE_XTREME,
+        "DoubleXtreme": ARENA_DOUBLE_XTREME,
+        "double_xtreme": ARENA_DOUBLE_XTREME,
         "combined": ARENA_COMBINED,
         "Combined": ARENA_COMBINED,
         "global": ARENA_COMBINED,

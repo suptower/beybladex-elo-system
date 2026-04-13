@@ -58,7 +58,10 @@ STADIUM_ALIASES = {
     "Drop Attack": "Drop Attack Beystadium",
     "DropAttack": "Drop Attack Beystadium",
     "drop_attack": "Drop Attack Beystadium",
-    "xtreme": "Xtreme Stadium"
+    "xtreme": "Xtreme Stadium",
+    "DoubleXtreme": "Double Xtreme Stadium",
+    "Double Xtreme": "Double Xtreme Stadium",
+    "double_xtreme": "Double Xtreme Stadium",
 }
 
 

@@ -97,10 +97,12 @@ LEADERBOARD_V1_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_v1.csv")
 LEADERBOARD_V2_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_v2.csv")
 ADVANCED_LEADERBOARD_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard.csv")
 ADVANCED_LEADERBOARD_DROP_ATTACK_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard_drop_attack.csv")
+ADVANCED_LEADERBOARD_DOUBLE_XTREME_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard_double_xtreme.csv")
 ADVANCED_LEADERBOARD_COMBINED_CSV = os.path.join(LEADERBOARD_DIR, "advanced_leaderboard_combined.csv")
 LEADERBOARD_ALL_ARENAS_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_all_arenas.csv")
 LEADERBOARD_COMBINED_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_combined.csv")
 LEADERBOARD_DROP_ATTACK_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_drop_attack.csv")
+LEADERBOARD_DOUBLE_XTREME_CSV = os.path.join(LEADERBOARD_DIR, "leaderboard_double_xtreme.csv")
 PRIVATE_LEADERBOARD_CSV = os.path.join(LEADERBOARD_DIR, "private_leaderboard.csv")
 
 # ---------------------------------------------------------------------------
