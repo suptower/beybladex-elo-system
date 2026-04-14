@@ -73,23 +73,31 @@ async function loadMilestones() {
                 {
                     title: 'Longest Win Streak',
                     items: data.match_and_win_records.longest_win_streak,
-                    formatValue: (item) => `${item.value} wins`
+                    formatValue: (item) => `${item.value} wins`,
+                    section: 'match_and_win_records',
+                    stat: 'longest_win_streak'
                 },
                 {
                     title: 'Longest Losing Streak',
                     items: data.match_and_win_records.longest_losing_streak,
-                    formatValue: (item) => `${item.value} losses`
+                    formatValue: (item) => `${item.value} losses`,
+                    section: 'match_and_win_records',
+                    stat: 'longest_losing_streak'
                 },
                 {
                     title: 'Most Total Wins',
                     items: data.match_and_win_records.most_total_wins,
-                    formatValue: (item) => `${item.value} wins`
+                    formatValue: (item) => `${item.value} wins`,
+                    section: 'match_and_win_records',
+                    stat: 'most_total_wins'
                 },
                 {
                     title: 'Highest Win Rate',
                     items: data.match_and_win_records.highest_win_rate,
                     formatValue: (item) => `${item.value.toFixed(1)}% (${item.matches} matches)`,
-                    subtitle: `Minimum ${data.metadata.min_matches_for_winrate} matches`
+                    subtitle: `Minimum ${data.metadata.min_matches_for_winrate} matches`,
+                    section: 'match_and_win_records',
+                    stat: 'highest_win_rate'
                 }
             ]
         );
@@ -103,28 +111,38 @@ async function loadMilestones() {
                 {
                     title: 'Most Spin Finishes',
                     items: data.finish_specialists.most_spin_finishes,
-                    formatValue: (item) => `${item.value} spin finishes`
+                    formatValue: (item) => `${item.value} spin finishes`,
+                    section: 'finish_specialists',
+                    stat: 'most_spin_finishes'
                 },
                 {
                     title: 'Most Burst Finishes',
                     items: data.finish_specialists.most_burst_finishes,
-                    formatValue: (item) => `${item.value} burst finishes`
+                    formatValue: (item) => `${item.value} burst finishes`,
+                    section: 'finish_specialists',
+                    stat: 'most_burst_finishes'
                 },
                 {
                     title: 'Most Pocket Finishes',
                     items: data.finish_specialists.most_pocket_finishes,
-                    formatValue: (item) => `${item.value} pocket finishes`
+                    formatValue: (item) => `${item.value} pocket finishes`,
+                    section: 'finish_specialists',
+                    stat: 'most_pocket_finishes'
                 },
                 {
                     title: 'Most Extreme Finishes',
                     items: data.finish_specialists.most_extreme_finishes,
-                    formatValue: (item) => `${item.value} extreme finishes`
+                    formatValue: (item) => `${item.value} extreme finishes`,
+                    section: 'finish_specialists',
+                    stat: 'most_extreme_finishes'
                 },
                 {
                     title: 'Highest Finish Diversity',
                     items: data.finish_specialists.highest_finish_diversity,
                     formatValue: (item) => `${item.value}% distribution score`,
-                    subtitle: 'Most evenly distributed finish types (25% each is perfect)'
+                    subtitle: 'Most evenly distributed finish types (25% each is perfect)',
+                    section: 'finish_specialists',
+                    stat: 'highest_finish_diversity'
                 }
             ]
         );
@@ -138,19 +156,25 @@ async function loadMilestones() {
                 {
                     title: 'Highest ELO Ever Reached',
                     items: data.elo_performance_extremes.highest_elo_ever,
-                    formatValue: (item) => `${item.value.toFixed(1)} ELO`
+                    formatValue: (item) => `${item.value.toFixed(1)} ELO`,
+                    section: 'elo_performance_extremes',
+                    stat: 'highest_elo_ever'
                 },
                 {
                     title: 'Biggest ELO Upclimb',
                     items: data.elo_performance_extremes.biggest_elo_upclimb,
                     formatValue: (item) => `+${item.climb.toFixed(1)} ELO (${item.from_elo.toFixed(0)} → ${item.to_elo.toFixed(0)})`,
-                    subtitle: 'Largest continuous ELO gain'
+                    subtitle: 'Largest continuous ELO gain',
+                    section: 'elo_performance_extremes',
+                    stat: 'biggest_elo_upclimb'
                 },
                 {
                     title: 'Biggest ELO Downfall',
                     items: data.elo_performance_extremes.biggest_elo_downfall,
                     formatValue: (item) => `-${item.fall.toFixed(1)} ELO (${item.from_elo.toFixed(0)} → ${item.to_elo.toFixed(0)})`,
-                    subtitle: 'Largest continuous ELO loss'
+                    subtitle: 'Largest continuous ELO loss',
+                    section: 'elo_performance_extremes',
+                    stat: 'biggest_elo_downfall'
                 }
             ]
         );
@@ -165,25 +189,33 @@ async function loadMilestones() {
                     title: 'Best Upsetter',
                     items: data.upsets_and_clutch.best_upsetter,
                     formatValue: (item) => `${item.value} upset wins`,
-                    subtitle: 'Most wins against higher-ELO opponents'
+                    subtitle: 'Most wins against higher-ELO opponents',
+                    section: 'upsets_and_clutch',
+                    stat: 'best_upsetter'
                 },
                 {
                     title: 'Biggest Single Upset',
                     items: data.upsets_and_clutch.biggest_single_upset,
                     formatValue: (item) => `${item.elo_diff.toFixed(1)} ELO difference vs ${item.opponent} (Match #${item.match_id})`,
-                    subtitle: 'Largest ELO gap overcome in one match'
+                    subtitle: 'Largest ELO gap overcome in one match',
+                    section: 'upsets_and_clutch',
+                    stat: 'biggest_single_upset'
                 },
                 {
                     title: 'Giant Killer (Top 5)',
                     items: data.upsets_and_clutch.giant_killer_top5,
                     formatValue: (item) => `${item.value} wins vs Top 5`,
-                    subtitle: 'Most wins against Top-5 ranked Beys'
+                    subtitle: 'Most wins against Top-5 ranked Beys',
+                    section: 'upsets_and_clutch',
+                    stat: 'giant_killer_top5'
                 },
                 {
                     title: 'Giant Killer (Top 10)',
                     items: data.upsets_and_clutch.giant_killer_top10,
                     formatValue: (item) => `${item.value} wins vs Top 10`,
-                    subtitle: 'Most wins against Top-10 ranked Beys'
+                    subtitle: 'Most wins against Top-10 ranked Beys',
+                    section: 'upsets_and_clutch',
+                    stat: 'giant_killer_top10'
                 }
             ]
         );
@@ -197,29 +229,84 @@ async function loadMilestones() {
                 {
                     title: 'Most Matches Played',
                     items: data.consistency_and_longevity.most_matches_played,
-                    formatValue: (item) => `${item.value} matches`
+                    formatValue: (item) => `${item.value} matches`,
+                    section: 'consistency_and_longevity',
+                    stat: 'most_matches_played'
                 },
                 {
                     title: 'Most Time in Top 5',
                     items: data.consistency_and_longevity.most_time_in_top_5,
                     formatValue: (item) => `${item.value} match periods`,
-                    subtitle: 'Number of matches spent in top 5 ranking'
+                    subtitle: 'Number of matches spent in top 5 ranking',
+                    section: 'consistency_and_longevity',
+                    stat: 'most_time_in_top_5'
                 },
                 {
                     title: 'Most Time in Top 10',
                     items: data.consistency_and_longevity.most_time_in_top_10,
                     formatValue: (item) => `${item.value} match periods`,
-                    subtitle: 'Number of matches spent in top 10 ranking'
+                    subtitle: 'Number of matches spent in top 10 ranking',
+                    section: 'consistency_and_longevity',
+                    stat: 'most_time_in_top_10'
                 },
                 {
                     title: 'Most Stable Bey',
                     items: data.consistency_and_longevity.most_stable_bey,
                     formatValue: (item) => `${item.value.toFixed(1)} variance`,
-                    subtitle: 'Lowest ELO variance (most consistent performance)'
+                    subtitle: 'Lowest ELO variance (most consistent performance)',
+                    section: 'consistency_and_longevity',
+                    stat: 'most_stable_bey'
                 }
             ]
         );
         container.appendChild(consistencySection);
+
+        // Points & Round Statistics
+        const pointsSection = createMilestoneSection(
+            '🎯 Points & Round Statistics',
+            'Scoring efficiency and round-level performance',
+            [
+                {
+                    title: 'Most Total Points',
+                    items: data.points_and_rounds.most_total_points,
+                    formatValue: (item) => `${item.value} pts`,
+                    subtitle: 'Total points accumulated across all round wins',
+                    section: 'points_and_rounds',
+                    stat: 'most_total_points'
+                },
+                {
+                    title: 'Most Rounds Won',
+                    items: data.points_and_rounds.most_rounds_won,
+                    formatValue: (item) => `${item.value} rounds`,
+                    section: 'points_and_rounds',
+                    stat: 'most_rounds_won'
+                },
+                {
+                    title: 'Most Rounds Played',
+                    items: data.points_and_rounds.most_rounds_played,
+                    formatValue: (item) => `${item.value} rounds`,
+                    section: 'points_and_rounds',
+                    stat: 'most_rounds_played'
+                },
+                {
+                    title: 'Best Points per Round (Played)',
+                    items: data.points_and_rounds.most_points_per_round_played,
+                    formatValue: (item) => `${item.value.toFixed(3)} pts/round`,
+                    subtitle: 'Average points earned per round participated in',
+                    section: 'points_and_rounds',
+                    stat: 'most_points_per_round_played'
+                },
+                {
+                    title: 'Best Points per Round Won',
+                    items: data.points_and_rounds.most_points_per_round_won,
+                    formatValue: (item) => `${item.value.toFixed(3)} pts/win`,
+                    subtitle: 'Average points per round won — higher values indicate more burst finishes',
+                    section: 'points_and_rounds',
+                    stat: 'most_points_per_round_won'
+                }
+            ]
+        );
+        container.appendChild(pointsSection);
         
     } catch (error) {
         console.error('Error loading milestones:', error);
@@ -304,6 +391,19 @@ function createMilestoneCard(milestone) {
     }
     
     card.appendChild(entriesTable);
+
+    // "View full table" link — links to stats-table.html with the appropriate stat params
+    if (milestone.section && milestone.stat) {
+        const footer = document.createElement('div');
+        footer.className = 'milestone-card-footer';
+        const link = document.createElement('a');
+        link.href = `stats-table.html?section=${encodeURIComponent(milestone.section)}&stat=${encodeURIComponent(milestone.stat)}&title=${encodeURIComponent(milestone.title)}`;
+        link.className = 'milestone-view-all';
+        link.textContent = 'View full table →';
+        footer.appendChild(link);
+        card.appendChild(footer);
+    }
+
     return card;
 }
 
@@ -590,6 +690,27 @@ document.addEventListener('DOMContentLoaded', loadMilestones);
     .milestone-value {
         font-size: 0.85rem;
     }
+}
+
+/* View Full Table Footer */
+.milestone-card-footer {
+    padding: 0.625rem 1.25rem;
+    border-top: 1px solid var(--border-color);
+    text-align: right;
+    background: var(--bg-secondary);
+}
+
+.milestone-view-all {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.milestone-view-all:hover {
+    color: var(--accent);
+    text-decoration: underline;
 }
 </style>
 

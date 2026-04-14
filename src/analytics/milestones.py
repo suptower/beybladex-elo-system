@@ -16,6 +16,7 @@ Categories:
 3. ELO & Performance Extremes - Peak ELO, continuous upclimb/downfall
 4. Upsets & Clutch Performance - Giant killers, biggest upsets
 5. Consistency & Longevity - Total matches, tournaments, stability
+6. Points & Round Statistics - Total points, rounds played/won, points-per-round efficiency
 """
 
 import csv
@@ -61,6 +62,8 @@ MILESTONES_FILE = MILESTONES_JSON
 
 # Configuration
 MIN_MATCHES_FOR_WINRATE = 20  # Minimum matches to qualify for win rate records
+MIN_ROUNDS_PLAYED_FOR_PPR = 20  # Minimum rounds played to qualify for points-per-round-played
+MIN_ROUNDS_WON_FOR_PPRW = 10   # Minimum rounds won to qualify for points-per-round-won
 
 
 def load_csv_to_dict(filepath: str) -> List[Dict[str, str]]:
@@ -449,8 +452,16 @@ def format_milestone_entry(bey: str, value: Any, category: str) -> Dict[str, Any
     return entry
 
 
-def get_top_n_milestones(data: Dict[str, Any], n: int = 5) -> List[Dict[str, Any]]:
-    """Get top N entries from a milestone category."""
+def _sorted_milestone_list(sorted_items: List[Tuple], n: int = None) -> List[Dict[str, Any]]:
+    """Convert a list of (bey, value) tuples into the standard milestone list format,
+    optionally truncating to the first *n* entries."""
+    if n is not None:
+        sorted_items = sorted_items[:n]
+    return [{'bey': bey, 'value': value} for bey, value in sorted_items]
+
+
+def get_top_n_milestones(data: Dict[str, Any], n: int = None) -> List[Dict[str, Any]]:
+    """Get top N entries from a milestone category. If n is None, return all entries."""
     if not data:
         return []
 
@@ -462,32 +473,67 @@ def get_top_n_milestones(data: Dict[str, Any], n: int = 5) -> List[Dict[str, Any
         return value
 
     sorted_items = sorted(data.items(), key=get_sort_key, reverse=True)
-
-    results = []
-    for bey, value in sorted_items[:n]:
-        results.append({
-            'bey': bey,
-            'value': value
-        })
-
-    return results
+    return _sorted_milestone_list(sorted_items, n)
 
 
-def get_bottom_n_milestones(data: Dict[str, Any], n: int = 5) -> List[Dict[str, Any]]:
-    """Get bottom N entries from a milestone category (for stability - lowest variance is best)."""
+def get_bottom_n_milestones(data: Dict[str, Any], n: int = None) -> List[Dict[str, Any]]:
+    """Get bottom N entries from a milestone category (for stability - lowest variance is best).
+    If n is None, return all entries."""
     if not data:
         return []
 
     sorted_items = sorted(data.items(), key=lambda x: x[1])
+    return _sorted_milestone_list(sorted_items, n)
 
-    results = []
-    for bey, value in sorted_items[:n]:
-        results.append({
-            'bey': bey,
-            'value': value
-        })
 
-    return results
+def calculate_points_stats(rounds: List[Dict[str, str]], matches: List[Dict[str, str]]) -> Dict[str, Any]:
+    """
+    Calculate points and round statistics for each Bey.
+
+    Returns dict with:
+    - total_points: {bey: int}  — sum of points_awarded for all rounds won
+    - rounds_won: {bey: int}    — number of rounds won
+    - rounds_played: {bey: int} — number of rounds participated in
+    - points_per_round_played: {bey: float} — avg points earned per round played
+    - points_per_round_won: {bey: float}    — avg points per round won (burst-rate proxy)
+    """
+    match_lookup = {m['MatchID']: m for m in matches}
+
+    total_points: Dict[str, int] = defaultdict(int)
+    rounds_won: Dict[str, int] = defaultdict(int)
+    rounds_played: Dict[str, int] = defaultdict(int)
+
+    for round_data in rounds:
+        match_id = round_data['match_id']
+        winner = round_data['winner']
+        points = int(round_data['points_awarded'])
+
+        total_points[winner] += points
+        rounds_won[winner] += 1
+
+        match = match_lookup.get(match_id)
+        if match:
+            rounds_played[match['BeyA']] += 1
+            rounds_played[match['BeyB']] += 1
+
+    # Minimum thresholds to qualify (avoids noise from beys with few rounds)
+    points_per_round_played: Dict[str, float] = {}
+    for bey, rp in rounds_played.items():
+        if rp >= MIN_ROUNDS_PLAYED_FOR_PPR:
+            points_per_round_played[bey] = round(total_points[bey] / rp, 3)
+
+    points_per_round_won: Dict[str, float] = {}
+    for bey, rw in rounds_won.items():
+        if rw >= MIN_ROUNDS_WON_FOR_PPRW:
+            points_per_round_won[bey] = round(total_points[bey] / rw, 3)
+
+    return {
+        'total_points': dict(total_points),
+        'rounds_won': dict(rounds_won),
+        'rounds_played': dict(rounds_played),
+        'points_per_round_played': points_per_round_played,
+        'points_per_round_won': points_per_round_won,
+    }
 
 
 def calculate_giant_killer_from_top_ranks(elo_history: List[Dict[str, str]],
@@ -582,7 +628,11 @@ def compute_milestones():
     print(f"{YELLOW}{RESET} Calculating Stability...")
     stability = calculate_stability(elo_history)
 
-    # Compile all milestones
+    print(f"{YELLOW}{RESET} Calculating Points & Round Statistics...")
+    points_stats = calculate_points_stats(rounds, matches)
+
+    # Compile all milestones — every list contains ALL beys sorted by value so that
+    # the frontend can render both the top-3 preview and a "full table" for each stat.
     milestones = {
         'match_and_win_records': {
             'longest_win_streak': get_top_n_milestones(streaks['longest_win_streak']),
@@ -596,7 +646,7 @@ def compute_milestones():
                 }
                 for bey, (win_rate, matches_count) in sorted(
                     win_rates.items(), key=lambda x: x[1][0], reverse=True
-                )[:5]
+                )
             ]
         },
         'finish_specialists': {
@@ -617,7 +667,7 @@ def compute_milestones():
                 }
                 for bey, (climb, from_elo, to_elo) in sorted(
                     elo_extremes['biggest_upclimb'].items(), key=lambda x: x[1][0], reverse=True
-                )[:5]
+                )
             ],
             'biggest_elo_downfall': [
                 {
@@ -628,7 +678,7 @@ def compute_milestones():
                 }
                 for bey, (fall, from_elo, to_elo) in sorted(
                     elo_extremes['biggest_downfall'].items(), key=lambda x: x[1][0], reverse=True
-                )[:5]
+                )
             ]
         },
         'upsets_and_clutch': {
@@ -642,7 +692,7 @@ def compute_milestones():
                 }
                 for bey, (elo_diff, opponent, match_id) in sorted(
                     upset_stats['biggest_single_upset'].items(), key=lambda x: x[1][0], reverse=True
-                )[:5]
+                )
             ],
             'giant_killer_top5': get_top_n_milestones(giant_killer_top5),
             'giant_killer_top10': get_top_n_milestones(giant_killer_top10)
@@ -652,6 +702,13 @@ def compute_milestones():
             'most_time_in_top_5': get_top_n_milestones(top_rank_time['time_in_top_5']),
             'most_time_in_top_10': get_top_n_milestones(top_rank_time['time_in_top_10']),
             'most_stable_bey': get_bottom_n_milestones(stability)
+        },
+        'points_and_rounds': {
+            'most_total_points': get_top_n_milestones(points_stats['total_points']),
+            'most_rounds_won': get_top_n_milestones(points_stats['rounds_won']),
+            'most_rounds_played': get_top_n_milestones(points_stats['rounds_played']),
+            'most_points_per_round_played': get_top_n_milestones(points_stats['points_per_round_played']),
+            'most_points_per_round_won': get_top_n_milestones(points_stats['points_per_round_won']),
         },
         'metadata': {
             'generated_at': datetime.datetime.now().isoformat(),
