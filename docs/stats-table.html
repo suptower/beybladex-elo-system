@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X - Full Statistics</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Full Statistics</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="page-intro">
+        <p id="page-description">Complete ranked data for all Beyblades across every tracked statistic.</p>
+    </div>
+
+    <!-- Stat selector -->
+    <div id="stat-selector-container">
+        <div class="stat-selector-wrapper">
+            <label for="stat-selector" class="stat-selector-label">Select statistic:</label>
+            <select id="stat-selector" class="stat-selector-select">
+                <option value="">— Choose a statistic —</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Table container -->
+    <div id="stats-table-container">
+        <div class="loading-placeholder">Loading data…</div>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 suptower • <span id="site-version">Loading version...</span></p>
+</footer>
+
+<script src="version-display.js"></script>
+<script>
+// ---------------------------------------------------------------------------
+// Format functions — must stay in sync with milestones.html
+// ---------------------------------------------------------------------------
+const FORMAT_FUNCTIONS = {
+    'match_and_win_records.longest_win_streak':   (item) => `${item.value} wins`,
+    'match_and_win_records.longest_losing_streak': (item) => `${item.value} losses`,
+    'match_and_win_records.most_total_wins':       (item) => `${item.value} wins`,
+    'match_and_win_records.highest_win_rate':      (item) => `${item.value.toFixed(1)}% (${item.matches} matches)`,
+
+    'finish_specialists.most_spin_finishes':     (item) => `${item.value} spin finishes`,
+    'finish_specialists.most_burst_finishes':    (item) => `${item.value} burst finishes`,
+    'finish_specialists.most_pocket_finishes':   (item) => `${item.value} pocket finishes`,
+    'finish_specialists.most_extreme_finishes':  (item) => `${item.value} extreme finishes`,
+    'finish_specialists.highest_finish_diversity': (item) => `${item.value}% distribution score`,
+
+    'elo_performance_extremes.highest_elo_ever':    (item) => `${item.value.toFixed(1)} ELO`,
+    'elo_performance_extremes.biggest_elo_upclimb': (item) => `+${item.climb.toFixed(1)} ELO (${item.from_elo.toFixed(0)} → ${item.to_elo.toFixed(0)})`,
+    'elo_performance_extremes.biggest_elo_downfall': (item) => `-${item.fall.toFixed(1)} ELO (${item.from_elo.toFixed(0)} → ${item.to_elo.toFixed(0)})`,
+
+    'upsets_and_clutch.best_upsetter':        (item) => `${item.value} upset wins`,
+    'upsets_and_clutch.biggest_single_upset': (item) => `${item.elo_diff.toFixed(1)} ELO diff vs ${item.opponent} (Match #${item.match_id})`,
+    'upsets_and_clutch.giant_killer_top5':    (item) => `${item.value} wins vs Top 5`,
+    'upsets_and_clutch.giant_killer_top10':   (item) => `${item.value} wins vs Top 10`,
+
+    'consistency_and_longevity.most_matches_played': (item) => `${item.value} matches`,
+    'consistency_and_longevity.most_time_in_top_5':  (item) => `${item.value} match periods`,
+    'consistency_and_longevity.most_time_in_top_10': (item) => `${item.value} match periods`,
+    'consistency_and_longevity.most_stable_bey':     (item) => `${item.value.toFixed(1)} variance`,
+
+    'points_and_rounds.most_total_points':            (item) => `${item.value} pts`,
+    'points_and_rounds.most_rounds_won':              (item) => `${item.value} rounds`,
+    'points_and_rounds.most_rounds_played':           (item) => `${item.value} rounds`,
+    'points_and_rounds.most_points_per_round_played': (item) => `${item.value.toFixed(3)} pts/round`,
+    'points_and_rounds.most_points_per_round_won':    (item) => `${item.value.toFixed(3)} pts/win`,
+};
+
+// Human-readable labels for the selector
+const STAT_LABELS = [
+    { section: 'match_and_win_records',   stat: 'longest_win_streak',           label: '🏆 Longest Win Streak' },
+    { section: 'match_and_win_records',   stat: 'longest_losing_streak',        label: '🏆 Longest Losing Streak' },
+    { section: 'match_and_win_records',   stat: 'most_total_wins',              label: '🏆 Most Total Wins' },
+    { section: 'match_and_win_records',   stat: 'highest_win_rate',             label: '🏆 Highest Win Rate' },
+    { section: 'finish_specialists',      stat: 'most_spin_finishes',           label: '🔥 Most Spin Finishes' },
+    { section: 'finish_specialists',      stat: 'most_burst_finishes',          label: '🔥 Most Burst Finishes' },
+    { section: 'finish_specialists',      stat: 'most_pocket_finishes',         label: '🔥 Most Pocket Finishes' },
+    { section: 'finish_specialists',      stat: 'most_extreme_finishes',        label: '🔥 Most Extreme Finishes' },
+    { section: 'finish_specialists',      stat: 'highest_finish_diversity',     label: '🔥 Highest Finish Diversity' },
+    { section: 'elo_performance_extremes', stat: 'highest_elo_ever',            label: '📈 Highest ELO Ever Reached' },
+    { section: 'elo_performance_extremes', stat: 'biggest_elo_upclimb',         label: '📈 Biggest ELO Upclimb' },
+    { section: 'elo_performance_extremes', stat: 'biggest_elo_downfall',        label: '📈 Biggest ELO Downfall' },
+    { section: 'upsets_and_clutch',       stat: 'best_upsetter',               label: '🎯 Best Upsetter' },
+    { section: 'upsets_and_clutch',       stat: 'biggest_single_upset',        label: '🎯 Biggest Single Upset' },
+    { section: 'upsets_and_clutch',       stat: 'giant_killer_top5',           label: '🎯 Giant Killer (Top 5)' },
+    { section: 'upsets_and_clutch',       stat: 'giant_killer_top10',          label: '🎯 Giant Killer (Top 10)' },
+    { section: 'consistency_and_longevity', stat: 'most_matches_played',       label: '🧠 Most Matches Played' },
+    { section: 'consistency_and_longevity', stat: 'most_time_in_top_5',        label: '🧠 Most Time in Top 5' },
+    { section: 'consistency_and_longevity', stat: 'most_time_in_top_10',       label: '🧠 Most Time in Top 10' },
+    { section: 'consistency_and_longevity', stat: 'most_stable_bey',           label: '🧠 Most Stable Bey' },
+    { section: 'points_and_rounds',       stat: 'most_total_points',           label: '🎯 Most Total Points' },
+    { section: 'points_and_rounds',       stat: 'most_rounds_won',             label: '🎯 Most Rounds Won' },
+    { section: 'points_and_rounds',       stat: 'most_rounds_played',          label: '🎯 Most Rounds Played' },
+    { section: 'points_and_rounds',       stat: 'most_points_per_round_played', label: '🎯 Best Points per Round (Played)' },
+    { section: 'points_and_rounds',       stat: 'most_points_per_round_won',   label: '🎯 Best Points per Round Won' },
+];
+
+let milestonesData = null;
+
+async function loadData() {
+    try {
+        const response = await fetch(DATA_PATHS.MILESTONES_JSON);
+        milestonesData = await response.json();
+        populateSelector();
+        applyUrlParams();
+    } catch (err) {
+        console.error('Error loading milestones data:', err);
+        document.getElementById('stats-table-container').innerHTML =
+            '<p class="error-text">Failed to load statistics data.</p>';
+    }
+}
+
+function populateSelector() {
+    const select = document.getElementById('stat-selector');
+    STAT_LABELS.forEach(({ section, stat, label }) => {
+        const opt = document.createElement('option');
+        opt.value = `${section}.${stat}`;
+        opt.textContent = label;
+        select.appendChild(opt);
+    });
+
+    select.addEventListener('change', () => {
+        const [section, stat] = select.value.split('.');
+        if (section && stat) {
+            const labelObj = STAT_LABELS.find(l => l.section === section && l.stat === stat);
+            renderTable(section, stat, labelObj ? labelObj.label : stat);
+            // Update URL without reloading
+            const params = new URLSearchParams({ section, stat, title: labelObj ? labelObj.label : stat });
+            history.replaceState(null, '', `?${params.toString()}`);
+        } else {
+            document.getElementById('stats-table-container').innerHTML =
+                '<p class="select-prompt">Please select a statistic from the dropdown above.</p>';
+        }
+    });
+}
+
+function applyUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get('section');
+    const stat    = params.get('stat');
+    const title   = params.get('title');
+
+    const select = document.getElementById('stat-selector');
+    if (section && stat) {
+        select.value = `${section}.${stat}`;
+        renderTable(section, stat, title || stat);
+    } else {
+        document.getElementById('stats-table-container').innerHTML =
+            '<p class="select-prompt">Please select a statistic from the dropdown above.</p>';
+    }
+}
+
+function renderTable(section, stat, title) {
+    const container = document.getElementById('stats-table-container');
+    container.innerHTML = '';
+
+    if (!milestonesData || !milestonesData[section]) {
+        container.innerHTML = '<p class="error-text">Section not found.</p>';
+        return;
+    }
+
+    const items = milestonesData[section][stat];
+    if (!items || items.length === 0) {
+        container.innerHTML = '<p class="no-data">No data available for this statistic.</p>';
+        return;
+    }
+
+    const formatKey = `${section}.${stat}`;
+    const formatFn = FORMAT_FUNCTIONS[formatKey] || ((item) => {
+        if (item.value !== undefined) return String(item.value);
+        return JSON.stringify(item);
+    });
+
+    // Update page description
+    const labelObj = STAT_LABELS.find(l => l.section === section && l.stat === stat);
+    document.getElementById('page-description').textContent =
+        `${items.length} Beyblades ranked by: ${labelObj ? labelObj.label.replace(/^[^\s]+ /, '') : title}`;
+
+    // Build table
+    const tableWrap = document.createElement('div');
+    tableWrap.className = 'stats-table-wrapper';
+
+    const tableHeader = document.createElement('div');
+    tableHeader.className = 'stats-table-header';
+    tableHeader.innerHTML = `
+        <h2 class="stats-table-title">${title}</h2>
+        <a href="milestones.html" class="back-to-milestones">← Back to Milestones</a>
+    `;
+    tableWrap.appendChild(tableHeader);
+
+    const table = document.createElement('table');
+    table.className = 'stats-full-table';
+
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th class="col-rank">#</th>
+            <th class="col-bey">Bey</th>
+            <th class="col-value">Value</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    items.forEach((item, index) => {
+        const rank = index + 1;
+        const tr = document.createElement('tr');
+        if (rank <= 3) tr.classList.add(`rank-${rank}`);
+
+        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+
+        tr.innerHTML = `
+            <td class="col-rank">${medal}</td>
+            <td class="col-bey">
+                <a href="bey.html?name=${encodeURIComponent(item.bey)}" class="bey-link" data-bey="${item.bey}">${item.bey}</a>
+            </td>
+            <td class="col-value">${formatFn(item)}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    tableWrap.appendChild(table);
+    container.appendChild(tableWrap);
+}
+
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+
+<style>
+/* Page Layout */
+.page-intro {
+    max-width: 800px;
+    margin: 0 auto 1.5rem;
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Stat Selector */
+#stat-selector-container {
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    padding: 0 1rem;
+}
+
+.stat-selector-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stat-selector-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.stat-selector-select {
+    width: 100%;
+    padding: 0.625rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.stat-selector-select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* Table Container */
+#stats-table-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 1rem 3rem;
+}
+
+.stats-table-wrapper {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Table Header */
+.stats-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem 0.875rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stats-table-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.back-to-milestones {
+    font-size: 0.8rem;
+    color: var(--link-color);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.back-to-milestones:hover {
+    text-decoration: underline;
+    color: var(--accent);
+}
+
+/* Full Table */
+.stats-full-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.stats-full-table thead th {
+    padding: 0.625rem 1rem;
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stats-full-table thead th.col-value {
+    text-align: right;
+}
+
+.stats-full-table tbody tr {
+    transition: background 0.15s;
+}
+
+.stats-full-table tbody tr:not(:last-child) {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stats-full-table tbody tr:hover {
+    background: var(--hover-bg);
+}
+
+/* Top-3 row highlights */
+.stats-full-table tbody tr.rank-1 {
+    background: linear-gradient(to right, rgba(255, 215, 0, 0.1), transparent);
+}
+.stats-full-table tbody tr.rank-2 {
+    background: linear-gradient(to right, rgba(192, 192, 192, 0.08), transparent);
+}
+.stats-full-table tbody tr.rank-3 {
+    background: linear-gradient(to right, rgba(205, 127, 50, 0.08), transparent);
+}
+
+.stats-full-table tbody tr.rank-1:hover,
+.stats-full-table tbody tr.rank-2:hover,
+.stats-full-table tbody tr.rank-3:hover {
+    background: var(--hover-bg);
+}
+
+.stats-full-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+
+.col-rank {
+    width: 3rem;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1rem !important;
+    flex-shrink: 0;
+}
+
+.col-value {
+    text-align: right;
+    font-size: 0.875rem !important;
+    font-weight: 600;
+    color: var(--text-secondary) !important;
+    white-space: nowrap;
+}
+
+.bey-link {
+    font-weight: 600;
+    color: var(--link-color);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.bey-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+/* States */
+.select-prompt,
+.no-data {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 3rem 1rem;
+}
+
+.error-text {
+    text-align: center;
+    color: var(--error-color, #ef4444);
+    padding: 2rem;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.loading-placeholder {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (min-width: 600px) {
+    .stat-selector-wrapper {
+        flex-direction: row;
+        align-items: center;
+    }
+    .stat-selector-label {
+        white-space: nowrap;
+    }
+}
+</style>
+
+</body>
+</html>
