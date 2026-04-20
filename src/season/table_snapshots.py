@@ -22,12 +22,16 @@ Columns:
     - point_diff: Points for - Points against
     - elo: Current ELO rating
     - position_delta: Change in position from previous matchday (can be +N, -N, or 0)
+    - irw: Individual rounds won (count of rounds won, not points)
+    - irl: Individual rounds lost (count of rounds lost)
+    - ppr: Season points per match played
+    - ppw: Season points per match won (0 when wins == 0)
 """
 
 import csv
 import os
 from collections import defaultdict
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import sys
 import os as _os
@@ -41,7 +45,13 @@ from src.config.paths import SEASON_DIR  # noqa: E402
 from season_manager import calculate_season_points  # noqa: E402
 
 
-def generate_table_snapshot(matches: List[Dict], matchday: int, tier: int, season_id: str) -> List[Dict]:
+def generate_table_snapshot(
+    matches: List[Dict],
+    matchday: int,
+    tier: int,
+    season_id: str,
+    rounds_data: Optional[Dict[str, List[Dict]]] = None,
+) -> List[Dict]:
     """
     Generate table standings snapshot after a specific matchday.
 
@@ -50,6 +60,8 @@ def generate_table_snapshot(matches: List[Dict], matchday: int, tier: int, seaso
         matchday: The matchday number to calculate standings for
         tier: Tier number
         season_id: Season identifier
+        rounds_data: Optional mapping of match_id to list of round dicts used
+            to compute irw/irl statistics.
 
     Returns:
         List of standings dictionaries sorted by position
@@ -74,7 +86,9 @@ def generate_table_snapshot(matches: List[Dict], matchday: int, tier: int, seaso
         "points_for": 0,
         "points_against": 0,
         "point_diff": 0,
-        "elo": 0
+        "elo": 0,
+        "irw": 0,
+        "irl": 0,
     })
 
     # Process matches
@@ -115,9 +129,25 @@ def generate_table_snapshot(matches: List[Dict], matchday: int, tier: int, seaso
         if "elo_b" in match and match["elo_b"]:
             standings[bey_b]["elo"] = float(match.get("elo_b", 1000))
 
-    # Calculate point differences
+        # Update individual round wins/losses from rounds_data
+        if rounds_data is not None:
+            match_id = match.get("match_id", "")
+            for rnd in rounds_data.get(match_id, []):
+                winner = rnd.get("winner", "")
+                if winner == bey_a:
+                    standings[bey_a]["irw"] += 1
+                    standings[bey_b]["irl"] += 1
+                elif winner == bey_b:
+                    standings[bey_b]["irw"] += 1
+                    standings[bey_a]["irl"] += 1
+
+    # Calculate point differences and derived stats
     for bey_data in standings.values():
         bey_data["point_diff"] = bey_data["points_for"] - bey_data["points_against"]
+        m = bey_data["matches"]
+        w = bey_data["wins"]
+        bey_data["ppr"] = round(bey_data["season_points"] / m, 2) if m > 0 else 0.0
+        bey_data["ppw"] = round(bey_data["season_points"] / w, 2) if w > 0 else 0.0
 
     # Convert to list and sort
     table = list(standings.values())
@@ -162,7 +192,8 @@ def calculate_position_deltas(current_table: List[Dict], previous_table: List[Di
 
 
 def generate_all_table_snapshots(matches: List[Dict], season_id: str,
-                                 output_dir: str = None) -> None:
+                                 output_dir: str = None,
+                                 rounds_data: Optional[Dict[str, List[Dict]]] = None) -> None:
     """
     Generate table snapshots for all matchdays and tiers in a season.
 
@@ -170,6 +201,7 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
         matches: All matches data
         season_id: Season identifier
         output_dir: Directory to save CSV files
+        rounds_data: Optional mapping of match_id to rounds for irw/irl stats.
     """
     if output_dir is None:
         output_dir = SEASON_DIR
@@ -197,12 +229,14 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
             writer.writerow([
                 "matchday", "position", "bey", "matches", "wins", "losses",
                 "season_points", "points_for", "points_against", "point_diff",
-                "elo", "position_delta"
+                "elo", "position_delta", "irw", "irl", "ppr", "ppw"
             ])
 
             previous_table = []
             for matchday in matchdays:
-                current_table = generate_table_snapshot(matches, matchday, tier, season_id)
+                current_table = generate_table_snapshot(
+                    matches, matchday, tier, season_id, rounds_data=rounds_data
+                )
                 deltas = calculate_position_deltas(current_table, previous_table)
 
                 for position, entry in enumerate(current_table, start=1):
@@ -221,7 +255,11 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
                         entry["points_against"],
                         entry["point_diff"],
                         round(entry["elo"], 2),
-                        delta
+                        delta,
+                        entry["irw"],
+                        entry["irl"],
+                        entry["ppr"],
+                        entry["ppw"],
                     ])
 
                 previous_table = current_table

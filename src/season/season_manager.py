@@ -256,7 +256,12 @@ def initialize_season(season_id: str, beys_with_elo: List[Tuple[str, float]],
     return season_data
 
 
-def get_league_table(matches: List[Dict], tier: int, season_id: str) -> List[Dict]:
+def get_league_table(
+    matches: List[Dict],
+    tier: int,
+    season_id: str,
+    rounds_data: Optional[Dict[str, List[Dict]]] = None,
+) -> List[Dict]:
     """
     Generate league table for a specific tier in a season.
 
@@ -272,9 +277,14 @@ def get_league_table(matches: List[Dict], tier: int, season_id: str) -> List[Dic
         matches: List of match dictionaries
         tier: Tier number (1-3)
         season_id: Season identifier
+        rounds_data: Optional mapping of match_id to list of round dicts, each
+            with at least {"winner": str, "points_awarded": int}.  When
+            provided, per-entry ``irw`` and ``irl`` counts are calculated.
 
     Returns:
-        List of dictionaries with team standings, sorted by ranking criteria
+        List of dictionaries with team standings, sorted by ranking criteria.
+        Each entry includes irw, irl, ppr, and ppw in addition to existing
+        fields (irw/irl are 0 when rounds_data is not supplied).
     """
     # Filter matches for this season and tier
     season_matches = [
@@ -294,7 +304,9 @@ def get_league_table(matches: List[Dict], tier: int, season_id: str) -> List[Dic
         "points_for": 0,
         "points_against": 0,
         "point_diff": 0,
-        "elo": 0
+        "elo": 0,
+        "irw": 0,
+        "irl": 0,
     })
 
     # Process matches
@@ -330,9 +342,25 @@ def get_league_table(matches: List[Dict], tier: int, season_id: str) -> List[Dic
             standings[bey_b]["wins"] += 1
             standings[bey_a]["losses"] += 1
 
-    # Calculate point differences
+        # Update individual round wins/losses from rounds_data
+        if rounds_data is not None:
+            match_id = match.get("match_id", "")
+            for rnd in rounds_data.get(match_id, []):
+                winner = rnd.get("winner", "")
+                if winner == bey_a:
+                    standings[bey_a]["irw"] += 1
+                    standings[bey_b]["irl"] += 1
+                elif winner == bey_b:
+                    standings[bey_b]["irw"] += 1
+                    standings[bey_a]["irl"] += 1
+
+    # Calculate point differences and derived per-round/per-win stats
     for bey_data in standings.values():
         bey_data["point_diff"] = bey_data["points_for"] - bey_data["points_against"]
+        m = bey_data["matches"]
+        w = bey_data["wins"]
+        bey_data["ppr"] = round(bey_data["season_points"] / m, 2) if m > 0 else 0.0
+        bey_data["ppw"] = round(bey_data["season_points"] / w, 2) if w > 0 else 0.0
 
     # Convert to list and sort by ranking criteria
     table = list(standings.values())

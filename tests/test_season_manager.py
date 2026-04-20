@@ -235,6 +235,122 @@ class TestLeagueTable:
         assert table[0]["point_diff"] == 3  # 5 - 2
         assert table[1]["point_diff"] == -3  # 2 - 5
 
+    def test_ppr_ppw_without_rounds_data(self):
+        """PPR and PPW should be calculated from season_points and matches/wins."""
+        matches = [
+            {
+                "match_type": "season",
+                "season_id": "S1",
+                "tier": 1,
+                "match_id": "M001",
+                "bey_a": "Winner",
+                "bey_b": "Loser",
+                "score_a": 4,
+                "score_b": 2,
+                "elo_a": 1500,
+                "elo_b": 1400,
+            }
+        ]
+        table = get_league_table(matches, 1, "S1")
+        winner = table[0]  # Winner has 3 SP, 1 win, 1 match
+        assert winner["ppr"] == round(POINTS_WIN / 1, 2)  # 3.0
+        assert winner["ppw"] == round(POINTS_WIN / 1, 2)  # 3.0
+
+        loser = table[1]  # Loser has 0 SP, 0 wins, 1 match
+        assert loser["ppr"] == 0.0
+        assert loser["ppw"] == 0.0  # 0 wins → ppw is 0
+
+    def test_irw_irl_with_rounds_data(self):
+        """IRW and IRL should be computed from rounds data when provided."""
+        matches = [
+            {
+                "match_type": "season",
+                "season_id": "S1",
+                "tier": 1,
+                "match_id": "M001",
+                "bey_a": "Alpha",
+                "bey_b": "Beta",
+                "score_a": 4,
+                "score_b": 2,
+                "elo_a": 1500,
+                "elo_b": 1400,
+            }
+        ]
+        # Alpha wins 3 rounds, Beta wins 2 rounds
+        rounds_data = {
+            "M001": [
+                {"round_number": 1, "winner": "Alpha", "finish_type": "spin", "points_awarded": 1},
+                {"round_number": 2, "winner": "Beta",  "finish_type": "spin", "points_awarded": 1},
+                {"round_number": 3, "winner": "Alpha", "finish_type": "burst", "points_awarded": 2},
+                {"round_number": 4, "winner": "Alpha", "finish_type": "spin", "points_awarded": 1},
+                {"round_number": 5, "winner": "Beta",  "finish_type": "spin", "points_awarded": 1},
+            ]
+        }
+        table = get_league_table(matches, 1, "S1", rounds_data=rounds_data)
+        alpha = next(e for e in table if e["bey"] == "Alpha")
+        beta = next(e for e in table if e["bey"] == "Beta")
+
+        assert alpha["irw"] == 3
+        assert alpha["irl"] == 2
+        assert beta["irw"] == 2
+        assert beta["irl"] == 3
+
+    def test_irw_irl_zero_without_rounds_data(self):
+        """IRW and IRL should both be 0 when no rounds_data is provided."""
+        matches = [
+            {
+                "match_type": "season",
+                "season_id": "S1",
+                "tier": 1,
+                "match_id": "M001",
+                "bey_a": "Alpha",
+                "bey_b": "Beta",
+                "score_a": 4,
+                "score_b": 2,
+                "elo_a": 1500,
+                "elo_b": 1400,
+            }
+        ]
+        table = get_league_table(matches, 1, "S1")
+        for entry in table:
+            assert entry["irw"] == 0
+            assert entry["irl"] == 0
+
+    def test_ppr_multiple_matches(self):
+        """PPR should average season points across all matches played."""
+        matches = [
+            {
+                "match_type": "season",
+                "season_id": "S1",
+                "tier": 1,
+                "match_id": "M001",
+                "bey_a": "Alpha",
+                "bey_b": "Beta",
+                "score_a": 4,
+                "score_b": 0,  # Dominant win for Alpha
+                "elo_a": 1500,
+                "elo_b": 1400,
+            },
+            {
+                "match_type": "season",
+                "season_id": "S1",
+                "tier": 1,
+                "match_id": "M002",
+                "bey_a": "Alpha",
+                "bey_b": "Gamma",
+                "score_a": 0,
+                "score_b": 4,  # Alpha loses
+                "elo_a": 1500,
+                "elo_b": 1450,
+            },
+        ]
+        table = get_league_table(matches, 1, "S1")
+        alpha = next(e for e in table if e["bey"] == "Alpha")
+        # Alpha: 4 SP + 0 SP = 4 SP across 2 matches → PPR = 2.0
+        assert alpha["ppr"] == 2.0
+        # Alpha won 1 match → PPW = 4 SP / 1 win = 4.0
+        assert alpha["ppw"] == 4.0
+
 
 class TestPromotionRelegation:
     """Tests for promotion and relegation logic."""
