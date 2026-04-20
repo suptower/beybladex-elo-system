@@ -66,8 +66,8 @@ async function loadRoundsData() {
                 if (match.rounds && match.rounds.length > 0) {
                     roundsData[match.match_id] = {
                         rounds: match.rounds,
-                        bey_a: match.bey_a || match.BeyA || '',
-                        bey_b: match.bey_b || match.BeyB || '',
+                        bey_a: match.bey_a ?? match.BeyA ?? '',
+                        bey_b: match.bey_b ?? match.BeyB ?? '',
                         score_a: match.score_a ?? match.ScoreA ?? 0,
                         score_b: match.score_b ?? match.ScoreB ?? 0,
                         elo_a: match.elo_a,
@@ -1032,8 +1032,8 @@ function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
             <td><strong>${entry.season_points}</strong></td>
             <td>${entry.irw ?? 0}</td>
             <td>${entry.irl ?? 0}</td>
-            <td>${entry.ppr > 0 ? entry.ppr.toFixed(2) : '—'}</td>
-            <td>${entry.ppw > 0 ? entry.ppw.toFixed(2) : '—'}</td>
+            <td>${entry.ppr != null && (entry.irw + entry.irl) > 0 ? entry.ppr.toFixed(2) : '—'}</td>
+            <td>${entry.ppw != null && entry.irw > 0 ? entry.ppw.toFixed(2) : '—'}</td>
             <td>${entry.points_for}</td>
             <td>${entry.points_against}</td>
             <td>${entry.point_diff > 0 ? '+' : ''}${entry.point_diff}</td>
