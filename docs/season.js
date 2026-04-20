@@ -66,6 +66,10 @@ async function loadRoundsData() {
                 if (match.rounds && match.rounds.length > 0) {
                     roundsData[match.match_id] = {
                         rounds: match.rounds,
+                        bey_a: match.bey_a || match.BeyA || '',
+                        bey_b: match.bey_b || match.BeyB || '',
+                        score_a: match.score_a ?? match.ScoreA ?? 0,
+                        score_b: match.score_b ?? match.ScoreB ?? 0,
                         elo_a: match.elo_a,
                         elo_b: match.elo_b,
                         post_elo_a: match.post_elo_a,
@@ -486,7 +490,7 @@ function displayTierTables(leagueTables) {
                             <div class="table-legend">
                                 <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
                                 <span><strong>IRW</strong>=Individual Rounds Won, <strong>IRL</strong>=Individual Rounds Lost</span>
-                                <span><strong>PPR</strong>=Points per Round (match), <strong>PPW</strong>=Points per Win</span>
+                                <span><strong>PPR</strong>=Round Points per Round Played (RPW ÷ (IRW+IRL)), <strong>PPW</strong>=Round Points per Round Won (RPW ÷ IRW)</span>
                                 <span><strong>RPW</strong>=Round Points Won, <strong>RPL</strong>=Round Points Lost, <strong>RPD</strong>=Round Points Difference</span>
                             </div>
                             ${getPositionLegend(tier, table.length)}
@@ -1028,8 +1032,8 @@ function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
             <td><strong>${entry.season_points}</strong></td>
             <td>${entry.irw ?? 0}</td>
             <td>${entry.irl ?? 0}</td>
-            <td>${entry.ppr != null ? entry.ppr.toFixed(2) : '0.00'}</td>
-            <td>${entry.ppw != null && entry.wins > 0 ? entry.ppw.toFixed(2) : '—'}</td>
+            <td>${entry.ppr > 0 ? entry.ppr.toFixed(2) : '—'}</td>
+            <td>${entry.ppw > 0 ? entry.ppw.toFixed(2) : '—'}</td>
             <td>${entry.points_for}</td>
             <td>${entry.points_against}</td>
             <td>${entry.point_diff > 0 ? '+' : ''}${entry.point_diff}</td>
@@ -1470,61 +1474,50 @@ function showError(message) {
 }
 
 /**
- * Create rounds HTML for match card
+ * Create rounds HTML for match card (compact single-row format)
  */
 function createRoundsHtml(match, rounds) {
     if (!rounds || rounds.length === 0) return '';
-    
-    let html = '<div class="rounds-list">';
+
+    let html = '<div class="rounds-compact">';
     let runningScoreA = 0;
     let runningScoreB = 0;
-    
+
     rounds.forEach((round, index) => {
         const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
-        
-        // Update running score
-        if (round.winner === match.bey_a) {
-            runningScoreA += round.points_awarded;
-        } else if (round.winner === match.bey_b) {
-            runningScoreB += round.points_awarded;
-        }
-        
+        const isWinnerA = round.winner === match.bey_a;
+        const isWinnerB = round.winner === match.bey_b;
+
+        if (isWinnerA) runningScoreA += round.points_awarded;
+        else if (isWinnerB) runningScoreB += round.points_awarded;
+
+        const winnerClass = isWinnerA ? 'rc-winner-a' : (isWinnerB ? 'rc-winner-b' : '');
+
         html += `
-            <div class="round-item">
-                <div class="round-header">
-                    <span class="round-number">R${round.round_number || index + 1}</span>
-                    <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
-                        <span class="finish-icon">${finishStyle.icon}</span>
-                        <span class="finish-label">${finishStyle.label}</span>
-                    </span>
-                    <span class="round-points">+${round.points_awarded}</span>
-                </div>
-                <div class="round-details">
-                    <span class="round-winner">${round.winner}</span>
-                    <span class="round-score">${runningScoreA} - ${runningScoreB}</span>
-                </div>
+            <div class="rc-row ${winnerClass}">
+                <span class="rc-num">R${round.round_number || index + 1}</span>
+                <span class="rc-badge" style="background:${finishStyle.bgColor};color:${finishStyle.color};">${finishStyle.icon} ${finishStyle.label}</span>
+                <span class="rc-winner">${round.winner || '—'}</span>
+                <span class="rc-pts">+${round.points_awarded}</span>
+                <span class="rc-score">${runningScoreA}–${runningScoreB}</span>
             </div>
         `;
     });
-    
-    // Add finish type summary
+
+    // Finish type summary
     const finishCounts = {};
     rounds.forEach(round => {
         const type = round.finish_type || 'spin';
         finishCounts[type] = (finishCounts[type] || 0) + 1;
     });
-    
-    html += '<div class="rounds-summary">';
+
+    html += '<div class="rc-summary">';
     Object.entries(finishCounts).forEach(([type, count]) => {
         const style = FINISH_TYPE_STYLES[type] || FINISH_TYPE_STYLES.spin;
-        html += `
-            <span class="finish-summary-badge" style="background: ${style.bgColor}; color: ${style.color};">
-                ${style.icon} ${style.label}: ${count}
-            </span>
-        `;
+        html += `<span class="finish-summary-badge" style="background:${style.bgColor};color:${style.color};">${style.icon} ${style.label}: ${count}</span>`;
     });
     html += '</div>';
-    
+
     html += '</div>';
     return html;
 }
@@ -1553,19 +1546,14 @@ function toggleMatchRounds(matchId, roundCount) {
         if (content && content.innerHTML.trim() === '') {
             const matchData = roundsData[matchId];
             if (matchData && matchData.rounds) {
-                // Find the match data to pass to createRoundsHtml
-                const matchCard = document.querySelector(`[data-match-id="${matchId}"]`);
-                if (matchCard) {
-                    // Get match info from DOM or reconstruct it
-                    const match = {
-                        match_id: matchId,
-                        bey_a: matchCard.querySelector('.card-bey:first-child .bey-link')?.textContent.replace(/\u00AD/g, '') || '',
-                        bey_b: matchCard.querySelector('.card-bey:last-child .bey-link')?.textContent.replace(/\u00AD/g, '') || '',
-                        score_a: parseInt(matchCard.querySelector('.card-bey:first-child .bey-score')?.textContent || '0'),
-                        score_b: parseInt(matchCard.querySelector('.card-bey:last-child .bey-score')?.textContent || '0')
-                    };
-                    content.innerHTML = createRoundsHtml(match, matchData.rounds);
-                }
+                const match = {
+                    match_id: matchId,
+                    bey_a: matchData.bey_a || '',
+                    bey_b: matchData.bey_b || '',
+                    score_a: matchData.score_a || 0,
+                    score_b: matchData.score_b || 0,
+                };
+                content.innerHTML = createRoundsHtml(match, matchData.rounds);
             }
         }
         

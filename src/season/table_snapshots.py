@@ -144,10 +144,9 @@ def generate_table_snapshot(
     # Calculate point differences and derived stats
     for bey_data in standings.values():
         bey_data["point_diff"] = bey_data["points_for"] - bey_data["points_against"]
-        matches_played = bey_data["matches"]
-        wins_count = bey_data["wins"]
-        bey_data["ppr"] = round(bey_data["season_points"] / matches_played, 2) if matches_played > 0 else 0.0
-        bey_data["ppw"] = round(bey_data["season_points"] / wins_count, 2) if wins_count > 0 else 0.0
+        total_rounds = bey_data["irw"] + bey_data["irl"]
+        bey_data["ppr"] = round(bey_data["points_for"] / total_rounds, 2) if total_rounds > 0 else 0.0
+        bey_data["ppw"] = round(bey_data["points_for"] / bey_data["irw"], 2) if bey_data["irw"] > 0 else 0.0
 
     # Convert to list and sort
     table = list(standings.values())
