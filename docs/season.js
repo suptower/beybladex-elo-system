@@ -15,6 +15,10 @@ let tableSnapshotsData = {}; // Store loaded snapshot data (tier -> array of sna
 let tierFullSizes = {}; // Store the full (final) tier size for each tier to drive zone highlighting
 let tableSortStates = {}; // Track sort column/direction per tier: {tier: {col, dir}} dir = 'asc'|'desc'|null
 
+// Default sort applied to all tier tables on initial render
+const TABLE_DEFAULT_SORT_COL = 'season_points';
+const TABLE_DEFAULT_SORT_DIR = 'desc';
+
 /**
  * Add soft hyphens before capital letters in compound Bey names for better line breaking
  * E.g., "CobaltDragoon" becomes "Cobalt&shy;Dragoon"
@@ -460,18 +464,18 @@ function displayTierTables(leagueTables) {
                                             <th>Pos</th>
                                             ${hasSnapshots ? '<th>Δ</th>' : ''}
                                             <th>Bey</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'matches')" title="Matches played">M</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'wins')" title="Wins">W</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'losses')" title="Losses">L</th>
-                                            <th class="sortable sorted-desc" onclick="sortTierTable(${tier}, 'season_points')" title="Season Points">SP</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'irw')" title="Individual Rounds Won">IRW</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'irl')" title="Individual Rounds Lost">IRL</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'ppr')" title="Season Points per Match">PPR</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'ppw')" title="Season Points per Win">PPW</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'points_for')" title="Round Points Won">RPW</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'points_against')" title="Round Points Lost">RPL</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'point_diff')" title="Round Points Difference">RPD</th>
-                                            <th class="sortable" onclick="sortTierTable(${tier}, 'elo')" title="ELO Rating">ELO</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'matches' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'matches')" title="Matches played">M</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'wins' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'wins')" title="Wins">W</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'losses' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'losses')" title="Losses">L</th>
+                                            <th class="sortable${(tableSortStates[tier]?.col ?? TABLE_DEFAULT_SORT_COL) === 'season_points' ? (' ' + ((tableSortStates[tier]?.dir ?? TABLE_DEFAULT_SORT_DIR) === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'season_points')" title="Season Points">SP</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'irw' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'irw')" title="Individual Rounds Won">IRW</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'irl' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'irl')" title="Individual Rounds Lost">IRL</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'ppr' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'ppr')" title="Season Points per Match">PPR</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'ppw' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'ppw')" title="Season Points per Win">PPW</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'points_for' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'points_for')" title="Round Points Won">RPW</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'points_against' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'points_against')" title="Round Points Lost">RPL</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'point_diff' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'point_diff')" title="Round Points Difference">RPD</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'elo' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'elo')" title="ELO Rating">ELO</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -730,10 +734,19 @@ function updateTierTable(tier) {
     const snapshotMatchdays = Object.keys(snapshots).map(Number).sort((a, b) => a - b);
     const hasSnapshots = true;
     
-    // Update table body
+    // Update table body, applying current sort state
     const tbody = document.querySelector(`#tier-${tier}-content .league-table tbody`);
     if (tbody) {
-        tbody.innerHTML = displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, tierFullSizes[tier] || displayTable.length)).join('');
+        const sortState = tableSortStates[tier] || { col: TABLE_DEFAULT_SORT_COL, dir: TABLE_DEFAULT_SORT_DIR };
+        const sorted = [...displayTable].sort((a, b) => {
+            let valA = a[sortState.col] ?? 0;
+            let valB = b[sortState.col] ?? 0;
+            if (typeof valA === 'string') {
+                return sortState.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            }
+            return sortState.dir === 'asc' ? valA - valB : valB - valA;
+        });
+        tbody.innerHTML = sorted.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, tierFullSizes[tier] || displayTable.length)).join('');
     }
     
     // Update navigation buttons
@@ -762,7 +775,7 @@ function updateTierTable(tier) {
  */
 function sortTierTable(tier, column) {
     // Determine current sort direction for this tier/column
-    const current = tableSortStates[tier] || { col: 'season_points', dir: 'desc' };
+    const current = tableSortStates[tier] || { col: TABLE_DEFAULT_SORT_COL, dir: TABLE_DEFAULT_SORT_DIR };
     let dir;
     if (current.col === column) {
         dir = current.dir === 'desc' ? 'asc' : 'desc';

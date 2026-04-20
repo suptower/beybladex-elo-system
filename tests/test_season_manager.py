@@ -258,7 +258,8 @@ class TestLeagueTable:
 
         loser = table[1]  # Loser has 0 SP, 0 wins, 1 match
         assert loser["ppr"] == 0.0
-        assert loser["ppw"] == 0.0  # 0 wins → ppw is 0
+        # Backend stores 0.0 when wins == 0; the UI displays "—" in this case.
+        assert loser["ppw"] == 0.0
 
     def test_irw_irl_with_rounds_data(self):
         """IRW and IRL should be computed from rounds data when provided."""
