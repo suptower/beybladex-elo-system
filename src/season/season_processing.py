@@ -258,8 +258,8 @@ def create_initial_league_table(tier_beys: List[Dict]) -> List[Dict]:
             "points_against": 0,
             "point_diff": 0,
             "elo": bey_data["elo"],
-            "irw": 0,
-            "irl": 0,
+            "rw": 0,
+            "rl": 0,
             "ppr": 0.0,
             "ppw": 0.0,
         })
@@ -399,7 +399,7 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
         fixtures: List of all scheduled fixtures
         data_dir: Data directory
         rounds_data: Optional mapping of match_id to list of round dicts used
-            to compute per-entry irw/irl statistics.
+            to compute per-entry rw/rl statistics.
 
     Returns:
         Complete season data dictionary
@@ -545,7 +545,7 @@ def process_all_seasons(matches: List[Dict], fixtures: List[Dict],
         matches: List of all completed matches
         fixtures: List of all scheduled fixtures
         data_dir: Data directory
-        rounds_data: Optional mapping of match_id to rounds for irw/irl stats.
+        rounds_data: Optional mapping of match_id to rounds for rw/rl stats.
 
     Returns:
         Dictionary with all season data

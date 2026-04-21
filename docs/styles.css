@@ -11591,8 +11591,8 @@ select:focus-visible {
 
 .rc-row {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.2rem;
     padding: 0.3rem 0.5rem;
     border-radius: var(--radius-sm);
     background: var(--bg);
@@ -11603,6 +11603,16 @@ select:focus-visible {
 .rc-row.rc-winner-a,
 .rc-row.rc-winner-b {
     border-color: var(--accent);
+}
+
+.rc-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rc-bottom {
+    padding-left: 0.25rem;
 }
 
 .rc-num {
@@ -11625,7 +11635,6 @@ select:focus-visible {
 }
 
 .rc-winner {
-    flex: 1;
     font-weight: 600;
     color: var(--text);
     overflow: hidden;
@@ -11637,6 +11646,7 @@ select:focus-visible {
     font-weight: 700;
     color: #10b981;
     flex-shrink: 0;
+    margin-left: auto;
     min-width: 2rem;
     text-align: right;
 }

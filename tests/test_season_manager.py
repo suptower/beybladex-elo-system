@@ -236,7 +236,7 @@ class TestLeagueTable:
         assert table[1]["point_diff"] == -3  # 2 - 5
 
     def test_ppr_ppw_without_rounds_data(self):
-        """PPR and PPW should be 0 when no rounds_data is provided (irw + irl = 0)."""
+        """PPR and PPW should be 0 when no rounds_data is provided (rw + rl = 0)."""
         matches = [
             {
                 "match_type": "season",
@@ -252,7 +252,7 @@ class TestLeagueTable:
             }
         ]
         table = get_league_table(matches, 1, "S1")
-        # Without rounds_data, irw = irl = 0 → total_rounds = 0 → ppr = ppw = 0.0
+        # Without rounds_data, rw = rl = 0 → total_rounds = 0 → ppr = ppw = 0.0
         for entry in table:
             assert entry["ppr"] == 0.0
             assert entry["ppw"] == 0.0
@@ -287,15 +287,15 @@ class TestLeagueTable:
         alpha = next(e for e in table if e["bey"] == "Alpha")
         beta = next(e for e in table if e["bey"] == "Beta")
 
-        # Alpha: 4 round pts, 3 irw, 2 irl → PPR = 4/(3+2) = 0.8, PPW = 4/3 = 1.33
+        # Alpha: 4 round pts, 3 rw, 2 rl → PPR = 4/(3+2) = 0.8, PPW = 4/3 = 1.33
         assert alpha["ppr"] == round(4 / 5, 2)   # 0.8
         assert alpha["ppw"] == round(4 / 3, 2)   # 1.33
-        # Beta: 2 round pts, 2 irw, 3 irl → PPR = 2/(2+3) = 0.4, PPW = 2/2 = 1.0
+        # Beta: 2 round pts, 2 rw, 3 rl → PPR = 2/(2+3) = 0.4, PPW = 2/2 = 1.0
         assert beta["ppr"] == round(2 / 5, 2)    # 0.4
         assert beta["ppw"] == round(2 / 2, 2)    # 1.0
 
-    def test_irw_irl_with_rounds_data(self):
-        """IRW and IRL should be computed from rounds data when provided."""
+    def test_rw_rl_with_rounds_data(self):
+        """RW and RL should be computed from rounds data when provided."""
         matches = [
             {
                 "match_type": "season",
@@ -324,13 +324,13 @@ class TestLeagueTable:
         alpha = next(e for e in table if e["bey"] == "Alpha")
         beta = next(e for e in table if e["bey"] == "Beta")
 
-        assert alpha["irw"] == 3
-        assert alpha["irl"] == 2
-        assert beta["irw"] == 2
-        assert beta["irl"] == 3
+        assert alpha["rw"] == 3
+        assert alpha["rl"] == 2
+        assert beta["rw"] == 2
+        assert beta["rl"] == 3
 
-    def test_irw_irl_zero_without_rounds_data(self):
-        """IRW and IRL should both be 0 when no rounds_data is provided."""
+    def test_rw_rl_zero_without_rounds_data(self):
+        """RW and RL should both be 0 when no rounds_data is provided."""
         matches = [
             {
                 "match_type": "season",
@@ -347,8 +347,8 @@ class TestLeagueTable:
         ]
         table = get_league_table(matches, 1, "S1")
         for entry in table:
-            assert entry["irw"] == 0
-            assert entry["irl"] == 0
+            assert entry["rw"] == 0
+            assert entry["rl"] == 0
 
     def test_ppr_multiple_matches(self):
         """PPR should be round-points / rounds-played (requires rounds_data)."""
@@ -379,7 +379,7 @@ class TestLeagueTable:
             },
         ]
         # Alpha: M001 wins 4 rounds (+4 pts), M002 loses 4 rounds (0 pts)
-        # irw=4, irl=4, points_for=4 → PPR = 4/8 = 0.5, PPW = 4/4 = 1.0
+        # rw=4, rl=4, points_for=4 → PPR = 4/8 = 0.5, PPW = 4/4 = 1.0
         rounds_data = {
             "M001": [
                 {"round_number": i, "winner": "Alpha", "finish_type": "spin", "points_awarded": 1}

@@ -22,8 +22,8 @@ Columns:
     - point_diff: Points for - Points against
     - elo: Current ELO rating
     - position_delta: Change in position from previous matchday (can be +N, -N, or 0)
-    - irw: Individual rounds won (count of rounds won, not points)
-    - irl: Individual rounds lost (count of rounds lost)
+    - rw: Individual rounds won (count of rounds won, not points)
+    - rl: Individual rounds lost (count of rounds lost)
     - ppr: Season points per match played
     - ppw: Season points per match won (0 when wins == 0)
 """
@@ -61,7 +61,7 @@ def generate_table_snapshot(
         tier: Tier number
         season_id: Season identifier
         rounds_data: Optional mapping of match_id to list of round dicts used
-            to compute irw/irl statistics.
+            to compute rw/rl statistics.
 
     Returns:
         List of standings dictionaries sorted by position
@@ -87,8 +87,8 @@ def generate_table_snapshot(
         "points_against": 0,
         "point_diff": 0,
         "elo": 0,
-        "irw": 0,
-        "irl": 0,
+        "rw": 0,
+        "rl": 0,
     })
 
     # Process matches
@@ -135,18 +135,18 @@ def generate_table_snapshot(
             for rnd in rounds_data.get(match_id, []):
                 winner = rnd.get("winner", "")
                 if winner == bey_a:
-                    standings[bey_a]["irw"] += 1
-                    standings[bey_b]["irl"] += 1
+                    standings[bey_a]["rw"] += 1
+                    standings[bey_b]["rl"] += 1
                 elif winner == bey_b:
-                    standings[bey_b]["irw"] += 1
-                    standings[bey_a]["irl"] += 1
+                    standings[bey_b]["rw"] += 1
+                    standings[bey_a]["rl"] += 1
 
     # Calculate point differences and derived stats
     for bey_data in standings.values():
         bey_data["point_diff"] = bey_data["points_for"] - bey_data["points_against"]
-        total_rounds = bey_data["irw"] + bey_data["irl"]
+        total_rounds = bey_data["rw"] + bey_data["rl"]
         bey_data["ppr"] = round(bey_data["points_for"] / total_rounds, 2) if total_rounds > 0 else 0.0
-        bey_data["ppw"] = round(bey_data["points_for"] / bey_data["irw"], 2) if bey_data["irw"] > 0 else 0.0
+        bey_data["ppw"] = round(bey_data["points_for"] / bey_data["rw"], 2) if bey_data["rw"] > 0 else 0.0
 
     # Convert to list and sort
     table = list(standings.values())
@@ -200,7 +200,7 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
         matches: All matches data
         season_id: Season identifier
         output_dir: Directory to save CSV files
-        rounds_data: Optional mapping of match_id to rounds for irw/irl stats.
+        rounds_data: Optional mapping of match_id to rounds for rw/rl stats.
     """
     if output_dir is None:
         output_dir = SEASON_DIR
@@ -228,7 +228,7 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
             writer.writerow([
                 "matchday", "position", "bey", "matches", "wins", "losses",
                 "season_points", "points_for", "points_against", "point_diff",
-                "elo", "position_delta", "irw", "irl", "ppr", "ppw"
+                "elo", "position_delta", "rw", "rl", "ppr", "ppw"
             ])
 
             previous_table = []
@@ -255,8 +255,8 @@ def generate_all_table_snapshots(matches: List[Dict], season_id: str,
                         entry["point_diff"],
                         round(entry["elo"], 2),
                         delta,
-                        entry["irw"],
-                        entry["irl"],
+                        entry["rw"],
+                        entry["rl"],
                         entry["ppr"],
                         entry["ppw"],
                     ])

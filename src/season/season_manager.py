@@ -279,12 +279,12 @@ def get_league_table(
         season_id: Season identifier
         rounds_data: Optional mapping of match_id to list of round dicts, each
             with at least {"winner": str, "points_awarded": int}.  When
-            provided, per-entry ``irw`` and ``irl`` counts are calculated.
+            provided, per-entry ``rw`` and ``rl`` counts are calculated.
 
     Returns:
         List of dictionaries with team standings, sorted by ranking criteria.
-        Each entry includes irw, irl, ppr, and ppw in addition to existing
-        fields (irw/irl are 0 when rounds_data is not supplied).
+        Each entry includes rw, rl, ppr, and ppw in addition to existing
+        fields (rw/rl are 0 when rounds_data is not supplied).
     """
     # Filter matches for this season and tier
     season_matches = [
@@ -305,8 +305,8 @@ def get_league_table(
         "points_against": 0,
         "point_diff": 0,
         "elo": 0,
-        "irw": 0,
-        "irl": 0,
+        "rw": 0,
+        "rl": 0,
     })
 
     # Process matches
@@ -348,18 +348,18 @@ def get_league_table(
             for rnd in rounds_data.get(match_id, []):
                 winner = rnd.get("winner", "")
                 if winner == bey_a:
-                    standings[bey_a]["irw"] += 1
-                    standings[bey_b]["irl"] += 1
+                    standings[bey_a]["rw"] += 1
+                    standings[bey_b]["rl"] += 1
                 elif winner == bey_b:
-                    standings[bey_b]["irw"] += 1
-                    standings[bey_a]["irl"] += 1
+                    standings[bey_b]["rw"] += 1
+                    standings[bey_a]["rl"] += 1
 
     # Calculate point differences and derived per-round/per-win stats
     for bey_data in standings.values():
         bey_data["point_diff"] = bey_data["points_for"] - bey_data["points_against"]
-        total_rounds = bey_data["irw"] + bey_data["irl"]
+        total_rounds = bey_data["rw"] + bey_data["rl"]
         bey_data["ppr"] = round(bey_data["points_for"] / total_rounds, 2) if total_rounds > 0 else 0.0
-        bey_data["ppw"] = round(bey_data["points_for"] / bey_data["irw"], 2) if bey_data["irw"] > 0 else 0.0
+        bey_data["ppw"] = round(bey_data["points_for"] / bey_data["rw"], 2) if bey_data["rw"] > 0 else 0.0
 
     # Convert to list and sort by ranking criteria
     table = list(standings.values())

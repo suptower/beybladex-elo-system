@@ -158,8 +158,8 @@ async function loadTableSnapshots(seasonId, tier) {
                 const elo = parseFloat(values[10]);
                 const positionDelta = parseInt(values[11]);
                 // New stats (columns 12-15, present in updated CSVs; fall back to 0)
-                const irw = values.length > 12 ? parseInt(values[12]) || 0 : 0;
-                const irl = values.length > 13 ? parseInt(values[13]) || 0 : 0;
+                const rw = values.length > 12 ? parseInt(values[12]) || 0 : 0;
+                const rl = values.length > 13 ? parseInt(values[13]) || 0 : 0;
                 const ppr = values.length > 14 ? parseFloat(values[14]) || 0 : 0;
                 const ppw = values.length > 15 ? parseFloat(values[15]) || 0 : 0;
                 
@@ -179,8 +179,8 @@ async function loadTableSnapshots(seasonId, tier) {
                     point_diff: pointDiff,
                     elo,
                     position_delta: positionDelta,
-                    irw,
-                    irl,
+                    rw,
+                    rl,
                     ppr,
                     ppw,
                 });
@@ -472,13 +472,13 @@ function displayTierTables(leagueTables) {
                                             <th class="sortable${tableSortStates[tier]?.col === 'wins' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'wins')" title="Wins">W</th>
                                             <th class="sortable${tableSortStates[tier]?.col === 'losses' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'losses')" title="Losses">L</th>
                                             <th class="sortable${(tableSortStates[tier]?.col ?? TABLE_DEFAULT_SORT_COL) === 'season_points' ? (' ' + ((tableSortStates[tier]?.dir ?? TABLE_DEFAULT_SORT_DIR) === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'season_points')" title="Season Points">SP</th>
-                                            <th class="sortable${tableSortStates[tier]?.col === 'irw' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'irw')" title="Individual Rounds Won">IRW</th>
-                                            <th class="sortable${tableSortStates[tier]?.col === 'irl' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'irl')" title="Individual Rounds Lost">IRL</th>
-                                            <th class="sortable${tableSortStates[tier]?.col === 'ppr' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'ppr')" title="Season Points per Match">PPR</th>
-                                            <th class="sortable${tableSortStates[tier]?.col === 'ppw' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'ppw')" title="Season Points per Win">PPW</th>
                                             <th class="sortable${tableSortStates[tier]?.col === 'points_for' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'points_for')" title="Round Points Won">RPW</th>
                                             <th class="sortable${tableSortStates[tier]?.col === 'points_against' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'points_against')" title="Round Points Lost">RPL</th>
                                             <th class="sortable${tableSortStates[tier]?.col === 'point_diff' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'point_diff')" title="Round Points Difference">RPD</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'rw' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'rw')" title="Rounds Won">RW</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'rl' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'rl')" title="Rounds Lost">RL</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'ppr' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'ppr')" title="Round Points per Round Played">PPR</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'ppw' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'ppw')" title="Round Points per Round Won">PPW</th>
                                             <th class="sortable${tableSortStates[tier]?.col === 'elo' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'elo')" title="ELO Rating">ELO</th>
                                         </tr>
                                     </thead>
@@ -489,8 +489,8 @@ function displayTierTables(leagueTables) {
                             </div>
                             <div class="table-legend">
                                 <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
-                                <span><strong>IRW</strong>=Individual Rounds Won, <strong>IRL</strong>=Individual Rounds Lost</span>
-                                <span><strong>PPR</strong>=Round Points per Round Played (RPW ÷ (IRW+IRL)), <strong>PPW</strong>=Round Points per Round Won (RPW ÷ IRW)</span>
+                                <span><strong>RW</strong>=Rounds Won, <strong>RL</strong>=Rounds Lost</span>
+                                <span><strong>PPR</strong>=Round Points per Round Played (RPW ÷ (RW+RL)), <strong>PPW</strong>=Round Points per Round Won (RPW ÷ RW)</span>
                                 <span><strong>RPW</strong>=Round Points Won, <strong>RPL</strong>=Round Points Lost, <strong>RPD</strong>=Round Points Difference</span>
                             </div>
                             ${getPositionLegend(tier, table.length)}
@@ -1030,13 +1030,13 @@ function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
             <td>${entry.wins}</td>
             <td>${entry.losses}</td>
             <td><strong>${entry.season_points}</strong></td>
-            <td>${entry.irw ?? 0}</td>
-            <td>${entry.irl ?? 0}</td>
-            <td>${entry.ppr != null && (entry.irw + entry.irl) > 0 ? entry.ppr.toFixed(2) : '—'}</td>
-            <td>${entry.ppw != null && entry.irw > 0 ? entry.ppw.toFixed(2) : '—'}</td>
             <td>${entry.points_for}</td>
             <td>${entry.points_against}</td>
             <td>${entry.point_diff > 0 ? '+' : ''}${entry.point_diff}</td>
+            <td>${entry.rw ?? 0}</td>
+            <td>${entry.rl ?? 0}</td>
+            <td>${entry.ppr != null && (entry.rw + entry.rl) > 0 ? entry.ppr.toFixed(2) : '—'}</td>
+            <td>${entry.ppw != null && entry.rw > 0 ? entry.ppw.toFixed(2) : '—'}</td>
             <td>${Math.round(displayElo)}</td>
         </tr>
     `;
@@ -1495,11 +1495,15 @@ function createRoundsHtml(match, rounds) {
 
         html += `
             <div class="rc-row ${winnerClass}">
-                <span class="rc-num">R${round.round_number || index + 1}</span>
-                <span class="rc-badge" style="background:${finishStyle.bgColor};color:${finishStyle.color};">${finishStyle.icon} ${finishStyle.label}</span>
-                <span class="rc-winner">${round.winner || '—'}</span>
-                <span class="rc-pts">+${round.points_awarded}</span>
-                <span class="rc-score">${runningScoreA}–${runningScoreB}</span>
+                <div class="rc-top">
+                    <span class="rc-num">R${round.round_number || index + 1}</span>
+                    <span class="rc-badge" style="background:${finishStyle.bgColor};color:${finishStyle.color};">${finishStyle.icon} ${finishStyle.label}</span>
+                    <span class="rc-pts">+${round.points_awarded}</span>
+                    <span class="rc-score">${runningScoreA}–${runningScoreB}</span>
+                </div>
+                <div class="rc-bottom">
+                    <span class="rc-winner">${round.winner || '—'}</span>
+                </div>
             </div>
         `;
     });
