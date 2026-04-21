@@ -12482,7 +12482,7 @@ body.dark .season-status-badge.active {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
 }
 
 .league-table thead {
@@ -12490,12 +12490,12 @@ body.dark .season-status-badge.active {
 }
 
 .league-table th {
-    padding: 1rem 0.75rem;
+    padding: 0.55rem 0.4rem;
     text-align: left;
     font-weight: 700;
     color: var(--text);
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     letter-spacing: 0.05em;
     border-bottom: 2px solid var(--accent);
     white-space: nowrap;
@@ -12525,20 +12525,20 @@ body.dark .season-status-badge.active {
 }
 
 .league-table td {
-    padding: 1rem 0.75rem;
+    padding: 0.55rem 0.4rem;
     vertical-align: middle;
 }
 
 .league-table td:first-child {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: var(--text-light);
 }
 
 .league-table .bey-name {
     font-weight: 600;
     color: var(--text);
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .league-table .bey-name strong {
@@ -13619,26 +13619,26 @@ body.dark .season-status-badge.active {
     }
     
     .league-table {
-        font-size: 0.75rem;
-        min-width: 600px; /* Ensure table doesn't squeeze too much */
+        font-size: 0.72rem;
+        min-width: 520px; /* Ensure table doesn't squeeze too much */
     }
     
     .league-table th,
     .league-table td {
-        padding: 0.5rem 0.35rem;
+        padding: 0.4rem 0.25rem;
     }
     
     .league-table th {
-        font-size: 0.65rem;
+        font-size: 0.62rem;
         letter-spacing: 0.02em;
     }
     
     .league-table td:first-child {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
     
     .league-table .bey-name {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
     
     /* Reduce hover effect on mobile for performance */
@@ -13698,25 +13698,25 @@ body.dark .season-status-badge.active {
     }
     
     .league-table {
-        font-size: 0.7rem;
-        min-width: 580px;
+        font-size: 0.68rem;
+        min-width: 500px;
     }
     
     .league-table th,
     .league-table td {
-        padding: 0.4rem 0.25rem;
+        padding: 0.35rem 0.2rem;
     }
     
     .league-table th {
-        font-size: 0.6rem;
+        font-size: 0.58rem;
     }
     
     .league-table td:first-child {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
     
     .league-table .bey-name {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
     }
     
     #tier-tables-container .section-header,
