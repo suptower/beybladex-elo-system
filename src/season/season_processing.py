@@ -47,7 +47,7 @@ _root = _os.path.dirname(
 if _root not in sys.path:
     sys.path.insert(0, _root)
 del _os, _root
-from src.config.paths import MATCHES_CSV, ROUNDS_CSV, SEASON_DATA_JSON, SEASON_DIR, LEADERBOARD_CSV, FIXTURES_CSV   # noqa: E402
+from src.config.paths import MATCHES_CSV, ROUNDS_CSV, SEASON_DATA_JSON, SEASON_DIR, LEADERBOARD_CSV, FIXTURES_CSV   # noqa: E402 E501
 
 # Default paths
 DEFAULT_DATA_DIR = SEASON_DIR

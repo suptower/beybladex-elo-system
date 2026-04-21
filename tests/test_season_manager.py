@@ -277,10 +277,10 @@ class TestLeagueTable:
         rounds_data = {
             "M001": [
                 {"round_number": 1, "winner": "Alpha", "finish_type": "spin", "points_awarded": 1},
-                {"round_number": 2, "winner": "Beta",  "finish_type": "spin", "points_awarded": 1},
+                {"round_number": 2, "winner": "Beta", "finish_type": "spin", "points_awarded": 1},
                 {"round_number": 3, "winner": "Alpha", "finish_type": "burst", "points_awarded": 2},
                 {"round_number": 4, "winner": "Alpha", "finish_type": "spin", "points_awarded": 1},
-                {"round_number": 5, "winner": "Beta",  "finish_type": "spin", "points_awarded": 1},
+                {"round_number": 5, "winner": "Beta", "finish_type": "spin", "points_awarded": 1},
             ]
         }
         table = get_league_table(matches, 1, "S1", rounds_data=rounds_data)
@@ -314,10 +314,10 @@ class TestLeagueTable:
         rounds_data = {
             "M001": [
                 {"round_number": 1, "winner": "Alpha", "finish_type": "spin", "points_awarded": 1},
-                {"round_number": 2, "winner": "Beta",  "finish_type": "spin", "points_awarded": 1},
+                {"round_number": 2, "winner": "Beta", "finish_type": "spin", "points_awarded": 1},
                 {"round_number": 3, "winner": "Alpha", "finish_type": "burst", "points_awarded": 2},
                 {"round_number": 4, "winner": "Alpha", "finish_type": "spin", "points_awarded": 1},
-                {"round_number": 5, "winner": "Beta",  "finish_type": "spin", "points_awarded": 1},
+                {"round_number": 5, "winner": "Beta", "finish_type": "spin", "points_awarded": 1},
             ]
         }
         table = get_league_table(matches, 1, "S1", rounds_data=rounds_data)
