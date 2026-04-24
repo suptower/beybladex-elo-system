@@ -466,8 +466,8 @@ function displayTierTables(leagueTables) {
                                     <thead>
                                         <tr>
                                             <th>Pos</th>
-                                            ${hasSnapshots ? '<th>Δ</th>' : ''}
-                                            <th>Bey</th>
+                                            ${hasSnapshots ? '<th style="width:1.75rem;min-width:0;">Δ</th>' : ''}
+                                            <th class="bey-name-header">Bey</th>
                                             <th class="sortable${tableSortStates[tier]?.col === 'matches' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'matches')" title="Matches played">M</th>
                                             <th class="sortable${tableSortStates[tier]?.col === 'wins' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'wins')" title="Wins">W</th>
                                             <th class="sortable${tableSortStates[tier]?.col === 'losses' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'losses')" title="Losses">L</th>
@@ -1018,7 +1018,7 @@ function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
             deltaSymbol = '━';
         }
         
-        deltaCell = `<td class="position-delta ${deltaClass}">${deltaSymbol}</td>`;
+        deltaCell = `<td class="position-delta ${deltaClass}" style="width:2.0rem;min-width:0;">${deltaSymbol}</td>`;
     }
     
     return `
