@@ -1417,13 +1417,15 @@ th.sortable {
     cursor: pointer;
     user-select: none;
     position: relative;
-    padding-right: 1.5rem;
+    padding-right: 1.25rem;
 }
 
 th.sortable::after {
     content: "⇅";
     position: absolute;
-    right: 0.5rem;
+    right: 0.2rem;
+    top: 50%;
+    transform: translateY(-50%);
     opacity: 0.3;
     font-size: 0.75rem;
 }
@@ -11582,6 +11584,94 @@ select:focus-visible {
     font-weight: 600;
 }
 
+/* Compact rounds display (shared between match cards and season compact cards) */
+.rounds-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.rc-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+}
+
+.rc-row.rc-winner-a,
+.rc-row.rc-winner-b {
+    border-color: var(--accent);
+}
+
+.rc-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rc-bottom {
+    padding-left: 0.25rem;
+}
+
+.rc-num {
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 2rem;
+    flex-shrink: 0;
+}
+
+.rc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.rc-winner {
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rc-pts {
+    font-weight: 700;
+    color: #10b981;
+    flex-shrink: 0;
+    margin-left: auto;
+    min-width: 2rem;
+    text-align: right;
+}
+
+.rc-score {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    min-width: 2.5rem;
+    text-align: right;
+}
+
+.rc-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 0.375rem;
+    padding-top: 0.375rem;
+    border-top: 1px solid var(--border);
+}
+
 /* Mobile rounds section */
 .card-rounds-section {
     display: block;
@@ -12394,63 +12484,62 @@ body.dark .season-status-badge.active {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 0.9rem;
-}
-
-.league-table thead {
-    background: linear-gradient(to bottom, var(--bg-alt), var(--bg));
+    font-size: 0.8rem;
 }
 
 .league-table th {
-    padding: 1rem 0.75rem;
-    text-align: left;
+    padding: 0.65rem 0.3rem;
+    text-align: center;          /* alle Header zentriert */
     font-weight: 700;
     color: var(--text);
     text-transform: uppercase;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     letter-spacing: 0.05em;
     border-bottom: 2px solid var(--accent);
     white-space: nowrap;
 }
 
-.league-table th:first-child {
-    border-radius: var(--radius-sm) 0 0 0;
-}
-
-.league-table th:last-child {
-    border-radius: 0 var(--radius-sm) 0 0;
-}
-
-.league-table tbody tr {
-    transition: var(--transition);
-    border-bottom: 1px solid var(--border);
-}
-
-.league-table tbody tr:hover {
-    background: var(--bg-alt);
-    transform: scale(1.01);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.league-table tbody tr:last-child {
-    border-bottom: none;
-}
-
 .league-table td {
-    padding: 1rem 0.75rem;
+    padding: 0.65rem 0.3rem;    /* höher als vorher (war 0.55rem) */
     vertical-align: middle;
+    text-align: center;          /* alle Zellen zentriert */
+    white-space: nowrap;
 }
 
-.league-table td:first-child {
+/* Ausnahme: Beyname linksbündig und breiter */
+.league-table th:nth-child(2),   /* Pos-Spalte = 1, Delta = optional, Bey = 2 oder 3 */
+.league-table td.bey-name {
+    text-align: left;
+    min-width: 120px;            /* Beyname darf breiter sein */
+    max-width: 200px;
+}
+
+/* Enge Zahlen-Spalten */
+.league-table th:not(:nth-child(2)),
+.league-table td:not(.bey-name) {
+    min-width: 0;
+    width: 2.5rem;               /* feste schmale Breite für Zahlenspalten */
+}
+
+/* Pos-Spalte noch schmaler */
+.league-table td:first-child,
+.league-table th:first-child {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.82rem;
     color: var(--text-light);
+    width: 2rem;
+    min-width: 0;
+}
+
+.league-table th.bey-name-header {
+    text-align: left;
+    min-width: 120px;
 }
 
 .league-table .bey-name {
     font-weight: 600;
     color: var(--text);
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .league-table .bey-name strong {
@@ -13301,8 +13390,9 @@ body.dark .season-status-badge.active {
     transition: max-height 0.5s ease-in;
 }
 
-#matchdays-container .rounds-list {
-    padding: 1rem;
+#matchdays-container .rounds-list,
+#matchdays-container .rounds-compact {
+    padding: 0.75rem;
     background: var(--bg);
 }
 
@@ -13531,12 +13621,12 @@ body.dark .season-status-badge.active {
     
     .league-table {
         font-size: 0.75rem;
-        min-width: 600px; /* Ensure table doesn't squeeze too much */
+        min-width: 520px; /* Ensure table doesn't squeeze too much */
     }
     
     .league-table th,
     .league-table td {
-        padding: 0.5rem 0.35rem;
+        padding: 0.4rem 0.25rem;
     }
     
     .league-table th {
@@ -13545,11 +13635,11 @@ body.dark .season-status-badge.active {
     }
     
     .league-table td:first-child {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
     }
     
     .league-table .bey-name {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
     }
     
     /* Reduce hover effect on mobile for performance */
@@ -13610,25 +13700,31 @@ body.dark .season-status-badge.active {
     
     .league-table {
         font-size: 0.7rem;
-        min-width: 580px;
+        min-width: 500px;
     }
     
     .league-table th,
     .league-table td {
-        padding: 0.4rem 0.25rem;
+        padding: 0.35rem 0.2rem;
     }
     
     .league-table th {
-        font-size: 0.6rem;
+        font-size: 0.62rem;
     }
     
     .league-table td:first-child {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
     }
     
     .league-table .bey-name {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
     }
+
+    .league-table .position-delta {
+    width: 2.0rem;
+    min-width: 0;
+    max-width: 2.0rem;
+}
     
     #tier-tables-container .section-header,
     #promotion-relegation-container .section-header,

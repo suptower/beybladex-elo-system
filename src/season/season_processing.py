@@ -21,7 +21,7 @@ import json
 import os
 import argparse
 import sys
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
@@ -47,11 +47,12 @@ _root = _os.path.dirname(
 if _root not in sys.path:
     sys.path.insert(0, _root)
 del _os, _root
-from src.config.paths import MATCHES_CSV, SEASON_DATA_JSON, SEASON_DIR, LEADERBOARD_CSV, FIXTURES_CSV   # noqa: E402
+from src.config.paths import MATCHES_CSV, ROUNDS_CSV, SEASON_DATA_JSON, SEASON_DIR, LEADERBOARD_CSV, FIXTURES_CSV   # noqa: E402 E501
 
 # Default paths
 DEFAULT_DATA_DIR = SEASON_DIR
 DEFAULT_MATCHES_FILE = MATCHES_CSV
+DEFAULT_ROUNDS_FILE = ROUNDS_CSV
 DEFAULT_FIXTURES_FILE = FIXTURES_CSV
 DEFAULT_LEADERBOARD_FILE = LEADERBOARD_CSV
 DEFAULT_OUTPUT_FILE = SEASON_DATA_JSON
@@ -108,6 +109,35 @@ def load_matches_with_elo(matches_file: str = DEFAULT_MATCHES_FILE,
             matches.append(match)
 
     return matches
+
+
+def load_rounds_data(rounds_file: str = DEFAULT_ROUNDS_FILE) -> Dict[str, List[Dict]]:
+    """
+    Load rounds data from CSV and return a mapping of match_id to rounds.
+
+    Args:
+        rounds_file: Path to rounds.csv
+
+    Returns:
+        Dict mapping match_id -> list of round dicts with keys
+        ``round_number``, ``winner``, ``finish_type``, ``points_awarded``.
+    """
+    rounds: Dict[str, List[Dict]] = {}
+    if not os.path.exists(rounds_file):
+        return rounds
+    with open(rounds_file, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            match_id = row.get("match_id", "")
+            if not match_id:
+                continue
+            rounds.setdefault(match_id, []).append({
+                "round_number": int(row.get("round_number", 0)),
+                "winner": row.get("winner", ""),
+                "finish_type": row.get("finish_type", ""),
+                "points_awarded": int(row.get("points_awarded", 0)),
+            })
+    return rounds
 
 
 def load_fixtures(fixtures_file: str = DEFAULT_FIXTURES_FILE) -> List[Dict]:
@@ -227,7 +257,11 @@ def create_initial_league_table(tier_beys: List[Dict]) -> List[Dict]:
             "points_for": 0,
             "points_against": 0,
             "point_diff": 0,
-            "elo": bey_data["elo"]
+            "elo": bey_data["elo"],
+            "rw": 0,
+            "rl": 0,
+            "ppr": 0.0,
+            "ppw": 0.0,
         })
     return table
 
@@ -354,7 +388,8 @@ def refresh_qualification_pool(
 
 
 def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
-                   data_dir: str = DEFAULT_DATA_DIR) -> Dict:
+                   data_dir: str = DEFAULT_DATA_DIR,
+                   rounds_data: Optional[Dict[str, List[Dict]]] = None) -> Dict:
     """
     Process all data for a specific season including fixtures.
 
@@ -363,6 +398,8 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
         matches: List of all completed matches
         fixtures: List of all scheduled fixtures
         data_dir: Data directory
+        rounds_data: Optional mapping of match_id to list of round dicts used
+            to compute per-entry rw/rl statistics.
 
     Returns:
         Complete season data dictionary
@@ -393,7 +430,7 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
     for tier in range(1, 5):
         if season_matches:
             # Use actual match data
-            table = get_league_table(matches, tier, season_id)
+            table = get_league_table(matches, tier, season_id, rounds_data=rounds_data)
         elif tier in initial_tiers and initial_tiers[tier]:
             # Use initial assignments with zero stats
             table = create_initial_league_table(initial_tiers[tier])
@@ -411,7 +448,7 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
     # Generate table snapshots for matchday-by-matchday view
     if season_matches:
         try:
-            generate_all_table_snapshots(matches, season_id, data_dir)
+            generate_all_table_snapshots(matches, season_id, data_dir, rounds_data=rounds_data)
             print(f"{GREEN}  Table snapshots generated{RESET}")
         except Exception as e:
             print(f"{YELLOW}  Warning: Could not generate table snapshots: {e}{RESET}")
@@ -499,7 +536,8 @@ def get_all_seasons(matches: List[Dict], data_dir: str) -> List[str]:
 
 
 def process_all_seasons(matches: List[Dict], fixtures: List[Dict],
-                        data_dir: str = DEFAULT_DATA_DIR) -> Dict:
+                        data_dir: str = DEFAULT_DATA_DIR,
+                        rounds_data: Optional[Dict[str, List[Dict]]] = None) -> Dict:
     """
     Process all seasons and generate comprehensive season data.
 
@@ -507,6 +545,7 @@ def process_all_seasons(matches: List[Dict], fixtures: List[Dict],
         matches: List of all completed matches
         fixtures: List of all scheduled fixtures
         data_dir: Data directory
+        rounds_data: Optional mapping of match_id to rounds for rw/rl stats.
 
     Returns:
         Dictionary with all season data
@@ -522,7 +561,7 @@ def process_all_seasons(matches: List[Dict], fixtures: List[Dict],
     all_season_data = {"seasons": {}}
 
     for season_id in all_seasons:
-        season_data = process_season(season_id, matches, fixtures, data_dir)
+        season_data = process_season(season_id, matches, fixtures, data_dir, rounds_data=rounds_data)
         if season_data:
             all_season_data["seasons"][season_id] = season_data
 
@@ -624,6 +663,11 @@ def main():
         print(f"{YELLOW}No completed matches found{RESET}")
         matches = []
 
+    # Load rounds data for IRW/IRL stats
+    print(f"{YELLOW}Loading rounds data...{RESET}")
+    rounds_data = load_rounds_data(DEFAULT_ROUNDS_FILE)
+    print(f"{GREEN}Loaded rounds data for {len(rounds_data)} matches{RESET}")
+
     # Load fixtures
     print(f"{YELLOW}Loading fixtures...{RESET}")
     fixtures = load_fixtures(fixtures_file)
@@ -636,14 +680,14 @@ def main():
     # Process seasons
     if args.season:
         # Process specific season
-        season_data = process_season(args.season, matches, fixtures, args.data_dir)
+        season_data = process_season(args.season, matches, fixtures, args.data_dir, rounds_data=rounds_data)
         if season_data:
             all_data = {"seasons": {args.season: season_data}}
         else:
             all_data = {"seasons": {}}
     else:
         # Process all seasons
-        all_data = process_all_seasons(matches, fixtures, args.data_dir)
+        all_data = process_all_seasons(matches, fixtures, args.data_dir, rounds_data=rounds_data)
 
     # Save output
     save_season_output(all_data, args.output)

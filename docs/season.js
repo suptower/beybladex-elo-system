@@ -13,6 +13,11 @@ let selectedMatchdays = {}; // Track selected matchday for each tier (tier -> ma
 let selectedTableSnapshots = {}; // Track selected table snapshot matchday for each tier (tier -> matchday number)
 let tableSnapshotsData = {}; // Store loaded snapshot data (tier -> array of snapshots)
 let tierFullSizes = {}; // Store the full (final) tier size for each tier to drive zone highlighting
+let tableSortStates = {}; // Track sort column/direction per tier: {tier: {col, dir}} dir = 'asc'|'desc'|null
+
+// Default sort applied to all tier tables on initial render
+const TABLE_DEFAULT_SORT_COL = 'season_points';
+const TABLE_DEFAULT_SORT_DIR = 'desc';
 
 /**
  * Add soft hyphens before capital letters in compound Bey names for better line breaking
@@ -61,6 +66,10 @@ async function loadRoundsData() {
                 if (match.rounds && match.rounds.length > 0) {
                     roundsData[match.match_id] = {
                         rounds: match.rounds,
+                        bey_a: match.bey_a ?? match.BeyA ?? '',
+                        bey_b: match.bey_b ?? match.BeyB ?? '',
+                        score_a: match.score_a ?? match.ScoreA ?? 0,
+                        score_b: match.score_b ?? match.ScoreB ?? 0,
                         elo_a: match.elo_a,
                         elo_b: match.elo_b,
                         post_elo_a: match.post_elo_a,
@@ -148,6 +157,11 @@ async function loadTableSnapshots(seasonId, tier) {
                 const pointDiff = parseInt(values[9]);
                 const elo = parseFloat(values[10]);
                 const positionDelta = parseInt(values[11]);
+                // New stats (columns 12-15, present in updated CSVs; fall back to 0)
+                const rw = values.length > 12 ? parseInt(values[12]) || 0 : 0;
+                const rl = values.length > 13 ? parseInt(values[13]) || 0 : 0;
+                const ppr = values.length > 14 ? parseFloat(values[14]) || 0 : 0;
+                const ppw = values.length > 15 ? parseFloat(values[15]) || 0 : 0;
                 
                 if (!snapshots[matchday]) {
                     snapshots[matchday] = [];
@@ -164,7 +178,11 @@ async function loadTableSnapshots(seasonId, tier) {
                     points_against: pointsAgainst,
                     point_diff: pointDiff,
                     elo,
-                    position_delta: positionDelta
+                    position_delta: positionDelta,
+                    rw,
+                    rl,
+                    ppr,
+                    ppw,
                 });
             }
         }
@@ -448,16 +466,20 @@ function displayTierTables(leagueTables) {
                                     <thead>
                                         <tr>
                                             <th>Pos</th>
-                                            ${hasSnapshots ? '<th>Δ</th>' : ''}
-                                            <th>Bey</th>
-                                            <th>M</th>
-                                            <th>W</th>
-                                            <th>L</th>
-                                            <th>SP</th>
-                                            <th>RPW</th>
-                                            <th>RPL</th>
-                                            <th>RPD</th>
-                                            <th>ELO</th>
+                                            ${hasSnapshots ? '<th style="width:1.75rem;min-width:0;">Δ</th>' : ''}
+                                            <th class="bey-name-header">Bey</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'matches' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'matches')" title="Matches played">M</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'wins' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'wins')" title="Wins">W</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'losses' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'losses')" title="Losses">L</th>
+                                            <th class="sortable${(tableSortStates[tier]?.col ?? TABLE_DEFAULT_SORT_COL) === 'season_points' ? (' ' + ((tableSortStates[tier]?.dir ?? TABLE_DEFAULT_SORT_DIR) === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'season_points')" title="Season Points">SP</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'points_for' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'points_for')" title="Round Points Won">RPW</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'points_against' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'points_against')" title="Round Points Lost">RPL</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'point_diff' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'point_diff')" title="Round Points Difference">RPD</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'rw' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'rw')" title="Rounds Won">RW</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'rl' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'rl')" title="Rounds Lost">RL</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'ppr' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'ppr')" title="Round Points per Round Played">PPR</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'ppw' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'ppw')" title="Round Points per Round Won">PPW</th>
+                                            <th class="sortable${tableSortStates[tier]?.col === 'elo' ? (' ' + (tableSortStates[tier].dir === 'asc' ? 'sorted-asc' : 'sorted-desc')) : ''}" onclick="sortTierTable(${tier}, 'elo')" title="ELO Rating">ELO</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -467,6 +489,8 @@ function displayTierTables(leagueTables) {
                             </div>
                             <div class="table-legend">
                                 <span><strong>M</strong>=Matches, <strong>W</strong>=Wins, <strong>L</strong>=Losses, <strong>SP</strong>=Season Points</span>
+                                <span><strong>RW</strong>=Rounds Won, <strong>RL</strong>=Rounds Lost</span>
+                                <span><strong>PPR</strong>=Round Points per Round Played (RPW ÷ (RW+RL)), <strong>PPW</strong>=Round Points per Round Won (RPW ÷ RW)</span>
                                 <span><strong>RPW</strong>=Round Points Won, <strong>RPL</strong>=Round Points Lost, <strong>RPD</strong>=Round Points Difference</span>
                             </div>
                             ${getPositionLegend(tier, table.length)}
@@ -714,10 +738,19 @@ function updateTierTable(tier) {
     const snapshotMatchdays = Object.keys(snapshots).map(Number).sort((a, b) => a - b);
     const hasSnapshots = true;
     
-    // Update table body
+    // Update table body, applying current sort state
     const tbody = document.querySelector(`#tier-${tier}-content .league-table tbody`);
     if (tbody) {
-        tbody.innerHTML = displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, tierFullSizes[tier] || displayTable.length)).join('');
+        const sortState = tableSortStates[tier] || { col: TABLE_DEFAULT_SORT_COL, dir: TABLE_DEFAULT_SORT_DIR };
+        const sorted = [...displayTable].sort((a, b) => {
+            let valA = a[sortState.col] ?? 0;
+            let valB = b[sortState.col] ?? 0;
+            if (typeof valA === 'string') {
+                return sortState.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+            }
+            return sortState.dir === 'asc' ? valA - valB : valB - valA;
+        });
+        tbody.innerHTML = sorted.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, tierFullSizes[tier] || displayTable.length)).join('');
     }
     
     // Update navigation buttons
@@ -735,6 +768,71 @@ function updateTierTable(tier) {
         }
         if (label) {
             label.textContent = `MD ${currentSnapshotMatchday}`;
+        }
+    }
+}
+
+/**
+ * Sort the league table for a specific tier by a given column.
+ * Clicking the same column toggles between descending and ascending.
+ * Clicking a different column sorts descending by default.
+ */
+function sortTierTable(tier, column) {
+    // Determine current sort direction for this tier/column
+    const current = tableSortStates[tier] || { col: TABLE_DEFAULT_SORT_COL, dir: TABLE_DEFAULT_SORT_DIR };
+    let dir;
+    if (current.col === column) {
+        dir = current.dir === 'desc' ? 'asc' : 'desc';
+    } else {
+        // First click on a new column: always descending (best first)
+        dir = 'desc';
+    }
+    tableSortStates[tier] = { col: column, dir };
+
+    // Get current display table
+    const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
+    const currentSnapshotMatchday = selectedTableSnapshots[tier];
+    let displayTable;
+    if (hasSnapshots && currentSnapshotMatchday) {
+        displayTable = tableSnapshotsData[tier][currentSnapshotMatchday];
+    } else {
+        const leagueTables = currentSeason?.league_tables || {};
+        displayTable = leagueTables[tier.toString()];
+    }
+    if (!displayTable) return;
+
+    // Sort a copy of the table
+    const sorted = [...displayTable].sort((a, b) => {
+        let valA = a[column] ?? 0;
+        let valB = b[column] ?? 0;
+        // For string columns, use locale compare
+        if (typeof valA === 'string') {
+            return dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return dir === 'asc' ? valA - valB : valB - valA;
+    });
+
+    // Re-render rows
+    const tbody = document.querySelector(`#tier-${tier}-content .league-table tbody`);
+    if (tbody) {
+        tbody.innerHTML = sorted.map((entry, idx) =>
+            createTableRow(entry, idx, tier, hasSnapshots, tierFullSizes[tier] || displayTable.length)
+        ).join('');
+    }
+
+    // Update header sort indicators
+    const thead = document.querySelector(`#tier-${tier}-content .league-table thead`);
+    if (thead) {
+        thead.querySelectorAll('th.sortable').forEach(th => {
+            th.classList.remove('sorted-asc', 'sorted-desc');
+        });
+        // Find the header that matches the column by its onclick attribute
+        const activeHeader = Array.from(thead.querySelectorAll('th.sortable')).find(th => {
+            const onclick = th.getAttribute('onclick') || '';
+            return onclick.includes(`'${column}'`);
+        });
+        if (activeHeader) {
+            activeHeader.classList.add(dir === 'asc' ? 'sorted-asc' : 'sorted-desc');
         }
     }
 }
@@ -920,7 +1018,7 @@ function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
             deltaSymbol = '━';
         }
         
-        deltaCell = `<td class="position-delta ${deltaClass}">${deltaSymbol}</td>`;
+        deltaCell = `<td class="position-delta ${deltaClass}" style="width:2.0rem;min-width:0;">${deltaSymbol}</td>`;
     }
     
     return `
@@ -935,6 +1033,10 @@ function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
             <td>${entry.points_for}</td>
             <td>${entry.points_against}</td>
             <td>${entry.point_diff > 0 ? '+' : ''}${entry.point_diff}</td>
+            <td>${entry.rw ?? 0}</td>
+            <td>${entry.rl ?? 0}</td>
+            <td>${entry.ppr != null && (entry.rw + entry.rl) > 0 ? entry.ppr.toFixed(2) : '—'}</td>
+            <td>${entry.ppw != null && entry.rw > 0 ? entry.ppw.toFixed(2) : '—'}</td>
             <td>${Math.round(displayElo)}</td>
         </tr>
     `;
@@ -1372,61 +1474,54 @@ function showError(message) {
 }
 
 /**
- * Create rounds HTML for match card
+ * Create rounds HTML for match card (compact single-row format)
  */
 function createRoundsHtml(match, rounds) {
     if (!rounds || rounds.length === 0) return '';
-    
-    let html = '<div class="rounds-list">';
+
+    let html = '<div class="rounds-compact">';
     let runningScoreA = 0;
     let runningScoreB = 0;
-    
+
     rounds.forEach((round, index) => {
         const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
-        
-        // Update running score
-        if (round.winner === match.bey_a) {
-            runningScoreA += round.points_awarded;
-        } else if (round.winner === match.bey_b) {
-            runningScoreB += round.points_awarded;
-        }
-        
+        const isWinnerA = round.winner === match.bey_a;
+        const isWinnerB = round.winner === match.bey_b;
+
+        if (isWinnerA) runningScoreA += round.points_awarded;
+        else if (isWinnerB) runningScoreB += round.points_awarded;
+
+        const winnerClass = isWinnerA ? 'rc-winner-a' : (isWinnerB ? 'rc-winner-b' : '');
+
         html += `
-            <div class="round-item">
-                <div class="round-header">
-                    <span class="round-number">R${round.round_number || index + 1}</span>
-                    <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
-                        <span class="finish-icon">${finishStyle.icon}</span>
-                        <span class="finish-label">${finishStyle.label}</span>
-                    </span>
-                    <span class="round-points">+${round.points_awarded}</span>
+            <div class="rc-row ${winnerClass}">
+                <div class="rc-top">
+                    <span class="rc-num">R${round.round_number || index + 1}</span>
+                    <span class="rc-badge" style="background:${finishStyle.bgColor};color:${finishStyle.color};">${finishStyle.icon} ${finishStyle.label}</span>
+                    <span class="rc-pts">+${round.points_awarded}</span>
+                    <span class="rc-score">${runningScoreA}–${runningScoreB}</span>
                 </div>
-                <div class="round-details">
-                    <span class="round-winner">${round.winner}</span>
-                    <span class="round-score">${runningScoreA} - ${runningScoreB}</span>
+                <div class="rc-bottom">
+                    <span class="rc-winner">${round.winner || '—'}</span>
                 </div>
             </div>
         `;
     });
-    
-    // Add finish type summary
+
+    // Finish type summary
     const finishCounts = {};
     rounds.forEach(round => {
         const type = round.finish_type || 'spin';
         finishCounts[type] = (finishCounts[type] || 0) + 1;
     });
-    
-    html += '<div class="rounds-summary">';
+
+    html += '<div class="rc-summary">';
     Object.entries(finishCounts).forEach(([type, count]) => {
         const style = FINISH_TYPE_STYLES[type] || FINISH_TYPE_STYLES.spin;
-        html += `
-            <span class="finish-summary-badge" style="background: ${style.bgColor}; color: ${style.color};">
-                ${style.icon} ${style.label}: ${count}
-            </span>
-        `;
+        html += `<span class="finish-summary-badge" style="background:${style.bgColor};color:${style.color};">${style.icon} ${style.label}: ${count}</span>`;
     });
     html += '</div>';
-    
+
     html += '</div>';
     return html;
 }
@@ -1455,19 +1550,14 @@ function toggleMatchRounds(matchId, roundCount) {
         if (content && content.innerHTML.trim() === '') {
             const matchData = roundsData[matchId];
             if (matchData && matchData.rounds) {
-                // Find the match data to pass to createRoundsHtml
-                const matchCard = document.querySelector(`[data-match-id="${matchId}"]`);
-                if (matchCard) {
-                    // Get match info from DOM or reconstruct it
-                    const match = {
-                        match_id: matchId,
-                        bey_a: matchCard.querySelector('.card-bey:first-child .bey-link')?.textContent.replace(/\u00AD/g, '') || '',
-                        bey_b: matchCard.querySelector('.card-bey:last-child .bey-link')?.textContent.replace(/\u00AD/g, '') || '',
-                        score_a: parseInt(matchCard.querySelector('.card-bey:first-child .bey-score')?.textContent || '0'),
-                        score_b: parseInt(matchCard.querySelector('.card-bey:last-child .bey-score')?.textContent || '0')
-                    };
-                    content.innerHTML = createRoundsHtml(match, matchData.rounds);
-                }
+                const match = {
+                    match_id: matchId,
+                    bey_a: matchData.bey_a || '',
+                    bey_b: matchData.bey_b || '',
+                    score_a: matchData.score_a || 0,
+                    score_b: matchData.score_b || 0,
+                };
+                content.innerHTML = createRoundsHtml(match, matchData.rounds);
             }
         }
         
