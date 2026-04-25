@@ -11688,12 +11688,12 @@ select:focus-visible {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.625rem 1rem;
+    padding: 0.4rem 0.75rem;
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     color: var(--text);
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
@@ -12484,7 +12484,7 @@ body.dark .season-status-badge.active {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
 
 .league-table th {
@@ -12493,14 +12493,14 @@ body.dark .season-status-badge.active {
     font-weight: 700;
     color: var(--text);
     text-transform: uppercase;
-    font-size: 0.7rem;
+    font-size: 0.78rem;
     letter-spacing: 0.05em;
     border-bottom: 2px solid var(--accent);
     white-space: nowrap;
 }
 
 .league-table td {
-    padding: 0.65rem 0.3rem;    /* höher als vorher (war 0.55rem) */
+    padding: 0.9rem 0.3rem;    /* höher als vorher (war 0.55rem) */
     vertical-align: middle;
     text-align: center;          /* alle Zellen zentriert */
     white-space: nowrap;
@@ -12795,7 +12795,7 @@ body.dark .season-status-badge.active {
 .tier-matches-container .matches-grid {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 0.75rem;
 }
 
 /* Responsive adjustments */
@@ -12845,7 +12845,7 @@ body.dark .season-status-badge.active {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 0.75rem;
     box-shadow: var(--shadow);
     transition: var(--transition);
 }
@@ -12859,9 +12859,9 @@ body.dark .season-status-badge.active {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.65rem;
+    margin-bottom: 0.4rem;
     gap: 0.5rem;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: var(--text-light);
 }
 
@@ -12878,7 +12878,7 @@ body.dark .season-status-badge.active {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.4rem 0.75rem;
+    padding: 0.3rem 0.5rem;
     background: var(--bg);
     border-radius: var(--radius-sm);
     transition: var(--transition);
@@ -12918,7 +12918,7 @@ body.dark .season-status-badge.active {
 
 .compact-bey-name {
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     flex: 1;
     min-width: 0;
     overflow: hidden;
@@ -12927,7 +12927,7 @@ body.dark .season-status-badge.active {
 }
 
 .compact-bey-score {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 700;
     min-width: 1.5rem;
     text-align: center;
@@ -12942,7 +12942,7 @@ body.dark .season-status-badge.active {
 .compact-vs {
     font-weight: 600;
     color: var(--text-light);
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     flex-shrink: 0;
 }
 
