@@ -982,6 +982,7 @@ function getFinishTypeStats(beyName) {
         spin: 0,
         burst: 0,
         pocket: 0,
+        stadium_exit: 0,
         extreme: 0,
         total: 0
     };
