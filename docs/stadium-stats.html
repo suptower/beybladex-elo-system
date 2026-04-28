@@ -393,18 +393,20 @@ function displayFinishStats(stadium) {
     finishChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ['Spin Finish', 'Burst Finish', 'Pocket Finish', 'Extreme Finish'],
+            labels: ['Spin Finish', 'Burst Finish', 'Pocket Finish', 'Stadium Exit', 'Extreme Finish'],
             datasets: [{
                 data: [
                     finishStats.finish_percentages.spin,
                     finishStats.finish_percentages.burst,
                     finishStats.finish_percentages.pocket,
+                    finishStats.finish_percentages.stadium_exit,
                     finishStats.finish_percentages.extreme
                 ],
                 backgroundColor: [
                     'rgba(59, 130, 246, 0.8)',
                     'rgba(239, 68, 68, 0.8)',
                     'rgba(234, 179, 8, 0.8)',
+                    'rgba(34, 197, 94, 0.8)',
                     'rgba(168, 85, 247, 0.8)'
                 ]
             }]
@@ -440,6 +442,10 @@ function displayFinishStats(stadium) {
         <div class="stat-card">
             <div class="stat-label">Pocket Finishes</div>
             <div class="stat-value">${finishStats.finish_counts.pocket} (${finishStats.finish_percentages.pocket}%)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Stadium Exit Finishes</div>
+            <div class="stat-value">${finishStats.finish_counts.stadium_exit} (${finishStats.finish_percentages.stadium_exit}%)</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Extreme Finishes</div>
