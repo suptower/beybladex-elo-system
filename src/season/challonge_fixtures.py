@@ -83,7 +83,7 @@ def _parse_season_start_date(value: Optional[str]) -> Optional[datetime]:
     if not value:
         return None
     try:
-        return datetime.fromisoformat(value.replace("Z", ""))
+        return datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
     except ValueError:
         return None
 
@@ -841,7 +841,10 @@ Examples:
     parser.add_argument(
         "--season",
         default=None,
-        help="Season identifier, e.g. S2. If omitted, auto-detects current season.",
+        help=(
+            "Season identifier, e.g. S2. If omitted, auto-detects current season "
+            "(active season in seasons.json, else newest api_jsons directory)."
+        ),
     )
     parser.add_argument(
         "--tier",

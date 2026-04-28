@@ -2327,9 +2327,8 @@ function importJSON(content) {
         const scoreA = parseInt(match.scoreA ?? match.score_a) || 0;
         const scoreB = parseInt(match.scoreB ?? match.score_b) || 0;
         const matchdayRaw = match.matchday ?? match.match_day ?? '';
-        const matchday = matchdayRaw === '' || matchdayRaw == null
-            ? ''
-            : parseInt(matchdayRaw) || matchdayRaw;
+        const parsedMatchday = parseInt(matchdayRaw);
+        const matchday = Number.isFinite(parsedMatchday) ? parsedMatchday : '';
 
         const matchTypeValue = (match.matchType || match.match_type || 'exhibition').toString().toLowerCase();
         const imported = {
@@ -2402,18 +2401,18 @@ function importJSON(content) {
 function importCSV(content) {
     const lines = content.trim().split(/\r?\n/);
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-    const normalizedHeaders = headers.map(h => h.replace(/[\s_]+/g, ''));
+    const compactHeaders = headers.map(h => h.replace(/[\s_]+/g, ''));
     
     // Find column indices
-    const beyAIndex = normalizedHeaders.findIndex(h => h === 'beya');
-    const beyBIndex = normalizedHeaders.findIndex(h => h === 'beyb');
-    const scoreAIndex = normalizedHeaders.findIndex(h => h === 'scorea');
-    const scoreBIndex = normalizedHeaders.findIndex(h => h === 'scoreb');
-    const matchTypeIndex = normalizedHeaders.findIndex(h => h === 'matchtype');
-    const seasonIdIndex = normalizedHeaders.findIndex(h => h === 'seasonid');
-    const tierIndex = normalizedHeaders.findIndex(h => h === 'tier');
-    const matchdayIndex = normalizedHeaders.findIndex(h => h === 'matchday');
-    const arenaIndex = normalizedHeaders.findIndex(h => h === 'arena');
+    const beyAIndex = compactHeaders.findIndex(h => h === 'beya');
+    const beyBIndex = compactHeaders.findIndex(h => h === 'beyb');
+    const scoreAIndex = compactHeaders.findIndex(h => h === 'scorea');
+    const scoreBIndex = compactHeaders.findIndex(h => h === 'scoreb');
+    const matchTypeIndex = compactHeaders.findIndex(h => h === 'matchtype');
+    const seasonIdIndex = compactHeaders.findIndex(h => h === 'seasonid');
+    const tierIndex = compactHeaders.findIndex(h => h === 'tier');
+    const matchdayIndex = compactHeaders.findIndex(h => h === 'matchday');
+    const arenaIndex = compactHeaders.findIndex(h => h === 'arena');
     
     if (beyAIndex === -1 || beyBIndex === -1) {
         showToast('CSV must have BeyA and BeyB columns', 'error');
@@ -2429,9 +2428,8 @@ function importCSV(content) {
         const matchType = matchTypeRaw ? matchTypeRaw.toLowerCase() : 'exhibition';
         const seasonId = seasonIdIndex !== -1 && values[seasonIdIndex] ? values[seasonIdIndex] : '';
         const tier = tierIndex !== -1 && values[tierIndex] ? values[tierIndex] : '';
-        const matchday = matchdayIndex !== -1 && values[matchdayIndex]
-            ? parseInt(values[matchdayIndex]) || values[matchdayIndex]
-            : '';
+        const parsedMatchday = matchdayIndex !== -1 ? parseInt(values[matchdayIndex]) : NaN;
+        const matchday = Number.isFinite(parsedMatchday) ? parsedMatchday : '';
         const arena = arenaIndex !== -1 && values[arenaIndex] ? values[arenaIndex] : 'Xtreme';
         
         let winner = null;
