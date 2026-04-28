@@ -633,7 +633,7 @@ def update_fixtures_for_season(
     all_fixtures.sort(
         key=lambda f: (
             f.get("matchday", 0),
-            -int(f["tier"]) if f.get("tier") is not None else 0,
+            -int(f.get("tier", 0)) if f.get("tier") is not None else 0,
         )
     )
 
@@ -720,7 +720,7 @@ def generate_remaining_plan(
     all_remaining.sort(
         key=lambda f: (
             f.get("matchday", 0),
-            -int(f["tier"]) if f.get("tier") is not None else 0,
+            -int(f.get("tier", 0)) if f.get("tier") is not None else 0,
         )
     )
 

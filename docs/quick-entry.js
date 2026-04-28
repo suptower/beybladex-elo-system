@@ -582,6 +582,15 @@ function calculateScoresFromRounds(match) {
     return { scoreA, scoreB };
 }
 
+function determineWinner(scoreA, scoreB) {
+    const a = parseInt(scoreA) || 0;
+    const b = parseInt(scoreB) || 0;
+    if (a > b && a > 0) return 'A';
+    if (b > a && b > 0) return 'B';
+    if (a === b && a > 0) return 'draw';
+    return null;
+}
+
 // Update match scores from rounds and determine winner
 function updateMatchFromRounds(matchIndex) {
     const match = state.matches[matchIndex];
@@ -591,16 +600,7 @@ function updateMatchFromRounds(matchIndex) {
     match.scoreA = scoreA;
     match.scoreB = scoreB;
     
-    // Determine winner based on computed scores
-    if (scoreA > scoreB && scoreA > 0) {
-        match.winner = 'A';
-    } else if (scoreB > scoreA && scoreB > 0) {
-        match.winner = 'B';
-    } else if (scoreA === scoreB && scoreA > 0) {
-        match.winner = 'draw';
-    } else {
-        match.winner = null;
-    }
+    match.winner = determineWinner(scoreA, scoreB);
     
     match.timestamp = new Date().toISOString();
     
@@ -2331,7 +2331,7 @@ function importJSON(content) {
         const parsedMatchday = parseInt(matchdayRaw);
         const matchday = Number.isFinite(parsedMatchday) ? parsedMatchday : '';
 
-        const normalizedMatchType = (match.matchType || match.match_type || DEFAULT_MATCH_TYPE).toString().toLowerCase();
+        const normalizedMatchType = String(match.matchType || match.match_type || DEFAULT_MATCH_TYPE).toLowerCase();
         const imported = {
             id: match.id || match.match_id || generateUniqueId(),
             matchNumber: match.matchNumber || match.match_number || i + 1,
@@ -2354,28 +2354,8 @@ function importJSON(content) {
             const { scoreA: roundScoreA, scoreB: roundScoreB } = calculateScoresFromRounds(imported);
             imported.scoreA = roundScoreA;
             imported.scoreB = roundScoreB;
-            
-            // Recalculate winner
-            if (roundScoreA > roundScoreB && roundScoreA > 0) {
-                imported.winner = 'A';
-            } else if (roundScoreB > roundScoreA && roundScoreB > 0) {
-                imported.winner = 'B';
-            } else if (roundScoreA === roundScoreB && roundScoreA > 0) {
-                imported.winner = 'draw';
-            } else {
-                imported.winner = null;
-            }
-        } else if (scoreA || scoreB) {
-            if (scoreA > scoreB && scoreA > 0) {
-                imported.winner = 'A';
-            } else if (scoreB > scoreA && scoreB > 0) {
-                imported.winner = 'B';
-            } else if (scoreA === scoreB && scoreA > 0) {
-                imported.winner = 'draw';
-            } else {
-                imported.winner = null;
-            }
         }
+        imported.winner = determineWinner(imported.scoreA, imported.scoreB);
         
         return imported;
     };
@@ -2433,10 +2413,7 @@ function importCSV(content) {
         const matchday = Number.isFinite(parsedMatchday) ? parsedMatchday : '';
         const arena = arenaIndex !== -1 && values[arenaIndex] ? values[arenaIndex] : 'Xtreme';
         
-        let winner = null;
-        if (scoreA > scoreB && scoreA > 0) winner = 'A';
-        else if (scoreB > scoreA && scoreB > 0) winner = 'B';
-        else if (scoreA === scoreB && scoreA > 0) winner = 'draw';
+        const winner = determineWinner(scoreA, scoreB);
         
         return {
             id: generateUniqueId(),
