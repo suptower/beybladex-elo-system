@@ -44,6 +44,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime
 from typing import Dict, FrozenSet, List, Optional, Set, Tuple
 
 # ---------------------------------------------------------------------------
@@ -75,6 +76,76 @@ _ROMAN_NUMERALS: Dict[str, int] = {
 
 MATCH_TYPE = "season"
 ARENA = "Xtreme"
+SEASONS_JSON = os.path.join(SEASON_DIR, "seasons.json")
+
+
+def _parse_season_start_date(value: Optional[str]) -> Optional[datetime]:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", ""))
+    except ValueError:
+        return None
+
+
+def detect_current_season(
+    api_jsons_dir: str = SEASON_API_JSONS_DIR,
+    seasons_json: str = SEASONS_JSON,
+) -> str:
+    """
+    Determine the current season based on repository context.
+
+    Priority order:
+    1. Active seasons in seasons.json (latest start_date wins)
+    2. Any season in seasons.json (latest start_date wins)
+    3. Highest season number found in api_jsons directory
+    """
+    if os.path.exists(seasons_json):
+        with open(seasons_json, "r", encoding="utf-8") as fh:
+            seasons = json.load(fh)
+
+        def _season_sort_key(item: Tuple[str, Dict]) -> Tuple[int, datetime, int]:
+            season_id, info = item
+            start_date = _parse_season_start_date(info.get("start_date"))
+            match = re.search(r"\d+", season_id)
+            season_num = int(match.group()) if match else 0
+            if start_date:
+                return (1, start_date, season_num)
+            return (0, datetime.min, season_num)
+
+        active = [
+            (sid, info)
+            for sid, info in seasons.items()
+            if str(info.get("status", "")).lower() in ("active", "current", "ongoing")
+        ]
+        candidates = active or list(seasons.items())
+
+        if os.path.isdir(api_jsons_dir):
+            available = {
+                d.lower()
+                for d in os.listdir(api_jsons_dir)
+                if os.path.isdir(os.path.join(api_jsons_dir, d))
+            }
+            filtered = [item for item in candidates if item[0].lower() in available]
+            candidates = filtered or candidates
+
+        if candidates:
+            season_id = max(candidates, key=_season_sort_key)[0]
+            return season_id.upper()
+
+    if os.path.isdir(api_jsons_dir):
+        available = [
+            d for d in os.listdir(api_jsons_dir)
+            if os.path.isdir(os.path.join(api_jsons_dir, d))
+        ]
+        if available:
+            def _dir_sort_key(name: str) -> Tuple[int, int, str]:
+                match = re.search(r"\d+", name)
+                season_num = int(match.group()) if match else 0
+                return (1 if match else 0, season_num, name)
+            return max(available, key=_dir_sort_key).upper()
+
+    raise FileNotFoundError("Unable to determine current season from repository context.")
 
 
 # ---------------------------------------------------------------------------
@@ -548,8 +619,13 @@ def update_fixtures_for_season(
     for path in api_paths:
         all_fixtures.extend(challonge_to_fixtures(path))
 
-    # Sort by tier then matchday for a predictable output order
-    all_fixtures.sort(key=lambda f: (f["tier"], f.get("matchday", 0)))
+    # Sort by matchday then tier desc (4 → 3 → 2 → 1)
+    all_fixtures.sort(
+        key=lambda f: (
+            f.get("matchday", 0),
+            -int(f["tier"]) if f.get("tier") is not None else 0,
+        )
+    )
 
     write_fixtures_csv(all_fixtures, fixtures_csv, append=False)
 
@@ -630,8 +706,13 @@ def generate_remaining_plan(
             "remaining": len(remaining),
         }
 
-    # Sort remaining by tier then matchday
-    all_remaining.sort(key=lambda f: (f["tier"], f.get("matchday", 0)))
+    # Sort by matchday then tier desc (4 → 3 → 2 → 1)
+    all_remaining.sort(
+        key=lambda f: (
+            f.get("matchday", 0),
+            -int(f["tier"]) if f.get("tier") is not None else 0,
+        )
+    )
 
     output_files = []
     suffix = f"_t{tier}" if tier is not None else ""
@@ -759,8 +840,8 @@ Examples:
 
     parser.add_argument(
         "--season",
-        required=True,
-        help="Season identifier, e.g. S2",
+        default=None,
+        help="Season identifier, e.g. S2. If omitted, auto-detects current season.",
     )
     parser.add_argument(
         "--tier",
@@ -814,7 +895,7 @@ Examples:
             "or --generate-remaining"
         )
 
-    season_id = args.season.upper()
+    season_id = args.season.upper() if args.season else detect_current_season()
 
     if args.preview:
         summary = preview_season(season_id, args.tier, args.matches_csv)

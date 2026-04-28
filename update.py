@@ -88,6 +88,7 @@ SCRIPT_TOURNAMENT_BRACKETS = "./src/analytics/tournament_brackets.py"
 SCRIPT_MATCHUP_MATRIX = "./src/analytics/matchup_matrix.py"
 SCRIPT_ARCHETYPE_ANALYTICS = "./src/analytics/archetype_analytics.py"
 SCRIPT_SEASON_PROCESSING = "./src/season/season_processing.py"
+SCRIPT_SEASON_FIXTURES = "./src/season/challonge_fixtures.py"
 SCRIPT_STADIUM_STATS = "./src/analytics/stadium_stats.py"
 SCRIPT_SEASON_STATISTICS = "./src/season/season_statistics.py"
 SCRIPT_SEASON_COMPARISON = "./src/season/season_comparison.py"
@@ -238,7 +239,7 @@ def log_step(message, level="info"):
         print(f"\n{BOLD}{YELLOW}▶ {message}{RESET}")
 
 
-def run_script(script_path, description, verbose=False, stream_output=False):
+def run_script(script_path, description, verbose=False, stream_output=False, extra_args=None):
     """
     Run a Python script and handle its output.
 
@@ -249,6 +250,8 @@ def run_script(script_path, description, verbose=False, stream_output=False):
             Default is False.
         stream_output (bool): If True, streams output line-by-line in real-time.
             Use for long-running scripts like plot generation. Default is False.
+        extra_args (list[str] | None): Optional list of CLI args to pass to the
+            script.
 
     Returns:
         tuple: A tuple containing:
@@ -259,10 +262,14 @@ def run_script(script_path, description, verbose=False, stream_output=False):
     start_time = time.time()
 
     try:
+        args = [sys.executable, script_path]
+        if extra_args:
+            args.extend(extra_args)
+
         if stream_output:
             # Stream output in real-time for long-running scripts
             process = subprocess.Popen(
-                [sys.executable, "-u", script_path],
+                [sys.executable, "-u", *args[1:]],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
@@ -279,7 +286,7 @@ def run_script(script_path, description, verbose=False, stream_output=False):
         else:
             # Capture output for shorter scripts
             result = subprocess.run(
-                [sys.executable, script_path],
+                args,
                 capture_output=True,
                 text=True,
                 env=env,
@@ -460,6 +467,15 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Season Processing", success, duration))
+
+    # Challonge fixtures sync (depends on matches.csv + api_jsons)
+    success, duration = run_script(
+        SCRIPT_SEASON_FIXTURES,
+        "Challonge Fixtures Sync",
+        verbose=verbose,
+        extra_args=["--update-fixtures", "--generate-remaining", "--format", "both"]
+    )
+    results.append(("Challonge Fixtures Sync", success, duration))
 
     # Stadium Statistics (depends on matches, elo_history, rounds, rpg_stats)
     success, duration = run_script(
