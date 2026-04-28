@@ -16,8 +16,15 @@ Key Features:
 - Generate a session-ready Quick-Entry CSV containing only remaining matches
 - Deterministic FixtureID based on sorted bey names + season + tier
 - Preview mode (--preview) showing summary counts
+- Auto-detects the current season when --season is omitted
+
+Remaining match ordering (per spec):
+    Sorted by matchday ASC, then tier DESC (4 → 3 → 2 → 1) within each matchday.
 
 Usage:
+    # Auto-detect current season and generate remaining-matches plan
+    python -m src.season.challonge_fixtures --generate-remaining
+
     # Update fixtures.csv with full schedule for season S2
     python -m src.season.challonge_fixtures --season S2 --update-fixtures
 
