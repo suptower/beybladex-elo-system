@@ -1020,7 +1020,7 @@ function getMostLikelyFinish(beyName) {
     let maxCount = 0;
     let mostLikely = 'spin';
     
-    ['spin', 'burst', 'pocket', 'extreme'].forEach(type => {
+    ['spin', 'burst', 'pocket', 'stadium_exit', 'extreme'].forEach(type => {
         if (stats[type] > maxCount) {
             maxCount = stats[type];
             mostLikely = type;
