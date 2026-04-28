@@ -267,9 +267,12 @@ def run_script(script_path, description, verbose=False, stream_output=False, ext
             args.extend(extra_args)
 
         if stream_output:
+            stream_args = [sys.executable, "-u", script_path]
+            if extra_args:
+                stream_args.extend(extra_args)
             # Stream output in real-time for long-running scripts
             process = subprocess.Popen(
-                [sys.executable, "-u", *args[1:]],
+                stream_args,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,

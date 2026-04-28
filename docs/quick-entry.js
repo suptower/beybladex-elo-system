@@ -56,6 +56,7 @@ const K_LEARNING    = 40; // < 6 matches played
 const K_INTERMEDIATE = 24; // 6–14 matches played
 const K_EXPERIENCED  = 12; // 15+ matches played
 const DEFAULT_ELO = 1000; // Default ELO rating for new players
+const DEFAULT_MATCH_TYPE = 'exhibition';
 
 /**
  * Return the K-factor for a bey based on total matches played (including
@@ -526,7 +527,7 @@ function createEmptyRound(index) {
 // Create an empty match with rounds support
 function createEmptyMatch(index) {
     // Get settings from the tournament or most recent match (if any)
-    let matchType = 'exhibition';
+    let matchType = DEFAULT_MATCH_TYPE;
     let seasonId = '';
     let tier = '';
     let matchday = '';
@@ -534,7 +535,7 @@ function createEmptyMatch(index) {
     
     if (state.matches.length > 0) {
         const lastMatch = state.matches[state.matches.length - 1];
-        matchType = lastMatch.matchType || 'exhibition';
+        matchType = lastMatch.matchType || DEFAULT_MATCH_TYPE;
         seasonId = lastMatch.seasonId || '';
         tier = lastMatch.tier || '';
         matchday = lastMatch.matchday || '';
@@ -2330,7 +2331,7 @@ function importJSON(content) {
         const parsedMatchday = parseInt(matchdayRaw);
         const matchday = Number.isFinite(parsedMatchday) ? parsedMatchday : '';
 
-        const matchTypeValue = (match.matchType || match.match_type || 'exhibition').toString().toLowerCase();
+        const normalizedMatchType = (match.matchType || match.match_type || DEFAULT_MATCH_TYPE).toString().toLowerCase();
         const imported = {
             id: match.id || match.match_id || generateUniqueId(),
             matchNumber: match.matchNumber || match.match_number || i + 1,
@@ -2341,7 +2342,7 @@ function importJSON(content) {
             scoreB,
             winner: match.winner || null,
             timestamp: match.timestamp || null,
-            matchType: matchTypeValue,
+            matchType: normalizedMatchType,
             seasonId: match.seasonId || match.season_id || '',
             tier: match.tier ?? '',
             matchday,
@@ -2425,7 +2426,7 @@ function importCSV(content) {
         const scoreA = scoreAIndex !== -1 ? parseInt(values[scoreAIndex]) || 0 : 0;
         const scoreB = scoreBIndex !== -1 ? parseInt(values[scoreBIndex]) || 0 : 0;
         const matchTypeRaw = matchTypeIndex !== -1 && values[matchTypeIndex] ? values[matchTypeIndex] : '';
-        const matchType = matchTypeRaw ? matchTypeRaw.toLowerCase() : 'exhibition';
+        const matchType = matchTypeRaw ? matchTypeRaw.toLowerCase() : DEFAULT_MATCH_TYPE;
         const seasonId = seasonIdIndex !== -1 && values[seasonIdIndex] ? values[seasonIdIndex] : '';
         const tier = tierIndex !== -1 && values[tierIndex] ? values[tierIndex] : '';
         const parsedMatchday = matchdayIndex !== -1 ? parseInt(values[matchdayIndex]) : NaN;

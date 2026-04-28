@@ -99,6 +99,13 @@ def detect_current_season(
     1. Active seasons in seasons.json (latest start_date wins)
     2. Any season in seasons.json (latest start_date wins)
     3. Highest season number found in api_jsons directory
+
+    Args:
+        api_jsons_dir: Base directory containing season API JSON folders.
+        seasons_json: Path to seasons.json metadata file.
+
+    Returns:
+        Uppercase season identifier string (e.g., "S2").
     """
     if os.path.exists(seasons_json):
         with open(seasons_json, "r", encoding="utf-8") as fh:
@@ -145,7 +152,10 @@ def detect_current_season(
                 return (1 if match else 0, season_num, name)
             return max(available, key=_dir_sort_key).upper()
 
-    raise FileNotFoundError("Unable to determine current season from repository context.")
+    raise FileNotFoundError(
+        "Unable to determine current season. Check seasons.json for configured seasons "
+        "or ensure at least one season directory exists in api_jsons/."
+    )
 
 
 # ---------------------------------------------------------------------------
