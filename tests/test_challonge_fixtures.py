@@ -15,8 +15,6 @@ import csv
 import json
 import os
 import sys
-import tempfile
-
 import pytest
 
 # ---------------------------------------------------------------------------
@@ -30,7 +28,6 @@ from src.season.challonge_fixtures import (
     extract_season_tier,
     generate_remaining_plan,
     load_played_matches,
-    load_season_api_jsons,
     make_fixture_id,
     parse_challonge_json,
     preview_season,
@@ -39,7 +36,7 @@ from src.season.challonge_fixtures import (
     write_remaining_plan_csv,
     write_remaining_plan_json,
 )
-from src.config.paths import SEASON_API_JSONS_DIR, MATCHES_CSV, FIXTURES_CSV
+from src.config.paths import SEASON_API_JSONS_DIR, MATCHES_CSV
 
 
 # ---------------------------------------------------------------------------
