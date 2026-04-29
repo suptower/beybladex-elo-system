@@ -45,7 +45,7 @@ import os
 import re
 import sys
 from datetime import datetime
-from typing import Dict, FrozenSet, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 # ---------------------------------------------------------------------------
 # Path bootstrap
@@ -57,6 +57,7 @@ if _root not in sys.path:
     sys.path.insert(0, _root)
 del _os, _root
 
+from src.analytics.xp_system import normalize_bey_key  # noqa: E402
 from src.config.paths import (  # noqa: E402
     FIXTURES_CSV,
     MATCHES_CSV,
@@ -229,9 +230,49 @@ def make_fixture_id(bey_a: str, bey_b: str, season_id: str, tier: int) -> str:
     return f"{season_id}_T{tier}_{sorted_beys[0]}_{sorted_beys[1]}"
 
 
-def _match_pair_key(bey_a: str, bey_b: str) -> FrozenSet[str]:
-    """Return a frozenset of two bey names for order-independent comparison."""
-    return frozenset([bey_a, bey_b])
+def build_canonical_bey_map(matches_csv: str) -> Dict[str, str]:
+    """
+    Build a mapping of normalized bey names to a canonical name from matches.csv.
+
+    Args:
+        matches_csv: Path to ``matches.csv``.
+
+    Returns:
+        Dict mapping normalized names to their canonical match names.
+    """
+    canonical_by_norm: Dict[str, str] = {}
+    if not os.path.exists(matches_csv):
+        return canonical_by_norm
+
+    with open(matches_csv, "r", encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            for key in ("BeyA", "BeyB"):
+                name = row.get(key, "")
+                norm = normalize_bey_key(name)
+                if norm and norm not in canonical_by_norm:
+                    canonical_by_norm[norm] = name
+
+    return canonical_by_norm
+
+
+def resolve_bey_name(name: str, canonical_by_norm: Dict[str, str]) -> str:
+    """Resolve a bey name to a canonical match name when available."""
+    if not name:
+        return ""
+    norm = normalize_bey_key(name)
+    if norm and norm in canonical_by_norm:
+        return canonical_by_norm[norm]
+    return name
+
+
+def apply_canonical_names(fixtures: List[Dict], canonical_by_norm: Dict[str, str]) -> None:
+    """Update fixture bey names and fixture_ids using canonical names."""
+    for fix in fixtures:
+        bey_a = resolve_bey_name(fix["bey_a"], canonical_by_norm)
+        bey_b = resolve_bey_name(fix["bey_b"], canonical_by_norm)
+        fix["bey_a"] = bey_a
+        fix["bey_b"] = bey_b
+        fix["fixture_id"] = make_fixture_id(bey_a, bey_b, fix["season_id"], fix["tier"])
 
 
 # ---------------------------------------------------------------------------
@@ -356,7 +397,11 @@ def challonge_to_fixtures(json_path: str) -> List[Dict]:
     return result["matches"]
 
 
-def load_season_api_jsons(season_id: str, tier: Optional[int] = None) -> List[str]:
+def load_season_api_jsons(
+    season_id: str,
+    tier: Optional[int] = None,
+    api_jsons_dir: str = SEASON_API_JSONS_DIR,
+) -> List[str]:
     """
     Discover Challonge API JSON files for a given season.
 
@@ -366,6 +411,7 @@ def load_season_api_jsons(season_id: str, tier: Optional[int] = None) -> List[st
     Args:
         season_id: Season identifier, e.g. "S2".
         tier: Optional tier number (1–4).  When *None*, all tiers are returned.
+        api_jsons_dir: Base directory containing season API JSON folders.
 
     Returns:
         Sorted list of absolute paths that exist on disk.
@@ -373,7 +419,7 @@ def load_season_api_jsons(season_id: str, tier: Optional[int] = None) -> List[st
     Raises:
         FileNotFoundError: If the season directory does not exist.
     """
-    season_dir = os.path.join(SEASON_API_JSONS_DIR, season_id.lower())
+    season_dir = os.path.join(api_jsons_dir, season_id.lower())
     if not os.path.isdir(season_dir):
         raise FileNotFoundError(
             f"Season API JSON directory not found: {season_dir}"
@@ -402,9 +448,10 @@ def load_played_matches(
     matches_csv: str,
     season_id: str,
     tier: Optional[int] = None,
-) -> Set[FrozenSet[str]]:
+    canonical_by_norm: Optional[Dict[str, str]] = None,
+) -> Set[str]:
     """
-    Load the set of (order-independent) bey pairs that have been played.
+    Load the set of fixture_ids that have been played.
 
     A match is considered **played** when it exists in ``matches.csv`` with
     a non-zero score (ScoreA + ScoreB > 0), the correct SeasonID, and the
@@ -414,60 +461,68 @@ def load_played_matches(
         matches_csv: Path to ``matches.csv``.
         season_id: Season identifier to filter on (e.g. "S2").
         tier: Optional tier number.  When *None*, all tiers are included.
+        canonical_by_norm: Optional normalized-name map for canonical bey names.
 
     Returns:
-        Set of frozensets ``{bey_a, bey_b}`` for each played match.
+        Set of FixtureIDs for each played match.
     """
-    played: Set[FrozenSet[str]] = set()
+    played: Set[str] = set()
     if not os.path.exists(matches_csv):
         return played
 
+    if canonical_by_norm is None:
+        canonical_by_norm = build_canonical_bey_map(matches_csv)
     with open(matches_csv, "r", encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
         for row in reader:
             if row.get("MatchType", "").lower() != "season":
                 continue
-            if row.get("SeasonID", "") != season_id:
+            if row.get("SeasonID", "").strip().upper() != season_id.upper():
                 continue
-            if tier is not None:
-                row_tier = row.get("Tier", "")
-                if str(row_tier) != str(tier):
+            row_tier = row.get("Tier", "")
+            if tier is not None and str(row_tier) != str(tier):
+                continue
+            if tier is None:
+                if not str(row_tier).isdigit():
                     continue
+                tier_value = int(row_tier)
+            else:
+                tier_value = int(tier)
 
             score_a = int(row.get("ScoreA", 0) or 0)
             score_b = int(row.get("ScoreB", 0) or 0)
             if score_a + score_b == 0:
                 continue  # 0-0 is not considered played
 
-            bey_a = row.get("BeyA", "")
-            bey_b = row.get("BeyB", "")
+            bey_a = resolve_bey_name(row.get("BeyA", ""), canonical_by_norm)
+            bey_b = resolve_bey_name(row.get("BeyB", ""), canonical_by_norm)
             if bey_a and bey_b:
-                played.add(_match_pair_key(bey_a, bey_b))
+                played.add(make_fixture_id(bey_a, bey_b, season_id, tier_value))
 
     return played
 
 
 def compute_remaining_fixtures(
     fixtures: List[Dict],
-    played_set: Set[FrozenSet[str]],
+    played_set: Set[str],
 ) -> List[Dict]:
     """
     Return fixtures that have not yet been played.
 
-    A fixture is considered unplayed when its (bey_a, bey_b) pair—in either
-    order—is not present in *played_set*.
+    A fixture is considered unplayed when its FixtureID is not present in
+    *played_set*.
 
     Args:
         fixtures: Full list of fixture dicts from :func:`challonge_to_fixtures`.
-        played_set: Set of frozensets returned by :func:`load_played_matches`.
+        played_set: Set of FixtureIDs returned by :func:`load_played_matches`.
 
     Returns:
         Filtered list containing only unplayed fixtures, preserving order.
     """
     remaining = []
     for fix in fixtures:
-        pair = _match_pair_key(fix["bey_a"], fix["bey_b"])
-        if pair not in played_set:
+        fixture_id = fix.get("fixture_id", "")
+        if fixture_id not in played_set:
             remaining.append(fix)
     return remaining
 
@@ -498,7 +553,9 @@ def write_fixtures_csv(
     file_exists = os.path.exists(output_path)
 
     with open(output_path, mode, newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fieldnames)
+        writer = csv.DictWriter(
+            fh, fieldnames=fieldnames, lineterminator="\n"
+        )
 
         # Write header only when creating a new file (or overwriting)
         if not append or not file_exists:
@@ -540,7 +597,9 @@ def write_remaining_plan_csv(
                   "ScoreA", "ScoreB", "MatchType", "SeasonID", "Tier", "Matchday", "arena"]
 
     with open(output_path, "w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fieldnames)
+        writer = csv.DictWriter(
+            fh, fieldnames=fieldnames, lineterminator="\n"
+        )
         writer.writeheader()
 
         for idx, fix in enumerate(fixtures, start=1):
@@ -611,23 +670,26 @@ def update_fixtures_for_season(
     Args:
         season_id: Season identifier (e.g. "S2").
         tier: Optional single tier to process.
-        matches_csv: Path to ``matches.csv`` (used for ordering only).
+        matches_csv: Path to ``matches.csv`` (used for canonical naming).
         fixtures_csv: Destination path for ``fixtures.csv``.
         api_jsons_dir: Base directory containing season API JSON files.
 
     Returns:
         Summary dict with keys ``total``, ``by_tier``, ``output_path``.
     """
-    api_paths = load_season_api_jsons(season_id, tier)
+    api_paths = load_season_api_jsons(season_id, tier, api_jsons_dir)
     if not api_paths:
         raise FileNotFoundError(
             f"No API JSON files found for season '{season_id}'"
             + (f" tier {tier}" if tier else "")
         )
 
+    canonical_by_norm = build_canonical_bey_map(matches_csv)
     all_fixtures: List[Dict] = []
     for path in api_paths:
-        all_fixtures.extend(challonge_to_fixtures(path))
+        fixtures = challonge_to_fixtures(path)
+        apply_canonical_names(fixtures, canonical_by_norm)
+        all_fixtures.extend(fixtures)
 
     # Sort by matchday then tier desc (4 → 3 → 2 → 1)
     all_fixtures.sort(
@@ -687,24 +749,28 @@ def generate_remaining_plan(
     if output_dir is None:
         output_dir = os.path.dirname(FIXTURES_CSV)
 
-    api_paths = load_season_api_jsons(season_id, tier)
+    api_paths = load_season_api_jsons(season_id, tier, api_jsons_dir)
     if not api_paths:
         raise FileNotFoundError(
             f"No API JSON files found for season '{season_id}'"
             + (f" tier {tier}" if tier else "")
         )
 
+    canonical_by_norm = build_canonical_bey_map(matches_csv)
     all_fixtures: List[Dict] = []
     all_remaining: List[Dict] = []
     by_tier: Dict[int, Dict] = {}
 
     for path in api_paths:
         fixtures = challonge_to_fixtures(path)
+        apply_canonical_names(fixtures, canonical_by_norm)
         if not fixtures:
             continue
 
         t = fixtures[0]["tier"]
-        played_set = load_played_matches(matches_csv, season_id, t)
+        played_set = load_played_matches(
+            matches_csv, season_id, t, canonical_by_norm
+        )
         remaining = compute_remaining_fixtures(fixtures, played_set)
 
         all_fixtures.extend(fixtures)
@@ -769,17 +835,21 @@ def preview_season(
     """
     api_paths = load_season_api_jsons(season_id, tier)
 
+    canonical_by_norm = build_canonical_bey_map(matches_csv)
     all_total = 0
     all_played = 0
     by_tier: Dict[int, Dict] = {}
 
     for path in api_paths:
         fixtures = challonge_to_fixtures(path)
+        apply_canonical_names(fixtures, canonical_by_norm)
         if not fixtures:
             continue
 
         t = fixtures[0]["tier"]
-        played_set = load_played_matches(matches_csv, season_id, t)
+        played_set = load_played_matches(
+            matches_csv, season_id, t, canonical_by_norm
+        )
         remaining = compute_remaining_fixtures(fixtures, played_set)
 
         played_count = len(fixtures) - len(remaining)
