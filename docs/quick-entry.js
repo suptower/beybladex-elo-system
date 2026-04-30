@@ -56,6 +56,7 @@ const K_LEARNING    = 40; // < 6 matches played
 const K_INTERMEDIATE = 24; // 6–14 matches played
 const K_EXPERIENCED  = 12; // 15+ matches played
 const DEFAULT_ELO = 1000; // Default ELO rating for new players
+const DEFAULT_MATCH_TYPE = 'exhibition';
 
 /**
  * Return the K-factor for a bey based on total matches played (including
@@ -438,6 +439,7 @@ function setupEventListeners() {
     document.getElementById('addMatchBtnBottom')?.addEventListener('click', addMatch);
     document.getElementById('addMatchBtnBottomMobile')?.addEventListener('click', addMatch);
     document.getElementById('resetRoundBtn')?.addEventListener('click', resetRound);
+    document.getElementById('deleteEmptyBtn')?.addEventListener('click', deleteEmptyMatches);
     document.getElementById('clearAllBtn')?.addEventListener('click', clearAll);
     
     // Export/Import
@@ -525,7 +527,7 @@ function createEmptyRound(index) {
 // Create an empty match with rounds support
 function createEmptyMatch(index) {
     // Get settings from the tournament or most recent match (if any)
-    let matchType = 'exhibition';
+    let matchType = DEFAULT_MATCH_TYPE;
     let seasonId = '';
     let tier = '';
     let matchday = '';
@@ -533,7 +535,7 @@ function createEmptyMatch(index) {
     
     if (state.matches.length > 0) {
         const lastMatch = state.matches[state.matches.length - 1];
-        matchType = lastMatch.matchType || 'exhibition';
+        matchType = lastMatch.matchType || DEFAULT_MATCH_TYPE;
         seasonId = lastMatch.seasonId || '';
         tier = lastMatch.tier || '';
         matchday = lastMatch.matchday || '';
@@ -580,6 +582,15 @@ function calculateScoresFromRounds(match) {
     return { scoreA, scoreB };
 }
 
+function determineWinner(scoreA, scoreB) {
+    const a = parseInt(scoreA) || 0;
+    const b = parseInt(scoreB) || 0;
+    if (a > b && a > 0) return 'A';
+    if (b > a && b > 0) return 'B';
+    if (a === b && a > 0) return 'draw';
+    return null;
+}
+
 // Update match scores from rounds and determine winner
 function updateMatchFromRounds(matchIndex) {
     const match = state.matches[matchIndex];
@@ -589,16 +600,7 @@ function updateMatchFromRounds(matchIndex) {
     match.scoreA = scoreA;
     match.scoreB = scoreB;
     
-    // Determine winner based on computed scores
-    if (scoreA > scoreB && scoreA > 0) {
-        match.winner = 'A';
-    } else if (scoreB > scoreA && scoreB > 0) {
-        match.winner = 'B';
-    } else if (scoreA === scoreB && scoreA > 0) {
-        match.winner = 'draw';
-    } else {
-        match.winner = null;
-    }
+    match.winner = determineWinner(scoreA, scoreB);
     
     match.timestamp = new Date().toISOString();
     
@@ -827,6 +829,42 @@ function resetRound() {
     }
     
     showToast('Round reset', 'warning');
+}
+
+function deleteEmptyMatches() {
+    const isEmptyMatch = (match) => {
+        const scoreA = parseInt(match.scoreA) || 0;
+        const scoreB = parseInt(match.scoreB) || 0;
+        const roundsEmpty = !Array.isArray(match.rounds) || match.rounds.length === 0;
+        return roundsEmpty && scoreA === 0 && scoreB === 0;
+    };
+
+    const emptyCount = state.matches.filter(isEmptyMatch).length;
+    if (emptyCount === 0) {
+        showToast('No empty matches to delete', 'warning');
+        return;
+    }
+
+    if (!confirm(`Delete ${emptyCount} empty match${emptyCount === 1 ? '' : 'es'}?`)) {
+        return;
+    }
+
+    state.matches = state.matches.filter(match => !isEmptyMatch(match));
+    state.matches.forEach((match, i) => {
+        match.matchNumber = i + 1;
+    });
+
+    saveToStorage();
+    renderMatches();
+    updateStatusBar();
+
+    if (state.liveMode) {
+        recalculateAllLiveElos();
+        updateLiveLeaderboard();
+        updateSeasonTierLeaderboard();
+    }
+
+    showToast(`Deleted ${emptyCount} empty match${emptyCount === 1 ? '' : 'es'}`, 'warning');
 }
 
 function clearAll() {
@@ -2284,6 +2322,43 @@ function handleImport(e) {
 
 function importJSON(content) {
     const data = JSON.parse(content);
+
+    const mapImportedMatch = (match, i) => {
+        const rounds = Array.isArray(match.rounds) ? match.rounds : [];
+        const scoreA = parseInt(match.scoreA ?? match.score_a) || 0;
+        const scoreB = parseInt(match.scoreB ?? match.score_b) || 0;
+        const matchdayRaw = match.matchday ?? match.match_day ?? '';
+        const parsedMatchday = parseInt(matchdayRaw);
+        const matchday = Number.isFinite(parsedMatchday) ? parsedMatchday : '';
+
+        const normalizedMatchType = String(match.matchType || match.match_type || DEFAULT_MATCH_TYPE).toLowerCase();
+        const imported = {
+            id: match.id || match.match_id || generateUniqueId(),
+            matchNumber: match.matchNumber || match.match_number || i + 1,
+            beyA: match.beyA || match.bey_a || '',
+            beyB: match.beyB || match.bey_b || '',
+            rounds,
+            scoreA,
+            scoreB,
+            winner: match.winner || null,
+            timestamp: match.timestamp || null,
+            matchType: normalizedMatchType,
+            seasonId: match.seasonId || match.season_id || '',
+            tier: match.tier ?? '',
+            matchday,
+            arena: match.arena || 'Xtreme'
+        };
+        
+        // If rounds exist, recalculate scores from rounds
+        if (imported.rounds.length > 0) {
+            const { scoreA: roundScoreA, scoreB: roundScoreB } = calculateScoresFromRounds(imported);
+            imported.scoreA = roundScoreA;
+            imported.scoreB = roundScoreB;
+        }
+        imported.winner = determineWinner(imported.scoreA, imported.scoreB);
+        
+        return imported;
+    };
     
     if (data.tournament) {
         state.tournament = data.tournament;
@@ -2292,40 +2367,10 @@ function importJSON(content) {
         document.getElementById('formatSelect').value = state.tournament.format || 'swiss';
     }
     
-    if (data.matches && Array.isArray(data.matches)) {
-        state.matches = data.matches.map((match, i) => {
-            const imported = {
-                id: match.id || generateUniqueId(),
-                matchNumber: match.matchNumber || i + 1,
-                beyA: match.beyA || '',
-                beyB: match.beyB || '',
-                rounds: Array.isArray(match.rounds) ? match.rounds : [],
-                scoreA: match.scoreA || 0,
-                scoreB: match.scoreB || 0,
-                winner: match.winner || null,
-                timestamp: match.timestamp || null
-            };
-            
-            // If rounds exist, recalculate scores from rounds
-            if (imported.rounds.length > 0) {
-                const { scoreA, scoreB } = calculateScoresFromRounds(imported);
-                imported.scoreA = scoreA;
-                imported.scoreB = scoreB;
-                
-                // Recalculate winner
-                if (scoreA > scoreB && scoreA > 0) {
-                    imported.winner = 'A';
-                } else if (scoreB > scoreA && scoreB > 0) {
-                    imported.winner = 'B';
-                } else if (scoreA === scoreB && scoreA > 0) {
-                    imported.winner = 'draw';
-                } else {
-                    imported.winner = null;
-                }
-            }
-            
-            return imported;
-        });
+    if (Array.isArray(data)) {
+        state.matches = data.map(mapImportedMatch);
+    } else if (data.matches && Array.isArray(data.matches)) {
+        state.matches = data.matches.map(mapImportedMatch);
     }
     
     saveToStorage();
@@ -2337,13 +2382,18 @@ function importJSON(content) {
 function importCSV(content) {
     const lines = content.trim().split(/\r?\n/);
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const compactHeaders = headers.map(h => h.replace(/[\s_]+/g, ''));
     
     // Find column indices
-    const beyAIndex = headers.findIndex(h => h.includes('beya') || h === 'bey a');
-    const beyBIndex = headers.findIndex(h => h.includes('beyb') || h === 'bey b');
-    const scoreAIndex = headers.findIndex(h => h.includes('scorea') || h === 'score a');
-    const scoreBIndex = headers.findIndex(h => h.includes('scoreb') || h === 'score b');
-    const arenaIndex = headers.findIndex(h => h === 'arena');
+    const beyAIndex = compactHeaders.findIndex(h => h === 'beya');
+    const beyBIndex = compactHeaders.findIndex(h => h === 'beyb');
+    const scoreAIndex = compactHeaders.findIndex(h => h === 'scorea');
+    const scoreBIndex = compactHeaders.findIndex(h => h === 'scoreb');
+    const matchTypeIndex = compactHeaders.findIndex(h => h === 'matchtype');
+    const seasonIdIndex = compactHeaders.findIndex(h => h === 'seasonid');
+    const tierIndex = compactHeaders.findIndex(h => h === 'tier');
+    const matchdayIndex = compactHeaders.findIndex(h => h === 'matchday');
+    const arenaIndex = compactHeaders.findIndex(h => h === 'arena');
     
     if (beyAIndex === -1 || beyBIndex === -1) {
         showToast('CSV must have BeyA and BeyB columns', 'error');
@@ -2355,12 +2405,15 @@ function importCSV(content) {
         const values = line.split(',').map(v => v.trim());
         const scoreA = scoreAIndex !== -1 ? parseInt(values[scoreAIndex]) || 0 : 0;
         const scoreB = scoreBIndex !== -1 ? parseInt(values[scoreBIndex]) || 0 : 0;
+        const matchTypeRaw = matchTypeIndex !== -1 && values[matchTypeIndex] ? values[matchTypeIndex] : '';
+        const matchType = matchTypeRaw ? matchTypeRaw.toLowerCase() : DEFAULT_MATCH_TYPE;
+        const seasonId = seasonIdIndex !== -1 && values[seasonIdIndex] ? values[seasonIdIndex] : '';
+        const tier = tierIndex !== -1 && values[tierIndex] ? values[tierIndex] : '';
+        const parsedMatchday = matchdayIndex !== -1 ? parseInt(values[matchdayIndex]) : NaN;
+        const matchday = Number.isFinite(parsedMatchday) ? parsedMatchday : '';
         const arena = arenaIndex !== -1 && values[arenaIndex] ? values[arenaIndex] : 'Xtreme';
         
-        let winner = null;
-        if (scoreA > scoreB && scoreA > 0) winner = 'A';
-        else if (scoreB > scoreA && scoreB > 0) winner = 'B';
-        else if (scoreA === scoreB && scoreA > 0) winner = 'draw';
+        const winner = determineWinner(scoreA, scoreB);
         
         return {
             id: generateUniqueId(),
@@ -2372,7 +2425,11 @@ function importCSV(content) {
             scoreB,
             winner,
             timestamp: new Date().toISOString(),
-            arena: arena
+            matchType,
+            seasonId,
+            tier,
+            matchday,
+            arena
         };
     });
     
@@ -3486,4 +3543,3 @@ function filterBeyPicker(searchTerm) {
         }
     });
 }
-
