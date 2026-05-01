@@ -192,9 +192,15 @@ def filter_unplayed_fixtures(fixtures: List[Dict], matches: List[Dict],
         return fixtures
 
     def parse_score(value: Optional[object]) -> int:
+        if value in (None, ""):
+            return 0
         try:
             return int(value)
         except (TypeError, ValueError):
+            print(
+                f"{YELLOW}Warning: Invalid score '{value}' in season fixtures; "
+                f"treating as 0{RESET}"
+            )
             return 0
 
     played_fixture_ids = set()
@@ -202,6 +208,7 @@ def filter_unplayed_fixtures(fixtures: List[Dict], matches: List[Dict],
         score_a = parse_score(match.get("score_a"))
         score_b = parse_score(match.get("score_b"))
         if score_a + score_b == 0:
+            # Skip matches with zero scores - treated as unplayed/scheduled.
             continue
 
         bey_a = match.get("bey_a", "").strip()
