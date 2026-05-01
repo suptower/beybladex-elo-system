@@ -13765,11 +13765,47 @@ body.dark .season-status-badge.active {
     margin-bottom: 3rem;
 }
 
+.fixtures-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.fixtures-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.fixtures-reset-btn {
+    background: var(--bg-alt);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.fixtures-reset-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.fixtures-reset-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .fixtures-intro {
-    color: var(--text-muted);
-    margin-bottom: 2rem;
-    font-size: 1rem;
-    text-align: center;
+    color: var(--text-light);
+    margin-bottom: 1.25rem;
+    font-size: 0.95rem;
 }
 
 .fixtures-matchday {
@@ -13777,40 +13813,51 @@ body.dark .season-status-badge.active {
 }
 
 .fixtures-matchday-header {
-    font-size: 1.25rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
     color: var(--accent);
     padding: 0.5rem 0;
     border-bottom: 2px solid var(--accent);
 }
 
+.fixtures-matchday-navigator {
+    padding: 0.6rem 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.fixtures-matchday-navigator .matchday-title {
+    font-size: 1rem;
+}
+
 .fixtures-table-container {
     overflow-x: auto;
     border-radius: var(--radius-md);
-    background: var(--bg-secondary);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
 }
 
 .fixtures-table {
     width: 100%;
     border-collapse: collapse;
-    background: var(--bg-secondary);
+    background: var(--bg-alt);
+    font-size: 0.9rem;
 }
 
 .fixtures-table thead {
-    background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.1) 0%, rgba(var(--accent-rgb), 0.05) 100%);
-    border-bottom: 2px solid var(--accent);
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border);
 }
 
 .fixtures-table th {
-    padding: 1rem;
+    padding: 0.7rem 0.75rem;
     text-align: left;
     font-weight: 700;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--text-muted);
+    color: var(--text-light);
 }
 
 .fixtures-table th[colspan="3"] {
@@ -13823,18 +13870,17 @@ body.dark .season-status-badge.active {
 }
 
 .fixture-row:hover {
-    background: rgba(var(--accent-rgb), 0.03);
-    transform: scale(1.01);
+    background: rgba(var(--accent-rgb, 61, 110, 0), 0.08);
 }
 
 .fixture-row td {
-    padding: 1rem;
+    padding: 0.65rem 0.75rem;
     vertical-align: middle;
 }
 
 .fixture-date {
-    color: var(--text-muted);
-    font-size: 0.9rem;
+    color: var(--text-light);
+    font-size: 0.85rem;
     white-space: nowrap;
 }
 
@@ -13864,8 +13910,8 @@ body.dark .season-status-badge.active {
 }
 
 .fixture-bey {
-    font-weight: 700;
-    font-size: 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
     color: var(--text);
     text-decoration: none;
     transition: color 0.2s ease;
@@ -13882,36 +13928,104 @@ body.dark .season-status-badge.active {
 
 .vs-text {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    background: var(--bg-tertiary);
+    padding: 0.2rem 0.6rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    color: var(--text-muted);
-    font-size: 0.85rem;
+    color: var(--text-light);
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.1em;
 }
 
-.fixture-status {
+.fixture-sim {
     text-align: center;
+    min-width: 160px;
+}
+
+.fixture-sim-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+}
+
+.fixture-score-input {
+    width: 2.5rem;
+    padding: 0.2rem 0.3rem;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-alt);
+    color: var(--text);
+    font-size: 0.85rem;
+}
+
+.fixture-score-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-hover-subtle);
+}
+
+.fixture-score-sep {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.fixture-sim-status {
+    margin-top: 0.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
 }
 
 .fixture-badge {
     display: inline-block;
-    padding: 0.4rem 1rem;
+    padding: 0.2rem 0.5rem;
     background: linear-gradient(135deg, var(--warning) 0%, rgba(var(--warning-rgb), 0.8) 100%);
-    color: var(--bg);
-    border-radius: var(--radius-md);
-    font-size: 0.75rem;
+    color: #1a1a1a;
+    border-radius: var(--radius-sm);
+    font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.fixture-sim-tag {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--bg-subtle);
+    color: var(--text-light);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.fixture-sim-tag.is-active {
+    border-color: rgba(var(--accent-rgb, 61, 110, 0), 0.4);
+    background: rgba(var(--accent-rgb, 61, 110, 0), 0.12);
+    color: var(--accent);
+}
+
+.fixtures-sim-note {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-light);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .fixtures-intro {
         font-size: 0.9rem;
+    }
+
+    .fixtures-matchday-navigator {
+        padding: 0.5rem;
     }
     
     .fixtures-table {
@@ -13928,6 +14042,11 @@ body.dark .season-status-badge.active {
     }
     
     .fixture-date {
+        font-size: 0.8rem;
+    }
+
+    .fixture-score-input {
+        width: 2.1rem;
         font-size: 0.8rem;
     }
 }
@@ -13950,6 +14069,11 @@ body.dark .season-status-badge.active {
     .fixture-bey-away {
         padding-right: 0.5rem !important;
         padding-left: 0.5rem !important;
+    }
+
+    .fixture-score-input {
+        width: 1.8rem;
+        font-size: 0.75rem;
     }
 }
 

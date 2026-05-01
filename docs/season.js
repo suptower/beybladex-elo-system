@@ -14,6 +14,11 @@ let selectedTableSnapshots = {}; // Track selected table snapshot matchday for e
 let tableSnapshotsData = {}; // Store loaded snapshot data (tier -> array of snapshots)
 let tierFullSizes = {}; // Store the full (final) tier size for each tier to drive zone highlighting
 let tableSortStates = {}; // Track sort column/direction per tier: {tier: {col, dir}} dir = 'asc'|'desc'|null
+let fixtureMatchdays = []; // Track available matchdays for upcoming fixtures
+let selectedFixtureMatchday = null; // Track selected matchday for upcoming fixtures
+let fixturesByMatchday = {}; // Store fixtures grouped by matchday
+let fixturesById = {}; // Map fixture_id -> fixture data
+let simulatedFixtureResults = {}; // Map fixture_id -> simulated result data
 
 // Default sort applied to all tier tables on initial render
 const TABLE_DEFAULT_SORT_COL = 'season_points';
@@ -727,16 +732,12 @@ function changeTableSnapshot(tier, direction) {
  * Update only the table for a specific tier
  */
 function updateTierTable(tier) {
-    const snapshots = tableSnapshotsData[tier];
-    if (!snapshots) return;
-    
-    const currentSnapshotMatchday = selectedTableSnapshots[tier];
-    const displayTable = snapshots[currentSnapshotMatchday];
-    
+    const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
+    const displayTable = getDisplayTableForTier(tier);
     if (!displayTable) return;
-    
-    const snapshotMatchdays = Object.keys(snapshots).map(Number).sort((a, b) => a - b);
-    const hasSnapshots = true;
+    const snapshotMatchdays = hasSnapshots
+        ? Object.keys(tableSnapshotsData[tier]).map(Number).sort((a, b) => a - b)
+        : [];
     
     // Update table body, applying current sort state
     const tbody = document.querySelector(`#tier-${tier}-content .league-table tbody`);
@@ -755,7 +756,8 @@ function updateTierTable(tier) {
     
     // Update navigation buttons
     const navContainer = document.querySelector(`#tier-${tier}-content .table-snapshot-navigator`);
-    if (navContainer) {
+    if (navContainer && hasSnapshots) {
+        const currentSnapshotMatchday = selectedTableSnapshots[tier];
         const prevBtn = navContainer.querySelector('.snapshot-nav-btn:first-child');
         const nextBtn = navContainer.querySelector('.snapshot-nav-btn:last-child');
         const label = navContainer.querySelector('.snapshot-matchday-label');
@@ -791,14 +793,7 @@ function sortTierTable(tier, column) {
 
     // Get current display table
     const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
-    const currentSnapshotMatchday = selectedTableSnapshots[tier];
-    let displayTable;
-    if (hasSnapshots && currentSnapshotMatchday) {
-        displayTable = tableSnapshotsData[tier][currentSnapshotMatchday];
-    } else {
-        const leagueTables = currentSeason?.league_tables || {};
-        displayTable = leagueTables[tier.toString()];
-    }
+    const displayTable = getDisplayTableForTier(tier);
     if (!displayTable) return;
 
     // Sort a copy of the table
@@ -1356,107 +1351,365 @@ function displayMatchdays(matchdays) {
     container.innerHTML = html;
 }
 
+function getFixtureKey(fixture) {
+    if (fixture.fixture_id) return fixture.fixture_id;
+    const seasonId = fixture.season_id || 'S?';
+    const tier = fixture.tier || '?';
+    const matchday = fixture.matchday ?? 'TBD';
+    return `${seasonId}_T${tier}_${fixture.bey_a}_${fixture.bey_b}_${matchday}`;
+}
+
+function buildFixturesByMatchday(fixtures) {
+    return fixtures.reduce((acc, fixture) => {
+        const key = fixture.matchday != null ? String(fixture.matchday) : 'TBD';
+        if (!acc[key]) {
+            acc[key] = [];
+        }
+        acc[key].push(fixture);
+        return acc;
+    }, {});
+}
+
+function sortFixtureMatchdays(matchdays) {
+    return matchdays.sort((a, b) => {
+        const numA = parseInt(a, 10);
+        const numB = parseInt(b, 10);
+        const isNumA = !Number.isNaN(numA);
+        const isNumB = !Number.isNaN(numB);
+        if (isNumA && isNumB) return numA - numB;
+        if (isNumA) return -1;
+        if (isNumB) return 1;
+        return a.localeCompare(b);
+    });
+}
+
+function buildFixturesTable(fixtures) {
+    if (!fixtures || fixtures.length === 0) {
+        return '<p class="no-data">No upcoming fixtures for this matchday</p>';
+    }
+
+    return `
+        <div class="fixtures-table-container">
+            <table class="fixtures-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Tier</th>
+                        <th colspan="3">Match</th>
+                        <th>Sim Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${fixtures.map(fixture => {
+                        const fixtureKey = getFixtureKey(fixture);
+                        const simResult = simulatedFixtureResults[fixtureKey];
+                        const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_a)}</a>`;
+                        const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_b)}</a>`;
+                        const scoreAValue = simResult ? simResult.score_a : '';
+                        const scoreBValue = simResult ? simResult.score_b : '';
+                        const simLabel = simResult ? '<span class="fixture-sim-tag is-active">Simulated</span>' : '';
+
+                        return `
+                        <tr class="fixture-row">
+                            <td class="fixture-date">${fixture.date || 'TBD'}</td>
+                            <td class="fixture-tier"><span class="tier-badge-compact">T${fixture.tier || '?'}</span></td>
+                            <td class="fixture-bey-home">${beyALink}</td>
+                            <td class="fixture-vs"><span class="vs-text">vs</span></td>
+                            <td class="fixture-bey-away">${beyBLink}</td>
+                            <td class="fixture-sim">
+                                <div class="fixture-sim-controls" data-fixture-id="${fixtureKey}">
+                                    <input type="number" min="0" inputmode="numeric" class="fixture-score-input" data-team="a" value="${scoreAValue}" oninput="handleFixtureScoreInput(this)">
+                                    <span class="fixture-score-sep">-</span>
+                                    <input type="number" min="0" inputmode="numeric" class="fixture-score-input" data-team="b" value="${scoreBValue}" oninput="handleFixtureScoreInput(this)">
+                                </div>
+                                <div class="fixture-sim-status" data-fixture-id="${fixtureKey}">
+                                    <span class="fixture-badge">Scheduled</span>
+                                    ${simLabel}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+function updateFixturesMatchday() {
+    const tableSlot = document.getElementById('fixtures-table-slot');
+    if (!tableSlot) return;
+
+    const fixtures = fixturesByMatchday[selectedFixtureMatchday] || [];
+    tableSlot.innerHTML = buildFixturesTable(fixtures);
+
+    const title = document.getElementById('fixtures-matchday-title');
+    if (title) {
+        title.textContent = `Matchday ${selectedFixtureMatchday}`;
+    }
+
+    const prevBtn = document.getElementById('fixtures-prev-btn');
+    const nextBtn = document.getElementById('fixtures-next-btn');
+    if (prevBtn) {
+        prevBtn.disabled = fixtureMatchdays.indexOf(selectedFixtureMatchday) <= 0;
+    }
+    if (nextBtn) {
+        nextBtn.disabled = fixtureMatchdays.indexOf(selectedFixtureMatchday) >= fixtureMatchdays.length - 1;
+    }
+
+    updateFixtureResetState();
+}
+
+function changeFixtureMatchday(direction) {
+    if (fixtureMatchdays.length === 0) return;
+    const currentIndex = fixtureMatchdays.indexOf(selectedFixtureMatchday);
+    if (currentIndex === -1) return;
+    const nextIndex = currentIndex + direction;
+    if (nextIndex < 0 || nextIndex >= fixtureMatchdays.length) return;
+    selectedFixtureMatchday = fixtureMatchdays[nextIndex];
+    updateFixturesMatchday();
+}
+
+function handleFixtureScoreInput(input) {
+    const controls = input.closest('.fixture-sim-controls');
+    if (!controls) return;
+    const fixtureId = controls.dataset.fixtureId;
+    const scoreAInput = controls.querySelector('input[data-team="a"]');
+    const scoreBInput = controls.querySelector('input[data-team="b"]');
+    updateSimulatedFixture(fixtureId, scoreAInput?.value, scoreBInput?.value);
+}
+
+function parseSimScore(value) {
+    if (value === '' || value === null || value === undefined) {
+        return null;
+    }
+    const parsed = Number.parseInt(value, 10);
+    if (Number.isNaN(parsed)) {
+        return null;
+    }
+    return parsed;
+}
+
+function updateSimulatedFixture(fixtureId, scoreAValue, scoreBValue) {
+    const fixture = fixturesById[fixtureId];
+    if (!fixture) return;
+
+    const scoreA = parseSimScore(scoreAValue);
+    const scoreB = parseSimScore(scoreBValue);
+    const hasScores = Number.isInteger(scoreA) && Number.isInteger(scoreB);
+
+    if (!hasScores || (scoreA === 0 && scoreB === 0)) {
+        delete simulatedFixtureResults[fixtureId];
+    } else {
+        const tierValue = fixture.tier != null ? Number(fixture.tier) : null;
+        simulatedFixtureResults[fixtureId] = {
+            score_a: scoreA,
+            score_b: scoreB,
+            tier: Number.isNaN(tierValue) ? fixture.tier : tierValue,
+            bey_a: fixture.bey_a,
+            bey_b: fixture.bey_b
+        };
+    }
+
+    updateFixturesMatchday();
+    refreshSimulatedTables();
+}
+
+function resetFixtureSimulations() {
+    simulatedFixtureResults = {};
+    updateFixturesMatchday();
+    refreshSimulatedTables();
+}
+
+function updateFixtureResetState() {
+    const resetBtn = document.getElementById('fixtures-reset-btn');
+    if (resetBtn) {
+        resetBtn.disabled = Object.keys(simulatedFixtureResults).length === 0;
+    }
+}
+
+function calculateSeasonPoints(scoreA, scoreB) {
+    const POINTS_WIN = 3;
+    const POINTS_DOMINANT_WIN = 4;
+    const DOMINANT_WIN_THRESHOLD = 4;
+
+    if (scoreA === scoreB) {
+        return [0, 0];
+    }
+
+    const winnerScore = Math.max(scoreA, scoreB);
+    const loserScore = Math.min(scoreA, scoreB);
+    const difference = winnerScore - loserScore;
+    const isDominant = difference >= DOMINANT_WIN_THRESHOLD && loserScore === 0;
+    const winnerPoints = isDominant ? POINTS_DOMINANT_WIN : POINTS_WIN;
+
+    return scoreA > scoreB ? [winnerPoints, 0] : [0, winnerPoints];
+}
+
+function getBaseTableForTier(tier) {
+    const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
+    if (hasSnapshots && selectedTableSnapshots[tier]) {
+        return tableSnapshotsData[tier][selectedTableSnapshots[tier]];
+    }
+    const leagueTables = currentSeason?.league_tables || {};
+    return leagueTables[tier.toString()];
+}
+
+function getSimulatedFixturesForTier(tier) {
+    return Object.values(simulatedFixtureResults).filter(result => Number(result.tier) === tier);
+}
+
+function buildSimulatedTable(baseTable, simulatedFixtures, hasSnapshots) {
+    const table = baseTable.map(entry => ({ ...entry }));
+    const entryMap = new Map(table.map(entry => [entry.bey, entry]));
+    const basePositions = new Map(baseTable.map(entry => [entry.bey, entry.position]));
+
+    table.forEach(entry => {
+        entry.matches = Number(entry.matches || 0);
+        entry.wins = Number(entry.wins || 0);
+        entry.losses = Number(entry.losses || 0);
+        entry.season_points = Number(entry.season_points || 0);
+        entry.points_for = Number(entry.points_for || 0);
+        entry.points_against = Number(entry.points_against || 0);
+        entry.point_diff = Number(entry.point_diff || 0);
+        entry.rw = Number(entry.rw || 0);
+        entry.rl = Number(entry.rl || 0);
+        entry.elo = Number(entry.elo || 0);
+    });
+
+    simulatedFixtures.forEach(fixture => {
+        const entryA = entryMap.get(fixture.bey_a);
+        const entryB = entryMap.get(fixture.bey_b);
+        if (!entryA || !entryB) return;
+
+        const scoreA = fixture.score_a;
+        const scoreB = fixture.score_b;
+        const [spA, spB] = calculateSeasonPoints(scoreA, scoreB);
+
+        entryA.matches += 1;
+        entryB.matches += 1;
+        entryA.season_points += spA;
+        entryB.season_points += spB;
+        entryA.points_for += scoreA;
+        entryA.points_against += scoreB;
+        entryB.points_for += scoreB;
+        entryB.points_against += scoreA;
+
+        if (scoreA > scoreB) {
+            entryA.wins += 1;
+            entryB.losses += 1;
+        } else if (scoreB > scoreA) {
+            entryB.wins += 1;
+            entryA.losses += 1;
+        }
+
+        entryA.rw = (entryA.rw ?? 0) + scoreA;
+        entryA.rl = (entryA.rl ?? 0) + scoreB;
+        entryB.rw = (entryB.rw ?? 0) + scoreB;
+        entryB.rl = (entryB.rl ?? 0) + scoreA;
+    });
+
+    table.forEach(entry => {
+        entry.point_diff = entry.points_for - entry.points_against;
+        const totalRounds = (entry.rw ?? 0) + (entry.rl ?? 0);
+        entry.ppr = totalRounds > 0 ? entry.points_for / totalRounds : 0;
+        entry.ppw = (entry.rw ?? 0) > 0 ? entry.points_for / entry.rw : 0;
+    });
+
+    table.sort((a, b) => (
+        b.season_points - a.season_points ||
+        b.point_diff - a.point_diff ||
+        b.points_for - a.points_for ||
+        b.elo - a.elo
+    ));
+
+    table.forEach((entry, index) => {
+        entry.position = index + 1;
+        if (hasSnapshots) {
+            const basePos = basePositions.get(entry.bey) ?? entry.position;
+            entry.position_delta = basePos - entry.position;
+        }
+    });
+
+    return table;
+}
+
+function getDisplayTableForTier(tier) {
+    const baseTable = getBaseTableForTier(tier);
+    if (!baseTable) return baseTable;
+
+    const simulatedFixtures = getSimulatedFixturesForTier(tier);
+    if (simulatedFixtures.length === 0) {
+        return baseTable;
+    }
+
+    const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
+    return buildSimulatedTable(baseTable, simulatedFixtures, hasSnapshots);
+}
+
+function refreshSimulatedTables() {
+    const leagueTables = currentSeason?.league_tables || {};
+    Object.keys(leagueTables).forEach(tierKey => {
+        updateTierTable(parseInt(tierKey, 10));
+    });
+}
+
 /**
  * Display upcoming fixtures
  */
 function displayFixtures(fixturesData) {
     const container = document.getElementById('fixtures-section');
     if (!container) return;
-    
+
     const upcomingMatches = fixturesData.upcoming_matches || [];
-    const fixturesByMatchday = fixturesData.fixtures_by_matchday || {};
-    
+    const groupedByMatchday = fixturesData.fixtures_by_matchday || {};
+
     if (upcomingMatches.length === 0) {
         container.style.display = 'none';
         return;
     }
-    
+
+    fixturesByMatchday = Object.keys(groupedByMatchday).length > 0
+        ? groupedByMatchday
+        : buildFixturesByMatchday(upcomingMatches);
+    fixtureMatchdays = sortFixtureMatchdays(Object.keys(fixturesByMatchday));
+    selectedFixtureMatchday = fixtureMatchdays.includes(selectedFixtureMatchday)
+        ? selectedFixtureMatchday
+        : fixtureMatchdays[0];
+
+    fixturesById = {};
+    upcomingMatches.forEach(fixture => {
+        fixturesById[getFixtureKey(fixture)] = fixture;
+    });
+
     container.style.display = 'block';
-    
-    let html = `
-        <h2 class="section-header">📅 Upcoming Fixtures</h2>
-        <p class="fixtures-intro">Scheduled matches that haven't been played yet</p>
-    `;
-    
-    // Group by matchday if available
-    if (Object.keys(fixturesByMatchday).length > 0) {
-        const sortedMatchdays = Object.keys(fixturesByMatchday).sort((a, b) => parseInt(a) - parseInt(b));
-        
-        sortedMatchdays.forEach(md => {
-            const fixtures = fixturesByMatchday[md];
-            if (!fixtures || fixtures.length === 0) return;
-            
-            html += `
-                <div class="fixtures-matchday">
-                    <h4 class="fixtures-matchday-header">📆 Matchday ${md}</h4>
-                    <div class="fixtures-table-container">
-                        <table class="fixtures-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Tier</th>
-                                    <th colspan="3">Match</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${fixtures.map(fixture => {
-                                    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_a)}</a>`;
-                                    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_b)}</a>`;
-                                    
-                                    return `
-                                    <tr class="fixture-row">
-                                        <td class="fixture-date">${fixture.date || 'TBD'}</td>
-                                        <td class="fixture-tier"><span class="tier-badge-compact">T${fixture.tier || '?'}</span></td>
-                                        <td class="fixture-bey-home">${beyALink}</td>
-                                        <td class="fixture-vs"><span class="vs-text">vs</span></td>
-                                        <td class="fixture-bey-away">${beyBLink}</td>
-                                        <td class="fixture-status"><span class="fixture-badge">Scheduled</span></td>
-                                    </tr>
-                                `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-        });
-    } else {
-        // Show all fixtures without matchday grouping
-        html += `
-            <div class="fixtures-table-container">
-                <table class="fixtures-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Tier</th>
-                            <th colspan="3">Match</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${upcomingMatches.map(fixture => {
-                            const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_a)}</a>`;
-                            const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_b)}</a>`;
-                            
-                            return `
-                            <tr class="fixture-row">
-                                <td class="fixture-date">${fixture.date || 'TBD'}</td>
-                                <td class="fixture-tier"><span class="tier-badge-compact">T${fixture.tier || '?'}</span></td>
-                                <td class="fixture-bey-home">${beyALink}</td>
-                                <td class="fixture-vs"><span class="vs-text">vs</span></td>
-                                <td class="fixture-bey-away">${beyBLink}</td>
-                                <td class="fixture-status"><span class="fixture-badge">Scheduled</span></td>
-                            </tr>
-                        `;
-                        }).join('')}
-                    </tbody>
-                </table>
+
+    const navigatorHtml = fixtureMatchdays.length > 1 ? `
+        <div class="matchday-navigator fixtures-matchday-navigator">
+            <button class="matchday-nav-btn" id="fixtures-prev-btn" onclick="changeFixtureMatchday(-1)">
+                <span class="nav-arrow">◀</span>
+            </button>
+            <h4 class="matchday-title" id="fixtures-matchday-title">Matchday ${selectedFixtureMatchday}</h4>
+            <button class="matchday-nav-btn" id="fixtures-next-btn" onclick="changeFixtureMatchday(1)">
+                <span class="nav-arrow">▶</span>
+            </button>
+        </div>
+    ` : '';
+
+    container.innerHTML = `
+        <div class="fixtures-header">
+            <h2 class="section-header">📅 Upcoming Fixtures</h2>
+            <div class="fixtures-actions">
+                <button class="fixtures-reset-btn" id="fixtures-reset-btn" onclick="resetFixtureSimulations()">Reset Simulations</button>
             </div>
-        `;
-    }
-    
-    container.innerHTML = html;
+        </div>
+        <p class="fixtures-intro">Enter hypothetical scores to preview how standings would change.</p>
+        ${navigatorHtml}
+        <div id="fixtures-table-slot"></div>
+        <p class="fixtures-sim-note">Simulated results update the tier tables above without saving any data.</p>
+    `;
+
+    updateFixturesMatchday();
 }
 
 /**
