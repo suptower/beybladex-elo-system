@@ -191,10 +191,16 @@ def filter_unplayed_fixtures(fixtures: List[Dict], matches: List[Dict],
     if not fixtures or not matches:
         return fixtures
 
+    def parse_score(value: Optional[object]) -> int:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return 0
+
     played_fixture_ids = set()
     for match in matches:
-        score_a = int(match.get("score_a") or 0)
-        score_b = int(match.get("score_b") or 0)
+        score_a = parse_score(match.get("score_a"))
+        score_b = parse_score(match.get("score_b"))
         if score_a + score_b == 0:
             continue
 

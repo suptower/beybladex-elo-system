@@ -50,4 +50,8 @@ def test_filter_unplayed_fixtures_keeps_zero_score():
 
     remaining = filter_unplayed_fixtures(fixtures, matches, "S1")
 
-    assert [fixture["bey_a"] for fixture in remaining] == ["A", "C"]
+    assert len(remaining) == 2
+    assert [(fixture["bey_a"], fixture["bey_b"]) for fixture in remaining] == [
+        ("A", "B"),
+        ("C", "D"),
+    ]
