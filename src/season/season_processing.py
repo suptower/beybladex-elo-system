@@ -21,7 +21,8 @@ import json
 import os
 import argparse
 import sys
-from typing import Dict, List, Optional
+import warnings
+from typing import Dict, List, Optional, Union
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
@@ -191,15 +192,15 @@ def filter_unplayed_fixtures(fixtures: List[Dict], matches: List[Dict],
     if not fixtures or not matches:
         return fixtures
 
-    def parse_score(value: Optional[object]) -> int:
+    def parse_score(value: Optional[Union[int, str]]) -> int:
         if value in (None, ""):
             return 0
         try:
             return int(value)
         except (TypeError, ValueError):
-            print(
-                f"{YELLOW}Warning: Invalid score '{value}' in season fixtures; "
-                f"treating as 0{RESET}"
+            warnings.warn(
+                f"Invalid score '{value}' in season fixtures; treating as 0",
+                RuntimeWarning,
             )
             return 0
 
