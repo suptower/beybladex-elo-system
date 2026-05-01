@@ -185,15 +185,16 @@ def filter_unplayed_fixtures(fixtures: List[Dict], matches: List[Dict],
         season_id: Season identifier for fixture ID generation.
 
     Returns:
-        Filtered list of fixtures with played matches removed.
+        Filtered list of fixtures with played matches removed. Matches with
+        combined scores of zero are treated as unplayed and remain scheduled.
     """
     if not fixtures or not matches:
         return fixtures
 
     played_fixture_ids = set()
     for match in matches:
-        score_a = int(match.get("score_a", 0) or 0)
-        score_b = int(match.get("score_b", 0) or 0)
+        score_a = int(match.get("score_a") or 0)
+        score_b = int(match.get("score_b") or 0)
         if score_a + score_b == 0:
             continue
 
