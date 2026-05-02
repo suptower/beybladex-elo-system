@@ -1497,6 +1497,7 @@ function updateSimulatedFixture(fixtureId, scoreAValue, scoreBValue) {
     const scoreA = parseSimScore(scoreAValue);
     const scoreB = parseSimScore(scoreBValue);
     const hasScores = Number.isInteger(scoreA) && Number.isInteger(scoreB);
+    const hadSimulation = Boolean(simulatedFixtureResults[fixtureId]);
 
     if (!hasScores || (scoreA === 0 && scoreB === 0)) {
         delete simulatedFixtureResults[fixtureId];
@@ -1511,8 +1512,13 @@ function updateSimulatedFixture(fixtureId, scoreAValue, scoreBValue) {
         };
     }
 
-    updateFixturesMatchday();
-    refreshSimulatedTables();
+    const hasSimulation = Boolean(simulatedFixtureResults[fixtureId]);
+    updateFixtureSimStatus(fixtureId, hasSimulation);
+    updateFixtureResetState();
+
+    if (hadSimulation || hasSimulation) {
+        refreshSimulatedTables();
+    }
 }
 
 function resetFixtureSimulations() {
@@ -1525,6 +1531,23 @@ function updateFixtureResetState() {
     const resetBtn = document.getElementById('fixtures-reset-btn');
     if (resetBtn) {
         resetBtn.disabled = Object.keys(simulatedFixtureResults).length === 0;
+    }
+}
+
+function updateFixtureSimStatus(fixtureId, isSimulated) {
+    const status = document.querySelector(`.fixture-sim-status[data-fixture-id="${fixtureId}"]`);
+    if (!status) return;
+
+    let simTag = status.querySelector('.fixture-sim-tag');
+    if (isSimulated) {
+        if (!simTag) {
+            simTag = document.createElement('span');
+            simTag.className = 'fixture-sim-tag is-active';
+            simTag.textContent = 'Simulated';
+            status.appendChild(simTag);
+        }
+    } else if (simTag) {
+        simTag.remove();
     }
 }
 
