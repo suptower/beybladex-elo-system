@@ -80,8 +80,7 @@ jobs:
         continue-on-error: true
         with:
           tag_name: latest-matches
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create release
         if: steps.collect_files.outputs.files != ''
