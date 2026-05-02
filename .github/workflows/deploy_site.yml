@@ -6,6 +6,7 @@ on:
       skip_plots:
         type: boolean
         description: 'Skip plot generation'
+        default: false
         required: false
       reason:
         description: 'Reason for manual deployment'
@@ -59,3 +60,41 @@ jobs:
           git push --force \
             "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
             HEAD:gh-pages
+
+      - name: Collect remaining match files
+        id: collect_files
+        run: |
+          FILES=$(find docs/data/matches -name "remaining_s*" -type f)
+          {
+            echo "files<<EOF"
+            echo "$FILES"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Set timestamp
+        id: time
+        run: echo "now=$(date -u +'%Y-%m-%d %H:%M UTC')" >> $GITHUB_OUTPUT
+
+      - name: Delete existing release
+        uses: dev-drprasad/delete-tag-and-release@v1.0
+        continue-on-error: true
+        with:
+          tag_name: latest-matches
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release
+        if: steps.collect_files.outputs.files != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest-matches
+          name: "Latest Match Plans"
+          body: |
+            Auto-generated remaining match plans.
+            
+            Updated: ${{ steps.time.outputs.now }}
+          draft: false
+          prerelease: false
+          files: ${{ steps.collect_files.outputs.files }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
