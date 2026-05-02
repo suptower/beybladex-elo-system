@@ -21,7 +21,8 @@ import json
 import os
 import argparse
 import sys
-from typing import Dict, List, Optional
+import warnings
+from typing import Dict, List, Optional, Union
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
@@ -48,6 +49,7 @@ if _root not in sys.path:
     sys.path.insert(0, _root)
 del _os, _root
 from src.config.paths import MATCHES_CSV, ROUNDS_CSV, SEASON_DATA_JSON, SEASON_DIR, LEADERBOARD_CSV, FIXTURES_CSV   # noqa: E402 E501
+from src.season.challonge_fixtures import make_fixture_id  # noqa: E402
 
 # Default paths
 DEFAULT_DATA_DIR = SEASON_DIR
@@ -171,6 +173,62 @@ def load_fixtures(fixtures_file: str = DEFAULT_FIXTURES_FILE) -> List[Dict]:
             fixtures.append(fixture)
 
     return fixtures
+
+
+def filter_unplayed_fixtures(fixtures: List[Dict], matches: List[Dict],
+                             season_id: str) -> List[Dict]:
+    """
+    Filter fixtures to only those that have not yet been played.
+
+    Args:
+        fixtures: List of fixture dictionaries for a season.
+        matches: List of completed match dictionaries for the same season.
+        season_id: Season identifier for fixture ID generation.
+
+    Returns:
+        Filtered list of fixtures with played matches removed. Matches with
+        combined scores of zero are treated as unplayed and remain scheduled.
+    """
+    if not fixtures or not matches:
+        return fixtures
+
+    def parse_score(value: Optional[Union[int, str]]) -> int:
+        if value in (None, ""):
+            return 0
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            warnings.warn(
+                f"Invalid score '{value}' in season fixtures; treating as 0",
+                RuntimeWarning,
+            )
+            return 0
+
+    played_fixture_ids = set()
+    for match in matches:
+        score_a = parse_score(match.get("score_a"))
+        score_b = parse_score(match.get("score_b"))
+        if score_a + score_b == 0:
+            # Skip matches with zero scores - treated as unplayed/scheduled.
+            continue
+
+        bey_a = match.get("bey_a", "").strip()
+        bey_b = match.get("bey_b", "").strip()
+        tier = match.get("tier")
+        if not bey_a or not bey_b or not tier:
+            continue
+
+        played_fixture_ids.add(
+            make_fixture_id(bey_a, bey_b, season_id, int(tier))
+        )
+
+    if not played_fixture_ids:
+        return fixtures
+
+    return [
+        fixture for fixture in fixtures
+        if fixture.get("fixture_id") not in played_fixture_ids
+    ]
 
 
 def get_active_seasons(matches: List[Dict]) -> List[str]:
@@ -417,6 +475,11 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
         f for f in fixtures
         if f.get("season_id") == season_id and f.get("match_type") == "season"
     ]
+
+    # Exclude fixtures that have already been played
+    season_fixtures = filter_unplayed_fixtures(
+        season_fixtures, season_matches, season_id
+    )
 
     # Get initial tier assignments
     initial_tiers = get_initial_tier_assignments(season_id, data_dir)
