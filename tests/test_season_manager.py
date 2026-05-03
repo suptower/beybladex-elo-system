@@ -857,3 +857,53 @@ class TestSeasonArchiveStatistics:
 
         assert archive["statistics"]["total_matches"] == 2
         assert archive["statistics"]["total_goals"] == 10
+
+    def test_relegation_match_scores_are_attached(self, tmp_path):
+        """Relegation playoff scores should be included in season archives."""
+        seasons_path = tmp_path / "seasons.json"
+        seasons_path.write_text(
+            '{"S2": {"season_id": "S2", "start_date": "2024-01-01", "status": "active"}}',
+            encoding="utf-8"
+        )
+
+        matches = [
+            {
+                "season_id": "S2",
+                "match_type": "relegation",
+                "match_id": "R1",
+                "date": "2024-02-02",
+                "bey_a": "UpperSeed",
+                "bey_b": "LowerSeed",
+                "score_a": 6,
+                "score_b": 4,
+            }
+        ]
+
+        promotion_relegation = {
+            "automatic_promotion": [],
+            "automatic_relegation": [],
+            "qualification_candidates": [],
+            "relegation_matches": [
+                {
+                    "higher_bey": "UpperSeed",
+                    "higher_tier": 1,
+                    "higher_position": 7,
+                    "lower_bey": "LowerSeed",
+                    "lower_tier": 2,
+                    "lower_position": 2,
+                }
+            ],
+        }
+
+        archive = generate_season_archive(
+            "S2",
+            matches,
+            league_tables={},
+            promotion_relegation=promotion_relegation,
+            data_dir=str(tmp_path),
+        )
+
+        playoff = archive["promotion_relegation"]["relegation_matches"][0]
+        assert playoff["score_higher"] == 6
+        assert playoff["score_lower"] == 4
+        assert playoff["match_id"] == "R1"

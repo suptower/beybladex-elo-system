@@ -1102,6 +1102,11 @@ function displayRelegationMatches(matches) {
             ${matches.map(match => {
                 const higherBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.higher_bey)}" class="bey-link">${addSoftHyphens(match.higher_bey)}</a>`;
                 const lowerBeyLink = `<a href="bey.html?name=${encodeURIComponent(match.lower_bey)}" class="bey-link">${addSoftHyphens(match.lower_bey)}</a>`;
+                const scoreHigher = Number.isFinite(match.score_higher) ? match.score_higher : null;
+                const scoreLower = Number.isFinite(match.score_lower) ? match.score_lower : null;
+                const scoreLabel = (scoreHigher !== null && scoreLower !== null)
+                    ? `${scoreHigher} - ${scoreLower}`
+                    : 'TBD';
                 
                 return `
                 <div class="relegation-match-card">
@@ -1120,6 +1125,10 @@ function displayRelegationMatches(matches) {
                             <span class="bey-name">${lowerBeyLink}</span>
                             <span class="tier-label">Tier ${match.lower_tier}</span>
                         </div>
+                    </div>
+                    <div class="relegation-score">
+                        <span class="score-label">Score</span>
+                        <span class="score-value">${scoreLabel}</span>
                     </div>
                     <p class="match-note">Winner plays in Tier ${match.higher_tier} next season</p>
                 </div>

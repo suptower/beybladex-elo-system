@@ -856,6 +856,53 @@ def generate_season_archive(season_id: str, matches: List[Dict],
             md = match.get("matchday", 0)
             matchdays[md].append(match)
 
+    promotion_relegation_with_scores = promotion_relegation
+    if promotion_relegation:
+        relegation_lookup = {}
+        for match in matches:
+            if match.get("season_id") != season_id:
+                continue
+            if match.get("match_type") != "relegation":
+                continue
+            bey_a = match.get("bey_a")
+            bey_b = match.get("bey_b")
+            if not bey_a or not bey_b:
+                continue
+            relegation_lookup[frozenset({bey_a, bey_b})] = match
+
+        if relegation_lookup:
+            def _parse_score(value: object) -> Optional[int]:
+                try:
+                    return int(value)  # type: ignore[arg-type]
+                except (TypeError, ValueError):
+                    return None
+
+            promotion_relegation_with_scores = dict(promotion_relegation)
+            enriched_matches = []
+            for playoff in promotion_relegation.get("relegation_matches", []):
+                enriched = dict(playoff)
+                higher_bey = playoff.get("higher_bey")
+                lower_bey = playoff.get("lower_bey")
+                if higher_bey and lower_bey:
+                    rel_match = relegation_lookup.get(frozenset({higher_bey, lower_bey}))
+                else:
+                    rel_match = None
+
+                if rel_match:
+                    score_a = _parse_score(rel_match.get("score_a"))
+                    score_b = _parse_score(rel_match.get("score_b"))
+                    if rel_match.get("bey_a") == higher_bey:
+                        enriched["score_higher"] = score_a
+                        enriched["score_lower"] = score_b
+                    elif rel_match.get("bey_b") == higher_bey:
+                        enriched["score_higher"] = score_b
+                        enriched["score_lower"] = score_a
+                    enriched["match_id"] = rel_match.get("match_id")
+                    enriched["match_date"] = rel_match.get("date")
+                enriched_matches.append(enriched)
+
+            promotion_relegation_with_scores["relegation_matches"] = enriched_matches
+
     archive = {
         "season_id": season_id,
         "start_date": season_data.get("start_date"),
@@ -865,7 +912,7 @@ def generate_season_archive(season_id: str, matches: List[Dict],
         "cup_winner": season_data.get("cup_winner"),
         "league_tables": {str(tier): table for tier, table in league_tables.items()},
         "matchdays": dict(matchdays),
-        "promotion_relegation": promotion_relegation,
+        "promotion_relegation": promotion_relegation_with_scores,
         "statistics": {
             "total_matches": season_matches_count,
             "total_goals": sum(
