@@ -14,6 +14,7 @@ from season_manager import (
     initialize_season_from_results,
     get_league_table,
     get_promotion_relegation,
+    generate_season_archive,
     schedule_round_robin,
     POINTS_WIN,
     POINTS_DOMINANT_WIN,
@@ -779,3 +780,80 @@ class TestInitializeSeasonFromResults:
         assert isinstance(result, tuple) and len(result) == 2
         assert isinstance(result[0], dict)
         assert isinstance(result[1], list)
+
+
+class TestSeasonArchiveStatistics:
+    """Tests for season archive totals."""
+
+    def test_total_matches_excludes_non_season_match_types(self, tmp_path):
+        """Only league matches should be counted in season totals."""
+        seasons_path = tmp_path / "seasons.json"
+        seasons_path.write_text(
+            '{"S2": {"season_id": "S2", "start_date": "2024-01-01", "status": "active"}}',
+            encoding="utf-8"
+        )
+
+        matches = [
+            {
+                "season_id": "S2",
+                "match_type": "season",
+                "match_id": "M1",
+                "matchday": 1,
+                "bey_a": "A",
+                "bey_b": "B",
+                "score_a": 4,
+                "score_b": 1,
+            },
+            {
+                "season_id": "S2",
+                "match_type": "season",
+                "match_id": "M2",
+                "matchday": 2,
+                "bey_a": "C",
+                "bey_b": "D",
+                "score_a": 5,
+                "score_b": 0,
+            },
+            {
+                "season_id": "S2",
+                "match_type": "season_cup",
+                "match_id": "C1",
+                "matchday": 1,
+                "bey_a": "E",
+                "bey_b": "F",
+                "score_a": 3,
+                "score_b": 2,
+            },
+            {
+                "season_id": "S2",
+                "match_type": "relegation",
+                "match_id": "R1",
+                "matchday": 1,
+                "bey_a": "G",
+                "bey_b": "H",
+                "score_a": 4,
+                "score_b": 3,
+            },
+            {
+                "season_id": "S1",
+                "match_type": "season",
+                "match_id": "S1-M1",
+                "matchday": 1,
+                "bey_a": "I",
+                "bey_b": "J",
+                "score_a": 4,
+                "score_b": 2,
+            },
+        ]
+
+        league_tables = {1: [{"bey": "A"}]}
+        archive = generate_season_archive(
+            "S2",
+            matches,
+            league_tables,
+            promotion_relegation=None,
+            data_dir=str(tmp_path),
+        )
+
+        assert archive["statistics"]["total_matches"] == 2
+        assert archive["statistics"]["total_goals"] == 10
