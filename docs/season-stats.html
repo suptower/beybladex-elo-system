@@ -636,6 +636,11 @@
                 efficiency metrics, clutch performances, and advanced performance indices. Awards are automatically
                 generated based on statistical excellence across various categories.
             </p>
+            <p>
+                Advanced metrics such as <strong>Offensive Power Index</strong>, <strong>Dominance Index</strong>,
+                <strong>Aggression Ratio</strong>, and <strong>Defensive Stability</strong> capture how decisively a Bey wins,
+                how it scores across rounds, and how consistent its performance remains throughout the season.
+            </p>
         </div>
 
         <div class="season-selector">
@@ -649,12 +654,21 @@
             <div class="loading">Loading statistics...</div>
         </div>
 
+        <p style="font-size:14px;opacity:0.75;margin:12px 0 6px 0;">
+            Want more depth? The advanced sections below break down tier-by-tier trends and season-wide meta insights.
+        </p>
+
         <!-- Advanced Statistics & Plots Section -->
         <details class="profile-section-details" id="advancedPlotsSection" style="display: none;">
             <summary class="section-summary" style="font-size:20px;font-weight:800;cursor:pointer;padding:12px 0;list-style:none;display:flex;align-items:center;gap:8px;">
                 📈 Advanced Statistics &amp; Plots
             </summary>
             <div style="margin-top:16px;">
+                <p style="font-size:14px;opacity:0.75;margin:0 0 12px 0;">
+                    These plots visualize round-level trends such as finish-type mix, scoring efficiency, and momentum over time.
+                    Use the tier selector to focus on a specific league tier or switch to <strong>Combined</strong> for a full-season view.
+                    All charts are generated from official season matches only.
+                </p>
                 <div class="plots-tier-selector" id="plotsTierSelector"></div>
                 <div id="plotsGrid" class="plots-grid">
                     <div class="plots-loading">Select a tier above to view plots.</div>
@@ -674,6 +688,10 @@
                     <strong>Title Probability Model</strong> (Monte Carlo), and
                     <strong>Tier Elo Distribution &amp; Strength Tracking</strong>.
                     All metrics are derived exclusively from season matches.
+                </p>
+                <p style="font-size:14px;opacity:0.75;margin:0;">
+                    Use these panels to identify archetype strengths, overperforming combinations, and tier-wide strength shifts.
+                    Probability plots highlight title contenders based on simulated outcomes from the current season data.
                 </p>
             </div>
             <div id="advancedMetaContent"></div>

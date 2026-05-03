@@ -12567,6 +12567,11 @@ body.dark .season-status-badge.active {
     border-left: 4px solid #f97316;
 }
 
+.league-table td.stat-leader {
+    color: var(--accent);
+    font-weight: 700;
+}
+
 .table-legend {
     margin-top: 1.5rem;
     padding: 1rem;

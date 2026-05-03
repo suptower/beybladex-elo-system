@@ -443,6 +443,8 @@ function displayTierTables(leagueTables) {
         const currentSnapshotMatchday = selectedTableSnapshots[tier] || snapshotMatchdays[snapshotMatchdays.length - 1] || null;
         const displayTable = hasSnapshots && currentSnapshotMatchday ? tableSnapshotsData[tier][currentSnapshotMatchday] : table;
         
+        const tierStats = getTierTableStats(displayTable);
+
         html += `
             <div class="tier-section-new">
                 <h3 class="collapsible-header" onclick="toggleSection('${sectionId}')" data-section-id="${sectionId}">
@@ -488,7 +490,7 @@ function displayTierTables(leagueTables) {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                         ${displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, table.length)).join('')}
+                                         ${displayTable.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, table.length, tierStats)).join('')}
                                     </tbody>
                                 </table>
                             </div>
@@ -735,6 +737,7 @@ function updateTierTable(tier) {
     const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
     const displayTable = getDisplayTableForTier(tier);
     if (!displayTable) return;
+    const tierStats = getTierTableStats(displayTable);
     const snapshotMatchdays = hasSnapshots
         ? Object.keys(tableSnapshotsData[tier]).map(Number).sort((a, b) => a - b)
         : [];
@@ -751,7 +754,14 @@ function updateTierTable(tier) {
             }
             return sortState.dir === 'asc' ? valA - valB : valB - valA;
         });
-        tbody.innerHTML = sorted.map((entry, idx) => createTableRow(entry, idx, tier, hasSnapshots, tierFullSizes[tier] || displayTable.length)).join('');
+        tbody.innerHTML = sorted.map((entry, idx) => createTableRow(
+            entry,
+            idx,
+            tier,
+            hasSnapshots,
+            tierFullSizes[tier] || displayTable.length,
+            tierStats
+        )).join('');
     }
     
     // Update navigation buttons
@@ -795,6 +805,7 @@ function sortTierTable(tier, column) {
     const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
     const displayTable = getDisplayTableForTier(tier);
     if (!displayTable) return;
+    const tierStats = getTierTableStats(displayTable);
 
     // Sort a copy of the table
     const sorted = [...displayTable].sort((a, b) => {
@@ -811,7 +822,14 @@ function sortTierTable(tier, column) {
     const tbody = document.querySelector(`#tier-${tier}-content .league-table tbody`);
     if (tbody) {
         tbody.innerHTML = sorted.map((entry, idx) =>
-            createTableRow(entry, idx, tier, hasSnapshots, tierFullSizes[tier] || displayTable.length)
+            createTableRow(
+                entry,
+                idx,
+                tier,
+                hasSnapshots,
+                tierFullSizes[tier] || displayTable.length,
+                tierStats
+            )
         ).join('');
     }
 
@@ -935,10 +953,75 @@ function getPositionLegend(tier, tierSize = 8) {
 }
 
 /**
+ * Compute tier-level stats for conditional formatting.
+ */
+function getTierTableStats(table = []) {
+    if (!Array.isArray(table) || table.length === 0) {
+        return {
+            maxSeasonPoints: 0,
+            maxAbsPointDiff: 0,
+            minElo: 0,
+            maxElo: 0,
+            eloLow: 0,
+            eloHigh: 0
+        };
+    }
+
+    const seasonPoints = table.map(entry => entry.season_points ?? 0);
+    const pointDiffs = table.map(entry => entry.point_diff ?? 0);
+    const elos = table.map(entry => {
+        const value = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
+        return value ?? 0;
+    });
+
+    const maxSeasonPoints = Math.max(...seasonPoints);
+    const maxAbsPointDiff = Math.max(...pointDiffs.map(diff => Math.abs(diff)));
+
+    const sortedElos = [...elos].sort((a, b) => a - b);
+    const minElo = sortedElos[0] ?? 0;
+    const maxElo = sortedElos[sortedElos.length - 1] ?? 0;
+    const lowIndex = Math.floor((sortedElos.length - 1) / 3);
+    const highIndex = Math.floor(((sortedElos.length - 1) * 2) / 3);
+
+    return {
+        maxSeasonPoints,
+        maxAbsPointDiff,
+        minElo,
+        maxElo,
+        eloLow: sortedElos[lowIndex] ?? minElo,
+        eloHigh: sortedElos[highIndex] ?? maxElo
+    };
+}
+
+/**
+ * Determine trend class for point differential values.
+ */
+function getPointDiffClass(value, maxAbs) {
+    if (!maxAbs || value === 0) return 'trend-neutral';
+
+    const ratio = Math.abs(value) / maxAbs;
+    if (value > 0) return ratio >= 0.66 ? 'trend-very-positive' : 'trend-positive';
+    if (value < 0) return ratio >= 0.66 ? 'trend-very-negative' : 'trend-negative';
+    return 'trend-neutral';
+}
+
+/**
+ * Determine ELO trend class within a tier.
+ */
+function getEloTrendClass(value, stats) {
+    if (!stats || stats.maxElo === stats.minElo) return 'trend-neutral';
+    if (value === stats.maxElo) return 'trend-very-positive';
+    if (value === stats.minElo) return 'trend-very-negative';
+    if (value >= stats.eloHigh) return 'trend-positive';
+    if (value <= stats.eloLow) return 'trend-negative';
+    return 'trend-neutral';
+}
+
+/**
  * Create table row with position indicators.
  * tierSize is the number of entries in the tier (used to pick S1 vs S2+ rules).
  */
-function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
+function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8, tierStats = null) {
     let positionClass = '';
     let positionIndicator = '';
 
@@ -994,6 +1077,9 @@ function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
     
     // Use Xtreme ELO if available, otherwise fall back to entry.elo
     const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
+    const eloTrendClass = tierStats ? getEloTrendClass(displayElo ?? 0, tierStats) : '';
+    const pointDiffClass = tierStats ? getPointDiffClass(entry.point_diff ?? 0, tierStats.maxAbsPointDiff) : '';
+    const seasonPointsClass = tierStats && entry.season_points === tierStats.maxSeasonPoints ? 'stat-leader' : '';
     
     // Format position delta if snapshots are available
     let deltaCell = '';
@@ -1024,15 +1110,15 @@ function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8) {
             <td>${entry.matches}</td>
             <td>${entry.wins}</td>
             <td>${entry.losses}</td>
-            <td><strong>${entry.season_points}</strong></td>
+            <td class="${seasonPointsClass}"><strong>${entry.season_points}</strong></td>
             <td>${entry.points_for}</td>
             <td>${entry.points_against}</td>
-            <td>${entry.point_diff > 0 ? '+' : ''}${entry.point_diff}</td>
+            <td class="${pointDiffClass}">${entry.point_diff > 0 ? '+' : ''}${entry.point_diff}</td>
             <td>${entry.rw ?? 0}</td>
             <td>${entry.rl ?? 0}</td>
             <td>${entry.ppr != null && (entry.rw + entry.rl) > 0 ? entry.ppr.toFixed(2) : '—'}</td>
             <td>${entry.ppw != null && entry.rw > 0 ? entry.ppw.toFixed(2) : '—'}</td>
-            <td>${Math.round(displayElo)}</td>
+            <td class="${eloTrendClass}">${Math.round(displayElo)}</td>
         </tr>
     `;
 }
