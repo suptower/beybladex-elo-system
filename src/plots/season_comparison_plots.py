@@ -337,19 +337,17 @@ def plot_tier_strength(
         ylim=(0, 100),
     )
 
-    pdi_min = min(avg_pdis) if avg_pdis else 0.0
     pdi_max = max(avg_pdis) if avg_pdis else 0.0
-    pdi_range = max(abs(pdi_min), abs(pdi_max), 1.0)
-    pdi_pad = pdi_range * 0.15
-    pdi_ylim = (-(pdi_range + pdi_pad), pdi_range + pdi_pad)
+    pdi_floor = max(pdi_max, 1.0)
+    pdi_pad = pdi_floor * 0.15
+    pdi_ylim = (0, pdi_floor + pdi_pad)
     save_metric_plot(
         avg_pdis,
-        "Tier Strength — Avg PDI",
-        "Average PDI (pp)",
+        "Tier Strength — Avg |PDI|",
+        "Average |PDI| (pp)",
         "tier_strength_pdi",
         "#f59e0b",
         ylim=pdi_ylim,
-        zero_line=True,
         formatter=mticker.FormatStrFormatter("%.1f"),
     )
 
