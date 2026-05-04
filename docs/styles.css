@@ -12567,6 +12567,11 @@ body.dark .season-status-badge.active {
     border-left: 4px solid #f97316;
 }
 
+.league-table td.stat-leader {
+    color: var(--accent);
+    font-weight: 700;
+}
+
 .table-legend {
     margin-top: 1.5rem;
     padding: 1rem;
@@ -13152,6 +13157,25 @@ body.dark .season-status-badge.active {
 .tier-label {
     font-size: 0.75rem;
     color: var(--text-secondary);
+}
+
+.relegation-score {
+    text-align: center;
+    margin: 0.5rem 0 0;
+}
+
+.relegation-score .score-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+}
+
+.relegation-score .score-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text);
 }
 
 .match-note {

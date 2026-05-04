@@ -397,6 +397,29 @@ def compute_comparison(
                 matches, sid, tier, pre_elo_map
             )
 
+            # Tier-normalized Elo percentiles (based on pre-season Elo within the tier)
+            tier_elo_entries = []
+            for entry in table:
+                bey = entry["bey"]
+                elo = pre_elo_map.get(bey, 1000.0)
+                tier_elo_entries.append({
+                    "bey": bey,
+                    "global_rank": None,
+                    "elo": elo,
+                })
+
+            tier_elo_entries.sort(
+                key=lambda item: (
+                    item["global_rank"] is None,
+                    item["global_rank"] if item["global_rank"] is not None else 0,
+                    -item["elo"],
+                )
+            )
+            tier_elo_percentiles = {
+                item["bey"]: rank_to_percentile(idx + 1, tier_size)
+                for idx, item in enumerate(tier_elo_entries)
+            }
+
             bey_stats = []
             for entry in table:
                 bey = entry["bey"]
@@ -415,9 +438,11 @@ def compute_comparison(
                     elo = pre_elo_map.get(bey, 1000.0)
                     global_percentile = None
 
+                tier_elo_percentile = tier_elo_percentiles.get(bey)
+
                 pdi = (
-                    round(season_percentile - global_percentile, 4)
-                    if global_percentile is not None
+                    round(season_percentile - tier_elo_percentile, 4)
+                    if tier_elo_percentile is not None
                     else None
                 )
 
@@ -435,6 +460,9 @@ def compute_comparison(
                     "global_percentile": (
                         round(global_percentile, 4) if global_percentile is not None else None
                     ),
+                    "tier_elo_percentile": (
+                        round(tier_elo_percentile, 4) if tier_elo_percentile is not None else None
+                    ),
                     "pdi": pdi,
                     "elo": round(elo, 1),
                     "actual_wins": actual_wins,
@@ -451,7 +479,7 @@ def compute_comparison(
                 avg_global_pct = sum(b["global_percentile"] for b in valid) / len(valid)
                 avg_elo = sum(b["elo"] for b in valid) / len(valid)
                 avg_pdi = (
-                    sum(b["pdi"] for b in valid_pdi) / len(valid_pdi)
+                    sum(abs(b["pdi"]) for b in valid_pdi) / len(valid_pdi)
                     if valid_pdi else 0.0
                 )
             else:

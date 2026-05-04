@@ -1211,20 +1211,24 @@ def plot_tier_comparison(season_matches, season_rounds, season_stats_json,
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     fig.suptitle(f"{season_id} – Tier Comparison", fontsize=13, fontweight="bold")
 
-    # --- Panel 1: Average PPR per tier ---
-    avg_pprs = []
+    # --- Panel 1: Average points awarded per round (tier-level) ---
+    avg_points_per_round = []
     for t in tiers:
-        pprs = [float(stats_dict[b].get("points_per_round", 0))
-                for b in all_beys_by_tier[t] if b in stats_dict]
-        avg_pprs.append(np.mean(pprs) if pprs else 0)
+        t_match_ids = set(season_matches[season_matches["Tier"] == t]["MatchID"])
+        t_rounds = season_rounds[season_rounds["match_id"].isin(t_match_ids)]
+        if "points_awarded" in t_rounds.columns and not t_rounds.empty:
+            points = pd.to_numeric(t_rounds["points_awarded"], errors="coerce").dropna()
+            avg_points_per_round.append(points.mean() if len(points) > 0 else 0)
+        else:
+            avg_points_per_round.append(0)
 
     ax1 = axes[0, 0]
-    bars = ax1.bar(tier_labels, avg_pprs, color=palette, alpha=0.85)
-    for bar, val in zip(bars, avg_pprs):
+    bars = ax1.bar(tier_labels, avg_points_per_round, color=palette, alpha=0.85)
+    for bar, val in zip(bars, avg_points_per_round):
         ax1.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.01,
                  f"{val:.2f}", ha="center", va="bottom", fontsize=8)
-    ax1.set_ylabel("Average PPR")
-    ax1.set_title("Average Points Per Round")
+    ax1.set_ylabel("Average Points Awarded per Round")
+    ax1.set_title("Average Points per Round (Tier Total)")
     ax1.grid(True, axis="y", alpha=0.3)
 
     # --- Panel 2: Win Rate spread (boxplot) per tier ---

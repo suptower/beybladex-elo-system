@@ -1,13 +1,15 @@
 """
 season_comparison_plots.py
-Generates Season vs Global Performance Comparison visualisations.
+Generates Season vs Elo Performance Comparison visualisations.
 
 Plots produced (light + dark variants)
 ---------------------------------------
-1. Global vs Season Percentile Scatter (with 45° reference line)
+1. Elo vs Season Percentile Scatter (with 45° reference line)
 2. PDI Bar Chart (sorted by PDI)
 3. Expected vs Actual Wins Scatter (with reference diagonal)
-4. Tier Strength Overview (grouped bar chart)
+4. Tier Strength — Avg Global Percentile
+5. Tier Strength — Avg PDI
+6. Tier Strength — Avg Elo
 
 Source data: docs/data/season/season_comparison.json
 Output dir : docs/plots/season/comparison/
@@ -63,7 +65,7 @@ def _suffix(dark_mode: bool) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Plot 1 – Global vs Season Percentile Scatter
+# Plot 1 – Elo vs Season Percentile Scatter
 # ---------------------------------------------------------------------------
 
 def plot_percentile_scatter(
@@ -74,7 +76,7 @@ def plot_percentile_scatter(
     dark_mode: bool = False,
 ) -> None:
     """
-    Scatter plot: x = Global Percentile, y = Season Percentile.
+    Scatter plot: x = Tier-normalised Elo percentile, y = Season Percentile.
     A 45° reference line separates over- from underperformers.
     """
     if dark_mode:
@@ -82,11 +84,17 @@ def plot_percentile_scatter(
     else:
         configure_light_mode()
 
-    valid = [b for b in bey_stats if b.get("global_percentile") is not None]
+    valid = [
+        b for b in bey_stats
+        if b.get("tier_elo_percentile") is not None or b.get("global_percentile") is not None
+    ]
     if not valid:
         return
 
-    xs = [b["global_percentile"] * 100 for b in valid]
+    xs = [
+        (b.get("tier_elo_percentile") if b.get("tier_elo_percentile") is not None else b["global_percentile"]) * 100
+        for b in valid
+    ]
     ys = [b["season_percentile"] * 100 for b in valid]
     labels = [b["bey"] for b in valid]
 
@@ -103,9 +111,9 @@ def plot_percentile_scatter(
         ax.annotate(label, (x, y), textcoords="offset points",
                     xytext=(5, 3), fontsize=7, alpha=0.85)
 
-    ax.set_xlabel("Global Percentile (%)")
+    ax.set_xlabel("Pre-season Elo Percentile (within tier, %)")
     ax.set_ylabel("Season Percentile (%)")
-    ax.set_title(f"Global vs Season Percentile — {season_id} Tier {tier}")
+    ax.set_title(f"Elo vs Season Percentile — {season_id} Tier {tier}")
     ax.set_xlim(-2, 105)
     ax.set_ylim(-2, 105)
     ax.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=100))
@@ -164,7 +172,7 @@ def plot_pdi_bar(
     bars = ax.barh(beys, pdis, color=colors, edgecolor="none", height=0.6)
 
     ax.axvline(0, color="gray", linewidth=1.0, linestyle="-")
-    ax.set_xlabel("PDI (Season Percentile − Global Percentile, pp)")
+    ax.set_xlabel("PDI (Season Percentile − Tier Elo Percentile, pp)")
     ax.set_title(f"Performance Delta Index — {season_id} Tier {tier}")
     ax.xaxis.set_major_formatter(mticker.FormatStrFormatter("%.1f"))
     ax.grid(True, axis="x", alpha=0.3)
@@ -256,7 +264,7 @@ def plot_expected_vs_actual_wins(
 
 
 # ---------------------------------------------------------------------------
-# Plot 4 – Tier Strength Overview
+# Plot 4 – Tier Strength Overview (separate plots)
 # ---------------------------------------------------------------------------
 
 def plot_tier_strength(
@@ -264,11 +272,12 @@ def plot_tier_strength(
     out_dir: str,
     season_id: str,
     dark_mode: bool = False,
-) -> None:
+) -> list[str]:
     """
-    Grouped bar chart showing per-tier:
+    Separate bar charts showing per-tier:
     - Average Global Percentile
-    - Average PDI (offset to positive range for display)
+    - Average PDI
+    - Average Elo
     """
     if dark_mode:
         configure_dark_mode()
@@ -277,46 +286,80 @@ def plot_tier_strength(
 
     tiers = sorted(tier_data.keys(), key=lambda t: int(t))
     if not tiers:
-        return
+        return []
 
     avg_global_pcts = [tier_data[t]["tier_strength"]["avg_global_percentile"] * 100 for t in tiers]
     avg_elos = [tier_data[t]["tier_strength"]["avg_elo"] for t in tiers]
     avg_pdis = [tier_data[t]["tier_strength"]["avg_pdi"] * 100 for t in tiers]
 
+    sfx = _suffix(dark_mode)
     tier_labels = [f"Tier {t}" for t in tiers]
     x = np.arange(len(tiers))
-    width = 0.28
+    generated: list[str] = []
 
-    fig, ax1 = plt.subplots(figsize=(8, 5))
-    ax2 = ax1.twinx()
+    def save_metric_plot(
+        values: list,
+        title: str,
+        ylabel: str,
+        filename_key: str,
+        color: str,
+        ylim=None,
+        zero_line: bool = False,
+        formatter=None,
+    ) -> None:
+        fig, ax = plt.subplots(figsize=(8, 4.5))
+        ax.bar(x, values, color=color, alpha=0.85)
+        ax.set_xticks(x)
+        ax.set_xticklabels(tier_labels)
+        ax.set_title(f"{title} — {season_id}")
+        ax.set_ylabel(ylabel)
+        if ylim:
+            ax.set_ylim(*ylim)
+        if zero_line:
+            ax.axhline(0, color="gray", linewidth=0.8, linestyle="-")
+        if formatter:
+            ax.yaxis.set_major_formatter(formatter)
+        ax.grid(True, axis="y", alpha=0.3)
+        fig.tight_layout()
 
-    ax1.bar(x - width, avg_global_pcts, width, label="Avg Global Percentile (%)",
-            color="#3b82f6", alpha=0.85)
-    ax1.bar(x, avg_pdis, width, label="Avg PDI (pp)",
-            color="#f59e0b", alpha=0.85)
-    ax2.bar(x + width, avg_elos, width, label="Avg Elo",
-            color="#a78bfa", alpha=0.85)
+        fname = f"{filename_key}_s{season_id}{sfx}.png"
+        light_path = os.path.join(out_dir, fname)
+        dark_path = os.path.join(out_dir, "dark", fname)
+        save_fig(fig, light_path, dark_path, dark_mode)
+        generated.append(fname)
 
-    ax1.set_ylabel("Percentile / PDI (%)")
-    ax2.set_ylabel("Average Elo")
-    ax1.set_xticks(x)
-    ax1.set_xticklabels(tier_labels)
-    ax1.set_title(f"Tier Strength Overview — {season_id}")
-    ax1.axhline(0, color="gray", linewidth=0.8, linestyle="-")
-    ax1.grid(True, axis="y", alpha=0.3)
+    save_metric_plot(
+        avg_global_pcts,
+        "Tier Strength — Avg Global Percentile",
+        "Average Global Percentile (%)",
+        "tier_strength_global",
+        "#3b82f6",
+        ylim=(0, 100),
+    )
 
-    # Combined legend
-    handles1, labels1 = ax1.get_legend_handles_labels()
-    handles2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(handles1 + handles2, labels1 + labels2, fontsize=8, loc="upper right")
+    pdi_max = max(avg_pdis) if avg_pdis else 0.0
+    pdi_floor = max(pdi_max, 1.0)
+    pdi_pad = pdi_floor * 0.15
+    pdi_ylim = (0, pdi_floor + pdi_pad)
+    save_metric_plot(
+        avg_pdis,
+        "Tier Strength — Avg |PDI|",
+        "Average |PDI| (pp)",
+        "tier_strength_pdi",
+        "#f59e0b",
+        ylim=pdi_ylim,
+        formatter=mticker.FormatStrFormatter("%.1f"),
+    )
 
-    fig.tight_layout()
+    save_metric_plot(
+        avg_elos,
+        "Tier Strength — Avg Elo",
+        "Average Elo",
+        "tier_strength_elo",
+        "#a78bfa",
+    )
 
-    sfx = _suffix(dark_mode)
-    fname = f"tier_strength_s{season_id}{sfx}.png"
-    light_path = os.path.join(out_dir, fname)
-    dark_path = os.path.join(out_dir, "dark", fname)
-    save_fig(fig, light_path, dark_path, dark_mode)
+    return generated
 
 
 # ---------------------------------------------------------------------------
@@ -420,8 +463,9 @@ def generate_comparison_plots(
 
             # Plot 4 – Tier Strength (once per season)
             if tier_data:
-                plot_tier_strength(tier_data, out_dir, season_id, dark_mode)
-                generated.append(f"tier_strength_s{season_id}{sfx}.png")
+                generated.extend(
+                    plot_tier_strength(tier_data, out_dir, season_id, dark_mode)
+                )
 
         # Collect light-mode filenames for this season to update the season manifest
         season_light_plots = [p for p in generated if not p.endswith("_dark.png")]
