@@ -274,7 +274,7 @@ def plot_tier_strength(
     """
     Grouped bar chart showing per-tier:
     - Average Global Percentile
-    - Average PDI (offset to positive range for display)
+    - Average PDI (own axis for visibility)
     """
     if dark_mode:
         configure_dark_mode()
@@ -295,26 +295,40 @@ def plot_tier_strength(
 
     fig, ax1 = plt.subplots(figsize=(8, 5))
     ax2 = ax1.twinx()
+    ax3 = ax1.twinx()
+    ax3.spines["right"].set_position(("axes", 1.12))
+    ax3.spines["right"].set_visible(True)
 
     ax1.bar(x - width, avg_global_pcts, width, label="Avg Global Percentile (%)",
             color="#3b82f6", alpha=0.85)
-    ax1.bar(x, avg_pdis, width, label="Avg PDI (pp)",
+    ax3.bar(x, avg_pdis, width, label="Avg PDI (pp)",
             color="#f59e0b", alpha=0.85)
     ax2.bar(x + width, avg_elos, width, label="Avg Elo",
             color="#a78bfa", alpha=0.85)
 
-    ax1.set_ylabel("Percentile / PDI (%)")
+    ax1.set_ylabel("Avg Global Percentile (%)")
     ax2.set_ylabel("Average Elo")
+    ax3.set_ylabel("Avg PDI (pp)")
     ax1.set_xticks(x)
     ax1.set_xticklabels(tier_labels)
     ax1.set_title(f"Tier Strength Overview — {season_id}")
-    ax1.axhline(0, color="gray", linewidth=0.8, linestyle="-")
+    pdi_min = min(avg_pdis) if avg_pdis else 0.0
+    pdi_max = max(avg_pdis) if avg_pdis else 0.0
+    pdi_range = max(abs(pdi_min), abs(pdi_max), 1.0)
+    pdi_pad = pdi_range * 0.15
+    ax3.set_ylim(-(pdi_range + pdi_pad), pdi_range + pdi_pad)
+    ax3.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.1f"))
+
+    ax3.axhline(0, color="gray", linewidth=0.8, linestyle="-")
     ax1.grid(True, axis="y", alpha=0.3)
 
     # Combined legend
     handles1, labels1 = ax1.get_legend_handles_labels()
     handles2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(handles1 + handles2, labels1 + labels2, fontsize=8, loc="upper right")
+    handles3, labels3 = ax3.get_legend_handles_labels()
+    ax1.legend(handles1 + handles3 + handles2,
+               labels1 + labels3 + labels2,
+               fontsize=8, loc="upper right")
 
     fig.tight_layout()
 
