@@ -479,7 +479,7 @@ def compute_comparison(
                 avg_global_pct = sum(b["global_percentile"] for b in valid) / len(valid)
                 avg_elo = sum(b["elo"] for b in valid) / len(valid)
                 avg_pdi = (
-                    sum(b["pdi"] for b in valid_pdi) / len(valid_pdi)
+                    sum(abs(b["pdi"]) for b in valid_pdi) / len(valid_pdi)
                     if valid_pdi else 0.0
                 )
             else:
