@@ -841,10 +841,11 @@ def generate_season_archive(season_id: str, matches: List[Dict],
         raise ValueError(f"Season {season_id} not found")
 
     # Find league champion (1st place in Tier I) — only when matches have been played
-    season_matches_count = len([
-        m for m in matches
+    season_matches_count = sum(
+        1
+        for m in matches
         if m.get("season_id") == season_id and m.get("match_type") == "season"
-    ])
+    )
     league_champion = None
     if season_matches_count > 0 and 1 in league_tables and len(league_tables[1]) > 0:
         league_champion = league_tables[1][0]["bey"]

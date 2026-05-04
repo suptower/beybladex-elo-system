@@ -397,20 +397,14 @@ def compute_comparison(
                 matches, sid, tier, pre_elo_map
             )
 
-            # Tier-normalized Elo percentiles (based on global ranking within the tier)
+            # Tier-normalized Elo percentiles (based on pre-season Elo within the tier)
             tier_elo_entries = []
             for entry in table:
                 bey = entry["bey"]
-                g = global_ranking.get(bey)
-                if g:
-                    global_rank = g["global_rank"]
-                    elo = g["elo"]
-                else:
-                    global_rank = None
-                    elo = pre_elo_map.get(bey, 1000.0)
+                elo = pre_elo_map.get(bey, 1000.0)
                 tier_elo_entries.append({
                     "bey": bey,
-                    "global_rank": global_rank,
+                    "global_rank": None,
                     "elo": elo,
                 })
 
