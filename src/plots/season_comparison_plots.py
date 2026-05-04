@@ -272,7 +272,7 @@ def plot_tier_strength(
     out_dir: str,
     season_id: str,
     dark_mode: bool = False,
-) -> list:
+) -> list[str]:
     """
     Separate bar charts showing per-tier:
     - Average Global Percentile
@@ -295,7 +295,7 @@ def plot_tier_strength(
     sfx = _suffix(dark_mode)
     tier_labels = [f"Tier {t}" for t in tiers]
     x = np.arange(len(tiers))
-    generated: list = []
+    generated: list[str] = []
 
     def save_metric_plot(
         values: list,
