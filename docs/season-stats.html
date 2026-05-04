@@ -486,6 +486,13 @@
             letter-spacing: 0.5px;
         }
 
+        .plot-card-description {
+            padding: 10px 14px 0 14px;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
         .plot-card img {
             width: 100%;
             height: auto;
@@ -704,10 +711,10 @@
             </summary>
             <div style="margin-top:8px;margin-bottom:12px;">
                 <p style="font-size:14px;opacity:0.75;margin:0 0 12px 0;">
-                    Compares each Bey's within-tier season performance to its global Elo ranking. Uses
-                    <strong>PDI</strong> (Season Percentile − Global Percentile) and
-                    <strong>PvE</strong> (Actual Wins − Expected Wins) to identify overperformers,
-                    underperformers, and tier-strength differentials.
+                    Compares each Bey's season finish to its <strong>pre-season Elo percentile within the same tier</strong>.
+                    The <strong>PDI</strong> (Performance Delta Index) equals <strong>Season Percentile − Tier Elo Percentile</strong>
+                    in percentage points, while <strong>PvE</strong> (Actual Wins − Expected Wins) shows who beat or missed
+                    their Elo-based expectations.
                 </p>
             </div>
             <div id="comparisonPlotsGrid" class="plots-grid">
@@ -1024,11 +1031,25 @@
         'tier_comparison': '🏆 Tier Comparison',
     };
 
+    const PLOT_EXPLANATIONS = {
+        'points_per_match': 'Each box shows the middle 50% of a Bey’s points per match. The thick line is the median; thin lines show the lowest and highest matches. Higher boxes mean stronger scoring.',
+        'radar_chart': 'Each spoke is scaled within the tier. Bigger shapes mean stronger relative performance; similar shapes mean the Beys play at a similar level on those stats.',
+        'rolling_volatility': 'Shows how much points swing over the last few matchdays (default window = 3). Higher lines mean more up/down results; flatter lines mean steady performance.',
+        'tier_comparison': 'Top-left shows average points awarded per round in each tier. Top-right is win-rate spread (box = middle 50%, line = median, whiskers = min/max). Bottom-left shows finish-type mix. Bottom-right shows overall volatility (consistency).',
+    };
+
     function getPlotTitle(filename) {
         for (const [key, title] of Object.entries(PLOT_TITLES)) {
             if (filename.includes(key)) return title;
         }
         return filename.replace(/_/g, ' ').replace(/\.png$/, '');
+    }
+
+    function getPlotExplanation(filename) {
+        for (const [key, text] of Object.entries(PLOT_EXPLANATIONS)) {
+            if (filename.includes(key)) return text;
+        }
+        return '';
     }
 
     function isDarkMode() {
@@ -1106,10 +1127,12 @@
 
         plotsGrid.innerHTML = plots.map(filename => {
             const title = getPlotTitle(filename);
+            const description = getPlotExplanation(filename);
             const src = basePath + filename;
             return `
                 <div class="plot-card">
                     <div class="plot-card-title">${title}</div>
+                    ${description ? `<div class="plot-card-description">${description}</div>` : ''}
                     <img src="${src}" alt="${title}" loading="lazy"
                          onerror="this.parentElement.style.display='none'"
                          onclick="openLightbox(this.src, this.alt, this)">
@@ -1134,10 +1157,17 @@
     // -------------------------------------------------------------------------
 
     const COMPARISON_PLOT_TITLES = {
-        'percentile_scatter': '🎯 Global vs Season Percentile',
+        'percentile_scatter': '🎯 Elo vs Season Percentile (Tier-normalized)',
         'pdi_bar': '📊 Performance Delta Index (PDI)',
         'exp_vs_actual_wins': '🎲 Expected vs Actual Wins',
         'tier_strength': '🏆 Tier Strength Overview',
+    };
+
+    const COMPARISON_PLOT_EXPLANATIONS = {
+        'percentile_scatter': 'Left-to-right shows pre-season Elo percentile inside the tier; bottom-to-top shows season finish percentile. Points above the diagonal beat expectations; below it fell short.',
+        'pdi_bar': 'PDI = Season Percentile − Tier Elo Percentile (percentage points). Positive bars mean a Bey finished higher than its Elo suggested.',
+        'exp_vs_actual_wins': 'Compares Elo-expected wins to actual wins. Dots above the diagonal won more than expected; below won less.',
+        'tier_strength': 'Shows how strong each tier is overall: average global percentile, average PDI, and average Elo.',
     };
 
     function getComparisonPlotTitle(filename) {
@@ -1145,6 +1175,13 @@
             if (filename.includes(key)) return title;
         }
         return filename.replace(/_/g, ' ').replace(/\.png$/, '');
+    }
+
+    function getComparisonPlotExplanation(filename) {
+        for (const [key, text] of Object.entries(COMPARISON_PLOT_EXPLANATIONS)) {
+            if (filename.includes(key)) return text;
+        }
+        return '';
     }
 
     async function loadComparisonPlots(season) {
@@ -1197,10 +1234,12 @@
 
             grid.innerHTML = plots.map(filename => {
                 const title = getComparisonPlotTitle(filename);
+                const description = getComparisonPlotExplanation(filename);
                 const src = basePath + filename;
                 return `
                     <div class="plot-card">
                         <div class="plot-card-title">${title}</div>
+                        ${description ? `<div class="plot-card-description">${description}</div>` : ''}
                         <img src="${src}" alt="${title}" loading="lazy"
                              onerror="this.parentElement.style.display='none'"
                              onclick="openLightbox(this.src, this.alt, this)">

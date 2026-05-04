@@ -1,10 +1,10 @@
 """
 season_comparison_plots.py
-Generates Season vs Global Performance Comparison visualisations.
+Generates Season vs Elo Performance Comparison visualisations.
 
 Plots produced (light + dark variants)
 ---------------------------------------
-1. Global vs Season Percentile Scatter (with 45° reference line)
+1. Elo vs Season Percentile Scatter (with 45° reference line)
 2. PDI Bar Chart (sorted by PDI)
 3. Expected vs Actual Wins Scatter (with reference diagonal)
 4. Tier Strength Overview (grouped bar chart)
@@ -63,7 +63,7 @@ def _suffix(dark_mode: bool) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Plot 1 – Global vs Season Percentile Scatter
+# Plot 1 – Elo vs Season Percentile Scatter
 # ---------------------------------------------------------------------------
 
 def plot_percentile_scatter(
@@ -74,7 +74,7 @@ def plot_percentile_scatter(
     dark_mode: bool = False,
 ) -> None:
     """
-    Scatter plot: x = Global Percentile, y = Season Percentile.
+    Scatter plot: x = Tier-normalised Elo percentile, y = Season Percentile.
     A 45° reference line separates over- from underperformers.
     """
     if dark_mode:
@@ -82,11 +82,17 @@ def plot_percentile_scatter(
     else:
         configure_light_mode()
 
-    valid = [b for b in bey_stats if b.get("global_percentile") is not None]
+    valid = [
+        b for b in bey_stats
+        if b.get("tier_elo_percentile") is not None or b.get("global_percentile") is not None
+    ]
     if not valid:
         return
 
-    xs = [b["global_percentile"] * 100 for b in valid]
+    xs = [
+        (b.get("tier_elo_percentile") if b.get("tier_elo_percentile") is not None else b["global_percentile"]) * 100
+        for b in valid
+    ]
     ys = [b["season_percentile"] * 100 for b in valid]
     labels = [b["bey"] for b in valid]
 
@@ -103,9 +109,9 @@ def plot_percentile_scatter(
         ax.annotate(label, (x, y), textcoords="offset points",
                     xytext=(5, 3), fontsize=7, alpha=0.85)
 
-    ax.set_xlabel("Global Percentile (%)")
+    ax.set_xlabel("Pre-season Elo Percentile (within tier, %)")
     ax.set_ylabel("Season Percentile (%)")
-    ax.set_title(f"Global vs Season Percentile — {season_id} Tier {tier}")
+    ax.set_title(f"Elo vs Season Percentile — {season_id} Tier {tier}")
     ax.set_xlim(-2, 105)
     ax.set_ylim(-2, 105)
     ax.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=100))
@@ -164,7 +170,7 @@ def plot_pdi_bar(
     bars = ax.barh(beys, pdis, color=colors, edgecolor="none", height=0.6)
 
     ax.axvline(0, color="gray", linewidth=1.0, linestyle="-")
-    ax.set_xlabel("PDI (Season Percentile − Global Percentile, pp)")
+    ax.set_xlabel("PDI (Season Percentile − Tier Elo Percentile, pp)")
     ax.set_title(f"Performance Delta Index — {season_id} Tier {tier}")
     ax.xaxis.set_major_formatter(mticker.FormatStrFormatter("%.1f"))
     ax.grid(True, axis="x", alpha=0.3)
