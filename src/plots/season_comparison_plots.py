@@ -7,7 +7,9 @@ Plots produced (light + dark variants)
 1. Elo vs Season Percentile Scatter (with 45° reference line)
 2. PDI Bar Chart (sorted by PDI)
 3. Expected vs Actual Wins Scatter (with reference diagonal)
-4. Tier Strength Overview (grouped bar chart)
+4. Tier Strength — Avg Global Percentile
+5. Tier Strength — Avg PDI
+6. Tier Strength — Avg Elo
 
 Source data: docs/data/season/season_comparison.json
 Output dir : docs/plots/season/comparison/
@@ -262,7 +264,7 @@ def plot_expected_vs_actual_wins(
 
 
 # ---------------------------------------------------------------------------
-# Plot 4 – Tier Strength Overview
+# Plot 4 – Tier Strength Overview (separate plots)
 # ---------------------------------------------------------------------------
 
 def plot_tier_strength(
@@ -270,11 +272,12 @@ def plot_tier_strength(
     out_dir: str,
     season_id: str,
     dark_mode: bool = False,
-) -> None:
+) -> list:
     """
-    Grouped bar chart showing per-tier:
+    Separate bar charts showing per-tier:
     - Average Global Percentile
-    - Average PDI (own axis for visibility)
+    - Average PDI
+    - Average Elo
     """
     if dark_mode:
         configure_dark_mode()
@@ -283,60 +286,82 @@ def plot_tier_strength(
 
     tiers = sorted(tier_data.keys(), key=lambda t: int(t))
     if not tiers:
-        return
+        return []
 
     avg_global_pcts = [tier_data[t]["tier_strength"]["avg_global_percentile"] * 100 for t in tiers]
     avg_elos = [tier_data[t]["tier_strength"]["avg_elo"] for t in tiers]
     avg_pdis = [tier_data[t]["tier_strength"]["avg_pdi"] * 100 for t in tiers]
 
+    sfx = _suffix(dark_mode)
     tier_labels = [f"Tier {t}" for t in tiers]
     x = np.arange(len(tiers))
-    width = 0.28
+    generated: list = []
 
-    fig, ax1 = plt.subplots(figsize=(8, 5))
-    ax2 = ax1.twinx()
-    ax3 = ax1.twinx()
-    ax3.spines["right"].set_position(("axes", 1.12))
-    ax3.spines["right"].set_visible(True)
+    def save_metric_plot(
+        values: list,
+        title: str,
+        ylabel: str,
+        filename_key: str,
+        color: str,
+        ylim=None,
+        zero_line: bool = False,
+        formatter=None,
+    ) -> None:
+        fig, ax = plt.subplots(figsize=(8, 4.5))
+        ax.bar(x, values, color=color, alpha=0.85)
+        ax.set_xticks(x)
+        ax.set_xticklabels(tier_labels)
+        ax.set_title(f"{title} — {season_id}")
+        ax.set_ylabel(ylabel)
+        if ylim:
+            ax.set_ylim(*ylim)
+        if zero_line:
+            ax.axhline(0, color="gray", linewidth=0.8, linestyle="-")
+        if formatter:
+            ax.yaxis.set_major_formatter(formatter)
+        ax.grid(True, axis="y", alpha=0.3)
+        fig.tight_layout()
 
-    ax1.bar(x - width, avg_global_pcts, width, label="Avg Global Percentile (%)",
-            color="#3b82f6", alpha=0.85)
-    ax3.bar(x, avg_pdis, width, label="Avg PDI (pp)",
-            color="#f59e0b", alpha=0.85)
-    ax2.bar(x + width, avg_elos, width, label="Avg Elo",
-            color="#a78bfa", alpha=0.85)
+        fname = f"{filename_key}_s{season_id}{sfx}.png"
+        light_path = os.path.join(out_dir, fname)
+        dark_path = os.path.join(out_dir, "dark", fname)
+        save_fig(fig, light_path, dark_path, dark_mode)
+        generated.append(fname)
 
-    ax1.set_ylabel("Avg Global Percentile (%)")
-    ax2.set_ylabel("Average Elo")
-    ax3.set_ylabel("Avg PDI (pp)")
-    ax1.set_xticks(x)
-    ax1.set_xticklabels(tier_labels)
-    ax1.set_title(f"Tier Strength Overview — {season_id}")
+    save_metric_plot(
+        avg_global_pcts,
+        "Tier Strength — Avg Global Percentile",
+        "Average Global Percentile (%)",
+        "tier_strength_global",
+        "#3b82f6",
+        ylim=(0, 100),
+    )
+
     pdi_min = min(avg_pdis) if avg_pdis else 0.0
     pdi_max = max(avg_pdis) if avg_pdis else 0.0
     pdi_range = max(abs(pdi_min), abs(pdi_max), 1.0)
     pdi_pad = pdi_range * 0.15
-    ax3.set_ylim(-(pdi_range + pdi_pad), pdi_range + pdi_pad)
-    ax3.yaxis.set_major_formatter(mticker.FormatStrFormatter("%.1f"))
+    pdi_ylim = (-(pdi_range + pdi_pad), pdi_range + pdi_pad)
+    save_metric_plot(
+        avg_pdis,
+        "Tier Strength — Avg PDI",
+        "Average PDI (pp)",
+        "tier_strength_pdi",
+        "#f59e0b",
+        ylim=pdi_ylim,
+        zero_line=True,
+        formatter=mticker.FormatStrFormatter("%.1f"),
+    )
 
-    ax3.axhline(0, color="gray", linewidth=0.8, linestyle="-")
-    ax1.grid(True, axis="y", alpha=0.3)
+    save_metric_plot(
+        avg_elos,
+        "Tier Strength — Avg Elo",
+        "Average Elo",
+        "tier_strength_elo",
+        "#a78bfa",
+    )
 
-    # Combined legend
-    handles1, labels1 = ax1.get_legend_handles_labels()
-    handles2, labels2 = ax2.get_legend_handles_labels()
-    handles3, labels3 = ax3.get_legend_handles_labels()
-    ax1.legend(handles1 + handles3 + handles2,
-               labels1 + labels3 + labels2,
-               fontsize=8, loc="upper right")
-
-    fig.tight_layout()
-
-    sfx = _suffix(dark_mode)
-    fname = f"tier_strength_s{season_id}{sfx}.png"
-    light_path = os.path.join(out_dir, fname)
-    dark_path = os.path.join(out_dir, "dark", fname)
-    save_fig(fig, light_path, dark_path, dark_mode)
+    return generated
 
 
 # ---------------------------------------------------------------------------
@@ -440,8 +465,9 @@ def generate_comparison_plots(
 
             # Plot 4 – Tier Strength (once per season)
             if tier_data:
-                plot_tier_strength(tier_data, out_dir, season_id, dark_mode)
-                generated.append(f"tier_strength_s{season_id}{sfx}.png")
+                generated.extend(
+                    plot_tier_strength(tier_data, out_dir, season_id, dark_mode)
+                )
 
         # Collect light-mode filenames for this season to update the season manifest
         season_light_plots = [p for p in generated if not p.endswith("_dark.png")]

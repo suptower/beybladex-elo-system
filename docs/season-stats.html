@@ -1160,14 +1160,18 @@
         'percentile_scatter': '🎯 Elo vs Season Percentile (Tier-normalized)',
         'pdi_bar': '📊 Performance Delta Index (PDI)',
         'exp_vs_actual_wins': '🎲 Expected vs Actual Wins',
-        'tier_strength': '🏆 Tier Strength Overview',
+        'tier_strength_global': '🏆 Tier Strength — Avg Global Percentile',
+        'tier_strength_pdi': '🏆 Tier Strength — Avg PDI',
+        'tier_strength_elo': '🏆 Tier Strength — Avg Elo',
     };
 
     const COMPARISON_PLOT_EXPLANATIONS = {
         'percentile_scatter': 'Left-to-right shows pre-season Elo percentile inside the tier; bottom-to-top shows season finish percentile. Points above the diagonal beat expectations; below it fell short.',
         'pdi_bar': 'PDI = Season Percentile − Tier Elo Percentile (percentage points). Positive bars mean a Bey finished higher than its Elo suggested.',
         'exp_vs_actual_wins': 'Compares Elo-expected wins to actual wins. Dots above the diagonal won more than expected; below won less.',
-        'tier_strength': 'Shows how strong each tier is overall: average global percentile, average PDI (own axis), and average Elo.',
+        'tier_strength_global': 'Average global Elo percentile for the tier; higher means the tier sits higher in the overall ranking.',
+        'tier_strength_pdi': 'Average PDI (season percentile minus tier Elo percentile). Positive bars mean the tier outperformed its preseason expectations.',
+        'tier_strength_elo': 'Average Elo rating for the tier. Higher bars mean stronger Elo across the tier.',
     };
 
     function getComparisonPlotTitle(filename) {
