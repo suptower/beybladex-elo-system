@@ -51,6 +51,8 @@ const COLUMN_DESCRIPTIONS = {
     'Diff': { short: 'ELO Difference', long: 'Absolute ELO difference between the two Beys before the match' }
 };
 
+const ROUND_AWARE_MATCH_TYPES = new Set(['season_cup', 'tournament']);
+
 // Create ELO delta badge HTML string
 // Used for both desktop table and mobile card views
 function createDeltaBadgeHtml(eloChange) {
@@ -517,8 +519,13 @@ function applyFilters() {
         }
         
         // Match Type filter
-        if (filters.matchType !== 'all' && match.matchType !== filters.matchType) {
-            return false;
+        if (filters.matchType !== 'all') {
+            const allowsRoundSuffix = ROUND_AWARE_MATCH_TYPES.has(filters.matchType);
+            const matchesType = match.matchType === filters.matchType ||
+                (allowsRoundSuffix && match.matchType.startsWith(`${filters.matchType}_`));
+            if (!matchesType) {
+                return false;
+            }
         }
         
         // Season filter
