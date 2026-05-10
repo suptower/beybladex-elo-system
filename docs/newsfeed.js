@@ -6,6 +6,7 @@
     const categoryConfig = {
         announcement: { label: 'Announcement', emoji: '📢' },
         tournament:   { label: 'Tournament',    emoji: '🏆' },
+        season:       { label: 'Season',         emoji: '🏅' },
         match:        { label: 'Match',          emoji: '⚔️' },
         feature:      { label: 'New Feature',   emoji: '✨' },
         system:       { label: 'System',         emoji: '⚙️' }
