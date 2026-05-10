@@ -14124,12 +14124,21 @@ body.dark .season-status-badge.active {
     background: rgba(245, 158, 11, 0.15);
 }
 
+.arena-badge.arena-double-xtreme {
+    color: #ec4899;
+    background: rgba(236, 72, 153, 0.15);
+}
+
 body.dark .arena-badge.arena-xtreme {
     background: rgba(139, 92, 246, 0.25);
 }
 
 body.dark .arena-badge.arena-drop-attack {
     background: rgba(245, 158, 11, 0.25);
+}
+
+body.dark .arena-badge.arena-double-xtreme {
+    background: rgba(236, 72, 153, 0.25);
 }
 
 .arena-cell {
