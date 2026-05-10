@@ -11,7 +11,10 @@ permissions:
 
 jobs:
   process:
-    if: github.actor != 'github-actions[bot]'
+    if: |
+      github.actor != 'github-actions[bot]' &&
+      startsWith(github.event.head_commit.message, 'feat: add') &&
+      contains(github.event.head_commit.message, 'session data')
     runs-on: ubuntu-latest
 
     steps:
