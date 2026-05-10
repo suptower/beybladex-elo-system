@@ -717,7 +717,7 @@ function displayMatches() {
         tdArena.className = 'arena-cell';
         const arenaBadge = document.createElement('span');
         arenaBadge.className = `arena-badge arena-${match.arena.toLowerCase().replace(/\s+/g, '-')}`;
-        arenaBadge.textContent = match.arena === 'Xtreme' ? '⚡X' : '🎯DA';
+        arenaBadge.textContent = match.arena === 'Xtreme' ? '⚡X' : match.arena === 'Drop Attack' ? '🎯DA' : '💢DX';
         arenaBadge.title = match.arena === 'Xtreme' ? 'Xtreme Stadium' : 'Drop Attack Beystadium';
         tdArena.appendChild(arenaBadge);
         row.appendChild(tdArena);
