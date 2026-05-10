@@ -517,8 +517,14 @@ function applyFilters() {
         }
         
         // Match Type filter
-        if (filters.matchType !== 'all' && match.matchType !== filters.matchType) {
-            return false;
+        if (filters.matchType !== 'all') {
+            const roundAwareTypes = new Set(['season_cup', 'tournament']);
+            const allowsRoundSuffix = roundAwareTypes.has(filters.matchType);
+            const matchesType = match.matchType === filters.matchType ||
+                (allowsRoundSuffix && match.matchType.startsWith(`${filters.matchType}_`));
+            if (!matchesType) {
+                return false;
+            }
         }
         
         // Season filter
