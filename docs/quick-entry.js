@@ -1610,7 +1610,7 @@ function renderSeasonFields(matchIndex, match) {
     // Build season ID options from loaded season data or a sensible default list
     let seasonKeys = (state.seasonData && state.seasonData.seasons)
         ? Object.keys(state.seasonData.seasons)
-        : ['S1', 'S2'];
+        : ['S1', 'S2', 'S3'];
     // Ensure the currently saved seasonId is always present in the list
     if (seasonId && !seasonKeys.includes(seasonId)) {
         seasonKeys = [...seasonKeys, seasonId];
