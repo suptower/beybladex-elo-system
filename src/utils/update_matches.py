@@ -38,7 +38,7 @@ def parse_session_date(prefix: str) -> datetime:
         )
 
 
-_SESSION_SUFFIXES = ("_session_matches.csv", "_session_rounds.csv")
+_SESSION_SUFFIXES = ("_session_matches.csv", "_session_rounds.csv", "_session.json")
 
 
 def extract_session_prefix(filename: str) -> str:
@@ -52,7 +52,7 @@ def extract_session_prefix(filename: str) -> str:
 
 
 def get_latest_session_files():
-    matches_suffix, rounds_suffix = _SESSION_SUFFIXES
+    matches_suffix, rounds_suffix, json_suffix = _SESSION_SUFFIXES
     match_files = {
         extract_session_prefix(p.name): p
         for p in RAW_DIR.glob(f"*{matches_suffix}")
@@ -61,22 +61,25 @@ def get_latest_session_files():
         extract_session_prefix(p.name): p
         for p in RAW_DIR.glob(f"*{rounds_suffix}")
     }
+    json_files = {
+        extract_session_prefix(p.name): p
+        for p in RAW_DIR.glob(f"*{json_suffix}")
+    }
 
     complete_sessions = sorted(
-        set(match_files) & set(round_files),
+        set(match_files) & set(round_files) & set(json_files),
         key=parse_session_date,
     )
 
     if not complete_sessions:
         raise FileNotFoundError(
-            "No complete session pair (matches + rounds) found in "
+            "No complete session pair (matches + rounds + json) found in "
             f"{RAW_DIR}. "
-            "Ensure both '<prefix>_session_matches.csv' and "
-            "'<prefix>_session_rounds.csv' are present."
+            "Ensure all three files are present."
         )
 
     latest = complete_sessions[-1]
-    return match_files[latest], round_files[latest]
+    return match_files[latest], round_files[latest], json_files[latest]
 
 
 def get_current_max_match_id():
@@ -128,7 +131,7 @@ def move_to_processed(path: Path):
 
 
 def main():
-    session_matches_file, session_rounds_file = get_latest_session_files()
+    session_matches_file, session_rounds_file, session_json_file = get_latest_session_files()
 
     print(f"Processing session: {session_matches_file.name}")
 
@@ -137,6 +140,7 @@ def main():
     # Load session data
     match_fields, match_rows = load_csv(session_matches_file)
     round_fields, round_rows = load_csv(session_rounds_file)
+    json_fields, json_rows = load_csv(session_json_file)
 
     # Remap match IDs
     id_mapping = {}
@@ -169,6 +173,7 @@ def main():
     # Only move files if everything above succeeded
     move_to_processed(session_matches_file)
     move_to_processed(session_rounds_file)
+    move_to_processed(session_json_file)
 
     print(f"Appended {len(new_match_rows)} matches.")
     print(f"Appended {len(new_round_rows)} rounds.")
