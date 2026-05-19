@@ -506,17 +506,27 @@ def generate_match_snapshots(matches_list, input_file, snapshots_dir, pipeline_s
         score_a = int(match["ScoreA"])
         score_b = int(match["ScoreB"])
 
-        # Update ELO and stats (without writing to history file)
-        update_elo(
-            bey_a, bey_b, score_a, score_b,
-            match["Date"], snapshot_elos, snapshot_stats,
-            writer=None,  # Don't write to history
-            match_id=match.get("MatchID", ""),
-            arena=match.get("arena", "Xtreme")
+        match_type = match.get("MatchType", "exhibition")
+        arena = match.get("arena", "Xtreme")
+        updates_xtreme = (
+            match_type in ("season", "relegation", "season_cup")
+            or normalize_arena_name(arena) == ARENA_XTREME
         )
 
-        # Calculate winrates
-        calculate_winrates(snapshot_stats)
+        # Update ELO and stats (without writing to history file) only for
+        # matches that affect the global/Xtreme ladder.
+        if updates_xtreme:
+            update_elo(
+                bey_a, bey_b, score_a, score_b,
+                match["Date"], snapshot_elos, snapshot_stats,
+                writer=None,  # Don't write to history
+                match_id=match.get("MatchID", ""),
+                arena=arena,
+                match_type=match_type,
+            )
+
+            # Calculate winrates
+            calculate_winrates(snapshot_stats)
 
         # Generate leaderboard snapshot
         sorted_beys = sorted(snapshot_elos.items(), key=lambda x: x[1], reverse=True)
