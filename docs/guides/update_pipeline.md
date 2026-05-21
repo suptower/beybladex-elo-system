@@ -191,6 +191,11 @@ Typical execution times:
 
 Plot generation is the most time-consuming step due to creating individual charts for each Beyblade.
 
+To improve plot generation time without reducing output quality, the plotting
+pipeline now runs independent plot scripts and per-Bey renders in parallel. You
+can control the concurrency with the `BEYBLADE_PLOT_WORKERS` environment
+variable (defaults to up to 4 workers, capped by available CPU cores).
+
 ## Troubleshooting
 
 ### Script Not Found
