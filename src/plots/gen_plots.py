@@ -69,6 +69,7 @@ def should_parallelize(total, max_workers):
 # Statistical reference line styling
 # -------------------
 
+
 # Consistent styling for average and median lines across all plots
 AVERAGE_LINE_STYLE = {
     'color': '#3b82f6',
