@@ -4,6 +4,7 @@
 # Supports light and dark mode plot generation.
 
 import argparse
+import concurrent.futures
 import json
 import os
 import subprocess
@@ -41,6 +42,28 @@ env["PYTHONUTF8"] = "1"  # Ensure UTF-8 encoding for subprocesses
 
 plt.rcParams["figure.figsize"] = (10, 6)
 plt.rcParams["axes.grid"] = True
+
+# -------------------
+# Parallelism helpers
+# -------------------
+
+
+def resolve_plot_workers():
+    env_workers = os.environ.get("BEYBLADE_PLOT_WORKERS")
+    if env_workers:
+        try:
+            value = int(env_workers)
+            if value > 0:
+                return value
+        except ValueError:
+            pass
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        return 1
+    return max(1, min(4, os.cpu_count() or 1))
+
+
+def should_parallelize(total, max_workers):
+    return max_workers > 1 and total >= max_workers * 2
 
 # -------------------
 # Statistical reference line styling
@@ -153,12 +176,76 @@ def plot_elo_combined(df_ts, outdir, dark_mode=False):
     print(f"Kombiniertes ELO-Diagramm gespeichert als {combined_file}")
 
 
-def plot_elo_single(df_ts, outdir, dark_mode=False):
+def _render_elo_single_plot(args):
+    bey, group, subdir, suffix, dark_mode = args
     if dark_mode:
         configure_dark_mode()
     else:
         configure_light_mode()
 
+    group = group.sort_values("MatchIndex")
+
+    plt.figure(figsize=(6, 4))
+    plt.plot(group["MatchIndex"], group["ELO"], marker="o", linewidth=1.8, label="ELO History")
+
+    # Calculate and plot median and average
+    if len(group) > 0:
+        avg_elo = group["ELO"].mean()
+        median_elo = group["ELO"].median()
+
+        ax = plt.gca()
+        xlim = ax.get_xlim()
+
+        # Plot average line (dashed)
+        plt.axhline(avg_elo, label=f'Average: {int(round(avg_elo))}',
+                    **AVERAGE_LINE_STYLE)
+
+        # Plot median line (dotted)
+        plt.axhline(median_elo, label=f'Median: {int(round(median_elo))}',
+                    **MEDIAN_LINE_STYLE)
+
+        # Highlight max and min ELO values
+        max_idx = group["ELO"].idxmax()
+        min_idx = group["ELO"].idxmin()
+        max_elo = group.loc[max_idx, "ELO"]
+        min_elo = group.loc[min_idx, "ELO"]
+        max_match = group.loc[max_idx, "MatchIndex"]
+        min_match = group.loc[min_idx, "MatchIndex"]
+
+        # Only highlight if max != min (not a flat curve)
+        if max_elo != min_elo:
+            # Highlight maximum ELO (peak) with green dot
+            plt.scatter(max_match, max_elo, color='green', s=36, marker='o',
+                        zorder=5, edgecolors='darkgreen', linewidths=1.5,
+                        label=f'Peak: {int(max_elo)}')
+
+            # Highlight minimum ELO (low point) with red dot
+            plt.scatter(min_match, min_elo, color='red', s=36, marker='o',
+                        zorder=5, edgecolors='darkred', linewidths=1.5,
+                        label=f'Low: {int(min_elo)}')
+
+            # Draw subtle horizontal lines to y-axis
+            plt.hlines(max_elo, xlim[0], max_match, colors='green',
+                       linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+            plt.hlines(min_elo, xlim[0], min_match, colors='red',
+                       linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+
+        plt.legend(loc='best', fontsize=8)
+
+    plt.xticks(ticks=range(group["MatchIndex"].min(), group["MatchIndex"].max() + 1))
+    plt.title(f"ELO-Verlauf: {bey}")
+    plt.xlabel("Match")
+    plt.ylabel("ELO")
+    plt.grid(True, alpha=0.4)
+    plt.tight_layout()
+
+    safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
+    out_path = os.path.join(subdir, f"{safe_name}{suffix}.png")
+    plt.savefig(out_path, dpi=200)
+    plt.close()
+
+
+def plot_elo_single(df_ts, outdir, dark_mode=False):
     df_ts["ELO"] = pd.to_numeric(df_ts["ELO"], errors="coerce")
     df_ts["MatchIndex"] = df_ts["MatchIndex"].astype(int)
     df_ts = df_ts.sort_values(["Bey", "MatchIndex"]).reset_index(drop=True)
@@ -166,75 +253,72 @@ def plot_elo_single(df_ts, outdir, dark_mode=False):
     subdir = os.path.join(outdir, "dark") if dark_mode else outdir
     suffix = "_dark" if dark_mode else ""
 
-    for bey, group in df_ts.groupby("Bey"):
-        plt.figure(figsize=(6, 4))
-        plt.plot(group["MatchIndex"], group["ELO"], marker="o", linewidth=1.8, label="ELO History")
+    num_groups = df_ts["Bey"].nunique()
+    tasks = ((bey, group, subdir, suffix, dark_mode) for bey, group in df_ts.groupby("Bey"))
+    max_workers = resolve_plot_workers()
 
-        # Calculate and plot median and average
-        if len(group) > 0:
-            avg_elo = group["ELO"].mean()
-            median_elo = group["ELO"].median()
-
-            ax = plt.gca()
-            xlim = ax.get_xlim()
-
-            # Plot average line (dashed)
-            plt.axhline(avg_elo, label=f'Average: {int(round(avg_elo))}',
-                        **AVERAGE_LINE_STYLE)
-
-            # Plot median line (dotted)
-            plt.axhline(median_elo, label=f'Median: {int(round(median_elo))}',
-                        **MEDIAN_LINE_STYLE)
-
-            # Highlight max and min ELO values
-            max_idx = group["ELO"].idxmax()
-            min_idx = group["ELO"].idxmin()
-            max_elo = group.loc[max_idx, "ELO"]
-            min_elo = group.loc[min_idx, "ELO"]
-            max_match = group.loc[max_idx, "MatchIndex"]
-            min_match = group.loc[min_idx, "MatchIndex"]
-
-            # Only highlight if max != min (not a flat curve)
-            if max_elo != min_elo:
-                # Highlight maximum ELO (peak) with green dot
-                plt.scatter(max_match, max_elo, color='green', s=36, marker='o',
-                            zorder=5, edgecolors='darkgreen', linewidths=1.5,
-                            label=f'Peak: {int(max_elo)}')
-
-                # Highlight minimum ELO (low point) with red dot
-                plt.scatter(min_match, min_elo, color='red', s=36, marker='o',
-                            zorder=5, edgecolors='darkred', linewidths=1.5,
-                            label=f'Low: {int(min_elo)}')
-
-                # Draw subtle horizontal lines to y-axis
-                plt.hlines(max_elo, xlim[0], max_match, colors='green',
-                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
-                plt.hlines(min_elo, xlim[0], min_match, colors='red',
-                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
-
-            plt.legend(loc='best', fontsize=8)
-
-        plt.xticks(ticks=range(group["MatchIndex"].min(), group["MatchIndex"].max() + 1))
-        plt.title(f"ELO-Verlauf: {bey}")
-        plt.xlabel("Match")
-        plt.ylabel("ELO")
-        plt.grid(True, alpha=0.4)
-        plt.tight_layout()
-
-        safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
-        out_path = os.path.join(subdir, f"{safe_name}{suffix}.png")
-        plt.savefig(out_path, dpi=200)
-        plt.close()
+    if should_parallelize(num_groups, max_workers):
+        with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+            list(executor.map(_render_elo_single_plot, tasks))
+    else:
+        for task in tasks:
+            _render_elo_single_plot(task)
     print(f"Einzelne ELO-Diagramme gespeichert im Ordner: {subdir}")
 
 
-def plot_kfactor_single(df_hist, outdir, dark_mode=False):
-    """Per-bey K_base, K_eff, and form_ema evolution plots from elo_history.csv."""
+def _render_kfactor_single_plot(args):
+    bey, group, has_ema, subdir, suffix, dark_mode = args
+    if len(group) < 1:
+        return
+
     if dark_mode:
         configure_dark_mode()
     else:
         configure_light_mode()
 
+    n_panels = 3 if has_ema else 2
+    fig, axes = plt.subplots(n_panels, 1, figsize=(6, 3 * n_panels), sharex=True)
+
+    # K_base panel
+    ax0 = axes[0]
+    ax0.plot(group["Match"], group["KBase"], marker="o", linewidth=1.5,
+             color="#3b82f6", label="K_base")
+    ax0.set_ylabel("K_base")
+    ax0.set_title(f"K-Faktor / Form-EMA: {bey}")
+    ax0.legend(loc="best", fontsize=8)
+    ax0.grid(True, alpha=0.4)
+
+    # K_eff panel
+    ax1 = axes[1]
+    ax1.plot(group["Match"], group["KEff"], marker="o", linewidth=1.5,
+             color="#f59e0b", label="K_eff")
+    ax1.set_ylabel("K_eff")
+    ax1.legend(loc="best", fontsize=8)
+    ax1.grid(True, alpha=0.4)
+
+    # form_ema panel (optional)
+    if has_ema:
+        ax2 = axes[2]
+        ema_series = group["FormEma"].dropna()
+        ema_matches = group.loc[ema_series.index, "Match"]
+        ax2.plot(ema_matches, ema_series, marker="o", linewidth=1.5,
+                 color="#a78bfa", label="form_ema")
+        ax2.axhline(0, color="gray", linewidth=0.8, linestyle="--", alpha=0.6)
+        ax2.set_ylabel("form_ema")
+        ax2.legend(loc="best", fontsize=8)
+        ax2.grid(True, alpha=0.4)
+
+    axes[-1].set_xlabel("Match")
+    plt.tight_layout()
+
+    safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
+    out_path = os.path.join(subdir, f"{safe_name}_kfactor{suffix}.png")
+    plt.savefig(out_path, dpi=200)
+    plt.close(fig)
+
+
+def plot_kfactor_single(df_hist, outdir, dark_mode=False):
+    """Per-bey K_base, K_eff, and form_ema evolution plots from elo_history.csv."""
     required_cols = {"BeyA", "BeyB", "KBaseA", "KBaseB", "KEffA", "KEffB"}
     if not required_cols.issubset(df_hist.columns):
         print("plot_kfactor_single: missing required columns in elo_history, skipping.")
@@ -265,49 +349,16 @@ def plot_kfactor_single(df_hist, outdir, dark_mode=False):
     combined["KEff"] = pd.to_numeric(combined["KEff"], errors="coerce")
     combined = combined.sort_values(["Bey", "Match"])
 
-    for bey, group in combined.groupby("Bey"):
-        if len(group) < 1:
-            continue
+    tasks = ((bey, group, has_ema, subdir, suffix, dark_mode)
+             for bey, group in combined.groupby("Bey"))
+    max_workers = resolve_plot_workers()
 
-        n_panels = 3 if has_ema else 2
-        fig, axes = plt.subplots(n_panels, 1, figsize=(6, 3 * n_panels), sharex=True)
-
-        # K_base panel
-        ax0 = axes[0]
-        ax0.plot(group["Match"], group["KBase"], marker="o", linewidth=1.5,
-                 color="#3b82f6", label="K_base")
-        ax0.set_ylabel("K_base")
-        ax0.set_title(f"K-Faktor / Form-EMA: {bey}")
-        ax0.legend(loc="best", fontsize=8)
-        ax0.grid(True, alpha=0.4)
-
-        # K_eff panel
-        ax1 = axes[1]
-        ax1.plot(group["Match"], group["KEff"], marker="o", linewidth=1.5,
-                 color="#f59e0b", label="K_eff")
-        ax1.set_ylabel("K_eff")
-        ax1.legend(loc="best", fontsize=8)
-        ax1.grid(True, alpha=0.4)
-
-        # form_ema panel (optional)
-        if has_ema:
-            ax2 = axes[2]
-            ema_series = group["FormEma"].dropna()
-            ema_matches = group.loc[ema_series.index, "Match"]
-            ax2.plot(ema_matches, ema_series, marker="o", linewidth=1.5,
-                     color="#a78bfa", label="form_ema")
-            ax2.axhline(0, color="gray", linewidth=0.8, linestyle="--", alpha=0.6)
-            ax2.set_ylabel("form_ema")
-            ax2.legend(loc="best", fontsize=8)
-            ax2.grid(True, alpha=0.4)
-
-        axes[-1].set_xlabel("Match")
-        plt.tight_layout()
-
-        safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
-        out_path = os.path.join(subdir, f"{safe_name}_kfactor{suffix}.png")
-        plt.savefig(out_path, dpi=200)
-        plt.close()
+    if should_parallelize(combined["Bey"].nunique(), max_workers):
+        with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+            list(executor.map(_render_kfactor_single_plot, tasks))
+    else:
+        for task in tasks:
+            _render_kfactor_single_plot(task)
 
     print(f"K-Faktor/Form-EMA-Diagramme gespeichert im Ordner: {subdir}")
 
@@ -342,12 +393,120 @@ def plot_leaderboard_bars(df, outdir, dark_mode=False):
 # -------------------
 
 
-def plot_position_timeseries(df_pos, outdir, dark_mode=False):
+def _render_position_timeseries_plot(args):
+    bey, group, subdir, suffix, dark_mode = args
     if dark_mode:
         configure_dark_mode()
     else:
         configure_light_mode()
 
+    # Filter to keep only first and last entry per MatchIndex to avoid oscillations
+    # filtered_rows = []
+    # for mi in group["MatchIndex"].unique():
+    #     mi_group = group[group["MatchIndex"] == mi]
+    #     if len(mi_group) == 1:
+    #         filtered_rows.append(mi_group.iloc[0])
+    #     else:
+    #         # Keep first and last entry
+    #         filtered_rows.append(mi_group.iloc[0])
+    #         if len(mi_group) > 1:
+    #             filtered_rows.append(mi_group.iloc[-1])
+
+    # group_filtered = pd.DataFrame(filtered_rows).reset_index(drop=True)
+
+    # Calculate dynamic plot dimensions based on actual position range
+    min_pos = group["Position"].min()
+    max_pos = group["Position"].max()
+    height, ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
+
+    plt.figure(figsize=(6, height))
+    plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2, label="Position History")
+
+    # Calculate and plot median and average positions
+    if len(group) > 0:
+        avg_pos = group["Position"].mean()
+        median_pos = group["Position"].median()
+
+        ax = plt.gca()
+        xlim = ax.get_xlim()
+
+        ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))  # Ensure x-axis shows integer match indices
+
+        # Plot average line (dashed)
+        plt.axhline(avg_pos, label=f'Average: #{int(round(avg_pos))}',
+                    **AVERAGE_LINE_STYLE)
+
+        # Plot median line (dotted)
+        plt.axhline(median_pos, label=f'Median: #{int(round(median_pos))}',
+                    **MEDIAN_LINE_STYLE)
+
+        # Highlight best and worst positions
+        # Best position = minimum rank number (e.g., 1 is better than 10)
+        best_idx = group["Position"].idxmin()
+        # Worst position = maximum rank number (e.g., 30 is worse than 10)
+        worst_idx = group["Position"].idxmax()
+        best_pos = group.loc[best_idx, "Position"]
+        worst_pos = group.loc[worst_idx, "Position"]
+        best_plotx = group.loc[best_idx, "PlotX"]
+        worst_plotx = group.loc[worst_idx, "PlotX"]
+
+        # Only highlight if best != worst (not a flat curve)
+        if best_pos != worst_pos:
+            # Highlight best position (lowest rank) with green dot
+            plt.scatter(best_plotx, best_pos, color='green', s=36, marker='o',
+                        zorder=5, edgecolors='darkgreen', linewidths=1.5,
+                        label=f'Best: #{int(best_pos)}')
+
+            # Highlight worst position (highest rank) with red dot
+            plt.scatter(worst_plotx, worst_pos, color='red', s=36, marker='o',
+                        zorder=5, edgecolors='darkred', linewidths=1.5,
+                        label=f'Worst: #{int(worst_pos)}')
+
+            # Draw subtle horizontal lines to y-axis
+            plt.hlines(best_pos, xlim[0], best_plotx, colors='green',
+                       linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+            plt.hlines(worst_pos, xlim[0], worst_plotx, colors='red',
+                       linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
+
+        plt.legend(loc='best', fontsize=8)
+
+    plt.gca().invert_yaxis()  # Higher positions (1st) should be at the top
+    # Let matplotlib automatically determine x-axis ticks for fractional positioning
+    # (removed: plt.xticks(ticks=group["MatchIndex"].unique()))
+    plt.title(f"Positionsverlauf: {bey}")
+    plt.xlabel("Match Index")
+    plt.ylabel("Position")
+    plt.ylim(ylim_min, ylim_max)
+
+    # Generate dynamic yticks based on actual position range
+    yticks = generate_dynamic_yticks(min_pos, max_pos)
+    plt.yticks(yticks)
+    plt.grid(True, which="major", axis="y", alpha=0.2, linestyle="--")
+
+    # label_x_offset = -0.03
+    # label_y_offset = 1.5
+
+    # # --- Position als Text direkt neben jedem Punkt ---
+    # for i, row in group_filtered.iterrows():
+    #     plt.text(
+    #         row["PlotX"] + label_x_offset,
+    #         row["Position"] + label_y_offset,
+    #         str(int(row["Position"])),
+    #         fontsize=9,
+    #         ha="left",
+    #         va="center",
+    #     )
+
+    plt.grid(True, alpha=0.4)
+    plt.tight_layout()
+
+    safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
+    out_path = os.path.join(subdir, f"{safe_name}_position{suffix}.png")
+    plt.savefig(out_path, dpi=200)
+    plt.close()
+
+
+def plot_position_timeseries(df_pos, outdir, dark_mode=False):
     df_pos["Position"] = pd.to_numeric(df_pos["Position"], errors="coerce")
     df_pos["Event"] = df_pos["Event"].astype(int)
     df_pos["MatchIndex"] = df_pos["MatchIndex"].astype(int)
@@ -356,111 +515,15 @@ def plot_position_timeseries(df_pos, outdir, dark_mode=False):
     subdir = os.path.join(outdir, "dark") if dark_mode else outdir
     suffix = "_dark" if dark_mode else ""
 
-    for bey, group in df_pos.groupby("Bey"):
-        # Filter to keep only first and last entry per MatchIndex to avoid oscillations
-        # filtered_rows = []
-        # for mi in group["MatchIndex"].unique():
-        #     mi_group = group[group["MatchIndex"] == mi]
-        #     if len(mi_group) == 1:
-        #         filtered_rows.append(mi_group.iloc[0])
-        #     else:
-        #         # Keep first and last entry
-        #         filtered_rows.append(mi_group.iloc[0])
-        #         if len(mi_group) > 1:
-        #             filtered_rows.append(mi_group.iloc[-1])
+    tasks = ((bey, group, subdir, suffix, dark_mode) for bey, group in df_pos.groupby("Bey"))
+    max_workers = resolve_plot_workers()
 
-        # group_filtered = pd.DataFrame(filtered_rows).reset_index(drop=True)
-
-        # Calculate dynamic plot dimensions based on actual position range
-        min_pos = group["Position"].min()
-        max_pos = group["Position"].max()
-        height, ylim_max, ylim_min = calculate_dynamic_plot_dimensions(min_pos, max_pos)
-
-        plt.figure(figsize=(6, height))
-        plt.plot(group["PlotX"], group["Position"], marker="o", linewidth=1.2, label="Position History")
-
-        # Calculate and plot median and average positions
-        if len(group) > 0:
-            avg_pos = group["Position"].mean()
-            median_pos = group["Position"].median()
-
-            ax = plt.gca()
-            xlim = ax.get_xlim()
-
-            ax.xaxis.set_major_locator(plt.MaxNLocator(integer=True))  # Ensure x-axis shows integer match indices
-
-            # Plot average line (dashed)
-            plt.axhline(avg_pos, label=f'Average: #{int(round(avg_pos))}',
-                        **AVERAGE_LINE_STYLE)
-
-            # Plot median line (dotted)
-            plt.axhline(median_pos, label=f'Median: #{int(round(median_pos))}',
-                        **MEDIAN_LINE_STYLE)
-
-            # Highlight best and worst positions
-            # Best position = minimum rank number (e.g., 1 is better than 10)
-            best_idx = group["Position"].idxmin()
-            # Worst position = maximum rank number (e.g., 30 is worse than 10)
-            worst_idx = group["Position"].idxmax()
-            best_pos = group.loc[best_idx, "Position"]
-            worst_pos = group.loc[worst_idx, "Position"]
-            best_plotx = group.loc[best_idx, "PlotX"]
-            worst_plotx = group.loc[worst_idx, "PlotX"]
-
-            # Only highlight if best != worst (not a flat curve)
-            if best_pos != worst_pos:
-                # Highlight best position (lowest rank) with green dot
-                plt.scatter(best_plotx, best_pos, color='green', s=36, marker='o',
-                            zorder=5, edgecolors='darkgreen', linewidths=1.5,
-                            label=f'Best: #{int(best_pos)}')
-
-                # Highlight worst position (highest rank) with red dot
-                plt.scatter(worst_plotx, worst_pos, color='red', s=36, marker='o',
-                            zorder=5, edgecolors='darkred', linewidths=1.5,
-                            label=f'Worst: #{int(worst_pos)}')
-
-                # Draw subtle horizontal lines to y-axis
-                plt.hlines(best_pos, xlim[0], best_plotx, colors='green',
-                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
-                plt.hlines(worst_pos, xlim[0], worst_plotx, colors='red',
-                           linestyles='dashed', linewidths=1, alpha=0.4, zorder=3)
-
-            plt.legend(loc='best', fontsize=8)
-
-        plt.gca().invert_yaxis()  # Higher positions (1st) should be at the top
-        # Let matplotlib automatically determine x-axis ticks for fractional positioning
-        # (removed: plt.xticks(ticks=group["MatchIndex"].unique()))
-        plt.title(f"Positionsverlauf: {bey}")
-        plt.xlabel("Match Index")
-        plt.ylabel("Position")
-        plt.ylim(ylim_min, ylim_max)
-
-        # Generate dynamic yticks based on actual position range
-        yticks = generate_dynamic_yticks(min_pos, max_pos)
-        plt.yticks(yticks)
-        plt.grid(True, which="major", axis="y", alpha=0.2, linestyle="--")
-
-        # label_x_offset = -0.03
-        # label_y_offset = 1.5
-
-        # # --- Position als Text direkt neben jedem Punkt ---
-        # for i, row in group_filtered.iterrows():
-        #     plt.text(
-        #         row["PlotX"] + label_x_offset,
-        #         row["Position"] + label_y_offset,
-        #         str(int(row["Position"])),
-        #         fontsize=9,
-        #         ha="left",
-        #         va="center",
-        #     )
-
-        plt.grid(True, alpha=0.4)
-        plt.tight_layout()
-
-        safe_name = "".join(c if c.isalnum() or c in " -_" else "_" for c in bey)
-        out_path = os.path.join(subdir, f"{safe_name}_position{suffix}.png")
-        plt.savefig(out_path, dpi=200)
-        plt.close()
+    if should_parallelize(df_pos["Bey"].nunique(), max_workers):
+        with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+            list(executor.map(_render_position_timeseries_plot, tasks))
+    else:
+        for task in tasks:
+            _render_position_timeseries_plot(task)
     print(f"Positions-Diagramme gespeichert im Ordner: {subdir}")
 
 
@@ -679,6 +742,103 @@ def generate_html_gallery(base_dir):
         f.write("\n".join(html))
     print(f"HTML-Galerie erzeugt: {html_path}")
 
+
+PLOT_SCRIPT_JOBS = [
+    {
+        "script": "src/plots/advanced_visualizations.py",
+        "success": "Advanced visualizations generated successfully.",
+        "error": "Error running advanced_visualizations.py:",
+    },
+    {
+        "script": "src/plots/combined_elo_trends_top5.py",
+        "success": "Combined ELO Trends Top 5 generated successfully.",
+        "error": "Error running combined_elo_trends_top5.py:",
+    },
+    {
+        "script": "src/plots/heatmaps.py",
+        "success": "Heatmaps generated successfully.",
+        "error": "Error running heatmaps.py:",
+    },
+    {
+        "script": "src/plots/interactive_elo_trends.py",
+        "success": "Interactive ELO Trends generated successfully.",
+        "error": "Error running interactive_elo_trends.py:",
+    },
+    {
+        "script": "src/plots/meta_landscape.py",
+        "success": "Meta Landscape plots generated successfully.",
+        "error": "Error running meta_landscape.py:",
+    },
+    {
+        "script": "src/plots/elo_density_map.py",
+        "success": "ELO Density Map plots generated successfully.",
+        "error": "Error running elo_density_map.py:",
+    },
+    {
+        "script": "src/plots/tier_flow.py",
+        "success": "Tier Flow Diagram plots generated successfully.",
+        "error": "Error running tier_flow.py:",
+    },
+    {
+        "script": "src/plots/individual_interactive_elo.py",
+        "success": "Individual interactive ELO plots generated successfully.",
+        "error": "Error running individual_interactive_elo.py:",
+    },
+    {
+        "script": "src/plots/individual_interactive_position.py",
+        "success": "Individual interactive position plots generated successfully.",
+        "error": "Error running individual_interactive_position.py:",
+    },
+    {
+        "script": "src/plots/season_plots.py",
+        "success": "Season analytics plots generated successfully.",
+        "error": "Error running season_plots.py:",
+    },
+    {
+        "script": "src/plots/season_comparison_plots.py",
+        "success": "Season comparison plots generated successfully.",
+        "error": "Error running season_comparison_plots.py:",
+    },
+]
+
+
+def run_plot_script(job):
+    result = subprocess.run(
+        [sys.executable, job["script"]],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env=env
+    )
+    return job, result
+
+
+def report_plot_script_result(job, result):
+    if result.returncode != 0:
+        print(job["error"])
+        if result.stderr:
+            print(result.stderr)
+    else:
+        print(job["success"])
+
+
+def run_additional_plot_scripts(max_workers=None):
+    if max_workers is None:
+        max_workers = resolve_plot_workers()
+    max_workers = max(1, max_workers)
+
+    if max_workers == 1:
+        for job in PLOT_SCRIPT_JOBS:
+            job, result = run_plot_script(job)
+            report_plot_script_result(job, result)
+        return
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(run_plot_script, job) for job in PLOT_SCRIPT_JOBS]
+        for future in concurrent.futures.as_completed(futures):
+            job, result = future.result()
+            report_plot_script_result(job, result)
+
 # -------------------
 # Master runner
 # -------------------
@@ -695,6 +855,7 @@ def generate_all_plots(mode):
     df_hist = pd.read_csv(files["history"])
     df_ts = pd.read_csv(files["timeseries"])
     df_pos = pd.read_csv(files["positions"])
+    df_pos_frac = create_fractional_positions(df_pos)
 
     print("Rendering charts...")
 
@@ -710,7 +871,6 @@ def generate_all_plots(mode):
         # K-factor / form_ema per-bey
         plot_kfactor_single(df_hist, dirs["kfactor"], dark_mode=dark_mode)
 
-        df_pos_frac = create_fractional_positions(df_pos)
         plot_position_timeseries(df_pos_frac, dirs["positions"], dark_mode=dark_mode)
 
         # Combined positions with proper path handling for dark mode
@@ -730,159 +890,7 @@ def generate_all_plots(mode):
     # HTML-Galerie
     generate_html_gallery(files["outdir"])
 
-    # Advanced Visualizations
-    result = subprocess.run(
-        [sys.executable, "src/plots/advanced_visualizations.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running advanced_visualizations.py:")
-        print(result.stderr)
-    else:
-        print("Advanced visualizations generated successfully.")
-
-    # Combined ELO Trends Top 5
-    result = subprocess.run(
-        [sys.executable, "src/plots/combined_elo_trends_top5.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running combined_elo_trends_top5.py:")
-        print(result.stderr)
-    else:
-        print("Combined ELO Trends Top 5 generated successfully.")
-
-    # Heatmaps
-    result = subprocess.run(
-        [sys.executable, "src/plots/heatmaps.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running heatmaps.py:")
-        print(result.stderr)
-    else:
-        print("Heatmaps generated successfully.")
-
-    # Interactive ELO Trends
-    result = subprocess.run(
-        [sys.executable, "src/plots/interactive_elo_trends.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running interactive_elo_trends.py:")
-        print(result.stderr)
-    else:
-        print("Interactive ELO Trends generated successfully.")
-
-    # Meta Landscape Plot
-    result = subprocess.run(
-        [sys.executable, "src/plots/meta_landscape.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running meta_landscape.py:")
-        print(result.stderr)
-    else:
-        print("Meta Landscape plots generated successfully.")
-
-    # ELO Density Map
-    result = subprocess.run(
-        [sys.executable, "src/plots/elo_density_map.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running elo_density_map.py:")
-        print(result.stderr)
-    else:
-        print("ELO Density Map plots generated successfully.")
-
-    # Tier Flow Diagram
-    result = subprocess.run(
-        [sys.executable, "src/plots/tier_flow.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running tier_flow.py:")
-        print(result.stderr)
-    else:
-        print("Tier Flow Diagram plots generated successfully.")
-
-    # Individual Interactive ELO Plots
-    result = subprocess.run(
-        [sys.executable, "src/plots/individual_interactive_elo.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running individual_interactive_elo.py:")
-        print(result.stderr)
-    else:
-        print("Individual interactive ELO plots generated successfully.")
-
-    # Individual Interactive Position Plots
-    result = subprocess.run(
-        [sys.executable, "src/plots/individual_interactive_position.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running individual_interactive_position.py:")
-        print(result.stderr)
-    else:
-        print("Individual interactive position plots generated successfully.")
-
-    # Season Analytics Plots (tier-based, only match_type=season)
-    result = subprocess.run(
-        [sys.executable, "src/plots/season_plots.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running season_plots.py:")
-        print(result.stderr)
-    else:
-        print("Season analytics plots generated successfully.")
-
-    # Season vs Global Comparison Plots
-    result = subprocess.run(
-        [sys.executable, "src/plots/season_comparison_plots.py"],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        env=env
-    )
-    if result.returncode != 0:
-        print("Error running season_comparison_plots.py:")
-        print(result.stderr)
-    else:
-        print("Season comparison plots generated successfully.")
+    run_additional_plot_scripts()
 
     print(f"All plots saved to: {files['outdir']}")
 
