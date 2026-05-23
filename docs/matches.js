@@ -880,12 +880,14 @@ function displayMatches() {
             if (match.matchday) metaParts.push(`<span class="meta-item">📅 Matchday ${formatMatchday(match.matchday)}</span>`);
             metadataHtml = `<div class="card-metadata">${metaParts.join(' ')}</div>`;
         }
+
+        // match.arena === 'Xtreme' ? '⚡X' : match.arena === 'Drop Attack' ? '🎯DA' : '💢DX';
         
         card.innerHTML = `
             <div class="card-header">
                 <span class="card-match-id match-id" title="Click to copy" onclick="copyMatchId('${match.matchId}')">${match.matchId}</span>
                 <span class="card-date">${match.dateFormatted}</span>
-                <span class="arena-badge arena-${match.arena.toLowerCase().replace(/\s+/g, '-')}" title="${match.arena === 'Xtreme' ? 'Xtreme Stadium' : 'Drop Attack Beystadium'}">${match.arena === 'Xtreme' ? '⚡X' : '🎯DA'}</span>
+                <span class="arena-badge arena-${match.arena.toLowerCase().replace(/\s+/g, '-')}" title="${match.arena === 'Xtreme' ? 'Xtreme Stadium' : match.arena === 'Drop Attack' ? 'Drop Attack Stadium' : 'Double Xtreme Stadium'}">${match.arena === 'Xtreme' ? '⚡X' : match.arena === 'Drop Attack' ? '🎯DA' : '💢DX'}</span>
                 <span class="match-elo-diff" title="ELO Difference">Δ${match.eloDiff} ELO</span>
             </div>
             <div class="card-match-type">
