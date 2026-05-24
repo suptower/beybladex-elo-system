@@ -87,6 +87,7 @@ SCRIPT_RECOMMENDED_MATCHES = "./src/analytics/recommended_matches.py"
 SCRIPT_TOURNAMENT_BRACKETS = "./src/analytics/tournament_brackets.py"
 SCRIPT_MATCHUP_MATRIX = "./src/analytics/matchup_matrix.py"
 SCRIPT_ARCHETYPE_ANALYTICS = "./src/analytics/archetype_analytics.py"
+SCRIPT_BEY_TYPE_ANALYTICS = "./src/analytics/bey_type_analytics.py"
 SCRIPT_SEASON_PROCESSING = "./src/season/season_processing.py"
 SCRIPT_SEASON_FIXTURES = "./src/season/challonge_fixtures.py"
 SCRIPT_STADIUM_STATS = "./src/analytics/stadium_stats.py"
@@ -462,6 +463,14 @@ def run_analysis_modules(verbose=False):
         verbose=verbose
     )
     results.append(("Archetype Analytics", success, duration))
+
+    # Bey Type Analytics (depends on beys_data, advanced_leaderboard, matches, elo_history)
+    success, duration = run_script(
+        SCRIPT_BEY_TYPE_ANALYTICS,
+        "Bey Type Analytics",
+        verbose=verbose
+    )
+    results.append(("Bey Type Analytics", success, duration))
 
     # Season Processing (depends on matches, leaderboard)
     success, duration = run_script(
