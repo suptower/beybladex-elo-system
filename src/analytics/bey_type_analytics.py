@@ -245,7 +245,7 @@ def calculate_type_stats(bey_types, leaderboard, matches, elo_history):
 
         # Calculate upset rate
         upset_count = 0
-        type_match_count = 0
+        type_win_count = 0
 
         for match in matches:
             winner = match['winner']
@@ -254,7 +254,7 @@ def calculate_type_stats(bey_types, leaderboard, matches, elo_history):
             if winner not in valid_beys:
                 continue
 
-            type_match_count += 1
+            type_win_count += 1
 
             # Check if this was an upset (winner had lower ELO before match)
             match_id = match['match_id']
@@ -264,7 +264,7 @@ def calculate_type_stats(bey_types, leaderboard, matches, elo_history):
                 if winner_elo > 0 and loser_elo > 0 and winner_elo < loser_elo:
                     upset_count += 1
 
-        upset_rate = upset_count / type_match_count if type_match_count > 0 else 0
+        upset_rate = upset_count / type_win_count if type_win_count > 0 else 0
 
         type_data = BEY_TYPE_DEFINITIONS.get(type_id, {})
 
@@ -280,7 +280,7 @@ def calculate_type_stats(bey_types, leaderboard, matches, elo_history):
             'avg_winrate': round(avg_winrate, 4),
             'avg_dominance': round(avg_dominance, 2),
             'upset_rate': round(upset_rate, 4),
-            'total_matches': type_match_count,
+            'total_matches': total_matches,
         }
 
     return type_stats
@@ -428,7 +428,7 @@ def main():
         'summary': {
             'total_types': len(type_stats),
             'total_beys_classified': sum(data['bey_count'] for data in type_stats.values()),
-            'total_matches_analyzed': sum(data['total_matches'] for data in type_stats.values()),
+            'total_matches_analyzed': len(matches),
         }
     }
 

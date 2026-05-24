@@ -58,6 +58,8 @@ class TestCalculateTypeStats:
         assert 'attack' in result
         assert result['attack']['bey_count'] == 2
         assert result['attack']['avg_elo'] > 0
+        assert result['attack']['total_matches'] == 20
+        assert result['attack']['upset_rate'] == 1.0
 
     def test_filters_unknown_types(self):
         """Test that unknown types are filtered out."""
@@ -86,7 +88,14 @@ class TestCalculateTypeStats:
         }
 
         leaderboard = {
-            'BeyA': {'elo': 1000, 'wins': 1, 'losses': 1, 'matches': MIN_MATCHES_FOR_TYPE - 1, 'winrate': 0.5, 'avg_point_diff': 0}
+            'BeyA': {
+                'elo': 1000,
+                'wins': 1,
+                'losses': 1,
+                'matches': MIN_MATCHES_FOR_TYPE - 1,
+                'winrate': 0.5,
+                'avg_point_diff': 0,
+            }
         }
 
         matches = []
