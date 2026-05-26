@@ -178,9 +178,14 @@
 
     function renderMetaInsights() {
         const insights = typeData.meta_insights;
-        if (!insights) return;
-
         const grid = document.getElementById('insightsGrid');
+
+        // `meta_insights` can legitimately be `{}` when there isn't enough data.
+        if (!insights || !insights.dominant_type) {
+            grid.innerHTML = '<div class="loading-placeholder">No meta insights available.</div>';
+            return;
+        }
+
         grid.innerHTML = `
             <div class="insight-card">
                 <div class="insight-icon">👑</div>

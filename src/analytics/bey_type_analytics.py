@@ -313,6 +313,11 @@ def calculate_matchup_matrix(bey_types, matches):
         if not winner_type or not loser_type:
             continue
 
+        # Skip same-type matches (diagonal). They are not meaningful in a type-vs-type
+        # matrix and would otherwise be double-counted by the symmetric total updates.
+        if winner_type == loser_type:
+            continue
+
         matchup_wins[winner_type][loser_type] += 1
         matchup_total[winner_type][loser_type] += 1
         matchup_total[loser_type][winner_type] += 1
