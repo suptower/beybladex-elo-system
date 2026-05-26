@@ -64,6 +64,7 @@ const DATA_PATHS = Object.freeze({
     META_BALANCE_JSON:        'data/analytics/meta_balance.json',
     MATCHUP_MATRIX_JSON:      'data/analytics/matchup_matrix.json',
     ARCHETYPE_ANALYTICS_JSON: 'data/analytics/archetype_analytics.json',
+    BEY_TYPE_ANALYTICS_JSON:  'data/analytics/bey_type_analytics.json',
     RECOMMENDED_MATCHES_JSON: 'data/analytics/recommended_matches.json',
     MILESTONES_JSON:          'data/analytics/milestones.json',
     XP_LEADERBOARD_JSON:      'data/analytics/xp_leaderboard.json',

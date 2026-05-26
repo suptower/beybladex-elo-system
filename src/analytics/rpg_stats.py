@@ -214,9 +214,9 @@ BERSERKER_MIN_ATTACK = 3.0
 BERSERKER_MAX_VOLATILITY_INVERSE = 0.6
 
 # Chaser thresholds
-CHASER_MIN_ATTACK = 2.5
-CHASER_MIN_POCKET_FINISH = 0.15
-CHASER_MIN_EXTREME_FINISH = 0.15
+CHASER_MIN_ATTACK = 2.3
+CHASER_MIN_POCKET_FINISH = 0.12
+CHASER_MIN_EXTREME_FINISH = 0.12
 
 # Iron Wall thresholds
 IRON_WALL_MIN_DEFENSE = 2.5
@@ -239,7 +239,9 @@ SPIN_TANK_MIN_STAMINA = 2.8
 SPIN_TANK_MIN_DEFENSE = 2.5
 
 # Tempo Controller thresholds
-TEMPO_CONTROLLER_MIN_CONTROL = 3.0
+TEMPO_CONTROLLER_MIN_CONTROL = 3.3
+TEMPO_CONTROLLER_MIN_VOLATILITY_INVERSE = 0.6
+TEMPO_CONTROLLER_MIN_FIRST_CONTACT = 0.55
 
 # Adaptive Fighter thresholds
 ADAPTIVE_FIGHTER_MIN_STAT = 2.0
@@ -401,8 +403,10 @@ def detect_archetype(
         archetype_scores["spin_tank"] = 0.0
 
     # Tempo Controller: High control, stable performance
-    # Require: control > threshold
-    if control > TEMPO_CONTROLLER_MIN_CONTROL:
+    # Require: control > threshold + steady volatility + solid first contact
+    if (control > TEMPO_CONTROLLER_MIN_CONTROL and
+            volatility_inverse > TEMPO_CONTROLLER_MIN_VOLATILITY_INVERSE and
+            control_metrics.get("first_contact_advantage", 0.5) > TEMPO_CONTROLLER_MIN_FIRST_CONTACT):
         archetype_scores["tempo_controller"] = (
             (control / 5.0) * 0.55
             + (volatility_inverse * 0.25)

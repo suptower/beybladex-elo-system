@@ -35,6 +35,8 @@ The pipeline is organized into four main stages that run in order:
 | Script | Description | Output Files |
 |--------|-------------|--------------|
 | `rpg_stats.py` | RPG-style stats (Attack, Defense, Stamina, Control, Meta Impact) and archetype detection | `rpg_stats.json`, `rpg_stats.csv` |
+| `archetype_analytics.py` | Archetype effectiveness analytics | `archetype_analytics.json` |
+| `bey_type_analytics.py` | Native bey type effectiveness analytics | `bey_type_analytics.json` |
 | `upset_analysis.py` | Upset analysis and Giant Killer scores | `upset_analysis.csv`, `upset_matches.csv` |
 | `meta_balance.py` | Meta health analysis and balance metrics | `meta_balance.json` |
 | `synergy_heatmaps.py` | Part synergy calculations | `synergy_data.json` |
