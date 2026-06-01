@@ -211,7 +211,10 @@ async function loadSeason(seasonId) {
         }
         
         const data = await response.json();
-        const season = data.seasons?.[seasonId];
+        const seasons = data.seasons || {};
+        const season = Object.prototype.hasOwnProperty.call(seasons, seasonId)
+            ? seasons[seasonId]
+            : null;
         
         if (!season) {
             showError(`Season ${seasonId} not found`);
