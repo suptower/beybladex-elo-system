@@ -1540,7 +1540,7 @@ async function loadFixturesFromCsv(seasonId, matchdays) {
         }
 
         const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-        const headerIndex = {};
+        const headerIndex = Object.create(null);
         headers.forEach((header, idx) => {
             headerIndex[header] = idx;
         });
