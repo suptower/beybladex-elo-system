@@ -12813,6 +12813,24 @@ body.dark .season-status-badge.active {
     gap: 0.75rem;
 }
 
+.tier-fixtures-section {
+    margin-top: 1.5rem;
+}
+
+.tier-fixtures-section .fixtures-matchday-header {
+    margin-top: 0.75rem;
+}
+
+.tier-fixtures-section .fixtures-matchday-group:first-child .fixtures-matchday-header {
+    margin-top: 0;
+}
+
+.tier-fixtures-section .matches-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
 /* Responsive adjustments */
 @media (max-width: 1200px) {
     .tier-content-grid {
@@ -12853,6 +12871,10 @@ body.dark .season-status-badge.active {
     .tier-matches-container .matches-grid {
         gap: 1rem;
     }
+
+    .tier-fixtures-section .matches-grid {
+        gap: 1rem;
+    }
 }
 
 /* Compact season match cards */
@@ -12868,6 +12890,16 @@ body.dark .season-status-badge.active {
 .season-match-card:hover {
     box-shadow: var(--shadow-md);
     border-color: var(--accent);
+}
+
+.season-match-card.upcoming-fixture {
+    border-style: dashed;
+    border-color: rgba(var(--warning-rgb), 0.45);
+    background: linear-gradient(135deg, var(--card) 0%, rgba(var(--warning-rgb), 0.08) 100%);
+}
+
+.season-match-card.upcoming-fixture .season-compact-bey {
+    background: var(--bg-alt);
 }
 
 .season-card-header {
