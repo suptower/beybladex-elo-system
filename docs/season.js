@@ -277,34 +277,33 @@ async function displaySeason(seasonId, season) {
     await loadAllTableSnapshots(seasonId);
 
     const fixturesData = await ensureSeasonFixtures(seasonId, season);
-    if (fixturesData) {
-        season.fixtures = fixturesData;
-    }
+    const seasonData = fixturesData ? { ...season, fixtures: fixturesData } : season;
+    currentSeason = seasonData;
     
     // Display overview
-    displayOverview(season, seasonId);
+    displayOverview(seasonData, seasonId);
     
     // Display tier tables
-    displayTierTables(season.league_tables || {});
+    displayTierTables(seasonData.league_tables || {});
     
     // Display fixtures if available
-    if (season.fixtures && season.fixtures.upcoming_matches && season.fixtures.upcoming_matches.length > 0) {
-        displayFixtures(season.fixtures);
+    if (seasonData.fixtures && seasonData.fixtures.upcoming_matches && seasonData.fixtures.upcoming_matches.length > 0) {
+        displayFixtures(seasonData.fixtures);
     }
     
     // Display promotion/relegation
-    if (season.promotion_relegation) {
-        displayPromotionRelegation(season.promotion_relegation);
+    if (seasonData.promotion_relegation) {
+        displayPromotionRelegation(seasonData.promotion_relegation);
     }
     
     // Display Qualification Pool
-    if (season.qualification_pool) {
-        displayQualificationPool(season.qualification_pool);
+    if (seasonData.qualification_pool) {
+        displayQualificationPool(seasonData.qualification_pool);
     }
     
     // Display Season Cup
-    if (season.season_cup) {
-        displaySeasonCup(season.season_cup);
+    if (seasonData.season_cup) {
+        displaySeasonCup(seasonData.season_cup);
     }
     
     // Hide matchdays section - matches are now displayed per tier
