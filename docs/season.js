@@ -272,6 +272,11 @@ async function displaySeason(seasonId, season) {
     
     // Load table snapshots for all tiers
     await loadAllTableSnapshots(seasonId);
+
+    const fixturesData = await ensureSeasonFixtures(seasonId, season);
+    if (fixturesData) {
+        season.fixtures = fixturesData;
+    }
     
     // Display overview
     displayOverview(season, seasonId);
@@ -1466,6 +1471,12 @@ function getFixtureKey(fixture) {
     return `${seasonId}_T${tier}_${fixture.bey_a}_${fixture.bey_b}_${matchday}`;
 }
 
+function makeFixtureId(beyA, beyB, seasonId, tier) {
+    if (!beyA || !beyB || !seasonId || !tier) return null;
+    const sorted = [beyA.trim(), beyB.trim()].sort((a, b) => a.localeCompare(b));
+    return `${seasonId}_T${tier}_${sorted[0]}_${sorted[1]}`;
+}
+
 function buildFixturesByMatchday(fixtures) {
     return fixtures.reduce((acc, fixture) => {
         const key = fixture.matchday != null ? String(fixture.matchday) : 'TBD';
@@ -1475,6 +1486,166 @@ function buildFixturesByMatchday(fixtures) {
         acc[key].push(fixture);
         return acc;
     }, {});
+}
+
+function buildFixturesByTier(fixtures) {
+    return fixtures.reduce((acc, fixture) => {
+        if (!fixture.tier) return acc;
+        const key = String(fixture.tier);
+        if (!acc[key]) {
+            acc[key] = [];
+        }
+        acc[key].push(fixture);
+        return acc;
+    }, {});
+}
+
+function collectPlayedFixtureIds(matchdays, seasonId) {
+    const playedFixtureIds = new Set();
+    Object.values(matchdays || {}).forEach(matches => {
+        if (!Array.isArray(matches)) return;
+        matches.forEach(match => {
+            const scoreA = parseInt(match.score_a ?? match.ScoreA ?? 0, 10) || 0;
+            const scoreB = parseInt(match.score_b ?? match.ScoreB ?? 0, 10) || 0;
+            if (scoreA + scoreB === 0) return;
+
+            const beyA = (match.bey_a ?? match.BeyA ?? '').trim();
+            const beyB = (match.bey_b ?? match.BeyB ?? '').trim();
+            const tierValue = Number(match.tier ?? match.Tier);
+            if (!beyA || !beyB || Number.isNaN(tierValue)) return;
+
+            const fixtureId = makeFixtureId(beyA, beyB, seasonId, tierValue);
+            if (fixtureId) {
+                playedFixtureIds.add(fixtureId);
+            }
+        });
+    });
+    return playedFixtureIds;
+}
+
+async function loadFixturesFromCsv(seasonId, matchdays) {
+    try {
+        const response = await fetch(DATA_PATHS.FIXTURES_CSV);
+        if (!response.ok) {
+            return [];
+        }
+        const csvText = await response.text();
+        if (!csvText.trim()) {
+            return [];
+        }
+
+        const lines = csvText.trim().split('\n');
+        if (lines.length < 2) {
+            return [];
+        }
+
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const headerIndex = {};
+        headers.forEach((header, idx) => {
+            headerIndex[header] = idx;
+        });
+
+        const getField = (values, ...keys) => {
+            for (const key of keys) {
+                const idx = headerIndex[key];
+                if (idx != null && values[idx] != null) {
+                    return values[idx].trim();
+                }
+            }
+            return '';
+        };
+
+        const seasonKey = seasonId?.toUpperCase();
+        const playedFixtureIds = collectPlayedFixtureIds(matchdays, seasonKey);
+        const fixtures = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const values = line.split(',');
+            const rawSeason = getField(values, 'seasonid', 'season_id');
+            if (seasonKey && rawSeason && rawSeason.toUpperCase() !== seasonKey) {
+                continue;
+            }
+
+            const matchType = getField(values, 'matchtype', 'match_type').toLowerCase() || 'season';
+            if (matchType !== 'season') {
+                continue;
+            }
+
+            const tierValue = parseInt(getField(values, 'tier'), 10);
+            const matchdayValue = parseInt(getField(values, 'matchday'), 10);
+            const tier = Number.isNaN(tierValue) ? null : tierValue;
+            const matchday = Number.isNaN(matchdayValue) ? null : matchdayValue;
+
+            const beyA = getField(values, 'beya', 'bey_a');
+            const beyB = getField(values, 'beyb', 'bey_b');
+            if (!beyA || !beyB) {
+                continue;
+            }
+
+            const fixtureId = getField(values, 'fixtureid', 'fixture_id') || makeFixtureId(beyA, beyB, seasonKey, tier);
+            if (fixtureId && playedFixtureIds.has(fixtureId)) {
+                continue;
+            }
+
+            fixtures.push({
+                fixture_id: fixtureId,
+                date: getField(values, 'date') || 'TBD',
+                bey_a: beyA,
+                bey_b: beyB,
+                match_type: matchType,
+                season_id: rawSeason || seasonKey,
+                tier,
+                matchday,
+                status: 'scheduled'
+            });
+        }
+
+        return fixtures;
+    } catch (error) {
+        console.error('Error loading fixtures CSV:', error);
+        return [];
+    }
+}
+
+async function ensureSeasonFixtures(seasonId, season) {
+    if (!season) return null;
+
+    const fixturesData = season.fixtures || {};
+    const upcomingMatches = Array.isArray(fixturesData.upcoming_matches)
+        ? fixturesData.upcoming_matches
+        : [];
+
+    if (upcomingMatches.length > 0) {
+        const fixturesByMatchday = Object.keys(fixturesData.fixtures_by_matchday || {}).length > 0
+            ? fixturesData.fixtures_by_matchday
+            : buildFixturesByMatchday(upcomingMatches);
+        const fixturesByTier = Object.keys(fixturesData.fixtures_by_tier || {}).length > 0
+            ? fixturesData.fixtures_by_tier
+            : buildFixturesByTier(upcomingMatches);
+
+        return {
+            ...fixturesData,
+            upcoming_matches: upcomingMatches,
+            fixtures_by_matchday: fixturesByMatchday,
+            fixtures_by_tier: fixturesByTier,
+            total_fixtures: fixturesData.total_fixtures ?? upcomingMatches.length
+        };
+    }
+
+    const loadedFixtures = await loadFixturesFromCsv(seasonId, season.matchdays || {});
+    if (loadedFixtures.length === 0) {
+        return null;
+    }
+
+    return {
+        upcoming_matches: loadedFixtures,
+        total_fixtures: loadedFixtures.length,
+        fixtures_by_matchday: buildFixturesByMatchday(loadedFixtures),
+        fixtures_by_tier: buildFixturesByTier(loadedFixtures)
+    };
 }
 
 function formatFixtureMatchdayLabel(matchdayKey) {
