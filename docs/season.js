@@ -19,6 +19,7 @@ let selectedFixtureMatchday = null; // Track selected matchday for upcoming fixt
 let fixturesByMatchday = {}; // Store fixtures grouped by matchday
 let fixturesById = {}; // Map fixture_id -> fixture data
 let simulatedFixtureResults = {}; // Map fixture_id -> simulated result data
+let selectedUpcomingMatchdayByTier = {}; // Track selected upcoming matchday for each tier
 
 // Default sort applied to all tier tables on initial render
 const TABLE_DEFAULT_SORT_COL = 'season_points';
@@ -452,7 +453,7 @@ function displayTierTables(leagueTables) {
         const tierFixtures = Object.keys(fixturesByTier).length > 0
             ? (fixturesByTier[tierKey] || fixturesByTier[tier] || [])
             : allUpcomingFixtures.filter(fixture => Number(fixture.tier) === tier);
-        const upcomingFixturesSection = buildUpcomingFixturesSection(tierFixtures);
+        const upcomingFixturesSection = buildTierUpcomingFixturesSection(tier, tierFixtures);
         const hasUpcomingFixtures = Boolean(upcomingFixturesSection);
         
         // Get table snapshot data if available
@@ -727,6 +728,37 @@ function changeMatchday(tier, direction) {
         
         // Update only this tier's matches
         updateTierMatches(tier);
+    }
+}
+
+/**
+ * Change upcoming matchday for a specific tier
+ */
+function changeUpcomingMatchday(tier, direction) {
+    const fixtures =
+        seasonData.fixtures.filter(
+            f => parseInt(f.tier) === parseInt(tier)
+        );
+
+    const fixturesByMatchday =
+        buildFixturesByMatchday(fixtures);
+
+    const matchdays =
+        sortFixtureMatchdays(
+            Object.keys(fixturesByMatchday)
+        );
+
+    const currentIndex = matchdays.indexOf(
+        selectedUpcomingMatchdayByTier[tier]
+    );
+
+    const newIndex = currentIndex + direction;
+
+    if (newIndex >= 0 && newIndex < matchdays.length) {
+        selectedUpcomingMatchdayByTier[tier] =
+            matchdays[newIndex];
+
+        updateSeasonTables();
     }
 }
 
@@ -1682,7 +1714,7 @@ function createUpcomingFixtureCard(fixture) {
     `;
 }
 
-function buildUpcomingFixturesSection(fixtures) {
+function buildTierUpcomingFixturesSection(tier, fixtures) {
     if (!fixtures || fixtures.length === 0) {
         return '';
     }
@@ -1690,17 +1722,53 @@ function buildUpcomingFixturesSection(fixtures) {
     const fixturesByMatchday = buildFixturesByMatchday(fixtures);
     const matchdays = sortFixtureMatchdays(Object.keys(fixturesByMatchday));
 
+    if (!selectedUpcomingMatchdayByTier[tier]) {
+        selectedUpcomingMatchdayByTier[tier] = matchdays[0];
+    }
+
+    const currentMatchday =
+        selectedUpcomingMatchdayByTier[tier];
+
+    const currentIndex = matchdays.indexOf(currentMatchday);
+
+    const currentFixtures =
+        fixturesByMatchday[currentMatchday] || [];
+
     return `
         <div class="tier-fixtures-section">
-            <h4 class="tier-subsection-header">📅 Upcoming Fixtures</h4>
-            ${matchdays.map(matchdayKey => `
-                <div class="fixtures-matchday-group">
-                    <h5 class="fixtures-matchday-header">${formatFixtureMatchdayLabel(matchdayKey)}</h5>
-                    <div class="matches-grid">
-                        ${(fixturesByMatchday[matchdayKey] || []).map(fixture => createUpcomingFixtureCard(fixture)).join('')}
-                    </div>
-                </div>
-            `).join('')}
+            <h4 class="tier-subsection-header">
+                📅 Upcoming Fixtures
+            </h4>
+
+            <div class="matchday-navigation">
+
+                <button
+                    class="nav-button"
+                    onclick="changeUpcomingMatchday(${tier}, -1)"
+                    ${currentIndex <= 0 ? 'disabled' : ''}
+                >
+                    ←
+                </button>
+
+                <span class="matchday-label">
+                    ${formatFixtureMatchdayLabel(currentMatchday)}
+                </span>
+
+                <button
+                    class="nav-button"
+                    onclick="changeUpcomingMatchday(${tier}, 1)"
+                    ${currentIndex >= matchdays.length - 1 ? 'disabled' : ''}
+                >
+                    →
+                </button>
+
+            </div>
+
+            <div class="matches-grid">
+                ${currentFixtures
+                    .map(fixture => createUpcomingFixtureCard(fixture))
+                    .join('')}
+            </div>
         </div>
     `;
 }
