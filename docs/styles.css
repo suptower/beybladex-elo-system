@@ -14051,7 +14051,7 @@ body.dark .season-status-badge.active {
     display: inline-block;
     padding: 0.2rem 0.5rem;
     background: linear-gradient(135deg, var(--warning) 0%, rgba(var(--warning-rgb), 0.8) 100%);
-    color: #1a1a1a;
+    color: var(--text);
     border-radius: var(--radius-sm);
     font-size: 0.65rem;
     font-weight: 700;
