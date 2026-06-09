@@ -9,7 +9,6 @@
     <!-- data-paths.js must be non-deferred and loaded first -->
     <script src="data-paths.js"></script>
     <script defer src="version.js"></script>
-    <script defer src="version-display.js"></script>
     <script defer src="darkmode.js"></script>
     <script defer src="navigation-loader.js"></script>
     <script defer src="hamburger.js"></script>
@@ -491,9 +490,9 @@
 
 </main>
 
-<footer>
-    <div class="version-info" id="site-version"></div>
-</footer>
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
 
+<script defer src="footer-loader.js"></script>
 </body>
 </html>
