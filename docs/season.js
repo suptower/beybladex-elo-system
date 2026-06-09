@@ -19,6 +19,7 @@ let selectedFixtureMatchday = null; // Track selected matchday for upcoming fixt
 let fixturesByMatchday = {}; // Store fixtures grouped by matchday
 let fixturesById = {}; // Map fixture_id -> fixture data
 let simulatedFixtureResults = {}; // Map fixture_id -> simulated result data
+let tierSimulationEnabled = {}; // Per-tier simulation mode toggle (tier -> boolean)
 
 // Default sort applied to all tier tables on initial render
 const TABLE_DEFAULT_SORT_COL = 'season_points';
@@ -211,7 +212,10 @@ async function loadSeason(seasonId) {
         }
         
         const data = await response.json();
-        const season = data.seasons?.[seasonId];
+        const seasons = data.seasons || {};
+        const season = Object.prototype.hasOwnProperty.call(seasons, seasonId)
+            ? seasons[seasonId]
+            : null;
         
         if (!season) {
             showError(`Season ${seasonId} not found`);
@@ -227,17 +231,69 @@ async function loadSeason(seasonId) {
 }
 
 /**
- * Initialize selected matchdays for each tier
+ * Initialize selected matchdays for each tier (reported + upcoming)
  */
-function initializeSelectedMatchdays(matchdays) {
-    selectedMatchdays = {}; // Reset
-    
+function initializeSelectedMatchdays() {
+    selectedMatchdays = {};
+
     for (let tier = 1; tier <= 4; tier++) {
-        const tierMatchdays = getTierMatchdays(matchdays, tier);
-        if (tierMatchdays.length > 0) {
-            selectedMatchdays[tier] = tierMatchdays[0]; // Start with first matchday
+        const allMatchdays = getTierAllMatchdays(tier);
+        if (allMatchdays.length > 0) {
+            selectedMatchdays[tier] = allMatchdays[0];
         }
     }
+}
+
+/**
+ * Register all upcoming fixtures in the global lookup map
+ */
+function registerAllFixturesInIndex(fixturesData) {
+    fixturesById = {};
+    const upcoming = fixturesData?.upcoming_matches || [];
+    upcoming.forEach(fixture => {
+        fixturesById[getFixtureKey(fixture)] = fixture;
+    });
+}
+
+function getTierFixtures(tier) {
+    const fixturesData = currentSeason?.fixtures || {};
+    const fixturesByTier = fixturesData.fixtures_by_tier || {};
+    const allUpcoming = fixturesData.upcoming_matches || [];
+    if (Object.keys(fixturesByTier).length > 0) {
+        return fixturesByTier[tier] || fixturesByTier[tier.toString()] || [];
+    }
+    return allUpcoming.filter(fixture => Number(fixture.tier) === tier);
+}
+
+function getTierAllMatchdays(tier) {
+    const matchdays = currentSeason?.matchdays || {};
+    const reported = getTierMatchdays(matchdays, tier);
+    const tierFixtures = getTierFixtures(tier);
+    const upcoming = Object.keys(buildFixturesByMatchday(tierFixtures))
+        .map(Number)
+        .filter(n => !Number.isNaN(n));
+    return [...new Set([...reported, ...upcoming])].sort((a, b) => a - b);
+}
+
+function tierHasUpcomingFixtures(tier) {
+    return getTierFixtures(tier).length > 0;
+}
+
+function tierHasSimulatedScores(tier) {
+    return Object.entries(simulatedFixtureResults).some(([, result]) => Number(result.tier) === tier);
+}
+
+function isTierSimulationLive(tier) {
+    return Boolean(tierSimulationEnabled[tier]) && tierHasSimulatedScores(tier);
+}
+
+function buildSimLiveBadge() {
+    return `
+        <span class="sim-live-badge" title="Standings include simulated scores — not official results">
+            <span class="sim-live-dot" aria-hidden="true"></span>
+            <span class="sim-live-text">SIM</span>
+        </span>
+    `;
 }
 
 /**
@@ -267,36 +323,42 @@ async function displaySeason(seasonId, season) {
     document.getElementById('season-subtitle').textContent = 
         `${season.start_date ? new Date(season.start_date).toLocaleDateString() : ''} - ${season.end_date ? new Date(season.end_date).toLocaleDateString() : 'Ongoing'}`;
     
-    // Initialize matchday selections
-    initializeSelectedMatchdays(season.matchdays || {});
-    
     // Load table snapshots for all tiers
     await loadAllTableSnapshots(seasonId);
+
+    const fixturesData = await ensureSeasonFixtures(seasonId, season);
+    const seasonData = fixturesData ? { ...season, fixtures: fixturesData } : season;
+    currentSeason = seasonData;
+    registerAllFixturesInIndex(seasonData.fixtures);
+    initializeSelectedMatchdays();
     
     // Display overview
-    displayOverview(season, seasonId);
+    displayOverview(seasonData, seasonId);
     
     // Display tier tables
-    displayTierTables(season.league_tables || {});
+    displayTierTables(seasonData.league_tables || {});
+    // #region agent log
+    fetch('http://127.0.0.1:7374/ingest/eff29b44-cf33-4c9d-853e-a30254b566d8',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7a9a99'},body:JSON.stringify({sessionId:'7a9a99',location:'season.js:displaySeason',message:'Season rendered',data:{seasonId,fixtureCount:seasonData.fixtures?.upcoming_matches?.length||0},timestamp:Date.now(),hypothesisId:'render'})}).catch(()=>{});
+    // #endregion
     
     // Display fixtures if available
-    if (season.fixtures && season.fixtures.upcoming_matches && season.fixtures.upcoming_matches.length > 0) {
-        displayFixtures(season.fixtures);
-    }
+    // if (seasonData.fixtures && seasonData.fixtures.upcoming_matches && seasonData.fixtures.upcoming_matches.length > 0) {
+    //     displayFixtures(seasonData.fixtures);
+    // }
     
     // Display promotion/relegation
-    if (season.promotion_relegation) {
-        displayPromotionRelegation(season.promotion_relegation);
+    if (seasonData.promotion_relegation) {
+        displayPromotionRelegation(seasonData.promotion_relegation);
     }
     
     // Display Qualification Pool
-    if (season.qualification_pool) {
-        displayQualificationPool(season.qualification_pool);
+    if (seasonData.qualification_pool) {
+        displayQualificationPool(seasonData.qualification_pool);
     }
     
     // Display Season Cup
-    if (season.season_cup) {
-        displaySeasonCup(season.season_cup);
+    if (seasonData.season_cup) {
+        displaySeasonCup(seasonData.season_cup);
     }
     
     // Hide matchdays section - matches are now displayed per tier
@@ -433,9 +495,11 @@ function displayTierTables(leagueTables) {
         const tierNames = ['I', 'II', 'III', 'IV'];
         const sectionId = `tier-${tier}-content`;
         
-        // Get all matchdays for this tier
-        const tierMatchdays = getTierMatchdays(matchdays, tier);
-        const currentMatchday = selectedMatchdays[tier] || tierMatchdays[0] || 1;
+        const allMatchdays = getTierAllMatchdays(tier);
+        const currentMatchday = selectedMatchdays[tier] || allMatchdays[0] || 1;
+        const hasUpcomingFixtures = tierHasUpcomingFixtures(tier);
+        const simEnabled = Boolean(tierSimulationEnabled[tier]);
+        const simLive = isTierSimulationLive(tier);
         
         // Get table snapshot data if available
         const hasSnapshots = tableSnapshotsData[tier] && Object.keys(tableSnapshotsData[tier]).length > 0;
@@ -455,7 +519,10 @@ function displayTierTables(leagueTables) {
                     <div class="tier-content-grid">
                         <div class="tier-table-column">
                             <div class="table-header-with-nav">
-                                <h4 class="tier-subsection-header">📊 Table</h4>
+                                <h4 class="tier-subsection-header">
+                                    📊 Table
+                                    <span id="tier-${tier}-sim-live">${simLive ? buildSimLiveBadge() : ''}</span>
+                                </h4>
                                 ${hasSnapshots ? `
                                     <div class="table-snapshot-navigator">
                                         <button class="snapshot-nav-btn" onclick="changeTableSnapshot(${tier}, -1)" ${currentSnapshotMatchday <= snapshotMatchdays[0] ? 'disabled' : ''}>
@@ -503,18 +570,41 @@ function displayTierTables(leagueTables) {
                             ${getPositionLegend(tier, table.length)}
                         </div>
                         <div class="tier-matches-column">
-                            ${tierMatchdays.length > 0 ? `
+                            <div class="tier-matches-header">
+                                <h4 class="tier-subsection-header">📅 Matches</h4>
+                                ${hasUpcomingFixtures ? `
+                                    <div class="tier-matches-actions">
+                                        <label class="tier-sim-toggle" title="Enable score simulation for upcoming fixtures">
+                                            <span class="tier-sim-toggle-label">Simulate</span>
+                                            <span class="toggle-switch">
+                                                <input type="checkbox"
+                                                    id="tier-${tier}-sim-toggle"
+                                                    ${simEnabled ? 'checked' : ''}
+                                                    onchange="toggleTierSimulation(${tier}, this.checked)">
+                                                <span class="toggle-slider"></span>
+                                            </span>
+                                        </label>
+                                        <button class="tier-sim-reset-btn"
+                                            id="tier-${tier}-sim-reset"
+                                            onclick="resetTierSimulations(${tier})"
+                                            ${tierHasSimulatedScores(tier) ? '' : 'disabled'}>
+                                            Reset
+                                        </button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${allMatchdays.length > 0 ? `
                                 <div class="matchday-navigator">
-                                    <button class="matchday-nav-btn" onclick="changeMatchday(${tier}, -1)" ${currentMatchday <= tierMatchdays[0] ? 'disabled' : ''}>
+                                    <button class="matchday-nav-btn" onclick="changeMatchday(${tier}, -1)" ${currentMatchday <= allMatchdays[0] ? 'disabled' : ''}>
                                         <span class="nav-arrow">◀</span>
                                     </button>
                                     <h4 class="matchday-title">Matchday ${currentMatchday}</h4>
-                                    <button class="matchday-nav-btn" onclick="changeMatchday(${tier}, 1)" ${currentMatchday >= tierMatchdays[tierMatchdays.length - 1] ? 'disabled' : ''}>
+                                    <button class="matchday-nav-btn" onclick="changeMatchday(${tier}, 1)" ${currentMatchday >= allMatchdays[allMatchdays.length - 1] ? 'disabled' : ''}>
                                         <span class="nav-arrow">▶</span>
                                     </button>
                                 </div>
                                 <div class="tier-matches-container" id="tier-${tier}-matches">
-                                    ${displayTierMatches(matchdays, tier, currentMatchday)}
+                                    ${buildTierMatchdayTable(tier, currentMatchday)}
                                 </div>
                             ` : '<p class="no-data">No match data available</p>'}
                         </div>
@@ -548,7 +638,202 @@ function getTierMatchdays(matchdays, tier) {
 }
 
 /**
- * Display matches for a specific tier and matchday
+ * Get upcoming fixtures for a tier/matchday (excluding already played)
+ */
+function getUpcomingFixturesForTierMatchday(tier, matchday) {
+    const tierFixtures = getTierFixtures(tier);
+    const grouped = buildFixturesByMatchday(tierFixtures);
+    const fixtures = grouped[matchday] || grouped[String(matchday)] || [];
+    const seasonId = currentSeason?.season_id || currentSeason?.seasonId;
+    const playedIds = collectPlayedFixtureIds(currentSeason?.matchdays || {}, seasonId);
+
+    return fixtures.filter(fixture => {
+        const key = getFixtureKey(fixture);
+        return !playedIds.has(key);
+    });
+}
+
+/**
+ * Build unified matchday view (reported results + upcoming fixtures)
+ * Renders matches as season-match-card style cards that support round information
+ * and align with the tier table height (tier-matches-container has max-height + scroll).
+ */
+function buildTierMatchdayTable(tier, matchday) {
+    const matchdays = currentSeason?.matchdays || {};
+    const reported = (matchdays[matchday] || matchdays[String(matchday)] || [])
+        .filter(match => match.tier === tier);
+    const upcoming = getUpcomingFixturesForTierMatchday(tier, matchday);
+    const simEnabled = Boolean(tierSimulationEnabled[tier]);
+
+    if (reported.length === 0 && upcoming.length === 0) {
+        return '<p class="no-data">No matches for this matchday</p>';
+    }
+
+    const reportedCards = reported.map(match => createMatchCard(match, matchday)).join('');
+    const upcomingCards = upcoming
+        .map(fixture => createUpcomingFixtureCard(fixture, tier, simEnabled))
+        .join('');
+
+    return `
+        <div class="tier-matches-card-list">
+            ${reportedCards}
+            ${upcomingCards}
+        </div>
+    `;
+}
+
+/**
+ * Create an upcoming-fixture card using the same season-match-card styling
+ * (so it matches the tier table height and the reported match cards).
+ * When simulation is enabled, the score cell becomes a pair of inputs.
+ */
+function createUpcomingFixtureCard(fixture, tier, simEnabled) {
+    const fixtureKey = getFixtureKey(fixture);
+    const simResult = simulatedFixtureResults[fixtureKey];
+    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link">${addSoftHyphens(fixture.bey_a)}</a>`;
+    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link">${addSoftHyphens(fixture.bey_b)}</a>`;
+
+    const arena = fixture.arena || 'Xtreme';
+    const arenaBadge = arena === 'Xtreme' ? '⚡X' : '🎯DA';
+    const arenaTitle = arena === 'Xtreme' ? 'Xtreme Stadium' : 'Drop Attack Beystadium';
+    const date = fixture.date || 'TBD';
+
+    // For upcoming fixtures, no winner is known; skip ELO delta badges.
+    const eloA = xtremeEloData[fixture.bey_a] ?? 1000;
+    const eloB = xtremeEloData[fixture.bey_b] ?? 1000;
+    const eloDiff = Math.abs(Math.round(eloA) - Math.round(eloB));
+
+    // Simulated scores (if any) for visual context
+    const hasSimScores = simEnabled && simResult;
+    const isAWinner = hasSimScores && simResult.score_a > simResult.score_b;
+    const isBWinner = hasSimScores && simResult.score_b > simResult.score_a;
+    const isTie = hasSimScores && simResult.score_a === simResult.score_b;
+    const beyAClass = !hasSimScores ? '' : (isTie ? '' : (isAWinner ? 'winner' : ''));
+    const beyBClass = !hasSimScores ? '' : (isTie ? '' : (isBWinner ? 'winner' : ''));
+
+    const scoreA = hasSimScores ? simResult.score_a : '–';
+    const scoreB = hasSimScores ? simResult.score_b : '–';
+
+    // Human-readable status pill (replaces the long MatchID in the header).
+    const statusLabel = hasSimScores ? 'Played (sim)' : 'Scheduled';
+    const statusIcon = hasSimScores ? '✅' : '📅';
+    const statusPillHtml = `<span class="status-pill ${hasSimScores ? 'is-played' : 'is-scheduled'}"><span class="status-pill-icon" aria-hidden="true">${statusIcon}</span>${statusLabel}</span>`;
+
+    let scoreCell;
+    if (simEnabled) {
+        const scoreAValue = simResult ? simResult.score_a : '';
+        const scoreBValue = simResult ? simResult.score_b : '';
+        scoreCell = `
+            <div class="fixture-sim-controls" data-fixture-id="${fixtureKey}">
+                <input type="number" min="0" inputmode="numeric" class="fixture-score-input" data-team="a" value="${scoreAValue}" oninput="handleFixtureScoreInput(this)" aria-label="Simulated score for ${fixture.bey_a}">
+                <span class="fixture-score-sep">–</span>
+                <input type="number" min="0" inputmode="numeric" class="fixture-score-input" data-team="b" value="${scoreBValue}" oninput="handleFixtureScoreInput(this)" aria-label="Simulated score for ${fixture.bey_b}">
+            </div>
+        `;
+    } else {
+        scoreCell = '<span class="fixture-score-placeholder">—</span>';
+    }
+
+    return `
+        <div class="season-match-card upcoming-fixture${simEnabled ? ' sim-editable' : ''}${hasSimScores ? ' is-simulated' : ''}" data-fixture-id="${fixtureKey}">
+            <div class="season-card-header">
+                <span class="card-status-pill">${statusPillHtml}</span>
+                <span class="card-date">${date}</span>
+                <span class="arena-badge arena-${arena.toLowerCase().replace(/\s+/g, '-')}" title="${arenaTitle}">${arenaBadge}</span>
+                <span class="match-elo-diff" title="ELO Difference">Δ${eloDiff}</span>
+            </div>
+            <div class="season-card-match-compact">
+                <div class="season-compact-bey season-compact-bey-left ${beyAClass}">
+                    <span class="compact-bey-name">${beyALink}</span>
+                    <span class="compact-bey-elo-change"></span>
+                    <span class="compact-bey-score">${scoreA}</span>
+                </div>
+                <span class="compact-vs">vs.</span>
+                <div class="season-compact-bey season-compact-bey-right ${beyBClass}">
+                    <span class="compact-bey-name">${beyBLink}</span>
+                    <span class="compact-bey-elo-change"></span>
+                    <span class="compact-bey-score">${scoreB}</span>
+                </div>
+            </div>
+            ${simEnabled ? `
+            <div class="card-sim-section">
+                <span class="sim-label">Simulate score</span>
+                ${scoreCell}
+            </div>
+            ` : ''}
+        </div>
+    `;
+}
+
+function createReportedMatchRow(match) {
+    const beyALink = `<a href="bey.html?name=${encodeURIComponent(match.bey_a)}" class="bey-link fixture-bey">${addSoftHyphens(match.bey_a)}</a>`;
+    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(match.bey_b)}" class="bey-link fixture-bey">${addSoftHyphens(match.bey_b)}</a>`;
+    const isAWinner = match.score_a > match.score_b;
+    const isBWinner = match.score_b > match.score_a;
+    const isTie = match.score_a === match.score_b;
+    const beyAClass = isTie ? '' : (isAWinner ? 'winner' : '');
+    const beyBClass = isTie ? '' : (isBWinner ? 'winner' : '');
+    const arena = match.arena || 'Xtreme';
+    const arenaBadge = arena === 'Xtreme' ? '⚡X' : '🎯DA';
+
+    return `
+        <tr class="fixture-row is-played" data-match-id="${match.match_id || ''}">
+            <td class="fixture-date">${match.date || '—'}</td>
+            <td class="fixture-bey-home ${beyAClass}">${beyALink}</td>
+            <td class="fixture-vs"><span class="vs-text">vs</span></td>
+            <td class="fixture-bey-away ${beyBClass}">${beyBLink}</td>
+            <td class="fixture-score"><strong>${match.score_a} – ${match.score_b}</strong></td>
+            <td class="fixture-status">
+                <span class="result-badge">${isTie ? 'Draw' : 'Played'}</span>
+                <span class="arena-badge-inline" title="${arena}">${arenaBadge}</span>
+            </td>
+        </tr>
+    `;
+}
+
+function createUpcomingFixtureRow(fixture, tier, simEnabled) {
+    const fixtureKey = getFixtureKey(fixture);
+    const simResult = simulatedFixtureResults[fixtureKey];
+    const beyALink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_a)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_a)}</a>`;
+    const beyBLink = `<a href="bey.html?name=${encodeURIComponent(fixture.bey_b)}" class="bey-link fixture-bey">${addSoftHyphens(fixture.bey_b)}</a>`;
+
+    let scoreCell;
+    if (simEnabled) {
+        const scoreAValue = simResult ? simResult.score_a : '';
+        const scoreBValue = simResult ? simResult.score_b : '';
+        scoreCell = `
+            <div class="fixture-sim-controls" data-fixture-id="${fixtureKey}">
+                <input type="number" min="0" inputmode="numeric" class="fixture-score-input" data-team="a" value="${scoreAValue}" oninput="handleFixtureScoreInput(this)" aria-label="Simulated score for ${fixture.bey_a}">
+                <span class="fixture-score-sep">–</span>
+                <input type="number" min="0" inputmode="numeric" class="fixture-score-input" data-team="b" value="${scoreBValue}" oninput="handleFixtureScoreInput(this)" aria-label="Simulated score for ${fixture.bey_b}">
+            </div>
+        `;
+    } else {
+        scoreCell = '<span class="fixture-score-placeholder">—</span>';
+    }
+
+    const statusHtml = simResult
+        ? '<span class="fixture-sim-tag is-active">Simulated</span>'
+        : '<span class="fixture-badge">Scheduled</span>';
+
+    return `
+        <tr class="fixture-row is-upcoming${simEnabled ? ' sim-editable' : ''}" data-fixture-id="${fixtureKey}">
+            <td class="fixture-date">${fixture.date || 'TBD'}</td>
+            <td class="fixture-bey-home">${beyALink}</td>
+            <td class="fixture-vs"><span class="vs-text">vs</span></td>
+            <td class="fixture-bey-away">${beyBLink}</td>
+            <td class="fixture-sim">${scoreCell}</td>
+            <td class="fixture-status">
+                <div class="fixture-sim-status" data-fixture-id="${fixtureKey}">
+                    ${statusHtml}
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
+/**
+ * Display matches for a specific tier and matchday (legacy card view — kept for reference)
  */
 function displayTierMatches(matchdays, tier, matchday) {
     const matches = matchdays[matchday.toString()] || [];
@@ -660,54 +945,88 @@ function createMatchCard(match, md) {
 }
 
 /**
- * Update matches and navigator for a specific tier
+ * Update matchday table and navigator for a specific tier
  */
-function updateTierMatches(tier) {
-    const matchdays = currentSeason?.matchdays || {};
-    const tierMatchdays = getTierMatchdays(matchdays, tier);
-    const currentMatchday = selectedMatchdays[tier] || tierMatchdays[0] || 1;
-    
-    // Update matchday title
+function updateTierMatchdayContent(tier) {
+    const allMatchdays = getTierAllMatchdays(tier);
+    const currentMatchday = selectedMatchdays[tier] || allMatchdays[0] || 1;
+
     const titleElement = document.querySelector(`#tier-${tier}-content .matchday-title`);
     if (titleElement) {
         titleElement.textContent = `Matchday ${currentMatchday}`;
     }
-    
-    // Update navigation buttons
-    const prevBtn = document.querySelector(`#tier-${tier}-content .matchday-nav-btn:first-of-type`);
-    const nextBtn = document.querySelector(`#tier-${tier}-content .matchday-nav-btn:last-of-type`);
-    
-    if (prevBtn) {
-        prevBtn.disabled = currentMatchday <= tierMatchdays[0];
+
+    const nav = document.querySelector(`#tier-${tier}-content .matchday-navigator`);
+    if (nav) {
+        const prevBtn = nav.querySelector('.matchday-nav-btn:first-of-type');
+        const nextBtn = nav.querySelector('.matchday-nav-btn:last-of-type');
+        if (prevBtn) prevBtn.disabled = currentMatchday <= allMatchdays[0];
+        if (nextBtn) nextBtn.disabled = currentMatchday >= allMatchdays[allMatchdays.length - 1];
     }
-    if (nextBtn) {
-        nextBtn.disabled = currentMatchday >= tierMatchdays[tierMatchdays.length - 1];
-    }
-    
-    // Update matches
+
     const matchesContainer = document.getElementById(`tier-${tier}-matches`);
     if (matchesContainer) {
-        matchesContainer.innerHTML = displayTierMatches(matchdays, tier, currentMatchday);
+        matchesContainer.innerHTML = buildTierMatchdayTable(tier, currentMatchday);
     }
+}
+
+function updateTierSimLiveIndicator(tier) {
+    const container = document.getElementById(`tier-${tier}-sim-live`);
+    if (!container) return;
+    container.innerHTML = isTierSimulationLive(tier) ? buildSimLiveBadge() : '';
+}
+
+function updateTierSimResetState(tier) {
+    const resetBtn = document.getElementById(`tier-${tier}-sim-reset`);
+    if (resetBtn) {
+        resetBtn.disabled = !tierHasSimulatedScores(tier);
+    }
+}
+
+function toggleTierSimulation(tier, enabled) {
+    tierSimulationEnabled[tier] = enabled;
+    // #region agent log
+    fetch('http://127.0.0.1:7374/ingest/eff29b44-cf33-4c9d-853e-a30254b566d8',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7a9a99'},body:JSON.stringify({sessionId:'7a9a99',location:'season.js:toggleTierSimulation',message:'Tier sim toggle',data:{tier,enabled,hasScores:tierHasSimulatedScores(tier)},timestamp:Date.now(),hypothesisId:'sim-toggle'})}).catch(()=>{});
+    // #endregion
+    updateTierMatchdayContent(tier);
+    updateTierTable(tier);
+    updateTierSimLiveIndicator(tier);
+}
+
+function resetTierSimulations(tier) {
+    Object.keys(simulatedFixtureResults).forEach(key => {
+        const result = simulatedFixtureResults[key];
+        if (Number(result.tier) === tier) {
+            delete simulatedFixtureResults[key];
+        }
+    });
+    updateTierMatchdayContent(tier);
+    updateTierTable(tier);
+    updateTierSimLiveIndicator(tier);
+    updateTierSimResetState(tier);
+}
+
+/**
+ * @deprecated Use updateTierMatchdayContent
+ */
+function updateTierMatches(tier) {
+    updateTierMatchdayContent(tier);
 }
 
 /**
  * Change matchday for a specific tier
  */
 function changeMatchday(tier, direction) {
-    const matchdays = currentSeason?.matchdays || {};
-    const tierMatchdays = getTierMatchdays(matchdays, tier);
-    
-    if (tierMatchdays.length === 0) return;
-    
-    const currentIdx = tierMatchdays.indexOf(selectedMatchdays[tier]);
+    const allMatchdays = getTierAllMatchdays(tier);
+
+    if (allMatchdays.length === 0) return;
+
+    const currentIdx = allMatchdays.indexOf(selectedMatchdays[tier]);
     const newIdx = currentIdx + direction;
-    
-    if (newIdx >= 0 && newIdx < tierMatchdays.length) {
-        selectedMatchdays[tier] = tierMatchdays[newIdx];
-        
-        // Update only this tier's matches
-        updateTierMatches(tier);
+
+    if (newIdx >= 0 && newIdx < allMatchdays.length) {
+        selectedMatchdays[tier] = allMatchdays[newIdx];
+        updateTierMatchdayContent(tier);
     }
 }
 
@@ -1454,6 +1773,12 @@ function getFixtureKey(fixture) {
     return `${seasonId}_T${tier}_${fixture.bey_a}_${fixture.bey_b}_${matchday}`;
 }
 
+function makeFixtureId(beyA, beyB, seasonId, tier) {
+    if (!beyA || !beyB || !seasonId || !tier) return null;
+    const sorted = [beyA.trim(), beyB.trim()].sort((a, b) => a.localeCompare(b));
+    return `${seasonId}_T${tier}_${sorted[0]}_${sorted[1]}`;
+}
+
 function buildFixturesByMatchday(fixtures) {
     return fixtures.reduce((acc, fixture) => {
         const key = fixture.matchday != null ? String(fixture.matchday) : 'TBD';
@@ -1463,6 +1788,174 @@ function buildFixturesByMatchday(fixtures) {
         acc[key].push(fixture);
         return acc;
     }, {});
+}
+
+function buildFixturesByTier(fixtures) {
+    return fixtures.reduce((acc, fixture) => {
+        if (!fixture.tier) return acc;
+        const key = String(fixture.tier);
+        if (!acc[key]) {
+            acc[key] = [];
+        }
+        acc[key].push(fixture);
+        return acc;
+    }, {});
+}
+
+function collectPlayedFixtureIds(matchdays, seasonId) {
+    const playedFixtureIds = new Set();
+    Object.values(matchdays || {}).forEach(matches => {
+        if (!Array.isArray(matches)) return;
+        matches.forEach(match => {
+            const scoreA = parseInt(match.score_a ?? match.ScoreA ?? 0, 10) || 0;
+            const scoreB = parseInt(match.score_b ?? match.ScoreB ?? 0, 10) || 0;
+            if (scoreA + scoreB === 0) return;
+
+            const beyA = (match.bey_a ?? match.BeyA ?? '').trim();
+            const beyB = (match.bey_b ?? match.BeyB ?? '').trim();
+            const tierValue = Number(match.tier ?? match.Tier);
+            if (!beyA || !beyB || Number.isNaN(tierValue)) return;
+
+            const fixtureId = makeFixtureId(beyA, beyB, seasonId, tierValue);
+            if (fixtureId) {
+                playedFixtureIds.add(fixtureId);
+            }
+        });
+    });
+    return playedFixtureIds;
+}
+
+async function loadFixturesFromCsv(seasonId, matchdays) {
+    try {
+        const response = await fetch(DATA_PATHS.FIXTURES_CSV);
+        if (!response.ok) {
+            return [];
+        }
+        const csvText = await response.text();
+        if (!csvText.trim()) {
+            return [];
+        }
+
+        const lines = csvText.trim().split('\n');
+        if (lines.length < 2) {
+            return [];
+        }
+
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        const headerIndex = Object.create(null);
+        headers.forEach((header, idx) => {
+            headerIndex[header] = idx;
+        });
+
+        const getField = (values, ...keys) => {
+            for (const key of keys) {
+                const idx = headerIndex[key];
+                if (idx != null && values[idx] != null) {
+                    return values[idx].trim();
+                }
+            }
+            return '';
+        };
+
+        const seasonKey = seasonId?.toUpperCase();
+        const playedFixtureIds = collectPlayedFixtureIds(matchdays, seasonKey);
+        const fixtures = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const values = line.split(',');
+            const rawSeason = getField(values, 'seasonid', 'season_id');
+            if (seasonKey && rawSeason && rawSeason.toUpperCase() !== seasonKey) {
+                continue;
+            }
+
+            const matchType = getField(values, 'matchtype', 'match_type').toLowerCase() || 'season';
+            if (matchType !== 'season') {
+                continue;
+            }
+
+            const tierValue = parseInt(getField(values, 'tier'), 10);
+            const matchdayValue = parseInt(getField(values, 'matchday'), 10);
+            const tier = Number.isNaN(tierValue) ? null : tierValue;
+            const matchday = Number.isNaN(matchdayValue) ? null : matchdayValue;
+
+            const beyA = getField(values, 'beya', 'bey_a');
+            const beyB = getField(values, 'beyb', 'bey_b');
+            if (!beyA || !beyB) {
+                continue;
+            }
+
+            const fixtureId = getField(values, 'fixtureid', 'fixture_id') || makeFixtureId(beyA, beyB, seasonKey, tier);
+            if (fixtureId && playedFixtureIds.has(fixtureId)) {
+                continue;
+            }
+
+            fixtures.push({
+                fixture_id: fixtureId,
+                date: getField(values, 'date') || 'TBD',
+                bey_a: beyA,
+                bey_b: beyB,
+                match_type: matchType,
+                season_id: rawSeason || seasonKey,
+                tier,
+                matchday,
+                status: 'scheduled'
+            });
+        }
+
+        return fixtures;
+    } catch (error) {
+        console.error('Error loading fixtures CSV:', error);
+        return [];
+    }
+}
+
+async function ensureSeasonFixtures(seasonId, season) {
+    if (!season) return null;
+
+    const fixturesData = season.fixtures || {};
+    const upcomingMatches = Array.isArray(fixturesData.upcoming_matches)
+        ? fixturesData.upcoming_matches
+        : [];
+
+    if (upcomingMatches.length > 0) {
+        const fixturesByMatchday = Object.keys(fixturesData.fixtures_by_matchday || {}).length > 0
+            ? fixturesData.fixtures_by_matchday
+            : buildFixturesByMatchday(upcomingMatches);
+        const fixturesByTier = Object.keys(fixturesData.fixtures_by_tier || {}).length > 0
+            ? fixturesData.fixtures_by_tier
+            : buildFixturesByTier(upcomingMatches);
+
+        return {
+            ...fixturesData,
+            upcoming_matches: upcomingMatches,
+            fixtures_by_matchday: fixturesByMatchday,
+            fixtures_by_tier: fixturesByTier,
+            total_fixtures: fixturesData.total_fixtures ?? upcomingMatches.length
+        };
+    }
+
+    const loadedFixtures = await loadFixturesFromCsv(seasonId, season.matchdays || {});
+    if (loadedFixtures.length === 0) {
+        return null;
+    }
+
+    return {
+        upcoming_matches: loadedFixtures,
+        total_fixtures: loadedFixtures.length,
+        fixtures_by_matchday: buildFixturesByMatchday(loadedFixtures),
+        fixtures_by_tier: buildFixturesByTier(loadedFixtures)
+    };
+}
+
+function formatFixtureMatchdayLabel(matchdayKey) {
+    const matchdayNum = Number.parseInt(matchdayKey, 10);
+    if (Number.isNaN(matchdayNum)) {
+        return `Matchday ${matchdayKey}`;
+    }
+    return `Matchday ${matchdayNum}`;
 }
 
 function sortFixtureMatchdays(matchdays) {
@@ -1586,18 +2079,27 @@ function parseSimScore(value) {
 }
 
 function updateSimulatedFixture(fixtureId, scoreAValue, scoreBValue) {
-    const fixture = fixturesById[fixtureId];
+    let fixture = fixturesById[fixtureId];
+    if (!fixture) {
+        for (let tier = 1; tier <= 4; tier++) {
+            fixture = getTierFixtures(tier).find(f => getFixtureKey(f) === fixtureId);
+            if (fixture) {
+                fixturesById[fixtureId] = fixture;
+                break;
+            }
+        }
+    }
     if (!fixture) return;
 
     const scoreA = parseSimScore(scoreAValue);
     const scoreB = parseSimScore(scoreBValue);
     const hasScores = Number.isInteger(scoreA) && Number.isInteger(scoreB);
     const hadSimulation = Boolean(simulatedFixtureResults[fixtureId]);
+    const tierValue = fixture.tier != null ? Number(fixture.tier) : null;
 
     if (!hasScores || (scoreA === 0 && scoreB === 0)) {
         delete simulatedFixtureResults[fixtureId];
     } else {
-        const tierValue = fixture.tier != null ? Number(fixture.tier) : null;
         simulatedFixtureResults[fixtureId] = {
             score_a: scoreA,
             score_b: scoreB,
@@ -1609,7 +2111,16 @@ function updateSimulatedFixture(fixtureId, scoreAValue, scoreBValue) {
 
     const hasSimulation = Boolean(simulatedFixtureResults[fixtureId]);
     updateFixtureSimStatus(fixtureId, hasSimulation);
-    updateFixtureResetState();
+
+    const tier = Number.isNaN(tierValue) ? null : tierValue;
+    if (tier != null) {
+        updateTierSimResetState(tier);
+        updateTierSimLiveIndicator(tier);
+    }
+
+    // #region agent log
+    fetch('http://127.0.0.1:7374/ingest/eff29b44-cf33-4c9d-853e-a30254b566d8',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'7a9a99'},body:JSON.stringify({sessionId:'7a9a99',location:'season.js:updateSimulatedFixture',message:'Sim score updated',data:{fixtureId,scoreA,scoreB,hasSimulation,tier,simEnabled:Boolean(tierSimulationEnabled[tier])},timestamp:Date.now(),hypothesisId:'sim-score'})}).catch(()=>{});
+    // #endregion
 
     if (hadSimulation || hasSimulation) {
         refreshSimulatedTables();
@@ -1618,6 +2129,7 @@ function updateSimulatedFixture(fixtureId, scoreAValue, scoreBValue) {
 
 function resetFixtureSimulations() {
     simulatedFixtureResults = {};
+    tierSimulationEnabled = {};
     updateFixturesMatchday();
     refreshSimulatedTables();
 }
@@ -1674,6 +2186,7 @@ function getBaseTableForTier(tier) {
 }
 
 function getSimulatedFixturesForTier(tier) {
+    if (!tierSimulationEnabled[tier]) return [];
     return Object.values(simulatedFixtureResults).filter(result => Number(result.tier) === tier);
 }
 
@@ -1768,7 +2281,10 @@ function getDisplayTableForTier(tier) {
 function refreshSimulatedTables() {
     const leagueTables = currentSeason?.league_tables || {};
     Object.keys(leagueTables).forEach(tierKey => {
-        updateTierTable(parseInt(tierKey, 10));
+        const tier = parseInt(tierKey, 10);
+        updateTierTable(tier);
+        updateTierSimLiveIndicator(tier);
+        updateTierSimResetState(tier);
     });
 }
 
@@ -1964,8 +2480,12 @@ function toggleSection(sectionId) {
     }
 }
 
-// Expose toggleSection to global scope for onclick handlers
+// Expose handlers to global scope for onclick attributes
 window.toggleSection = toggleSection;
+window.toggleTierSimulation = toggleTierSimulation;
+window.resetTierSimulations = resetTierSimulations;
+window.changeMatchday = changeMatchday;
+window.handleFixtureScoreInput = handleFixtureScoreInput;
 
 /**
  * Copy match ID to clipboard
