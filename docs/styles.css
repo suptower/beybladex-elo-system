@@ -1,3 +1,154 @@
+
+/* ============================================
+   UPCOMING FIXTURE CARD STYLES (Season page)
+============================================ */
+/* Upcoming-fixture card: human-readable status pill replaces raw MatchID */
+.card-status-pill {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    border: 1.5px solid transparent;
+}
+
+.status-pill.is-scheduled {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #78350f;
+    border-color: #f59e0b;
+}
+
+.status-pill.is-played {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #064e3b;
+    border-color: #10b981;
+}
+
+body.dark .status-pill.is-scheduled {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0.35) 100%);
+    color: #fde68a;
+    border-color: rgba(245, 158, 11, 0.5);
+}
+
+body.dark .status-pill.is-played {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(16, 185, 129, 0.35) 100%);
+    color: #6ee7b7;
+    border-color: rgba(16, 185, 129, 0.5);
+}
+
+.status-pill-icon {
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+/* Sim section inside upcoming-fixture cards (only shown when simulation is on) */
+.card-sim-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.625rem;
+    padding: 0.65rem 0.85rem;
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid #6366f1;
+    box-shadow: 0 1px 2px rgba(99, 102, 241, 0.08);
+}
+
+body.dark .card-sim-section {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.25) 100%);
+    border-color: rgba(99, 102, 241, 0.5);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.sim-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #4338ca;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+
+body.dark .sim-label {
+    color: #c7d2fe;
+}
+
+.card-sim-section .fixture-sim-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: auto;
+}
+
+.card-sim-section .fixture-score-input {
+    width: 3.2rem;
+    padding: 0.35rem 0.5rem;
+    border: 1.5px solid #c7d2fe;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1e1b4b;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 700;
+    transition: all 0.15s ease;
+}
+
+body.dark .card-sim-section .fixture-score-input {
+    background: var(--bg-alt);
+    color: #f1f5f9;
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.card-sim-section .fixture-score-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.card-sim-section .fixture-score-input:hover {
+    border-color: #6366f1;
+}
+
+.card-sim-section .fixture-score-sep {
+    font-weight: 700;
+    color: #4338ca;
+    font-size: 1rem;
+}
+
+body.dark .card-sim-section .fixture-score-sep {
+    color: #c7d2fe;
+}
+
+.fixture-score-placeholder {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+@media (max-width: 480px) {
+    .card-sim-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .card-sim-section .fixture-sim-controls {
+        justify-content: center;
+        margin-left: 0;
+    }
+}
 /* Import modern font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -12667,6 +12818,177 @@ body.dark .season-status-badge.active {
     display: flex;
     flex-direction: column;
     min-width: 0; /* Allow matches to shrink */
+}
+
+.tier-matches-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.tier-matches-header .tier-subsection-header {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.tier-matches-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+}
+
+.tier-sim-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tier-sim-toggle-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.tier-sim-toggle .toggle-switch {
+    width: 44px;
+    height: 24px;
+}
+
+.tier-sim-toggle .toggle-slider:before {
+    height: 16px;
+    width: 16px;
+}
+
+.tier-sim-toggle .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+.tier-sim-reset-btn {
+    padding: 0.3rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-alt);
+    color: var(--text-light);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tier-sim-reset-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.tier-sim-reset-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* SIM live indicator (broadcast-style red dot) */
+.table-header-with-nav .tier-subsection-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.sim-live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.15rem 0.5rem 0.15rem 0.35rem;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    border-radius: 999px;
+    vertical-align: middle;
+    animation: sim-live-glow 2s ease-in-out infinite;
+}
+
+.sim-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.8);
+    animation: sim-live-pulse 1.2s ease-in-out infinite;
+}
+
+.sim-live-text {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    color: #ef4444;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+@keyframes sim-live-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(0.85); }
+}
+
+@keyframes sim-live-glow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    50% { box-shadow: 0 0 8px 1px rgba(239, 68, 68, 0.25); }
+}
+
+.tier-matchday-table {
+    margin-top: 0;
+}
+
+.tier-matchday-table .fixture-row.is-played .fixture-score {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.tier-matchday-table .fixture-bey-home.winner,
+.tier-matchday-table .fixture-bey-away.winner {
+    color: #10b981;
+    font-weight: 700;
+}
+
+.tier-matchday-table .fixture-row.is-upcoming {
+    background: rgba(var(--warning-rgb, 245, 158, 11), 0.04);
+}
+
+.tier-matchday-table .fixture-row.is-upcoming.sim-editable {
+    background: rgba(var(--accent-rgb, 99, 102, 241), 0.05);
+}
+
+.tier-matchday-table .result-badge {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border-radius: var(--radius-sm);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tier-matchday-table .arena-badge-inline {
+    margin-left: 0.35rem;
+    font-size: 0.75rem;
+    opacity: 0.75;
+}
+
+.tier-matchday-table .fixture-score-placeholder {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.tier-matchday-table .fixture-status {
+    text-align: center;
+    white-space: nowrap;
 }
 
 .tier-subsection-header {
