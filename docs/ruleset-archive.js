@@ -59,10 +59,28 @@ const RULESET_CATALOGUE = {
             'No structural change vs. S2 - ruleset v2 is now the stable "default" in src/season/season_manager.py.',
             'Tiers were initialised with initialize_season_from_results() using S2 promotion/relegation data.'
         ]
+    },
+    S4: {
+        version: 3,
+        versionLabel: 'v3 (Proposed)',
+        headline: 'Proposed addition of championship rounds',
+        summary:
+            'Season 4 is a proposed reformat that builds on the v2 structure with the addition ' +
+            'of championship rounds depending on tier. The proposal is still being refined and has not been implemented yet. ' +
+            'The general idea is that Tier I will play a full double round-robin (14 matches per bey) to determine the champion. ' +
+            'Tier II will split into a championship group (top 4) and a relegation group (bottom 4) after a single round-robin in order to determine promotion/relegation slots in a more exciting manner. ' +
+            'Tier III will feature a top five round robin after the regular single round-robin to determine the champion and promotion slots, while Tier IV will remain unchanged as a pure round-robin with no playoffs. ',
+        structure: { tiers: 4, beysPerTier: 8, totalBeys: 32, totalMatches: 'TBD', matchdaysPerTier: 'TBD' },
+        league: { format: 'Single round-robin within each tier with championship rounds depending on tier', matchesPerBey: '7-14', pointsWin: 3, pointsDominant: 4, pointsLoss: 0, dominantThreshold: 'Shutout with score >= 4 (e.g. 4-0, 5-0, 6-0) - unchanged' },
+        promotionRelegation: { qualificationPool: 'TBD' },
+        seasonCup: { held: true, slots: { 1: 4, 2: 2, 3: 1, 4: 1 }, format: 'Double-elimination (winners/losers brackets + grand final)', note: '8 qualifiers total: 4 (T1) + 2 (T2) + 1 (T3) + 1 (T4).' },
+        notes: [
+            'This proposed format is still being refined and has not been implemented yet.',
+        ]
     }
 };
 
-const SEASONS_ORDER = ['S1', 'S2', 'S3'];
+const SEASONS_ORDER = ['S1', 'S2', 'S3', 'S4'];
 
 const V2_TIER_RULES = {
     1: { autoPromotions: 0, autoRelegations: 1, playoff: 'T1 #7 plays T2 #2 (relegation playoff)' },
@@ -75,6 +93,13 @@ const V1_TIER_RULES = {
     1: { autoPromotions: 0, autoRelegations: 2, playoff: 'T1 #8 plays T2 #3' },
     2: { autoPromotions: 2, autoRelegations: 2, playoff: 'T2 #8 plays T3 #3' },
     3: { autoPromotions: 2, autoRelegations: 0, playoff: 'No lower tier - bottom 4 (7-10) drop to qualification pool' }
+};
+
+const V3_CHAMPIONSHIP_ROUNDS = {
+    1: 'Full double round-robin (14 matches per bey)',
+    2: 'Split into championship group (top 4) and relegation group (bottom 4) after a single round-robin',
+    3: 'Top five round robin after the regular single round-robin to determine the champion and promotion slots',
+    4: 'No championship round - pure round-robin with no playoffs'
 };
 
 /* --- Date helpers --- */
@@ -246,6 +271,11 @@ function renderSeasonCard(seasonId, seasonData, isCurrent) {
         '</ul>' +
         '</div>' +
 
+        (cat.version === 3 ? '<div>' +
+        '<h4>🔥 Championship Rounds</h4>' +
+        renderChampionshipRounds(cat) +
+        '</div>' : '') +
+
         '<div>' +
         '<h4>↕️ Promotion & relegation</h4>' +
         renderPromotionRelegation(cat) +
@@ -267,6 +297,27 @@ function renderSeasonCard(seasonId, seasonData, isCurrent) {
         '</div>' +
         '</article>'
     );
+}
+
+function renderChampionshipRounds(cat) {
+    const rounds = V3_CHAMPIONSHIP_ROUNDS;
+    const tierKeys = Object.keys(rounds)
+        .map((n) => parseInt(n, 10))
+        .sort((a, b) => a - b);
+
+    const cards = tierKeys
+        .map((tier) => {
+            const r = rounds[tier];
+            return (
+                '<div class="ruleset-tier-card t' + tier + '">' +
+                '<div class="ruleset-tier-name">Tier ' + tier + '</div>' +
+                '<div class="ruleset-tier-rules">' + r + '</div>' +
+                '</div>'
+            );
+        })
+        .join('');
+
+    return '<div class="ruleset-tier-grid">' + cards + '</div>';
 }
 
 /* --- Promotion / relegation per-tier card grid --- */
