@@ -749,10 +749,13 @@ function renderParts(bey) {
     partsContainer.innerHTML = '';
     
     const parts = [
-        { label: 'Blade', value: bey.blade },
+        { label: 'Over Blade', value: bey.over_blade },
+        { label: 'Metal Blade', value: bey.metal_blade },
+        { label: 'Blade', value: bey.blade && !bey.over_blade && !bey.metal_blade && !bey.ratchet_integrated_blade ? bey.blade : null },
         { label: 'Assist Blade', value: bey.assist_blade },
+        { label: 'Ratchet Integrated Blade', value: bey.ratchet_integrated_blade },
         { label: 'Ratchet Integrated Bit', value: bey.ratchet_integrated_bit },
-        { label: 'Ratchet', value: bey.ratchet && !bey.ratchet_integrated_bit ? bey.ratchet : null },
+        { label: 'Ratchet', value: bey.ratchet && !bey.ratchet_integrated_bit && !bey.ratchet_integrated_blade ? bey.ratchet : null },
         { label: 'Bit', value: bey.bit && !bey.ratchet_integrated_bit ? bey.bit : null }
     ];
     

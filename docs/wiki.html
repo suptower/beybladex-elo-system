@@ -437,7 +437,7 @@ function renderBeys() {
         }
         
         return `
-        <div class="wiki-card wiki-card-clickable" data-type="${bey.type}" onclick="window.location.href='bey.html?name=${encodeURIComponent(bey.blade)}'">
+        <div class="wiki-card wiki-card-clickable" data-type="${bey.type}" onclick="window.location.href='bey.html?name=${encodeURIComponent(bey.name)}'">
             <div class="wiki-card-image">
                 <img src="${bey.image}" alt="${bey.name}" loading="lazy">
                 <div class="wiki-card-type ${bey.type.toLowerCase()}">${bey.type}</div>
@@ -454,14 +454,34 @@ function renderBeys() {
                 ${statsHtml}
                 <p class="wiki-card-description">${bey.description}</p>
                 <div class="wiki-card-parts">
+                    ${bey.blade && !bey.metal_blade && !bey.over_blade && !bey.ratchet_integrated_blade ? `
                     <div class="part-item">
                         <span class="part-label">Blade:</span>
                         <span class="part-value">${bey.blade}</span>
                     </div>
+                    ` : ''}
+                    ${bey.over_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Over Blade:</span>
+                        <span class="part-value">${bey.over_blade}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.metal_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Metal Blade:</span>
+                        <span class="part-value">${bey.metal_blade}</span>
+                    </div>
+                    ` : ''}
                     ${bey.assist_blade ? `
                     <div class="part-item">
                         <span class="part-label">Assist Blade:</span>
                         <span class="part-value">${bey.assist_blade}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.ratchet_integrated_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Ratchet Integrated Blade:</span>
+                        <span class="part-value">${bey.ratchet_integrated_blade}</span>
                     </div>
                     ` : ''}
                     ${bey.ratchet_integrated_bit ? `
@@ -470,7 +490,7 @@ function renderBeys() {
                         <span class="part-value">${bey.ratchet_integrated_bit}</span>
                     </div>
                     ` : ''}
-                    ${bey.ratchet && !bey.ratchet_integrated_bit ? `
+                    ${bey.ratchet && !bey.ratchet_integrated_bit && !bey.ratchet_integrated_blade ? `
                     <div class="part-item">
                         <span class="part-label">Ratchet:</span>
                         <span class="part-value">${bey.ratchet}</span>
@@ -503,7 +523,6 @@ function applyFilters() {
         // Search filter
         const matchesSearch = bey.name.toLowerCase().includes(searchTerm) ||
                             bey.blade.toLowerCase().includes(searchTerm) ||
-                            bey.description.toLowerCase().includes(searchTerm) ||
                             (bey.code && bey.code.toLowerCase().includes(searchTerm));
         
         // Type filter
