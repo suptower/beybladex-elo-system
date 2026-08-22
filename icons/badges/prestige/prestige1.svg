@@ -1,0 +1,39 @@
+<svg width="86" height="86" viewBox="-6 -6 98 98" overflow="visible" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prestige 1 Badge">
+<defs>
+  <radialGradient id="bgpre1" cx="35%" cy="28%" r="72%">
+    <stop offset="0%" stop-color="#1c1006"/>
+    <stop offset="100%" stop-color="#0a0602"/>
+  </radialGradient>
+  <linearGradient id="rimpre1" x1="5%" y1="0%" x2="95%" y2="100%">
+    <stop offset="0%" stop-color="#fcd08a"/>
+    <stop offset="42%" stop-color="#e8922a"/>
+    <stop offset="100%" stop-color="#8b4a0a"/>
+  </linearGradient>
+  <linearGradient id="shpre1" x1="18%" y1="0%" x2="82%" y2="100%">
+    <stop offset="0%" stop-color="white" stop-opacity="0.18"/>
+    <stop offset="50%" stop-color="white" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="glpre1" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="1.8" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  <filter id="halopre1" x="-80%" y="-80%" width="360%" height="360%">
+    <feGaussianBlur stdDeviation="7" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+  
+</defs>
+<path d="M12.04,7.91 L73.96,7.91 L73.96,49.19 C73.96,68.46 47.95,73.96 43.00,76.71 C38.05,73.96 12.04,68.46 12.04,49.19 Z" fill="#e8922a" fill-opacity="0.36" filter="url(#halopre1)"/>
+
+
+<path d="M12.04,7.91 L73.96,7.91 L73.96,49.19 C73.96,68.46 47.95,73.96 43.00,76.71 C38.05,73.96 12.04,68.46 12.04,49.19 Z" fill="url(#rimpre1)"/>
+<path d="M16.99,12.73 L69.01,12.73 L69.01,48.23 C69.01,64.80 47.16,69.53 43.00,71.90 C38.84,69.53 16.99,64.80 16.99,48.23 Z" fill="#0a0602"/>
+<path d="M16.99,12.73 L69.01,12.73 L69.01,48.23 C69.01,64.80 47.16,69.53 43.00,71.90 C38.84,69.53 16.99,64.80 16.99,48.23 Z" fill="none" stroke="url(#rimpre1)" stroke-width="1.38"/>
+<path d="M18.85,14.79 L67.15,14.79 L67.15,47.82 C67.15,63.23 46.86,67.63 43.00,69.83 C39.14,67.63 18.85,63.23 18.85,47.82 Z" fill="url(#bgpre1)"/>
+<path d="M18.85,14.79 L67.15,14.79 L67.15,47.82 C67.15,63.23 46.86,67.63 43.00,69.83 C39.14,67.63 18.85,63.23 18.85,47.82 Z" fill="url(#shpre1)"/>
+<path d="M13.90,9.98 L72.10,9.98 L72.10,48.78 C72.10,66.89 47.66,72.06 43.00,74.65 C38.34,72.06 13.90,66.89 13.90,48.78 Z" fill="none" stroke="#fcd08a" stroke-width="0.72" stroke-opacity="0.36" stroke-linejoin="round"/>
+<circle cx="43.00" cy="32.68" r="13.76" fill="none" stroke="#e8922a" stroke-width="0.5" stroke-opacity="0.32" stroke-dasharray="2 2"/>
+<circle cx="43.00" cy="18.92" r="2.06" fill="#fcd08a" opacity="0.92"/>
+<path d="M43.00,22.36L45.73,28.92L52.81,29.49L47.42,34.12L49.07,41.03L43.00,37.32L36.93,41.03L38.58,34.12L33.19,29.49L40.27,28.92Z" fill="url(#rimpre1)" filter="url(#glpre1)"/>
+<text x="43.00" y="60.20" text-anchor="middle" dominant-baseline="central" font-family="Orbitron,monospace" font-weight="900" font-size="14.6" fill="#fcd08a" filter="url(#glpre1)">I</text>
+</svg>

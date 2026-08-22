@@ -1,0 +1,44 @@
+<svg width="110" height="121" viewBox="0 0 110 114.4" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Trophy Bronze">
+<defs>
+  <linearGradient id="gAtroph_bronze" x1="10%" y1="0%" x2="90%" y2="100%"><stop offset="0%" stop-color="#fcd08a"/><stop offset="45%" stop-color="#b56a20"/><stop offset="100%" stop-color="#6b3008"/></linearGradient>
+  <linearGradient id="gBtroph_bronze">
+    <stop offset="0%" stop-color="#e8924a"/>
+    <stop offset="100%" stop-color="#b56a20"/>
+  </linearGradient>
+  <linearGradient id="gCtroph_bronze" x1="100%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%" stop-color="#b56a20"/>
+    <stop offset="100%" stop-color="#6b3008"/>
+  </linearGradient>
+  <linearGradient id="goldtroph_bronze" x1="5%" y1="5%" x2="95%" y2="95%">
+    <stop offset="0%" stop-color="#e8924a"/>
+    <stop offset="40%" stop-color="#b56a20"/>
+    <stop offset="100%" stop-color="#6b3008"/>
+  </linearGradient>
+  <linearGradient id="basetroph_bronze" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#6b3008"/>
+    <stop offset="50%" stop-color="#e8924a"/>
+    <stop offset="100%" stop-color="#6b3008"/>
+  </linearGradient>
+  <filter id="halotroph_bronze" x="-100%" y="-100%" width="400%" height="400%">
+    <feGaussianBlur stdDeviation="12.1" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>
+</defs>
+<path d="M55.00,19.80 L72.42,39.64 L76.78,51.74 L55.00,68.20 L33.22,51.74 L37.58,39.64 Z" fill="#b56a2088" filter="url(#halotroph_bronze)"/>
+<path d="M55.00,19.80 L72.42,39.64 L76.78,51.74 L55.00,68.20 L33.22,51.74 L37.58,39.64 Z" fill="url(#gAtroph_bronze)"/>
+<path d="M55.00,19.80 L37.58,39.64 L55.00,45.94 Z"  fill="url(#gBtroph_bronze)" opacity="0.72"/>
+<path d="M55.00,19.80 L72.42,39.64 L55.00,45.94 Z"  fill="url(#gBtroph_bronze)" opacity="0.52"/>
+<path d="M33.22,51.74 L55.00,68.20 L55.00,45.94 Z" fill="url(#gCtroph_bronze)" opacity="0.78"/>
+<path d="M76.78,51.74 L55.00,68.20 L55.00,45.94 Z" fill="url(#gCtroph_bronze)" opacity="0.62"/>
+<path d="M33.22,51.74 L76.78,51.74 L55.00,45.94 Z" fill="#b56a20" opacity="0.68"/>
+<path d="M55.00,19.80 L72.42,39.64 L76.78,51.74 L55.00,68.20 L33.22,51.74 L37.58,39.64 Z" fill="none" stroke="#e8924a" stroke-width="0.85" stroke-opacity="0.55"/>
+<line x1="55.00" y1="19.80" x2="55.00" y2="45.94" stroke="#e8924a" stroke-width="0.55" stroke-opacity="0.38"/>
+<line x1="55.00" y1="45.94" x2="33.22" y2="51.74" stroke="#e8924a" stroke-width="0.55" stroke-opacity="0.28"/>
+<line x1="55.00" y1="45.94" x2="76.78" y2="51.74" stroke="#e8924a" stroke-width="0.55" stroke-opacity="0.28"/>
+<path d="M47.26,26.58 L57.18,23.19 L55.97,33.35 Z" fill="white" opacity="0.32"/>
+<path d="M50.60,68.20 C48.40,75.35 52.36,75.35 51.70,82.50 L58.30,82.50 C57.64,75.35 61.60,75.35 59.40,68.20 Z" fill="url(#goldtroph_bronze)"/>
+<ellipse cx="55.00" cy="75.35" rx="5.72" ry="3.96" fill="url(#goldtroph_bronze)"/>
+<ellipse cx="55.00" cy="75.35" rx="5.72" ry="3.96" fill="none" stroke="#e8924a" stroke-width="0.65" stroke-opacity="0.45"/>
+<path d="M27.50,82.50 L25.30,89.32 L84.70,89.32 L82.50,82.50 Z" fill="url(#goldtroph_bronze)"/>
+<rect x="31.90" y="89.32" width="46.20" height="6.60" rx="1.32" fill="url(#basetroph_bronze)"/>
+</svg>

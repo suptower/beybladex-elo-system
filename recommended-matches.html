@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Matches - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Recommended Matches</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main class="recommended-matches-page" id="main-content">
+    <section class="hero">
+        <h2>🎯 Recommended Matches</h2>
+        <p class="description">
+            Data-driven match suggestions to improve ranking quality, meta balance, and data coverage.
+            These recommendations are <strong>advisory</strong> and aim to maximize information gain per match.
+        </p>
+    </section>
+
+    <!-- Summary Section -->
+    <section class="summary-section">
+        <h3>📊 Recommendation Summary</h3>
+        <div class="summary-cards" id="summaryCards">
+            <!-- Dynamically populated -->
+        </div>
+    </section>
+
+    <!-- Top Recommendations -->
+    <section class="top-recommendations-section">
+        <h3>⭐ Top Recommendations</h3>
+        <p class="section-description">
+            These are the highest-value matchups based on information gain scoring.
+        </p>
+        <div class="recommendations-list" id="topRecommendations">
+            <!-- Dynamically populated -->
+        </div>
+    </section>
+
+    <!-- Category Sections -->
+    <section class="categories-section">
+        <h3>📂 Recommendations by Category</h3>
+        
+        <!-- Low Data Exploration -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('lowData')">
+                <h4>🧪 Low-Data Beys (Exploration)</h4>
+                <span class="toggle-icon" id="lowDataToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Beys with significantly fewer matches than average. These need more games to establish reliable ratings.
+            </p>
+            <div class="category-content" id="lowDataContent">
+                <div class="recommendations-list" id="lowDataList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ELO Clarity -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('eloClarity')">
+                <h4>⚖️ ELO Clarity / Leaderboard Stabilization</h4>
+                <span class="toggle-icon" id="eloClarityToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Beys with similar ELO ratings that haven't played each other. Direct comparisons clarify rankings.
+            </p>
+            <div class="category-content" id="eloClarityContent">
+                <div class="recommendations-list" id="eloClarityList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- High Uncertainty -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('highUncertainty')">
+                <h4>📊 High-Uncertainty Matchups</h4>
+                <span class="toggle-icon" id="highUncertaintyToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Beys with high ELO volatility. Playing against stable references helps stabilize their ratings.
+            </p>
+            <div class="category-content" id="highUncertaintyContent">
+                <div class="recommendations-list" id="highUncertaintyList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Meta Balance -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('metaBalance')">
+                <h4>🔄 Meta-Balance Matches</h4>
+                <span class="toggle-icon" id="metaBalanceToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Matchups between frequently played and rarely played Beys. Prevents ELO inflation in closed meta loops.
+            </p>
+            <div class="category-content" id="metaBalanceContent">
+                <div class="recommendations-list" id="metaBalanceList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Upset Testing -->
+        <div class="category-card">
+            <div class="category-header" onclick="toggleCategory('upsetTesting')">
+                <h4>🎲 Upset & Hypothesis Testing</h4>
+                <span class="toggle-icon" id="upsetTestingToggle">▼</span>
+            </div>
+            <p class="category-description">
+                Matches with high upset potential. Tests ELO assumptions and identifies over/underrated Beys.
+            </p>
+            <div class="category-content" id="upsetTestingContent">
+                <div class="recommendations-list" id="upsetTestingList">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script defer src="footer-loader.js"></script>
+
+<script>
+// Category toggle functionality
+function toggleCategory(categoryId) {
+    const content = document.getElementById(categoryId + 'Content');
+    const toggle = document.getElementById(categoryId + 'Toggle');
+    
+    if (content.style.display === 'none' || content.style.display === '') {
+        content.style.display = 'block';
+        toggle.textContent = '▲';
+    } else {
+        content.style.display = 'none';
+        toggle.textContent = '▼';
+    }
+}
+
+// Initialize all categories as collapsed
+document.addEventListener('DOMContentLoaded', () => {
+    ['lowData', 'eloClarity', 'highUncertainty', 'metaBalance', 'upsetTesting'].forEach(cat => {
+        document.getElementById(cat + 'Content').style.display = 'none';
+    });
+});
+
+// Category name mapping
+const categoryNames = {
+    'low_data_exploration': 'Low-Data Exploration',
+    'elo_clarity': 'ELO Clarity',
+    'high_uncertainty': 'High Uncertainty',
+    'meta_balance': 'Meta Balance',
+    'upset_testing': 'Upset Testing'
+};
+
+const categoryIcons = {
+    'low_data_exploration': '🧪',
+    'elo_clarity': '⚖️',
+    'high_uncertainty': '📊',
+    'meta_balance': '🔄',
+    'upset_testing': '🎲'
+};
+
+const categoryListIds = {
+    'low_data_exploration': 'lowDataList',
+    'elo_clarity': 'eloClarityList',
+    'high_uncertainty': 'highUncertaintyList',
+    'meta_balance': 'metaBalanceList',
+    'upset_testing': 'upsetTestingList'
+};
+
+// Create recommendation card
+function createRecommendationCard(rec, index) {
+    const card = document.createElement('div');
+    card.className = 'recommendation-card match-style-card';
+    
+    const rankBadge = index !== undefined ? `<div class="rank-badge">#${index + 1}</div>` : '';
+    
+    card.innerHTML = `
+        <div class="card-header-section">
+            ${rankBadge}
+            <div class="category-badge">${categoryIcons[rec.category]} ${categoryNames[rec.category]}</div>
+            <div class="info-value-badge">
+                <span class="value-label">Info Value</span>
+                <span class="value-number">${rec.info_value.toFixed(1)}</span>
+            </div>
+        </div>
+        <div class="card-match-section">
+            <div class="card-bey">
+                <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(rec.bey_a)}" class="bey-link">${rec.bey_a}</a></div>
+                <div class="bey-recommendation-label">Recommended Player 1</div>
+            </div>
+            <div class="card-vs-large">VS</div>
+            <div class="card-bey">
+                <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(rec.bey_b)}" class="bey-link">${rec.bey_b}</a></div>
+                <div class="bey-recommendation-label">Recommended Player 2</div>
+            </div>
+        </div>
+        <div class="card-footer-section">
+            <div class="explanation">${rec.explanation}</div>
+            ${rec.existing_matches > 0 ? `<div class="existing-matches-warning">⚠️ Already played ${rec.existing_matches} time(s)</div>` : '<div class="no-matches-yet">✨ Never played before</div>'}
+        </div>
+    `;
+    
+    return card;
+}
+
+// Load and display recommendations
+async function loadRecommendations() {
+    try {
+        const response = await fetch(DATA_PATHS.RECOMMENDED_MATCHES_JSON);
+        const data = await response.json();
+        
+        // Display summary
+        displaySummary(data.metadata);
+        
+        // Display top recommendations
+        const topList = document.getElementById('topRecommendations');
+        data.top_recommendations.forEach((rec, index) => {
+            topList.appendChild(createRecommendationCard(rec, index));
+        });
+        
+        // Display by category
+        for (const [category, recommendations] of Object.entries(data.by_category)) {
+            const listId = categoryListIds[category];
+            if (listId) {
+                const list = document.getElementById(listId);
+                recommendations.forEach(rec => {
+                    list.appendChild(createRecommendationCard(rec));
+                });
+            }
+        }
+        
+    } catch (error) {
+        console.error('Error loading recommendations:', error);
+        document.querySelector('.recommended-matches-page').innerHTML += `
+            <div class="error-message">
+                <p>⚠️ Unable to load recommendations. Please try again later.</p>
+            </div>
+        `;
+    }
+}
+
+function displaySummary(metadata) {
+    const summaryCards = document.getElementById('summaryCards');
+    
+    const totalCard = document.createElement('div');
+    totalCard.className = 'summary-card';
+    totalCard.innerHTML = `
+        <div class="summary-icon">📋</div>
+        <div class="summary-content">
+            <div class="summary-label">Total Recommendations</div>
+            <div class="summary-value">${metadata.total_recommendations}</div>
+        </div>
+    `;
+    summaryCards.appendChild(totalCard);
+    
+    for (const [category, count] of Object.entries(metadata.categories)) {
+        if (count > 0) {
+            const card = document.createElement('div');
+            card.className = 'summary-card';
+            card.innerHTML = `
+                <div class="summary-icon">${categoryIcons[category]}</div>
+                <div class="summary-content">
+                    <div class="summary-label">${categoryNames[category]}</div>
+                    <div class="summary-value">${count}</div>
+                </div>
+            `;
+            summaryCards.appendChild(card);
+        }
+    }
+}
+
+// Load data on page load
+loadRecommendations();
+</script>
+
+<style>
+.recommended-matches-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.summary-section {
+    margin-bottom: 3rem;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.summary-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.summary-icon {
+    font-size: 2rem;
+}
+
+.summary-content {
+    flex: 1;
+}
+
+.summary-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+
+.summary-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.top-recommendations-section,
+.categories-section {
+    margin-bottom: 3rem;
+}
+
+.section-description {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.recommendations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.recommendation-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.recommendation-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.match-style-card {
+    border-left: 4px solid var(--accent);
+}
+
+.card-header-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--secondary-bg);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.rank-badge {
+    background: var(--accent);
+    color: white;
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--accent);
+    padding: 0.375rem 0.875rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.info-value-badge {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.value-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.value-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--success-color);
+    line-height: 1;
+}
+
+.card-match-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1.5rem 1.25rem;
+    background: var(--card-bg);
+}
+
+.card-bey {
+    flex: 1;
+    text-align: center;
+}
+
+.card-bey .bey-name {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.card-bey .bey-name a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.card-bey .bey-name a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.bey-recommendation-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+}
+
+.card-vs-large {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 0 1rem;
+}
+
+.card-footer-section {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border);
+    background: var(--card-bg);
+}
+
+.explanation {
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin-bottom: 0.75rem;
+}
+
+.existing-matches-warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--warning-color);
+    background: rgba(var(--warning-rgb), 0.1);
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(var(--warning-rgb), 0.3);
+}
+
+.no-matches-yet {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--success-color);
+    background: rgba(var(--success-rgb), 0.1);
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--radius);
+    border: 1px solid rgba(var(--success-rgb), 0.3);
+}
+
+.category-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.category-header {
+    padding: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--secondary-bg);
+    transition: background 0.2s;
+}
+
+.category-header:hover {
+    background: var(--hover-bg);
+}
+
+.category-header h4 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s;
+}
+
+.category-description {
+    padding: 1rem 1.5rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.category-content {
+    padding: 1.5rem;
+}
+
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--error-color);
+}
+
+@media (max-width: 768px) {
+    .recommended-matches-page {
+        padding: 1rem;
+    }
+    
+    .hero h2 {
+        font-size: 2rem;
+    }
+    
+    .description {
+        font-size: 1rem;
+    }
+    
+    .summary-cards {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .summary-card {
+        padding: 1rem;
+    }
+    
+    .summary-icon {
+        font-size: 1.5rem;
+    }
+    
+    .summary-value {
+        font-size: 1.5rem;
+    }
+    
+    .card-header-section {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .rank-badge {
+        font-size: 0.85rem;
+        padding: 0.3rem 0.75rem;
+    }
+    
+    .category-badge {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.75rem;
+        flex: 1;
+    }
+    
+    .info-value-badge {
+        margin-left: 0;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 0.5rem;
+        border-top: 1px solid rgba(var(--border-rgb), 0.3);
+    }
+    
+    .value-label {
+        font-size: 0.75rem;
+    }
+    
+    .value-number {
+        font-size: 1.5rem;
+    }
+    
+    .card-match-section {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.25rem 1rem;
+    }
+    
+    .card-bey {
+        padding: 1rem;
+        background: var(--secondary-bg);
+        border-radius: var(--radius);
+    }
+    
+    .card-bey .bey-name {
+        font-size: 1.4rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .bey-recommendation-label {
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+    
+    .card-vs-large {
+        font-size: 1.5rem;
+        font-weight: 900;
+        padding: 0.5rem 0;
+        text-align: center;
+    }
+    
+    .card-footer-section {
+        padding: 1rem;
+    }
+    
+    .explanation {
+        font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 1rem;
+    }
+    
+    .existing-matches-warning,
+    .no-matches-yet {
+        font-size: 0.85rem;
+        padding: 0.6rem 0.75rem;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .category-header h4 {
+        font-size: 1.1rem;
+    }
+    
+    .section-description {
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+</body>
+</html>

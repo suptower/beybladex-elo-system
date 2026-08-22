@@ -1,0 +1,804 @@
+{
+  "metadata": {
+    "total_beys": 58,
+    "low_data_beys": 17,
+    "average_matches_all": 23.724137931034484,
+    "average_matches_low_data": 9.176470588235293,
+    "recommendation": {
+      "recommended": "single_elimination",
+      "reason": "Single elimination is best for 17 participants. Bracket size: 32, winner plays 5 matches.",
+      "benefits": [
+        "Efficient for large participant counts",
+        "Creates exciting playoff-style competition",
+        "Identifies top performers",
+        "Average current matches: 9.2"
+      ],
+      "note": "Some beys may need byes (15 byes needed)"
+    }
+  },
+  "low_data_bey_list": [
+    {
+      "name": "SamuraiCalibur",
+      "matches": 2,
+      "elo": 952.0,
+      "rank": 46
+    },
+    {
+      "name": "PhoenixFlare",
+      "matches": 3,
+      "elo": 1005.0,
+      "rank": 25
+    },
+    {
+      "name": "SamuraiSteel",
+      "matches": 3,
+      "elo": 1004.0,
+      "rank": 26
+    },
+    {
+      "name": "GhostCircle",
+      "matches": 3,
+      "elo": 981.0,
+      "rank": 36
+    },
+    {
+      "name": "ShelterDrake",
+      "matches": 4,
+      "elo": 1027.0,
+      "rank": 17
+    },
+    {
+      "name": "MeteorDragoon",
+      "matches": 5,
+      "elo": 1013.0,
+      "rank": 23
+    },
+    {
+      "name": "TriceraPress",
+      "matches": 6,
+      "elo": 1028.0,
+      "rank": 16
+    },
+    {
+      "name": "TyrannoRoar",
+      "matches": 10,
+      "elo": 1018.0,
+      "rank": 19
+    },
+    {
+      "name": "EmperorMight",
+      "matches": 10,
+      "elo": 920.0,
+      "rank": 51
+    },
+    {
+      "name": "ClockMirage",
+      "matches": 11,
+      "elo": 980.0,
+      "rank": 37
+    },
+    {
+      "name": "WhaleFlame",
+      "matches": 11,
+      "elo": 912.0,
+      "rank": 52
+    },
+    {
+      "name": "WizardArrow",
+      "matches": 11,
+      "elo": 864.0,
+      "rank": 57
+    },
+    {
+      "name": "PegasusBlast",
+      "matches": 12,
+      "elo": 903.0,
+      "rank": 54
+    },
+    {
+      "name": "SamuraiSaber",
+      "matches": 13,
+      "elo": 867.0,
+      "rank": 56
+    },
+    {
+      "name": "WolfHunt",
+      "matches": 16,
+      "elo": 988.0,
+      "rank": 35
+    },
+    {
+      "name": "BlackShell",
+      "matches": 16,
+      "elo": 949.0,
+      "rank": 47
+    },
+    {
+      "name": "TyrannoBeat",
+      "matches": 20,
+      "elo": 854.0,
+      "rank": 58
+    }
+  ],
+  "brackets": [
+    {
+      "type": "single_elimination",
+      "bracket": {
+        "format": "single_elimination",
+        "participants": [
+          "SamuraiCalibur",
+          "PhoenixFlare",
+          "SamuraiSteel",
+          "GhostCircle",
+          "ShelterDrake",
+          "MeteorDragoon",
+          "TriceraPress",
+          "TyrannoRoar",
+          "EmperorMight",
+          "ClockMirage",
+          "WhaleFlame",
+          "WizardArrow",
+          "PegasusBlast",
+          "SamuraiSaber",
+          "WolfHunt",
+          "BlackShell",
+          "TyrannoBeat"
+        ],
+        "total_rounds": 5,
+        "total_matches": 16,
+        "rounds": [
+          {
+            "round": 1,
+            "name": "Round of 32",
+            "matches": [
+              {
+                "match_id": "R1M1",
+                "bey_a": "SamuraiCalibur",
+                "bey_b": "PhoenixFlare",
+                "existing_matches": 0,
+                "winner_advances_to": "R2M1"
+              },
+              {
+                "match_id": "R1M2",
+                "bey_a": "SamuraiSteel",
+                "bey_b": "GhostCircle",
+                "existing_matches": 0,
+                "winner_advances_to": "R2M1"
+              },
+              {
+                "match_id": "R1M3",
+                "bey_a": "ShelterDrake",
+                "bey_b": "MeteorDragoon",
+                "existing_matches": 1,
+                "winner_advances_to": "R2M2"
+              },
+              {
+                "match_id": "R1M4",
+                "bey_a": "TriceraPress",
+                "bey_b": "TyrannoRoar",
+                "existing_matches": 0,
+                "winner_advances_to": "R2M2"
+              },
+              {
+                "match_id": "R1M5",
+                "bey_a": "EmperorMight",
+                "bey_b": "ClockMirage",
+                "existing_matches": 3,
+                "winner_advances_to": "R2M3"
+              },
+              {
+                "match_id": "R1M6",
+                "bey_a": "WhaleFlame",
+                "bey_b": "WizardArrow",
+                "existing_matches": 0,
+                "winner_advances_to": "R2M3"
+              },
+              {
+                "match_id": "R1M7",
+                "bey_a": "PegasusBlast",
+                "bey_b": "SamuraiSaber",
+                "existing_matches": 2,
+                "winner_advances_to": "R2M4"
+              },
+              {
+                "match_id": "R1M8",
+                "bey_a": "WolfHunt",
+                "bey_b": "BlackShell",
+                "existing_matches": 0,
+                "winner_advances_to": "R2M4"
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "name": "Round of 16",
+            "matches": [
+              {
+                "match_id": "R2M1",
+                "bey_a": "Winner of R1M1",
+                "bey_b": "Winner of R1M2",
+                "existing_matches": 0,
+                "winner_advances_to": "R3M1"
+              },
+              {
+                "match_id": "R2M2",
+                "bey_a": "Winner of R1M3",
+                "bey_b": "Winner of R1M4",
+                "existing_matches": 0,
+                "winner_advances_to": "R3M1"
+              },
+              {
+                "match_id": "R2M3",
+                "bey_a": "Winner of R1M5",
+                "bey_b": "Winner of R1M6",
+                "existing_matches": 0,
+                "winner_advances_to": "R3M2"
+              },
+              {
+                "match_id": "R2M4",
+                "bey_a": "Winner of R1M7",
+                "bey_b": "Winner of R1M8",
+                "existing_matches": 0,
+                "winner_advances_to": "R3M2"
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "name": "Quarter-Finals",
+            "matches": [
+              {
+                "match_id": "R3M1",
+                "bey_a": "Winner of R2M1",
+                "bey_b": "Winner of R2M2",
+                "existing_matches": 0,
+                "winner_advances_to": "R4M1"
+              },
+              {
+                "match_id": "R3M2",
+                "bey_a": "Winner of R2M3",
+                "bey_b": "Winner of R2M4",
+                "existing_matches": 0,
+                "winner_advances_to": "R4M1"
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "name": "Semi-Finals",
+            "matches": [
+              {
+                "match_id": "R4M1",
+                "bey_a": "Winner of R3M1",
+                "bey_b": "Winner of R3M2",
+                "existing_matches": 0,
+                "winner_advances_to": "R5M1"
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "name": "Finals",
+            "matches": [
+              {
+                "match_id": "R5M1",
+                "bey_a": "Winner of R4M1",
+                "bey_b": "TyrannoBeat",
+                "existing_matches": 0,
+                "winner_advances_to": "R6M1"
+              }
+            ]
+          }
+        ]
+      },
+      "schedule": [
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "SamuraiCalibur",
+          "bey_b": "PhoenixFlare",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "SamuraiSteel",
+          "bey_b": "GhostCircle",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "ShelterDrake",
+          "bey_b": "MeteorDragoon",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "TriceraPress",
+          "bey_b": "TyrannoRoar",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "EmperorMight",
+          "bey_b": "ClockMirage",
+          "existing_matches": 3
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "WhaleFlame",
+          "bey_b": "WizardArrow",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "PegasusBlast",
+          "bey_b": "SamuraiSaber",
+          "existing_matches": 2
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "WolfHunt",
+          "bey_b": "BlackShell",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-23",
+          "round": 2,
+          "bey_a": "Winner of R1M1",
+          "bey_b": "Winner of R1M2",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-23",
+          "round": 2,
+          "bey_a": "Winner of R1M3",
+          "bey_b": "Winner of R1M4",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-23",
+          "round": 2,
+          "bey_a": "Winner of R1M5",
+          "bey_b": "Winner of R1M6",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-23",
+          "round": 2,
+          "bey_a": "Winner of R1M7",
+          "bey_b": "Winner of R1M8",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-24",
+          "round": 3,
+          "bey_a": "Winner of R2M1",
+          "bey_b": "Winner of R2M2",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-24",
+          "round": 3,
+          "bey_a": "Winner of R2M3",
+          "bey_b": "Winner of R2M4",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-25",
+          "round": 4,
+          "bey_a": "Winner of R3M1",
+          "bey_b": "Winner of R3M2",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-26",
+          "round": 5,
+          "bey_a": "Winner of R4M1",
+          "bey_b": "TyrannoBeat",
+          "existing_matches": 0
+        }
+      ]
+    },
+    {
+      "type": "round_robin_focused",
+      "bracket": {
+        "format": "round_robin",
+        "participants": [
+          "SamuraiCalibur",
+          "PhoenixFlare",
+          "SamuraiSteel",
+          "GhostCircle",
+          "ShelterDrake",
+          "MeteorDragoon",
+          "TriceraPress",
+          "TyrannoRoar"
+        ],
+        "total_rounds": 7,
+        "total_matches": 28,
+        "rounds": [
+          {
+            "round": 1,
+            "matches": [
+              {
+                "bey_a": "SamuraiCalibur",
+                "bey_b": "TyrannoRoar",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "PhoenixFlare",
+                "bey_b": "TriceraPress",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "SamuraiSteel",
+                "bey_b": "MeteorDragoon",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "GhostCircle",
+                "bey_b": "ShelterDrake",
+                "existing_matches": 0
+              }
+            ]
+          },
+          {
+            "round": 2,
+            "matches": [
+              {
+                "bey_a": "SamuraiCalibur",
+                "bey_b": "TriceraPress",
+                "existing_matches": 1
+              },
+              {
+                "bey_a": "TyrannoRoar",
+                "bey_b": "MeteorDragoon",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "PhoenixFlare",
+                "bey_b": "ShelterDrake",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "SamuraiSteel",
+                "bey_b": "GhostCircle",
+                "existing_matches": 0
+              }
+            ]
+          },
+          {
+            "round": 3,
+            "matches": [
+              {
+                "bey_a": "SamuraiCalibur",
+                "bey_b": "MeteorDragoon",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "TriceraPress",
+                "bey_b": "ShelterDrake",
+                "existing_matches": 1
+              },
+              {
+                "bey_a": "TyrannoRoar",
+                "bey_b": "GhostCircle",
+                "existing_matches": 1
+              },
+              {
+                "bey_a": "PhoenixFlare",
+                "bey_b": "SamuraiSteel",
+                "existing_matches": 0
+              }
+            ]
+          },
+          {
+            "round": 4,
+            "matches": [
+              {
+                "bey_a": "SamuraiCalibur",
+                "bey_b": "ShelterDrake",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "MeteorDragoon",
+                "bey_b": "GhostCircle",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "TriceraPress",
+                "bey_b": "SamuraiSteel",
+                "existing_matches": 1
+              },
+              {
+                "bey_a": "TyrannoRoar",
+                "bey_b": "PhoenixFlare",
+                "existing_matches": 1
+              }
+            ]
+          },
+          {
+            "round": 5,
+            "matches": [
+              {
+                "bey_a": "SamuraiCalibur",
+                "bey_b": "GhostCircle",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "ShelterDrake",
+                "bey_b": "SamuraiSteel",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "MeteorDragoon",
+                "bey_b": "PhoenixFlare",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "TriceraPress",
+                "bey_b": "TyrannoRoar",
+                "existing_matches": 0
+              }
+            ]
+          },
+          {
+            "round": 6,
+            "matches": [
+              {
+                "bey_a": "SamuraiCalibur",
+                "bey_b": "SamuraiSteel",
+                "existing_matches": 2
+              },
+              {
+                "bey_a": "GhostCircle",
+                "bey_b": "PhoenixFlare",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "ShelterDrake",
+                "bey_b": "TyrannoRoar",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "MeteorDragoon",
+                "bey_b": "TriceraPress",
+                "existing_matches": 0
+              }
+            ]
+          },
+          {
+            "round": 7,
+            "matches": [
+              {
+                "bey_a": "SamuraiCalibur",
+                "bey_b": "PhoenixFlare",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "SamuraiSteel",
+                "bey_b": "TyrannoRoar",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "GhostCircle",
+                "bey_b": "TriceraPress",
+                "existing_matches": 0
+              },
+              {
+                "bey_a": "ShelterDrake",
+                "bey_b": "MeteorDragoon",
+                "existing_matches": 1
+              }
+            ]
+          }
+        ]
+      },
+      "schedule": [
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "SamuraiCalibur",
+          "bey_b": "TyrannoRoar",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "PhoenixFlare",
+          "bey_b": "TriceraPress",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "SamuraiSteel",
+          "bey_b": "MeteorDragoon",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-22",
+          "round": 1,
+          "bey_a": "GhostCircle",
+          "bey_b": "ShelterDrake",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-23",
+          "round": 2,
+          "bey_a": "SamuraiCalibur",
+          "bey_b": "TriceraPress",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-08-23",
+          "round": 2,
+          "bey_a": "TyrannoRoar",
+          "bey_b": "MeteorDragoon",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-23",
+          "round": 2,
+          "bey_a": "PhoenixFlare",
+          "bey_b": "ShelterDrake",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-23",
+          "round": 2,
+          "bey_a": "SamuraiSteel",
+          "bey_b": "GhostCircle",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-24",
+          "round": 3,
+          "bey_a": "SamuraiCalibur",
+          "bey_b": "MeteorDragoon",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-24",
+          "round": 3,
+          "bey_a": "TriceraPress",
+          "bey_b": "ShelterDrake",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-08-24",
+          "round": 3,
+          "bey_a": "TyrannoRoar",
+          "bey_b": "GhostCircle",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-08-24",
+          "round": 3,
+          "bey_a": "PhoenixFlare",
+          "bey_b": "SamuraiSteel",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-25",
+          "round": 4,
+          "bey_a": "SamuraiCalibur",
+          "bey_b": "ShelterDrake",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-25",
+          "round": 4,
+          "bey_a": "MeteorDragoon",
+          "bey_b": "GhostCircle",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-25",
+          "round": 4,
+          "bey_a": "TriceraPress",
+          "bey_b": "SamuraiSteel",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-08-25",
+          "round": 4,
+          "bey_a": "TyrannoRoar",
+          "bey_b": "PhoenixFlare",
+          "existing_matches": 1
+        },
+        {
+          "date": "2026-08-26",
+          "round": 5,
+          "bey_a": "SamuraiCalibur",
+          "bey_b": "GhostCircle",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-26",
+          "round": 5,
+          "bey_a": "ShelterDrake",
+          "bey_b": "SamuraiSteel",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-26",
+          "round": 5,
+          "bey_a": "MeteorDragoon",
+          "bey_b": "PhoenixFlare",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-26",
+          "round": 5,
+          "bey_a": "TriceraPress",
+          "bey_b": "TyrannoRoar",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-27",
+          "round": 6,
+          "bey_a": "SamuraiCalibur",
+          "bey_b": "SamuraiSteel",
+          "existing_matches": 2
+        },
+        {
+          "date": "2026-08-27",
+          "round": 6,
+          "bey_a": "GhostCircle",
+          "bey_b": "PhoenixFlare",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-27",
+          "round": 6,
+          "bey_a": "ShelterDrake",
+          "bey_b": "TyrannoRoar",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-27",
+          "round": 6,
+          "bey_a": "MeteorDragoon",
+          "bey_b": "TriceraPress",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-28",
+          "round": 7,
+          "bey_a": "SamuraiCalibur",
+          "bey_b": "PhoenixFlare",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-28",
+          "round": 7,
+          "bey_a": "SamuraiSteel",
+          "bey_b": "TyrannoRoar",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-28",
+          "round": 7,
+          "bey_a": "GhostCircle",
+          "bey_b": "TriceraPress",
+          "existing_matches": 0
+        },
+        {
+          "date": "2026-08-28",
+          "round": 7,
+          "bey_a": "ShelterDrake",
+          "bey_b": "MeteorDragoon",
+          "existing_matches": 1
+        }
+      ],
+      "note": "Focused on 8 beys with the lowest match counts"
+    }
+  ]
+}

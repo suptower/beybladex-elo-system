@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleset Archive - BeybladeX ELO System</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="ruleset-archive.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Ruleset Archive</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content" class="ruleset-archive-page">
+
+    <div class="breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="breadcrumb-separator">›</span>
+        <a href="seasons.html">Seasons</a>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-current">Ruleset Archive</span>
+    </div>
+
+    <div class="page-header">
+        <h2>📜 Ruleset Archive & History</h2>
+        <p class="page-description">
+            A complete, season-by-season record of the Seasonal League format: league structure,
+            scoring, promotion & relegation rules, the Season Cup, and every change between seasons.
+        </p>
+    </div>
+
+    <section class="ruleset-intro-card">
+        <h3>📖 About this archive</h3>
+        <p>
+            The Seasonal League has evolved since its launch. Season&nbsp;1 used a smaller
+            3-tier format that was deemed too "top-heavy" (one dominant tier absorbed the
+            best beys with little churn). From Season&nbsp;2 onward the league expanded to
+            a 4-tier pyramid with a dedicated <strong>Qualification Pool</strong> feeding
+            the bottom tier — a structure that has remained in place through Season&nbsp;3.
+        </p>
+        <p>
+            Use the timeline below to jump to any season, or scroll through for a full
+            side-by-side comparison. The <strong>Current</strong> badge marks the
+            ruleset that is in effect for the active (or upcoming) season.
+        </p>
+    </section>
+
+    <h2 class="ruleset-section-title">🗂️ Season timeline</h2>
+    <nav class="ruleset-toc" aria-label="Season ruleset timeline">
+        <h3>📚 Jump to a season</h3>
+        <ul class="ruleset-toc-list" id="ruleset-toc-list">
+            <!-- TOC entries populated by ruleset-archive.js -->
+        </ul>
+    </nav>
+
+    <h2 class="ruleset-section-title">📐 Per-season rulesets</h2>
+    <div id="ruleset-seasons-container">
+        <!-- Season cards rendered by ruleset-archive.js -->
+        <div class="ruleset-empty">Loading ruleset history…</div>
+    </div>
+
+    <h2 class="ruleset-section-title">🔁 Side-by-side comparison</h2>
+    <section class="ruleset-season-card">
+        <div class="ruleset-season-body">
+            <h4>⚖️ Ruleset v1 (S1) vs Ruleset v2 (S2+)</h4>
+            <p>
+                A condensed view of every change between the original S1 format and the
+                current 4-tier pyramid used in S2 and S3.
+            </p>
+            <div class="ruleset-compare-wrap">
+                <table class="ruleset-compare-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Ruleset v1 <span class="ruleset-version-badge v1" style="font-size:0.65rem;padding:0.1rem 0.5rem;vertical-align:middle;">S1</span></th>
+                            <th class="current-head">Ruleset v2 <span class="ruleset-version-badge current" style="font-size:0.65rem;padding:0.1rem 0.5rem;vertical-align:middle;">Current · S2+</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Number of tiers</td>
+                            <td>3 tiers</td>
+                            <td class="current-col">4 tiers (added <strong>Tier IV</strong>)</td>
+                        </tr>
+                        <tr>
+                            <td>Beys per tier</td>
+                            <td>10</td>
+                            <td class="current-col">8 (tighter, faster round-robin)</td>
+                        </tr>
+                        <tr>
+                            <td>Beys in active league</td>
+                            <td>30</td>
+                            <td class="current-col">32</td>
+                        </tr>
+                        <tr>
+                            <td>League matches per season</td>
+                            <td>135 (3 × C(10,2))</td>
+                            <td class="current-col">112 (4 × C(8,2))</td>
+                        </tr>
+                        <tr>
+                            <td>Matchdays per tier</td>
+                            <td>9</td>
+                            <td class="current-col">7</td>
+                        </tr>
+                        <tr>
+                            <td>Auto-promotions per non-top tier</td>
+                            <td>Top 2 from T2 & T3</td>
+                            <td class="current-col">T2: 1 · T3: 2 · T4: 2 (tier-scaled)</td>
+                        </tr>
+                        <tr>
+                            <td>Auto-relegations per non-bottom tier</td>
+                            <td>Bottom 2 from T1 & T2</td>
+                            <td class="current-col">T1: 1 · T2: 2 · T3: 2 (tier-scaled)</td>
+                        </tr>
+                        <tr>
+                            <td>Relegation playoff pairs</td>
+                            <td>8th of higher tier vs 3rd of lower tier (at T1/T2 and T2/T3)</td>
+                            <td class="current-col">Three pairs at every boundary: T1#7↔T2#2, T2#6↔T3#3, T3#6↔T4#3</td>
+                        </tr>
+                        <tr>
+                            <td>Qualification pool feeding</td>
+                            <td>Bottom 4 of T3 (positions 7–10)</td>
+                            <td class="current-col">Bottom 4 of T4 (positions 5–8) — a separate "Challengers Tier"</td>
+                        </tr>
+                        <tr>
+                            <td>Season Cup qualification</td>
+                            <td>Not run in S1 (no T4 invited)</td>
+                            <td class="current-col">4 (T1) + 2 (T2) + 1 (T3) + 1 (T4) = 8 qualifiers</td>
+                        </tr>
+                        <tr>
+                            <td>Season Cup format</td>
+                            <td>—</td>
+                            <td class="current-col">Double-elimination bracket with winners/losers brackets + grand final</td>
+                        </tr>
+                        <tr>
+                            <td>Tiebreakers (league table)</td>
+                            <td colspan="2" style="color:var(--text-light);">
+                                <em>Unchanged:</em> Season Points → Point Diff → Points Scored → Head-to-Head → ELO.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Scoring (win / dominant win / loss)</td>
+                            <td colspan="2" style="color:var(--text-light);">
+                                <em>Unchanged:</em> 3 / 4 / 0 — dominant win = 4–0 or greater shutout.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <h2 class="ruleset-section-title">🧠 Change highlights</h2>
+    <section class="ruleset-season-card">
+        <div class="ruleset-season-body">
+            <h4>🆚 S1 → S2 (the big reformat)</h4>
+            <p>
+                The single most impactful change in league history. Going from a 3-tier
+                flat league to a 4-tier pyramid introduced a true <em>promotion pathway</em>
+                from the bottom up, gave weaker beys more regular matches, and added
+                relegation playoffs at every boundary to keep tier movement meaningful.
+            </p>
+            <div class="ruleset-changes">
+                <div class="ruleset-change-item">
+                    <span class="ruleset-change-tag added">Added</span>
+                    <strong>Tier IV</strong> as a dedicated "Challengers Tier" with
+                    8 slots fed by a Qualification Pool.
+                </div>
+                <div class="ruleset-change-item">
+                    <span class="ruleset-change-tag changed">Changed</span>
+                    Tier size reduced from <strong>10 → 8</strong> beys, dropping the
+                    season's match count from 135 to 112 while still covering every
+                    pairing (round-robin).
+                </div>
+                <div class="ruleset-change-item">
+                    <span class="ruleset-change-tag changed">Changed</span>
+                    Promotion / relegation is now <em>tier-scaled</em> (1/2/2 for
+                    promotions; 1/2/2 for relegations) rather than a flat "top 2 / bottom 2".
+                </div>
+                <div class="ruleset-change-item">
+                    <span class="ruleset-change-tag added">Added</span>
+                    Relegation playoffs at the <strong>T3/T4 boundary</strong> in
+                    addition to T1/T2 and T2/T3 (three pairs total).
+                </div>
+                <div class="ruleset-change-item">
+                    <span class="ruleset-change-tag added">Added</span>
+                    <strong>Season Cup</strong> — an 8-bey double-elimination tournament
+                    with qualification slots for every tier (4-2-1-1).
+                </div>
+                <div class="ruleset-change-item">
+                    <span class="ruleset-change-tag changed">Changed</span>
+                    Qualification pool now feeds only the bottom tier (T4), with
+                    pool slots filled by ELO order from the previous pool + new
+                    qualification tournament winners.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ruleset-season-card">
+        <div class="ruleset-season-body">
+            <h4>🔁 S2 → S3 (year-2 continuation)</h4>
+            <p>
+                No structural changes — Season 3 is a continuation of the v2 ruleset
+                introduced in S2. Adjustments were operational only.
+            </p>
+            <div class="ruleset-changes">
+                <div class="ruleset-change-item">
+                    <span class="ruleset-change-tag note">Note</span>
+                    Same 4×8 format, same promotion/relegation counts, same Season
+                    Cup structure (4-2-1-1, double-elimination).
+                </div>
+                <div class="ruleset-change-item">
+                    <span class="ruleset-change-tag note">Note</span>
+                    Tier composition was rebuilt from S2's promotion/relegation
+                    results via <code>initialize_season_from_results()</code> rather
+                    than the original ELO-snapshot initialisation.
+                </div>
+                <div class="ruleset-change-item">
+                    <span class="ruleset-change-tag note">Note</span>
+                    The qualification pool retained its role as the gap-filler for
+                    T4 vacancies, with qualification-candidates competing for re-entry.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="ruleset-notes" style="margin-top:2rem;">
+        <strong>Source of truth:</strong> the season format and rule tables are
+        implemented in <code>src/season/season_manager.py</code>
+        (<code>SEASON_FORMATS</code>, <code>get_promotion_relegation</code>) and
+        the per-season qualification rules in
+        <code>src/season/season_cup.py</code>
+        (<code>TIER_QUALIFICATION</code>). This page is a human-readable mirror
+        of those constants, annotated with the rationale behind each change.
+    </div>
+
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+<script defer src="footer-loader.js"></script>
+<script defer src="ruleset-archive.js"></script>
+</body>
+</html>

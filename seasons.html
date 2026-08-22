@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasonal Leagues - BeybladeX ELO System</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Seasonal Leagues</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="container">
+        <div class="header-section">
+            <h1>🏆 Seasonal League Archive</h1>
+            <p class="subtitle">Tiered Seasonal Competition History</p>
+        </div>
+
+        <div class="info-box">
+            <h3>About the Seasonal League System</h3>
+            <p>
+                The Seasonal League is a tiered competition system where 32 Beyblades compete across 4 tiers.
+                Each season features round-robin matches within tiers, followed by promotion/relegation matches.
+                Tier IV acts as the Challengers Tier: its bottom 4 Beys drop into the Qualification Pool,
+                while unranked Beys compete in a Qualification Tournament for Tier IV slots.
+            </p>
+            <p style="margin-top:1rem;">
+                <a href="ruleset-archive.html" class="season-details-btn" style="display:inline-block;">
+                    📜 View Ruleset Archive & History &rarr;
+                </a>
+                <span style="color:var(--text-light);font-size:0.9rem;margin-left:0.75rem;">
+                    See the full per-season ruleset breakdown and a changelog of every format change.
+                </span>
+            </p>
+            <div class="system-summary">
+                <div class="stat-card">
+                    <div class="stat-value">4</div>
+                    <div class="stat-label">Tiers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Beys per Tier</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">112</div>
+                    <div class="stat-label">Matches per Season</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Season Cup Participants</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="seasons-container">
+            <h2>Season History</h2>
+            <div id="seasons-list">
+                <!-- Seasons will be loaded here dynamically -->
+            </div>
+        </div>
+
+        <div id="alltime-standings-container" style="display: none;">
+            <h2 class="collapsible-header collapsed section-header" data-section-id="alltime-content" onclick="toggleAlltimeSection()">
+                <span class="section-toggle-icon">▶</span>
+                📈 All Time Standings
+            </h2>
+            <div id="alltime-content" class="collapsible-content collapsed">
+                <p class="subtitle" style="margin: 0.5rem 0 1rem;">Aggregated stats for every Bey that has competed across all seasons and tiers. Click a column header to sort.</p>
+                <div class="alltime-legend">
+                    <strong>Legend:</strong>
+                    <span><abbr title="Rank (based on Season Points)">#</abbr> Rank</span>
+                    <span><abbr title="Matches Played">MP</abbr> Matches Played</span>
+                    <span><abbr title="Wins">W</abbr> Wins</span>
+                    <span><abbr title="Losses">L</abbr> Losses</span>
+                    <span><abbr title="Win Rate">Win%</abbr> Win Rate</span>
+                    <span><abbr title="Season Points">Pts</abbr> Season Points</span>
+                    <span><abbr title="Points For (total rounds won)">PF</abbr> Points For</span>
+                    <span><abbr title="Points Against (total rounds lost)">PA</abbr> Points Against</span>
+                    <span><abbr title="Points Difference (PF − PA)">PD</abbr> Points Diff</span>
+                    <span><abbr title="ELO Rating from the most recent season">ELO</abbr> ELO Rating</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="league-table" id="alltime-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th class="sortable" data-sort-key="bey" title="Bey name">Bey</th>
+                                <th class="sortable" data-sort-key="seasons" title="Seasons competed in">Seasons</th>
+                                <th class="sortable" data-sort-key="matches" title="Matches played">MP</th>
+                                <th class="sortable" data-sort-key="wins" title="Wins">W</th>
+                                <th class="sortable" data-sort-key="losses" title="Losses">L</th>
+                                <th class="sortable" data-sort-key="win_rate" title="Win Rate">Win%</th>
+                                <th class="sortable" data-sort-key="season_points" title="Season Points">Pts</th>
+                                <th class="sortable" data-sort-key="points_for" title="Points For">PF</th>
+                                <th class="sortable" data-sort-key="points_against" title="Points Against">PA</th>
+                                <th class="sortable" data-sort-key="point_diff" title="Point Difference">PD</th>
+                                <th class="sortable" data-sort-key="elo" title="ELO Rating (most recent season)">ELO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alltime-tbody">
+                            <!-- Populated by seasons.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>Competition Format</h3>
+            <div class="format-grid">
+                <div class="format-card">
+                    <h4>🎯 League Matches</h4>
+                    <ul>
+                        <li>Single round-robin within each tier</li>
+                        <li>7 matches per Bey</li>
+                        <li>Win: 3 points</li>
+                        <li>Dominant Win (4-0+): 4 points</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>↕️ Promotion & Relegation</h4>
+                    <ul>
+                        <li>T1: Rank 8 relegated; Rank 7 playoff</li>
+                        <li>T2: Rank 1 promoted; Ranks 7–8 relegated; Rank 2 &amp; 6 playoff</li>
+                        <li>T3: Ranks 1–2 promoted; Ranks 7–8 relegated; Rank 3 &amp; 6 playoff</li>
+                        <li>T4: Ranks 1–2 promoted; Rank 3 playoff; Ranks 5–8 → Qual. Pool</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>🏆 Season Cup</h4>
+                    <ul>
+                        <li>Top 4 from Tier I</li>
+                        <li>Top 2 from Tier II</li>
+                        <li>Top 1 from Tier III</li>
+                        <li>Top 1 from Tier IV</li>
+                        <li>Double-elimination format</li>
+                    </ul>
+                </div>
+                <div class="format-card">
+                    <h4>📊 League Table Ranking</h4>
+                    <ol>
+                        <li>Season Points</li>
+                        <li>Point Difference</li>
+                        <li>Total Points Scored</li>
+                        <li>Head-to-Head</li>
+                        <li>ELO Rating</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script src="seasons.js"></script>
+<script defer src="footer-loader.js"></script>
+</body>
+</html>

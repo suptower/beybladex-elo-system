@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Beys - suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Compare Beys</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main class="compare-page" id="main-content">
+    <!-- View Toggle -->
+    <div class="compare-view-toggle">
+        <button class="view-btn active" id="tableViewBtn" onclick="showView('table')">
+            📊 Stats Table
+        </button>
+        <button class="view-btn" id="compareViewBtn" onclick="showView('compare')">
+            ⚔️ Compare Beys
+        </button>
+    </div>
+
+    <!-- Stats Table View -->
+    <section id="tableView" class="compare-section">
+        <div class="section-header">
+            <h2>📊 RPG Stats Overview</h2>
+            <p>View and sort all Beyblade stats in one place</p>
+        </div>
+        
+        <div class="table-controls">
+            <div class="search-container">
+                <input type="text" id="tableSearch" placeholder="Search beys...">
+            </div>
+        </div>
+        
+        <!-- Mobile sort controls -->
+        <div class="mobile-sort-controls" id="mobileSortControls">
+            <button class="sort-button" id="mobileSortButton">
+                <span class="sort-icon">⇅</span>
+                <span class="sort-label">Sort by: <span id="currentSortLabel">Rank</span></span>
+            </button>
+        </div>
+        
+        <!-- Desktop table view -->
+        <div class="table-wrapper" id="statsTableWrapper">
+            <table id="statsTable" class="stats-table">
+                <thead>
+                    <tr>
+                        <th class="sortable" data-sort="rank">Rank</th>
+                        <th class="sortable" data-sort="name">Bey</th>
+                        <th class="sortable" data-sort="elo">ELO</th>
+                        <th class="sortable stat-attack" data-sort="attack">⚔️ ATK</th>
+                        <th class="sortable stat-defense" data-sort="defense">🛡️ DEF</th>
+                        <th class="sortable stat-stamina" data-sort="stamina">💪 STA</th>
+                        <th class="sortable stat-control" data-sort="control">🎯 CTR</th>
+                        <th class="sortable stat-meta" data-sort="meta_impact">⭐ META</th>
+                        <th class="sortable" data-sort="total">Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="statsTableBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Mobile card view -->
+        <div id="statsCards" class="cards"></div>
+        
+        <!-- Sort modal for mobile -->
+        <div class="sort-modal" id="sortModal">
+            <div class="sort-modal-content">
+                <div class="sort-modal-header">
+                    <h3>Sort Options</h3>
+                    <button class="sort-modal-close" id="sortModalClose">&times;</button>
+                </div>
+                <div class="sort-modal-body" id="sortModalBody">
+                    <!-- Populated dynamically by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Compare View -->
+    <section id="compareView" class="compare-section" style="display: none;">
+        <div class="section-header">
+            <h2>⚔️ Compare Beyblades</h2>
+            <p>Select up to 4 beys to compare side-by-side</p>
+        </div>
+        
+        <div class="compare-selector">
+            <div class="selector-grid" id="selectorGrid">
+                <!-- Selector slots populated by JavaScript -->
+            </div>
+            <button class="clear-compare-btn" onclick="clearComparison()">Clear All</button>
+        </div>
+        
+        <div class="compare-cards" id="compareCards">
+            <!-- Comparison cards populated by JavaScript -->
+        </div>
+        
+        <div class="compare-chart-section" id="compareChartSection" style="display: none;">
+            <h3>📈 Stats Comparison Chart</h3>
+            <div class="compare-radar-container">
+                <canvas id="compareRadarChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Stat Battle Summary -->
+        <div class="compare-battle-section" id="compareBattleSection" style="display: none;">
+            <h3>⚔️ Stat Battle Summary</h3>
+            <div class="stat-battle-grid" id="statBattleGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Leaderboard Stats Comparison -->
+        <div class="compare-leaderboard-section" id="compareLeaderboardSection" style="display: none;">
+            <h3>🏆 Leaderboard Stats</h3>
+            <div class="leaderboard-stats-grid" id="leaderboardStatsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Advanced Stats Comparison -->
+        <div class="compare-advanced-section" id="compareAdvancedSection" style="display: none;">
+            <h3>📊 Advanced Stats</h3>
+            <div class="advanced-stats-grid" id="advancedStatsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Finish Type Distribution -->
+        <div class="compare-finish-section" id="compareFinishSection" style="display: none;">
+            <h3>💥 Finish Type Distribution</h3>
+            <div class="finish-comparison-grid" id="finishComparisonGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Archetype Comparison -->
+        <div class="compare-archetype-section" id="compareArchetypeSection" style="display: none;">
+            <h3>🎭 Archetype Comparison</h3>
+            <div class="archetype-comparison-grid" id="archetypeComparisonGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+        
+        <!-- Head-to-Head Matchup History -->
+        <div class="compare-h2h-section" id="compareH2HSection" style="display: none;">
+            <h3>📊 Head-to-Head History</h3>
+            <div class="h2h-grid" id="h2hGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script defer src="footer-loader.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let rpgStatsData = {};
+let allBeys = [];
+let selectedBeys = [];
+let currentSort = { column: 'rank', asc: true };
+let radarChart = null;
+let beysData = [];
+let beyCountersData = [];
+let eloHistoryData = [];
+let advancedLeaderboardData = [];
+
+// Stat colors
+const statColors = {
+    attack: { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgb(239, 68, 68)' },
+    defense: { bg: 'rgba(59, 130, 246, 0.2)', border: 'rgb(59, 130, 246)' },
+    stamina: { bg: 'rgba(16, 185, 129, 0.2)', border: 'rgb(16, 185, 129)' },
+    control: { bg: 'rgba(245, 158, 11, 0.2)', border: 'rgb(245, 158, 11)' },
+    meta_impact: { bg: 'rgba(139, 92, 246, 0.2)', border: 'rgb(139, 92, 246)' }
+};
+
+// Bey colors for comparison
+const beyColors = [
+    { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgb(239, 68, 68)' },
+    { bg: 'rgba(59, 130, 246, 0.2)', border: 'rgb(59, 130, 246)' },
+    { bg: 'rgba(16, 185, 129, 0.2)', border: 'rgb(16, 185, 129)' },
+    { bg: 'rgba(245, 158, 11, 0.2)', border: 'rgb(245, 158, 11)' }
+];
+
+// Sub-metric display names
+const subMetricNames = {
+    attack: {
+        burst_finish_rate: 'Burst Finish Rate',
+        pocket_finish_rate: 'Pocket Finish Rate',
+        stadium_exit_finish_rate: 'Stadium Exit Finish Rate',
+        extreme_finish_rate: 'Extreme Finish Rate',
+        offensive_point_efficiency: 'Point Efficiency',
+        opening_dominance: 'Opening Dominance'
+    },
+    defense: {
+        burst_resistance: 'Burst Resistance',
+        pocket_resistance: 'Pocket Resistance',
+        stadium_exit_resistance: 'Stadium Exit Resistance',
+        extreme_resistance: 'Extreme Resistance',
+        defensive_conversion: 'Defensive Conversion'
+    },
+    stamina: {
+        spin_finish_win_rate: 'Spin Win Rate',
+        spin_differential_index: 'Spin Differential',
+        long_round_win_rate: 'Long Round Win Rate'
+    },
+    control: {
+        volatility_inverse: 'Consistency',
+        first_contact_advantage: 'First Contact Advantage',
+        match_flow_stability: 'Match Flow Stability'
+    },
+    meta_impact: {
+        elo_normalized: 'Normalized ELO',
+        elo_per_match: 'ELO per Match',
+        upset_rate: 'Upset Rate',
+        matchup_spread: 'Matchup Spread',
+        anti_meta_score: 'Anti-Meta Score'
+    }
+};
+
+// Load data
+async function loadData() {
+    try {
+        // Load all data in parallel
+        const [rpgResponse, beysResponse, countersResponse, historyResponse, advancedResponse] = await Promise.all([
+            fetch(DATA_PATHS.RPG_STATS_JSON),
+            fetch(DATA_PATHS.BEYS_DATA_JSON),
+            fetch(DATA_PATHS.BEY_COUNTERS_CSV),
+            fetch(DATA_PATHS.ELO_HISTORY_CSV),
+            fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV)
+        ]);
+        
+        rpgStatsData = await rpgResponse.json();
+        beysData = await beysResponse.json();
+        
+        // Parse CSV data
+        const countersText = await countersResponse.text();
+        beyCountersData = parseCSV(countersText);
+        
+        const historyText = await historyResponse.text();
+        eloHistoryData = parseCSV(historyText);
+        
+        const advancedText = await advancedResponse.text();
+        advancedLeaderboardData = parseCSV(advancedText);
+        
+        // Convert to array with names
+        allBeys = Object.entries(rpgStatsData).map(([name, data]) => ({
+            name,
+            ...data.stats,
+            total: Object.values(data.stats).reduce((a, b) => a + b, 0),
+            sub_metrics: data.sub_metrics,
+            leaderboard: data.leaderboard || {}
+        }));
+        
+        // Sort by rank initially
+        allBeys.sort((a, b) => (a.leaderboard.rank || 999) - (b.leaderboard.rank || 999));
+        
+        updateView();
+        renderSelectorSlots();
+        
+        // Check URL for pre-selected beys
+        const urlParams = new URLSearchParams(window.location.search);
+        const compareParam = urlParams.get('compare');
+        if (compareParam) {
+            const beys = compareParam.split(',');
+            beys.forEach(bey => {
+                if (rpgStatsData[bey]) {
+                    addToComparison(bey);
+                }
+            });
+            showView('compare');
+        }
+    } catch (error) {
+        console.error('Error loading data:', error);
+    }
+}
+
+// Parse CSV text to array of objects
+// Parse CSV text to array of objects
+// Note: This is a simple CSV parser that handles basic CSV files.
+// It does not handle quoted values containing commas or newlines.
+// The data files in this project use simple CSV without such edge cases.
+function parseCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+    if (lines.length < 2) return [];
+    
+    const headers = lines[0].split(',');
+    return lines.slice(1).map(line => {
+        const values = line.split(',');
+        const obj = {};
+        headers.forEach((header, i) => {
+            obj[header.trim()] = values[i] ? values[i].trim() : '';
+        });
+        return obj;
+    });
+}
+
+// Show view
+function showView(view) {
+    document.getElementById('tableView').style.display = view === 'table' ? 'block' : 'none';
+    document.getElementById('compareView').style.display = view === 'compare' ? 'block' : 'none';
+    document.getElementById('tableViewBtn').classList.toggle('active', view === 'table');
+    document.getElementById('compareViewBtn').classList.toggle('active', view === 'compare');
+}
+
+// Render stats table
+function renderStatsTable() {
+    const tbody = document.getElementById('statsTableBody');
+    const searchQuery = document.getElementById('tableSearch').value.toLowerCase();
+    
+    let filteredBeys = allBeys.filter(bey => 
+        bey.name.toLowerCase().includes(searchQuery)
+    );
+    
+    // Sort
+    filteredBeys.sort((a, b) => {
+        let aVal, bVal;
+        if (currentSort.column === 'name') {
+            aVal = a.name;
+            bVal = b.name;
+        } else if (currentSort.column === 'rank') {
+            aVal = a.leaderboard.rank || 999;
+            bVal = b.leaderboard.rank || 999;
+        } else if (currentSort.column === 'elo') {
+            aVal = a.leaderboard.elo || 0;
+            bVal = b.leaderboard.elo || 0;
+        } else {
+            aVal = a[currentSort.column] || 0;
+            bVal = b[currentSort.column] || 0;
+        }
+        
+        if (typeof aVal === 'string') {
+            return currentSort.asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        }
+        return currentSort.asc ? aVal - bVal : bVal - aVal;
+    });
+    
+    tbody.innerHTML = filteredBeys.map(bey => `
+        <tr>
+            <td class="rank-cell">#${bey.leaderboard.rank || '-'}</td>
+            <td class="name-cell">
+                <a href="bey.html?name=${encodeURIComponent(bey.name)}">${escapeHtml(bey.name)}</a>
+            </td>
+            <td class="elo-cell">${bey.leaderboard.elo || '-'}</td>
+            <td class="stat-cell stat-attack">${bey.attack.toFixed(1)}</td>
+            <td class="stat-cell stat-defense">${bey.defense.toFixed(1)}</td>
+            <td class="stat-cell stat-stamina">${bey.stamina.toFixed(1)}</td>
+            <td class="stat-cell stat-control">${bey.control.toFixed(1)}</td>
+            <td class="stat-cell stat-meta">${bey.meta_impact.toFixed(1)}</td>
+            <td class="total-cell">${bey.total.toFixed(1)}</td>
+            <td class="actions-cell">
+                <button class="add-compare-btn ${selectedBeys.includes(bey.name) ? 'selected' : ''}" 
+                        onclick="toggleComparison('${escapeHtml(bey.name)}')"
+                        title="${selectedBeys.includes(bey.name) ? 'Remove from comparison' : 'Add to comparison'}">
+                    ${selectedBeys.includes(bey.name) ? '✓' : '+'}
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    // Update sort indicators
+    document.querySelectorAll('.stats-table th.sortable').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        if (th.dataset.sort === currentSort.column) {
+            th.classList.add(currentSort.asc ? 'sort-asc' : 'sort-desc');
+        }
+    });
+}
+
+// Sort table
+function sortTable(column) {
+    if (currentSort.column === column) {
+        currentSort.asc = !currentSort.asc;
+    } else {
+        currentSort.column = column;
+        currentSort.asc = column === 'name' ? true : false; // Desc for numbers
+    }
+    renderStatsTable();
+}
+
+// Render selector slots for compare view
+function renderSelectorSlots() {
+    const grid = document.getElementById('selectorGrid');
+    grid.innerHTML = '';
+    
+    for (let i = 0; i < 4; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'selector-slot';
+        
+        if (selectedBeys[i]) {
+            const bey = rpgStatsData[selectedBeys[i]];
+            slot.classList.add('filled');
+            slot.innerHTML = `
+                <div class="slot-content" style="border-color: ${beyColors[i].border}">
+                    <span class="slot-name">${escapeHtml(selectedBeys[i])}</span>
+                    <button class="slot-remove" onclick="removeFromComparison(${i})">×</button>
+                </div>
+            `;
+        } else {
+            slot.innerHTML = `
+                <select class="slot-select" onchange="selectBeyForSlot(${i}, this.value)">
+                    <option value="">Select Bey ${i + 1}...</option>
+                    ${allBeys.filter(b => !selectedBeys.includes(b.name)).map(b => 
+                        `<option value="${escapeHtml(b.name)}">${escapeHtml(b.name)}</option>`
+                    ).join('')}
+                </select>
+            `;
+        }
+        
+        grid.appendChild(slot);
+    }
+}
+
+// Select bey for slot
+function selectBeyForSlot(slot, name) {
+    if (name && !selectedBeys.includes(name)) {
+        selectedBeys[slot] = name;
+        renderSelectorSlots();
+        renderCompareCards();
+        renderStatsTable();
+        updateURL();
+    }
+}
+
+// Toggle comparison from table
+function toggleComparison(name) {
+    if (selectedBeys.includes(name)) {
+        removeFromComparison(selectedBeys.indexOf(name));
+    } else if (selectedBeys.length < 4) {
+        addToComparison(name);
+    }
+}
+
+// Add to comparison
+function addToComparison(name) {
+    if (!selectedBeys.includes(name) && selectedBeys.length < 4) {
+        selectedBeys.push(name);
+        renderSelectorSlots();
+        renderCompareCards();
+        renderStatsTable();
+        updateURL();
+    }
+}
+
+// Remove from comparison
+function removeFromComparison(index) {
+    selectedBeys.splice(index, 1);
+    renderSelectorSlots();
+    renderCompareCards();
+    renderStatsTable();
+    updateURL();
+}
+
+// Clear comparison
+function clearComparison() {
+    selectedBeys = [];
+    renderSelectorSlots();
+    renderCompareCards();
+    renderStatsTable();
+    updateURL();
+}
+
+// Update URL with selected beys
+function updateURL() {
+    const url = new URL(window.location);
+    if (selectedBeys.length > 0) {
+        url.searchParams.set('compare', selectedBeys.join(','));
+    } else {
+        url.searchParams.delete('compare');
+    }
+    window.history.replaceState({}, '', url);
+}
+
+// Render compare cards
+function renderCompareCards() {
+    const container = document.getElementById('compareCards');
+    const chartSection = document.getElementById('compareChartSection');
+    const battleSection = document.getElementById('compareBattleSection');
+    const leaderboardSection = document.getElementById('compareLeaderboardSection');
+    const advancedSection = document.getElementById('compareAdvancedSection');
+    const finishSection = document.getElementById('compareFinishSection');
+    const archetypeSection = document.getElementById('compareArchetypeSection');
+    const h2hSection = document.getElementById('compareH2HSection');
+    
+    if (selectedBeys.length === 0) {
+        container.innerHTML = '<div class="compare-empty">Select beys from the table or dropdowns above to compare them.</div>';
+        chartSection.style.display = 'none';
+        battleSection.style.display = 'none';
+        leaderboardSection.style.display = 'none';
+        advancedSection.style.display = 'none';
+        finishSection.style.display = 'none';
+        archetypeSection.style.display = 'none';
+        h2hSection.style.display = 'none';
+        return;
+    }
+    
+    container.innerHTML = selectedBeys.map((name, idx) => {
+        const bey = rpgStatsData[name];
+        const color = beyColors[idx];
+        const beyInfo = beysData.find(b => b.blade === name);
+        const beyType = beyInfo?.type || 'Unknown';
+        const safeType = sanitizeClassName(beyType);
+        
+        return `
+            <div class="compare-card" style="border-top-color: ${color.border}">
+                <div class="compare-card-header">
+                    <h3>
+                        <a href="bey.html?name=${encodeURIComponent(name)}">${escapeHtml(name)}</a>
+                    </h3>
+                    <div class="compare-card-rank">
+                        <span class="rank-badge">#${bey.leaderboard?.rank || '-'}</span>
+                        <span class="elo-badge">ELO: ${bey.leaderboard?.elo || '-'}</span>
+                    </div>
+                    <div class="compare-card-type">
+                        <span class="type-badge type-${safeType}">${escapeHtml(beyType)}</span>
+                    </div>
+                </div>
+                
+                <div class="compare-stats-grid">
+                    ${renderStatBar('attack', '⚔️ Attack', bey.stats.attack, bey.sub_metrics.attack)}
+                    ${renderStatBar('defense', '🛡️ Defense', bey.stats.defense, bey.sub_metrics.defense)}
+                    ${renderStatBar('stamina', '💪 Stamina', bey.stats.stamina, bey.sub_metrics.stamina)}
+                    ${renderStatBar('control', '🎯 Control', bey.stats.control, bey.sub_metrics.control)}
+                    ${renderStatBar('meta_impact', '⭐ Meta', bey.stats.meta_impact, bey.sub_metrics.meta_impact)}
+                </div>
+                
+                <div class="compare-total">
+                    <span>Total Score</span>
+                    <span class="total-value">${Object.values(bey.stats).reduce((a, b) => a + b, 0).toFixed(1)}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Show chart if 2+ beys selected
+    if (selectedBeys.length >= 2) {
+        chartSection.style.display = 'block';
+        renderRadarChart();
+        
+        battleSection.style.display = 'block';
+        renderStatBattle();
+        
+        leaderboardSection.style.display = 'block';
+        renderLeaderboardStats();
+        
+        advancedSection.style.display = 'block';
+        renderAdvancedStats();
+        
+        finishSection.style.display = 'block';
+        renderFinishComparison();
+        
+        archetypeSection.style.display = 'block';
+        renderArchetypeComparison();
+        
+        h2hSection.style.display = 'block';
+        renderH2HComparison();
+    } else {
+        chartSection.style.display = 'none';
+        battleSection.style.display = 'none';
+        leaderboardSection.style.display = 'none';
+        advancedSection.style.display = 'none';
+        finishSection.style.display = 'none';
+        archetypeSection.style.display = 'none';
+        h2hSection.style.display = 'none';
+    }
+}
+
+// Render stat bar for compare card
+function renderStatBar(stat, label, value, subMetrics) {
+    const percentage = (value / 5) * 100;
+    const metricNames = subMetricNames[stat] || {};
+    
+    let subMetricsHtml = '';
+    if (subMetrics) {
+        subMetricsHtml = `
+            <div class="compare-sub-metrics">
+                ${Object.entries(subMetrics).map(([key, val]) => {
+                    const displayName = metricNames[key] || key;
+                    const displayVal = typeof val === 'number' ? 
+                        (val < 1 ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
+                    return `<div class="sub-metric-item">
+                        <span class="sub-metric-name">${escapeHtml(displayName)}</span>
+                        <span class="sub-metric-value">${escapeHtml(String(displayVal))}</span>
+                    </div>`;
+                }).join('')}
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="compare-stat-row">
+            <div class="compare-stat-header" onclick="this.parentElement.classList.toggle('expanded')">
+                <span class="compare-stat-label">${label}</span>
+                <div class="compare-stat-bar">
+                    <div class="compare-stat-fill stat-${stat}" style="width: ${percentage}%"></div>
+                </div>
+                <span class="compare-stat-value">${value.toFixed(1)}</span>
+                <span class="compare-expand-icon">▼</span>
+            </div>
+            ${subMetricsHtml}
+        </div>
+    `;
+}
+
+// Render radar chart
+function renderRadarChart() {
+    const ctx = document.getElementById('compareRadarChart').getContext('2d');
+    
+    if (radarChart) {
+        radarChart.destroy();
+    }
+    
+    const datasets = selectedBeys.map((name, idx) => {
+        const bey = rpgStatsData[name];
+        return {
+            label: name,
+            data: [
+                bey.stats.attack,
+                bey.stats.defense,
+                bey.stats.stamina,
+                bey.stats.control,
+                bey.stats.meta_impact
+            ],
+            backgroundColor: beyColors[idx].bg,
+            borderColor: beyColors[idx].border,
+            borderWidth: 2,
+            pointBackgroundColor: beyColors[idx].border,
+            pointRadius: 4
+        };
+    });
+    
+    // Check if Chart.js is available
+    if (typeof Chart === 'undefined') {
+        document.getElementById('compareChartSection').style.display = 'none';
+        return;
+    }
+    
+    radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['Attack', 'Defense', 'Stamina', 'Control', 'Meta Impact'],
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                r: {
+                    min: 0,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        color: getComputedStyle(document.body).getPropertyValue('--text-light')
+                    },
+                    grid: {
+                        color: getComputedStyle(document.body).getPropertyValue('--border')
+                    },
+                    angleLines: {
+                        color: getComputedStyle(document.body).getPropertyValue('--border')
+                    },
+                    pointLabels: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text'),
+                        font: { size: 12, weight: 600 }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: getComputedStyle(document.body).getPropertyValue('--text'),
+                        padding: 20
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Escape HTML - handles null/undefined inputs
+function escapeHtml(text) {
+    if (text == null) return '';
+    const div = document.createElement('div');
+    div.textContent = String(text);
+    return div.innerHTML;
+}
+
+// Sanitize class name - only allow alphanumeric and hyphens
+function sanitizeClassName(name) {
+    if (name == null) return 'unknown';
+    return String(name).toLowerCase().replace(/[^a-z0-9-]/g, '');
+}
+
+// Render Stat Battle Summary
+function renderStatBattle() {
+    const container = document.getElementById('statBattleGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const stats = ['attack', 'defense', 'stamina', 'control', 'meta_impact'];
+    const statLabels = {
+        attack: '⚔️ Attack',
+        defense: '🛡️ Defense',
+        stamina: '💪 Stamina',
+        control: '🎯 Control',
+        meta_impact: '⭐ Meta Impact'
+    };
+    
+    container.innerHTML = stats.map(stat => {
+        const values = selectedBeys.map(name => ({
+            name,
+            value: rpgStatsData[name]?.stats[stat] || 0,
+            color: beyColors[selectedBeys.indexOf(name)]
+        }));
+        
+        const maxValue = Math.max(...values.map(v => v.value));
+        const minValue = Math.min(...values.map(v => v.value));
+        const difference = maxValue - minValue;
+        
+        return `
+            <div class="stat-battle-row">
+                <div class="stat-battle-label">${statLabels[stat]}</div>
+                <div class="stat-battle-bars">
+                    ${values.map(v => {
+                        const isWinner = v.value === maxValue && difference > 0.2;
+                        const isLoser = v.value === minValue && difference > 0.2;
+                        const percentage = (v.value / 5) * 100;
+                        return `
+                            <div class="stat-battle-item ${isWinner ? 'winner' : ''} ${isLoser ? 'loser' : ''}">
+                                <span class="stat-battle-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <div class="stat-battle-bar-container">
+                                    <div class="stat-battle-bar" style="width: ${percentage}%; background: ${v.color.border}"></div>
+                                </div>
+                                <span class="stat-battle-value ${isWinner ? 'advantage' : ''} ${isLoser ? 'disadvantage' : ''}">${v.value.toFixed(1)}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Get advanced leaderboard data for a bey
+function getAdvancedStats(beyName) {
+    return advancedLeaderboardData.find(row => row.Bey === beyName) || null;
+}
+
+// Render Leaderboard Stats Comparison
+function renderLeaderboardStats() {
+    const container = document.getElementById('leaderboardStatsGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const statsToCompare = [
+        { key: 'Winrate', label: '🏆 Winrate', format: 'string', higherBetter: true },
+        { key: 'Matches', label: '🎮 Matches', format: 'number', higherBetter: true },
+        { key: 'Wins', label: '✅ Wins', format: 'number', higherBetter: true },
+        { key: 'Losses', label: '❌ Losses', format: 'number', higherBetter: false },
+        { key: 'PointsFor', label: '📈 Points Scored', format: 'number', higherBetter: true },
+        { key: 'PointsAgainst', label: '📉 Points Against', format: 'number', higherBetter: false },
+        { key: 'AvgPointDiff', label: '⚖️ Avg Point Diff', format: 'decimal', higherBetter: true },
+        { key: 'PowerIndex', label: '💪 Power Index', format: 'decimal', higherBetter: true }
+    ];
+    
+    container.innerHTML = statsToCompare.map(stat => {
+        const values = selectedBeys.map((name, idx) => {
+            const advStats = getAdvancedStats(name);
+            let value = advStats ? advStats[stat.key] : null;
+            
+            // Parse value based on format
+            if (value !== null && stat.format === 'number') {
+                value = parseInt(value) || 0;
+            } else if (value !== null && stat.format === 'decimal') {
+                value = parseFloat(value) || 0;
+            }
+            
+            return {
+                name,
+                value,
+                displayValue: advStats ? advStats[stat.key] : '-',
+                color: beyColors[idx]
+            };
+        });
+        
+        // Determine winner/loser for numeric values
+        const numericValues = values.filter(v => typeof v.value === 'number').map(v => v.value);
+        const maxValue = numericValues.length > 0 ? Math.max(...numericValues) : null;
+        const minValue = numericValues.length > 0 ? Math.min(...numericValues) : null;
+        
+        return `
+            <div class="leaderboard-stat-row">
+                <div class="leaderboard-stat-label">${stat.label}</div>
+                <div class="leaderboard-stat-values">
+                    ${values.map(v => {
+                        let className = '';
+                        if (typeof v.value === 'number' && maxValue !== minValue) {
+                            if (stat.higherBetter) {
+                                if (v.value === maxValue) className = 'advantage';
+                                else if (v.value === minValue) className = 'disadvantage';
+                            } else {
+                                if (v.value === minValue) className = 'advantage';
+                                else if (v.value === maxValue) className = 'disadvantage';
+                            }
+                        }
+                        return `
+                            <div class="leaderboard-stat-item" style="border-color: ${v.color.border}">
+                                <span class="stat-bey-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <span class="stat-value ${className}">${escapeHtml(String(v.displayValue))}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render Advanced Stats Comparison
+function renderAdvancedStats() {
+    const container = document.getElementById('advancedStatsGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const advancedStatsToCompare = [
+        { key: 'Volatility', label: '📊 Volatility', format: 'decimal', higherBetter: false, desc: 'Lower is more consistent' },
+        { key: 'AvgΔELO', label: '📈 Avg ELO Change', format: 'decimal', higherBetter: true },
+        { key: 'MaxΔELO', label: '🔺 Max ELO Gain', format: 'decimal', higherBetter: true },
+        { key: 'MinΔELO', label: '🔻 Max ELO Loss', format: 'decimal', higherBetter: true },
+        { key: 'UpsetWins', label: '🎯 Upset Wins', format: 'number', higherBetter: true },
+        { key: 'UpsetLosses', label: '💥 Upset Losses', format: 'number', higherBetter: false },
+        { key: 'ELOTrend', label: '📉 ELO Trend', format: 'decimal', higherBetter: true }
+    ];
+    
+    container.innerHTML = advancedStatsToCompare.map(stat => {
+        const values = selectedBeys.map((name, idx) => {
+            const advStats = getAdvancedStats(name);
+            let value = advStats ? advStats[stat.key] : null;
+            
+            // Parse value based on format
+            if (value !== null && stat.format === 'number') {
+                value = parseInt(value) || 0;
+            } else if (value !== null && stat.format === 'decimal') {
+                value = parseFloat(value) || 0;
+            }
+            
+            return {
+                name,
+                value,
+                displayValue: advStats ? advStats[stat.key] : '-',
+                color: beyColors[idx]
+            };
+        });
+        
+        // Determine winner/loser for numeric values
+        const numericValues = values.filter(v => typeof v.value === 'number').map(v => v.value);
+        const maxValue = numericValues.length > 0 ? Math.max(...numericValues) : null;
+        const minValue = numericValues.length > 0 ? Math.min(...numericValues) : null;
+        
+        return `
+            <div class="advanced-stat-row">
+                <div class="advanced-stat-label">
+                    ${stat.label}
+                    ${stat.desc ? `<span class="stat-desc">${escapeHtml(stat.desc)}</span>` : ''}
+                </div>
+                <div class="advanced-stat-values">
+                    ${values.map(v => {
+                        let className = '';
+                        if (typeof v.value === 'number' && maxValue !== minValue) {
+                            if (stat.higherBetter) {
+                                if (v.value === maxValue) className = 'advantage';
+                                else if (v.value === minValue) className = 'disadvantage';
+                            } else {
+                                if (v.value === minValue) className = 'advantage';
+                                else if (v.value === maxValue) className = 'disadvantage';
+                            }
+                        }
+                        return `
+                            <div class="advanced-stat-item" style="border-color: ${v.color.border}">
+                                <span class="stat-bey-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <span class="stat-value ${className}">${escapeHtml(String(v.displayValue))}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render Finish Type Distribution
+function renderFinishComparison() {
+    const container = document.getElementById('finishComparisonGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const finishTypes = [
+        { key: 'burst_finish_rate', label: 'Burst', icon: '💥', attackKey: 'burst_finish_rate' },
+        { key: 'pocket_finish_rate', label: 'Pocket', icon: '🎯', attackKey: 'pocket_finish_rate' },
+        { key: 'extreme_finish_rate', label: 'Extreme', icon: '⚡', attackKey: 'extreme_finish_rate' },
+        { key: 'spin_finish_win_rate', label: 'Spin', icon: '🌀', staminaKey: 'spin_finish_win_rate' }
+    ];
+    
+    container.innerHTML = finishTypes.map(finish => {
+        const values = selectedBeys.map((name, idx) => {
+            const bey = rpgStatsData[name];
+            let value = 0;
+            if (finish.attackKey && bey?.sub_metrics?.attack) {
+                value = bey.sub_metrics.attack[finish.attackKey] || 0;
+            } else if (finish.staminaKey && bey?.sub_metrics?.stamina) {
+                value = bey.sub_metrics.stamina[finish.staminaKey] || 0;
+            }
+            return {
+                name,
+                value,
+                color: beyColors[idx]
+            };
+        });
+        
+        const maxValue = Math.max(...values.map(v => v.value));
+        
+        return `
+            <div class="finish-type-card">
+                <div class="finish-type-header">
+                    <span class="finish-icon">${finish.icon}</span>
+                    <span class="finish-label">${finish.label}</span>
+                </div>
+                <div class="finish-type-values">
+                    ${values.map(v => {
+                        const isWinner = v.value === maxValue && maxValue > 0;
+                        return `
+                            <div class="finish-value-item ${isWinner ? 'winner' : ''}">
+                                <span class="finish-bey-name" style="color: ${v.color.border}">${escapeHtml(v.name)}</span>
+                                <span class="finish-rate ${isWinner ? 'advantage' : ''}">${(v.value * 100).toFixed(1)}%</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Get bey info from beys_data.json
+function getBeyInfo(bladeName) {
+    return beysData.find(b => b.blade === bladeName) || null;
+}
+
+// Render Archetype Comparison
+function renderArchetypeComparison() {
+    const container = document.getElementById('archetypeComparisonGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    const typeDescriptions = {
+        'Attack': { emoji: '⚔️', desc: 'High burst potential, aggressive playstyle', strengths: ['Burst finishes', 'Opening dominance'], weaknesses: ['Stamina', 'Consistency'] },
+        'Defense': { emoji: '🛡️', desc: 'High survival, defensive playstyle', strengths: ['Burst resistance', 'Pocket resistance'], weaknesses: ['Attack power', 'Speed'] },
+        'Stamina': { emoji: '🌀', desc: 'Long-lasting spin, outlast opponents', strengths: ['Spin finishes', 'Long rounds'], weaknesses: ['Burst potential', 'Early game'] },
+        'Balance': { emoji: '⚖️', desc: 'Versatile, no major weaknesses', strengths: ['Adaptability', 'Matchup flexibility'], weaknesses: ['No standout strength'] }
+    };
+    
+    container.innerHTML = selectedBeys.map((name, idx) => {
+        const beyInfo = getBeyInfo(name);
+        const type = beyInfo?.type || 'Unknown';
+        const typeInfo = typeDescriptions[type] || { emoji: '❓', desc: 'Unknown type', strengths: [], weaknesses: [] };
+        const color = beyColors[idx];
+        const safeType = sanitizeClassName(type);
+        
+        return `
+            <div class="archetype-card" style="border-top-color: ${color.border}">
+                <div class="archetype-header">
+                    <span class="archetype-emoji">${typeInfo.emoji}</span>
+                    <div class="archetype-info">
+                        <span class="archetype-bey-name" style="color: ${color.border}">${escapeHtml(name)}</span>
+                        <span class="archetype-type type-badge type-${safeType}">${escapeHtml(type)}</span>
+                    </div>
+                </div>
+                <p class="archetype-desc">${escapeHtml(typeInfo.desc)}</p>
+                <div class="archetype-traits">
+                    <div class="archetype-strengths">
+                        <span class="traits-label">✅ Strengths</span>
+                        <ul>
+                            ${typeInfo.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div class="archetype-weaknesses">
+                        <span class="traits-label">⚠️ Weaknesses</span>
+                        <ul>
+                            ${typeInfo.weaknesses.map(w => `<li>${escapeHtml(w)}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Render Head-to-Head Comparison
+function renderH2HComparison() {
+    const container = document.getElementById('h2hGrid');
+    if (!container || selectedBeys.length < 2) return;
+    
+    // Find all matchups between selected beys in elo_history
+    const matchups = [];
+    
+    for (let i = 0; i < selectedBeys.length; i++) {
+        for (let j = i + 1; j < selectedBeys.length; j++) {
+            const beyA = selectedBeys[i];
+            const beyB = selectedBeys[j];
+            
+            // Find matches between these two beys
+            const matches = eloHistoryData.filter(m => 
+                (m.BeyA === beyA && m.BeyB === beyB) ||
+                (m.BeyA === beyB && m.BeyB === beyA)
+            );
+            
+            if (matches.length > 0) {
+                let winsA = 0, winsB = 0, scoreA = 0, scoreB = 0;
+                
+                matches.forEach(m => {
+                    const sA = parseInt(m.ScoreA) || 0;
+                    const sB = parseInt(m.ScoreB) || 0;
+                    
+                    if (m.BeyA === beyA) {
+                        scoreA += sA;
+                        scoreB += sB;
+                        if (sA > sB) winsA++;
+                        else if (sB > sA) winsB++;
+                    } else {
+                        scoreA += sB;
+                        scoreB += sA;
+                        if (sB > sA) winsA++;
+                        else if (sA > sB) winsB++;
+                    }
+                });
+                
+                matchups.push({
+                    beyA,
+                    beyB,
+                    colorA: beyColors[i],
+                    colorB: beyColors[j],
+                    matches: matches.length,
+                    winsA,
+                    winsB,
+                    scoreA,
+                    scoreB
+                });
+            }
+        }
+    }
+    
+    if (matchups.length === 0) {
+        container.innerHTML = '<div class="h2h-empty">No head-to-head matches found between selected Beys.</div>';
+        return;
+    }
+    
+    container.innerHTML = matchups.map(m => {
+        const totalWins = m.winsA + m.winsB;
+        const winRateA = totalWins > 0 ? (m.winsA / totalWins * 100) : 50;
+        const winRateB = totalWins > 0 ? (m.winsB / totalWins * 100) : 50;
+        
+        return `
+            <div class="h2h-card">
+                <div class="h2h-header">
+                    <span class="h2h-bey" style="color: ${m.colorA.border}">${escapeHtml(m.beyA)}</span>
+                    <span class="h2h-vs">VS</span>
+                    <span class="h2h-bey" style="color: ${m.colorB.border}">${escapeHtml(m.beyB)}</span>
+                </div>
+                <div class="h2h-stats">
+                    <div class="h2h-stat-row">
+                        <span class="h2h-label">Matches</span>
+                        <span class="h2h-value">${m.matches}</span>
+                    </div>
+                    <div class="h2h-stat-row">
+                        <span class="h2h-label">Record</span>
+                        <span class="h2h-value">
+                            <span style="color: ${m.colorA.border}" class="${m.winsA > m.winsB ? 'advantage' : m.winsA < m.winsB ? 'disadvantage' : ''}">${m.winsA}</span>
+                            -
+                            <span style="color: ${m.colorB.border}" class="${m.winsB > m.winsA ? 'advantage' : m.winsB < m.winsA ? 'disadvantage' : ''}">${m.winsB}</span>
+                        </span>
+                    </div>
+                    <div class="h2h-stat-row">
+                        <span class="h2h-label">Points</span>
+                        <span class="h2h-value">${m.scoreA} - ${m.scoreB}</span>
+                    </div>
+                </div>
+                <div class="h2h-win-bar">
+                    <div class="h2h-bar-a" style="width: ${winRateA}%; background: ${m.colorA.border}"></div>
+                    <div class="h2h-bar-b" style="width: ${winRateB}%; background: ${m.colorB.border}"></div>
+                </div>
+                <div class="h2h-win-labels">
+                    <span style="color: ${m.colorA.border}">${winRateA.toFixed(0)}%</span>
+                    <span style="color: ${m.colorB.border}">${winRateB.toFixed(0)}%</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Sort column labels for display
+const SORT_LABELS = {
+    rank: 'Rank',
+    name: 'Name',
+    elo: 'ELO',
+    attack: 'Attack',
+    defense: 'Defense',
+    stamina: 'Stamina',
+    control: 'Control',
+    meta_impact: 'Meta',
+    total: 'Total'
+};
+
+// Update the view based on screen width
+function updateView() {
+    const isMobile = window.innerWidth < 768;
+    const tableWrapper = document.getElementById('statsTableWrapper');
+    const cardWrapper = document.getElementById('statsCards');
+    const mobileSortControls = document.getElementById('mobileSortControls');
+
+    if (isMobile) {
+        if (tableWrapper) tableWrapper.style.display = 'none';
+        if (cardWrapper) cardWrapper.style.display = 'grid';
+        if (mobileSortControls) mobileSortControls.style.display = 'block';
+        renderStatsCards();
+    } else {
+        if (tableWrapper) tableWrapper.style.display = 'block';
+        if (cardWrapper) cardWrapper.style.display = 'none';
+        if (mobileSortControls) mobileSortControls.style.display = 'none';
+        renderStatsTable();
+    }
+}
+
+// Render stats cards for mobile
+function renderStatsCards() {
+    const container = document.getElementById('statsCards');
+    if (!container) return;
+    
+    const searchQuery = document.getElementById('tableSearch').value.toLowerCase();
+    
+    let filteredBeys = allBeys.filter(bey => 
+        bey.name.toLowerCase().includes(searchQuery)
+    );
+    
+    // Sort
+    filteredBeys.sort((a, b) => {
+        let aVal, bVal;
+        if (currentSort.column === 'name') {
+            aVal = a.name;
+            bVal = b.name;
+        } else if (currentSort.column === 'rank') {
+            aVal = a.leaderboard.rank || 999;
+            bVal = b.leaderboard.rank || 999;
+        } else if (currentSort.column === 'elo') {
+            aVal = a.leaderboard.elo || 0;
+            bVal = b.leaderboard.elo || 0;
+        } else {
+            aVal = a[currentSort.column] || 0;
+            bVal = b[currentSort.column] || 0;
+        }
+        
+        if (typeof aVal === 'string') {
+            return currentSort.asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        }
+        return currentSort.asc ? aVal - bVal : bVal - aVal;
+    });
+    
+    container.innerHTML = filteredBeys.map(bey => {
+        const isSelected = selectedBeys.includes(bey.name);
+        return `
+            <div class="lb-card compare-card">
+                <div class="lb-card-header">
+                    <div class="lb-card-rank">${bey.leaderboard.rank || '-'}</div>
+                    <a href="bey.html?name=${encodeURIComponent(bey.name)}" class="lb-card-name bey-link">${escapeHtml(bey.name)}</a>
+                    <div class="lb-card-elo">
+                        ${bey.leaderboard.elo || '-'}
+                        <div class="lb-card-elo-label">ELO</div>
+                    </div>
+                </div>
+                <div class="lb-card-stats compare-stats">
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">⚔️ ATK</div>
+                        <div class="lb-stat-value">${bey.attack.toFixed(1)}</div>
+                    </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">🛡️ DEF</div>
+                        <div class="lb-stat-value">${bey.defense.toFixed(1)}</div>
+                    </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">💪 STA</div>
+                        <div class="lb-stat-value">${bey.stamina.toFixed(1)}</div>
+                    </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">🎯 CTR</div>
+                        <div class="lb-stat-value">${bey.control.toFixed(1)}</div>
+                    </div>
+                    <div class="lb-stat">
+                        <div class="lb-stat-label">⭐ META</div>
+                        <div class="lb-stat-value">${bey.meta_impact.toFixed(1)}</div>
+                    </div>
+                </div>
+                <div class="compare-card-footer">
+                    <div class="compare-total">
+                        <span class="compare-total-label">Total:</span>
+                        <span class="compare-total-value">${bey.total.toFixed(1)}</span>
+                    </div>
+                    <button class="compare-add-btn ${isSelected ? 'selected' : ''}" 
+                            onclick="toggleComparison('${escapeHtml(bey.name)}'); updateView();"
+                            title="${isSelected ? 'Remove from comparison' : 'Add to comparison'}">
+                        ${isSelected ? '✓' : '+'}
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Mobile sorting functions
+function setupMobileSorting() {
+    const sortButton = document.getElementById('mobileSortButton');
+    const sortModal = document.getElementById('sortModal');
+    const sortModalClose = document.getElementById('sortModalClose');
+    
+    if (!sortButton || !sortModal || !sortModalClose) return;
+    
+    sortButton.addEventListener('click', openSortModal);
+    sortModalClose.addEventListener('click', closeSortModal);
+    sortModal.addEventListener('click', (e) => {
+        if (e.target === sortModal) closeSortModal();
+    });
+}
+
+function openSortModal() {
+    const sortModal = document.getElementById('sortModal');
+    const sortModalBody = document.getElementById('sortModalBody');
+    
+    if (!sortModal || !sortModalBody) return;
+    
+    const sortColumns = ['rank', 'name', 'elo', 'attack', 'defense', 'stamina', 'control', 'meta_impact', 'total'];
+    
+    sortModalBody.innerHTML = sortColumns.map(col => {
+        const isActive = currentSort.column === col;
+        return `
+            <div class="sort-option ${isActive ? 'active' : ''}" onclick="sortByColumnMobile('${col}')">
+                <div class="sort-option-label">${SORT_LABELS[col]}</div>
+                <div class="sort-option-direction">
+                    <button class="direction-btn ${isActive && currentSort.asc ? 'active' : ''}" onclick="event.stopPropagation(); sortByColumnMobile('${col}', true)">↑</button>
+                    <button class="direction-btn ${isActive && !currentSort.asc ? 'active' : ''}" onclick="event.stopPropagation(); sortByColumnMobile('${col}', false)">↓</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    sortModal.classList.add('active');
+}
+
+function closeSortModal() {
+    const sortModal = document.getElementById('sortModal');
+    if (sortModal) sortModal.classList.remove('active');
+}
+
+function sortByColumnMobile(column, asc = null) {
+    if (asc === null) {
+        asc = currentSort.column === column ? !currentSort.asc : (column === 'name' ? true : false);
+    }
+    currentSort = { column, asc };
+    updateCurrentSortLabel();
+    updateView();
+    closeSortModal();
+}
+
+function updateCurrentSortLabel() {
+    const label = document.getElementById('currentSortLabel');
+    if (label) {
+        const direction = currentSort.asc ? '↑' : '↓';
+        label.textContent = `${SORT_LABELS[currentSort.column]} ${direction}`;
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    loadData();
+    
+    // Search - update both table and cards
+    document.getElementById('tableSearch').addEventListener('input', updateView);
+    
+    // Sort headers for table
+    document.querySelectorAll('.stats-table th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+            sortTable(th.dataset.sort);
+            updateView();
+        });
+    });
+    
+    // Setup mobile sorting
+    setupMobileSorting();
+    
+    // Handle window resize
+    window.addEventListener('resize', updateView);
+});
+</script>
+
+</body>
+</html>

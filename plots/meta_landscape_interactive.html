@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meta Landscape - Beyblade X</title>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.light {
+            background-color: #ffffff;
+            color: #1a1a1a;
+        }
+        body.dark {
+            background-color: #0a0a0a;
+            color: #e2e2e2;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .theme-toggle label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+        body.light .theme-toggle label {
+            background-color: #e5e7eb;
+        }
+        body.dark .theme-toggle label {
+            background-color: #222222;
+        }
+        .theme-toggle input {
+            display: none;
+        }
+        .theme-icon {
+            font-size: 1.2em;
+        }
+        .back-link {
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        body.light .back-link {
+            color: #1a1a1a;
+            background-color: #e5e7eb;
+        }
+        body.dark .back-link {
+            color: #e2e2e2;
+            background-color: #222222;
+        }
+        .back-link:hover {
+            opacity: 0.8;
+        }
+        #plotDiv {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .header h1 {
+                font-size: 1.2em;
+                order: -1;
+                width: 100%;
+                text-align: center;
+            }
+            .back-link {
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+            .theme-toggle {
+                width: 100%;
+                justify-content: center;
+            }
+            .theme-toggle label {
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+            #plotDiv {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="header">
+        <a href="../plots.html" class="back-link">← Back to Plots</a>
+        <h1>🗺️ Meta Landscape</h1>
+        <div class="theme-toggle">
+            <label>
+                <input type="checkbox" id="themeToggle">
+                <span class="theme-icon" id="themeIcon">🌙</span>
+                <span id="themeLabel">Dark Mode</span>
+            </label>
+        </div>
+    </div>
+    <div id="plotDiv"></div>
+
+    <script>
+        // Data
+        const xData = [1.83, 1.97, 1.72, 1.92, 1.8, 1.77, 2.3, 1.69, 1.88, 1.21, 1.56, 1.94, 1.73, 1.77, 1.78, 2.0, 2.59, 1.42, 1.93, 1.59, 1.17, 1.78, 2.13, 1.58, 1.68, 1.95, 1.4, 1.71, 1.68, 1.64, 2.25, 1.65, 1.61, 1.46, 2.0, 2.12, 2.13, 2.16, 1.89, 1.24, 0.57, 1.75, 2.21, 1.71, 1.81, 2.32, 1.65, 1.62, 2.28, 1.24, 1.95, 1.63, 2.11];
+        const yData = [2.33, 2.57, 2.09, 2.9, 2.26, 2.44, 2.45, 2.28, 2.48, 2.28, 1.77, 2.01, 1.94, 2.07, 1.88, 2.48, 2.36, 1.96, 1.44, 2.61, 2.06, 1.85, 2.42, 1.47, 1.74, 1.53, 2.54, 2.34, 1.85, 2.17, 0.75, 1.26, 2.28, 2.12, 1.89, 1.54, 1.67, 1.98, 1.8, 1.9, 1.33, 1.66, 2.01, 1.59, 1.46, 0.83, 1.15, 1.36, 1.72, 1.37, 1.03, 1.21, 1.18];
+        const textData = ["FoxBrush", "ImpactDrake", "TuskMammoth", "ValkyrieVolt", "DranSword", "SharkScale", "HellsBrave", "WeissTiger", "DranBrave", "SilverWolf", "HellsChain", "ViperTail", "LeonCrest", "CobaltDragoon", "ScorpioSpear", "TriceraPress", "ShelterDrake", "KnightMail", "TyrannoRoar", "HellsReaper", "CerberusFlame", "LeonClaw", "MeteorDragoon", "GolemRock", "PhoenixFlare", "SamuraiSteel", "RhinoReaper", "DranDagger", "PhoenixRudder", "WolfHunt", "GhostCircle", "ClockMirage", "PerseusDark", "WizardArc", "CrimsonGaruda", "UnicornSting", "DranBuster", "CobaltDrake", "PhoenixWing", "HellsHammer", "SamuraiCalibur", "BlackShell", "SharkEdge", "SolEclipse", "WhaleWave", "EmperorMight", "WhaleFlame", "WyvernHover", "PegasusBlast", "WizardRod", "SamuraiSaber", "WizardArrow", "TyrannoBeat"];
+        const eloData = [1164, 1142, 1121, 1109, 1102, 1095, 1090, 1077, 1056, 1054, 1053, 1047, 1043, 1040, 1030, 1028, 1027, 1023, 1018, 1016, 1014, 1014, 1013, 1011, 1005, 1004, 1001, 997, 991, 988, 981, 980, 979, 978, 978, 977, 969, 967, 962, 953, 952, 949, 934, 931, 929, 920, 912, 906, 903, 884, 867, 864, 854];
+        const markerSizes = [31.5, 34.0, 40.0, 22.5, 30.0, 25.0, 20.5, 27.0, 28.0, 26.5, 26.0, 26.0, 28.5, 29.5, 30.0, 12.0, 11.0, 27.0, 14.0, 26.0, 29.5, 25.0, 11.5, 30.0, 10.5, 10.5, 26.0, 28.5, 22.0, 17.0, 10.5, 14.5, 26.5, 21.0, 23.5, 22.0, 20.5, 20.0, 27.0, 20.5, 10.0, 17.0, 27.5, 22.5, 22.0, 14.0, 14.5, 20.0, 15.0, 22.0, 15.5, 14.5, 19.0];
+        const hoverText = ["<b>FoxBrush</b><br>Rank: #1<br>ELO: 1164<br>Winrate: 71.1%<br>Matches: 45<br><br>Offense: 1.83<br>Defense: 2.33<br><br><i>Click for Bey profile</i>", "<b>ImpactDrake</b><br>Rank: #2<br>ELO: 1142<br>Winrate: 66.0%<br>Matches: 50<br><br>Offense: 1.97<br>Defense: 2.57<br><br><i>Click for Bey profile</i>", "<b>TuskMammoth</b><br>Rank: #3<br>ELO: 1121<br>Winrate: 66.1%<br>Matches: 62<br><br>Offense: 1.72<br>Defense: 2.09<br><br><i>Click for Bey profile</i>", "<b>ValkyrieVolt</b><br>Rank: #4<br>ELO: 1109<br>Winrate: 63.0%<br>Matches: 27<br><br>Offense: 1.92<br>Defense: 2.90<br><br><i>Click for Bey profile</i>", "<b>DranSword</b><br>Rank: #5<br>ELO: 1102<br>Winrate: 64.3%<br>Matches: 42<br><br>Offense: 1.80<br>Defense: 2.26<br><br><i>Click for Bey profile</i>", "<b>SharkScale</b><br>Rank: #6<br>ELO: 1095<br>Winrate: 59.4%<br>Matches: 32<br><br>Offense: 1.77<br>Defense: 2.44<br><br><i>Click for Bey profile</i>", "<b>HellsBrave</b><br>Rank: #7<br>ELO: 1090<br>Winrate: 69.6%<br>Matches: 23<br><br>Offense: 2.30<br>Defense: 2.45<br><br><i>Click for Bey profile</i>", "<b>WeissTiger</b><br>Rank: #8<br>ELO: 1077<br>Winrate: 61.1%<br>Matches: 36<br><br>Offense: 1.69<br>Defense: 2.28<br><br><i>Click for Bey profile</i>", "<b>DranBrave</b><br>Rank: #9<br>ELO: 1056<br>Winrate: 57.9%<br>Matches: 38<br><br>Offense: 1.88<br>Defense: 2.48<br><br><i>Click for Bey profile</i>", "<b>SilverWolf</b><br>Rank: #10<br>ELO: 1054<br>Winrate: 57.1%<br>Matches: 35<br><br>Offense: 1.21<br>Defense: 2.28<br><br><i>Click for Bey profile</i>", "<b>HellsChain</b><br>Rank: #11<br>ELO: 1053<br>Winrate: 58.8%<br>Matches: 34<br><br>Offense: 1.56<br>Defense: 1.77<br><br><i>Click for Bey profile</i>", "<b>ViperTail</b><br>Rank: #12<br>ELO: 1047<br>Winrate: 52.9%<br>Matches: 34<br><br>Offense: 1.94<br>Defense: 2.01<br><br><i>Click for Bey profile</i>", "<b>LeonCrest</b><br>Rank: #13<br>ELO: 1043<br>Winrate: 51.3%<br>Matches: 39<br><br>Offense: 1.73<br>Defense: 1.94<br><br><i>Click for Bey profile</i>", "<b>CobaltDragoon</b><br>Rank: #14<br>ELO: 1040<br>Winrate: 51.2%<br>Matches: 41<br><br>Offense: 1.77<br>Defense: 2.07<br><br><i>Click for Bey profile</i>", "<b>ScorpioSpear</b><br>Rank: #15<br>ELO: 1030<br>Winrate: 47.6%<br>Matches: 42<br><br>Offense: 1.78<br>Defense: 1.88<br><br><i>Click for Bey profile</i>", "<b>TriceraPress</b><br>Rank: #16<br>ELO: 1028<br>Winrate: 66.7%<br>Matches: 6<br><br>Offense: 2.00<br>Defense: 2.48<br><br><i>Click for Bey profile</i>", "<b>ShelterDrake</b><br>Rank: #17<br>ELO: 1027<br>Winrate: 75.0%<br>Matches: 4<br><br>Offense: 2.59<br>Defense: 2.36<br><br><i>Click for Bey profile</i>", "<b>KnightMail</b><br>Rank: #18<br>ELO: 1023<br>Winrate: 50.0%<br>Matches: 36<br><br>Offense: 1.42<br>Defense: 1.96<br><br><i>Click for Bey profile</i>", "<b>TyrannoRoar</b><br>Rank: #19<br>ELO: 1018<br>Winrate: 70.0%<br>Matches: 10<br><br>Offense: 1.93<br>Defense: 1.44<br><br><i>Click for Bey profile</i>", "<b>HellsReaper</b><br>Rank: #20<br>ELO: 1016<br>Winrate: 50.0%<br>Matches: 34<br><br>Offense: 1.59<br>Defense: 2.61<br><br><i>Click for Bey profile</i>", "<b>CerberusFlame</b><br>Rank: #21<br>ELO: 1014<br>Winrate: 48.8%<br>Matches: 41<br><br>Offense: 1.17<br>Defense: 2.06<br><br><i>Click for Bey profile</i>", "<b>LeonClaw</b><br>Rank: #22<br>ELO: 1014<br>Winrate: 53.1%<br>Matches: 32<br><br>Offense: 1.78<br>Defense: 1.85<br><br><i>Click for Bey profile</i>", "<b>MeteorDragoon</b><br>Rank: #23<br>ELO: 1013<br>Winrate: 60.0%<br>Matches: 5<br><br>Offense: 2.13<br>Defense: 2.42<br><br><i>Click for Bey profile</i>", "<b>GolemRock</b><br>Rank: #24<br>ELO: 1011<br>Winrate: 47.6%<br>Matches: 42<br><br>Offense: 1.58<br>Defense: 1.47<br><br><i>Click for Bey profile</i>", "<b>PhoenixFlare</b><br>Rank: #25<br>ELO: 1005<br>Winrate: 66.7%<br>Matches: 3<br><br>Offense: 1.68<br>Defense: 1.74<br><br><i>Click for Bey profile</i>", "<b>SamuraiSteel</b><br>Rank: #26<br>ELO: 1004<br>Winrate: 66.7%<br>Matches: 3<br><br>Offense: 1.95<br>Defense: 1.53<br><br><i>Click for Bey profile</i>", "<b>RhinoReaper</b><br>Rank: #27<br>ELO: 1001<br>Winrate: 47.1%<br>Matches: 34<br><br>Offense: 1.40<br>Defense: 2.54<br><br><i>Click for Bey profile</i>", "<b>DranDagger</b><br>Rank: #28<br>ELO: 997<br>Winrate: 48.7%<br>Matches: 39<br><br>Offense: 1.71<br>Defense: 2.34<br><br><i>Click for Bey profile</i>", "<b>PhoenixRudder</b><br>Rank: #29<br>ELO: 991<br>Winrate: 50.0%<br>Matches: 26<br><br>Offense: 1.68<br>Defense: 1.85<br><br><i>Click for Bey profile</i>", "<b>WolfHunt</b><br>Rank: #30<br>ELO: 988<br>Winrate: 50.0%<br>Matches: 16<br><br>Offense: 1.64<br>Defense: 2.17<br><br><i>Click for Bey profile</i>", "<b>GhostCircle</b><br>Rank: #31<br>ELO: 981<br>Winrate: 33.3%<br>Matches: 3<br><br>Offense: 2.25<br>Defense: 0.75<br><br><i>Click for Bey profile</i>", "<b>ClockMirage</b><br>Rank: #32<br>ELO: 980<br>Winrate: 54.5%<br>Matches: 11<br><br>Offense: 1.65<br>Defense: 1.26<br><br><i>Click for Bey profile</i>", "<b>PerseusDark</b><br>Rank: #33<br>ELO: 979<br>Winrate: 45.7%<br>Matches: 35<br><br>Offense: 1.61<br>Defense: 2.28<br><br><i>Click for Bey profile</i>", "<b>WizardArc</b><br>Rank: #34<br>ELO: 978<br>Winrate: 45.8%<br>Matches: 24<br><br>Offense: 1.46<br>Defense: 2.12<br><br><i>Click for Bey profile</i>", "<b>CrimsonGaruda</b><br>Rank: #35<br>ELO: 978<br>Winrate: 44.8%<br>Matches: 29<br><br>Offense: 2.00<br>Defense: 1.89<br><br><i>Click for Bey profile</i>", "<b>UnicornSting</b><br>Rank: #36<br>ELO: 977<br>Winrate: 46.2%<br>Matches: 26<br><br>Offense: 2.12<br>Defense: 1.54<br><br><i>Click for Bey profile</i>", "<b>DranBuster</b><br>Rank: #37<br>ELO: 969<br>Winrate: 43.5%<br>Matches: 23<br><br>Offense: 2.13<br>Defense: 1.67<br><br><i>Click for Bey profile</i>", "<b>CobaltDrake</b><br>Rank: #38<br>ELO: 967<br>Winrate: 40.9%<br>Matches: 22<br><br>Offense: 2.16<br>Defense: 1.98<br><br><i>Click for Bey profile</i>", "<b>PhoenixWing</b><br>Rank: #39<br>ELO: 962<br>Winrate: 41.7%<br>Matches: 36<br><br>Offense: 1.89<br>Defense: 1.80<br><br><i>Click for Bey profile</i>", "<b>HellsHammer</b><br>Rank: #40<br>ELO: 953<br>Winrate: 43.5%<br>Matches: 23<br><br>Offense: 1.24<br>Defense: 1.90<br><br><i>Click for Bey profile</i>", "<b>SamuraiCalibur</b><br>Rank: #41<br>ELO: 952<br>Winrate: 0.0%<br>Matches: 2<br><br>Offense: 0.57<br>Defense: 1.33<br><br><i>Click for Bey profile</i>", "<b>BlackShell</b><br>Rank: #42<br>ELO: 949<br>Winrate: 37.5%<br>Matches: 16<br><br>Offense: 1.75<br>Defense: 1.66<br><br><i>Click for Bey profile</i>", "<b>SharkEdge</b><br>Rank: #43<br>ELO: 934<br>Winrate: 40.5%<br>Matches: 37<br><br>Offense: 2.21<br>Defense: 2.01<br><br><i>Click for Bey profile</i>", "<b>SolEclipse</b><br>Rank: #44<br>ELO: 931<br>Winrate: 33.3%<br>Matches: 27<br><br>Offense: 1.71<br>Defense: 1.59<br><br><i>Click for Bey profile</i>", "<b>WhaleWave</b><br>Rank: #45<br>ELO: 929<br>Winrate: 34.6%<br>Matches: 26<br><br>Offense: 1.81<br>Defense: 1.46<br><br><i>Click for Bey profile</i>", "<b>EmperorMight</b><br>Rank: #46<br>ELO: 920<br>Winrate: 20.0%<br>Matches: 10<br><br>Offense: 2.32<br>Defense: 0.83<br><br><i>Click for Bey profile</i>", "<b>WhaleFlame</b><br>Rank: #47<br>ELO: 912<br>Winrate: 27.3%<br>Matches: 11<br><br>Offense: 1.65<br>Defense: 1.15<br><br><i>Click for Bey profile</i>", "<b>WyvernHover</b><br>Rank: #48<br>ELO: 906<br>Winrate: 27.3%<br>Matches: 22<br><br>Offense: 1.62<br>Defense: 1.36<br><br><i>Click for Bey profile</i>", "<b>PegasusBlast</b><br>Rank: #49<br>ELO: 903<br>Winrate: 25.0%<br>Matches: 12<br><br>Offense: 2.28<br>Defense: 1.72<br><br><i>Click for Bey profile</i>", "<b>WizardRod</b><br>Rank: #50<br>ELO: 884<br>Winrate: 30.8%<br>Matches: 26<br><br>Offense: 1.24<br>Defense: 1.37<br><br><i>Click for Bey profile</i>", "<b>SamuraiSaber</b><br>Rank: #51<br>ELO: 867<br>Winrate: 15.4%<br>Matches: 13<br><br>Offense: 1.95<br>Defense: 1.03<br><br><i>Click for Bey profile</i>", "<b>WizardArrow</b><br>Rank: #52<br>ELO: 864<br>Winrate: 9.1%<br>Matches: 11<br><br>Offense: 1.63<br>Defense: 1.21<br><br><i>Click for Bey profile</i>", "<b>TyrannoBeat</b><br>Rank: #53<br>ELO: 854<br>Winrate: 20.0%<br>Matches: 20<br><br>Offense: 2.11<br>Defense: 1.18<br><br><i>Click for Bey profile</i>"];
+
+        // Light mode layout
+        const lightLayout = {
+            title: {
+                text: 'Meta Landscape: Offense vs Defense Map',
+                font: { size: 18, color: '#1a1a1a' }
+            },
+            xaxis: {
+                title: 'Offense Score →',
+                range: [-0.2, 5.2],
+                gridcolor: 'rgba(128,128,128,0.2)',
+                color: '#1a1a1a'
+            },
+            yaxis: {
+                title: 'Defense Score →',
+                range: [-0.2, 5.2],
+                gridcolor: 'rgba(128,128,128,0.2)',
+                color: '#1a1a1a'
+            },
+            paper_bgcolor: '#ffffff',
+            plot_bgcolor: '#ffffff',
+            hovermode: 'closest',
+            width: 1000,
+            height: 800,
+            shapes: [
+                { type: 'line', x0: -0.2, x1: 5.2, y0: 2.5, y1: 2.5, line: { dash: 'dash', color: 'gray', width: 1 }, opacity: 0.4 },
+                { type: 'line', x0: 2.5, x1: 2.5, y0: -0.2, y1: 5.2, line: { dash: 'dash', color: 'gray', width: 1 }, opacity: 0.4 }
+            ],
+            annotations: [
+                { x: 4.5, y: 4.5, text: 'Balanced<br>(High Off/Def)', showarrow: false, font: { size: 10, color: 'rgba(0,0,0,0.3)' } },
+                { x: 0.5, y: 4.5, text: 'Defensive<br>Specialist', showarrow: false, font: { size: 10, color: 'rgba(0,0,0,0.3)' } },
+                { x: 4.5, y: 0.5, text: 'Offensive<br>Specialist', showarrow: false, font: { size: 10, color: 'rgba(0,0,0,0.3)' } },
+                { x: 0.5, y: 0.5, text: 'Low Impact', showarrow: false, font: { size: 10, color: 'rgba(0,0,0,0.3)' } }
+            ]
+        };
+
+        // Dark mode layout
+        const darkLayout = {
+            title: {
+                text: 'Meta Landscape: Offense vs Defense Map',
+                font: { size: 18, color: '#e2e2e2' }
+            },
+            xaxis: {
+                title: 'Offense Score →',
+                range: [-0.2, 5.2],
+                gridcolor: 'rgba(128,128,128,0.2)',
+                color: '#e2e2e2'
+            },
+            yaxis: {
+                title: 'Defense Score →',
+                range: [-0.2, 5.2],
+                gridcolor: 'rgba(128,128,128,0.2)',
+                color: '#e2e2e2'
+            },
+            paper_bgcolor: '#0a0a0a',
+            plot_bgcolor: '#121212',
+            hovermode: 'closest',
+            width: 1000,
+            height: 800,
+            shapes: [
+                { type: 'line', x0: -0.2, x1: 5.2, y0: 2.5, y1: 2.5, line: { dash: 'dash', color: 'gray', width: 1 }, opacity: 0.4 },
+                { type: 'line', x0: 2.5, x1: 2.5, y0: -0.2, y1: 5.2, line: { dash: 'dash', color: 'gray', width: 1 }, opacity: 0.4 }
+            ],
+            annotations: [
+                { x: 4.5, y: 4.5, text: 'Balanced<br>(High Off/Def)', showarrow: false, font: { size: 10, color: 'rgba(255,255,255,0.4)' } },
+                { x: 0.5, y: 4.5, text: 'Defensive<br>Specialist', showarrow: false, font: { size: 10, color: 'rgba(255,255,255,0.4)' } },
+                { x: 4.5, y: 0.5, text: 'Offensive<br>Specialist', showarrow: false, font: { size: 10, color: 'rgba(255,255,255,0.4)' } },
+                { x: 0.5, y: 0.5, text: 'Low Impact', showarrow: false, font: { size: 10, color: 'rgba(255,255,255,0.4)' } }
+            ]
+        };
+
+        // Create trace function with theme-specific colors
+        function createTrace(isDark) {
+            return {
+                x: xData,
+                y: yData,
+                mode: 'markers+text',
+                type: 'scatter',
+                text: textData,
+                textposition: 'top center',
+                textfont: { size: 9, color: isDark ? '#e2e2e2' : '#1a1a1a' },
+                marker: {
+                    size: markerSizes,
+                    color: eloData,
+                    colorscale: 'RdYlGn',
+                    colorbar: {
+                        title: { text: 'ELO', font: { color: isDark ? '#e2e2e2' : '#1a1a1a' } },
+                        thickness: 15,
+                        len: 0.7,
+                        tickfont: { color: isDark ? '#e2e2e2' : '#1a1a1a' }
+                    },
+                    showscale: true,
+                    line: { width: 1, color: isDark ? '#ffffff' : '#000000' }
+                },
+                hovertext: hoverText,
+                hoverinfo: 'text'
+            };
+        }
+
+        // Config
+        const config = {
+            displayModeBar: true,
+            modeBarButtonsToAdd: ['pan2d', 'zoomIn2d', 'zoomOut2d', 'resetScale2d'],
+            responsive: true
+        };
+
+        // Initialize plot
+        let isDarkMode = localStorage.getItem('theme') === 'dark';
+        const toggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeLabel = document.getElementById('themeLabel');
+
+        function updateTheme(isDark) {
+            document.body.className = isDark ? 'dark' : 'light';
+            themeIcon.textContent = isDark ? '☀️' : '🌙';
+            themeLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+            toggle.checked = isDark;
+
+            const layout = isDark ? darkLayout : lightLayout;
+            const trace = createTrace(isDark);
+
+            Plotly.react('plotDiv', [trace], layout, config);
+        }
+
+        // Set initial state
+        updateTheme(isDarkMode);
+
+        // Handle toggle change
+        toggle.addEventListener('change', function() {
+            isDarkMode = this.checked;
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            updateTheme(isDarkMode);
+        });
+
+        // Listen for theme changes from other pages
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                isDarkMode = e.newValue === 'dark';
+                updateTheme(isDarkMode);
+            }
+        });
+    </script>
+</body>
+</html>

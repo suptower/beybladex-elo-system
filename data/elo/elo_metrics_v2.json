@@ -1,0 +1,63 @@
+{
+  "version": "V2",
+  "n_matches": 688,
+  "n_accuracy_matches": 666,
+  "accuracy": 0.5826,
+  "brier_score": 0.2432,
+  "brier_baseline": 0.25,
+  "brier_skill": 0.0272,
+  "log_loss": 0.6795,
+  "log_loss_baseline": 0.6931,
+  "margin_mse": 0.2535,
+  "margin_rmse": 0.5035,
+  "spearman": {
+    "rho": 0.9053,
+    "n_beys": 48,
+    "min_matches_filter": 5
+  },
+  "calibration": [
+    {
+      "bucket": 2,
+      "label": "20-30%",
+      "mean_predicted": 0.2923,
+      "actual_win_rate": 0.0,
+      "count": 1
+    },
+    {
+      "bucket": 3,
+      "label": "30-40%",
+      "mean_predicted": 0.3662,
+      "actual_win_rate": 0.36,
+      "count": 50
+    },
+    {
+      "bucket": 4,
+      "label": "40-50%",
+      "mean_predicted": 0.4617,
+      "actual_win_rate": 0.4554,
+      "count": 213
+    },
+    {
+      "bucket": 5,
+      "label": "50-60%",
+      "mean_predicted": 0.5385,
+      "actual_win_rate": 0.5847,
+      "count": 366
+    },
+    {
+      "bucket": 6,
+      "label": "60-70%",
+      "mean_predicted": 0.6393,
+      "actual_win_rate": 0.5926,
+      "count": 54
+    },
+    {
+      "bucket": 7,
+      "label": "70-80%",
+      "mean_predicted": 0.7221,
+      "actual_win_rate": 0.25,
+      "count": 4
+    }
+  ],
+  "arena_filter": "Xtreme"
+}
