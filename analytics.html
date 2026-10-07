@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Tools - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Analytics Tools</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main class="analytics-page" id="main-content">
+    <section class="analytics-hero">
+        <h2>📊 Analytics Tools</h2>
+        <p class="analytics-description">
+            Explore our comprehensive suite of analytical tools to dive deep into Beyblade X competitive data. 
+            From performance visualizations to part synergy analysis, discover insights to optimize your builds and strategies.
+        </p>
+    </section>
+
+    <section class="analytics-tools-grid">
+        <a href="plots.html" class="analytics-tool-card">
+            <div class="tool-icon">📈</div>
+            <div class="tool-content">
+                <h3>Plots & Visualizations</h3>
+                <p>ELO curves, position timelines, winrate charts, and interactive heatmaps to visualize performance trends over time.</p>
+            </div>
+        </a>
+        
+        <a href="upsets.html" class="analytics-tool-card">
+            <div class="tool-icon">🎲</div>
+            <div class="tool-content">
+                <h3>Upset Analysis</h3>
+                <p>Discover surprising match outcomes, giant killers, and unexpected victories in competitive play.</p>
+            </div>
+        </a>
+        
+        <a href="compare.html" class="analytics-tool-card">
+            <div class="tool-icon">⚖️</div>
+            <div class="tool-content">
+                <h3>Compare</h3>
+                <p>Compare multiple Beyblades side-by-side with detailed stat breakdowns and performance metrics.</p>
+            </div>
+        </a>
+        
+        <a href="meta-balance.html" class="analytics-tool-card">
+            <div class="tool-icon">📊</div>
+            <div class="tool-content">
+                <h3>Meta Balance Analyzer</h3>
+                <p>Evaluate meta health, detect overcentralizing or underpowered options, and visualize competitive balance metrics.</p>
+            </div>
+        </a>
+        
+        <a href="simulator.html" class="analytics-tool-card">
+            <div class="tool-icon">🎮</div>
+            <div class="tool-content">
+                <h3>Elo Outcome Simulator</h3>
+                <p>Experiment with hypothetical matchups, preview expected Elo changes, and run Monte Carlo simulations.</p>
+            </div>
+        </a>
+        
+        <a href="predictor.html" class="analytics-tool-card">
+            <div class="tool-icon">🎯</div>
+            <div class="tool-content">
+                <h3>Matchup Predictor</h3>
+                <p>Predict win probabilities and outcome breakdowns for any matchup using our probabilistic model.</p>
+            </div>
+        </a>
+        
+        <a href="counters.html" class="analytics-tool-card">
+            <div class="tool-icon">🛡️</div>
+            <div class="tool-content">
+                <h3>Best Counters</h3>
+                <p>Discover the most effective counters for each Beyblade, including win rates, score differentials, and counter effectiveness ratings.</p>
+            </div>
+        </a>
+        
+        <a href="archetype-dashboard.html" class="analytics-tool-card">
+            <div class="tool-icon">🎭</div>
+            <div class="tool-content">
+                <h3>Archetype Effectiveness Dashboard</h3>
+                <p>Quantify archetype performance, identify strong and weak interactions, and discover which archetypes dominate the competitive meta.</p>
+            </div>
+        </a>
+
+        <a href="beytype-dashboard.html" class="analytics-tool-card">
+            <div class="tool-icon">🧭</div>
+            <div class="tool-content">
+                <h3>Native Bey Type Dashboard</h3>
+                <p>Compare Attack/Defense/Stamina/Balance performance, matchup strengths, and native type trends across the meta.</p>
+            </div>
+        </a>
+    </section>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script defer src="footer-loader.js"></script>
+
+</body>
+</html>

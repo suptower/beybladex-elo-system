@@ -1,0 +1,479 @@
+{
+  "meta_health": {
+    "overall_score": 66.4,
+    "status": "Balanced",
+    "status_class": "good",
+    "breakdown": {
+      "usage_diversity": {
+        "score": 95.0,
+        "weight": 0.25,
+        "contribution": 23.8
+      },
+      "win_rate_balance": {
+        "score": 51.5,
+        "weight": 0.25,
+        "contribution": 12.9
+      },
+      "elo_spread": {
+        "score": 83.7,
+        "weight": 0.2,
+        "contribution": 16.7
+      },
+      "dominance_penalty": {
+        "score": 86.6,
+        "weight": 0.15,
+        "contribution": 13.0
+      },
+      "polarization_penalty": {
+        "score": 0.0,
+        "weight": 0.15,
+        "contribution": 0.0
+      }
+    },
+    "alerts": [
+      {
+        "type": "warning",
+        "metric": "Matchup Polarization",
+        "message": "Many matchups are one-sided - strategic variety is limited"
+      }
+    ],
+    "weights": {
+      "usage_diversity": 0.25,
+      "win_rate_balance": 0.25,
+      "elo_spread": 0.2,
+      "dominance_penalty": 0.15,
+      "polarization_penalty": 0.15
+    }
+  },
+  "metrics": {
+    "usage_diversity": {
+      "overall_score": 95.0,
+      "blade": {
+        "entropy": 5.545,
+        "max_entropy": 5.728,
+        "score": 96.8,
+        "unique_count": 53
+      },
+      "ratchet": {
+        "entropy": 4.357,
+        "max_entropy": 4.858,
+        "score": 89.7,
+        "unique_count": 29
+      },
+      "bit": {
+        "entropy": 5.155,
+        "max_entropy": 5.322,
+        "score": 96.9,
+        "unique_count": 40
+      },
+      "bey": {
+        "entropy": 5.545,
+        "max_entropy": 5.728,
+        "score": 96.8,
+        "unique_count": 53
+      },
+      "top_used_blades": [
+        [
+          "TuskMammoth",
+          68
+        ],
+        [
+          "ImpactDrake",
+          58
+        ],
+        [
+          "FoxBrush",
+          51
+        ],
+        [
+          "DranSword",
+          50
+        ],
+        [
+          "DranDagger",
+          50
+        ]
+      ],
+      "top_used_ratchets": [
+        [
+          "3-60",
+          224
+        ],
+        [
+          "4-70",
+          136
+        ],
+        [
+          "5-80",
+          110
+        ],
+        [
+          "5-60",
+          103
+        ],
+        [
+          "9-60",
+          102
+        ]
+      ],
+      "top_used_bits": [
+        [
+          "Flat",
+          82
+        ],
+        [
+          "Vortex",
+          78
+        ],
+        [
+          "Gear Flat",
+          78
+        ],
+        [
+          "Taper",
+          68
+        ],
+        [
+          "Low Rush",
+          58
+        ]
+      ]
+    },
+    "win_rate_deviation": {
+      "score": 51.5,
+      "std_deviation": 0.1454,
+      "variance": 0.0211,
+      "mean_winrate": 0.4793,
+      "min_winrate": 0.091,
+      "max_winrate": 0.75,
+      "range": 0.659,
+      "beys_analyzed": 52
+    },
+    "elo_compression": {
+      "score": 83.7,
+      "mean_elo": 999.3,
+      "std_deviation": 67.8,
+      "min_elo": 864,
+      "max_elo": 1140,
+      "range": 276,
+      "compression_ratio": 0.246,
+      "beys_analyzed": 52
+    },
+    "top_dominance": {
+      "score": 86.6,
+      "top_3_share": 18.1,
+      "top_5_share": 28.3,
+      "top_10_share": 45.0,
+      "top_3_beys": [
+        "DranSword",
+        "ImpactDrake",
+        "FoxBrush"
+      ],
+      "total_matches": 808
+    },
+    "matchup_polarization": {
+      "score": 0.0,
+      "polarization_rate": 50.8,
+      "polarized_matchups_count": 97,
+      "total_matchups_analyzed": 191,
+      "threshold_used": 70.0,
+      "worst_matchups": [
+        {
+          "bey_1": "ViperTail",
+          "bey_2": "WizardArc",
+          "bey_1_wins": 2,
+          "bey_2_wins": 0,
+          "win_rate": 100.0,
+          "games": 2
+        },
+        {
+          "bey_1": "DranBuster",
+          "bey_2": "FoxBrush",
+          "bey_1_wins": 0,
+          "bey_2_wins": 2,
+          "win_rate": 0.0,
+          "games": 2
+        },
+        {
+          "bey_1": "GolemRock",
+          "bey_2": "ImpactDrake",
+          "bey_1_wins": 0,
+          "bey_2_wins": 3,
+          "win_rate": 0.0,
+          "games": 3
+        },
+        {
+          "bey_1": "DranBrave",
+          "bey_2": "DranSword",
+          "bey_1_wins": 0,
+          "bey_2_wins": 3,
+          "win_rate": 0.0,
+          "games": 3
+        },
+        {
+          "bey_1": "PhoenixRudder",
+          "bey_2": "WizardRod",
+          "bey_1_wins": 0,
+          "bey_2_wins": 2,
+          "win_rate": 0.0,
+          "games": 2
+        },
+        {
+          "bey_1": "ImpactDrake",
+          "bey_2": "WeissTiger",
+          "bey_1_wins": 3,
+          "bey_2_wins": 0,
+          "win_rate": 100.0,
+          "games": 3
+        },
+        {
+          "bey_1": "HellsChain",
+          "bey_2": "PhoenixWing",
+          "bey_1_wins": 2,
+          "bey_2_wins": 0,
+          "win_rate": 100.0,
+          "games": 2
+        },
+        {
+          "bey_1": "UnicornSting",
+          "bey_2": "WizardRod",
+          "bey_1_wins": 2,
+          "bey_2_wins": 0,
+          "win_rate": 100.0,
+          "games": 2
+        },
+        {
+          "bey_1": "KnightMail",
+          "bey_2": "PerseusDark",
+          "bey_1_wins": 3,
+          "bey_2_wins": 0,
+          "win_rate": 100.0,
+          "games": 3
+        },
+        {
+          "bey_1": "DranBrave",
+          "bey_2": "ViperTail",
+          "bey_1_wins": 0,
+          "bey_2_wins": 3,
+          "win_rate": 0.0,
+          "games": 3
+        }
+      ]
+    }
+  },
+  "outliers": {
+    "overcentralizing": [
+      {
+        "bey": "ImpactDrake",
+        "elo": 1140,
+        "winrate": 66.1,
+        "matches": 56,
+        "deviation_from_mean": 1.25,
+        "confidence": "high"
+      },
+      {
+        "bey": "FoxBrush",
+        "elo": 1123,
+        "winrate": 66.0,
+        "matches": 50,
+        "deviation_from_mean": 1.24,
+        "confidence": "high"
+      },
+      {
+        "bey": "TuskMammoth",
+        "elo": 1115,
+        "winrate": 65.1,
+        "matches": 63,
+        "deviation_from_mean": 1.18,
+        "confidence": "high"
+      },
+      {
+        "bey": "DranSword",
+        "elo": 1124,
+        "winrate": 64.6,
+        "matches": 48,
+        "deviation_from_mean": 1.15,
+        "confidence": "high"
+      },
+      {
+        "bey": "SilverWolf",
+        "elo": 1116,
+        "winrate": 61.9,
+        "matches": 42,
+        "deviation_from_mean": 0.96,
+        "confidence": "high"
+      },
+      {
+        "bey": "SharkScale",
+        "elo": 1100,
+        "winrate": 60.6,
+        "matches": 33,
+        "deviation_from_mean": 0.87,
+        "confidence": "medium"
+      }
+    ],
+    "underpowered": [
+      {
+        "bey": "WizardArrow",
+        "elo": 864,
+        "winrate": 9.1,
+        "matches": 11,
+        "deviation_from_mean": -2.67,
+        "confidence": "medium"
+      },
+      {
+        "bey": "SamuraiSaber",
+        "elo": 867,
+        "winrate": 15.4,
+        "matches": 13,
+        "deviation_from_mean": -2.24,
+        "confidence": "medium"
+      },
+      {
+        "bey": "EmperorMight",
+        "elo": 920,
+        "winrate": 20.0,
+        "matches": 10,
+        "deviation_from_mean": -1.92,
+        "confidence": "medium"
+      },
+      {
+        "bey": "TyrannoBeat",
+        "elo": 867,
+        "winrate": 23.8,
+        "matches": 21,
+        "deviation_from_mean": -1.66,
+        "confidence": "medium"
+      },
+      {
+        "bey": "PegasusBlast",
+        "elo": 903,
+        "winrate": 25.0,
+        "matches": 12,
+        "deviation_from_mean": -1.58,
+        "confidence": "medium"
+      },
+      {
+        "bey": "WhaleFlame",
+        "elo": 912,
+        "winrate": 27.3,
+        "matches": 11,
+        "deviation_from_mean": -1.42,
+        "confidence": "medium"
+      },
+      {
+        "bey": "WizardRod",
+        "elo": 884,
+        "winrate": 30.8,
+        "matches": 26,
+        "deviation_from_mean": -1.18,
+        "confidence": "medium"
+      },
+      {
+        "bey": "GhostCircle",
+        "elo": 981,
+        "winrate": 33.3,
+        "matches": 3,
+        "deviation_from_mean": -1.01,
+        "confidence": "medium"
+      },
+      {
+        "bey": "WyvernHover",
+        "elo": 937,
+        "winrate": 33.3,
+        "matches": 24,
+        "deviation_from_mean": -1.01,
+        "confidence": "medium"
+      },
+      {
+        "bey": "SolEclipse",
+        "elo": 931,
+        "winrate": 33.3,
+        "matches": 27,
+        "deviation_from_mean": -1.01,
+        "confidence": "medium"
+      },
+      {
+        "bey": "WhaleWave",
+        "elo": 929,
+        "winrate": 34.6,
+        "matches": 26,
+        "deviation_from_mean": -0.92,
+        "confidence": "medium"
+      },
+      {
+        "bey": "BlackShell",
+        "elo": 949,
+        "winrate": 37.5,
+        "matches": 16,
+        "deviation_from_mean": -0.72,
+        "confidence": "medium"
+      },
+      {
+        "bey": "SharkEdge",
+        "elo": 927,
+        "winrate": 39.5,
+        "matches": 38,
+        "deviation_from_mean": -0.58,
+        "confidence": "high"
+      }
+    ],
+    "emerging_threats": [
+      {
+        "bey": "HellsBrave",
+        "elo": 1065,
+        "winrate": 64.0,
+        "matches": 25,
+        "note": "Potentially overcentralizing but needs more data"
+      },
+      {
+        "bey": "ShelterDrake",
+        "elo": 1027,
+        "winrate": 75.0,
+        "matches": 4,
+        "note": "Potentially overcentralizing but needs more data"
+      },
+      {
+        "bey": "TyrannoRoar",
+        "elo": 1018,
+        "winrate": 70.0,
+        "matches": 10,
+        "note": "Potentially overcentralizing but needs more data"
+      },
+      {
+        "bey": "MeteorDragoon",
+        "elo": 1013,
+        "winrate": 60.0,
+        "matches": 5,
+        "note": "Potentially overcentralizing but needs more data"
+      },
+      {
+        "bey": "PhoenixFlare",
+        "elo": 1005,
+        "winrate": 66.7,
+        "matches": 3,
+        "note": "Potentially overcentralizing but needs more data"
+      },
+      {
+        "bey": "SamuraiSteel",
+        "elo": 1004,
+        "winrate": 66.7,
+        "matches": 3,
+        "note": "Potentially overcentralizing but needs more data"
+      }
+    ],
+    "confidence_notes": []
+  },
+  "metadata": {
+    "total_matches": 808,
+    "total_beys": 53,
+    "analysis_thresholds": {
+      "overcentralizing_usage_percentile": 0.9,
+      "overcentralizing_win_rate": 0.6,
+      "underpowered_usage_percentile": 0.3,
+      "underpowered_win_rate": 0.4,
+      "problematic_matchup_threshold": 0.7,
+      "min_matches_for_analysis": 3
+    }
+  }
+}

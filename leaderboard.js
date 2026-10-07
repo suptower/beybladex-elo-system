@@ -1,0 +1,1557 @@
+let leaderboardRows = [];
+let leaderboardHeaders = [];
+let currentSort = { column: null, asc: true };
+let currentSearchQuery = ""; // Track the current search query
+let isAdvancedMode = false; // Track which leaderboard is being displayed
+let currentArena = "xtreme"; // Track currently selected arena
+let currentVersion = "v3"; // Track currently selected ELO version (v1, v2, v3)
+
+// Historical match index tracking
+let historicalMode = false;
+let currentMatchIndex = null;
+let maxMatchIndex = null;
+let matchesData = []; // Store all matches data for quick lookup
+
+// Column abbreviations for advanced mode
+const COLUMN_ABBREVIATIONS = {
+    'PowerIndex': 'PWR',
+    'PointsFor': 'Pts+',
+    'PointsAgainst': 'Pts-',
+    'AvgPointDiff': 'AvgΔPts',
+    'Volatility': 'Vol',
+    'AvgΔELO': 'AvgΔ',
+    'MaxΔELO': 'MaxΔ',
+    'MinΔELO': 'MinΔ',
+    'UpsetWins': 'U-W',
+    'UpsetLosses': 'U-L',
+    'ELOTrend': 'Trend',
+    'CredibilityScore': 'Cred',
+    'CredibilityLabel': 'Confidence'
+};
+
+// User-friendly names for All Arenas comparison table headers
+const ALL_ARENAS_HEADER_NAMES = {
+    'Platz': 'Rank',
+    'Name': 'Bey',
+    'ELO_Global': 'Combined ELO',
+    'ELO_Xtreme': 'Xtreme ELO',
+    'Matches_Xtreme': 'Xtreme Matches',
+    'Wins_Xtreme': 'Xtreme Wins',
+    'Winrate_Xtreme': 'Xtreme Win%',
+    'ELO_DropAttack': 'Drop Attack ELO',
+    'Matches_DropAttack': 'Drop Attack Matches',
+    'Wins_DropAttack': 'Drop Attack Wins',
+    'Winrate_DropAttack': 'Drop Attack Win%',
+    'ELO_DoubleXtreme': 'Double Xtreme ELO',
+    'Matches_DoubleXtreme': 'Double Xtreme Matches',
+    'Wins_DoubleXtreme': 'Double Xtreme Wins',
+    'Winrate_DoubleXtreme': 'Double Xtreme Win%'
+};
+
+// Full descriptions for legend with detailed explanations
+const COLUMN_DESCRIPTIONS = {
+    'Platz': { short: 'Rank/Position', long: 'Current ranking position in the leaderboard' },
+    'Bey': { short: 'Beyblade Name', long: 'Name of the Beyblade' },
+    'ELO': { short: 'ELO Rating', long: 'Current ELO rating (skill level indicator)' },
+    'PWR': { short: 'Power Index', long: 'Composite meta score (0-100) combining: ELO rating (40% - base skill), Winrate (25% - win consistency), Trend (15% - current form), Activity (10% - match engagement), Consistency (10% - performance reliability)' },
+    'Matches': { short: 'Games Played', long: 'Total number of matches played' },
+    'Wins': { short: 'Wins', long: 'Total number of wins' },
+    'Losses': { short: 'Losses', long: 'Total number of losses' },
+    'Winrate': { short: 'Win Rate', long: 'Percentage of games won' },
+    'Pts+': { short: 'Points For', long: 'Total points scored across all matches' },
+    'Pts-': { short: 'Points Against', long: 'Total points conceded across all matches' },
+    'AvgΔPts': { short: 'Average Point Difference', long: 'Average point margin per match (positive = more points scored than conceded)' },
+    'Vol': { short: 'Volatility', long: 'Standard deviation of ELO changes - measures performance consistency (lower = more consistent)' },
+    'AvgΔ': { short: 'Average ELO Change', long: 'Average ELO rating change per match' },
+    'MaxΔ': { short: 'Maximum ELO Change', long: 'Largest single-match ELO gain' },
+    'MinΔ': { short: 'Minimum ELO Change', long: 'Largest single-match ELO loss' },
+    'U-W': { short: 'Upset Wins', long: 'Number of wins against higher-rated opponents' },
+    'U-L': { short: 'Upset Losses', long: 'Number of losses against lower-rated opponents' },
+    'Trend': { short: 'ELO Trend', long: 'Overall ELO trend/momentum (positive = improving, negative = declining)' },
+    'Cred': { short: 'Credibility Score', long: 'Rating confidence (0.0-1.0): How reliable the ELO rating is based on match count (50%), opponent diversity (30%), and performance stability (20%)' },
+    'Confidence': { short: 'Confidence Level', long: 'Categorical rating reliability: Low (<6 matches), Medium (6-14 matches), High (15+ matches with good stability)' },
+    // Standard mode columns
+    'Name': { short: 'Beyblade Name', long: 'Name of the Beyblade' },
+    'Spiele': { short: 'Games Played', long: 'Total number of matches played' },
+    'Siege': { short: 'Wins', long: 'Total number of wins' },
+    'Niederlagen': { short: 'Losses', long: 'Total number of losses' },
+    'Gewonnene Punkte': { short: 'Points Won', long: 'Total points scored across all matches' },
+    'Verlorene Punkte': { short: 'Points Lost', long: 'Total points conceded across all matches' },
+    'Differenz': { short: 'Point Difference', long: 'Total point difference (points won - points lost)' },
+    'Positionsdelta': { short: 'Position Change', long: 'Change in ranking position since last update' },
+    'ELOdelta': { short: 'ELO Change', long: 'ELO rating change since last update' },
+    'ΔPosition': { short: 'Position Change', long: 'Change in ranking position since last update' },
+    'ΔELO': { short: 'ELO Change', long: 'ELO rating change since last update' },
+    'CredibilityScore': { short: 'Credibility Score', long: 'Rating confidence (0.0-1.0): How reliable the ELO rating is based on match count (50%), opponent diversity (30%), and performance stability (20%)' },
+    'CredibilityLabel': { short: 'Confidence Level', long: 'Categorical rating reliability: Low (<6 matches), Medium (6-14 matches), High (15+ matches with good stability)' }
+};
+
+function getAbbreviatedHeader(header) {
+    return COLUMN_ABBREVIATIONS[header] || header;
+}
+
+// Get display info for the value shown in mobile card header
+// When sorting by a non-ELO column, show that column's value instead
+function getCardHeaderDisplayInfo(row) {
+    // Default to showing ELO
+    let displayValue = row["ELO"] || "-";
+    let displayLabel = "ELO";
+    let sortedColumn = null;
+
+    // Check if we're sorting by a column other than ELO
+    if (currentSort.column !== null) {
+        sortedColumn = leaderboardHeaders[currentSort.column];
+        
+        // If not sorting by ELO, Name/Bey, or Platz, show the sorted column
+        if (sortedColumn && 
+            sortedColumn !== "ELO" && 
+            sortedColumn !== "Name" && 
+            sortedColumn !== "Bey" && 
+            sortedColumn !== "Platz") {
+            displayValue = row[sortedColumn] || "-";
+            displayLabel = getAbbreviatedHeader(sortedColumn);
+        }
+    }
+
+    return { displayValue, displayLabel, sortedColumn };
+}
+
+// Apply appropriate styling for a value based on its column type
+function applyValueStyling(element, value, columnName) {
+    if (!value || !columnName) return;
+
+    const col = columnName.toLowerCase();
+    
+    if (col === "elo") {
+        const eloValue = parseInt(value);
+        if (!isNaN(eloValue)) {
+            if (eloValue >= 1050) element.classList.add("trend-very-positive");
+            else if (eloValue >= 1010) element.classList.add("trend-positive");
+            else if (eloValue >= 990) element.classList.add("trend-neutral");
+            else if (eloValue >= 950) element.classList.add("trend-negative");
+            else if (eloValue < 950) element.classList.add("trend-very-negative");
+        }
+    } else if (col === "winrate") {
+        applyWinrateStyling(element, value);
+    } else if (col === "volatility") {
+        applyVolatilityStyling(element, value);
+    } else if (col === "powerindex") {
+        applyPowerIndexStyling(element, value);
+    } else if (col === "credibilityscore") {
+        applyCredibilityScoreStyling(element, value);
+    } else if (col === "credibilitylabel" || col === "confidence") {
+        applyCredibilityLabelStyling(element, value);
+    } else if (col === "elotrend") {
+        applyTrendStyling(element, value);
+    } else if (col.includes("differenz") || col.includes("pointdiff")) {
+        const diff = parseFloat(value);
+        if (!isNaN(diff)) {
+            if (diff > 0) element.classList.add("trend-very-positive");
+            else if (diff < 0) element.classList.add("trend-very-negative");
+        }
+    } else if (col.includes("positionsdelta") || col.includes("positiondelta")) {
+        applyDeltaStyling(element, value, "pos");
+    } else if (col === "elodelta" || col.includes("δelo")) {
+        applyDeltaStyling(element, value, "elo");
+    }
+}
+
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);  // Handle both \n and \r\n
+    const headers = lines[0].split(",").map(h => h.trim());
+    // console.log("Parsed Headers:", headers);
+
+    const rows = lines.slice(1).map(line => {
+        const values = line.split(",").map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i]);
+        return obj;
+    });
+
+    return { headers, rows };
+}
+
+function loadLeaderboard(isAdvanced = false, matchIndex = null) {
+    let csvPath;
+    
+    // V1/V2 versions only have a simple Xtreme leaderboard — no arena variants,
+    // advanced stats, or historical snapshots.
+    if (currentVersion === "v1") {
+        csvPath = DATA_PATHS.LEADERBOARD_V1_CSV;
+    } else if (currentVersion === "v2") {
+        csvPath = DATA_PATHS.LEADERBOARD_V2_CSV;
+    } else {
+        // V3: determine which CSV to load based on arena/mode
+        if (matchIndex !== null && historicalMode) {
+            // Load historical snapshot
+            csvPath = DATA_PATHS.leaderboardSnapshot(matchIndex);
+        } else if (currentArena === "all_arenas") {
+            // Load combined arena leaderboard
+            csvPath = DATA_PATHS.LEADERBOARD_ALL_ARENAS_CSV;
+        } else if (currentArena === "combined") {
+            // Load Combined/Global arena leaderboard (with advanced stats support)
+            csvPath = isAdvanced
+                ? DATA_PATHS.ADVANCED_LEADERBOARD_COMBINED_CSV
+                : DATA_PATHS.LEADERBOARD_COMBINED_CSV;
+        } else if (currentArena === "drop_attack") {
+            // Load Drop Attack arena leaderboard (advanced if requested)
+            csvPath = isAdvanced
+                ? DATA_PATHS.ADVANCED_LEADERBOARD_DROP_ATTACK_CSV
+                : DATA_PATHS.LEADERBOARD_DROP_ATTACK_CSV;
+        } else if (currentArena === "double_xtreme") {
+            // Load Double Xtreme arena leaderboard (advanced if requested)
+            csvPath = isAdvanced
+                ? DATA_PATHS.ADVANCED_LEADERBOARD_DOUBLE_XTREME_CSV
+                : DATA_PATHS.LEADERBOARD_DOUBLE_XTREME_CSV;
+        } else {
+            // Load current leaderboard (standard or advanced for Xtreme/default)
+            csvPath = isAdvanced
+                ? DATA_PATHS.ADVANCED_LEADERBOARD_CSV
+                : (currentArena === "xtreme" ? DATA_PATHS.LEADERBOARD_XTREME_CSV : DATA_PATHS.LEADERBOARD_CSV);
+        }
+    }
+    
+    fetch(csvPath)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`Failed to load ${csvPath}: ${res.status}`);
+            }
+            return res.text();
+        })
+        .then(csv => {
+            const parsed = parseCSV(csv);
+            leaderboardHeaders = parsed.headers;
+            leaderboardRows = parsed.rows;
+            currentSort = { column: null, asc: true }; // Reset sort when switching
+            updateView();
+            updateLegend(); // Update legend when data loads
+        })
+        .catch(err => {
+            console.error("Error loading leaderboard:", err);
+            // If historical snapshot fails to load, fall back to current leaderboard
+            if (matchIndex !== null) {
+                console.warn("Falling back to current leaderboard");
+                historicalMode = false;
+                const historicalToggle = document.getElementById('historicalToggle');
+                if (historicalToggle) historicalToggle.checked = false;
+                const matchIndexContainer = document.getElementById('matchIndexContainer');
+                if (matchIndexContainer) matchIndexContainer.style.display = 'none';
+                loadLeaderboard(isAdvanced);
+            }
+        });
+}
+
+function renderTable(headers, rows) {
+    const headRow = document.getElementById("leaderboardHeadRow");
+    const body = document.getElementById("leaderboardBody");
+
+    headRow.innerHTML = "";
+    body.innerHTML = "";
+
+    const displayHeaders = headers;
+
+    // --- Kopfzeile bauen ---
+    displayHeaders.forEach((h, index) => {
+        const th = document.createElement("th");
+        th.classList.add("sortable");
+        
+        // For All Arenas comparison view, use user-friendly names
+        let headerText = h;
+        if (currentArena === "all_arenas" && ALL_ARENAS_HEADER_NAMES[h]) {
+            headerText = ALL_ARENAS_HEADER_NAMES[h];
+        } else if (isAdvancedMode && index > 0) {
+            // Use abbreviated headers for advanced mode
+            headerText = getAbbreviatedHeader(h);
+        }
+        th.textContent = headerText;
+
+        // Add arena data attribute for comparison view visual grouping
+        if (currentArena === "all_arenas") {
+            if (h.includes("Xtreme") && !h.includes("Double")) {
+                th.setAttribute("data-arena", "xtreme");
+            } else if (h.includes("DropAttack")) {
+                th.setAttribute("data-arena", "drop_attack");
+            } else if (h.includes("DoubleXtreme")) {
+                th.setAttribute("data-arena", "double_xtreme");
+            } else if (h.includes("Global")) {
+                th.setAttribute("data-arena", "combined");
+            }
+        }
+
+        // Set sort indicator if this is the active column
+        if (currentSort.column === index) {
+            th.classList.add(currentSort.asc ? "sorted-asc" : "sorted-desc");
+        }
+
+        // Only make sortable if not the rank column (Platz) in advanced mode or any column in standard mode
+        if (!isAdvancedMode || index > 0) {
+            th.onclick = () => sortByColumn(index);
+        } else {
+            th.classList.remove("sortable");
+            th.style.cursor = "default";
+        }
+        
+        headRow.appendChild(th);
+    });
+
+    // --- Datenzeilen bauen ---
+    rows.forEach((row, rowIndex) => {
+        const tr = document.createElement("tr");
+
+        displayHeaders.forEach((h, colIndex) => {
+            const td = document.createElement("td");
+            
+            // Add arena data attribute for comparison view visual grouping
+            if (currentArena === "all_arenas") {
+                if (h.includes("Xtreme") && !h.includes("Double")) {
+                    td.setAttribute("data-arena", "xtreme");
+                } else if (h.includes("DropAttack")) {
+                    td.setAttribute("data-arena", "drop_attack");
+                } else if (h.includes("DoubleXtreme")) {
+                    td.setAttribute("data-arena", "double_xtreme");
+                } else if (h.includes("Global")) {
+                    td.setAttribute("data-arena", "combined");
+                }
+            }
+            
+            // For advanced mode, use the actual Platz value from the data
+            let value;
+            if (isAdvancedMode && colIndex === 0) {
+                // Use the Platz value from the row data, or calculate from original position
+                value = row["Platz"] || (leaderboardRows.indexOf(row) + 1).toString();
+            } else {
+                value = row[h] ?? "";
+            }
+
+            // Check if this is the name/bey column and make it a link
+            if (h.toLowerCase() === "name" || h.toLowerCase() === "bey") {
+                const link = document.createElement("a");
+                link.href = `bey.html?name=${encodeURIComponent(value)}`;
+                link.className = "bey-link";
+                link.textContent = value;
+                td.appendChild(link);
+            } else {
+                // Standard-Text setzen (wird ggf. durch HTML ersetzt bei Cards)
+                td.textContent = value;
+            }
+
+            // Highlight ELO
+            if (h.toLowerCase() === "elo") {
+                const elo = parseInt(value);
+                if (!isNaN(elo)) {
+                    if (elo >= 1050) td.classList.add("trend-very-positive");
+                    else if (elo >= 1010) td.classList.add("trend-positive");
+                    else if (elo >= 990) td.classList.add("trend-neutral");
+                    else if (elo >= 950) td.classList.add("trend-negative");
+                    else if (elo < 950) td.classList.add("trend-very-negative");
+                }
+            }
+
+            // Highlight Winrate
+            if (h.toLowerCase() === "winrate") {
+                applyWinrateStyling(td, value);
+            }
+
+            // Highlight diff
+            if (h.toLowerCase().includes("differenz") || h.toLowerCase().includes("pointdiff")) {
+                const diff = parseInt(value);
+                if (!isNaN(diff)) {
+                    if (diff > 0) td.classList.add("trend-very-positive");
+                    else if (diff < 0) td.classList.add("trend-very-negative");
+                }
+            }
+
+            // Highlight Positionsdelta (Spaltenname enthält "positionsdelta" oder ähnlich)
+            if (h.toLowerCase().includes("positionsdelta") || h.toLowerCase().includes("positiondelta")) {
+                applyDeltaStyling(td, value, "pos");
+            }
+
+            // Highlight ELOdelta (Spaltenname enthält "elod" oder "elodelta")
+            if (h.toLowerCase().includes("elod") || h.toLowerCase().includes("elodelta")) {
+                applyDeltaStyling(td, value, "elo");
+            }
+
+            // Highlight ELOTrend (for advanced mode)
+            if (h === "ELOTrend" || h.toLowerCase() === "trend") {
+                applyTrendStyling(td, value);
+            }
+
+            // Highlight Volatility (for advanced mode)
+            if (h === "Volatility" || h.toLowerCase() === "vol") {
+                applyVolatilityStyling(td, value);
+            }
+
+            // Highlight Power Index (for advanced mode)
+            if (h === "PowerIndex" || h.toLowerCase() === "powerindex") {
+                applyPowerIndexStyling(td, value);
+            }
+
+            // Highlight Credibility Score
+            if (h === "CredibilityScore" || h.toLowerCase() === "credibilityscore" || h.toLowerCase() === "cred") {
+                applyCredibilityScoreStyling(td, value);
+            }
+
+            // Highlight Credibility Label
+            if (h === "CredibilityLabel" || h.toLowerCase() === "credibilitylabel" || h.toLowerCase() === "confidence") {
+                applyCredibilityLabelStyling(td, value);
+            }
+
+            tr.appendChild(td);
+        });
+
+        body.appendChild(tr);
+    });
+}
+
+
+function renderCards(headers, rows) {
+    const container = document.getElementById("leaderboardCards");
+    container.innerHTML = "";
+
+    rows.forEach((row, index) => {
+        const card = document.createElement("div");
+        card.className = "lb-card";
+
+        // Header with rank, name, and ELO
+        const cardHeader = document.createElement("div");
+        cardHeader.className = "lb-card-header";
+        
+        const rank = document.createElement("div");
+        rank.className = "lb-card-rank";
+        // Use the Platz value from the row data, or calculate from original position
+        rank.textContent = row["Platz"] || (leaderboardRows.indexOf(row) + 1);
+        // make rank gold/silver/bronze for top 3
+        if (rank.textContent === "1") rank.classList.add("rank-gold");
+        else if (rank.textContent === "2") rank.classList.add("rank-silver");
+        else if (rank.textContent === "3") rank.classList.add("rank-bronze");
+        
+        // Make the name a clickable link
+        const nameLink = document.createElement("a");
+        nameLink.className = "lb-card-name bey-link";
+        const beyNameValue = row["Name"] || row["Bey"] || "Unknown";
+        nameLink.textContent = beyNameValue;
+        nameLink.href = `bey.html?name=${encodeURIComponent(beyNameValue)}`;
+        
+        // Get the value to display in header (ELO by default, or sorted column value)
+        const headerInfo = getCardHeaderDisplayInfo(row);
+        
+        // show value and add small text label below number, also apply appropriate color coding
+        const headerValue = document.createElement("div");
+        headerValue.className = "lb-card-elo";
+        headerValue.textContent = headerInfo.displayValue;
+        // Apply appropriate styling based on the column being displayed
+        applyValueStyling(headerValue, headerInfo.displayValue, headerInfo.sortedColumn || "ELO");
+        
+        const headerLabel = document.createElement("div");
+        headerLabel.className = "lb-card-elo-label";
+        headerLabel.textContent = headerInfo.displayLabel;
+        headerValue.appendChild(headerLabel);
+        
+        cardHeader.appendChild(rank);
+        cardHeader.appendChild(nameLink);
+        cardHeader.appendChild(headerValue);
+        card.appendChild(cardHeader);
+
+        // Main stats (Wins/Losses/Winrate)
+        const stats = document.createElement("div");
+        stats.className = "lb-card-stats";
+        
+        const createStat = (label, value) => {
+            const stat = document.createElement("div");
+            stat.className = "lb-stat";
+            
+            const statLabel = document.createElement("div");
+            statLabel.className = "lb-stat-label";
+            statLabel.textContent = label;
+            
+            const statValue = document.createElement("div");
+            statValue.className = "lb-stat-value";
+            statValue.textContent = value;
+            
+            stat.appendChild(statLabel);
+            stat.appendChild(statValue);
+            return stat;
+        };
+        
+        // Advanced mode uses "Wins/Losses/Matches", standard uses "Siege/Niederlagen/Spiele"
+        stats.appendChild(createStat("Wins", row["Siege"] || row["Wins"] || "0"));
+        stats.appendChild(createStat("Losses", row["Niederlagen"] || row["Losses"] || "0"));
+        stats.appendChild(createStat("Winrate", row["Winrate"] || "0%"));
+        // apply winrate styling via css class
+        const winrateStatValue = stats.children[2].querySelector(".lb-stat-value");
+        if (winrateStatValue) {
+            applyWinrateStyling(winrateStatValue, row["Winrate"] || "0%");
+        }
+        
+        card.appendChild(stats);
+
+        // Expandable details section
+        const expandSection = document.createElement("div");
+        expandSection.className = "lb-card-expand";
+        
+        const details = document.createElement("div");
+        details.className = "lb-card-details";
+        
+        const createDetail = (label, value, applyDelta = false) => {
+            const detail = document.createElement("div");
+            detail.className = "lb-detail";
+            
+            const detailLabel = document.createElement("span");
+            detailLabel.className = "lb-detail-label";
+            detailLabel.textContent = label;
+            
+            const detailValue = document.createElement("span");
+            detailValue.className = "lb-detail-value";
+            
+            if (applyDelta && value) {
+                detailValue.classList.add(getDeltaClass(value));
+            }
+            detailValue.textContent = value || "-";
+            
+            detail.appendChild(detailLabel);
+            detail.appendChild(detailValue);
+            return detail;
+        };
+        
+        // If sorting by non-ELO column, add ELO to the details section first
+        if (headerInfo.sortedColumn && headerInfo.sortedColumn !== "ELO") {
+            const eloDetail = createDetail("ELO", row["ELO"]);
+            const eloValue = eloDetail.querySelector('.lb-detail-value');
+            if (eloValue && row["ELO"]) {
+                applyValueStyling(eloValue, row["ELO"], "ELO");
+            }
+            details.appendChild(eloDetail);
+        }
+        
+        // Conditional details based on mode
+        if (isAdvancedMode) {
+            // Add Power Index at the top for advanced mode (skip if it's the sorted column shown in header)
+            if (headerInfo.sortedColumn !== "PowerIndex") {
+                const pwrDetail = createDetail("Power Index", row["PowerIndex"]);
+                const pwrValue = pwrDetail.querySelector('.lb-detail-value');
+                if (pwrValue && row["PowerIndex"]) {
+                    applyPowerIndexStyling(pwrValue, row["PowerIndex"]);
+                }
+                details.appendChild(pwrDetail);
+            }
+            
+            // Add Credibility info
+            if (headerInfo.sortedColumn !== "CredibilityLabel") {
+                const credDetail = createDetail("Confidence", row["CredibilityLabel"] || "Unknown");
+                const credValue = credDetail.querySelector('.lb-detail-value');
+                if (credValue && row["CredibilityLabel"]) {
+                    applyCredibilityLabelStyling(credValue, row["CredibilityLabel"]);
+                }
+                details.appendChild(credDetail);
+            }
+            
+            if (headerInfo.sortedColumn !== "Matches") {
+                details.appendChild(createDetail("Matches", row["Matches"]));
+            }
+
+            if (headerInfo.sortedColumn !== "CredibilityScore") {
+                const credScoreDetail = createDetail("Credibility Score", row["CredibilityScore"] || "-");
+                const credScoreValue = credScoreDetail.querySelector('.lb-detail-value');
+                if (credScoreValue && row["CredibilityScore"]) {
+                    applyCredibilityScoreStyling(credScoreValue, row["CredibilityScore"]);
+                }
+                details.appendChild(credScoreDetail);
+            }
+            
+            if (headerInfo.sortedColumn !== "PointsFor") {
+                details.appendChild(createDetail("Pts For", row["PointsFor"]));
+            }
+            if (headerInfo.sortedColumn !== "PointsAgainst") {
+                details.appendChild(createDetail("Pts Against", row["PointsAgainst"]));
+            }
+            if (headerInfo.sortedColumn !== "AvgPointDiff") {
+                details.appendChild(createDetail("Avg Δ", row["AvgPointDiff"]));
+            }
+            if (headerInfo.sortedColumn !== "Volatility") {
+                const volDetail = createDetail("Volatility", row["Volatility"]);
+                const volValue = volDetail.querySelector('.lb-detail-value');
+                if (volValue && row["Volatility"]) {
+                    applyVolatilityStyling(volValue, row["Volatility"]);
+                }
+                details.appendChild(volDetail);
+            }
+            if (headerInfo.sortedColumn !== "AvgΔELO") {
+                details.appendChild(createDetail("Avg ΔELO", row["AvgΔELO"]));
+            }
+            if (headerInfo.sortedColumn !== "MaxΔELO") {
+                details.appendChild(createDetail("Max ΔELO", row["MaxΔELO"]));
+            }
+            if (headerInfo.sortedColumn !== "MinΔELO") {
+                details.appendChild(createDetail("Min ΔELO", row["MinΔELO"]));
+            }
+            if (headerInfo.sortedColumn !== "UpsetWins") {
+                details.appendChild(createDetail("Upset W", row["UpsetWins"]));
+            }
+            if (headerInfo.sortedColumn !== "UpsetLosses") {
+                details.appendChild(createDetail("Upset L", row["UpsetLosses"]));
+            }
+            
+            // Add ELO Trend with conditional styling (skip if it's the sorted column shown in header)
+            if (headerInfo.sortedColumn !== "ELOTrend") {
+                const trendDetail = createDetail("ELO Trend", row["ELOTrend"]);
+                const trendValue = trendDetail.querySelector('.lb-detail-value');
+                if (trendValue && row["ELOTrend"]) {
+                    applyTrendStyling(trendValue, row["ELOTrend"]);
+                }
+                details.appendChild(trendDetail);
+            }
+        } else {
+            
+            if (headerInfo.sortedColumn !== "Spiele") {
+                details.appendChild(createDetail("Games", row["Spiele"]));
+            }
+            if (headerInfo.sortedColumn !== "Gewonnene Punkte") {
+                details.appendChild(createDetail("Pts Won", row["Gewonnene Punkte"]));
+            }
+            if (headerInfo.sortedColumn !== "Verlorene Punkte") {
+                details.appendChild(createDetail("Pts Lost", row["Verlorene Punkte"]));
+            }
+            if (headerInfo.sortedColumn !== "Differenz") {
+                const diffDetail = createDetail("Difference", row["Differenz"]);
+                const diffValue = diffDetail.querySelector('.lb-detail-value');
+                if (diffValue && row["Differenz"]) {
+                    const diffNum = parseInt(row["Differenz"]);
+                    if (!isNaN(diffNum)) {
+                        if (diffNum > 0) diffValue.classList.add("trend-very-positive");
+                        else if (diffNum < 0) diffValue.classList.add("trend-very-negative");
+                    }
+                }
+                details.appendChild(diffDetail);
+            }
+            if (headerInfo.sortedColumn !== "Positionsdelta") {
+                details.appendChild(createDetail("Pos Δ", row["Positionsdelta"], true));
+            }
+            if (headerInfo.sortedColumn !== "ELOdelta") {
+                details.appendChild(createDetail("ELO Δ", row["ELOdelta"], true));
+            }
+        }
+        
+        expandSection.appendChild(details);
+        card.appendChild(expandSection);
+        
+        // Expand button
+        const expandBtn = document.createElement("button");
+        expandBtn.className = "lb-expand-btn";
+        expandBtn.textContent = "Show Details";
+        expandBtn.onclick = () => {
+            expandSection.classList.toggle("expanded");
+            expandBtn.textContent = expandSection.classList.contains("expanded") 
+                ? "Hide Details" 
+                : "Show Details";
+        };
+        card.appendChild(expandBtn);
+
+        container.appendChild(card);
+    });
+}
+
+
+function parseDeltaValue(value) {
+    if (!value) return 0;
+
+    value = value.trim();
+
+    // Kein Pfeil → normaler integer
+    if (!value.includes("▲") && !value.includes("▼")) {
+        const n = parseInt(value);
+        return isNaN(n) ? 0 : n;
+    }
+
+    // ▲ = +, ▼ = -
+    if (value.startsWith("▲")) {
+        const n = parseInt(value.replace("▲", "").trim());
+        return isNaN(n) ? 0 : +n;
+    }
+
+    if (value.startsWith("▼")) {
+        const n = parseInt(value.replace("▼", "").trim());
+        return isNaN(n) ? 0 : -n;
+    }
+
+    return 0;
+}
+
+
+// Shared sorting logic
+function performSort(colIndex, asc) {
+    const key = leaderboardHeaders[colIndex];
+
+    leaderboardRows.sort((a, b) => {
+        const raw1 = a[key];
+        const raw2 = b[key];
+
+        // --- Spezialfall: Positionsdelta ---
+        if (key.toLowerCase().includes("positionsdelta")) {
+            const v1 = parseDeltaValue(raw1);
+            const v2 = parseDeltaValue(raw2);
+            return asc ? v1 - v2 : v2 - v1;
+        }
+
+        // Special case: Confidence label
+        if (key.toLowerCase() === "credibilitylabel") {
+            const order = { "Low": 1, "Medium": 2, "High": 3 };
+            const v1 = order[raw1] || 0;
+            const v2 = order[raw2] || 0;
+            return asc ? v1 - v2 : v2 - v1;
+        }
+
+
+        // --- normaler numeric sort ---
+        const n1 = parseFloat(raw1);
+        const n2 = parseFloat(raw2);
+
+        if (!isNaN(n1) && !isNaN(n2)) {
+            return asc ? n1 - n2 : n2 - n1;
+        }
+
+        // --- fallback: alphabetic ---
+        return asc ? raw1.localeCompare(raw2) : raw2.localeCompare(raw1);
+    });
+}
+
+function sortByColumn(colIndex) {
+    const asc = currentSort.column === colIndex ? !currentSort.asc : true;
+    currentSort = { column: colIndex, asc };
+
+    performSort(colIndex, asc);
+    
+    // Animation für sortierte Zeilen
+    const rows = document.querySelectorAll("#leaderboardBody tr");
+    rows.forEach(r => {
+        r.classList.add("sort-animate");
+        setTimeout(() => r.classList.remove("sort-animate"), 250);
+    });
+
+    updateView();
+}
+
+
+function filterRows(query) {
+    currentSearchQuery = query; // Store the current search query
+    query = query.toLowerCase();
+    const filtered = leaderboardRows.filter(r =>
+        Object.values(r).some(v => String(v).toLowerCase().includes(query))
+    );
+
+    if (window.innerWidth < 900) {
+        renderCards(leaderboardHeaders, filtered);
+    } else {
+        renderTable(leaderboardHeaders, filtered);
+    }
+}
+
+// Mobile sorting functions
+function setupMobileSorting() {
+    const sortButton = document.getElementById("mobileSortButton");
+    const sortModal = document.getElementById("sortModal");
+    const sortModalClose = document.getElementById("sortModalClose");
+    const sortModalBody = document.getElementById("sortModalBody");
+    
+    if (!sortButton || !sortModal || !sortModalClose || !sortModalBody) return;
+    
+    // Open modal on button click
+    sortButton.addEventListener("click", () => {
+        openSortModal();
+    });
+    
+    // Close modal on close button click
+    sortModalClose.addEventListener("click", () => {
+        closeSortModal();
+    });
+    
+    // Close modal when clicking outside
+    sortModal.addEventListener("click", (e) => {
+        if (e.target === sortModal) {
+            closeSortModal();
+        }
+    });
+}
+
+function openSortModal() {
+    const sortModal = document.getElementById("sortModal");
+    const sortModalBody = document.getElementById("sortModalBody");
+    
+    if (!sortModal || !sortModalBody) return;
+    
+    // Generate sort options based on current headers
+    sortModalBody.innerHTML = "";
+    
+    leaderboardHeaders.forEach((header, index) => {
+        // Skip rank column in advanced mode (it's calculated, not sortable)
+        if (isAdvancedMode && index === 0) return;
+        
+        const option = document.createElement("div");
+        option.className = "sort-option";
+        if (currentSort.column === index) {
+            option.classList.add("active");
+        }
+        
+        const label = document.createElement("div");
+        label.className = "sort-option-label";
+        // Use abbreviated header for advanced mode
+        label.textContent = (isAdvancedMode && index > 0) ? getAbbreviatedHeader(header) : header;
+        
+        const directionContainer = document.createElement("div");
+        directionContainer.className = "sort-option-direction";
+        
+        const ascBtn = document.createElement("button");
+        ascBtn.className = "direction-btn";
+        ascBtn.textContent = "↑";
+        ascBtn.title = "Ascending";
+        if (currentSort.column === index && currentSort.asc) {
+            ascBtn.classList.add("active");
+        }
+        ascBtn.onclick = (e) => {
+            e.stopPropagation();
+            sortByColumnMobile(index, true);
+            closeSortModal();
+        };
+        
+        const descBtn = document.createElement("button");
+        descBtn.className = "direction-btn";
+        descBtn.textContent = "↓";
+        descBtn.title = "Descending";
+        if (currentSort.column === index && !currentSort.asc) {
+            descBtn.classList.add("active");
+        }
+        descBtn.onclick = (e) => {
+            e.stopPropagation();
+            sortByColumnMobile(index, false);
+            closeSortModal();
+        };
+        
+        directionContainer.appendChild(ascBtn);
+        directionContainer.appendChild(descBtn);
+        
+        option.appendChild(label);
+        option.appendChild(directionContainer);
+        
+        // Click on option also sorts (with toggle direction)
+        option.addEventListener("click", () => {
+            const newAsc = currentSort.column === index ? !currentSort.asc : true;
+            sortByColumnMobile(index, newAsc);
+            closeSortModal();
+        });
+        
+        sortModalBody.appendChild(option);
+    });
+    
+    sortModal.classList.add("active");
+}
+
+function closeSortModal() {
+    const sortModal = document.getElementById("sortModal");
+    if (sortModal) {
+        sortModal.classList.remove("active");
+    }
+}
+
+function sortByColumnMobile(colIndex, asc) {
+    currentSort = { column: colIndex, asc };
+    performSort(colIndex, asc);
+    updateView();
+    updateCurrentSortLabel();
+}
+
+function updateCurrentSortLabel() {
+    const currentSortLabel = document.getElementById("currentSortLabel");
+    if (!currentSortLabel || currentSort.column === null) return;
+    
+    const header = leaderboardHeaders[currentSort.column];
+    const displayHeader = (isAdvancedMode && currentSort.column > 0) ? getAbbreviatedHeader(header) : header;
+    const direction = currentSort.asc ? "↑" : "↓";
+    
+    currentSortLabel.textContent = `${displayHeader} ${direction}`;
+}
+
+function updateView() {
+    const isMobile = window.innerWidth < 900;
+    const tableWrapper = document.querySelector(".table-wrapper");
+    const cardWrapper = document.getElementById("leaderboardCards");
+    const mobileSortControls = document.getElementById("mobileSortControls");
+
+    // Apply current search filter
+    const filtered = currentSearchQuery 
+        ? leaderboardRows.filter(r =>
+            Object.values(r).some(v => String(v).toLowerCase().includes(currentSearchQuery.toLowerCase()))
+          )
+        : leaderboardRows;
+
+    if (isMobile) {
+        tableWrapper.style.display = "none";
+        cardWrapper.style.display = "grid";
+        if (mobileSortControls) mobileSortControls.style.display = "block";
+        renderCards(leaderboardHeaders, filtered);
+    } else {
+        tableWrapper.style.display = "block";
+        cardWrapper.style.display = "none";
+        if (mobileSortControls) mobileSortControls.style.display = "none";
+        renderTable(leaderboardHeaders, filtered);
+    }
+}
+
+window.addEventListener("resize", updateView);
+
+document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("searchInput");
+    if (searchInput) {
+        searchInput.addEventListener("input", e => filterRows(e.target.value));
+    }
+    
+    // Arena selector handler
+    const arenaSelector = document.getElementById("arenaSelector");
+    if (arenaSelector) {
+        // Load saved preference from localStorage
+        const savedArena = localStorage.getItem("selectedArena");
+        if (savedArena) {
+            arenaSelector.value = savedArena;
+            currentArena = savedArena;
+        }
+        
+        arenaSelector.addEventListener("change", (e) => {
+            currentArena = e.target.value;
+            // Save preference
+            localStorage.setItem("selectedArena", currentArena);
+            
+            // Disable historical mode for arena-specific views (except xtreme)
+            if (currentArena !== "xtreme" && historicalMode) {
+                historicalMode = false;
+                const historicalToggle = document.getElementById('historicalToggle');
+                if (historicalToggle) historicalToggle.checked = false;
+                const matchIndexContainer = document.getElementById('matchIndexContainer');
+                if (matchIndexContainer) matchIndexContainer.style.display = 'none';
+                alert("Time Travel Mode is only available for Xtreme Stadium (Season/Global). Switching to current leaderboard.");
+            }
+            
+            // Disable advanced mode for All Arenas comparison view (no combined advanced stats across arenas)
+            if (currentArena === "all_arenas" && isAdvancedMode) {
+                isAdvancedMode = false;
+                const toggleInput = document.getElementById("leaderboardToggle");
+                if (toggleInput) toggleInput.checked = false;
+                alert(`Advanced statistics are not available for the 'All Arenas' comparison view.`);
+            }
+            
+            // Reload leaderboard with selected arena
+            loadLeaderboard(isAdvancedMode);
+        });
+    }
+
+    // ELO Version selector handler
+    const versionSelector = document.getElementById("versionSelector");
+    if (versionSelector) {
+        versionSelector.addEventListener("change", (e) => {
+            currentVersion = e.target.value;
+            const isLegacyVersion = currentVersion !== "v3";
+
+            // Disable/reset features that are V3-only
+            if (isLegacyVersion) {
+                // Disable historical (time travel) mode
+                if (historicalMode) {
+                    historicalMode = false;
+                    const historicalToggle = document.getElementById('historicalToggle');
+                    if (historicalToggle) historicalToggle.checked = false;
+                    const matchIndexContainer = document.getElementById('matchIndexContainer');
+                    if (matchIndexContainer) matchIndexContainer.style.display = 'none';
+                }
+
+                // Disable advanced mode
+                if (isAdvancedMode) {
+                    isAdvancedMode = false;
+                    const toggleInput = document.getElementById("leaderboardToggle");
+                    if (toggleInput) toggleInput.checked = false;
+                }
+
+                // Reset arena to xtreme (V1/V2 only have one Xtreme leaderboard)
+                currentArena = "xtreme";
+                if (arenaSelector) arenaSelector.value = "xtreme";
+            }
+
+            // Grey out V3-only controls when a legacy version is selected
+            const controlsToDisable = [
+                document.getElementById("arenaSelector"),
+                document.getElementById("leaderboardToggle"),
+                document.getElementById("historicalToggle"),
+            ];
+            controlsToDisable.forEach(el => {
+                if (el) el.disabled = isLegacyVersion;
+            });
+
+            loadLeaderboard(isAdvancedMode);
+        });
+    }
+
+    const toggleInput = document.getElementById("leaderboardToggle");
+    if (toggleInput) {
+        // Load saved preference from localStorage
+        const savedMode = localStorage.getItem("leaderboardMode");
+        if (savedMode === "advanced") {
+            toggleInput.checked = true;
+            isAdvancedMode = true;
+        }
+        
+        // Load initial data
+        loadLeaderboard(isAdvancedMode);
+        
+        // Handle toggle changes
+        toggleInput.addEventListener("change", (e) => {
+            // Prevent switching to advanced mode in historical mode
+            if (historicalMode && e.target.checked) {
+                e.target.checked = false;
+                alert("Advanced statistics are not available in Time Travel Mode. Please disable Time Travel Mode to view advanced statistics.");
+                return;
+            }
+            
+            // Prevent switching to advanced mode for all arenas comparison view
+            if (currentArena === "all_arenas" && e.target.checked) {
+                e.target.checked = false;
+                alert(`Advanced statistics are not available for the 'All Arenas' comparison view.`);
+                return;
+            }
+            
+            isAdvancedMode = e.target.checked;
+            // Save preference
+            localStorage.setItem("leaderboardMode", isAdvancedMode ? "advanced" : "standard");
+            // Reload data
+            loadLeaderboard(isAdvancedMode);
+            // Update legend
+            updateLegend();
+        });
+    } else {
+        // Fallback if toggle doesn't exist
+        loadLeaderboard(false);
+    }
+
+    // Setup legend toggle
+    setupLegend();
+    
+    // Setup historical match index controls
+    setupHistoricalControls();
+    
+    // Setup mobile sorting
+    setupMobileSorting();
+});
+
+function setupLegend() {
+    const legendToggle = document.getElementById("legendToggle");
+    const legendContent = document.getElementById("legendContent");
+    const legendHeader = document.querySelector(".legend-header");
+    
+    if (legendToggle && legendContent && legendHeader) {
+        // Start collapsed
+        legendContent.classList.add("collapsed");
+        
+        // Toggle on click
+        legendHeader.addEventListener("click", () => {
+            const isExpanded = legendContent.classList.contains("expanded");
+            
+            if (isExpanded) {
+                legendContent.classList.remove("expanded");
+                legendContent.classList.add("collapsed");
+                legendToggle.textContent = "▼";
+            } else {
+                legendContent.classList.remove("collapsed");
+                legendContent.classList.add("expanded");
+                legendToggle.textContent = "▲";
+            }
+        });
+    }
+}
+
+function updateLegend() {
+    const legend = document.getElementById("legend");
+    const legendContent = document.getElementById("legendContent");
+    
+    if (!legend || !legendContent) return;
+    
+    if (isAdvancedMode) {
+        // Show legend for advanced mode with abbreviations
+        legend.style.display = "block";
+        
+        // Get headers and map them to descriptions
+        const legendEntries = [
+            ['Platz', COLUMN_DESCRIPTIONS['Platz']],
+            ['Bey', COLUMN_DESCRIPTIONS['Bey']],
+            ['ELO', COLUMN_DESCRIPTIONS['ELO']],
+            ['PWR', COLUMN_DESCRIPTIONS['PWR']],
+            ['Matches', COLUMN_DESCRIPTIONS['Matches']],
+            ['Wins', COLUMN_DESCRIPTIONS['Wins']],
+            ['Losses', COLUMN_DESCRIPTIONS['Losses']],
+            ['Winrate', COLUMN_DESCRIPTIONS['Winrate']],
+            ['Pts+', COLUMN_DESCRIPTIONS['Pts+']],
+            ['Pts-', COLUMN_DESCRIPTIONS['Pts-']],
+            ['AvgΔPts', COLUMN_DESCRIPTIONS['AvgΔPts']],
+            ['Vol', COLUMN_DESCRIPTIONS['Vol']],
+            ['AvgΔ', COLUMN_DESCRIPTIONS['AvgΔ']],
+            ['MaxΔ', COLUMN_DESCRIPTIONS['MaxΔ']],
+            ['MinΔ', COLUMN_DESCRIPTIONS['MinΔ']],
+            ['U-W', COLUMN_DESCRIPTIONS['U-W']],
+            ['U-L', COLUMN_DESCRIPTIONS['U-L']],
+            ['Trend', COLUMN_DESCRIPTIONS['Trend']],
+            ['Cred', COLUMN_DESCRIPTIONS['CredibilityLabel']],
+            ['Confidence', COLUMN_DESCRIPTIONS['CredibilityScore']]
+        ];
+        
+        legendContent.innerHTML = legendEntries
+            .map(([abbr, desc]) => `
+                <div class="legend-item">
+                    <div class="legend-abbr">${abbr}</div>
+                    <div class="legend-desc">
+                        <div class="legend-short">${desc.short}</div>
+                        <div class="legend-long">${desc.long}</div>
+                    </div>
+                </div>
+            `).join('');
+    } else {
+        // Show legend for standard mode
+        legend.style.display = "block";
+        
+        const standardEntries = [
+            ['Platz', COLUMN_DESCRIPTIONS['Platz']],
+            ['Name', COLUMN_DESCRIPTIONS['Name']],
+            ['ELO', COLUMN_DESCRIPTIONS['ELO']],
+            ['Spiele', COLUMN_DESCRIPTIONS['Spiele']],
+            ['Siege', COLUMN_DESCRIPTIONS['Siege']],
+            ['Niederlagen', COLUMN_DESCRIPTIONS['Niederlagen']],
+            ['Winrate', COLUMN_DESCRIPTIONS['Winrate']],
+            ['Gewonnene Punkte', COLUMN_DESCRIPTIONS['Gewonnene Punkte']],
+            ['Verlorene Punkte', COLUMN_DESCRIPTIONS['Verlorene Punkte']],
+            ['Differenz', COLUMN_DESCRIPTIONS['Differenz']],
+            ['Positionsdelta', COLUMN_DESCRIPTIONS['Positionsdelta']],
+            ['ELOdelta', COLUMN_DESCRIPTIONS['ELOdelta']]
+        ];
+        
+        legendContent.innerHTML = standardEntries
+            .map(([col, desc]) => `
+                <div class="legend-item">
+                    <div class="legend-abbr">${col}</div>
+                    <div class="legend-desc">
+                        <div class="legend-short">${desc.short}</div>
+                        <div class="legend-long">${desc.long}</div>
+                    </div>
+                </div>
+            `).join('');
+    }
+}
+
+
+
+function getDeltaClass(value) {
+    if (!value) return "delta-neutral";
+    
+    const strValue = String(value).trim();
+
+    // Handle arrows (for Positionsdelta)
+    if (strValue.includes("▲")) return "delta-pos-up";
+    if (strValue.includes("▼")) return "delta-pos-down";
+    
+    // Handle +/- signs (for ELOdelta)
+    if (strValue.startsWith("+") || (strValue.match(/^[0-9]/) && !strValue.startsWith("-"))) {
+        return "delta-elo-up";
+    }
+    if (strValue.startsWith("-")) {
+        return "delta-elo-down";
+    }
+    
+    return "delta-neutral";
+}
+
+function applyDeltaStyling(td, value, type) {
+    if (!value) {
+        td.classList.add("delta-neutral");
+        return;
+    }
+
+    if (value.includes("▲") || value.includes("+")) {
+        td.classList.add(type === "pos" ? "delta-pos-up" : "delta-elo-up");
+    } else if (value.includes("▼") || value.includes("-")) {
+        td.classList.add(type === "pos" ? "delta-pos-down" : "delta-elo-down");
+    } else {
+        td.classList.add("delta-neutral");
+    }
+}
+
+function applyTrendStyling(element, value) {
+    if (!value) {
+        element.classList.add("trend-neutral");
+        return;
+    }
+
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) {
+        element.classList.add("trend-neutral");
+        return;
+    }
+
+    // Apply color based on trend value
+    if (numValue > 20) {
+        element.classList.add("trend-very-positive");
+    } else if (numValue > 0) {
+        element.classList.add("trend-positive");
+    } else if (numValue < -20) {
+        element.classList.add("trend-very-negative");
+    } else if (numValue < 0) {
+        element.classList.add("trend-negative");
+    } else {
+        element.classList.add("trend-neutral");
+    }
+}
+
+function applyWinrateStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value.replace("%", ""));
+    if (isNaN(numValue)) return;
+    if (numValue >= 80) {
+        td.classList.add("trend-very-positive");
+    } else if (numValue >= 60) {
+        td.classList.add("trend-positive");
+    } else if (numValue >= 40) {
+        td.classList.add("trend-neutral");
+    } else if (numValue >= 20) {
+        td.classList.add("trend-negative");
+    } else {
+        td.classList.add("trend-very-negative");
+    }
+}
+
+function applyVolatilityStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    if (numValue <= 1) {
+        td.classList.add("trend-very-positive");
+    } else if (numValue <= 3) {
+        td.classList.add("trend-positive");
+    } else if (numValue <= 5) {
+        td.classList.add("trend-neutral");
+    } else if (numValue <= 10) {
+        td.classList.add("trend-negative");
+    } else {
+        td.classList.add("trend-very-negative");
+    }
+}
+
+function applyPowerIndexStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    // Power Index ranges from 0-100
+    if (numValue >= 80) {
+        td.classList.add("trend-very-positive");
+    } else if (numValue >= 60) {
+        td.classList.add("trend-positive");
+    } else if (numValue >= 40) {
+        td.classList.add("trend-neutral");
+    } else if (numValue >= 20) {
+        td.classList.add("trend-negative");
+    } else {
+        td.classList.add("trend-very-negative");
+    }
+}
+
+function applyCredibilityScoreStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    // Credibility Score ranges from 0.0-1.0
+    if (numValue >= 0.7) {
+        td.classList.add("trend-very-positive");
+    } else if (numValue >= 0.5) {
+        td.classList.add("trend-positive");
+    } else if (numValue >= 0.3) {
+        td.classList.add("trend-neutral");
+    } else {
+        td.classList.add("trend-negative");
+    }
+}
+
+function applyCredibilityLabelStyling(td, value) {
+    if (!value) return;
+    const label = value.trim();
+    if (label === "High") {
+        td.classList.add("trend-very-positive");
+    } else if (label === "Medium") {
+        td.classList.add("trend-neutral");
+    } else if (label === "Low") {
+        td.classList.add("trend-negative");
+    }
+}
+
+function applyCredibilityScoreStyling(td, value) {
+    if (!value) return;
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) return;
+    
+    // Apply color coding based on credibility score thresholds
+    if (numValue >= 0.7) {
+        td.classList.add("trend-very-positive");  // High confidence (green)
+    } else if (numValue >= 0.5) {
+        td.classList.add("trend-neutral");        // Medium confidence (yellow)
+    } else {
+        td.classList.add("trend-negative");       // Low confidence (red)
+    }
+}
+// ============================================
+// HISTORICAL MATCH INDEX CONTROLS
+// ============================================
+
+// Update match details display
+function updateMatchDetails(matchIndex) {
+    const matchDetails = document.getElementById('matchDetails');
+    const matchId = document.getElementById('matchId');
+    const matchTeamA = document.getElementById('matchTeamA');
+    const matchTeamB = document.getElementById('matchTeamB');
+    const matchScore = document.getElementById('matchScore');
+    
+    if (!matchDetails || !matchId || !matchTeamA || !matchTeamB || !matchScore) {
+        return;
+    }
+    
+    // Match index 0 means no matches played yet
+    if (matchIndex === 0) {
+        matchDetails.style.display = 'none';
+        return;
+    }
+    
+    // Check if we have the match data
+    if (matchesData.length === 0) {
+        matchDetails.style.display = 'none';
+        return;
+    }
+    
+    // Get the match at this index (matchIndex - 1 because array is 0-based)
+    const match = matchesData[matchIndex - 1];
+    
+    if (match) {
+        matchDetails.style.display = 'block';
+        matchId.textContent = match.MatchID || '-';
+        matchTeamA.textContent = match.BeyA || '-';
+        matchTeamB.textContent = match.BeyB || '-';
+        matchScore.textContent = `${match.ScoreA || 0} : ${match.ScoreB || 0}`;
+    } else {
+        matchDetails.style.display = 'none';
+    }
+}
+
+function setupHistoricalControls() {
+    const historicalToggle = document.getElementById('historicalToggle');
+    const matchIndexContainer = document.getElementById('matchIndexContainer');
+    const matchIndexSlider = document.getElementById('matchIndexSlider');
+    const matchIndexInput = document.getElementById('matchIndexInput');
+    const matchIndexValue = document.getElementById('matchIndexValue');
+    const prevMatchBtn = document.getElementById('prevMatchBtn');
+    const nextMatchBtn = document.getElementById('nextMatchBtn');
+    const resetMatchBtn = document.getElementById('resetMatchBtn');
+    const totalMatchesSpan = document.getElementById('totalMatches');
+    
+    // Default max match index (fallback if unable to load matches.csv)
+    const DEFAULT_MAX_MATCHES = 224;
+    
+    // Determine max match index by checking for matches.csv
+    fetch(DATA_PATHS.MATCHES_CSV)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`Failed to load matches.csv: ${res.status}`);
+            }
+            return res.text();
+        })
+        .then(csv => {
+            const lines = csv.trim().split('\n');
+            const headers = lines[0].split(',');
+            
+            // Parse matches data
+            matchesData = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const match = {};
+                headers.forEach((header, index) => {
+                    match[header.trim()] = values[index] ? values[index].trim() : '';
+                });
+                matchesData.push(match);
+            }
+            
+            // -1 for header, -1 for 0-based indexing, then the last match is at that index
+            maxMatchIndex = lines.length - 2; // -1 for header row
+            currentMatchIndex = maxMatchIndex;
+            
+            // Update UI with max index
+            if (matchIndexSlider) {
+                matchIndexSlider.max = maxMatchIndex;
+                matchIndexSlider.value = maxMatchIndex;
+            }
+            if (matchIndexInput) {
+                matchIndexInput.max = maxMatchIndex;
+                matchIndexInput.value = maxMatchIndex;
+            }
+            if (matchIndexValue) {
+                matchIndexValue.textContent = maxMatchIndex;
+            }
+            if (totalMatchesSpan) {
+                totalMatchesSpan.textContent = maxMatchIndex;
+            }
+        })
+        .catch(err => {
+            console.error('Error loading matches for count:', err);
+            // Use default fallback if can't load
+            maxMatchIndex = DEFAULT_MAX_MATCHES;
+            currentMatchIndex = DEFAULT_MAX_MATCHES;
+        });
+    
+    // Toggle historical mode
+    if (historicalToggle) {
+        historicalToggle.addEventListener('change', (e) => {
+            historicalMode = e.target.checked;
+            if (matchIndexContainer) {
+                matchIndexContainer.style.display = historicalMode ? 'block' : 'none';
+            }
+            
+            const toggleInput = document.getElementById("leaderboardToggle");
+            
+            if (historicalMode) {
+                // Switch to standard mode and disable advanced toggle
+                if (isAdvancedMode) {
+                    isAdvancedMode = false;
+                    if (toggleInput) {
+                        toggleInput.checked = false;
+                    }
+                }
+                
+                // Disable the advanced toggle
+                if (toggleInput) {
+                    toggleInput.disabled = true;
+                    // Add visual indication
+                    const toggleContainer = toggleInput.closest('.toggle-container');
+                    if (toggleContainer) {
+                        toggleContainer.style.opacity = '0.5';
+                        toggleContainer.title = 'Advanced statistics are not available in Time Travel Mode';
+                    }
+                }
+                
+                // Load the current match index snapshot
+                loadLeaderboard(false, currentMatchIndex);
+            } else {
+                // Re-enable the advanced toggle
+                if (toggleInput) {
+                    toggleInput.disabled = false;
+                    const toggleContainer = toggleInput.closest('.toggle-container');
+                    if (toggleContainer) {
+                        toggleContainer.style.opacity = '1';
+                        toggleContainer.title = '';
+                    }
+                }
+                
+                // Load current leaderboard (use saved preference)
+                const savedMode = localStorage.getItem("leaderboardMode");
+                isAdvancedMode = (savedMode === "advanced");
+                if (toggleInput) {
+                    toggleInput.checked = isAdvancedMode;
+                }
+                loadLeaderboard(isAdvancedMode);
+            }
+        });
+    }
+    
+    // Slider change
+    if (matchIndexSlider) {
+        matchIndexSlider.addEventListener('input', (e) => {
+            const newIndex = parseInt(e.target.value);
+            updateMatchIndex(newIndex);
+        });
+    }
+    
+    // Input field change
+    if (matchIndexInput) {
+        matchIndexInput.addEventListener('change', (e) => {
+            let newIndex = parseInt(e.target.value);
+            if (isNaN(newIndex) || newIndex < 0) {
+                newIndex = 0;
+            } else if (newIndex > maxMatchIndex) {
+                newIndex = maxMatchIndex;
+            }
+            updateMatchIndex(newIndex);
+        });
+    }
+    
+    // Previous match button
+    if (prevMatchBtn) {
+        prevMatchBtn.addEventListener('click', () => {
+            if (currentMatchIndex > 0) {
+                updateMatchIndex(currentMatchIndex - 1);
+            }
+        });
+    }
+    
+    // Next match button
+    if (nextMatchBtn) {
+        nextMatchBtn.addEventListener('click', () => {
+            if (currentMatchIndex < maxMatchIndex) {
+                updateMatchIndex(currentMatchIndex + 1);
+            }
+        });
+    }
+    
+    // Reset to latest button
+    if (resetMatchBtn) {
+        resetMatchBtn.addEventListener('click', () => {
+            updateMatchIndex(maxMatchIndex);
+        });
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (!historicalMode) return;
+        
+        // Arrow keys to navigate (only if not focused on an input)
+        if (document.activeElement.tagName !== 'INPUT') {
+            if (e.key === 'ArrowLeft' && currentMatchIndex > 0) {
+                e.preventDefault();
+                updateMatchIndex(currentMatchIndex - 1);
+            } else if (e.key === 'ArrowRight' && currentMatchIndex < maxMatchIndex) {
+                e.preventDefault();
+                updateMatchIndex(currentMatchIndex + 1);
+            }
+        }
+    });
+}
+
+function updateMatchIndex(newIndex) {
+    currentMatchIndex = newIndex;
+    
+    // Update all UI elements
+    const matchIndexSlider = document.getElementById('matchIndexSlider');
+    const matchIndexInput = document.getElementById('matchIndexInput');
+    const matchIndexValue = document.getElementById('matchIndexValue');
+    
+    if (matchIndexSlider) {
+        matchIndexSlider.value = newIndex;
+    }
+    if (matchIndexInput) {
+        matchIndexInput.value = newIndex;
+    }
+    if (matchIndexValue) {
+        matchIndexValue.textContent = newIndex;
+    }
+    
+    // Update match details display
+    updateMatchDetails(newIndex);
+    
+    // Update button states
+    const prevMatchBtn = document.getElementById('prevMatchBtn');
+    const nextMatchBtn = document.getElementById('nextMatchBtn');
+    
+    if (prevMatchBtn) {
+        prevMatchBtn.disabled = (newIndex <= 0);
+    }
+    if (nextMatchBtn) {
+        nextMatchBtn.disabled = (newIndex >= maxMatchIndex);
+    }
+    
+    // Load the snapshot
+    if (historicalMode) {
+        loadLeaderboard(isAdvancedMode, newIndex);
+    }
+}

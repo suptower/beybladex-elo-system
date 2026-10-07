@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stadium Statistics - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Stadium Statistics</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main class="stadium-stats-page" id="main-content">
+    <section class="stadium-hero">
+        <h2>🏟️ Stadium Statistics & Analysis</h2>
+        <p class="stadium-description">
+            Comprehensive arena-specific analytics. Discover how different stadiums affect 
+            Bey performance, archetype effectiveness, finish types, and the competitive meta.
+        </p>
+    </section>
+
+    <!-- Stadium Selector -->
+    <section class="stadium-selector-section">
+        <h3>📍 Select Stadium</h3>
+        <div class="stadium-selector">
+            <div class="stadium-buttons" id="stadiumButtons">
+                <div class="loading-placeholder">Loading stadiums...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stadium Overview -->
+    <section class="stadium-overview-section">
+        <h3>📊 Stadium Overview</h3>
+        <div class="stadium-overview-grid" id="stadiumOverview">
+            <div class="loading-placeholder">Select a stadium to view statistics...</div>
+        </div>
+    </section>
+
+    <!-- Score Distribution -->
+    <section class="score-distribution-section">
+        <h3>🎯 Score Distribution</h3>
+        <p class="help-text">
+            <span class="tooltip-icon">ℹ️</span>
+            <span>Scores are shown as <strong>winner score – loser score</strong>. A 4-0 means the winner scored 4 and the loser scored 0.</span>
+        </p>
+        <div class="score-dist-layout">
+            <div class="score-dist-chart-container">
+                <canvas id="scoreDistChart"></canvas>
+            </div>
+            <div class="score-dist-table-container" id="scoreDistTable">
+                <div class="loading-placeholder">Select a stadium to view score distribution...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ELO Behavior -->
+    <section class="elo-behavior-section">
+        <h3>📈 ELO Behavior & Volatility</h3>
+        <div class="elo-behavior-grid" id="eloBehavior">
+            <div class="loading-placeholder">Select a stadium to view ELO behavior...</div>
+        </div>
+    </section>
+
+    <!-- Finish Type Statistics -->
+    <section class="finish-stats-section">
+        <h3>💥 Finish Type Distribution</h3>
+        <div class="finish-chart-container">
+            <canvas id="finishChart"></canvas>
+        </div>
+        <div class="finish-stats-grid" id="finishStats">
+            <div class="loading-placeholder">Select a stadium to view finish statistics...</div>
+        </div>
+    </section>
+
+    <!-- Top Performers -->
+    <section class="top-performers-section">
+        <h3>🏆 Top Performers in Stadium</h3>
+        <div class="performers-grid">
+            <div class="performers-column">
+                <h4>Best Performers</h4>
+                <div id="bestPerformers">
+                    <div class="loading-placeholder">Select a stadium...</div>
+                </div>
+            </div>
+            <div class="performers-column">
+                <h4>Struggling Beys</h4>
+                <div id="worstPerformers">
+                    <div class="loading-placeholder">Select a stadium...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Archetype Effectiveness -->
+    <section class="archetype-effectiveness-section">
+        <h3>🎭 Archetype Effectiveness</h3>
+        <div class="archetype-effectiveness-table" id="archetypeTable">
+            <div class="loading-placeholder">Select a stadium to view archetype statistics...</div>
+        </div>
+    </section>
+
+    <!-- Comparative Analysis -->
+    <section class="comparative-section">
+        <h3>⚖️ Stadium Comparison</h3>
+        <p class="help-text">
+            <span class="tooltip-icon">ℹ️</span>
+            <span>Compare performance metrics across different stadiums to identify arena-specific meta shifts.</span>
+        </p>
+        <div class="comparison-grid" id="comparisonGrid">
+            <div class="loading-placeholder">Comparison data will appear when multiple stadiums have data...</div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script>
+// Load stadium analytics data
+let stadiumData = null;
+let selectedStadium = null;
+let finishChart = null;
+let scoreDistChart = null;
+
+async function loadStadiumData() {
+    try {
+        const response = await fetch(DATA_PATHS.STADIUM_ANALYTICS_JSON);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        stadiumData = await response.json();
+        initializeStadiumSelector();
+    } catch (error) {
+        console.error('Error loading stadium data:', error.message || error);
+        const errorMsg = error.message?.includes('HTTP') 
+            ? `Failed to load stadium data (${error.message})`
+            : 'Failed to load stadium data - file may not exist or contain invalid JSON';
+        document.getElementById('stadiumButtons').innerHTML = `<div class="error-message">${errorMsg}</div>`;
+    }
+}
+
+function initializeStadiumSelector() {
+    const stadiumButtons = document.getElementById('stadiumButtons');
+    const stadiums = Object.keys(stadiumData.stadium_overview);
+    
+    if (stadiums.length === 0) {
+        stadiumButtons.innerHTML = '<div class="info-message">No stadium data available</div>';
+        return;
+    }
+    
+    stadiumButtons.innerHTML = '';
+    stadiums.forEach((stadium, index) => {
+        const button = document.createElement('button');
+        button.className = 'stadium-button';
+        button.textContent = stadium;
+        button.onclick = () => selectStadium(stadium);
+        stadiumButtons.appendChild(button);
+        
+        // Select first stadium by default
+        if (index === 0) {
+            selectStadium(stadium);
+        }
+    });
+}
+
+function selectStadium(stadium) {
+    selectedStadium = stadium;
+    
+    // Update button states
+    document.querySelectorAll('.stadium-button').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent === stadium);
+    });
+    
+    // Update all sections
+    displayStadiumOverview(stadium);
+    displayScoreDistribution(stadium);
+    displayEloBehavior(stadium);
+    displayFinishStats(stadium);
+    displayTopPerformers(stadium);
+    displayArchetypeEffectiveness(stadium);
+    displayComparativeAnalysis();
+}
+
+function displayStadiumOverview(stadium) {
+    const overview = stadiumData.stadium_overview[stadium];
+    const container = document.getElementById('stadiumOverview');
+    
+    container.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-label">Total Matches</div>
+            <div class="stat-value">${overview.total_matches}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Avg Match Score</div>
+            <div class="stat-value">${overview.average_match_score}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Score Range</div>
+            <div class="stat-value">${overview.match_score_distribution.min} - ${overview.match_score_distribution.max}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Median Score</div>
+            <div class="stat-value">${overview.match_score_distribution.median}</div>
+        </div>
+    `;
+}
+
+function displayScoreDistribution(stadium) {
+    const distData = stadiumData.score_distribution && stadiumData.score_distribution[stadium];
+    const tableContainer = document.getElementById('scoreDistTable');
+    const ctx = document.getElementById('scoreDistChart');
+
+    if (!distData || !distData.scores || distData.scores.length === 0) {
+        tableContainer.innerHTML = '<div class="info-message">No score distribution data available</div>';
+        if (scoreDistChart) { scoreDistChart.destroy(); scoreDistChart = null; }
+        return;
+    }
+
+    const scores = distData.scores;
+    const labels = scores.map(s => s.score);
+    const counts = scores.map(s => s.count);
+    const percentages = scores.map(s => s.percentage);
+
+    if (scoreDistChart) { scoreDistChart.destroy(); }
+    const isDark = document.body.classList.contains('dark');
+    const textColor = isDark ? '#e0e0e0' : '#333';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+    scoreDistChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Matches',
+                data: counts,
+                backgroundColor: labels.map(l => {
+                    const parts = l.split('-');
+                    const winnerScore = parseInt(parts[0]);
+                    const loserScore = parseInt(parts[1]);
+                    if (loserScore === 0) return 'rgba(34,197,94,0.8)';
+                    if (winnerScore - loserScore === 1) return 'rgba(239,68,68,0.8)';
+                    return 'rgba(59,130,246,0.8)';
+                }),
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const pct = percentages[ctx.dataIndex];
+                            return `${ctx.parsed.x} matches (${pct}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor },
+                    title: { display: true, text: 'Number of matches', color: textColor }
+                },
+                y: {
+                    ticks: { color: textColor, font: { family: 'monospace', size: 12 } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    tableContainer.innerHTML = `
+        <table class="data-table score-dist-table">
+            <thead>
+                <tr>
+                    <th>Score</th>
+                    <th>Count</th>
+                    <th>%</th>
+                    <th>Distribution</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${scores.map(s => `
+                    <tr>
+                        <td><strong>${s.score}</strong></td>
+                        <td>${s.count}</td>
+                        <td>${s.percentage}%</td>
+                        <td>
+                            <div class="inline-bar-outer">
+                                <div class="inline-bar-inner" style="width:${s.percentage}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('')}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>${distData.total_matches}</strong></td>
+                    <td><strong>100%</strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    `;
+}
+
+function displayEloBehavior(stadium) {
+    const behavior = stadiumData.elo_behavior[stadium];
+    const container = document.getElementById('eloBehavior');
+    
+    if (!behavior) {
+        container.innerHTML = '<div class="info-message">No ELO behavior data available</div>';
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-label">Avg ELO Change</div>
+            <div class="stat-value">${behavior.avg_elo_change}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">ELO Volatility</div>
+            <div class="stat-value">${behavior.elo_volatility}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Upset Frequency</div>
+            <div class="stat-value">${behavior.upset_frequency}%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Dominant Wins</div>
+            <div class="stat-value">${behavior.dominant_win_frequency}%</div>
+        </div>
+    `;
+}
+
+function displayFinishStats(stadium) {
+    const finishStats = stadiumData.finish_type_statistics[stadium];
+    const container = document.getElementById('finishStats');
+    
+    if (!finishStats) {
+        container.innerHTML = '<div class="info-message">No finish type data available</div>';
+        if (finishChart) {
+            finishChart.destroy();
+            finishChart = null;
+        }
+        return;
+    }
+    
+    // Update chart
+    const ctx = document.getElementById('finishChart');
+    if (finishChart) {
+        finishChart.destroy();
+    }
+    
+    finishChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Spin Finish', 'Burst Finish', 'Pocket Finish', 'Stadium Exit', 'Extreme Finish'],
+            datasets: [{
+                data: [
+                    finishStats.finish_percentages.spin,
+                    finishStats.finish_percentages.burst,
+                    finishStats.finish_percentages.pocket,
+                    finishStats.finish_percentages.stadium_exit,
+                    finishStats.finish_percentages.extreme
+                ],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(234, 179, 8, 0.8)',
+                    'rgba(34, 197, 94, 0.8)',
+                    'rgba(168, 85, 247, 0.8)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Update stats grid
+    container.innerHTML = `
+        <div class="stat-card">
+            <div class="stat-label">Spin Finishes</div>
+            <div class="stat-value">${finishStats.finish_counts.spin} (${finishStats.finish_percentages.spin}%)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Burst Finishes</div>
+            <div class="stat-value">${finishStats.finish_counts.burst} (${finishStats.finish_percentages.burst}%)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Pocket Finishes</div>
+            <div class="stat-value">${finishStats.finish_counts.pocket} (${finishStats.finish_percentages.pocket}%)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Stadium Exit Finishes</div>
+            <div class="stat-value">${finishStats.finish_counts.stadium_exit} (${finishStats.finish_percentages.stadium_exit}%)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Extreme Finishes</div>
+            <div class="stat-value">${finishStats.finish_counts.extreme} (${finishStats.finish_percentages.extreme}%)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Rounds</div>
+            <div class="stat-value">${finishStats.total_rounds}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Avg Points/Round</div>
+            <div class="stat-value">${finishStats.avg_points_per_round}</div>
+        </div>
+    `;
+}
+
+function displayTopPerformers(stadium) {
+    const performance = stadiumData.bey_performance;
+    const rankings = performance[stadium + '_rankings'];
+    
+    const bestContainer = document.getElementById('bestPerformers');
+    const worstContainer = document.getElementById('worstPerformers');
+    
+    if (!rankings) {
+        bestContainer.innerHTML = '<div class="info-message">No performance data</div>';
+        worstContainer.innerHTML = '<div class="info-message">No performance data</div>';
+        return;
+    }
+    
+    // Best performers
+    bestContainer.innerHTML = rankings.best_performers.map(p => `
+        <div class="performer-card">
+            <div class="performer-name">${p.bey}</div>
+            <div class="performer-stats">
+                <span class="winrate">${(p.winrate * 100).toFixed(1)}% WR</span>
+                <span class="matches">${p.matches} matches</span>
+                <span class="elo-change">ELO: ${p.avg_elo_change > 0 ? '+' : ''}${p.avg_elo_change}</span>
+            </div>
+        </div>
+    `).join('');
+    
+    // Worst performers
+    worstContainer.innerHTML = rankings.worst_performers.map(p => `
+        <div class="performer-card struggling">
+            <div class="performer-name">${p.bey}</div>
+            <div class="performer-stats">
+                <span class="winrate">${(p.winrate * 100).toFixed(1)}% WR</span>
+                <span class="matches">${p.matches} matches</span>
+                <span class="elo-change">ELO: ${p.avg_elo_change > 0 ? '+' : ''}${p.avg_elo_change}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function displayArchetypeEffectiveness(stadium) {
+    const effectiveness = stadiumData.archetype_effectiveness[stadium];
+    const container = document.getElementById('archetypeTable');
+    
+    if (!effectiveness || Object.keys(effectiveness).length === 0) {
+        container.innerHTML = '<div class="info-message">No archetype data available for this stadium</div>';
+        return;
+    }
+    
+    const archetypes = Object.entries(effectiveness)
+        .sort((a, b) => b[1].winrate - a[1].winrate);
+    
+    container.innerHTML = `
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Archetype</th>
+                    <th>Matches</th>
+                    <th>Winrate</th>
+                    <th>Avg Dominance</th>
+                    <th>Total Dominance</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${archetypes.map(([name, stats]) => `
+                    <tr>
+                        <td><strong>${name}</strong></td>
+                        <td>${stats.matches}</td>
+                        <td>${(stats.winrate * 100).toFixed(1)}%</td>
+                        <td>${stats.avg_dominance}</td>
+                        <td>${stats.total_dominance}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
+function displayComparativeAnalysis() {
+    const comparisons = stadiumData.comparative_analysis;
+    const container = document.getElementById('comparisonGrid');
+    
+    if (!comparisons || comparisons.length === 0) {
+        container.innerHTML = '<div class="info-message">Not enough stadium data for comparison yet</div>';
+        return;
+    }
+    
+    container.innerHTML = comparisons.map(comp => {
+        const hasData = Object.keys(comp.bey_winrate_deltas).length > 0 || 
+                       Object.keys(comp.archetype_shifts).length > 0;
+        
+        if (!hasData) return '';
+        
+        return `
+            <div class="comparison-card">
+                <h4>${comp.stadium_a} vs ${comp.stadium_b}</h4>
+                
+                ${Object.keys(comp.bey_winrate_deltas).length > 0 ? `
+                    <div class="comparison-section">
+                        <strong>Significant Bey Changes:</strong>
+                        <ul>
+                            ${Object.entries(comp.bey_winrate_deltas).slice(0, 5).map(([bey, delta]) => `
+                                <li>${bey}: ${delta > 0 ? '+' : ''}${(delta * 100).toFixed(1)}% WR</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+                
+                ${Object.keys(comp.archetype_shifts).length > 0 ? `
+                    <div class="comparison-section">
+                        <strong>Archetype Shifts:</strong>
+                        <ul>
+                            ${Object.entries(comp.archetype_shifts).map(([arch, delta]) => `
+                                <li>${arch}: ${delta > 0 ? '+' : ''}${(delta * 100).toFixed(1)}% WR</li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+                
+                <div class="comparison-section">
+                    <strong>ELO Volatility Delta:</strong> ${comp.elo_volatility_delta > 0 ? '+' : ''}${comp.elo_volatility_delta}
+                </div>
+            </div>
+        `;
+    }).filter(html => html).join('');
+    
+    if (container.innerHTML === '') {
+        container.innerHTML = '<div class="info-message">Not enough data for meaningful comparisons yet</div>';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', loadStadiumData);
+</script>
+
+<style>
+.stadium-stats-page {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.stadium-hero {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.stadium-description {
+    color: var(--text-light);
+    max-width: 800px;
+    margin: 10px auto;
+}
+
+.stadium-selector {
+    margin: 20px 0;
+}
+
+.stadium-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.stadium-button {
+    padding: 12px 24px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.stadium-button:hover {
+    background: var(--bg-subtle);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.stadium-button.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-hover-subtle), 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+    font-weight: 700;
+}
+
+.stadium-overview-grid,
+.elo-behavior-grid,
+.finish-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: var(--text-light);
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.finish-chart-container {
+    max-width: 500px;
+    height: 300px;
+    margin: 20px auto;
+}
+
+.performers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.performers-column h4 {
+    margin-bottom: 15px;
+    color: var(--text);
+}
+
+.performer-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.performer-card.struggling {
+    border-left: 3px solid var(--danger, #ef4444);
+}
+
+.performer-name {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: var(--text);
+}
+
+.performer-stats {
+    display: flex;
+    gap: 10px;
+    font-size: 0.9em;
+    color: var(--text-light);
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.comparison-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.comparison-card h4 {
+    margin-bottom: 15px;
+    color: var(--accent);
+}
+
+.comparison-section {
+    margin: 15px 0;
+}
+
+.comparison-section ul {
+    list-style: none;
+    padding-left: 10px;
+}
+
+.comparison-section li {
+    padding: 5px 0;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+}
+
+.data-table th {
+    background: var(--card);
+    font-weight: bold;
+    color: var(--text);
+}
+
+.data-table tbody tr:hover {
+    background: var(--bg-subtle);
+}
+
+section {
+    margin: 40px 0;
+}
+
+section h3 {
+    color: var(--text);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+}
+
+.loading-placeholder,
+.info-message,
+.error-message {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-light);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.error-message {
+    color: var(--danger, #ef4444);
+    border-color: var(--danger, #ef4444);
+}
+
+.help-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background: var(--card);
+    border-left: 3px solid var(--accent);
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.tooltip-icon {
+    font-size: 1.2em;
+}
+
+/* Score Distribution */
+.score-dist-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.score-dist-chart-container {
+    height: 420px;
+    position: relative;
+}
+
+.score-dist-table-container {
+    overflow-x: auto;
+}
+
+.score-dist-table {
+    width: 100%;
+}
+
+.score-dist-table tfoot td {
+    border-top: 2px solid var(--border);
+    padding-top: 8px;
+}
+
+.inline-bar-outer {
+    background: var(--border);
+    border-radius: 4px;
+    height: 10px;
+    width: 100%;
+    min-width: 80px;
+    overflow: hidden;
+}
+
+.inline-bar-inner {
+    background: var(--accent);
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+</style>
+
+<script defer src="footer-loader.js"></script>
+</body>
+</html>

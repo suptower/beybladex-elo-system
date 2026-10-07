@@ -1,0 +1,601 @@
+[
+  {
+    "code": "CX-06-01",
+    "name": "FoxBrush J9-70GR",
+    "blade": "FoxBrush",
+    "assist_blade": "Jaggy",
+    "ratchet": "9-70",
+    "bit": "Gear Rush",
+    "type": "Attack",
+    "image": "./data/beys/FoxBrush.png",
+    "description": "Nine points of pressure."
+  },
+  {
+    "code": "UX-11",
+    "name": "ImpactDrake 9-60LR",
+    "blade": "ImpactDrake",
+    "ratchet": "9-60",
+    "bit": "Low Rush",
+    "type": "Attack",
+    "image": "./data/beys/ImpactDrake.png",
+    "description": "Low stance. High impact. Drake unleashed."
+  },
+  {
+    "code": "CX-08-01",
+    "name": "CerberusFlame W5-80WB",
+    "blade": "CerberusFlame",
+    "assist_blade": "Wheel",
+    "ratchet": "5-80",
+    "bit": "Wall Ball",
+    "type": "Stamina",
+    "image": "./data/beys/CerberusFlame.png",
+    "description": "The underworld's watchdog."
+  },
+  {
+    "code": "BX-34",
+    "name": "CobaltDragoon 2-60C",
+    "blade": "CobaltDragoon",
+    "ratchet": "2-60",
+    "bit": "Cyclone",
+    "type": "Attack",
+    "image": "./data/beys/CobaltDragoon.png",
+    "description": "The left spinning dragon - the forbidden bey continues to live."
+  },
+  {
+    "code": "BX-20",
+    "name": "DranDagger 4-60R",
+    "blade": "DranDagger",
+    "ratchet": "4-60",
+    "bit": "Rush",
+    "type": "Attack",
+    "image": "./data/beys/DranDagger.png",
+    "description": "A dagger that hits before you see it."
+  },
+  {
+    "code": "UX-10",
+    "name": "KnightMail 3-85BS",
+    "blade": "KnightMail",
+    "ratchet": "3-85",
+    "bit": "Bound Spike",
+    "type": "Defense",
+    "image": "./data/beys/KnightMail.png",
+    "description": "Jade Jupiter meets a knight's guard."
+  },
+  {
+    "code": "CX-05",
+    "name": "RhinoReaper C4-55D",
+    "blade": "RhinoReaper",
+    "assist_blade": "Charge",
+    "ratchet": "4-55",
+    "bit": "Dot",
+    "type": "Defense",
+    "image": "./data/beys/RhinoReaper.png",
+    "description": "When the rhino braces, the reaper finishes."
+  },
+  {
+    "code": "BX-33",
+    "name": "WeissTiger 3-60U",
+    "blade": "WeissTiger",
+    "ratchet": "3-60",
+    "bit": "Unite",
+    "type": "Balance",
+    "image": "./data/beys/WeissTiger.png",
+    "description": "Grace in motion, menace in intent."
+  },
+  {
+    "code": "BX-02",
+    "name": "TuskMammoth 3-60T",
+    "blade": "TuskMammoth",
+    "ratchet": "3-60",
+    "bit": "Taper",
+    "type": "Balance",
+    "image": "./data/beys/TuskMammoth.png",
+    "description": "The mammoth moves, the point lands."
+  },
+  {
+    "code": "BX-26",
+    "name": "UnicornSting 5-60GP",
+    "blade": "UnicornSting",
+    "ratchet": "5-60",
+    "bit": "Gear Point",
+    "type": "Balance",
+    "image": "./data/beys/UnicornSting.png",
+    "description": "The ray strikes again."
+  },
+  {
+    "code": "BX-16",
+    "name": "ViperTail 5-80O",
+    "blade": "ViperTail",
+    "ratchet": "5-80",
+    "bit": "Orb",
+    "type": "Stamina",
+    "image": "./data/beys/ViperTail.png",
+    "description": "Venom in motion."
+  },
+  {
+    "code": "BX-01",
+    "name": "DranSword 3-60F",
+    "blade": "DranSword",
+    "ratchet": "3-60",
+    "bit": "Flat",
+    "type": "Attack",
+    "image": "./data/beys/DranSword.png",
+    "description": "Dragon's wrath, flame sharp."
+  },
+  {
+    "code": "UX-08",
+    "name": "SilverWolf 3-80FB",
+    "blade": "SilverWolf",
+    "ratchet": "3-80",
+    "bit": "Free Ball",
+    "type": "Stamina",
+    "image": "./data/beys/SilverWolf.png",
+    "description": "Silent predator, endless drive."
+  },
+  {
+    "code": "UX-03",
+    "name": "WizardRod 5-70DB",
+    "blade": "WizardRod",
+    "ratchet": "5-70",
+    "bit": "Disk Ball",
+    "type": "Stamina",
+    "image": "./data/beys/WizardRod.png",
+    "description": "The arcane never tires."
+  },
+  {
+    "code": "UX-01",
+    "name": "DranBuster 1-60A",
+    "blade": "DranBuster",
+    "ratchet": "1-60",
+    "bit": "Accel",
+    "type": "Attack",
+    "image": "./data/beys/DranBuster.png",
+    "description": "One strike is all it takes."
+  },
+  {
+    "code": "BX-21",
+    "name": "HellsChain 5-60HT",
+    "blade": "HellsChain",
+    "ratchet": "5-60",
+    "bit": "High Taper",
+    "type": "Balance",
+    "image": "./data/beys/HellsChain.png",
+    "description": "Chains of chaos, tips of precision."
+  },
+  {
+    "code": "UX-13",
+    "name": "GolemRock 1-60UN",
+    "blade": "GolemRock",
+    "ratchet": "1-60",
+    "bit": "Under Needle",
+    "type": "Defense",
+    "image": "./data/beys/GolemRock.png",
+    "description": "Solid as stone, sharp as a needle."
+  },
+  {
+    "code": "BX-03",
+    "name": "WizardArrow 4-80B",
+    "blade": "WizardArrow",
+    "ratchet": "4-80",
+    "bit": "Ball",
+    "type": "Stamina",
+    "image": "./data/beys/WizardArrow.png",
+    "description": "Endless motion, perfect aim."
+  },
+  {
+    "code": "CX-08",
+    "name": "WhaleFlame M3-85HT",
+    "blade": "WhaleFlame",
+    "assist_blade": "Massive",
+    "ratchet": "3-85",
+    "bit": "High Taper",
+    "type": "Balance",
+    "image": "./data/beys/WhaleFlame.png",
+    "description": "Force of the tide."
+  },
+  {
+    "code": "CX-03",
+    "name": "PerseusDark B6-80W",
+    "blade": "PerseusDark",
+    "assist_blade": "Bumper",
+    "ratchet": "6-80",
+    "bit": "Wedge",
+    "type": "Defense",
+    "image": "./data/beys/PerseusDark.png",
+    "description": "Gravity's enforcer, reborn and relentless."
+  },
+  {
+    "code": "UX-14",
+    "name": "ScorpioSpear 0-70Z",
+    "blade": "ScorpioSpear",
+    "ratchet": "0-70",
+    "bit": "Zap",
+    "type": "Balance",
+    "image": "./data/beys/ScorpioSpear.png",
+    "description": "Balanced charge, lethal sting."
+  },
+  {
+    "code": "UX-07",
+    "name": "PhoenixRudder 9-70G",
+    "blade": "PhoenixRudder",
+    "ratchet": "9-70",
+    "bit": "Glide",
+    "type": "Stamina",
+    "image": "./data/beys/PhoenixRudder.png",
+    "description": "Glide through the flames."
+  },
+  {
+    "code": "UX-06",
+    "name": "LeonCrest 7-60GN",
+    "blade": "LeonCrest",
+    "ratchet": "7-60",
+    "bit": "Gear Needle",
+    "type": "Defense",
+    "image": "./data/beys/LeonCrest.png",
+    "description": "Royal defense, unyielding."
+  },
+  {
+    "code": "CX-02",
+    "name": "WizardArc R4-55LO",
+    "blade": "WizardArc",
+    "assist_blade": "Round",
+    "ratchet": "4-55",
+    "bit": "Low Orb",
+    "type": "Stamina",
+    "image": "./data/beys/WizardArc.png",
+    "description": "Arcane in its third generation."
+  },
+  {
+    "code": "BX-31",
+    "name": "TyrannoBeat 4-70Q",
+    "blade": "TyrannoBeat",
+    "ratchet": "4-70",
+    "bit": "Quake",
+    "type": "Attack",
+    "image": "./data/beys/TyrannoBeat.png",
+    "description": "Jurassic impact."
+  },
+  {
+    "code": "CX-05",
+    "name": "HellsReaper T4-70K",
+    "blade": "HellsReaper",
+    "assist_blade": "Turn",
+    "ratchet": "4-70",
+    "bit": "Kick",
+    "type": "Balance",
+    "image": "./data/beys/HellsReaper.png",
+    "description": "Kick from the shadows."
+  },
+  {
+    "code": "BX-14",
+    "name": "SharkEdge 3-60LF",
+    "blade": "SharkEdge",
+    "ratchet": "3-60",
+    "bit": "Low Flat",
+    "type": "Attack",
+    "image": "./data/beys/SharkEdge.png",
+    "description": "Edges that cut deep."
+  },
+  {
+    "code": "BX-23",
+    "name": "PhoenixWing 9-60GF",
+    "blade": "PhoenixWing",
+    "ratchet": "9-60",
+    "bit": "Gear Flat",
+    "type": "Attack",
+    "image": "./data/beys/PhoenixWing.png",
+    "description": "Blink and you'll miss it."
+  },
+  {
+    "code": "CX-07",
+    "name": "PegasusBlast ATr",
+    "blade": "PegasusBlast",
+    "assist_blade": "Assault",
+    "ratchet_integrated_bit": "Turbo",
+    "type": "Attack",
+    "image": "./data/beys/PegasusBlast.png",
+    "description": "Storm, Galaxy, Cosmic, Blast - now turbo-charged."
+  },
+  {
+    "code": "CX-01",
+    "name": "DranBrave S6-60V",
+    "blade": "DranBrave",
+    "assist_blade": "Slash",
+    "ratchet": "6-60",
+    "bit": "Vortex",
+    "type": "Attack",
+    "image": "./data/beys/DranBrave.png",
+    "description": "Spin of valor."
+  },
+  {
+    "code": "UX-02",
+    "name": "HellsHammer 3-70H",
+    "blade": "HellsHammer",
+    "ratchet": "3-70",
+    "bit": "Hexa",
+    "type": "Balance",
+    "image": "./data/beys/HellsHammer.png",
+    "description": "Hexed with power."
+  },
+  {
+    "code": "BX-15",
+    "name": "LeonClaw 5-60P",
+    "blade": "LeonClaw",
+    "ratchet": "5-60",
+    "bit": "Point",
+    "type": "Balance",
+    "image": "./data/beys/LeonClaw.png",
+    "description": "The king's precision."
+  },
+  {
+    "code": "BX-35",
+    "name": "BlackShell 4-60D",
+    "blade": "BlackShell",
+    "ratchet": "4-60",
+    "bit": "Dot",
+    "type": "Defense",
+    "image": "./data/beys/BlackShell.png",
+    "description": "Silent strength, endless guard."
+  },
+  {
+    "code": "BX-36",
+    "name": "WhaleWave 5-80E",
+    "blade": "WhaleWave",
+    "ratchet": "5-80",
+    "bit": "Elevate",
+    "type": "Balance",
+    "image": "./data/beys/WhaleWave.png",
+    "description": "Elevate your flows."
+  },
+  {
+    "code": "UX-09",
+    "name": "SamuraiSaber 2-70L",
+    "blade": "SamuraiSaber",
+    "ratchet": "2-70",
+    "bit": "Level",
+    "type": "Attack",
+    "image": "./data/beys/SamuraiSaber.png",
+    "description": "Precision at every level."
+  },
+  {
+    "code": "BX-38",
+    "name": "CrimsonGaruda 4-70TP",
+    "blade": "CrimsonGaruda",
+    "ratchet": "4-70",
+    "bit": "Trans Point",
+    "type": "Balance",
+    "image": "./data/beys/CrimsonGaruda.png",
+    "description": "Strike with airborne grace."
+  },
+  {
+    "code": "UX-15",
+    "name": "SharkScale 4-50UF",
+    "blade": "SharkScale",
+    "ratchet": "4-50",
+    "bit": "Under Flat",
+    "type": "Attack",
+    "image": "./data/beys/SharkScale.png",
+    "description": "Lower than ever - deadlier than before."
+  },
+  {
+    "code": "BX-00",
+    "name": "CobaltDrake 4-60F",
+    "blade": "CobaltDrake",
+    "ratchet": "4-60",
+    "bit": "Flat",
+    "type": "Attack",
+    "image": "./data/beys/CobaltDrake.png",
+    "description": "Rare as cobalt, fierce as a drake."
+  },
+  {
+    "code": "CX-09",
+    "name": "SolEclipse D5-70TK",
+    "blade": "SolEclipse",
+    "assist_blade": "Dual",
+    "ratchet": "5-70",
+    "bit": "Trans Kick",
+    "type": "Balance",
+    "image": "./data/beys/SolEclipse.png",
+    "description": "The duality of light and shadow."
+  },
+  {
+    "code": "CX-00",
+    "name": "ValkyrieVolt S4-70V",
+    "blade": "ValkyrieVolt",
+    "assist_blade": "Slash",
+    "ratchet": "4-70",
+    "bit": "Vortex",
+    "type": "Attack",
+    "image": "./data/beys/ValkyrieVolt.png",
+    "description": "A valiant strike from the skies."
+  },
+  {
+    "code": "UX-00",
+    "name": "WyvernHover 3-85N",
+    "blade": "WyvernHover",
+    "ratchet": "3-85",
+    "bit": "Needle",
+    "type": "Defense",
+    "image": "./data/beys/WyvernHover.png",
+    "description": "The immovable green."
+  },
+  {
+    "code": "CX-10",
+    "name": "WolfHunt F0-60DB",
+    "blade": "WolfHunt",
+    "assist_blade": "Free",
+    "ratchet": "0-60",
+    "bit": "Disk Ball",
+    "type": "Stamina",
+    "image": "./data/beys/WolfHunt.png",
+    "description": "A wolf on the hunt might be free and relentless."
+  },
+  {
+    "code": "CX-11",
+    "name": "EmperorMight HOp",
+    "blade": "EmperorMight",
+    "assist_blade": "Heavy",
+    "ratchet_integrated_bit": "Operate",
+    "type": "Balance",
+    "image": "./data/beys/EmperorMight.png",
+    "description": "The crown is heavy, but the might is greater."
+  },
+  {
+    "code": "UX-15",
+    "name": "HellsBrave J3-60GF",
+    "blade": "HellsBrave",
+    "assist_blade": "Jaggy",
+    "ratchet": "3-60",
+    "bit": "Gear Flat",
+    "type": "Attack",
+    "image": "./data/beys/HellsBrave.png",
+    "description": "A brave reaper in toxic yellow."
+  },
+  {
+    "code": "UX-15",
+    "name": "TyrannoRoar 1-70L",
+    "blade": "TyrannoRoar",
+    "ratchet": "1-70",
+    "bit": "Level",
+    "type": "Attack",
+    "image": "./data/beys/TyrannoRoar.png",
+    "description": "A tyrant's roar in a levelled form."
+  },
+  {
+    "code": "UX-16",
+    "name": "ClockMirage 9-65B",
+    "blade": "ClockMirage",
+    "ratchet": "9-65",
+    "bit": "Ball",
+    "type": "Stamina",
+    "image": "./data/beys/ClockMirage.png",
+    "description": "Time's illusion, endless motion, infinite heights."
+  },
+  {
+    "code": "BX-39",
+    "name": "ShelterDrake 7-80GP",
+    "blade": "ShelterDrake",
+    "ratchet": "7-80",
+    "bit": "Gear Point",
+    "type": "Balance",
+    "image": "./data/beys/ShelterDrake.png",
+    "description": "A drake that shelters with precision."
+  },
+  {
+    "code": "BX-43",
+    "name": "SamuraiSteel 5-70GF",
+    "blade": "SamuraiSteel",
+    "ratchet": "5-70",
+    "bit": "Gear Flat",
+    "type": "Attack",
+    "image": "./data/beys/SamuraiSteel.png",
+    "description": "Samurai precision, steel resolve."
+  },
+  {
+    "code": "BX-44",
+    "name": "TriceraPress M-85BS",
+    "blade": "TriceraPress",
+    "ratchet": "M-85",
+    "bit": "Bound Spike",
+    "type": "Defense",
+    "image": "./data/beys/TriceraPress.png",
+    "description": "The triceratops' defense, now in a bey form."
+  },
+  {
+    "code": "BX-45",
+    "name": "SamuraiCalibur 6-70M",
+    "blade": "SamuraiCalibur",
+    "ratchet": "6-70",
+    "bit": "Merge",
+    "type": "Stamina",
+    "image": "./data/beys/SamuraiCalibur.png",
+    "description": "The legendary blade, now a bey of balance."
+  },
+  {
+    "code": "CX-12",
+    "name": "PhoenixFlare Z9-80WW",
+    "blade": "PhoenixFlare",
+    "assist_blade": "Zillion",
+    "ratchet": "9-80",
+    "bit": "Wall Wedge",
+    "type": "Defense",
+    "image": "./data/beys/PhoenixFlare.png",
+    "description": "A phoenix's flare, now in a defensive form."
+  },
+  {
+    "code": "UX-17",
+    "name": "MeteorDragoon 3-70J",
+    "blade": "MeteorDragoon",
+    "ratchet": "3-70",
+    "bit": "Jolt",
+    "type": "Attack",
+    "image": "./data/beys/MeteorDragoon.png",
+    "description": "The homage to a forgotten legend."
+  },
+  {
+    "code": "UX-12",
+    "name": "GhostCircle 0-80GB",
+    "blade": "GhostCircle",
+    "ratchet": "0-80",
+    "bit": "Gear Ball",
+    "type": "Stamina",
+    "image": "./data/beys/GhostCircle.png",
+    "description": "A ghostly circle of energy."
+  },
+  {
+    "code": "BX-49",
+    "name": "DranStrike 4-50FF",
+    "blade": "DranStrike",
+    "ratchet": "4-50",
+    "bit": "Free Flat",
+    "type": "Attack",
+    "image": "./data/beys/DranStrike.png",
+    "description": "The heavier Dagger."
+  },
+  {
+    "code": "UX-18",
+    "name": "MummyCurse 7-55W",
+    "blade": "MummyCurse",
+    "ratchet": "7-55",
+    "bit": "Wedge",
+    "type": "Defense",
+    "image": "./data/beys/MummyCurse.png",
+    "description": "A mummy's curse might counter any attack."
+  },
+  {
+    "code": "UX-19",
+    "name": "BulletGriffon H",
+    "blade": "BulletGriffon",
+    "ratchet_integrated_blade": "BulletGriffon",
+    "bit": "Hexa",
+    "type": "Balance",
+    "image": "./data/beys/BulletGriffon.png",
+    "description": "Trouble likes to come in as pair of two."
+  },
+  {
+    "code": "CX-13",
+    "name": "BahamutBlitz BK1-50I",
+    "blade": "BahamutBlitz",
+    "over_blade": "Break",
+    "metal_blade": "Blitz",
+    "assist_blade": "Knuckle",
+    "ratchet": "1-50",
+    "bit": "Ignition",
+    "type": "Attack",
+    "image": "./data/beys/BahamutBlitz.png",
+    "description": "The dragon of legend, now in a bey form."
+  },
+  {
+    "code": "CX-18",
+    "name": "BrachioWhip OW5-70Nr",
+    "blade": "BrachioWhip",
+    "over_blade": "Outer",
+    "metal_blade": "Whip",
+    "assist_blade": "Wheel",
+    "ratchet": "5-70",
+    "bit": "Narrow",
+    "type": "Stamina",
+    "image": "./data/beys/BrachioWhip.png",
+    "description": "The brachiosaurus's whip is enough to keep any opponent at bay."
+  }
+]

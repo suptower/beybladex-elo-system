@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beyblade X ELO Analytics - suptower</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Beyblade X Dashboard</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main class="homepage" id="main-content">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Beyblade X ELO Analytics</h1>
+            <p class="hero-tagline">Competitive Stats for Every Bey</p>
+            <p class="hero-description">
+                Track performance, analyze matchups, and discover winning combinations with our comprehensive ELO rating system.
+            </p>
+            <div class="hero-buttons">
+                <a href="leaderboard.html" class="hero-btn primary">🏆 View Leaderboard</a>
+                <a href="wiki.html" class="hero-btn secondary">📖 Explore Wiki</a>
+                <a href="matches.html" class="hero-btn secondary">⚔️ Check Matches</a>
+                <a href="analytics.html" class="hero-btn secondary">📊 Analytic Tools</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsfeed -->
+    <section class="newsfeed-section">
+        <div class="newsfeed-section-header">
+            <h2 class="section-title">📰 Latest News &amp; Announcements</h2>
+            <a href="newsfeed.html" class="view-all-news-link">View all →</a>
+        </div>
+        <div id="newsfeedList" class="newsfeed-list">
+            <div class="loading-placeholder">Loading news...</div>
+        </div>
+    </section>
+
+    <!-- Featured Bey -->
+    <section class="featured-bey-section">
+        <h2 class="section-title">🎯 Featured Bey of the Day</h2>
+        <div id="featuredBeyContainer" class="featured-bey-container">
+            <div class="loading-placeholder">Loading featured Bey...</div>
+        </div>
+    </section>
+
+    <!-- Live Meta Snapshot -->
+    <section class="meta-snapshot">
+        <h2 class="section-title">📈 Live Meta Snapshot</h2>
+        <div class="snapshot-grid">
+            <!-- Top 5 Beys -->
+            <div class="snapshot-card">
+                <h3>🥇 Top 5 Beys by ELO</h3>
+                <div id="topBeysList" class="top-beys-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+                <a href="leaderboard.html" class="snapshot-link">View Full Leaderboard →</a>
+            </div>
+
+            <!-- Recent Matches -->
+            <div class="snapshot-card">
+                <h3>⚔️ Recent Matches</h3>
+                <div id="recentMatchesList" class="recent-matches-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+                <a href="matches.html" class="snapshot-link">View All Matches →</a>
+            </div>
+
+            <!-- Giant Killers -->
+            <div class="snapshot-card">
+                <h3>🎯 Giant Killers</h3>
+                <div id="giantKillersList" class="giant-killers-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+                <a href="upsets.html" class="snapshot-link">View Upset Analysis →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Power Rankings & Meta Stats -->
+    <section class="power-rankings-section">
+        <h2 class="section-title">📊 Power Rankings & Meta Insights</h2>
+        <div class="power-rankings-grid">
+            <!-- Power Rankings -->
+            <div class="snapshot-card power-rankings-card">
+                <h3>📈 Power Rankings</h3>
+                <p class="card-subtitle">Top Beys by Power Index</p>
+                <div id="powerRankingsList" class="power-rankings-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+                <a href="leaderboard.html" class="snapshot-link">View Full Leaderboard →</a>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="snapshot-card quick-stats-card">
+                <h3>⚡ Quick Stats</h3>
+                <div id="quickStatsList" class="quick-stats-list">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Meta Health -->
+            <div class="snapshot-card meta-health-card">
+                <h3>🏥 Meta Health</h3>
+                <p class="card-subtitle">Archetype Diversity</p>
+                <div id="metaHealthDisplay" class="meta-health-display">
+                    <div class="loading-placeholder">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Overview Cards -->
+    <section class="features-section">
+        <h2 class="section-title">🔧 Explore Tools</h2>
+        <div class="features-grid">
+            <a href="quick-entry.html" class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Quick Entry</h3>
+                <p>Rapidly enter match results during tournaments. Optimized for touch and keyboard with auto-save.</p>
+            </a>
+            
+            <a href="compare.html" class="feature-card">
+                <div class="feature-icon">⚖️</div>
+                <h3>Compare</h3>
+                <p>View and sort all Beyblade stats in one place.</p>
+            </a>
+            
+            <a href="counters.html" class="feature-card">
+                <div class="feature-icon">🛡️</div>
+                <h3>Counters</h3>
+                <p>Discover effective counters and strategies against popular Beyblades.</p>
+            </a>
+            
+            <a href="analytics.html" class="feature-card feature-card-highlight">
+                <div class="feature-icon">📊</div>
+                <h3>Analytics Tools</h3>
+                <p>Comprehensive suite of analytical tools including plots, upset analysis, and meta balance.</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Getting Started Section
+    <section class="getting-started">
+        <h2 class="section-title">📖 Getting Started</h2>
+        <div class="getting-started-content">
+            <div class="info-card">
+                <h3>What is ELO?</h3>
+                <p>ELO is a rating system that calculates the relative skill levels of competitors. In Beyblade X, each Bey starts at 1000 ELO. Winning against higher-rated opponents earns more points, while losing to lower-rated opponents costs more points.</p>
+            </div>
+            
+            <div class="info-card">
+                <h3>How Matches Are Recorded</h3>
+                <p>All tournament matches are recorded with detailed results including scores, finishes, and ELO changes. The system tracks wins, losses, and calculates comprehensive statistics for each Beyblade.</p>
+            </div>
+            
+            <div class="info-card">
+                <h3>How to Interpret Stats</h3>
+                <p>Higher ELO means stronger performance. Win rate shows consistency. Power Index combines multiple factors into a single score. Check the leaderboard for detailed breakdowns including volatility, trend, and head-to-head records.</p>
+            </div>
+        </div>
+    </section>
+
+     Changelog Section
+    <section class="changelog-section">
+        <h2 class="section-title">📋 Recent Updates</h2>
+        <div class="changelog-list">
+            <div class="changelog-item">
+                <span class="changelog-version">v2.0</span>
+                <span class="changelog-text">Homepage Redesign — Modern layout with live meta snapshot</span>
+            </div>
+            <div class="changelog-item">
+                <span class="changelog-version">v1.5</span>
+                <span class="changelog-text">Added Parts Combination Explorer with filtering and search</span>
+            </div>
+            <div class="changelog-item">
+                <span class="changelog-version">v1.4</span>
+                <span class="changelog-text">Introduced Synergy Heatmaps for part compatibility analysis</span>
+            </div>
+            <div class="changelog-item">
+                <span class="changelog-version">v1.3</span>
+                <span class="changelog-text">Enhanced Wiki with rankings, trophies, and stats integration</span>
+            </div>
+            <div class="changelog-item">
+                <span class="changelog-version">v1.2</span>
+                <span class="changelog-text">Added Compare page and RPG-style stat bars</span>
+            </div>
+        </div>
+    </section> -->
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script defer src="footer-loader.js"></script>
+<script>
+// Parse CSV text to array of objects
+// Note: This simple parser works for the project's CSV files which don't contain
+// quoted fields with embedded commas. For more complex CSV data, use a library.
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i]);
+        return obj;
+    });
+}
+
+// Escape HTML special characters to prevent XSS
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// Get ELO trend class
+function getEloTrendClass(delta) {
+    const num = parseFloat(delta);
+    if (isNaN(num)) return '';
+    if (num >= 20) return 'trend-very-positive';
+    if (num > 0) return 'trend-positive';
+    if (num === 0) return 'trend-neutral';
+    if (num > -20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get rank medal
+function getRankMedal(rank) {
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return `#${rank}`;
+}
+
+// Load and display top 5 Beys
+async function loadTopBeys() {
+    try {
+        const response = await fetch(DATA_PATHS.LEADERBOARD_CSV);
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        const topBeys = data.slice(0, 5);
+        const container = document.getElementById('topBeysList');
+        
+        container.innerHTML = topBeys.map((bey, index) => {
+            const rank = index + 1;
+            const trendClass = getEloTrendClass(bey.ELOdelta);
+            const eloDeltaNum = parseFloat(bey.ELOdelta);
+            const eloDeltaSign = eloDeltaNum > 0 ? '+' : '';
+            
+            return `
+                <a href="bey.html?name=${encodeURIComponent(bey.Name)}" class="top-bey-item">
+                    <span class="top-bey-rank">${getRankMedal(rank)}</span>
+                    <span class="top-bey-name">${bey.Name}</span>
+                    <span class="top-bey-elo">${bey.ELO}</span>
+                    <span class="top-bey-trend ${trendClass}">${eloDeltaSign}${bey.ELOdelta}</span>
+                </a>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading top beys:', error);
+        document.getElementById('topBeysList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Load and display recent matches
+async function loadRecentMatches() {
+    try {
+        const response = await fetch(DATA_PATHS.MATCHES_CSV);
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        // Get 5 most recent matches (last ones in the file)
+        const recentMatches = data.slice(-5).reverse();
+        const container = document.getElementById('recentMatchesList');
+        
+        container.innerHTML = recentMatches.map(match => {
+            const scoreA = parseInt(match.ScoreA, 10);
+            const scoreB = parseInt(match.ScoreB, 10);
+            const winnerIsA = scoreA > scoreB;
+            
+            return `
+                <div class="recent-match-item">
+                    <span class="match-bey ${winnerIsA ? 'winner' : ''}">${match.BeyA}</span>
+                    <span class="match-score">${match.ScoreA} - ${match.ScoreB}</span>
+                    <span class="match-bey ${!winnerIsA ? 'winner' : ''}">${match.BeyB}</span>
+                </div>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading recent matches:', error);
+        document.getElementById('recentMatchesList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Load and display giant killers (upset specialists)
+async function loadGiantKillers() {
+    try {
+        const response = await fetch(DATA_PATHS.UPSET_ANALYSIS_CSV);
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        // Get top 5 by Giant Killer Score
+        const topGiantKillers = data.slice(0, 5);
+        const container = document.getElementById('giantKillersList');
+        
+        if (topGiantKillers.length === 0) {
+            container.innerHTML = '<p class="no-data-text">No upset data available</p>';
+            return;
+        }
+        
+        container.innerHTML = topGiantKillers.map((bey, index) => {
+            const rank = index + 1;
+            const score = parseFloat(bey.GiantKillerScore).toFixed(1);
+            const upsetWins = bey.UpsetWins;
+            
+            return `
+                <a href="bey.html?name=${encodeURIComponent(bey.Bey)}" class="giant-killer-item">
+                    <span class="gk-rank">${getRankMedal(rank)}</span>
+                    <span class="gk-name">${bey.Bey}</span>
+                    <span class="gk-score">${score}</span>
+                    <span class="gk-upsets">${upsetWins}W</span>
+                </a>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading giant killers:', error);
+        document.getElementById('giantKillersList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Load and display power rankings (by Power Index)
+async function loadPowerRankings() {
+    try {
+        const response = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV);
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        // Get top 3 by PowerIndex
+        const topPower = data
+            .map(bey => ({
+                ...bey,
+                powerIndexNum: parseFloat(bey.PowerIndex)
+            }))
+            .filter(bey => !isNaN(bey.powerIndexNum))
+            .sort((a, b) => b.powerIndexNum - a.powerIndexNum)
+            .slice(0, 3);
+        
+        const container = document.getElementById('powerRankingsList');
+        
+        if (topPower.length === 0) {
+            container.innerHTML = '<p class="no-data-text">No power data available</p>';
+            return;
+        }
+        
+        container.innerHTML = topPower.map((bey, index) => {
+            const rank = index + 1;
+            const powerIndex = bey.powerIndexNum.toFixed(1);
+            const credibility = bey.CredibilityLabel || 'N/A';
+            
+            return `
+                <a href="bey.html?name=${encodeURIComponent(bey.Bey)}" class="power-ranking-item">
+                    <span class="pr-rank">${getRankMedal(rank)}</span>
+                    <div class="pr-details">
+                        <span class="pr-name">${bey.Bey}</span>
+                        <span class="pr-credibility">${credibility} Credibility</span>
+                    </div>
+                    <span class="pr-power">${powerIndex}</span>
+                </a>
+            `;
+        }).join('');
+    } catch (error) {
+        console.error('Error loading power rankings:', error);
+        document.getElementById('powerRankingsList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Load and display quick stats (randomly selects 3 from available stats)
+async function loadQuickStats() {
+    try {
+        const [matchesRes, leaderboardRes, upsetRes] = await Promise.all([
+            fetch(DATA_PATHS.MATCHES_CSV),
+            fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV),
+            fetch(DATA_PATHS.UPSET_ANALYSIS_CSV)
+        ]);
+        
+        const [matchesText, leaderboardText, upsetText] = await Promise.all([
+            matchesRes.text(),
+            leaderboardRes.text(),
+            upsetRes.text()
+        ]);
+        
+        const matches = parseCSV(matchesText);
+        const leaderboard = parseCSV(leaderboardText);
+        const upsetData = parseCSV(upsetText);
+        
+        // Calculate all possible stats
+        const totalMatches = matches.length;
+        const totalBeys = leaderboard.length;
+        
+        // Find most volatile Bey
+        const mostVolatile = leaderboard
+            .map(bey => ({
+                name: bey.Bey,
+                volatility: parseFloat(bey.Volatility)
+            }))
+            .filter(b => !isNaN(b.volatility))
+            .sort((a, b) => b.volatility - a.volatility)[0];
+        
+        // Find highest win rate (with min 5 matches)
+        const highestWinrate = leaderboard
+            .filter(bey => parseInt(bey.Matches) >= 5)
+            .map(bey => ({
+                name: bey.Bey,
+                winrate: parseFloat(bey.Winrate)
+            }))
+            .filter(b => !isNaN(b.winrate))
+            .sort((a, b) => b.winrate - a.winrate)[0];
+        
+        // Find most played Bey
+        const mostPlayed = leaderboard
+            .map(bey => ({
+                name: bey.Bey,
+                matches: parseInt(bey.Matches)
+            }))
+            .filter(b => !isNaN(b.matches))
+            .sort((a, b) => b.matches - a.matches)[0];
+        
+        // Find biggest ELO climber
+        const biggestClimber = leaderboard
+            .map(bey => ({
+                name: bey.Bey,
+                trend: parseFloat(bey.ELOTrend)
+            }))
+            .filter(b => !isNaN(b.trend) && b.trend > 0)
+            .sort((a, b) => b.trend - a.trend)[0];
+        
+        // Find top Giant Killer
+        const topGiantKiller = upsetData.length > 0 ? upsetData[0] : null;
+        
+        // Calculate average ELO
+        const avgElo = leaderboard
+            .map(bey => parseInt(bey.ELO))
+            .filter(elo => !isNaN(elo))
+            .reduce((sum, elo) => sum + elo, 0) / leaderboard.length;
+        
+        // Find highest credibility Bey
+        const highestCredibility = leaderboard
+            .filter(bey => bey.CredibilityLabel === 'High')
+            .sort((a, b) => parseFloat(b.CredibilityScore) - parseFloat(a.CredibilityScore))[0];
+        
+        // Find most upset-prone
+        const mostUpsetProne = upsetData
+            .map(bey => ({
+                name: bey.Bey,
+                vulnerability: parseFloat(bey.Vulnerability)
+            }))
+            .filter(b => !isNaN(b.vulnerability))
+            .sort((a, b) => b.vulnerability - a.vulnerability)[0];
+        
+        // Total points scored across all matches
+        const totalPoints = matches
+            .map(m => parseInt(m.ScoreA) + parseInt(m.ScoreB))
+            .filter(p => !isNaN(p))
+            .reduce((sum, p) => sum + p, 0);
+        
+        // Define all available stat cards
+        const allStats = [
+            {
+                icon: '⚔️',
+                value: totalMatches,
+                label: 'Total Matches',
+                weight: 2 // Higher weight = more likely to show
+            },
+            {
+                icon: '🎯',
+                value: totalBeys,
+                label: 'Active Beys',
+                weight: 2
+            },
+            {
+                icon: '📊',
+                value: mostVolatile ? mostVolatile.name : 'N/A',
+                label: 'Most Volatile',
+                weight: 1
+            },
+            {
+                icon: '🏆',
+                value: highestWinrate ? `${highestWinrate.winrate.toFixed(1)}%` : 'N/A',
+                label: 'Highest Win Rate',
+                weight: 1
+            },
+            {
+                icon: '🔥',
+                value: mostPlayed ? mostPlayed.name : 'N/A',
+                label: 'Most Played',
+                weight: 1
+            },
+            {
+                icon: '📈',
+                value: biggestClimber ? biggestClimber.name : 'N/A',
+                label: 'Biggest Climber',
+                weight: 1
+            },
+            {
+                icon: '🎯',
+                value: topGiantKiller ? topGiantKiller.Bey : 'N/A',
+                label: 'Top Giant Killer',
+                weight: 1
+            },
+            {
+                icon: '⭐',
+                value: Math.round(avgElo),
+                label: 'Average ELO',
+                weight: 1
+            },
+            {
+                icon: '💎',
+                value: highestCredibility ? highestCredibility.Bey : 'N/A',
+                label: 'Most Credible',
+                weight: 1
+            },
+            {
+                icon: '🎲',
+                value: mostUpsetProne ? mostUpsetProne.name : 'N/A',
+                label: 'Most Upset-Prone',
+                weight: 1
+            },
+            {
+                icon: '🎉',
+                value: totalPoints,
+                label: 'Total Points Scored',
+                weight: 1
+            }
+        ];
+        
+        // Randomly select 3 stats using weighted selection
+        const selectedStats = weightedRandomSelection(allStats, 3);
+        
+        const container = document.getElementById('quickStatsList');
+        
+        container.innerHTML = selectedStats.map(stat => `
+            <div class="quick-stat-item">
+                <span class="qs-icon">${stat.icon}</span>
+                <div class="qs-content">
+                    <span class="qs-value">${stat.value}</span>
+                    <span class="qs-label">${stat.label}</span>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        console.error('Error loading quick stats:', error);
+        document.getElementById('quickStatsList').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Weighted random selection function
+function weightedRandomSelection(items, count) {
+    const selected = [];
+    const available = [...items];
+    
+    for (let i = 0; i < count && available.length > 0; i++) {
+        // Calculate total weight
+        const totalWeight = available.reduce((sum, item) => sum + (item.weight || 1), 0);
+        
+        // Random selection based on weight
+        let random = Math.random() * totalWeight;
+        let selectedIndex = 0;
+        
+        for (let j = 0; j < available.length; j++) {
+            random -= (available[j].weight || 1);
+            if (random <= 0) {
+                selectedIndex = j;
+                break;
+            }
+        }
+        
+        selected.push(available[selectedIndex]);
+        available.splice(selectedIndex, 1);
+    }
+    
+    return selected;
+}
+
+// Load and display meta health (archetype diversity)
+async function loadMetaHealth() {
+    try {
+        const response = await fetch(DATA_PATHS.RPG_STATS_CSV);
+        const text = await response.text();
+        const data = parseCSV(text);
+        
+        // Get top 10 Beys
+        const top10 = data.slice(0, 10);
+        
+        // Count unique archetypes in top 10
+        const archetypes = new Set();
+        const archetypeCounts = {};
+        
+        top10.forEach(bey => {
+            const archetype = bey.Archetype;
+            if (archetype) {
+                archetypes.add(archetype);
+                archetypeCounts[archetype] = (archetypeCounts[archetype] || 0) + 1;
+            }
+        });
+        
+        const uniqueArchetypes = archetypes.size;
+        const diversity = ((uniqueArchetypes / 10) * 100).toFixed(0);
+        
+        // Get most dominant archetype
+        let dominantArchetype = 'None';
+        let maxCount = 0;
+        for (const [arch, count] of Object.entries(archetypeCounts)) {
+            if (count > maxCount) {
+                maxCount = count;
+                dominantArchetype = arch;
+            }
+        }
+        
+        const container = document.getElementById('metaHealthDisplay');
+        
+        const healthStatus = uniqueArchetypes >= 7 ? 'Healthy' : uniqueArchetypes >= 5 ? 'Moderate' : 'Narrow';
+        const healthClass = uniqueArchetypes >= 7 ? 'health-good' : uniqueArchetypes >= 5 ? 'health-medium' : 'health-poor';
+        
+        container.innerHTML = `
+            <div class="meta-health-summary">
+                <div class="mh-stat">
+                    <span class="mh-value ${healthClass}">${uniqueArchetypes}/10</span>
+                    <span class="mh-label">Unique Archetypes</span>
+                </div>
+                <div class="mh-diversity">
+                    <div class="mh-bar">
+                        <div class="mh-bar-fill ${healthClass}" style="width: ${diversity}%"></div>
+                    </div>
+                    <span class="mh-status">${healthStatus} Diversity</span>
+                </div>
+                <div class="mh-dominant">
+                    <span class="mh-label">Most Common:</span>
+                    <span class="mh-value-small">${dominantArchetype} (${maxCount})</span>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading meta health:', error);
+        document.getElementById('metaHealthDisplay').innerHTML = '<p class="error-text">Failed to load data</p>';
+    }
+}
+
+// Get deterministic random Bey based on current date
+function getDailyBeyIndex(arrayLength) {
+    const today = new Date();
+    const dateString = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+    
+    // Simple hash function for deterministic randomness
+    let hash = 0;
+    for (let i = 0; i < dateString.length; i++) {
+        const char = dateString.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    
+    return Math.abs(hash) % arrayLength;
+}
+
+// Get archetype emoji
+function getArchetypeEmoji(archetype) {
+    const emojiMap = {
+        'Meta Anchor': '⚓',
+        'Adaptive Fighter': '🔄',
+        'Tempo Controller': '⏱️',
+        'Iron Wall': '🛡️',
+        'Endurance Core': '⏳',
+        'Precision Striker': '🎯',
+        'Glass Cannon': '💥',
+        'Versatile All-Rounder': '🌟',
+        'Momentum Builder': '⚡',
+        'Defensive Specialist': '🏰'
+    };
+    return emojiMap[archetype] || '⭐';
+}
+
+// Get archetype description
+function getArchetypeDescription(archetype) {
+    const descMap = {
+        'Meta Anchor': 'A dominant force that defines the competitive meta',
+        'Adaptive Fighter': 'Excels at adjusting strategies mid-battle',
+        'Tempo Controller': 'Masters the pace and flow of combat',
+        'Iron Wall': 'Exceptional defensive capabilities and resilience',
+        'Endurance Core': 'Outlasts opponents through superior stamina',
+        'Precision Striker': 'Delivers accurate and devastating attacks',
+        'Glass Cannon': 'Maximum offense with calculated risk',
+        'Versatile All-Rounder': 'Balanced performance across all areas',
+        'Momentum Builder': 'Gains power as the battle progresses',
+        'Defensive Specialist': 'Walls off opponents with impenetrable defense',
+        'Berserker': 'Aggressive offensive playstyle with relentless attacks',
+        'Chaser': 'Pursues and pressures opponents with persistent mobility',
+        'Spin Tank': 'Exceptional spin retention and stamina-based dominance',
+        'Unknown': 'A unique competitive Beyblade with untested potential'
+    };
+    return descMap[archetype] || 'A unique competitive Beyblade';
+}
+
+// Get tier from rank
+function getTier(rank) {
+    if (rank <= 3) return 'S-Tier';
+    if (rank <= 8) return 'A-Tier';
+    if (rank <= 15) return 'B-Tier';
+    return 'C-Tier';
+}
+
+// Load and display featured Bey
+async function loadFeaturedBey() {
+    try {
+        // Load all necessary data
+        const [leaderboardRes, rpgStatsRes, advancedRes] = await Promise.all([
+            fetch(DATA_PATHS.LEADERBOARD_CSV),
+            fetch(DATA_PATHS.RPG_STATS_CSV),
+            fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV)
+        ]);
+        
+        const [leaderboardText, rpgStatsText, advancedText] = await Promise.all([
+            leaderboardRes.text(),
+            rpgStatsRes.text(),
+            advancedRes.text()
+        ]);
+        
+        const leaderboard = parseCSV(leaderboardText);
+        const rpgStats = parseCSV(rpgStatsText);
+        const advanced = parseCSV(advancedText);
+        
+        // Get deterministic daily random Bey
+        let index_length = leaderboard.length
+        let beyIndex = getDailyBeyIndex(index_length);
+        let bey = leaderboard[beyIndex];
+        
+        // Find corresponding data from other sources
+        let rpgData = rpgStats.find(b => b.Bey === bey.Name);
+        while (!rpgData) {
+            // If no RPG data found, pick the next Bey in the list
+            console.log("Found bey without data: " + bey.Name + ", picking another one.");
+            index_length -= 1;
+            beyIndex = getDailyBeyIndex(index_length);
+            bey = leaderboard[beyIndex];
+            rpgData = rpgStats.find(b => b.Bey === bey.Name);
+        }
+        
+        const advancedData = advanced.find(b => b.Bey === bey.Name);
+        
+        const container = document.getElementById('featuredBeyContainer');
+
+        
+        if (!rpgData) {
+            container.innerHTML = '<p class="error-text">Failed to load featured Bey data</p>';
+            return;
+        }
+        
+        const rank = parseInt(bey.Platz, 10);
+        const tier = getTier(rank);
+        const archetype = rpgData.Archetype || 'Unknown';
+        const archetypeEmoji = getArchetypeEmoji(archetype);
+        const archetypeDesc = getArchetypeDescription(archetype);
+        const winrate = bey.Winrate || '0%';
+        const matches = bey.Spiele || '0';
+        const eloDelta = parseFloat(bey.ELOdelta || 0);
+        const trendClass = getEloTrendClass(eloDelta);
+        const eloDeltaSign = eloDelta > 0 ? '+' : '';
+        
+        // Create stats bars
+        const attack = parseFloat(rpgData.Attack || 0);
+        const defense = parseFloat(rpgData.Defense || 0);
+        const stamina = parseFloat(rpgData.Stamina || 0);
+        const control = parseFloat(rpgData.Control || 0);
+        const MAX_STAT_VALUE = 5; // RPG stats are on a scale of 0-5
+        
+        container.innerHTML = `
+            <div class="featured-bey-card">
+                <div class="featured-bey-header">
+                    <div class="featured-bey-title-section">
+                        <h3 class="featured-bey-name">${bey.Name}</h3>
+                        <div class="featured-bey-meta">
+                            <span class="featured-bey-rank">${getRankMedal(rank)} Rank</span>
+                            <span class="featured-bey-tier">${tier}</span>
+                        </div>
+                    </div>
+                    <div class="featured-bey-archetype-badge">
+                        <span class="archetype-emoji">${archetypeEmoji}</span>
+                        <span class="archetype-name">${archetype}</span>
+                    </div>
+                </div>
+                
+                <div class="featured-bey-content">
+                    <div class="featured-bey-description">
+                        <p>${archetypeDesc}</p>
+                    </div>
+                    
+                    <div class="featured-bey-stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">ELO Rating</div>
+                            <div class="stat-value">${bey.ELO}</div>
+                            <div class="stat-trend ${trendClass}">${eloDeltaSign}${bey.ELOdelta}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Win Rate</div>
+                            <div class="stat-value">${winrate}</div>
+                            <div class="stat-subtext">${bey.Siege}W - ${bey.Niederlagen}L</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Matches</div>
+                            <div class="stat-value">${matches}</div>
+                            <div class="stat-subtext">Total played</div>
+                        </div>
+                    </div>
+                    
+                    <div class="featured-bey-rpg-stats">
+                        <h4>Combat Profile</h4>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">⚔️ Attack</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(attack / MAX_STAT_VALUE) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${attack.toFixed(1)}</span>
+                        </div>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">🛡️ Defense</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(defense / MAX_STAT_VALUE) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${defense.toFixed(1)}</span>
+                        </div>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">⏳ Stamina</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(stamina / MAX_STAT_VALUE) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${stamina.toFixed(1)}</span>
+                        </div>
+                        <div class="rpg-stat-bar">
+                            <span class="rpg-stat-label">🎯 Control</span>
+                            <div class="rpg-stat-fill-container">
+                                <div class="rpg-stat-fill" style="width: ${(control / MAX_STAT_VALUE) * 100}%"></div>
+                            </div>
+                            <span class="rpg-stat-value">${control.toFixed(1)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="featured-bey-actions">
+                        <a href="bey.html?name=${encodeURIComponent(bey.Name)}" class="featured-bey-btn">
+                            📊 View Full Stats
+                        </a>
+                        <a href="counters.html" class="featured-bey-btn secondary">
+                            🛡️ Find Counters
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error loading featured bey:', error);
+        document.getElementById('featuredBeyContainer').innerHTML = '<p class="error-text">Failed to load featured Bey</p>';
+    }
+}
+
+// Load and display newsfeed (compact: top 3 + teaser for next item)
+async function loadNewsfeed() {
+    try {
+        const response = await fetch(DATA_PATHS.NEWSFEED_JSON);
+        const data = await response.json();
+        const container = document.getElementById('newsfeedList');
+
+        const items = data.news || [];
+        if (items.length === 0) {
+            container.innerHTML = '<p class="no-data-text">No news available.</p>';
+            return;
+        }
+
+        // Sort: pinned first, then by date descending
+        const sorted = [...items].sort((a, b) => {
+            if (a.pinned && !b.pinned) return -1;
+            if (!a.pinned && b.pinned) return 1;
+            return new Date(b.date) - new Date(a.date);
+        });
+
+        const categoryConfig = {
+            announcement: { label: 'Announcement', emoji: '📢' },
+            tournament:   { label: 'Tournament',    emoji: '🏆' },
+            season:       { label: 'Season',        emoji: '🏅' },
+            match:        { label: 'Match',          emoji: '⚔️' },
+            feature:      { label: 'New Feature',   emoji: '✨' },
+            system:       { label: 'System',         emoji: '⚙️' }
+        };
+
+        function buildSafeLink(link) {
+            if (typeof link !== 'string') return '';
+            const trimmed = link.trim();
+            if (/^https?:\/\//i.test(trimmed)) return trimmed;
+            if (trimmed !== '' && !trimmed.includes(':') && !trimmed.startsWith('//')) return trimmed;
+            return '';
+        }
+
+        // Display only the top 3 items
+        const displayItems = sorted.slice(0, 3);
+        const teaserItem = sorted.length > 3 ? sorted[3] : null;
+        const remainingCount = sorted.length - 3;
+
+        const itemsHtml = displayItems.map(item => {
+            const cat = categoryConfig[item.category] || { label: escapeHtml(item.category), emoji: '📌' };
+            const dateObj = new Date(item.date);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            const pinnedBadge = item.pinned ? '<span class="news-pinned-badge">📌 Pinned</span>' : '';
+            const safeLink = buildSafeLink(item.link);
+            const linkHtml = safeLink
+                ? `<a href="${escapeHtml(safeLink)}" class="news-read-more">Read more →</a>`
+                : '';
+
+            return `
+                <article class="news-item${item.pinned ? ' news-item-pinned' : ''}">
+                    <div class="news-item-header">
+                        <div class="news-item-meta">
+                            <span class="news-category-badge news-category-${escapeHtml(item.category)}">${cat.emoji} ${cat.label}</span>
+                            <span class="news-date">${formattedDate}</span>
+                            ${pinnedBadge}
+                        </div>
+                        <h3 class="news-item-title">${escapeHtml(item.title)}</h3>
+                    </div>
+                    <p class="news-item-content">${escapeHtml(item.content)}</p>
+                    ${linkHtml}
+                </article>
+            `;
+        }).join('');
+
+        // Build teaser card for the next item (item 4) linking to full newsfeed page
+        let teaserHtml = '';
+        if (teaserItem) {
+            const teaserCat = categoryConfig[teaserItem.category] || { label: escapeHtml(teaserItem.category), emoji: '📌' };
+            const teaserDate = new Date(teaserItem.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            const moreLabel = remainingCount === 1
+                ? '1 more story'
+                : `${remainingCount} more stories`;
+            teaserHtml = `
+                <a href="newsfeed.html" class="news-teaser" aria-label="View all news">
+                    <div class="news-teaser-preview">
+                        <span class="news-category-badge news-category-${escapeHtml(teaserItem.category)}">${teaserCat.emoji} ${teaserCat.label}</span>
+                        <span class="news-date">${teaserDate}</span>
+                    </div>
+                    <p class="news-teaser-title">${escapeHtml(teaserItem.title)}</p>
+                    <span class="news-teaser-cta">+ ${moreLabel} — See all news →</span>
+                </a>
+            `;
+        }
+
+        container.innerHTML = itemsHtml + teaserHtml;
+    } catch (error) {
+        console.error('Error loading newsfeed:', error);
+        document.getElementById('newsfeedList').innerHTML = '<p class="error-text">Failed to load news</p>';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadNewsfeed();
+    loadTopBeys();
+    loadRecentMatches();
+    loadGiantKillers();
+    loadFeaturedBey();
+    loadPowerRankings();
+    loadQuickStats();
+    loadMetaHealth();
+});
+</script>
+
+</body>
+</html>

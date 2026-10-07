@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X - Upsets</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="upsets.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Upset Analysis</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+
+    <div class="leaderboard-controls">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search by Bey name…">
+        </div>
+        
+        <div class="toggle-container">
+            <label class="toggle-label">
+                <span class="toggle-text">Giant Killers</span>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="upsetToggle">
+                    <span class="toggle-slider"></span>
+                </div>
+                <span class="toggle-text">Biggest Upsets</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Legend for Giant Killers view -->
+    <div id="legend" class="legend">
+        <div class="legend-header">
+            <span class="legend-title">📖 Column Legend</span>
+            <button class="legend-toggle" id="legendToggle">▼</button>
+        </div>
+        <div class="legend-content" id="legendContent">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div id="summaryCards" class="upset-summary-cards">
+        <!-- Populated by JavaScript -->
+    </div>
+
+    <div class="table-wrapper">
+        <table id="upsetsTable">
+            <thead>
+                <tr id="upsetsHeadRow"></tr>
+            </thead>
+            <tbody id="upsetsBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Mobile card list -->
+    <div class="mobile-sort-controls" id="mobileSortControls">
+        <button class="sort-button" id="mobileSortButton">
+            <span class="sort-icon">⇅</span>
+            <span class="sort-label">Sort by: <span id="currentSortLabel">Rank</span></span>
+        </button>
+    </div>
+    <div id="upsetsCards" class="cards"></div>
+    
+    <!-- Sort modal for mobile -->
+    <div class="sort-modal" id="sortModal">
+        <div class="sort-modal-content">
+            <div class="sort-modal-header">
+                <h3>Sort Options</h3>
+                <button class="sort-modal-close" id="sortModalClose">&times;</button>
+            </div>
+            <div class="sort-modal-body" id="sortModalBody">
+                <!-- Populated dynamically by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script defer src="footer-loader.js"></script>
+
+</body>
+</html>

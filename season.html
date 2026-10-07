@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Season Details - BeybladeX ELO System</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Season Details</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="container">
+        <div class="header-section">
+            <h1 id="season-title">Season Details</h1>
+            <p class="subtitle" id="season-subtitle">Loading...</p>
+        </div>
+
+        <!-- Season Overview -->
+        <div id="season-overview" class="info-box">
+            <!-- Will be populated by JavaScript -->
+        </div>
+
+        <!-- Tier Tables -->
+        <div id="tier-tables-container">
+            <h2 class="section-header">🏆 League Tables</h2>
+            <div id="tier-tables">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Upcoming Fixtures -->
+        <!--<div id="fixtures-section" style="display: none;"> -->
+            <!-- Will be populated by JavaScript -->
+        <!--</div> -->
+
+        <!-- Promotion & Relegation -->
+        <div id="promotion-relegation-container" style="display: none;">
+            <h2 class="section-header">⬆️⬇️ Promotion & Relegation</h2>
+            <div id="promotion-relegation-content">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Qualification Pool -->
+        <div id="qualification-pool-container" style="display: none;">
+            <h2 class="section-header collapsible-header" data-section-id="qualification-pool" onclick="toggleSection('qualification-pool')">
+                <span class="section-toggle-icon">▶</span>
+                🎯 Qualification Tournament Pool
+            </h2>
+            <div id="qualification-pool" class="collapsible-content collapsed">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Relegation Matches -->
+        <div id="relegation-matches-container" style="display: none;">
+            <h2 class="section-header">⚔️ Relegation Playoffs</h2>
+            <div id="relegation-matches">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Season Cup -->
+        <div id="season-cup-container" style="display: none;">
+            <h2 class="section-header">🏅 Season Cup</h2>
+            <div id="season-cup-bracket">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Matchdays -->
+        <div id="matchdays-container" style="display: none;">
+            <h2 class="section-header">📅 Match Schedule by Matchday</h2>
+            <div id="matchdays">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script src="season.js"></script>
+<script defer src="footer-loader.js"></script>
+</body>
+</html>

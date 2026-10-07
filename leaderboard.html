@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    </style>
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="leaderboard.js"></script>
+    <script defer src="bey-hover-card.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Leaderboard</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+
+    <div class="leaderboard-controls">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Suche nach Bey…">
+        </div>
+        
+        <div class="controls-row">
+
+            <!-- Arena Selector -->
+            <div class="arena-selector-container">
+                <label for="arenaSelector" class="arena-label">🏟️ Arena:</label>
+                <select id="arenaSelector" class="arena-select">
+                    <option value="xtreme" selected>Xtreme Stadium (Season/Global)</option>
+                    <option value="drop_attack">Drop Attack Beystadium</option>
+                    <option value="double_xtreme">Double Xtreme Stadium</option>
+                    <option value="combined">Combined/Global (All Matches)</option>
+                    <option value="all_arenas">All Arenas (Comparison)</option>
+                </select>
+            </div>
+
+            <!-- ELO Version Selector -->
+            <div class="version-selector-container">
+                <label for="versionSelector" class="version-label">📊 ELO Version:</label>
+                <select id="versionSelector" class="version-select">
+                    <option value="v3" selected>V3 (Current)</option>
+                    <option value="v2">V2</option>
+                    <option value="v1">V1</option>
+                </select>
+            </div>
+            
+            <div class="toggle-container">
+                <label class="toggle-label">
+                    <span class="toggle-text">Standard</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="leaderboardToggle">
+                        <span class="toggle-slider"></span>
+                    </div>
+                    <span class="toggle-text">Advanced</span>
+                </label>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Historical Match Index Selector -->
+    <div class="match-index-controls">
+        <div class="match-index-header">
+            <span class="match-index-title">📅 Historical View</span>
+            <label class="match-index-toggle-label">
+                <input type="checkbox" id="historicalToggle">
+                <span class="toggle-text-small">Time Travel Mode</span>
+            </label>
+        </div>
+        <div class="match-index-slider-container" id="matchIndexContainer" style="display: none;">
+            <div class="match-index-info">
+                <span class="match-index-label">Leaderboard after Match:</span>
+                <span class="match-index-value" id="matchIndexValue">224</span>
+                <span class="match-index-total"> / <span id="totalMatches">224</span></span>
+            </div>
+            
+            <!-- Match Details Display -->
+            <div class="match-details" id="matchDetails" style="display: none;">
+                <div class="match-details-header">Latest Match Played:</div>
+                <div class="match-details-content">
+                    <span class="match-id" id="matchId">-</span>
+                    <span class="match-teams">
+                        <span class="match-team-a" id="matchTeamA">-</span>
+                        <span class="match-score" id="matchScore">- : -</span>
+                        <span class="match-team-b" id="matchTeamB">-</span>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="slider-wrapper">
+                <input type="range" id="matchIndexSlider" class="match-index-slider" min="0" max="224" value="224" step="1">
+                <div class="slider-markers">
+                    <span class="slider-marker">Start</span>
+                    <span class="slider-marker">Latest</span>
+                </div>
+            </div>
+            <div class="match-index-buttons">
+                <button class="match-index-btn" id="prevMatchBtn" title="Previous Match">◀ Prev</button>
+                <input type="number" id="matchIndexInput" class="match-index-input" min="0" max="224" value="224" placeholder="Jump to...">
+                <button class="match-index-btn" id="nextMatchBtn" title="Next Match">Next ▶</button>
+                <button class="match-index-btn match-index-reset" id="resetMatchBtn" title="Reset to Latest">🔄 Latest</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend for abbreviations -->
+    <div id="legend" class="legend" style="display: none;">
+        <div class="legend-header">
+            <span class="legend-title">📖 Column Legend</span>
+            <button class="legend-toggle" id="legendToggle">▼</button>
+        </div>
+        <div class="legend-content" id="legendContent">
+            <!-- Content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table id="leaderboardTable">
+            <thead>
+                <tr id="leaderboardHeadRow"></tr>
+            </thead>
+            <tbody id="leaderboardBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Mobile card list -->
+    <div class="mobile-sort-controls" id="mobileSortControls">
+        <button class="sort-button" id="mobileSortButton">
+            <span class="sort-icon">⇅</span>
+            <span class="sort-label">Sort by: <span id="currentSortLabel">Rank</span></span>
+        </button>
+    </div>
+    <div id="leaderboardCards" class="cards"></div>
+    
+    <!-- Sort modal for mobile -->
+    <div class="sort-modal" id="sortModal">
+        <div class="sort-modal-content">
+            <div class="sort-modal-header">
+                <h3>Sort Options</h3>
+                <button class="sort-modal-close" id="sortModalClose">&times;</button>
+            </div>
+            <div class="sort-modal-body" id="sortModalBody">
+                <!-- Populated dynamically by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script defer src="footer-loader.js"></script>
+
+</body>
+</html>

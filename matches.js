@@ -1,0 +1,1737 @@
+// matches.js - Extended Match History with filtering, sorting, and pagination
+let allMatches = [];
+let filteredMatches = [];
+let beysData = [];
+let rpgStatsData = {};
+let archetypeMap = {}; // Lookup map for O(1) archetype access
+let roundsData = {}; // Mapping of match_id to rounds array
+let xpHistoryData = {}; // XP breakdown per match, keyed by raw MatchID
+let currentSort = { column: 0, asc: false }; // Default: Match ID descending (Match ID is now column index 0)
+let currentPage = 1;
+let pageSize = 50;
+let expandedMatches = new Set(); // Track which matches are expanded
+let resizeTimer; // Debounce timer for window resize
+let lastLayoutIsMobile = window.innerWidth < 900; // Track layout mode to avoid unnecessary re-renders
+
+// Column definitions for extended match history
+const COLUMN_DEFINITIONS = [
+    { key: 'matchId', label: 'Match ID', abbrev: 'ID', sortable: true },
+    { key: 'date', label: 'Date', abbrev: 'Date', sortable: true },
+    { key: 'arena', label: 'Arena', abbrev: 'Arena', sortable: true },
+    { key: 'matchType', label: 'Match Type', abbrev: 'Type', sortable: true },
+    { key: 'season', label: 'Season', abbrev: 'Season', sortable: true },
+    { key: 'tier', label: 'Tier', abbrev: 'Tier', sortable: true },
+    { key: 'matchday', label: 'Matchday', abbrev: 'MD', sortable: true },
+    { key: 'beyA', label: 'Bey A', abbrev: 'Bey A', sortable: true },
+    { key: 'preEloA', label: 'Pre ELO A', abbrev: 'Pre A', sortable: true },
+    { key: 'scoreA', label: 'Score A', abbrev: 'Sc A', sortable: true },
+    { key: 'scoreB', label: 'Score B', abbrev: 'Sc B', sortable: true },
+    { key: 'preEloB', label: 'Pre ELO B', abbrev: 'Pre B', sortable: true },
+    { key: 'beyB', label: 'Bey B', abbrev: 'Bey B', sortable: true },
+    { key: 'winner', label: 'Winner', abbrev: 'Winner', sortable: true },
+    { key: 'eloDiff', label: 'ELO Diff', abbrev: 'Diff', sortable: true }
+];
+
+// Column descriptions for legend
+const COLUMN_DESCRIPTIONS = {
+    'ID': { short: 'Match ID', long: 'Unique identifier for the match, used for referencing and debugging' },
+    'Date': { short: 'Match Date', long: 'The date when the match was played' },
+    'Arena': { short: 'Arena', long: 'The arena where the match was played (Xtreme or Drop Attack)' },
+    'Type': { short: 'Match Type', long: 'Type of match: Exhibition, Season, Relegation, Qualification, Season Cup (group / quarter / semi / final), or Tournament (group stage / Round of 16 / quarter / semi / final)' },
+    'Season': { short: 'Season', long: 'Season identifier (e.g., S1) - only for season-related matches' },
+    'Tier': { short: 'Tier', long: 'Tier number (I-IV) - only for season and relegation matches' },
+    'MD': { short: 'Matchday', long: 'Matchday number - groups matches into logical rounds within a season' },
+    'Bey A': { short: 'Beyblade A', long: 'Name of the first Beyblade in the match (with ELO change shown inline)' },
+    'Pre A': { short: 'Pre-Match ELO A', long: 'ELO rating of Bey A before the match' },
+    'Sc A': { short: 'Score A', long: 'Points scored by Bey A in the match' },
+    'Sc B': { short: 'Score B', long: 'Points scored by Bey B in the match' },
+    'Pre B': { short: 'Pre-Match ELO B', long: 'ELO rating of Bey B before the match' },
+    'Bey B': { short: 'Beyblade B', long: 'Name of the second Beyblade in the match (with ELO change shown inline)' },
+    'Winner': { short: 'Match Winner', long: 'The Beyblade that won the match' },
+    'Diff': { short: 'ELO Difference', long: 'Absolute ELO difference between the two Beys before the match' }
+};
+
+const ROUND_AWARE_MATCH_TYPES = new Set(['season_cup', 'tournament']);
+
+// Create ELO delta badge HTML string
+// Used for both desktop table and mobile card views
+function createDeltaBadgeHtml(eloChange) {
+    const isPositive = eloChange >= 0;
+    const arrow = isPositive ? '▲' : '▼';
+    const sign = isPositive ? '+' : '';
+    const className = isPositive ? 'delta-up' : 'delta-down';
+    return `<span class="elo-delta-badge ${className}"><span class="delta-arrow">${arrow}</span>${sign}${eloChange}</span>`;
+}
+
+// Create ELO delta badge DOM element
+// Used for desktop table view
+function createDeltaBadgeElement(eloChange) {
+    const badge = document.createElement('span');
+    const isPositive = eloChange >= 0;
+    badge.className = isPositive ? 'elo-delta-badge delta-up' : 'elo-delta-badge delta-down';
+    const arrow = isPositive ? '▲' : '▼';
+    const sign = isPositive ? '+' : '';
+    badge.innerHTML = `<span class="delta-arrow">${arrow}</span>${sign}${eloChange}`;
+    return badge;
+}
+
+// Load beys data for part filtering
+async function loadBeysDataForFilters() {
+    try {
+        const response = await fetch(DATA_PATHS.BEYS_DATA_JSON);
+        beysData = await response.json();
+    } catch (error) {
+        console.error('Error loading beys data:', error);
+        beysData = [];
+    }
+}
+
+// Load RPG stats data for archetype filtering
+async function loadRpgStatsData() {
+    try {
+        const response = await fetch(DATA_PATHS.RPG_STATS_JSON);
+        rpgStatsData = await response.json();
+        
+        // Build archetype lookup map for O(1) access
+        archetypeMap = {};
+        for (const [key, value] of Object.entries(rpgStatsData)) {
+            const normalizedKey = normalizeBeyName(key);
+            if (value.archetype) {
+                archetypeMap[normalizedKey] = value.archetype;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading RPG stats data:', error);
+        rpgStatsData = {};
+    }
+}
+
+// Get bey info by name (blade name)
+function getBeyInfo(bladeName) {
+    return beysData.find(b => b.blade === bladeName) || null;
+}
+
+// Helper function to normalize bey names for comparison
+function normalizeBeyName(name) {
+    if (!name) return '';
+    return name.toLowerCase().replace(/[\s\-_]/g, '');
+}
+
+// Get archetype data for a bey (O(1) lookup after map is built)
+function getArchetypeData(beyBladeName) {
+    const normalizedBlade = normalizeBeyName(beyBladeName);
+    return archetypeMap[normalizedBlade] || null;
+}
+
+// Finish type styling configuration
+const FINISH_TYPE_STYLES = {
+    spin: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.15)', label: 'Spin', icon: '🔄', points: 1 },
+    burst: { color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.15)', label: 'Burst', icon: '💥', points: 2 },
+    pocket: { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', label: 'Pocket', icon: '🎯', points: 2 },
+    stadium_exit: { color: '#06b6d4', bgColor: 'rgba(6, 182, 212, 0.15)', label: 'Stadium Exit', icon: '🥏', points: 2 },
+    extreme: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Extreme', icon: '⚡', points: 3 }
+};
+
+// Match type styling configuration
+const MATCH_TYPE_STYLES = {
+    exhibition: { color: '#6b7280', bgColor: 'rgba(107, 114, 128, 0.15)', label: 'Exhibition', icon: '⚔️' },
+    season: { color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.15)', label: 'Season', icon: '🏆' },
+    relegation: { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', label: 'Relegation', icon: '⚠️' },
+    season_cup: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Season Cup', icon: '🏅' },
+    season_cup_quarter: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Cup Quarter-Final', icon: '🏅' },
+    season_cup_semi: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Cup Semi-Final', icon: '🏅' },
+    season_cup_final: { color: '#8b5cf6', bgColor: 'rgba(139, 92, 246, 0.15)', label: 'Cup Final', icon: '🏅' },
+    qualification: { color: '#10b981', bgColor: 'rgba(16, 185, 129, 0.15)', label: 'Qualification', icon: '💰' },
+    tournament: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Tournament', icon: '🏟️' },
+    tournament_ro16: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Round of 16', icon: '🏟️' },
+    tournament_quarter: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Quarter-Final', icon: '🏟️' },
+    tournament_semi: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Semi-Final', icon: '🏟️' },
+    tournament_final: { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', label: 'Final', icon: '🏟️' }
+};
+
+// Helper function to create match type badge
+function createMatchTypeBadge(matchType) {
+    const style = MATCH_TYPE_STYLES[matchType] || MATCH_TYPE_STYLES.exhibition;
+    const badge = document.createElement('span');
+    badge.className = `match-type-badge match-type-${matchType}`;
+    badge.style.color = style.color;
+    badge.style.backgroundColor = style.bgColor;
+    badge.textContent = `${style.icon} ${style.label}`;
+    badge.title = style.label;
+    return badge;
+}
+
+// Helper function to format tier
+function formatTier(tier) {
+    if (!tier) return '—';
+    const tierNames = ['', 'I', 'II', 'III', 'IV'];
+    return `${tierNames[tier] || tier}`;
+}
+
+// Helper function to format matchday
+function formatMatchday(matchday) {
+    if (!matchday) return '—';
+    return `${matchday}`;
+}
+
+
+// Load rounds data from matches_with_rounds.json
+async function loadRoundsData() {
+    try {
+        const response = await fetch(DATA_PATHS.MATCHES_WITH_ROUNDS_JSON);
+        const data = await response.json();
+        
+        // Create a mapping of match_id to rounds
+        if (data.matches) {
+            data.matches.forEach(match => {
+                if (match.rounds && match.rounds.length > 0) {
+                    roundsData[match.match_id] = match.rounds;
+                }
+            });
+        }
+        console.log(`Loaded rounds data for ${Object.keys(roundsData).length} matches`);
+    } catch (error) {
+        console.error('Error loading rounds data:', error);
+        roundsData = {};
+    }
+}
+
+// Load XP history data from xp_history.json
+async function loadXpHistory() {
+    try {
+        const response = await fetch(DATA_PATHS.XP_HISTORY_JSON);
+        xpHistoryData = await response.json();
+        console.log(`Loaded XP history for ${Object.keys(xpHistoryData).length} matches`);
+    } catch (error) {
+        // XP data may not yet exist (pipeline not yet run) – degrade gracefully
+        xpHistoryData = {};
+    }
+}
+
+// Load extended match history from elo_history.csv
+async function loadMatches() {
+    try {
+        const response = await fetch(DATA_PATHS.ELO_HISTORY_CSV);
+        const text = await response.text();
+        
+        const lines = text.trim().split('\n');
+        const headers = lines[0].split(',');
+        console.log(headers);
+        
+        allMatches = lines.slice(1).map((line, index) => {
+            const values = line.split(',');
+            const rawMatchId = values[0]; // Keep original for roundsData lookup
+            const matchId = prepMatchId(rawMatchId);
+            const scoreA = parseInt(values[4]);
+            const scoreB = parseInt(values[5]);
+            const preA = parseFloat(values[6]);
+            const preB = parseFloat(values[7]);
+            const postA = parseFloat(values[8]);
+            const postB = parseFloat(values[9]);
+            const arena = (values[10] || 'Xtreme').trim();
+            // New metadata fields (columns 12-15)
+            const matchType = (values[12] || 'exhibition').trim();
+            const seasonId = (values[13] || '').trim();
+            const tier = values[14] ? parseInt(values[14]) : null;
+            const matchday = values[15] ? parseInt(values[15]) : null;
+            // ELO calculation breakdown fields (columns 16-23)
+            const kBaseA = values[16] ? parseFloat(values[16]) : null;
+            const kBaseB = values[17] ? parseFloat(values[17]) : null;
+            const kEffA = values[18] ? parseFloat(values[18]) : null;
+            const kEffB = values[19] ? parseFloat(values[19]) : null;
+            const expA = values[20] ? parseFloat(values[20]) : null;
+            const expB = values[21] ? parseFloat(values[21]) : null;
+            const actA = values[22] ? parseFloat(values[22]) : null;
+            const actB = values[23] ? parseFloat(values[23]) : null;
+            const formEmaA = values[24] && values[24].trim() !== '' ? parseFloat(values[24]) : null;
+            const formEmaB = values[25] && values[25].trim() !== '' ? parseFloat(values[25]) : null;
+            
+            return {
+                id: index,
+                matchId: matchId,
+                date: values[1],
+                dateFormatted: formatDate(values[1]),
+                beyA: values[2],
+                beyB: values[3],
+                scoreA: scoreA,
+                scoreB: scoreB,
+                preEloA: Math.round(preA),
+                preEloB: Math.round(preB),
+                postEloA: Math.round(postA),
+                postEloB: Math.round(postB),
+                eloChangeA: Math.round(postA - preA),
+                eloChangeB: Math.round(postB - preB),
+                eloDiff: Math.round(Math.abs(preA - preB)),
+                winner: scoreA > scoreB ? values[2] : values[3],
+                rounds: roundsData[rawMatchId] || [], // Use original ID for roundsData lookup
+                xpEntry: xpHistoryData[rawMatchId] || null, // XP breakdown for this match
+                arena: arena,
+                matchType: matchType,
+                seasonId: seasonId,
+                tier: tier,
+                matchday: matchday,
+                kBaseA: kBaseA,
+                kBaseB: kBaseB,
+                kEffA: kEffA,
+                kEffB: kEffB,
+                expA: expA,
+                expB: expB,
+                actA: actA,
+                actB: actB,
+                formEmaA: formEmaA,
+                formEmaB: formEmaB
+            };
+        });
+        
+        // Sort by matchId descending by default (newest first)
+        allMatches.sort((a, b) => b.matchId - a.matchId);
+        filteredMatches = [...allMatches];
+        
+        populateFilters();
+        loadFiltersFromURL();
+        updateLegend();
+        applyFilters();
+    } catch (error) {
+        console.error('Error loading matches:', error);
+        document.getElementById('matchesBody').innerHTML = 
+            '<tr><td colspan="11">Error loading matches data</td></tr>';
+    }
+}
+
+// rawId is form "MXXXX"
+// return without the "M" prefix and leading zeros
+// convert to integer
+function prepMatchId(rawId) {
+    return parseInt(rawId.slice(1).replace(/^0+/, ''), 10);
+}
+
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+}
+
+// Populate filter dropdowns
+function populateFilters() {
+    // Date filter
+    const dates = [...new Set(allMatches.map(m => m.date))].sort().reverse();
+    const dateSelect = document.getElementById('dateFilter');
+    dates.forEach(date => {
+        const option = document.createElement('option');
+        option.value = date;
+        option.textContent = formatDate(date);
+        dateSelect.appendChild(option);
+    });
+    
+    // Bey filter
+    const beys = [...new Set([...allMatches.map(m => m.beyA), ...allMatches.map(m => m.beyB)])].sort();
+    const beySelect = document.getElementById('beyFilter');
+    beys.forEach(bey => {
+        const option = document.createElement('option');
+        option.value = bey;
+        option.textContent = bey;
+        beySelect.appendChild(option);
+    });
+    
+    // Part filters (Blade, Ratchet, Bit)
+    const blades = [...new Set(beysData.map(b => b.blade).filter(Boolean))].sort();
+    const ratchets = [...new Set(beysData.map(b => b.ratchet).filter(Boolean))].sort();
+    const bits = [...new Set(beysData.map(b => b.bit).filter(Boolean))].sort();
+    
+    const bladeSelect = document.getElementById('bladeFilter');
+    blades.forEach(blade => {
+        const option = document.createElement('option');
+        option.value = blade;
+        option.textContent = blade;
+        bladeSelect.appendChild(option);
+    });
+    
+    const ratchetSelect = document.getElementById('ratchetFilter');
+    ratchets.forEach(ratchet => {
+        const option = document.createElement('option');
+        option.value = ratchet;
+        option.textContent = ratchet;
+        ratchetSelect.appendChild(option);
+    });
+    
+    const bitSelect = document.getElementById('bitFilter');
+    bits.forEach(bit => {
+        const option = document.createElement('option');
+        option.value = bit;
+        option.textContent = bit;
+        bitSelect.appendChild(option);
+    });
+    
+    // Archetype filter
+    const archetypes = new Map(); // Map to store archetype id -> name
+    beys.forEach(beyName => {
+        const archetypeData = getArchetypeData(beyName);
+        if (archetypeData && archetypeData.name) {
+            const archetypeId = archetypeData.id || archetypeData.name;
+            archetypes.set(archetypeId, archetypeData.name);
+        }
+    });
+    
+    const archetypeSelect = document.getElementById('archetypeFilter');
+    Array.from(archetypes.entries())
+        .sort((a, b) => a[1].localeCompare(b[1]))
+        .forEach(([id, name]) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = name;
+            archetypeSelect.appendChild(option);
+        });
+    
+    // Season filter
+    const seasons = [...new Set(allMatches.map(m => m.seasonId).filter(Boolean))].sort();
+    const seasonSelect = document.getElementById('seasonFilter');
+    seasons.forEach(season => {
+        const option = document.createElement('option');
+        option.value = season;
+        option.textContent = season;
+        seasonSelect.appendChild(option);
+    });
+    
+    // Matchday filter
+    const matchdays = [...new Set(allMatches.map(m => m.matchday).filter(md => md !== null))].sort((a, b) => a - b);
+    const matchdaySelect = document.getElementById('matchdayFilter');
+    matchdays.forEach(md => {
+        const option = document.createElement('option');
+        option.value = md;
+        option.textContent = `MD ${md}`;
+        matchdaySelect.appendChild(option);
+    });
+}
+
+// Get current filter values
+function getFilterValues() {
+    return {
+        search: document.getElementById('searchInput').value.toLowerCase(),
+        date: document.getElementById('dateFilter').value,
+        bey: document.getElementById('beyFilter').value,
+        blade: document.getElementById('bladeFilter').value,
+        ratchet: document.getElementById('ratchetFilter').value,
+        bit: document.getElementById('bitFilter').value,
+        archetype: document.getElementById('archetypeFilter').value,
+        arena: document.getElementById('arenaFilter').value,
+        minEloDiff: parseInt(document.getElementById('minEloDiff').value) || 0,
+        maxEloDiff: parseInt(document.getElementById('maxEloDiff').value) || Infinity,
+        eloChange: document.getElementById('eloChangeFilter').value,
+        matchType: document.getElementById('matchTypeFilter').value,
+        season: document.getElementById('seasonFilter').value,
+        tier: document.getElementById('tierFilter').value,
+        matchday: document.getElementById('matchdayFilter').value
+    };
+}
+
+// Apply all filters
+function applyFilters() {
+    const filters = getFilterValues();
+    
+    filteredMatches = allMatches.filter(match => {
+        // Search filter
+        if (filters.search) {
+            const searchMatch = 
+                match.beyA.toLowerCase().includes(filters.search) ||
+                match.beyB.toLowerCase().includes(filters.search) ||
+                match.dateFormatted.includes(filters.search) ||
+                match.date.includes(filters.search);
+            if (!searchMatch) return false;
+        }
+        
+        // Date filter
+        if (filters.date !== 'all' && match.date !== filters.date) {
+            return false;
+        }
+        
+        // Bey filter
+        if (filters.bey !== 'all' && match.beyA !== filters.bey && match.beyB !== filters.bey) {
+            return false;
+        }
+        
+        // Part filters (Blade, Ratchet, Bit)
+        if (filters.blade !== 'all' || filters.ratchet !== 'all' || filters.bit !== 'all') {
+            const beyAInfo = getBeyInfo(match.beyA);
+            const beyBInfo = getBeyInfo(match.beyB);
+            
+            let matchesPart = false;
+            
+            if (beyAInfo) {
+                let aMatches = true;
+                if (filters.blade !== 'all' && beyAInfo.blade !== filters.blade) aMatches = false;
+                if (filters.ratchet !== 'all' && beyAInfo.ratchet !== filters.ratchet) aMatches = false;
+                if (filters.bit !== 'all' && beyAInfo.bit !== filters.bit) aMatches = false;
+                if (aMatches) matchesPart = true;
+            }
+            
+            if (beyBInfo && !matchesPart) {
+                let bMatches = true;
+                if (filters.blade !== 'all' && beyBInfo.blade !== filters.blade) bMatches = false;
+                if (filters.ratchet !== 'all' && beyBInfo.ratchet !== filters.ratchet) bMatches = false;
+                if (filters.bit !== 'all' && beyBInfo.bit !== filters.bit) bMatches = false;
+                if (bMatches) matchesPart = true;
+            }
+            
+            if (!matchesPart) return false;
+        }
+        
+        // Archetype filter
+        if (filters.archetype !== 'all') {
+            let matchesArchetype = false;
+            const archetypeA = getArchetypeData(match.beyA);
+            const archetypeB = getArchetypeData(match.beyB);
+            
+            if (archetypeA && archetypeA.id === filters.archetype) {
+                matchesArchetype = true;
+            }
+            if (archetypeB && archetypeB.id === filters.archetype) {
+                matchesArchetype = true;
+            }
+            
+            if (!matchesArchetype) return false;
+        }
+        
+        // Arena filter
+        if (filters.arena !== 'all' && match.arena !== filters.arena) {
+            return false;
+        }
+        
+        // ELO difference filter
+        if (match.eloDiff < filters.minEloDiff || match.eloDiff > filters.maxEloDiff) {
+            return false;
+        }
+        
+        // ELO change filter
+        if (filters.eloChange !== 'all') {
+            if (filters.bey !== 'all') {
+                // Filter based on specific bey's ELO change
+                const eloChange = match.beyA === filters.bey ? match.eloChangeA : match.eloChangeB;
+                if (filters.eloChange === 'gain' && eloChange <= 0) return false;
+                if (filters.eloChange === 'loss' && eloChange >= 0) return false;
+            } else {
+                // If no specific bey selected, show matches where either had gain/loss
+                if (filters.eloChange === 'gain') {
+                    if (match.eloChangeA <= 0 && match.eloChangeB <= 0) return false;
+                }
+                if (filters.eloChange === 'loss') {
+                    if (match.eloChangeA >= 0 && match.eloChangeB >= 0) return false;
+                }
+            }
+        }
+        
+        // Match Type filter
+        if (filters.matchType !== 'all') {
+            const allowsRoundSuffix = ROUND_AWARE_MATCH_TYPES.has(filters.matchType);
+            const matchesType = match.matchType === filters.matchType ||
+                (allowsRoundSuffix && match.matchType.startsWith(`${filters.matchType}_`));
+            if (!matchesType) {
+                return false;
+            }
+        }
+        
+        // Season filter
+        if (filters.season !== 'all' && match.seasonId !== filters.season) {
+            return false;
+        }
+        
+        // Tier filter
+        if (filters.tier !== 'all' && match.tier !== parseInt(filters.tier)) {
+            return false;
+        }
+        
+        // Matchday filter
+        if (filters.matchday !== 'all' && match.matchday !== parseInt(filters.matchday)) {
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // Apply current sort
+    sortMatches();
+    
+    // Reset to page 1
+    currentPage = 1;
+    
+    // Save filters to URL
+    saveFiltersToURL();
+    
+    // Update active filters count
+    updateActiveFiltersCount();
+    
+    // Update display
+    updateMatchCount();
+    updatePagination();
+    displayMatches();
+}
+
+// Sort matches by column
+function sortMatches() {
+    const colDef = COLUMN_DEFINITIONS[currentSort.column];
+    const key = colDef.key;
+    
+    filteredMatches.sort((a, b) => {
+        let valA = a[key];
+        let valB = b[key];
+        
+        // Handle date sorting - convert to Date objects for comparison
+        if (key === 'date') {
+            valA = new Date(valA);
+            valB = new Date(valB);
+            return currentSort.asc ? valA - valB : valB - valA;
+        }
+        
+        // Handle numeric sorting
+        if (typeof valA === 'number' && typeof valB === 'number') {
+            return currentSort.asc ? valA - valB : valB - valA;
+        }
+        
+        // Handle string sorting
+        if (typeof valA === 'string' && typeof valB === 'string') {
+            return currentSort.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        
+        return 0;
+    });
+}
+
+// Sort by column click
+function sortByColumn(colIndex) {
+    if (currentSort.column === colIndex) {
+        currentSort.asc = !currentSort.asc;
+    } else {
+        currentSort.column = colIndex;
+        currentSort.asc = true;
+    }
+    
+    sortMatches();
+    currentPage = 1;
+    updatePagination();
+    displayMatches();
+    updateCurrentSortLabel();
+}
+
+// Update match count display
+function updateMatchCount() {
+    const countEl = document.getElementById('matchCount');
+    if (countEl) {
+        countEl.textContent = `Showing ${filteredMatches.length} of ${allMatches.length} matches`;
+    }
+}
+
+// Update pagination controls
+function updatePagination() {
+    const pageSizeVal = document.getElementById('pageSize').value;
+    pageSize = pageSizeVal === 'all' ? filteredMatches.length : parseInt(pageSizeVal);
+    
+    const totalPages = Math.ceil(filteredMatches.length / pageSize) || 1;
+    
+    document.getElementById('currentPage').textContent = currentPage;
+    document.getElementById('totalPages').textContent = totalPages;
+    
+    document.getElementById('prevPage').disabled = currentPage <= 1;
+    document.getElementById('nextPage').disabled = currentPage >= totalPages;
+}
+
+// Get current page of matches
+function getCurrentPageMatches() {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    return filteredMatches.slice(start, end);
+}
+
+// Display matches in table and cards
+function displayMatches() {
+    const isMobile = window.innerWidth < 900;
+    const tbody = document.getElementById('matchesBody');
+    const headRow = document.getElementById('matchesHeadRow');
+    const cardsContainer = document.getElementById('matchesCards');
+    const tableWrapper = document.querySelector('.table-wrapper');
+    const mobileSortControls = document.getElementById('mobileSortControls');
+    const pagination = document.getElementById('pagination');
+    
+    // Clear existing content
+    tbody.innerHTML = '';
+    headRow.innerHTML = '';
+    cardsContainer.innerHTML = '';
+    
+    const matchesToShow = getCurrentPageMatches();
+    
+    if (filteredMatches.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11">No matches found</td></tr>';
+        cardsContainer.innerHTML = '<div class="no-results">No matches found</div>';
+        return;
+    }
+    
+    // Show/hide based on screen size
+    if (isMobile) {
+        tableWrapper.style.display = 'none';
+        cardsContainer.style.display = 'grid';
+        if (mobileSortControls) mobileSortControls.style.display = 'block';
+        pagination.style.display = 'none';
+    } else {
+        tableWrapper.style.display = 'block';
+        cardsContainer.style.display = 'none';
+        if (mobileSortControls) mobileSortControls.style.display = 'none';
+        pagination.style.display = 'flex';
+    }
+    
+    // Build table headers
+    COLUMN_DEFINITIONS.forEach((col, index) => {
+        const th = document.createElement('th');
+        th.textContent = col.abbrev;
+        if (col.sortable) {
+            th.classList.add('sortable');
+            th.onclick = () => sortByColumn(index);
+            if (currentSort.column === index) {
+                th.classList.add(currentSort.asc ? 'sorted-asc' : 'sorted-desc');
+            }
+        }
+        headRow.appendChild(th);
+    });
+    
+    // Add Rounds column header
+    const thRounds = document.createElement('th');
+    thRounds.textContent = 'Rounds';
+    thRounds.classList.add('rounds-header');
+    headRow.appendChild(thRounds);
+    
+    // Display table rows (desktop)
+    matchesToShow.forEach(match => {
+        const row = document.createElement('tr');
+        row.dataset.matchId = match.matchId;
+        
+        // Match ID
+        const tdMatchId = document.createElement('td');
+        tdMatchId.className = 'match-id-cell';
+        const matchIdSpan = document.createElement('span');
+        matchIdSpan.className = 'match-id';
+        matchIdSpan.textContent = match.matchId;
+        matchIdSpan.title = 'Click to copy';
+        matchIdSpan.onclick = (e) => {
+            e.stopPropagation();
+            copyMatchId(match.matchId);
+        };
+        tdMatchId.appendChild(matchIdSpan);
+        row.appendChild(tdMatchId);
+        
+        // Date
+        const tdDate = document.createElement('td');
+        tdDate.textContent = match.dateFormatted;
+        row.appendChild(tdDate);
+        
+        // Arena
+        const tdArena = document.createElement('td');
+        tdArena.className = 'arena-cell';
+        const arenaBadge = document.createElement('span');
+        arenaBadge.className = `arena-badge arena-${match.arena.toLowerCase().replace(/\s+/g, '-')}`;
+        arenaBadge.textContent = match.arena === 'Xtreme' ? '⚡X' : match.arena === 'Drop Attack' ? '🎯DA' : '💢DX';
+        arenaBadge.title = match.arena === 'Xtreme' ? 'Xtreme Stadium' : 'Drop Attack Beystadium';
+        tdArena.appendChild(arenaBadge);
+        row.appendChild(tdArena);
+        
+        // Match Type
+        const tdMatchType = document.createElement('td');
+        tdMatchType.className = 'match-type-cell';
+        tdMatchType.appendChild(createMatchTypeBadge(match.matchType));
+        row.appendChild(tdMatchType);
+        
+        // Season
+        const tdSeason = document.createElement('td');
+        tdSeason.className = 'season-cell';
+        tdSeason.textContent = match.seasonId || '—';
+        row.appendChild(tdSeason);
+        
+        // Tier
+        const tdTier = document.createElement('td');
+        tdTier.className = 'tier-cell';
+        tdTier.textContent = formatTier(match.tier);
+        row.appendChild(tdTier);
+        
+        // Matchday
+        const tdMatchday = document.createElement('td');
+        tdMatchday.className = 'matchday-cell';
+        tdMatchday.textContent = formatMatchday(match.matchday);
+        row.appendChild(tdMatchday);
+        
+        // Bey A (with inline ELO delta badge)
+        const tdBeyA = document.createElement('td');
+        tdBeyA.className = match.winner === match.beyA ? 'winner bey-with-delta' : 'bey-with-delta';
+        const linkA = document.createElement('a');
+        linkA.href = `bey.html?name=${encodeURIComponent(match.beyA)}`;
+        linkA.className = 'bey-link';
+        linkA.textContent = match.beyA;
+        tdBeyA.appendChild(linkA);
+        // Add inline delta badge for Bey A
+        tdBeyA.appendChild(createDeltaBadgeElement(match.eloChangeA));
+        row.appendChild(tdBeyA);
+        
+        // Pre ELO A
+        const tdPreA = document.createElement('td');
+        tdPreA.textContent = match.preEloA;
+        row.appendChild(tdPreA);
+        
+        // Score A
+        const tdScoreA = document.createElement('td');
+        tdScoreA.textContent = match.scoreA;
+        tdScoreA.className = match.winner === match.beyA ? 'score-winner' : '';
+        row.appendChild(tdScoreA);
+        
+        // Score B
+        const tdScoreB = document.createElement('td');
+        tdScoreB.textContent = match.scoreB;
+        tdScoreB.className = match.winner === match.beyB ? 'score-winner' : '';
+        row.appendChild(tdScoreB);
+        
+        // Pre ELO B
+        const tdPreB = document.createElement('td');
+        tdPreB.textContent = match.preEloB;
+        row.appendChild(tdPreB);
+        
+        // Bey B (with inline ELO delta badge)
+        const tdBeyB = document.createElement('td');
+        tdBeyB.className = match.winner === match.beyB ? 'winner bey-with-delta' : 'bey-with-delta';
+        const linkB = document.createElement('a');
+        linkB.href = `bey.html?name=${encodeURIComponent(match.beyB)}`;
+        linkB.className = 'bey-link';
+        linkB.textContent = match.beyB;
+        tdBeyB.appendChild(linkB);
+        // Add inline delta badge for Bey B
+        tdBeyB.appendChild(createDeltaBadgeElement(match.eloChangeB));
+        row.appendChild(tdBeyB);
+        
+        // Winner
+        const tdWinner = document.createElement('td');
+        tdWinner.className = 'match-winner';
+        const linkWinner = document.createElement('a');
+        linkWinner.href = `bey.html?name=${encodeURIComponent(match.winner)}`;
+        linkWinner.className = 'bey-link';
+        linkWinner.textContent = match.winner;
+        tdWinner.appendChild(linkWinner);
+        row.appendChild(tdWinner);
+        
+        // ELO Difference
+        const tdDiff = document.createElement('td');
+        tdDiff.textContent = match.eloDiff;
+        row.appendChild(tdDiff);
+        
+        // Rounds expand button
+        const tdRounds = document.createElement('td');
+        tdRounds.className = 'rounds-cell';
+        const hasRounds = match.rounds && match.rounds.length > 0;
+        const hasEloCalc = match.kBaseA !== null;
+        const hasXpData = match.xpEntry !== null;
+        if (hasRounds || hasEloCalc || hasXpData) {
+            const expandBtn = document.createElement('button');
+            expandBtn.className = 'rounds-expand-btn';
+            expandBtn.dataset.matchId = match.matchId;
+            expandBtn.title = hasRounds ? `Show ${match.rounds.length} rounds & details` : 'Show details';
+            const isExpanded = expandedMatches.has(match.matchId);
+            expandBtn.innerHTML = isExpanded ? '▲' : '▼';
+            expandBtn.setAttribute('aria-expanded', isExpanded);
+            expandBtn.onclick = (e) => {
+                e.stopPropagation();
+                toggleRoundsRow(match.matchId);
+            };
+            tdRounds.appendChild(expandBtn);
+        } else {
+            tdRounds.textContent = '—';
+            tdRounds.classList.add('no-rounds');
+        }
+        row.appendChild(tdRounds);
+        
+        tbody.appendChild(row);
+        
+        // Add rounds detail row if expanded
+        if ((match.rounds && match.rounds.length > 0 || match.kBaseA !== null || match.xpEntry !== null) && expandedMatches.has(match.matchId)) {
+            const roundsRow = createRoundsDetailRow(match);
+            tbody.appendChild(roundsRow);
+        }
+    });
+    
+    // Display cards (mobile) - show all filtered matches for scrolling
+    const mobileMatches = isMobile ? filteredMatches : matchesToShow;
+    mobileMatches.forEach(match => {
+        const card = document.createElement('div');
+        card.className = 'card matches-card';
+        card.dataset.matchId = match.matchId;
+        
+        const hasRounds = match.rounds && match.rounds.length > 0;
+        const hasEloCalc = match.kBaseA !== null;
+        const hasXpData = match.xpEntry !== null;
+        const roundsHtml = hasRounds ? createMobileRoundsHtml(match) : '';
+        const eloBreakdownHtml = createEloBreakdownHtml(match);
+        const xpBreakdownHtml = createXpBreakdownHtml(match);
+        const isExpanded = expandedMatches.has(match.matchId);
+        
+        // Create delta badge HTML for mobile using utility function
+        const deltaBadgeAHtml = createDeltaBadgeHtml(match.eloChangeA);
+        const deltaBadgeBHtml = createDeltaBadgeHtml(match.eloChangeB);
+        
+        // Create match type badge HTML
+        const matchTypeStyle = MATCH_TYPE_STYLES[match.matchType] || MATCH_TYPE_STYLES.exhibition;
+        const matchTypeBadgeHtml = `<span class="match-type-badge match-type-${match.matchType}" style="color: ${matchTypeStyle.color}; background-color: ${matchTypeStyle.bgColor}" title="${matchTypeStyle.label}">${matchTypeStyle.icon} ${matchTypeStyle.label}</span>`;
+        
+        // Create metadata HTML for season matches
+        let metadataHtml = '';
+        if (match.seasonId || match.tier || match.matchday) {
+            const metaParts = [];
+            if (match.seasonId) metaParts.push(`<span class="meta-item">⚔️ ${match.seasonId}</span>`);
+            if (match.tier) metaParts.push(`<span class="meta-item">🏆Tier ${formatTier(match.tier)}</span>`);
+            if (match.matchday) metaParts.push(`<span class="meta-item">📅 Matchday ${formatMatchday(match.matchday)}</span>`);
+            metadataHtml = `<div class="card-metadata">${metaParts.join(' ')}</div>`;
+        }
+
+        // match.arena === 'Xtreme' ? '⚡X' : match.arena === 'Drop Attack' ? '🎯DA' : '💢DX';
+        
+        card.innerHTML = `
+            <div class="card-header">
+                <span class="card-match-id match-id" title="Click to copy" onclick="copyMatchId('${match.matchId}')">${match.matchId}</span>
+                <span class="card-date">${match.dateFormatted}</span>
+                <span class="arena-badge arena-${match.arena.toLowerCase().replace(/\s+/g, '-')}" title="${match.arena === 'Xtreme' ? 'Xtreme Stadium' : match.arena === 'Drop Attack' ? 'Drop Attack Stadium' : 'Double Xtreme Stadium'}">${match.arena === 'Xtreme' ? '⚡X' : match.arena === 'Drop Attack' ? '🎯DA' : '💢DX'}</span>
+                <span class="match-elo-diff" title="ELO Difference">Δ${match.eloDiff} ELO</span>
+            </div>
+            <div class="card-match-type">
+                ${matchTypeBadgeHtml}
+            </div>
+            ${metadataHtml}
+            <div class="card-match">
+                <div class="card-bey ${match.winner === match.beyA ? 'winner' : ''}">
+                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyA)}" class="bey-link">${match.beyA}</a></div>
+                    <div class="bey-elo-change">${deltaBadgeAHtml}</div>
+                    <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${match.preEloA}</div>
+                    <div class="bey-score ${match.winner === match.beyA ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.scoreA}</div>
+                </div>
+                <div class="card-vs">VS</div>
+                <div class="card-bey ${match.winner === match.beyB ? 'winner' : ''}">
+                    <div class="bey-name"><a href="bey.html?name=${encodeURIComponent(match.beyB)}" class="bey-link">${match.beyB}</a></div>
+                    <div class="bey-elo-change">${deltaBadgeBHtml}</div>
+                    <div class="bey-elo"><span class="stat-label">Pre-ELO:</span> ${match.preEloB}</div>
+                    <div class="bey-score ${match.winner === match.beyB ? 'score-winner' : ''}"><span class="stat-label">Score:</span> ${match.scoreB}</div>
+                </div>
+            </div>
+            <div class="card-footer">
+                Winner: <strong><a href="bey.html?name=${encodeURIComponent(match.winner)}" class="bey-link">${match.winner}</a></strong>
+            </div>
+            ${(hasRounds || hasEloCalc || hasXpData) ? `
+            <div class="card-rounds-section">
+                <button class="card-rounds-toggle ${isExpanded ? 'expanded' : ''}" onclick="toggleMobileRounds('${match.matchId}')">
+                    <span class="toggle-icon">${isExpanded ? '▲' : '▼'}</span>
+                    ${hasRounds ? `Show Rounds (${match.rounds.length}) & Details` : 'Show Details'}
+                </button>
+                <div class="card-rounds-content ${isExpanded ? 'expanded' : ''}" id="mobile-rounds-${match.matchId}">
+                    ${roundsHtml}
+                    ${eloBreakdownHtml}
+                    ${xpBreakdownHtml}
+                </div>
+            </div>
+            ` : ''}
+        `;
+        
+        cardsContainer.appendChild(card);
+    });
+}
+
+// Save filters to URL
+function saveFiltersToURL() {
+    const params = new URLSearchParams();
+    const filters = getFilterValues();
+    
+    if (filters.search) params.set('search', filters.search);
+    if (filters.date !== 'all') params.set('date', filters.date);
+    if (filters.bey !== 'all') params.set('bey', filters.bey);
+    if (filters.blade !== 'all') params.set('blade', filters.blade);
+    if (filters.ratchet !== 'all') params.set('ratchet', filters.ratchet);
+    if (filters.bit !== 'all') params.set('bit', filters.bit);
+    if (filters.arena !== 'all') params.set('arena', filters.arena);
+    if (filters.minEloDiff > 0) params.set('minEloDiff', filters.minEloDiff);
+    if (filters.maxEloDiff < Infinity && document.getElementById('maxEloDiff').value) {
+        params.set('maxEloDiff', filters.maxEloDiff);
+    }
+    if (filters.eloChange !== 'all') params.set('eloChange', filters.eloChange);
+    if (filters.matchType !== 'all') params.set('matchType', filters.matchType);
+    if (filters.season !== 'all') params.set('season', filters.season);
+    if (filters.tier !== 'all') params.set('tier', filters.tier);
+    if (filters.matchday !== 'all') params.set('matchday', filters.matchday);
+    
+    const newURL = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
+    window.history.replaceState({}, '', newURL);
+}
+
+// Load filters from URL
+function loadFiltersFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (params.has('search')) {
+        document.getElementById('searchInput').value = params.get('search');
+    }
+    if (params.has('date')) {
+        document.getElementById('dateFilter').value = params.get('date');
+    }
+    if (params.has('bey')) {
+        document.getElementById('beyFilter').value = params.get('bey');
+    }
+    if (params.has('blade')) {
+        document.getElementById('bladeFilter').value = params.get('blade');
+    }
+    if (params.has('ratchet')) {
+        document.getElementById('ratchetFilter').value = params.get('ratchet');
+    }
+    if (params.has('bit')) {
+        document.getElementById('bitFilter').value = params.get('bit');
+    }
+    if (params.has('arena')) {
+        document.getElementById('arenaFilter').value = params.get('arena');
+    }
+    if (params.has('minEloDiff')) {
+        document.getElementById('minEloDiff').value = params.get('minEloDiff');
+    }
+    if (params.has('maxEloDiff')) {
+        document.getElementById('maxEloDiff').value = params.get('maxEloDiff');
+    }
+    if (params.has('eloChange')) {
+        document.getElementById('eloChangeFilter').value = params.get('eloChange');
+    }
+    if (params.has('matchType')) {
+        document.getElementById('matchTypeFilter').value = params.get('matchType');
+    }
+    if (params.has('season')) {
+        document.getElementById('seasonFilter').value = params.get('season');
+    }
+    if (params.has('tier')) {
+        document.getElementById('tierFilter').value = params.get('tier');
+    }
+    if (params.has('matchday')) {
+        document.getElementById('matchdayFilter').value = params.get('matchday');
+    }
+}
+
+// Clear all filters
+function clearFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('dateFilter').value = 'all';
+    document.getElementById('beyFilter').value = 'all';
+    document.getElementById('bladeFilter').value = 'all';
+    document.getElementById('ratchetFilter').value = 'all';
+    document.getElementById('bitFilter').value = 'all';
+    document.getElementById('arenaFilter').value = 'all';
+    document.getElementById('matchTypeFilter').value = 'all';
+    document.getElementById('seasonFilter').value = 'all';
+    document.getElementById('tierFilter').value = 'all';
+    document.getElementById('matchdayFilter').value = 'all';
+    document.getElementById('minEloDiff').value = '';
+    document.getElementById('maxEloDiff').value = '';
+    document.getElementById('eloChangeFilter').value = 'all';
+    
+    applyFilters();
+}
+
+// Update legend
+function updateLegend() {
+    const legendContent = document.getElementById('legendContent');
+    if (!legendContent) return;
+    
+    const legendEntries = COLUMN_DEFINITIONS.map(col => {
+        const desc = COLUMN_DESCRIPTIONS[col.abbrev] || { short: col.label, long: '' };
+        return `
+            <div class="legend-item">
+                <div class="legend-abbr">${col.abbrev}</div>
+                <div class="legend-desc">
+                    <div class="legend-short">${desc.short}</div>
+                    <div class="legend-long">${desc.long}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    legendContent.innerHTML = legendEntries;
+}
+
+// Setup legend toggle
+function setupLegend() {
+    const legendToggle = document.getElementById('legendToggle');
+    const legendContent = document.getElementById('legendContent');
+    const legendHeader = document.querySelector('.legend-header');
+    
+    if (legendToggle && legendContent && legendHeader) {
+        legendContent.classList.add('collapsed');
+        
+        legendHeader.addEventListener('click', () => {
+            const isExpanded = legendContent.classList.contains('expanded');
+            
+            if (isExpanded) {
+                legendContent.classList.remove('expanded');
+                legendContent.classList.add('collapsed');
+                legendToggle.textContent = '▼';
+            } else {
+                legendContent.classList.remove('collapsed');
+                legendContent.classList.add('expanded');
+                legendToggle.textContent = '▲';
+            }
+        });
+    }
+}
+
+// Setup collapsible filters panel
+function setupFiltersPanel() {
+    const filtersHeader = document.getElementById('filtersHeader');
+    const filtersContent = document.getElementById('filtersContent');
+    const filtersToggle = document.getElementById('filtersToggle');
+    
+    if (filtersHeader && filtersContent && filtersToggle) {
+        // Start collapsed
+        filtersContent.classList.add('collapsed');
+        
+        filtersHeader.addEventListener('click', () => {
+            const isExpanded = filtersContent.classList.contains('expanded');
+            
+            if (isExpanded) {
+                filtersContent.classList.remove('expanded');
+                filtersContent.classList.add('collapsed');
+                filtersToggle.textContent = '▼';
+            } else {
+                filtersContent.classList.remove('collapsed');
+                filtersContent.classList.add('expanded');
+                filtersToggle.textContent = '▲';
+            }
+        });
+    }
+}
+
+// Update active filters count badge
+function updateActiveFiltersCount() {
+    const filters = getFilterValues();
+    let activeCount = 0;
+    
+    if (filters.date !== 'all') activeCount++;
+    if (filters.bey !== 'all') activeCount++;
+    if (filters.blade !== 'all') activeCount++;
+    if (filters.ratchet !== 'all') activeCount++;
+    if (filters.bit !== 'all') activeCount++;
+    if (filters.minEloDiff > 0) activeCount++;
+    if (filters.maxEloDiff < Infinity && document.getElementById('maxEloDiff').value) activeCount++;
+    if (filters.eloChange !== 'all') activeCount++;
+    
+    const countBadge = document.getElementById('activeFiltersCount');
+    if (countBadge) {
+        if (activeCount > 0) {
+            countBadge.textContent = activeCount;
+            countBadge.classList.add('visible');
+        } else {
+            countBadge.classList.remove('visible');
+        }
+    }
+}
+
+// Mobile sorting
+function setupMobileSorting() {
+    const sortButton = document.getElementById('mobileSortButton');
+    const sortModal = document.getElementById('sortModal');
+    const sortModalClose = document.getElementById('sortModalClose');
+    
+    if (!sortButton || !sortModal || !sortModalClose) return;
+    
+    sortButton.addEventListener('click', openSortModal);
+    sortModalClose.addEventListener('click', closeSortModal);
+    sortModal.addEventListener('click', (e) => {
+        if (e.target === sortModal) closeSortModal();
+    });
+}
+
+function openSortModal() {
+    const sortModal = document.getElementById('sortModal');
+    const sortModalBody = document.getElementById('sortModalBody');
+    
+    if (!sortModal || !sortModalBody) return;
+    
+    sortModalBody.innerHTML = '';
+    
+    COLUMN_DEFINITIONS.forEach((col, index) => {
+        if (!col.sortable) return;
+        
+        const option = document.createElement('div');
+        option.className = 'sort-option';
+        if (currentSort.column === index) option.classList.add('active');
+        
+        const label = document.createElement('div');
+        label.className = 'sort-option-label';
+        label.textContent = col.abbrev;
+        
+        const directionContainer = document.createElement('div');
+        directionContainer.className = 'sort-option-direction';
+        
+        const ascBtn = document.createElement('button');
+        ascBtn.className = 'direction-btn';
+        ascBtn.textContent = '↑';
+        if (currentSort.column === index && currentSort.asc) ascBtn.classList.add('active');
+        ascBtn.onclick = (e) => {
+            e.stopPropagation();
+            sortByColumnMobile(index, true);
+            closeSortModal();
+        };
+        
+        const descBtn = document.createElement('button');
+        descBtn.className = 'direction-btn';
+        descBtn.textContent = '↓';
+        if (currentSort.column === index && !currentSort.asc) descBtn.classList.add('active');
+        descBtn.onclick = (e) => {
+            e.stopPropagation();
+            sortByColumnMobile(index, false);
+            closeSortModal();
+        };
+        
+        directionContainer.appendChild(ascBtn);
+        directionContainer.appendChild(descBtn);
+        
+        option.appendChild(label);
+        option.appendChild(directionContainer);
+        
+        option.addEventListener('click', () => {
+            const newAsc = currentSort.column === index ? !currentSort.asc : true;
+            sortByColumnMobile(index, newAsc);
+            closeSortModal();
+        });
+        
+        sortModalBody.appendChild(option);
+    });
+    
+    sortModal.classList.add('active');
+}
+
+function closeSortModal() {
+    const sortModal = document.getElementById('sortModal');
+    if (sortModal) sortModal.classList.remove('active');
+}
+
+function sortByColumnMobile(colIndex, asc) {
+    currentSort = { column: colIndex, asc };
+    sortMatches();
+    displayMatches();
+    updateCurrentSortLabel();
+}
+
+function updateCurrentSortLabel() {
+    const currentSortLabel = document.getElementById('currentSortLabel');
+    if (!currentSortLabel) return;
+    
+    const col = COLUMN_DEFINITIONS[currentSort.column];
+    const direction = currentSort.asc ? '↑' : '↓';
+    currentSortLabel.textContent = `${col.abbrev} ${direction}`;
+}
+
+// Pagination event handlers
+function setupPagination() {
+    document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            updatePagination();
+            displayMatches();
+        }
+    });
+    
+    document.getElementById('nextPage').addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredMatches.length / pageSize);
+        if (currentPage < totalPages) {
+            currentPage++;
+            updatePagination();
+            displayMatches();
+        }
+    });
+    
+    document.getElementById('pageSize').addEventListener('change', () => {
+        currentPage = 1;
+        updatePagination();
+        displayMatches();
+    });
+}
+
+// Main initialization
+document.addEventListener('DOMContentLoaded', async () => {
+    // Load beys data first for part filtering
+    await loadBeysDataForFilters();
+    
+    // Load RPG stats data for archetype filtering
+    await loadRpgStatsData();
+    
+    // Load rounds data before loading matches
+    await loadRoundsData();
+
+    // Load XP history data before loading matches
+    await loadXpHistory();
+    
+    // Load matches
+    await loadMatches();
+    
+    // Setup event listeners for filters
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('dateFilter').addEventListener('change', applyFilters);
+    document.getElementById('beyFilter').addEventListener('change', applyFilters);
+    document.getElementById('bladeFilter').addEventListener('change', applyFilters);
+    document.getElementById('ratchetFilter').addEventListener('change', applyFilters);
+    document.getElementById('bitFilter').addEventListener('change', applyFilters);
+    document.getElementById('archetypeFilter').addEventListener('change', applyFilters);
+    document.getElementById('arenaFilter').addEventListener('change', applyFilters);
+    document.getElementById('matchTypeFilter').addEventListener('change', applyFilters);
+    document.getElementById('seasonFilter').addEventListener('change', applyFilters);
+    document.getElementById('tierFilter').addEventListener('change', applyFilters);
+    document.getElementById('matchdayFilter').addEventListener('change', applyFilters);
+    document.getElementById('minEloDiff').addEventListener('input', applyFilters);
+    document.getElementById('maxEloDiff').addEventListener('input', applyFilters);
+    document.getElementById('eloChangeFilter').addEventListener('change', applyFilters);
+    document.getElementById('clearFilters').addEventListener('click', clearFilters);
+    
+    // Setup other features
+    setupFiltersPanel();
+    setupLegend();
+    setupMobileSorting();
+    setupPagination();
+    updateCurrentSortLabel();
+    updateActiveFiltersCount();
+    
+    // Handle resize — only re-render when the layout actually switches between mobile
+    // and desktop (crossing the 900 px threshold). URL bar show/hide on mobile fires
+    // resize events without changing the layout, so we must not re-render then — doing
+    // so collapses all expanded panels for no reason.
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            const isMobile = window.innerWidth < 900;
+            if (isMobile !== lastLayoutIsMobile) {
+                lastLayoutIsMobile = isMobile;
+                displayMatches();
+            }
+        }, 150);
+    });
+});
+
+// ============================================
+// ROUNDS DISPLAY FUNCTIONS
+// ============================================
+
+// Create a detailed rounds row for the table
+function createRoundsDetailRow(match) {
+    const row = document.createElement('tr');
+    row.className = 'rounds-detail-row';
+    row.dataset.matchId = match.matchId;
+    
+    const cell = document.createElement('td');
+    cell.colSpan = 16; // All columns + rounds column (15 data columns + 1 rounds column)
+    cell.className = 'rounds-detail-cell';
+    
+    // Build rounds table HTML
+    const hasRounds = match.rounds && match.rounds.length > 0;
+    let html = `
+        <div class="rounds-detail-container" id="rounds-${match.matchId}">
+    `;
+
+    if (hasRounds) {
+        html += `
+            <div class="rounds-header-info">
+                <span class="rounds-title">Round-by-Round Details</span>
+                <span class="rounds-count">${match.rounds.length} rounds</span>
+            </div>
+            <table class="rounds-table">
+                <thead>
+                    <tr>
+                        <th>Round</th>
+                        <th>Winner</th>
+                        <th>Finish Type</th>
+                        <th>Points</th>
+                        <th>Running Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        let runningScoreA = 0;
+        let runningScoreB = 0;
+
+        match.rounds.forEach((round, index) => {
+            const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
+
+            if (round.winner === match.beyA) {
+                runningScoreA += round.points_awarded;
+            } else if (round.winner === match.beyB) {
+                runningScoreB += round.points_awarded;
+            }
+
+            html += `
+                <tr class="round-row">
+                    <td class="round-number">${round.round_number || index + 1}</td>
+                    <td class="round-winner ${round.winner === match.winner ? 'match-winner-round' : ''}">${round.winner}</td>
+                    <td class="round-finish">
+                        <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
+                            <span class="finish-icon">${finishStyle.icon}</span>
+                            ${finishStyle.label}
+                        </span>
+                    </td>
+                    <td class="round-points">+${round.points_awarded}</td>
+                    <td class="round-score">${runningScoreA} - ${runningScoreB}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+            <div class="rounds-summary">
+                <div class="finish-summary">
+                    ${createFinishTypeSummary(match.rounds)}
+                </div>
+            </div>
+        `;
+    }
+
+    html += `
+            ${createEloBreakdownHtml(match)}
+            ${createXpBreakdownHtml(match)}
+        </div>
+    `;
+    
+    cell.innerHTML = html;
+    row.appendChild(cell);
+    
+    return row;
+}
+
+// Create ELO calculation breakdown HTML for a match
+function createEloBreakdownHtml(match) {
+    if (match.kBaseA === null || match.expA === null) return '';
+
+    const fmt2 = v => v.toFixed(2);
+    const fmt4 = v => v.toFixed(4);
+    const eloChangeA = match.eloChangeA;
+    const eloChangeB = match.eloChangeB;
+    const signA = eloChangeA >= 0 ? '+' : '';
+    const signB = eloChangeB >= 0 ? '+' : '';
+
+    return `
+        <div class="elo-breakdown">
+            <details class="calc-breakdown-details">
+                <summary class="elo-breakdown-header calc-breakdown-header">
+                    <span class="elo-breakdown-title">⚡ ELO Calculation Breakdown</span>
+                </summary>
+                <table class="elo-breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>${match.beyA}</th>
+                            <th>${match.beyB}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="elo-param-label">Pre-Match ELO</td>
+                            <td class="elo-param-value">${match.preEloA}</td>
+                            <td class="elo-param-value">${match.preEloB}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">K<sub>base</sub> (smooth)</td>
+                            <td class="elo-param-value">${fmt2(match.kBaseA)}</td>
+                            <td class="elo-param-value">${fmt2(match.kBaseB)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">K<sub>eff</sub> (form adj.)</td>
+                            <td class="elo-param-value">${fmt2(match.kEffA)}</td>
+                            <td class="elo-param-value">${fmt2(match.kEffB)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">form<sub>ema</sub></td>
+                            <td class="elo-param-value">${match.formEmaA != null ? fmt4(match.formEmaA) : '—'}</td>
+                            <td class="elo-param-value">${match.formEmaB != null ? fmt4(match.formEmaB) : '—'}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">E (expected)</td>
+                            <td class="elo-param-value">${fmt4(match.expA)}</td>
+                            <td class="elo-param-value">${fmt4(match.expB)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">S (actual / margin)</td>
+                            <td class="elo-param-value">${fmt4(match.actA)}</td>
+                            <td class="elo-param-value">${fmt4(match.actB)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">S − E</td>
+                            <td class="elo-param-value">${fmt4(match.actA - match.expA)}</td>
+                            <td class="elo-param-value">${fmt4(match.actB - match.expB)}</td>
+                        </tr>
+                        <tr class="elo-result-row">
+                            <td class="elo-param-label">ΔR = K<sub>eff</sub> · (S − E)</td>
+                            <td class="elo-param-value ${eloChangeA >= 0 ? 'elo-gain' : 'elo-loss'}">${signA}${eloChangeA}</td>
+                            <td class="elo-param-value ${eloChangeB >= 0 ? 'elo-gain' : 'elo-loss'}">${signB}${eloChangeB}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Post-Match ELO</td>
+                            <td class="elo-param-value">${match.postEloA}</td>
+                            <td class="elo-param-value">${match.postEloB}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </details>
+        </div>
+    `;
+}
+
+// Create XP calculation breakdown HTML for a match
+function createXpBreakdownHtml(match) {
+    if (!match.xpEntry) return '';
+
+    const xpA = match.xpEntry.bey_a;
+    const xpB = match.xpEntry.bey_b;
+
+    const numOrZero = v => Number(v || 0);
+    const fmt1 = v => Number(numOrZero(v)).toFixed(1);
+    const fmtMult = v => (v != null ? `×${Number(v).toFixed(2)}` : '—');
+
+    const streakPct = bonus => {
+        const n = Number(numOrZero(bonus));
+        if (!Number.isFinite(n)) return 0;
+        if (Math.abs(n) <= 1) return Math.round(n * 100);
+        return Math.round(n);
+    };
+    const streakText = side => `${streakPct(side.streak_bonus)}% (${Number(side.win_streak || 0)})`;
+
+    return `
+        <div class="elo-breakdown">
+            <details class="calc-breakdown-details">
+                <summary class="elo-breakdown-header calc-breakdown-header">
+                    <span class="elo-breakdown-title">🎮 XP Calculation Breakdown</span>
+                </summary>
+                <table class="elo-breakdown-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>${match.beyA}</th>
+                            <th>${match.beyB}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="elo-param-label">Result</td>
+                            <td class="elo-param-value">${xpA.won ? '🏆 Win' : '💀 Loss'}</td>
+                            <td class="elo-param-value">${xpB.won ? '🏆 Win' : '💀 Loss'}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Base XP</td>
+                            <td class="elo-param-value">${xpA.base_xp}</td>
+                            <td class="elo-param-value">${xpB.base_xp}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Result Bonus</td>
+                            <td class="elo-param-value">+${xpA.result_bonus}</td>
+                            <td class="elo-param-value">+${xpB.result_bonus}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Performance Bonus</td>
+                            <td class="elo-param-value">+${fmt1(xpA.performance_bonus)}</td>
+                            <td class="elo-param-value">+${fmt1(xpB.performance_bonus)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">High Stakes Bonus</td>
+                            <td class="elo-param-value">+${fmt1(xpA.high_stakes_bonus)}</td>
+                            <td class="elo-param-value">+${fmt1(xpB.high_stakes_bonus)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Match Length Bonus</td>
+                            <td class="elo-param-value">+${fmt1(xpA.match_length_bonus)}</td>
+                            <td class="elo-param-value">+${fmt1(xpB.match_length_bonus)}</td>
+                        </tr>
+                        <tr>
+                            <td class="elo-param-label">Streak Bonus</td>
+                            <td class="elo-param-value">${streakText(xpA)}</td>
+                            <td class="elo-param-value">${streakText(xpB)}</td>
+                        </tr>
+                        ${(xpA.season_matchday_xp || xpB.season_matchday_xp) ? `
+                        <tr>
+                            <td class="elo-param-label">Season Tier Bonus</td>
+                            <td class="elo-param-value">+${xpA.season_matchday_xp}</td>
+                            <td class="elo-param-value">+${xpB.season_matchday_xp}</td>
+                        </tr>` : ''}
+                        ${(xpA.qualification_xp || xpB.qualification_xp) ? `
+                        <tr>
+                            <td class="elo-param-label">Qualification Bonus</td>
+                            <td class="elo-param-value">+${xpA.qualification_xp}</td>
+                            <td class="elo-param-value">+${xpB.qualification_xp}</td>
+                        </tr>` : ''}
+                        ${(xpA.season_cup_xp || xpB.season_cup_xp) ? `
+                        <tr>
+                            <td class="elo-param-label">Season Cup Bonus</td>
+                            <td class="elo-param-value">+${xpA.season_cup_xp}</td>
+                            <td class="elo-param-value">+${xpB.season_cup_xp}</td>
+                        </tr>` : ''}
+                        ${(xpA.tournament_match_xp || xpB.tournament_match_xp) ? `
+                        <tr>
+                            <td class="elo-param-label">Tournament Bonus</td>
+                            <td class="elo-param-value">+${xpA.tournament_match_xp}</td>
+                            <td class="elo-param-value">+${xpB.tournament_match_xp}</td>
+                        </tr>` : ''}
+                        <tr>
+                            <td class="elo-param-label">Prestige Multiplier</td>
+                            <td class="elo-param-value">${fmtMult(xpA.prestige_multiplier)}</td>
+                            <td class="elo-param-value">${fmtMult(xpB.prestige_multiplier)}</td>
+                        </tr>
+                        <tr class="elo-result-row">
+                            <td class="elo-param-label">Total XP Gained</td>
+                            <td class="elo-param-value elo-gain">+${fmt1(xpA.total_xp)}</td>
+                            <td class="elo-param-value elo-gain">+${fmt1(xpB.total_xp)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </details>
+        </div>
+    `;
+}
+
+// Create finish type summary badges
+function createFinishTypeSummary(rounds) {
+    const counts = {};
+    rounds.forEach(round => {
+        const type = round.finish_type || 'spin';
+        counts[type] = (counts[type] || 0) + 1;
+    });
+    
+    return Object.entries(counts).map(([type, count]) => {
+        const style = FINISH_TYPE_STYLES[type] || FINISH_TYPE_STYLES.spin;
+        return `
+            <span class="finish-summary-badge" style="background: ${style.bgColor}; color: ${style.color};">
+                ${style.icon} ${style.label}: ${count}
+            </span>
+        `;
+    }).join('');
+}
+
+// Create mobile rounds HTML
+function createMobileRoundsHtml(match) {
+    let html = '<div class="mobile-rounds-list">';
+    
+    let runningScoreA = 0;
+    let runningScoreB = 0;
+    
+    match.rounds.forEach((round, index) => {
+        const finishStyle = FINISH_TYPE_STYLES[round.finish_type] || FINISH_TYPE_STYLES.spin;
+        
+        // Update running score
+        if (round.winner === match.beyA) {
+            runningScoreA += round.points_awarded;
+        } else if (round.winner === match.beyB) {
+            runningScoreB += round.points_awarded;
+        }
+        
+        html += `
+            <div class="mobile-round-item">
+                <div class="mobile-round-header">
+                    <span class="mobile-round-number">R${round.round_number || index + 1}</span>
+                    <span class="finish-badge" style="background: ${finishStyle.bgColor}; color: ${finishStyle.color};">
+                        ${finishStyle.icon} ${finishStyle.label}
+                    </span>
+                    <span class="mobile-round-points">+${round.points_awarded}</span>
+                </div>
+                <div class="mobile-round-details">
+                    <span class="mobile-round-winner">${round.winner}</span>
+                    <span class="mobile-round-score">${runningScoreA} - ${runningScoreB}</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `
+        <div class="mobile-rounds-summary">
+            ${createFinishTypeSummary(match.rounds)}
+        </div>
+    </div>`;
+    
+    return html;
+}
+
+// Toggle rounds row visibility (desktop)
+function toggleRoundsRow(matchId) {
+    const btn = document.querySelector(`button[data-match-id="${matchId}"]`);
+    const existingRoundsRow = document.querySelector(`tr.rounds-detail-row[data-match-id="${matchId}"]`);
+    
+    if (expandedMatches.has(matchId)) {
+        // Collapse
+        expandedMatches.delete(matchId);
+        if (existingRoundsRow) {
+            existingRoundsRow.remove();
+        }
+        if (btn) {
+            btn.innerHTML = '▼';
+            btn.setAttribute('aria-expanded', 'false');
+        }
+    } else {
+        // Expand
+        expandedMatches.add(matchId);
+        
+        // Find the match data
+        const match = filteredMatches.find(m => m.matchId === matchId);
+        if (match && (match.rounds && match.rounds.length > 0 || match.kBaseA !== null || match.xpEntry !== null)) {
+            // Find the main row and insert rounds row after it
+            const mainRow = document.querySelector(`tr[data-match-id="${matchId}"]:not(.rounds-detail-row)`);
+            if (mainRow) {
+                const roundsRow = createRoundsDetailRow(match);
+                mainRow.after(roundsRow);
+            }
+        }
+        
+        if (btn) {
+            btn.innerHTML = '▲';
+            btn.setAttribute('aria-expanded', 'true');
+        }
+    }
+}
+
+// Toggle mobile rounds visibility
+function toggleMobileRounds(matchId) {
+    const content = document.getElementById(`mobile-rounds-${matchId}`);
+    const toggle = document.querySelector(`.matches-card[data-match-id="${matchId}"] .card-rounds-toggle`);
+    
+    if (expandedMatches.has(matchId)) {
+        expandedMatches.delete(matchId);
+        if (content) content.classList.remove('expanded');
+        if (toggle) {
+            toggle.classList.remove('expanded');
+            toggle.querySelector('.toggle-icon').textContent = '▼';
+        }
+    } else {
+        expandedMatches.add(matchId);
+        if (content) content.classList.add('expanded');
+        if (toggle) {
+            toggle.classList.add('expanded');
+            toggle.querySelector('.toggle-icon').textContent = '▲';
+        }
+    }
+}
+
+// Copy match ID to clipboard
+function copyMatchId(matchId) {
+    const showCopiedFeedback = () => {
+        const elements = document.querySelectorAll(`.match-id`);
+        elements.forEach(el => {
+            if (el.textContent === matchId) {
+                el.classList.add('copied');
+                setTimeout(() => el.classList.remove('copied'), 1000);
+            }
+        });
+    };
+
+    // Use modern clipboard API if available, fallback to legacy method
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(matchId).then(showCopiedFeedback).catch(err => {
+            console.error('Failed to copy match ID:', err);
+        });
+    } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = matchId;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showCopiedFeedback();
+        } catch (err) {
+            console.error('Failed to copy match ID:', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}

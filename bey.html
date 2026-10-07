@@ -1,0 +1,3149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1 id="pageTitle">Bey Profile</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div id="profileContainer" class="bey-profile">
+        <!-- Loading state -->
+        <div id="loadingState" class="loading-state">
+            <p>Loading bey profile...</p>
+        </div>
+        
+        <!-- Error state -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <p>Bey not found. <a href="wiki.html">Return to Wiki</a></p>
+        </div>
+        
+        <!-- Profile content (hidden until loaded) -->
+        <div id="profileContent" style="display: none;">
+            <!-- Bey Info Card -->
+            <div class="profile-header">
+                <div class="profile-image-container">
+                    <img id="beyImage" src="" alt="" class="profile-image">
+                    <div id="beyType" class="profile-type"></div>
+                </div>
+                <div class="profile-info">
+                    <h2 id="beyName" class="profile-name"></h2>
+                    <p id="beyCode" class="profile-code"></p>
+                    <div id="profileTrophies" class="profile-trophies" style="display: none;">
+                        <!-- Trophies will be dynamically added -->
+                    </div>
+                    <div id="profileSeasonBadges" class="profile-season-badges" style="display: none;">
+                        <!-- Season champion badges will be dynamically added -->
+                    </div>
+                    <p id="beyDescription" class="profile-description"></p>
+                    <div id="beyParts" class="profile-parts">
+                        <!-- Parts will be dynamically added -->
+                    </div>
+                    <a id="compareBeyBtn" href="#" class="compare-bey-btn" title="Compare this Bey">
+                        ⚔️ Compare
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Arena Selector for Plots (moved higher for better visibility) -->
+            <div class="profile-section" id="arenaPlotSelector" style="display: none;">
+                <div class="arena-plot-selector-container">
+                    <label for="arenaPlotSelect" class="arena-plot-label">🏟️ View Stats & Plots for Arena:</label>
+                    <select id="arenaPlotSelect" class="arena-plot-select">
+                        <option value="xtreme" selected>Xtreme Stadium (Season/Global)</option>
+                        <option value="drop_attack">Drop Attack Beystadium</option>
+                        <option value="double_xtreme">Double Xtreme Stadium</option>
+                        <option value="combined">Combined/Global (All Matches)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Key Stats Section (ELO and Power Index) -->
+            <div class="profile-section" id="keyStatsSection" style="display: none;">
+                <div id="keyStatsGrid" class="key-stats-grid">
+                    <!-- Key stats (ELO, Power Index) will be dynamically added -->
+                </div>
+            </div>
+            
+            <!-- Archetype Section -->
+            <div class="profile-section" id="archetypeSection" style="display: none;">
+                <div id="archetypeContainer" class="archetype-container">
+                    <!-- Archetype will be dynamically added -->
+                </div>
+            </div>
+            
+            <!-- RPG Stats Section -->
+            <details class="profile-section-details" id="rpgStatsSection" style="display: none;" open>
+                <summary class="section-summary">⚔️ Skill Bars</summary>
+                <div id="rpgStatsContainer" class="rpg-stats-container">
+                    <!-- RPG stat bars will be dynamically added -->
+                </div>
+            </details>
+            
+            <!-- Stats Section (collapsible) -->
+            <details class="profile-section-details">
+                <summary class="section-summary">📊 Statistics</summary>
+                <div id="statsGrid" class="stats-grid">
+                    <!-- Stats will be dynamically added -->
+                </div>
+            </details>
+            
+            <!-- Advanced Stats Section (collapsible) -->
+            <details class="profile-section-details" id="advancedStatsSection" style="display: none;">
+                <summary class="section-summary">📈 Advanced Statistics & Plots</summary>
+                <div id="advancedStatsGrid" class="stats-grid">
+                    <!-- Advanced stats will be dynamically added -->
+                </div>
+            </details>
+            
+            <!-- ELO History Section (collapsible, hidden by default) -->
+            <details class="profile-section-details" id="plotSection" style="display: none;">
+                <summary class="section-summary">📈 ELO History</summary>
+                <div class="profile-plot-container" id="eloPlotContainer">
+                    <!-- Interactive plot will be embedded here, or fallback to static image -->
+                    <iframe id="eloPlotFrame" src="" style="width: 100%; height: 550px; border: none; display: none;"></iframe>
+                    <img id="eloPlot" src="" alt="ELO History" class="profile-plot" style="display: none;">
+                </div>
+            </details>
+            
+            <!-- Position History Section (collapsible, hidden by default) -->
+            <details class="profile-section-details" id="positionPlotSection" style="display: none;">
+                <summary class="section-summary">📊 Position History</summary>
+                <div class="profile-plot-container" id="positionPlotContainer">
+                    <!-- Interactive plot will be embedded here, or fallback to static image -->
+                    <iframe id="positionPlotFrame" src="" style="width: 100%; height: 550px; border: none; display: none;"></iframe>
+                    <img id="positionPlot" src="" alt="Position History" class="profile-plot" style="display: none;">
+                </div>
+            </details>
+
+            <!-- K-Factor / Form-EMA Section (collapsible, hidden by default) -->
+            <details class="profile-section-details" id="kfactorPlotSection" style="display: none;">
+                <summary class="section-summary">⚡ K-Factor / Form-EMA</summary>
+                <div class="profile-plot-container" id="kfactorPlotContainer">
+                    <img id="kfactorPlot" src="" alt="K-Factor / Form-EMA History" class="profile-plot" style="display: none;">
+                </div>
+            </details>
+
+            <!-- Score Distribution Section (collapsible) -->
+            <details class="profile-section-details" id="scoreDistSection" style="display: none;">
+                <summary class="section-summary">🎯 Score Distribution</summary>
+                <div id="scoreDistContent">
+                    <div class="score-dist-bey-layout">
+                        <div class="score-dist-bey-chart-container">
+                            <canvas id="beyScoreDistChart"></canvas>
+                        </div>
+                        <div id="beyScoreDistTable" class="score-dist-bey-table-container">
+                            <div class="loading-placeholder">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- Finish Type Distribution Section (collapsible) -->
+            <details class="profile-section-details" id="finishTypeDistSection" style="display: none;">
+                <summary class="section-summary">🏁 Finish Type Distribution</summary>
+                <div id="finishTypeDistContent">
+                    <div class="score-dist-bey-layout">
+                        <div class="score-dist-bey-chart-container">
+                            <canvas id="beyFinishTypeChart"></canvas>
+                        </div>
+                        <div id="beyFinishTypeTable" class="score-dist-bey-table-container">
+                            <div class="loading-placeholder">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </details>
+            
+            <!-- History/Timeline Section -->
+            <div class="profile-section" id="historySection" style="display: none;">
+                <h3 class="section-title">📜 History & Timeline</h3>
+                
+                <!-- Performance Trends -->
+                <div class="history-trends">
+                    <div class="trend-card" id="eloTrendCard">
+                        <div class="trend-header">
+                            <span class="trend-label">ELO Over Time</span>
+                            <span id="eloTrendChange" class="trend-change"></span>
+                        </div>
+                        <div class="sparkline-container" id="eloSparkline"></div>
+                        <div class="trend-range">
+                            <span id="eloMin" class="range-min"></span>
+                            <span id="eloMax" class="range-max"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="trend-card" id="positionTrendCard">
+                        <div class="trend-header">
+                            <span class="trend-label">Rank Progression</span>
+                            <span id="positionTrendChange" class="trend-change"></span>
+                        </div>
+                        <div class="sparkline-container" id="positionSparkline"></div>
+                        <div class="trend-range">
+                            <span id="positionBest" class="range-min"></span>
+                            <span id="positionWorst" class="range-max"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="trend-card" id="winrateTrendCard">
+                        <div class="trend-header">
+                            <span class="trend-label">Winrate Trend</span>
+                            <span id="winrateTrendChange" class="trend-change"></span>
+                        </div>
+                        <div class="sparkline-container" id="winrateSparkline"></div>
+                        <div class="trend-range">
+                            <span id="winrateMin" class="range-min"></span>
+                            <span id="winrateMax" class="range-max"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Milestones Section -->
+                <div class="milestones-section">
+                    <h4 class="subsection-title">🏅 Milestones</h4>
+                    <div id="milestonesContainer" class="milestones-grid">
+                        <!-- Milestones will be dynamically added -->
+                    </div>
+                </div>
+                
+                <!-- Timeline (collapsible) -->
+                <details class="timeline-details">
+                    <summary class="timeline-summary">📅 Full Match Timeline</summary>
+                    <div id="timelineContainer" class="timeline-container">
+                        <!-- Timeline entries will be dynamically added -->
+                    </div>
+                </details>
+            </div>
+            
+            <!-- Counters & Matchups Section (collapsible, hidden by default) -->
+            <details class="profile-section-details" id="countersSection" style="display: none;">
+                <summary class="section-summary">🛡️ Counters & Matchups</summary>
+                
+                <div class="counters-matchups-container">
+                    <!-- Best Counter (who beats this bey) -->
+                    <div class="matchup-category" id="bestCounterSection">
+                        <h4 class="matchup-category-title">⚠️ Hardest Matchup</h4>
+                        <p class="matchup-description">This bey struggles against:</p>
+                        <div id="bestCounterCard" class="matchup-card-container">
+                            <!-- Best counter card -->
+                        </div>
+                    </div>
+                    
+                    <!-- Easiest Matchups (beys this one counters) -->
+                    <div class="matchup-category" id="easiestMatchupsSection">
+                        <h4 class="matchup-category-title">✅ Easiest Matchups</h4>
+                        <p class="matchup-description">This bey performs well against:</p>
+                        <div id="easiestMatchupsList" class="matchup-cards-grid">
+                            <!-- Easiest matchup cards -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="counters-page-link">
+                    <a href="counters.html" class="view-all-counters-btn">View All Counters →</a>
+                </div>
+            </details>
+            
+            <!-- Season History Section (collapsible) -->
+            <details class="profile-section-details" id="seasonSection" style="display: none;">
+                <summary class="section-summary">🏅 Season History</summary>
+                <div id="seasonContainer">
+                    <!-- Season data will be dynamically added -->
+                </div>
+            </details>
+            
+            <!-- Related Beys Section -->
+            <div class="profile-section" id="relatedBeysSection" style="display: none;">
+                <h3 class="section-title">🔗 Related Beys</h3>
+                
+                <div class="related-beys-container">
+                    <!-- Bey Family -->
+                    <div class="related-category" id="beyFamilySection">
+                        <h4 class="related-category-title">👨‍👩‍👧‍👦 Bey Family</h4>
+                        <div id="beyFamilyBeys" class="related-beys-grid">
+                            <!-- Related beys from same family -->
+                        </div>
+                    </div>
+                    
+                    <!-- Similar Parts -->
+                    <div class="related-category" id="samePartsSection">
+                        <h4 class="related-category-title">🔧 Same Parts</h4>
+                        <div id="samePartsBeys" class="related-beys-grid">
+                            <!-- Related beys with same parts -->
+                        </div>
+                    </div>
+                    
+                    <!-- Frequent Opponents -->
+                    <div class="related-category" id="frequentOpponentsSection">
+                        <h4 class="related-category-title">⚔️ Frequent Opponents</h4>
+                        <div id="frequentOpponentsBeys" class="related-beys-list">
+                            <!-- Frequent opponents -->
+                        </div>
+                    </div>
+                    
+                    <!-- Similar Performance -->
+                    <div class="related-category" id="similarPerformanceSection">
+                        <h4 class="related-category-title">📊 Similar ELO</h4>
+                        <div id="similarPerformanceBeys" class="related-beys-grid">
+                            <!-- Similar performance beys -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script defer src="footer-loader.js"></script>
+
+<script>
+// Get bey name from URL parameter
+const params = new URLSearchParams(window.location.search);
+const beyName = params.get('name');
+
+// Data storage
+let beyData = null;
+let leaderboardData = null;
+let matchesData = [];
+let matchArenaMap = {};
+let matchesWithRoundsData = [];
+let tournamentsData = [];
+let eloTimeseriesData = [];
+let positionTimeseriesData = [];
+let allBeysData = [];
+let allLeaderboardData = [];
+let allEloHistoryData = [];
+let rpgStatsData = null;
+let countersData = [];
+let seasonData = {};
+let seasonsMeta = {};   // populated from seasons.json — used to determine if a season is finished
+let xpLeaderboardData = null;
+let xpHistoryData = null;
+let currentArena = localStorage.getItem('beyPageArena') || 'xtreme'; // Track current arena for plots, load from localStorage
+
+// Helper function to normalize bey names for comparison
+function normalizeBeyName(name) {
+    if (!name) return '';
+    // Remove spaces and common separators, convert to lowercase
+    return name.toLowerCase().replace(/[\s\-_]/g, '');
+}
+
+// Helper function to find bey by name (case-insensitive, flexible matching)
+function findBeyByName(beys, searchName) {
+    if (!searchName || !beys) return null;
+    const normalizedSearch = normalizeBeyName(searchName);
+    
+    // First try exact match on blade name
+    let found = beys.find(b => normalizeBeyName(b.blade) === normalizedSearch);
+    if (found) return found;
+    
+    // Then try full name match
+    found = beys.find(b => normalizeBeyName(b.name) === normalizedSearch);
+    if (found) return found;
+    
+    // Try partial match on blade
+    found = beys.find(b => normalizeBeyName(b.blade).includes(normalizedSearch) || 
+                          normalizedSearch.includes(normalizeBeyName(b.blade)));
+    if (found) return found;
+    
+    return null;
+}
+
+// Helper function to find leaderboard entry by name
+function findLeaderboardEntry(data, searchName) {
+    if (!searchName || !data) return null;
+    const normalizedSearch = normalizeBeyName(searchName);
+    
+    return data.find(entry => {
+        const entryName = entry.Name || entry.Bey || '';
+        return normalizeBeyName(entryName) === normalizedSearch;
+    });
+}
+
+// Helper function to filter matches for a specific bey
+function getMatchesForBey(matches, beyName) {
+    if (!beyName || !matches) return [];
+    const normalizedName = normalizeBeyName(beyName);
+    
+    return matches.filter(match => {
+        return normalizeBeyName(match.beyA) === normalizedName || 
+               normalizeBeyName(match.beyB) === normalizedName;
+    });
+}
+
+// Parse CSV text to array of objects
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i]);
+        return obj;
+    });
+}
+
+// Format date for display
+function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+}
+
+// Load all data
+async function loadData() {
+    try {
+        // Load bey wiki data
+        const beyResponse = await fetch(DATA_PATHS.BEYS_DATA_JSON);
+        const beys = await beyResponse.json();
+        allBeysData = beys;
+        beyData = findBeyByName(beys, beyName);
+        
+        // Load leaderboard data (arena-specific for stats display)
+        try {
+            // Try advanced leaderboard first for both arenas
+            if (currentArena === 'xtreme') {
+                const advancedResponse = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV);
+                const advancedText = await advancedResponse.text();
+                const advancedData = parseCSV(advancedText);
+                allLeaderboardData = advancedData;
+                leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            } else if (currentArena === 'drop_attack') {
+                // Try Drop Attack advanced leaderboard
+                const advancedResponse = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_DROP_ATTACK_CSV);
+                const advancedText = await advancedResponse.text();
+                const advancedData = parseCSV(advancedText);
+                allLeaderboardData = advancedData;
+                leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            } else if (currentArena === 'double_xtreme') {
+                // Try Double Xtreme advanced leaderboard
+                const advancedResponse = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_DOUBLE_XTREME_CSV);
+                const advancedText = await advancedResponse.text();
+                const advancedData = parseCSV(advancedText);
+                allLeaderboardData = advancedData;
+                leaderboardData = findLeaderboardEntry(advancedData, beyName);
+            } else if (currentArena === 'combined') {
+                // Combined arena - no advanced stats, use standard leaderboard
+                throw new Error('Use arena-specific leaderboard');
+            } else {
+                // Use arena-specific leaderboard
+                throw new Error('Use arena-specific leaderboard');
+            }
+        } catch (e) {
+            // Fallback to arena-specific standard leaderboard
+            const standardResponse = await fetch(DATA_PATHS.leaderboardForArena(currentArena));
+            const standardText = await standardResponse.text();
+            const standardData = parseCSV(standardText);
+            allLeaderboardData = standardData;
+            leaderboardData = findLeaderboardEntry(standardData, beyName);
+        }
+        
+        // Load matches data
+        const matchesResponse = await fetch(DATA_PATHS.MATCHES_CSV);
+        const matchesText = await matchesResponse.text();
+        const allMatchesRaw = parseCSV(matchesText);
+        // Build arena lookup map (match_id string -> normalized arena)
+        allMatchesRaw.forEach(m => {
+            const raw = m.arena || 'Xtreme';
+            // Normalize arena variants to canonical names
+            let normalized = raw;
+            if (raw === 'DropAttack') normalized = 'Drop Attack';
+            else if (raw === 'DoubleXtreme' || raw === 'double_xtreme') normalized = 'Double Xtreme';
+            matchArenaMap[m.MatchID] = normalized;
+        });
+        const allMatches = allMatchesRaw.map(m => ({
+            matchId: parseInt(m.MatchID.slice(1).replace(/^0+/, ''), 10),
+            date: m.Date,
+            beyA: m.BeyA,
+            beyB: m.BeyB,
+            scoreA: parseInt(m.ScoreA),
+            scoreB: parseInt(m.ScoreB),
+            arena: matchArenaMap[m.MatchID] || 'Xtreme',
+            winner: parseInt(m.ScoreA) > parseInt(m.ScoreB) ? m.BeyA : m.BeyB
+        }));
+        matchesData = getMatchesForBey(allMatches, beyName);
+        
+        // Load matches with rounds data (for finish type distribution)
+        try {
+            const roundsResponse = await fetch(DATA_PATHS.MATCHES_WITH_ROUNDS_JSON);
+            const roundsJson = await roundsResponse.json();
+            matchesWithRoundsData = roundsJson.matches || [];
+        } catch (e) {
+            console.warn('Could not load rounds data:', e);
+            matchesWithRoundsData = [];
+        }
+        
+        // Load tournaments data
+        try {
+            const tournamentsResponse = await fetch(DATA_PATHS.TOURNAMENTS_JSON);
+            const tournaments = await tournamentsResponse.json();
+            const normalizedBeyName = normalizeBeyName(beyName);
+            tournamentsData = tournaments.tournaments.filter(t => 
+                normalizeBeyName(t.winner) === normalizedBeyName
+            );
+        } catch (e) {
+            console.warn('Could not load tournaments data:', e);
+            tournamentsData = [];
+        }
+        
+        // Load ELO timeseries data
+        try {
+            const eloTsResponse = await fetch(DATA_PATHS.eloTimeseries(currentArena));
+            const eloTsText = await eloTsResponse.text();
+            eloTimeseriesData = parseCSV(eloTsText);
+        } catch (e) {
+            console.warn('Could not load ELO timeseries data:', e);
+            eloTimeseriesData = [];
+        }
+        
+        // Load position timeseries data
+        try {
+            const posTsResponse = await fetch(DATA_PATHS.positionTimeseries(currentArena));
+            const posTsText = await posTsResponse.text();
+            positionTimeseriesData = parseCSV(posTsText);
+        } catch (e) {
+            console.warn('Could not load position timeseries data:', e);
+            positionTimeseriesData = [];
+        }
+        
+        // Load ELO history data (for milestones)
+        try {
+            const eloHistoryResponse = await fetch(DATA_PATHS.ELO_HISTORY_CSV);
+            const eloHistoryText = await eloHistoryResponse.text();
+            allEloHistoryData = parseCSV(eloHistoryText);
+        } catch (e) {
+            console.warn('Could not load ELO history data:', e);
+            allEloHistoryData = [];
+        }
+        
+        // Load RPG stats data
+        try {
+            const rpgStatsResponse = await fetch(DATA_PATHS.RPG_STATS_JSON);
+            const allRpgStats = await rpgStatsResponse.json();
+            // Find RPG stats for this bey
+            const normalizedName = normalizeBeyName(beyName);
+            rpgStatsData = Object.entries(allRpgStats).find(([name, _]) => 
+                normalizeBeyName(name) === normalizedName
+            );
+            if (rpgStatsData) {
+                rpgStatsData = { name: rpgStatsData[0], ...rpgStatsData[1] };
+            }
+        } catch (e) {
+            console.warn('Could not load RPG stats data:', e);
+            rpgStatsData = null;
+        }
+        
+        // Load counters data
+        try {
+            const countersResponse = await fetch(DATA_PATHS.BEY_COUNTERS_CSV);
+            const countersText = await countersResponse.text();
+            countersData = parseCSV(countersText);
+        } catch (e) {
+            console.warn('Could not load counters data:', e);
+            countersData = [];
+        }
+        
+        // Load season data
+        try {
+            const seasonResponse = await fetch(DATA_PATHS.SEASON_DATA_JSON);
+            const allSeasonData = await seasonResponse.json();
+            seasonData = allSeasonData.seasons || {};
+        } catch (e) {
+            console.warn('Could not load season data:', e);
+            seasonData = {};
+        }
+
+        // Load seasons metadata (end_date / status) used to determine finished seasons
+        try {
+            const metaResponse = await fetch(DATA_PATHS.SEASONS_JSON);
+            seasonsMeta = metaResponse.ok ? await metaResponse.json() : {};
+        } catch (e) {
+            seasonsMeta = {};
+        }
+
+        // Load XP leaderboard data
+        try {
+            const xpResponse = await fetch(DATA_PATHS.XP_LEADERBOARD_JSON);
+            const xpAll = await xpResponse.json();
+            const normalizedName = normalizeBeyName(beyName);
+            xpLeaderboardData = xpAll.find(e =>
+                normalizeBeyName(e.bey) === normalizedName
+            ) || null;
+        } catch (e) {
+            console.warn('Could not load XP leaderboard data:', e);
+            xpLeaderboardData = null;
+        }
+
+        // Load XP history data
+        try {
+            const xpHistoryResponse = await fetch(DATA_PATHS.XP_HISTORY_JSON);
+            xpHistoryData = await xpHistoryResponse.json();
+        } catch (e) {
+            console.warn('Could not load XP history data:', e);
+            xpHistoryData = null;
+        }
+        
+        // Render the profile
+        renderProfile();
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showError();
+    }
+}
+
+// Show error state
+function showError() {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('errorState').style.display = 'block';
+}
+
+// Render the profile
+function renderProfile() {
+    // Hide loading state
+    document.getElementById('loadingState').style.display = 'none';
+    
+    // Check if we found the bey
+    if (!beyData && !leaderboardData) {
+        showError();
+        return;
+    }
+    
+    // Show profile content
+    document.getElementById('profileContent').style.display = 'block';
+    
+    // Update page title
+    const displayName = beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName);
+    document.getElementById('pageTitle').textContent = displayName;
+    document.title = `${displayName} - suptower Beyblade X`;
+    
+    // Render bey info
+    if (beyData) {
+        document.getElementById('beyImage').src = beyData.image;
+        document.getElementById('beyImage').alt = beyData.name;
+        document.getElementById('beyName').textContent = beyData.name;
+        document.getElementById('beyCode').textContent = beyData.code || '';
+        document.getElementById('beyCode').className = `profile-code ${getLineClass(beyData.code)}`;
+        document.getElementById('beyDescription').textContent = beyData.description;
+        
+        // Type badge
+        const typeEl = document.getElementById('beyType');
+        typeEl.textContent = beyData.type;
+        typeEl.className = `profile-type ${beyData.type.toLowerCase()}`;
+        
+        // Parts
+        renderParts(beyData);
+    } else {
+        // Hide wiki info section if no wiki data
+        document.querySelector('.profile-header').style.display = 'none';
+    }
+    
+    // Render trophies
+    renderTrophies();
+    
+    // Render season champion badges
+    renderSeasonBadges();
+    
+    // Render key stats (ELO and Power Index)
+    renderKeyStats();
+    
+    // Render archetype
+    renderArchetype();
+    
+    // Render RPG stats (skill bars)
+    renderRpgStats();
+    
+    // Render stats
+    renderStats();
+    
+    // Render advanced stats
+    renderAdvancedStats();
+    
+    // Try to load ELO plot
+    loadEloPlot();
+    
+    // Try to load Position plot
+    loadPositionPlot();
+
+    // Try to load K-Factor / Form-EMA plot
+    loadKfactorPlot();
+
+    // Render score distribution
+    renderScoreDistribution();
+
+    // Render finish type distribution
+    renderFinishTypeDistribution();
+    
+    // Setup dark mode observer for plots
+    setupPlotDarkModeObserver();
+    
+    // Render history and timeline section
+    renderHistorySection();
+
+    // Render XP history section
+    renderXpHistorySection();
+    
+    // Render counters and matchups section
+    renderCountersSection();
+    
+    // Render season history section
+    renderSeasonSection();
+    
+    // Render related beys section
+    renderRelatedBeys();
+    
+    // Set compare button URL
+    const compareBeyBtn = document.getElementById('compareBeyBtn');
+    if (compareBeyBtn) {
+        const displayName = beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName);
+        compareBeyBtn.href = `compare.html?compare=${encodeURIComponent(displayName)}`;
+    }
+}
+
+// Get line class from code
+function getLineClass(code) {
+    if (!code) return '';
+    if (code.startsWith('BX')) return 'basic-line';
+    if (code.startsWith('UX')) return 'unique-line';
+    if (code.startsWith('CX')) return 'custom-line';
+    return '';
+}
+
+// Render parts information
+function renderParts(bey) {
+    const partsContainer = document.getElementById('beyParts');
+    partsContainer.innerHTML = '';
+    
+    const parts = [
+        { label: 'Over Blade', value: bey.over_blade },
+        { label: 'Metal Blade', value: bey.metal_blade },
+        { label: 'Blade', value: bey.blade && !bey.over_blade && !bey.metal_blade && !bey.ratchet_integrated_blade ? bey.blade : null },
+        { label: 'Assist Blade', value: bey.assist_blade },
+        { label: 'Ratchet Integrated Blade', value: bey.ratchet_integrated_blade },
+        { label: 'Ratchet Integrated Bit', value: bey.ratchet_integrated_bit },
+        { label: 'Ratchet', value: bey.ratchet && !bey.ratchet_integrated_bit && !bey.ratchet_integrated_blade ? bey.ratchet : null },
+        { label: 'Bit', value: bey.bit && !bey.ratchet_integrated_bit ? bey.bit : null }
+    ];
+    
+    parts.forEach(part => {
+        if (part.value) {
+            const partEl = document.createElement('div');
+            partEl.className = 'part-item';
+            partEl.innerHTML = `
+                <span class="part-label">${part.label}:</span>
+                <span class="part-value">${part.value}</span>
+            `;
+            partsContainer.appendChild(partEl);
+        }
+    });
+}
+
+// Render trophies
+function renderTrophies() {
+    const trophiesContainer = document.getElementById('profileTrophies');
+    
+    // Season cup wins are already shown via the season badge; exclude them here
+    const regularTrophies = (tournamentsData || []).filter(t => !t.season_cup);
+
+    if (regularTrophies.length === 0) {
+        trophiesContainer.style.display = 'none';
+        return;
+    }
+    
+    // Show trophies container
+    trophiesContainer.style.display = 'flex';
+    
+    // Generate trophy HTML
+    trophiesContainer.innerHTML = regularTrophies.map(tournament => `
+        <div class="profile-trophy" title="${tournament.name} - ${tournament.date}">
+            <span class="profile-trophy-icon"><img class="achievement-icon" src="icons/badges/tournament/trophy-gold.svg" alt="Trophy"></span>
+            <span class="profile-trophy-name">${tournament.name}</span>
+        </div>
+    `).join('');
+}
+
+// Get season achievements (tier wins, cup wins) for the current bey
+function seasonIdToRoman(seasonId) {
+    const ROMAN = ['I', 'II', 'III', 'IV'];
+    const num = parseInt((seasonId || '').replace(/\D/g, ''), 10);
+    return ROMAN[(num - 1) % 4] || 'I';
+}
+
+/**
+ * Returns true only if the season with the given ID is fully finished
+ * (has an end_date in the past).  Ongoing/upcoming seasons return false.
+ */
+function isSeasonFinished(seasonId) {
+    const meta = seasonsMeta[seasonId];
+    if (!meta) return false;
+    if (!meta.end_date) return false;
+    return new Date(meta.end_date) < new Date();
+}
+
+function getSeasonAchievements() {
+    const achievements = [];
+    const normalizedName = normalizeBeyName(beyName);
+    const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
+    const tierBadgeClasses = { '1': 'season-badge-tier1', '2': 'season-badge-tier2', '3': 'season-badge-tier3', '4': 'season-badge-tier4' };
+
+    Object.entries(seasonData).forEach(([seasonId, season]) => {
+        // Only show achievements for fully finished (past end_date) seasons
+        if (!isSeasonFinished(seasonId)) return;
+        const roman = seasonIdToRoman(seasonId);
+        // Check tier champions
+        if (season.league_tables && season.league_champion) {
+            Object.entries(season.league_tables).forEach(([tierId, table]) => {
+                if (table && table.length > 0 && normalizeBeyName(table[0].bey) === normalizedName) {
+                    const badgeFile = `icons/badges/season/season-tier-${tierId}-${roman}.svg`;
+                    achievements.push({
+                        type: 'tier_champion',
+                        seasonId,
+                        tier: tierId,
+                        label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
+                        badgeClass: tierBadgeClasses[tierId] || 'season-badge-tier3',
+                        icon: `<img class="achievement-icon" src="${badgeFile}" alt="${seasonId} Tier ${tierId} Champion">`
+                    });
+                }
+            });
+        }
+        // Check cup winner
+        if (season.cup_winner && normalizeBeyName(season.cup_winner) === normalizedName) {
+            achievements.push({
+                type: 'cup_winner',
+                seasonId,
+                label: `${seasonId} Season Cup Winner`,
+                badgeClass: 'season-badge-cup',
+                icon: `<img class="achievement-icon" src="icons/badges/tournament/season-cup-${roman}.svg" alt="${seasonId} Season Cup">`
+            });
+        }
+    });
+    return achievements;
+}
+
+// Render season champion badges in profile header
+function renderSeasonBadges() {
+    const badgesContainer = document.getElementById('profileSeasonBadges');
+    const achievements = getSeasonAchievements();
+
+    if (achievements.length === 0) {
+        badgesContainer.style.display = 'none';
+        return;
+    }
+
+    badgesContainer.style.display = 'flex';
+    badgesContainer.innerHTML = achievements.map(a => `
+        <div class="season-badge ${a.badgeClass}" title="${escapeHtml(a.label)}">
+            <span class="season-badge-icon">${a.icon}</span>
+            <span class="season-badge-name">${escapeHtml(a.label)}</span>
+        </div>
+    `).join('');
+}
+
+// Render season history section
+function renderSeasonSection() {
+    const seasonSection = document.getElementById('seasonSection');
+    const seasonContainer = document.getElementById('seasonContainer');
+    const normalizedName = normalizeBeyName(beyName);
+    const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III' };
+
+    // Collect this bey's entries across all seasons
+    const entries = [];
+    Object.entries(seasonData).forEach(([seasonId, season]) => {
+        if (!season.league_tables) return;
+        Object.entries(season.league_tables).forEach(([tierId, table]) => {
+            const entry = table && table.find(e => normalizeBeyName(e.bey) === normalizedName);
+            if (entry) {
+                const isTierChampion = entry.position === 1;
+                const isCupWinner = season.cup_winner && normalizeBeyName(season.cup_winner) === normalizedName;
+                entries.push({ seasonId, tierId, entry, isTierChampion, isCupWinner });
+            }
+        });
+    });
+
+    if (entries.length === 0) {
+        seasonSection.style.display = 'none';
+        return;
+    }
+
+    seasonSection.style.display = 'block';
+
+    const tierMedalAlts  = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
+
+    const tableRows = entries.map(({ seasonId, tierId, entry, isTierChampion, isCupWinner }) => {
+        const roman = seasonIdToRoman(seasonId);
+        const tierLabel = tierLabels[tierId] || `Tier ${tierId}`;
+        const posClass = entry.position === 1 ? 'trend-very-positive' : entry.position <= 3 ? 'trend-positive' : '';
+        const medalFile = `badges/season/season-tier-${tierId}-${roman}`;
+        const medalAlt  = tierMedalAlts[tierId]  || 'Medal';
+        // Only display champion/cup badges for fully finished seasons
+        const seasonDone = isSeasonFinished(seasonId);
+        const achievementBadges = seasonDone ? [
+            isTierChampion ? `<span class="season-table-badge season-badge-tier${tierId}" title="${seasonId} ${tierLabel} Champion"><img class="achievement-icon" src="icons/${medalFile}.svg" alt="${medalAlt}"></span>` : '',
+            isCupWinner ? `<span class="season-table-badge season-badge-cup" title="${seasonId} Cup Winner"><img class="achievement-icon" src="icons/badges/tournament/season-cup-${roman}.svg" alt="Season Cup"></span>` : ''
+        ].filter(Boolean).join('') : '';
+        const winrate = entry.matches > 0 ? Math.round((entry.wins / entry.matches) * 100) : 0;
+        const wrClass = winrate >= 60 ? 'trend-positive' : winrate < 40 ? 'trend-negative' : '';
+
+        return `
+            <tr>
+                <td><a href="season.html?id=${encodeURIComponent(seasonId)}" class="season-link">${escapeHtml(seasonId)}</a></td>
+                <td>${escapeHtml(tierLabel)}</td>
+                <td class="${posClass}">#${entry.position} ${achievementBadges}</td>
+                <td>${entry.matches}</td>
+                <td>${entry.wins}</td>
+                <td>${entry.losses}</td>
+                <td class="${wrClass}">${winrate}%</td>
+                <td>${entry.season_points}</td>
+                <td>${entry.point_diff >= 0 ? '+' : ''}${entry.point_diff}</td>
+            </tr>
+        `;
+    }).join('');
+
+    seasonContainer.innerHTML = `
+        <div class="table-responsive">
+            <table class="season-history-table">
+                <thead>
+                    <tr>
+                        <th>Season</th>
+                        <th>Tier</th>
+                        <th>Position</th>
+                        <th>MP</th>
+                        <th>W</th>
+                        <th>L</th>
+                        <th>Win%</th>
+                        <th>Pts</th>
+                        <th>PD</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+        </div>
+    `;
+}
+
+// Render key stats (ELO and Power Index) - highlighted prominently
+function renderKeyStats() {
+    const keyStatsGrid = document.getElementById('keyStatsGrid');
+    const keyStatsSection = document.getElementById('keyStatsSection');
+    keyStatsGrid.innerHTML = '';
+    
+    if (!leaderboardData && !xpLeaderboardData) {
+        return;
+    }
+    
+    const elo = leaderboardData ? leaderboardData.ELO : null;
+    const powerIndex = leaderboardData ? leaderboardData.PowerIndex : null;
+    
+    // Only show if we have at least one key stat
+    if (!elo && !powerIndex && !xpLeaderboardData) {
+        return;
+    }
+    
+    // Show the section
+    keyStatsSection.style.display = 'block';
+    
+    // ELO Card
+    if (elo) {
+        const eloClass = getEloClass(parseInt(elo));
+        const eloCard = document.createElement('div');
+        eloCard.className = `key-stat-card ${eloClass}`;
+        eloCard.innerHTML = `
+            <div class="key-stat-label">ELO Rating</div>
+            <div class="key-stat-value ${eloClass}">${elo}</div>
+            <div class="key-stat-desc">Skill Level Indicator</div>
+        `;
+        keyStatsGrid.appendChild(eloCard);
+    }
+    
+    // Power Index Card
+    if (powerIndex) {
+        const pwrClass = getPowerIndexClass(parseFloat(powerIndex));
+        const pwrCard = document.createElement('div');
+        pwrCard.className = `key-stat-card ${pwrClass}`;
+        pwrCard.innerHTML = `
+            <div class="key-stat-label">Power Index</div>
+            <div class="key-stat-value ${pwrClass}">${powerIndex}</div>
+            <div class="key-stat-desc">Meta Score (0-100)</div>
+        `;
+        keyStatsGrid.appendChild(pwrCard);
+    }
+
+    // XP Level Card
+    if (xpLeaderboardData) {
+        const lvl = xpLeaderboardData.level;
+        const prestige = xpLeaderboardData.prestige || 0;
+        const xpIn = xpLeaderboardData.xp_in_level || 0;
+        const xpNeeded = xpLeaderboardData.xp_needed_for_level || 1;
+        const pct = Math.min((xpIn / xpNeeded) * 100, 100).toFixed(1);
+        const prestigeStars = prestige > 0 ? ` <img style="width:30px;height:30px;vertical-align:middle;" src="icons/badges/prestige/prestige${Math.min(prestige,5)}.svg" alt="Prestige ${prestige}" title="Prestige ${prestige}">` : '';
+        const xpCard = document.createElement('div');
+        xpCard.className = 'key-stat-card';
+        xpCard.innerHTML = `
+            <div class="key-stat-label">Level</div>
+            <div class="key-stat-value"><img style="width:56px;height:56px;vertical-align:middle;" src="icons/badges/level/lv${lvl}.svg" alt="Level ${lvl}">${prestigeStars}</div>
+            <div class="key-stat-desc">
+                <div style="margin-bottom:4px;">${Math.round(xpIn)} / ${Math.round(xpNeeded)} XP</div>
+                <div style="background:var(--bg-light,#e0e0e0);border-radius:4px;height:6px;overflow:hidden;">
+                    <div style="background:var(--accent,#4CAF50);width:${pct}%;height:100%;border-radius:4px;"></div>
+                </div>
+            </div>
+        `;
+        xpCard.title = `Rank #${xpLeaderboardData.rank} on XP Leaderboard`;
+        xpCard.style.cursor = 'pointer';
+        xpCard.onclick = () => { window.location.href = 'levels.html'; };
+        keyStatsGrid.appendChild(xpCard);
+    }
+}
+
+// Get Power Index color class
+function getPowerIndexClass(pwr) {
+    if (isNaN(pwr)) return '';
+    if (pwr >= 80) return 'trend-very-positive';
+    if (pwr >= 60) return 'trend-positive';
+    if (pwr >= 40) return 'trend-neutral';
+    if (pwr >= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+function renderXpHistorySection() {
+    const profileContent = document.getElementById('profileContent');
+    if (!profileContent || !xpHistoryData) return;
+
+    // Remove old section if rerendering
+    const existing = document.getElementById('xpHistorySection');
+    if (existing) existing.remove();
+
+    const normalizedTarget = normalizeBeyName(
+        beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName)
+    );
+
+    const rows = [];
+    for (const [matchId, entry] of Object.entries(xpHistoryData)) {
+        if (!entry || matchId === '__events__') continue;
+        const a = entry.bey_a;
+        const b = entry.bey_b;
+        if (a && normalizeBeyName(a.bey) === normalizedTarget) {
+            rows.push({
+                type: 'match',
+                date: entry.date || '',
+                source: matchId,
+                side: a,
+                opponent: b ? b.bey : '',
+            });
+        } else if (b && normalizeBeyName(b.bey) === normalizedTarget) {
+            rows.push({
+                type: 'match',
+                date: entry.date || '',
+                source: matchId,
+                side: b,
+                opponent: a ? a.bey : '',
+            });
+        }
+    }
+
+    const events = Array.isArray(xpHistoryData.__events__) ? xpHistoryData.__events__ : [];
+    events.forEach(e => {
+        if (normalizeBeyName(e.bey) !== normalizedTarget) return;
+        rows.push({
+            type: e.type || 'event',
+            date: e.date || '',
+            source: e.tournament_id || e.season_id || 'manual',
+            side: { total_xp: e.xp_awarded || 0 },
+            details: e,
+        });
+    });
+
+    if (!rows.length) return;
+
+    rows.sort((x, y) => (x.date || '').localeCompare(y.date || ''));
+
+    const calcParts = side => {
+        const s = side || {};
+        const streakPctRaw = Number(s.streak_bonus || 0);
+        const streakPct = Math.abs(streakPctRaw) <= 1
+            ? Math.round(streakPctRaw * 100)
+            : Math.round(streakPctRaw);
+        // only push parts that have a non-zero value to avoid clutter (except for base and result bonus as these are always non-zero)
+        const parts = [
+            `🎮${Number(s.base_xp || 0).toFixed(0)}`,
+            `🏆${Number(s.result_bonus || 0).toFixed(0)}`
+        ];
+        if (s.performance_bonus > 0) {
+            parts.push(`📈${Number(s.performance_bonus || 0).toFixed(1)}`)
+        }
+        if (s.high_stakes_bonus > 0) {
+            parts.push(`🔥${Number(s.high_stakes_bonus || 0).toFixed(1)}`);
+        }
+        if (s.match_length_bonus > 0) {
+            parts.push(`⏱️${Number(s.match_length_bonus || 0).toFixed(1)}`);
+        }
+        if (s.season_matchday_xp) {
+            parts.push(`🏟️${Number(s.season_matchday_xp ?? 0).toFixed(0)}`);
+        }
+        if (s.qualification_xp) {
+            parts.push(`💰${Number(s.qualification_xp ?? 0).toFixed(0)}`);
+        }
+        if (s.season_cup_xp) {
+            parts.push(`🏅${Number(s.season_cup_xp ?? 0).toFixed(0)}`);
+        }
+        if (s.tournament_match_xp) {
+            parts.push(`🎯${Number(s.tournament_match_xp ?? 0).toFixed(0)}`);
+        }
+        if (streakPct > 0) {
+            parts.push(`⚡${streakPct}%(${Number(s.win_streak || 0)})`);
+        }
+        const prestigeMultiplier = Number(s.prestige_multiplier || 0);
+        if (prestigeMultiplier && prestigeMultiplier !== 1) {
+            parts.push(`⭐×${prestigeMultiplier.toFixed(2)}`);
+        }
+        return parts.join(' ');
+    };
+
+    const section = document.createElement('details');
+    section.className = 'profile-section-details';
+    section.id = 'xpHistorySection';
+    section.innerHTML = `
+        <summary class="section-summary">🎮 XP History</summary>
+        <div class="profile-section-content" style="padding: 12px 16px;">
+            <div class="xp-history-calc-legend">
+                <span><b>🎮</b> Base</span>
+                <span><b>🏆</b> Result</span>
+                <span><b>📈</b> Perf</span>
+                <span><b>🔥</b> High-Stakes</span>
+                <span><b>⏱️</b> Length</span>
+                <span><b>⚡</b> Streak % (count)</span>
+                <span><b>🏟️</b> Season</span>
+                <span><b>💰</b> Qualification</span>
+                <span><b>🏅</b> Season Cup</span>
+                <span><b>🎯</b> Tournament</span>
+                <span><b>⭐</b> Prestige</span>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="advanced-table" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Source</th>
+                            <th>Opponent / Tier</th>
+                            <th>Calculation</th>
+                            <th>XP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map(r => {
+                            if (r.type === 'match') {
+                                const s = r.side || {};
+                                return `
+                                    <tr>
+                                        <td>${escapeHtml(r.date)}</td>
+                                        <td><a href="matches.html" class="season-link">${escapeHtml(r.source)}</a></td>
+                                        <td>${escapeHtml(r.opponent || '—')}</td>
+                                        <td class="xp-calc-cell">${escapeHtml(calcParts(s))}</td>
+                                        <td class="trend-positive">+${Number(s.total_xp || 0).toFixed(1)}</td>
+                                    </tr>
+                                `;
+                            }
+                            const d = r.details || {};
+                            const why = r.type === 'tournament'
+                                ? `Tournament Rank ${d.rank || '—'} / ${d.participants || '—'}`
+                                : `Season ${d.season_id || ''} | Tier ${d.tier || 'all'} | Rank ${d.rank || '—'}`;
+                            let eventClass = 'xp-event-row';
+                            if (r.type === 'tournament') {
+                                eventClass += ' event-tournament';
+                            } else if (r.type === 'season_end') {
+                                eventClass += ' event-season';
+                            } else {
+                                eventClass += ' event-generic';
+                            }
+                            const sourceBadge = r.type === 'tournament'
+                                ? '<span class="tier-badge-subtle">TOURNAMENT</span>'
+                                : (r.type === 'season_end'
+                                    ? '<span class="tier-badge-subtle">Season End</span>'
+                                    : '<span class="tier-badge-subtle">XP Event</span>');
+                            const sourceText = r.type === 'tournament'
+                                ? `🏆 ${escapeHtml(r.source)}`
+                                : (r.type === 'season_end'
+                                    ? `📅 ${escapeHtml(r.source)}`
+                                    : `🎯 ${escapeHtml(r.source)}`);
+                            const oppOrTier = r.type === 'season_end'
+                                ? `<span class="tier-badge-subtle">${String(d.tier || 'all').toLowerCase() === 'all' ? 'All Tiers' : `Tier ${escapeHtml(d.tier)}`}</span>`
+                                : '—';
+                            return `
+                                <tr class="${eventClass}">
+                                    <td>${escapeHtml(r.date)}</td>
+                                    <td>${sourceBadge} ${sourceText}</td>
+                                    <td>${oppOrTier}</td>
+                                    <td>${escapeHtml(why)}</td>
+                                    <td class="trend-positive">+${Number(r.side.total_xp || 0).toFixed(1)}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+    const historySection = document.getElementById('historySection');
+    if (historySection && historySection.parentNode === profileContent) {
+        profileContent.insertBefore(section, historySection);
+    } else {
+        profileContent.appendChild(section);
+    }
+}
+
+// Render Archetype Section
+function renderArchetype() {
+    const archetypeSection = document.getElementById('archetypeSection');
+    const archetypeContainer = document.getElementById('archetypeContainer');
+    archetypeContainer.innerHTML = '';
+    
+    if (!rpgStatsData || !rpgStatsData.archetype) {
+        archetypeSection.style.display = 'none';
+        return;
+    }
+    
+    const archetype = rpgStatsData.archetype;
+    
+    // Don't show if archetype is unknown
+    if (archetype.id === 'unknown') {
+        archetypeSection.style.display = 'none';
+        return;
+    }
+    
+    // Show the section
+    archetypeSection.style.display = 'block';
+    
+    // Build candidates HTML for tooltip/details
+    let candidatesHtml = '';
+    if (archetype.candidates && archetype.candidates.length > 1) {
+        candidatesHtml = `
+            <div class="archetype-candidates">
+                <div class="archetype-candidates-title">Alternative Classifications:</div>
+                ${archetype.candidates.slice(1).map(c => `
+                    <div class="archetype-candidate">
+                        <span class="archetype-candidate-name">${escapeHtml(c.name)}</span>
+                        <span class="archetype-candidate-score">${Math.round(c.score * 100)}%</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+    
+    // Get confidence class
+    const confidenceClass = archetype.confidence >= 0.6 ? 'high' : 
+                           archetype.confidence >= 0.3 ? 'medium' : 'low';
+    
+    archetypeContainer.innerHTML = `
+        <div class="archetype-card archetype-category-${archetype.category}" style="--archetype-color: ${archetype.color}">
+            <div class="archetype-header">
+                <span class="archetype-icon">${archetype.icon}</span>
+                <div class="archetype-info">
+                    <span class="archetype-name">${escapeHtml(archetype.name)}</span>
+                    <span class="archetype-category-badge archetype-category-${archetype.category}">${escapeHtml(archetype.category)}</span>
+                </div>
+            </div>
+            <p class="archetype-description">${escapeHtml(archetype.description)}</p>
+            <div class="archetype-confidence">
+                <div class="archetype-confidence-bar">
+                    <div class="archetype-confidence-fill confidence-${confidenceClass}" style="width: ${Math.round(archetype.confidence * 100)}%"></div>
+                </div>
+                <span class="archetype-confidence-label">${Math.round(archetype.confidence * 100)}% match</span>
+            </div>
+            ${candidatesHtml}
+        </div>
+    `;
+}
+
+// Render RPG Stats (Skill Bars)
+function renderRpgStats() {
+    const rpgStatsSection = document.getElementById('rpgStatsSection');
+    const rpgStatsContainer = document.getElementById('rpgStatsContainer');
+    rpgStatsContainer.innerHTML = '';
+    
+    // Check if bey has any matches in current arena
+    const matches = leaderboardData ? (leaderboardData.Matches || leaderboardData.Spiele || 0) : 0;
+    
+    if (!rpgStatsData || !rpgStatsData.stats || matches === 0) {
+        rpgStatsSection.style.display = 'none';
+        return;
+    }
+    
+    // Show the section
+    rpgStatsSection.style.display = 'block';
+    
+    // Define stat configurations with icons and display names
+    const statConfig = {
+        attack: { icon: '⚔️', name: 'Attack', desc: 'Offensive pressure and high-impact scoring' },
+        defense: { icon: '🛡️', name: 'Defense', desc: 'Ability to resist high-impact losses' },
+        stamina: { icon: '💪', name: 'Stamina', desc: 'Endurance and spin finish performance' },
+        control: { icon: '🎯', name: 'Control', desc: 'Consistency and match flow stability' },
+        meta_impact: { icon: '⭐', name: 'Meta', desc: 'Competitive relevance and meta influence' }
+    };
+    
+    // Sub-metric display names for tooltips
+    const subMetricNames = {
+        attack: {
+            aggressive_finish_rate: 'Aggressive Finish Rate',
+            burst_finish_rate: 'Burst Finish Rate',
+            pocket_finish_rate: 'Pocket Finish Rate',
+            stadium_exit_finish_rate: 'Stadium Exit Finish Rate',
+            extreme_finish_rate: 'Extreme Finish Rate',
+            offensive_point_efficiency: 'Point Efficiency',
+            opening_dominance: 'Opening Dominance'
+        },
+        defense: {
+            impact_resistance: 'Impact Resistance',
+            burst_resistance: 'Burst Resistance',
+            pocket_resistance: 'Pocket Resistance',
+            stadium_exit_resistance: 'Stadium Exit Resistance',
+            extreme_resistance: 'Extreme Resistance',
+            defensive_conversion: 'Defensive Conversion',
+            round_survival_rate: 'Round Survival Rate'
+        },
+        stamina: {
+            spin_finish_win_rate: 'Spin Win Rate',
+            spin_differential_index: 'Spin Differential',
+            long_round_win_rate: 'Long Match Win Rate'
+        },
+        control: {
+            volatility_inverse: 'Consistency',
+            first_contact_advantage: 'First Contact Advantage',
+            match_flow_stability: 'Match Flow Stability',
+            type_versatility: 'Type Versatility'
+        },
+        meta_impact: {
+            elo_normalized: 'Normalized ELO',
+            elo_per_match: 'ELO per Match',
+            upset_rate: 'Upset Rate',
+            matchup_spread: 'Matchup Spread',
+            anti_meta_score: 'Anti-Meta Score'
+        }
+    };
+    
+    // Sub-metric descriptions for detailed explanations
+    const subMetricDescriptions = {
+        attack: {
+            aggressive_finish_rate: 'Percentage of wins via non-spin finishes',
+            burst_finish_rate: 'Percentage of wins via burst finishes',
+            pocket_finish_rate: 'Percentage of wins via pocket finishes',
+            stadium_exit_finish_rate: 'Percentage of wins via stadium exit finishes',
+            extreme_finish_rate: 'Percentage of wins via extreme finishes',
+            offensive_point_efficiency: 'Average points earned per round won',
+            opening_dominance: 'Win rate in the first round of matches'
+        },
+        defense: {
+            impact_resistance: 'Resistance to opponent non-spin finishes',
+            burst_resistance: 'Resistance to opponent burst finishes',
+            pocket_resistance: 'Resistance to opponent pocket finishes',
+            stadium_exit_resistance: 'Resistance to opponent stadium exit finishes',
+            extreme_resistance: 'Resistance to opponent extreme finishes',
+            defensive_conversion: 'Win rate after losing a round',
+            round_survival_rate: 'Percentage of rounds not lost'
+        },
+        stamina: {
+            spin_finish_win_rate: 'Frequency of winning via spin-out finishes',
+            spin_differential_index: 'Ratio of spin finish wins vs losses',
+            long_round_win_rate: 'Win rate in matches with many rounds'
+        },
+        control: {
+            volatility_inverse: 'Match result predictability (higher = more consistent)',
+            first_contact_advantage: 'Match win rate when winning first round',
+            match_flow_stability: 'Consistency of match score patterns',
+            type_versatility: 'Cross-type win rate consistency'
+        },
+        meta_impact: {
+            elo_normalized: 'ELO rating compared to dataset',
+            elo_per_match: 'Average ELO gained per match played',
+            upset_rate: 'Win rate against higher-ranked opponents',
+            matchup_spread: 'Performance breadth across opponent types',
+            anti_meta_score: 'Effectiveness against top-5 rated beys'
+        }
+    };
+    
+    // Create stat tiles for each stat
+    const stats = rpgStatsData.stats;
+    const subMetrics = rpgStatsData.sub_metrics;
+    
+    Object.entries(statConfig).forEach(([statKey, config]) => {
+        const value = stats[statKey];
+        if (value === undefined || value === null) return;
+        
+        // Calculate full tiles and partial fill
+        const fullTiles = Math.floor(value);
+        const partialFill = (value - fullTiles) * 100; // Percentage for partial tile
+        
+        // Build expandable details content with sub-metrics
+        let detailsContent = '';
+        if (subMetrics && subMetrics[statKey]) {
+            const metricNames = subMetricNames[statKey] || {};
+            const metricDescs = subMetricDescriptions[statKey] || {};
+            detailsContent = Object.entries(subMetrics[statKey])
+                .map(([key, val]) => {
+                    const displayName = metricNames[key] || key;
+                    const description = metricDescs[key] || '';
+                    // Display values < 1 as percentages (rates/ratios), otherwise as decimal
+                    const isPercentageMetric = typeof val === 'number' && val <= 1;
+                    const displayVal = typeof val === 'number' ? 
+                        (isPercentageMetric ? (val * 100).toFixed(1) + '%' : val.toFixed(2)) : val;
+                    return `<div class="rpg-stat-detail-item">
+                        <div class="rpg-stat-detail-header">
+                            <span class="rpg-stat-detail-name">${escapeHtml(displayName)}</span>
+                            <span class="rpg-stat-detail-value">${escapeHtml(displayVal)}</span>
+                        </div>
+                        <div class="rpg-stat-detail-desc">${escapeHtml(description)}</div>
+                    </div>`;
+                }).join('');
+        }
+        
+        // Generate 5 tiles
+        let tilesHtml = '';
+        for (let i = 0; i < 5; i++) {
+            let tileClass = statKey;
+            let fillWidth = 0;
+            
+            if (i < fullTiles) {
+                // Full tile
+                tileClass += ' filled';
+                fillWidth = 100;
+            } else if (i === fullTiles && partialFill > 0) {
+                // Partial tile
+                tileClass += ' partial';
+                fillWidth = partialFill;
+            } else {
+                // Empty tile
+                tileClass += ' empty';
+                fillWidth = 0;
+            }
+            
+            tilesHtml += `
+                <div class="rpg-stat-tile ${tileClass}">
+                    <div class="rpg-stat-tile-fill" data-target="${fillWidth}"></div>
+                </div>
+            `;
+        }
+        
+        const statRow = document.createElement('div');
+        statRow.className = 'rpg-stat-row-wrapper';
+        statRow.innerHTML = `
+            <div class="rpg-stat-row" onclick="this.parentElement.classList.toggle('expanded')">
+                <div class="rpg-stat-label">
+                    <span class="rpg-stat-label-icon">${config.icon}</span>
+                    <span>${config.name}</span>
+                    <span class="rpg-stat-info-btn" title="Click to see calculation details">ℹ️</span>
+                </div>
+                <div class="rpg-stat-bar-container">
+                    <div class="rpg-stat-tiles">
+                        ${tilesHtml}
+                    </div>
+                    <span class="rpg-stat-value">${value.toFixed(1)}</span>
+                </div>
+            </div>
+            ${detailsContent ? `
+                <div class="rpg-stat-details">
+                    <div class="rpg-stat-details-header">
+                        <span class="rpg-stat-details-title">${config.icon} ${config.name} Breakdown</span>
+                        <span class="rpg-stat-details-score">Score: ${value.toFixed(2)} / 5.0</span>
+                    </div>
+                    <div class="rpg-stat-details-desc">${config.desc}</div>
+                    <div class="rpg-stat-details-grid">
+                        ${detailsContent}
+                    </div>
+                </div>
+            ` : ''}
+        `;
+        rpgStatsContainer.appendChild(statRow);
+    });
+    
+    // Animate tile fills after a short delay
+    setTimeout(() => {
+        document.querySelectorAll('.rpg-stat-tile-fill').forEach(fill => {
+            const targetWidth = fill.getAttribute('data-target');
+            fill.style.width = targetWidth + '%';
+        });
+    }, 100);
+}
+
+// Render statistics
+function renderStats() {
+    const statsGrid = document.getElementById('statsGrid');
+    statsGrid.innerHTML = '';
+    
+    if (!leaderboardData) {
+        statsGrid.innerHTML = '<p class="no-data">No statistics available for this bey.</p>';
+        return;
+    }
+
+    const winrateVal = leaderboardData.Winrate.slice(-1) === '%' ? 
+        Math.round(parseFloat(leaderboardData.Winrate.slice(0, -1))) : 
+        Math.round(parseFloat(leaderboardData.Winrate));
+    const winrate = '' + winrateVal + '%';
+    
+    // restrict trend to 2 decimal points
+    const trend = Math.round(leaderboardData.ELOTrend)
+
+    // restrict pointdiff to three digits
+    const pointdiff = Math.round(leaderboardData.AvgPointDiff * 10) / 10;
+    
+    // Define stats to display (ELO and Power Index are shown in key stats section)
+    const stats = [
+        { label: 'Rank', value: leaderboardData.Platz, icon: '🏆', highlight: 'rank' },
+        { label: 'Matches', value: leaderboardData.Matches || leaderboardData.Spiele, icon: '🎮' },
+        { label: 'Wins', value: leaderboardData.Wins || leaderboardData.Siege, icon: '✅' },
+        { label: 'Losses', value: leaderboardData.Losses || leaderboardData.Niederlagen, icon: '❌' },
+        { label: 'Winrate', value: winrate, icon: '📈', highlight: 'winrate' },
+        { label: 'Points For', value: leaderboardData.PointsFor || leaderboardData['Gewonnene Punkte'], icon: '⬆️' },
+        { label: 'Points Against', value: leaderboardData.PointsAgainst || leaderboardData['Verlorene Punkte'], icon: '⬇️' },
+        { label: 'Point Diff', value: pointdiff, icon: '📉', highlight: 'pointdiff' },
+        { label: 'ELO Trend', value: trend, icon: '📈', highlight: 'trend' }
+    ];
+    
+    stats.forEach(stat => {
+        if (stat.value !== undefined && stat.value !== null && stat.value !== '') {
+            const statEl = document.createElement('div');
+            statEl.className = 'stat-card';
+            
+            let valueClass = '';
+            const numValue = parseFloat(stat.value);
+            if (stat.highlight === 'elo') {
+                valueClass = getEloClass(parseInt(stat.value));
+            } else if (stat.highlight === 'winrate') {
+                valueClass = getWinrateClass(numValue);
+            } else if (stat.highlight === 'trend') {
+                valueClass = getTrendClass(numValue);
+            } else if (stat.highlight === 'pointdiff') {
+                valueClass = getPointDiffClass(numValue);
+            } else if (stat.highlight === 'rank') {
+                valueClass = getRankClass(parseInt(stat.value));
+            }
+            
+            statEl.innerHTML = `
+                <div class="stat-icon">${stat.icon}</div>
+                <div class="stat-value ${valueClass}">${stat.value}</div>
+                <div class="stat-label">${stat.label}</div>
+            `;
+            statsGrid.appendChild(statEl);
+        }
+    });
+}
+
+// Get ELO color class
+function getEloClass(elo) {
+    if (isNaN(elo)) return '';
+    if (elo >= 1050) return 'trend-very-positive';
+    if (elo >= 1010) return 'trend-positive';
+    if (elo >= 990) return 'trend-neutral';
+    if (elo >= 950) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get winrate color class
+function getWinrateClass(winrate) {
+    if (isNaN(winrate)) return '';
+    if (winrate >= 80) return 'trend-very-positive';
+    if (winrate >= 60) return 'trend-positive';
+    if (winrate >= 40) return 'trend-neutral';
+    if (winrate >= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get trend color class
+function getTrendClass(trend) {
+    if (isNaN(trend)) return '';
+    if (trend > 20) return 'trend-very-positive';
+    if (trend > 0) return 'trend-positive';
+    if (trend < -20) return 'trend-very-negative';
+    if (trend < 0) return 'trend-negative';
+    return 'trend-neutral';
+}
+
+// Get point diff color class
+function getPointDiffClass(diff) {
+    if (isNaN(diff)) return '';
+    if (diff > 2) return 'trend-very-positive';
+    if (diff > 0) return 'trend-positive';
+    if (diff < -2) return 'trend-very-negative';
+    if (diff < 0) return 'trend-negative';
+    return 'trend-neutral';
+}
+
+// Get volatility color class (lower is better)
+function getVolatilityClass(volatility) {
+    if (isNaN(volatility)) return '';
+    if (volatility <= 5) return 'trend-very-positive';
+    if (volatility <= 10) return 'trend-positive';
+    if (volatility <= 15) return 'trend-neutral';
+    if (volatility <= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get rank color class (lower is better)
+function getRankClass(rank) {
+    if (isNaN(rank)) return '';
+    if (rank <= 3) return 'trend-very-positive';
+    if (rank <= 10) return 'trend-positive';
+    if (rank <= 20) return 'trend-neutral';
+    if (rank <= 30) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get upset wins color class (more is better)
+function getUpsetWinsClass(wins) {
+    if (isNaN(wins)) return '';
+    if (wins >= 5) return 'trend-very-positive';
+    if (wins >= 2) return 'trend-positive';
+    if (wins >= 1) return 'trend-neutral';
+    return '';
+}
+
+// Get upset losses color class (fewer is better)
+function getUpsetLossesClass(losses) {
+    if (isNaN(losses)) return '';
+    if (losses === 0) return 'trend-very-positive';
+    if (losses <= 1) return 'trend-neutral';
+    if (losses <= 3) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Render advanced statistics
+function renderAdvancedStats() {
+    const advancedStatsGrid = document.getElementById('advancedStatsGrid');
+    const advancedStatsSection = document.getElementById('advancedStatsSection');
+    advancedStatsGrid.innerHTML = '';
+    
+    if (!leaderboardData) {
+        return;
+    }
+    
+    // Check if advanced stats are available
+    const hasAdvancedStats = leaderboardData.Volatility !== undefined || 
+                             leaderboardData['AvgΔELO'] !== undefined ||
+                             leaderboardData.UpsetWins !== undefined;
+    
+    if (!hasAdvancedStats) {
+        return;
+    }
+    
+    // Show advanced stats section
+    advancedStatsSection.style.display = 'block';
+    
+    // Define advanced stats to display
+    const advancedStats = [
+        { label: 'Volatility', value: leaderboardData.Volatility, icon: '📊', highlight: 'volatility' },
+        { label: 'Avg ELO Change', value: leaderboardData['AvgΔELO'], icon: '📈', highlight: 'trend' },
+        { label: 'Max ELO Gain', value: leaderboardData['MaxΔELO'], icon: '⬆️', highlight: 'positive' },
+        { label: 'Max ELO Loss', value: leaderboardData['MinΔELO'], icon: '⬇️', highlight: 'negative' },
+        { label: 'Upset Wins', value: leaderboardData.UpsetWins, icon: '🎯', highlight: 'upsetwins' },
+        { label: 'Upset Losses', value: leaderboardData.UpsetLosses, icon: '💔', highlight: 'upsetlosses' }
+    ];
+    
+    advancedStats.forEach(stat => {
+        if (stat.value !== undefined && stat.value !== null && stat.value !== '') {
+            const statEl = document.createElement('div');
+            statEl.className = 'stat-card';
+            
+            let valueClass = '';
+            const numValue = parseFloat(stat.value);
+            if (stat.highlight === 'trend') {
+                valueClass = getTrendClass(numValue);
+            } else if (stat.highlight === 'volatility') {
+                valueClass = getVolatilityClass(numValue);
+            } else if (stat.highlight === 'upsetwins') {
+                valueClass = getUpsetWinsClass(numValue);
+            } else if (stat.highlight === 'upsetlosses') {
+                valueClass = getUpsetLossesClass(numValue);
+            } else if (stat.highlight === 'positive' && numValue > 0) {
+                valueClass = 'trend-very-positive';
+            } else if (stat.highlight === 'negative' && numValue < 0) {
+                valueClass = 'trend-very-negative';
+            }
+            
+            statEl.innerHTML = `
+                <div class="stat-icon">${stat.icon}</div>
+                <div class="stat-value ${valueClass}">${stat.value}</div>
+                <div class="stat-label">${stat.label}</div>
+            `;
+            advancedStatsGrid.appendChild(statEl);
+        }
+    });
+}
+
+// Helper function to get the display blade name
+function getBladeName() {
+    return beyData ? beyData.blade : (leaderboardData ? (leaderboardData.Name || leaderboardData.Bey) : beyName);
+}
+
+// Detect if user is on mobile device
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+        || window.innerWidth < 768;
+}
+
+// Try to load ELO plot (interactive first, fallback to static)
+function loadEloPlot() {
+    const plotSection = document.getElementById('plotSection');
+    const plotFrame = document.getElementById('eloPlotFrame');
+    const plotImg = document.getElementById('eloPlot');
+    
+    // Check if bey has any matches in current arena
+    const matches = leaderboardData ? (leaderboardData.Matches || leaderboardData.Spiele || 0) : 0;
+    if (matches === 0) {
+        plotSection.style.display = 'none';
+        return;
+    }
+    
+    const bladeName = getBladeName();
+    const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
+    
+    // Check for dark mode
+    const isDark = document.body.classList.contains('dark');
+    
+    // On mobile devices, use static PNG for better performance and experience
+    if (isMobileDevice()) {
+        loadStaticEloPlot(bladeName, isDark);
+        return;
+    }
+    
+    // Try interactive plot first on desktop
+    // Add timestamp-based cache-busting to ensure latest version is always loaded
+    const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
+    const interactivePath = DATA_PATHS.eloInteractivePlot(safeName, isDark) + cacheBuster;
+    
+    // Check if interactive plot exists
+    fetch(interactivePath, { method: 'HEAD' })
+        .then(response => {
+            if (response.ok) {
+                // Interactive plot exists, use it
+                plotFrame.src = interactivePath;
+                plotFrame.style.display = 'block';
+                plotImg.style.display = 'none';
+                plotSection.style.display = 'block';
+                
+                // Force Plotly to resize/reload on initial load - only once
+                // This ensures proper rendering similar to when dark mode toggles
+                let hasReloaded = false;
+                plotFrame.onload = function() {
+                    if (!hasReloaded) {
+                        hasReloaded = true;
+                        setTimeout(function() {
+                            const currentSrc = plotFrame.src;
+                            plotFrame.src = '';
+                            plotFrame.src = currentSrc;
+                        }, 100);
+                    }
+                };
+            } else {
+                // Fallback to static PNG
+                loadStaticEloPlot(bladeName, isDark);
+            }
+        })
+        .catch(() => {
+            // Fallback to static PNG on error
+            loadStaticEloPlot(bladeName, isDark);
+        });
+}
+
+// Load static ELO plot
+function loadStaticEloPlot(bladeName, isDark) {
+    const plotSection = document.getElementById('plotSection');
+    const plotFrame = document.getElementById('eloPlotFrame');
+    const plotImg = document.getElementById('eloPlot');
+    
+    const basePath = isDark ? DATA_PATHS.PLOTS_ELO_DARK_DIR : DATA_PATHS.PLOTS_ELO_DIR;
+    const filename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
+    
+    plotImg.src = basePath + filename;
+    plotImg.alt = `${bladeName} ELO History`;
+    
+    // Hide section if image fails to load
+    plotImg.onerror = () => {
+        plotSection.style.display = 'none';
+    };
+    
+    plotImg.onload = () => {
+        plotFrame.style.display = 'none';
+        plotImg.style.display = 'block';
+        plotSection.style.display = 'block';
+    };
+}
+
+// Try to load Position plot
+function loadPositionPlot() {
+    const plotSection = document.getElementById('positionPlotSection');
+    const plotFrame = document.getElementById('positionPlotFrame');
+    const plotImg = document.getElementById('positionPlot');
+    
+    // Check if bey has any matches in current arena
+    const matches = leaderboardData ? (leaderboardData.Matches || leaderboardData.Spiele || 0) : 0;
+    if (matches === 0) {
+        plotSection.style.display = 'none';
+        return;
+    }
+    
+    const bladeName = getBladeName();
+    const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
+    
+    // Check for dark mode
+    const isDark = document.body.classList.contains('dark');
+    
+    // Detect mobile devices
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+    
+    // Use static PNG for mobile devices
+    if (isMobile) {
+        loadStaticPositionPlot(bladeName, isDark);
+        return;
+    }
+    
+    // Try interactive plot first on desktop
+    // Add timestamp-based cache-busting to ensure latest version is always loaded
+    const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
+    const interactivePath = DATA_PATHS.positionsInteractivePlot(safeName, isDark) + cacheBuster;
+    
+    // Check if interactive plot exists
+    fetch(interactivePath, { method: 'HEAD' })
+        .then(response => {
+            if (response.ok) {
+                // Interactive plot exists, use it
+                plotFrame.src = interactivePath;
+                plotFrame.style.display = 'block';
+                plotImg.style.display = 'none';
+                plotSection.style.display = 'block';
+                
+                // Force Plotly to resize/reload on initial load - only once
+                // This ensures proper rendering similar to when dark mode toggles
+                let hasReloaded = false;
+                plotFrame.onload = function() {
+                    if (!hasReloaded) {
+                        hasReloaded = true;
+                        setTimeout(function() {
+                            const currentSrc = plotFrame.src;
+                            plotFrame.src = '';
+                            plotFrame.src = currentSrc;
+                        }, 100);
+                    }
+                };
+            } else {
+                // Fallback to static PNG
+                loadStaticPositionPlot(bladeName, isDark);
+            }
+        })
+        .catch(() => {
+            // Fallback to static PNG on error
+            loadStaticPositionPlot(bladeName, isDark);
+        });
+}
+
+// Load static Position plot
+function loadStaticPositionPlot(bladeName, isDark) {
+    const plotSection = document.getElementById('positionPlotSection');
+    const plotFrame = document.getElementById('positionPlotFrame');
+    const plotImg = document.getElementById('positionPlot');
+    
+    const basePath = isDark ? DATA_PATHS.PLOTS_POSITIONS_DARK_DIR : DATA_PATHS.PLOTS_POSITIONS_DIR;
+    const filename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
+    
+    plotImg.src = basePath + filename;
+    plotImg.alt = `${bladeName} Position History`;
+    
+    // Hide section if image fails to load
+    plotImg.onerror = () => {
+        plotSection.style.display = 'none';
+    };
+    
+    plotImg.onload = () => {
+        plotFrame.style.display = 'none';
+        plotImg.style.display = 'block';
+        plotSection.style.display = 'block';
+    };
+}
+
+// Load K-Factor / Form-EMA plot
+function loadKfactorPlot() {
+    const plotSection = document.getElementById('kfactorPlotSection');
+    const plotImg = document.getElementById('kfactorPlot');
+    const bladeName = getBladeName();
+    const isDark = document.body.classList.contains('dark');
+
+    const basePath = isDark ? DATA_PATHS.PLOTS_KFACTOR_DARK_DIR : DATA_PATHS.PLOTS_KFACTOR_DIR;
+    const filename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
+
+    plotImg.src = basePath + filename;
+    plotImg.alt = `${bladeName} K-Factor / Form-EMA`;
+
+    plotImg.onerror = () => {
+        plotSection.style.display = 'none';
+    };
+
+    plotImg.onload = () => {
+        plotImg.style.display = 'block';
+        plotSection.style.display = 'block';
+    };
+}
+
+// Render per-bey score distribution chart and table
+let beyScoreDistChart = null;
+
+function renderScoreDistribution() {
+    const section = document.getElementById('scoreDistSection');
+    const tableContainer = document.getElementById('beyScoreDistTable');
+    const ctx = document.getElementById('beyScoreDistChart');
+    if (!section || !tableContainer || !ctx) return;
+
+    // Filter matches by current arena
+    const arenaLabel = currentArena === 'xtreme' ? 'Xtreme' :
+                       currentArena === 'drop_attack' ? 'Drop Attack' :
+                       currentArena === 'double_xtreme' ? 'Double Xtreme' :
+                       currentArena === 'combined' ? null : currentArena;
+
+    const filteredMatches = arenaLabel
+        ? matchesData.filter(m => m.arena === arenaLabel)
+        : matchesData;
+
+    if (!filteredMatches || filteredMatches.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    // Compute score distribution from bey perspective
+    const normalizedBeyName = normalizeBeyName(beyName);
+    const scoreCounts = {};
+
+    for (const m of filteredMatches) {
+        const isA = normalizeBeyName(m.beyA) === normalizedBeyName;
+        const myScore = isA ? m.scoreA : m.scoreB;
+        const oppScore = isA ? m.scoreB : m.scoreA;
+        const key = `${myScore}-${oppScore}`;
+        scoreCounts[key] = (scoreCounts[key] || 0) + 1;
+    }
+
+    const total = filteredMatches.length;
+
+    // Sort: wins (myScore > oppScore) descending by score, then losses ascending
+    const entries = Object.entries(scoreCounts).map(([score, count]) => {
+        const [myScore, oppScore] = score.split('-').map(Number);
+        return { score, myScore, oppScore, count, percentage: Math.round(count / total * 1000) / 10 }; // *1000/10 = 1 decimal place
+    });
+    entries.sort((a, b) => {
+        const aWin = a.myScore > a.oppScore ? 1 : 0;
+        const bWin = b.myScore > b.oppScore ? 1 : 0;
+        if (aWin !== bWin) return bWin - aWin; // wins first
+        if (aWin) return b.myScore - a.myScore || a.oppScore - b.oppScore; // bigger wins first
+        return a.oppScore - b.oppScore || b.myScore - a.myScore; // closer losses first
+    });
+
+    const labels = entries.map(e => e.score);
+    const counts = entries.map(e => e.count);
+    const percentages = entries.map(e => e.percentage);
+
+    if (beyScoreDistChart) {
+        beyScoreDistChart.destroy();
+        beyScoreDistChart = null;
+    }
+
+    const isDark = document.body.classList.contains('dark');
+    const textColor = isDark ? '#e0e0e0' : '#333';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+    beyScoreDistChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Matches',
+                data: counts,
+                backgroundColor: entries.map(e => {
+                    if (e.myScore > e.oppScore) {
+                        if (e.oppScore === 0) return 'rgba(34,197,94,0.85)';
+                        if (e.myScore - e.oppScore === 1) return 'rgba(132,204,22,0.75)';
+                        return 'rgba(59,130,246,0.75)';
+                    } else {
+                        if (e.myScore - e.oppScore === -1) return 'rgba(249,115,22,0.75)';
+                        return 'rgba(239,68,68,0.8)';
+                    }
+                }),
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipCtx) {
+                            const pct = percentages[tooltipCtx.dataIndex];
+                            return `${tooltipCtx.parsed.x} matches (${pct}%)`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor },
+                    title: { display: true, text: 'Number of matches', color: textColor }
+                },
+                y: {
+                    ticks: { color: textColor, font: { family: 'monospace', size: 12 } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    const arenaDisplay = arenaLabel || 'All arenas';
+    const safeArenaDisplay = escapeHtml(arenaDisplay);
+    tableContainer.innerHTML = `
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:8px;">
+            Score shown as <strong>your score – opponent score</strong> (${safeArenaDisplay}, ${total} match${total !== 1 ? 'es' : ''})
+        </p>
+        <table class="data-table score-dist-table">
+            <thead>
+                <tr><th>Score</th><th>W/L</th><th>Count</th><th>%</th><th>Distribution</th></tr>
+            </thead>
+            <tbody>
+                ${entries.map(e => {
+                    const isWin = e.myScore > e.oppScore;
+                    const badge = isWin
+                        ? '<span style="color:#16a34a;font-weight:bold;">W</span>'
+                        : '<span style="color:#dc2626;font-weight:bold;">L</span>';
+                    return `<tr>
+                        <td><strong>${e.score}</strong></td>
+                        <td>${badge}</td>
+                        <td>${e.count}</td>
+                        <td>${e.percentage}%</td>
+                        <td><div class="inline-bar-outer"><div class="inline-bar-inner" style="width:${e.percentage}%"></div></div></td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+            <tfoot>
+                <tr><td><strong>Total</strong></td><td></td><td><strong>${total}</strong></td><td><strong>100%</strong></td><td></td></tr>
+            </tfoot>
+        </table>
+    `;
+}
+
+// Render per-bey finish type distribution chart and table
+let beyFinishTypeChart = null;
+
+function renderFinishTypeDistribution() {
+    const section = document.getElementById('finishTypeDistSection');
+    const tableContainer = document.getElementById('beyFinishTypeTable');
+    const ctx = document.getElementById('beyFinishTypeChart');
+    if (!section || !tableContainer || !ctx) return;
+
+    if (!matchesWithRoundsData || matchesWithRoundsData.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    const normalizedBeyName = normalizeBeyName(beyName);
+
+    // Arena filter label
+    const arenaLabel = currentArena === 'xtreme' ? 'Xtreme' :
+                       currentArena === 'drop_attack' ? 'Drop Attack' :
+                       currentArena === 'double_xtreme' ? 'Double Xtreme' :
+                       currentArena === 'combined' ? null : currentArena;
+
+    // Filter rounds data to matches involving this bey, then by arena
+    const beyMatches = matchesWithRoundsData.filter(m =>
+        normalizeBeyName(m.bey_a) === normalizedBeyName ||
+        normalizeBeyName(m.bey_b) === normalizedBeyName
+    );
+
+    const filteredMatches = arenaLabel
+        ? beyMatches.filter(m => (matchArenaMap[m.match_id] || 'Xtreme') === arenaLabel)
+        : beyMatches;
+
+    if (filteredMatches.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    // Count finish types for wins and losses
+    const FINISH_TYPES = ['spin', 'burst', 'extreme', 'pocket', 'stadium_exit'];
+    const winsByType = {};
+    const lossesByType = {};
+    FINISH_TYPES.forEach(t => { winsByType[t] = 0; lossesByType[t] = 0; });
+    let totalWinRounds = 0;
+    let totalLossRounds = 0;
+
+    filteredMatches.forEach(match => {
+        (match.rounds || []).forEach(round => {
+            const ft = round.finish_type;
+            if (!ft || !FINISH_TYPES.includes(ft)) return;
+            if (normalizeBeyName(round.winner) === normalizedBeyName) {
+                winsByType[ft]++;
+                totalWinRounds++;
+            } else {
+                lossesByType[ft]++;
+                totalLossRounds++;
+            }
+        });
+    });
+
+    // Only include types that have at least one round
+    const activeTypes = FINISH_TYPES.filter(t => winsByType[t] > 0 || lossesByType[t] > 0);
+
+    if (activeTypes.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    const typeLabels = {
+        spin: '💨 Spin',
+        burst: '💥 Burst',
+        extreme: '⚡ Xtreme',
+        pocket: '🕳️ Pocket',
+        stadium_exit: '🚪 Stadium Exit'
+    };
+
+    const labels = activeTypes.map(t => typeLabels[t] || t);
+    const winsData = activeTypes.map(t => winsByType[t]);
+    const lossesData = activeTypes.map(t => lossesByType[t]);
+
+    if (beyFinishTypeChart) {
+        beyFinishTypeChart.destroy();
+        beyFinishTypeChart = null;
+    }
+
+    const isDark = document.body.classList.contains('dark');
+    const textColor = isDark ? '#e0e0e0' : '#333';
+    const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+
+    beyFinishTypeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Wins',
+                    data: winsData,
+                    backgroundColor: 'rgba(34,197,94,0.8)',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Losses',
+                    data: lossesData,
+                    backgroundColor: 'rgba(239,68,68,0.8)',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, labels: { color: textColor } },
+                tooltip: {
+                    callbacks: {
+                        label: function(tooltipCtx) {
+                            const isWin = tooltipCtx.datasetIndex === 0;
+                            const total = isWin ? totalWinRounds : totalLossRounds;
+                            const count = tooltipCtx.parsed.y;
+                            const pct = total > 0 ? Math.round(count / total * 1000) / 10 : 0;
+                            return `${count} round${count !== 1 ? 's' : ''} (${pct}% of ${isWin ? 'wins' : 'losses'})`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor }
+                },
+                y: {
+                    ticks: { color: textColor },
+                    grid: { color: gridColor },
+                    title: { display: true, text: 'Rounds', color: textColor },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const totalRounds = totalWinRounds + totalLossRounds;
+    const arenaDisplay = arenaLabel || 'All arenas';
+    const safeArenaDisplay = escapeHtml(arenaDisplay);
+    tableContainer.innerHTML = `
+        <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:8px;">
+            Rounds by finish type — <strong>wins</strong> = rounds won using that finish; <strong>losses</strong> = rounds lost to that finish (${safeArenaDisplay}, ${totalRounds} round${totalRounds !== 1 ? 's' : ''})
+        </p>
+        <table class="data-table score-dist-table">
+            <thead>
+                <tr><th>Finish Type</th><th>Wins</th><th>Win %</th><th>Losses</th><th>Loss %</th></tr>
+            </thead>
+            <tbody>
+                ${activeTypes.map(t => {
+                    const wins = winsByType[t];
+                    const losses = lossesByType[t];
+                    const winPct = totalWinRounds > 0 ? Math.round(wins / totalWinRounds * 1000) / 10 : 0;
+                    const lossPct = totalLossRounds > 0 ? Math.round(losses / totalLossRounds * 1000) / 10 : 0;
+                    return `<tr>
+                        <td><strong>${typeLabels[t] || t}</strong></td>
+                        <td><span style="color:#16a34a;font-weight:bold;">${wins}</span></td>
+                        <td>${winPct}%</td>
+                        <td><span style="color:#dc2626;font-weight:bold;">${losses}</span></td>
+                        <td>${lossPct}%</td>
+                    </tr>`;
+                }).join('')}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong style="color:#16a34a;">${totalWinRounds}</strong></td>
+                    <td><strong>${totalWinRounds > 0 ? '100%' : '0%'}</strong></td>
+                    <td><strong style="color:#dc2626;">${totalLossRounds}</strong></td>
+                    <td><strong>${totalLossRounds > 0 ? '100%' : '0%'}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    `;
+}
+function setupPlotDarkModeObserver() {
+    const eloPlotFrame = document.getElementById('eloPlotFrame');
+    const eloPlot = document.getElementById('eloPlot');
+    const positionPlotFrame = document.getElementById('positionPlotFrame');
+    const positionPlot = document.getElementById('positionPlot');
+    const kfactorPlot = document.getElementById('kfactorPlot');
+    const bladeName = getBladeName();
+    
+    const observer = new MutationObserver(() => {
+        const isDark = document.body.classList.contains('dark');
+        
+        // Update ELO plot (check if using interactive or static)
+        if (eloPlotFrame && eloPlotFrame.style.display !== 'none' && eloPlotFrame.src) {
+            // Interactive plot is displayed, reload with correct theme
+            const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
+            const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
+            const interactivePath = DATA_PATHS.eloInteractivePlot(safeName, isDark) + cacheBuster;
+            eloPlotFrame.src = interactivePath;
+        } else if (eloPlot && eloPlot.style.display !== 'none' && eloPlot.src) {
+            // Static plot is displayed
+            const eloBasePath = isDark ? DATA_PATHS.PLOTS_ELO_DARK_DIR : DATA_PATHS.PLOTS_ELO_DIR;
+            const eloFilename = isDark ? `${bladeName}_dark.png` : `${bladeName}.png`;
+            eloPlot.src = eloBasePath + eloFilename;
+        }
+        
+        // Update Position plot (check if using interactive or static)
+        if (positionPlotFrame && positionPlotFrame.style.display !== 'none' && positionPlotFrame.src) {
+            // Interactive plot is displayed, reload with correct theme
+            const safeName = bladeName.replace(/[^a-zA-Z0-9 \-_]/g, '_');
+            const cacheBuster = `?v=${Date.now()}`; // Unique timestamp prevents all caching
+            const interactivePath = DATA_PATHS.positionsInteractivePlot(safeName, isDark) + cacheBuster;
+            positionPlotFrame.src = interactivePath;
+        } else if (positionPlot && positionPlot.style.display !== 'none' && positionPlot.src) {
+            // Static plot is displayed
+            const posBasePath = isDark ? DATA_PATHS.PLOTS_POSITIONS_DARK_DIR : DATA_PATHS.PLOTS_POSITIONS_DIR;
+            const posFilename = isDark ? `${bladeName}_position_dark.png` : `${bladeName}_position.png`;
+            positionPlot.src = posBasePath + posFilename;
+        }
+
+        // Update K-Factor / Form-EMA plot
+        if (kfactorPlot && kfactorPlot.style.display !== 'none' && kfactorPlot.src) {
+            const kfBasePath = isDark ? DATA_PATHS.PLOTS_KFACTOR_DARK_DIR : DATA_PATHS.PLOTS_KFACTOR_DIR;
+            const kfFilename = isDark ? `${bladeName}_kfactor_dark.png` : `${bladeName}_kfactor.png`;
+            kfactorPlot.src = kfBasePath + kfFilename;
+        }
+
+        // Re-render Chart.js charts so axis/legend colors update with theme
+        renderScoreDistribution();
+        renderFinishTypeDistribution();
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+}
+
+// Get ELO timeseries data for this bey
+function getBeyEloTimeseries() {
+    if (!eloTimeseriesData || eloTimeseriesData.length === 0) return [];
+    const normalizedName = normalizeBeyName(beyName);
+    return eloTimeseriesData
+        .filter(entry => normalizeBeyName(entry.Bey) === normalizedName)
+        .sort((a, b) => parseInt(a.MatchIndex) - parseInt(b.MatchIndex));
+}
+
+// Get position timeseries data for this bey
+function getBeyPositionTimeseries() {
+    if (!positionTimeseriesData || positionTimeseriesData.length === 0) return [];
+    const normalizedName = normalizeBeyName(beyName);
+    return positionTimeseriesData
+        .filter(entry => normalizeBeyName(entry.Bey) === normalizedName)
+        .sort((a, b) => parseInt(a.MatchIndex) - parseInt(b.MatchIndex));
+}
+
+// Get ELO history for this bey
+function getBeyEloHistory() {
+    if (!allEloHistoryData || allEloHistoryData.length === 0) return [];
+    const normalizedName = normalizeBeyName(beyName);
+    return allEloHistoryData.filter(entry => 
+        normalizeBeyName(entry.BeyA) === normalizedName || 
+        normalizeBeyName(entry.BeyB) === normalizedName
+    );
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    const str = String(text);
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Create SVG sparkline
+function createSparkline(container, data, options = {}) {
+    if (!data || data.length === 0) {
+        container.innerHTML = '<span class="no-data-small">No data</span>';
+        return;
+    }
+    
+    const width = options.width || 200;
+    const height = options.height || 40;
+    const padding = options.padding || 4;
+    const strokeColor = options.strokeColor || 'var(--accent)';
+    const fillColor = options.fillColor || 'rgba(99, 102, 241, 0.1)';
+    const invertY = options.invertY || false;
+    
+    // Filter out invalid values and convert to numbers
+    const values = data.map(d => parseFloat(d)).filter(v => !isNaN(v) && isFinite(v));
+    
+    if (values.length === 0) {
+        container.innerHTML = '<span class="no-data-small">No valid data</span>';
+        return;
+    }
+    
+    if (values.length === 1) {
+        // Single data point - just show a dot
+        container.innerHTML = `
+            <svg viewBox="0 0 ${width} ${height}" class="sparkline-svg">
+                <circle cx="${width / 2}" cy="${height / 2}" r="4" fill="${strokeColor}"/>
+            </svg>
+        `;
+        return;
+    }
+    
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+    
+    // Scale values to SVG coordinates
+    const points = values.map((v, i) => {
+        const x = padding + (i / (values.length - 1)) * (width - 2 * padding);
+        let y;
+        if (invertY) {
+            // For position (rank), lower is better, so invert
+            y = padding + ((v - min) / range) * (height - 2 * padding);
+        } else {
+            y = height - padding - ((v - min) / range) * (height - 2 * padding);
+        }
+        return `${x},${y}`;
+    });
+    
+    const linePoints = points.join(' ');
+    
+    // Create area fill path
+    const firstPoint = points[0].split(',');
+    const lastPoint = points[points.length - 1].split(',');
+    const areaPath = `M ${firstPoint[0]},${height - padding} L ${linePoints} L ${lastPoint[0]},${height - padding} Z`;
+    
+    const svg = `
+        <svg viewBox="0 0 ${width} ${height}" class="sparkline-svg">
+            <path d="${areaPath}" fill="${fillColor}" />
+            <polyline points="${linePoints}" fill="none" stroke="${strokeColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="${lastPoint[0]}" cy="${lastPoint[1]}" r="3" fill="${strokeColor}"/>
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// Calculate milestones for this bey
+function calculateMilestones() {
+    const milestones = [];
+    const normalizedName = normalizeBeyName(beyName);
+    const eloHistory = getBeyEloHistory();
+    const positionTimeseries = getBeyPositionTimeseries();
+    
+    // First appearance date
+    if (matchesData.length > 0) {
+        const firstMatch = matchesData[0];
+        milestones.push({
+            icon: '🎬',
+            title: 'First Appearance',
+            value: formatDate(firstMatch.date),
+            description: `vs ${normalizeBeyName(firstMatch.beyA) === normalizedName ? firstMatch.beyB : firstMatch.beyA}`
+        });
+    }
+    
+    // Peak ELO and Low ELO
+    if (eloHistory.length > 0) {
+        let peakElo = 1000;
+        let peakDate = eloHistory[0].Date;
+        let lowElo = 1000;
+        let lowDate = eloHistory[0].Date;
+        
+        eloHistory.forEach(match => {
+            const isA = normalizeBeyName(match.BeyA) === normalizedName;
+            const postElo = parseFloat(isA ? match.PostA : match.PostB);
+            
+            // Skip invalid ELO values
+            if (isNaN(postElo)) return;
+            
+            if (postElo > peakElo) {
+                peakElo = postElo;
+                peakDate = match.Date;
+            }
+            if (postElo < lowElo) {
+                lowElo = postElo;
+                lowDate = match.Date;
+            }
+        });
+        
+        // Only show milestones if valid values were found
+        if (peakDate && isFinite(peakElo)) {
+            milestones.push({
+                icon: '⭐',
+                title: 'Peak ELO',
+                value: Math.round(peakElo),
+                description: formatDate(peakDate)
+            });
+        }
+        
+        // Only show low ELO if it's different from peak and is valid
+        if (lowDate && isFinite(lowElo) && lowElo !== peakElo) {
+            milestones.push({
+                icon: '📉',
+                title: 'Low ELO',
+                value: Math.round(lowElo),
+                description: formatDate(lowDate)
+            });
+        }
+    }
+    
+    // Best rank position and worst rank position
+    if (positionTimeseries.length > 0) {
+        const positions = positionTimeseries.map(p => parseInt(p.Position));
+        const bestPosition = Math.min(...positions);
+        const worstPosition = Math.max(...positions);
+        const bestEntry = positionTimeseries.find(p => parseInt(p.Position) === bestPosition);
+        const worstEntry = positionTimeseries.find(p => parseInt(p.Position) === worstPosition);
+        
+        milestones.push({
+            icon: '🏅',
+            title: 'Best Rank',
+            value: `#${bestPosition}`,
+            description: bestEntry ? formatDate(bestEntry.Date) : ''
+        });
+        
+        // Only show worst rank if it's different from best (not a flat curve)
+        if (worstPosition !== bestPosition) {
+            milestones.push({
+                icon: '⚠️',
+                title: 'Worst Rank',
+                value: `#${worstPosition}`,
+                description: worstEntry ? formatDate(worstEntry.Date) : ''
+            });
+        }
+    }
+    
+    // Match count milestones
+    const matchCount = matchesData.length;
+    if (matchCount >= 10) {
+        milestones.push({
+            icon: '🎮',
+            title: 'Total Matches',
+            value: matchCount,
+            description: matchCount >= 50 ? 'Veteran' : matchCount >= 25 ? 'Experienced' : 'Active'
+        });
+    }
+    
+    // Win streak
+    let currentStreak = 0;
+    let maxStreak = 0;
+    
+    matchesData.forEach(match => {
+        const isWinner = normalizeBeyName(match.winner) === normalizedName;
+        if (isWinner) {
+            currentStreak++;
+            maxStreak = Math.max(maxStreak, currentStreak);
+        } else {
+            currentStreak = 0;
+        }
+    });
+    
+    if (maxStreak >= 3) {
+        milestones.push({
+            icon: '🔥',
+            title: 'Best Win Streak',
+            value: `${maxStreak} wins`,
+            description: maxStreak >= 5 ? 'Dominant' : 'Impressive'
+        });
+    }
+    
+    // Tournament wins
+    if (tournamentsData.length > 0) {
+        milestones.push({
+            icon: '🏆',
+            title: 'Tournament Wins',
+            value: tournamentsData.length,
+            description: tournamentsData.map(t => t.name).join(', ')
+        });
+    }
+    
+    return milestones;
+}
+
+// Calculate winrate trend over time
+function calculateWinrateTrend() {
+    if (matchesData.length < 3) return [];
+    
+    const normalizedName = normalizeBeyName(beyName);
+    const windowSize = Math.min(5, matchesData.length);
+    const winrateTrend = [];
+    
+    for (let i = windowSize - 1; i < matchesData.length; i++) {
+        const windowMatches = matchesData.slice(i - windowSize + 1, i + 1);
+        const wins = windowMatches.filter(m => normalizeBeyName(m.winner) === normalizedName).length;
+        const winrate = (wins / windowSize) * 100;
+        winrateTrend.push(winrate);
+    }
+    
+    return winrateTrend;
+}
+
+// Render history section
+function renderHistorySection() {
+    const historySection = document.getElementById('historySection');
+    const eloTimeseries = getBeyEloTimeseries();
+    const positionTimeseries = getBeyPositionTimeseries();
+    const winrateTrend = calculateWinrateTrend();
+    const milestones = calculateMilestones();
+    
+    // Check if we have any history data
+    if (eloTimeseries.length === 0 && positionTimeseries.length === 0 && milestones.length === 0) {
+        historySection.style.display = 'none';
+        return;
+    }
+    
+    historySection.style.display = 'block';
+    
+    // Render ELO sparkline
+    if (eloTimeseries.length > 1) {
+        const eloValues = eloTimeseries.map(e => e.ELO);
+        createSparkline(
+            document.getElementById('eloSparkline'),
+            eloValues,
+            { strokeColor: '#6366f1', fillColor: 'rgba(99, 102, 241, 0.1)' }
+        );
+        
+        const minElo = Math.min(...eloValues.map(v => parseFloat(v)));
+        const maxElo = Math.max(...eloValues.map(v => parseFloat(v)));
+        const eloChange = parseFloat(eloValues[eloValues.length - 1]) - parseFloat(eloValues[0]);
+        
+        document.getElementById('eloMin').textContent = `Low: ${Math.round(minElo)}`;
+        document.getElementById('eloMax').textContent = `High: ${Math.round(maxElo)}`;
+        
+        const changeEl = document.getElementById('eloTrendChange');
+        changeEl.textContent = eloChange >= 0 ? `+${Math.round(eloChange)}` : Math.round(eloChange);
+        changeEl.className = `trend-change ${eloChange >= 0 ? 'positive' : 'negative'}`;
+    } else {
+        document.getElementById('eloTrendCard').style.display = 'none';
+    }
+    
+    // Render position sparkline
+    if (positionTimeseries.length > 1) {
+        const positionValues = positionTimeseries.map(p => p.Position);
+        createSparkline(
+            document.getElementById('positionSparkline'),
+            positionValues,
+            { strokeColor: '#10b981', fillColor: 'rgba(16, 185, 129, 0.1)', invertY: true }
+        );
+        
+        const bestPos = Math.min(...positionValues.map(v => parseInt(v)));
+        const worstPos = Math.max(...positionValues.map(v => parseInt(v)));
+        const posChange = parseInt(positionValues[0]) - parseInt(positionValues[positionValues.length - 1]);
+        
+        document.getElementById('positionBest').textContent = `Best: #${bestPos}`;
+        document.getElementById('positionWorst').textContent = `Worst: #${worstPos}`;
+        
+        const changeEl = document.getElementById('positionTrendChange');
+        changeEl.textContent = posChange >= 0 ? `↑${posChange}` : `↓${Math.abs(posChange)}`;
+        changeEl.className = `trend-change ${posChange >= 0 ? 'positive' : 'negative'}`;
+    } else {
+        document.getElementById('positionTrendCard').style.display = 'none';
+    }
+    
+    // Render winrate sparkline
+    if (winrateTrend.length > 1) {
+        createSparkline(
+            document.getElementById('winrateSparkline'),
+            winrateTrend,
+            { strokeColor: '#f59e0b', fillColor: 'rgba(245, 158, 11, 0.1)' }
+        );
+        
+        const minWr = Math.min(...winrateTrend);
+        const maxWr = Math.max(...winrateTrend);
+        const wrChange = winrateTrend[winrateTrend.length - 1] - winrateTrend[0];
+        
+        document.getElementById('winrateMin').textContent = `Low: ${Math.round(minWr)}%`;
+        document.getElementById('winrateMax').textContent = `High: ${Math.round(maxWr)}%`;
+        
+        const changeEl = document.getElementById('winrateTrendChange');
+        changeEl.textContent = wrChange >= 0 ? `+${Math.round(wrChange)}%` : `${Math.round(wrChange)}%`;
+        changeEl.className = `trend-change ${wrChange >= 0 ? 'positive' : 'negative'}`;
+    } else {
+        document.getElementById('winrateTrendCard').style.display = 'none';
+    }
+    
+    // Render milestones
+    const milestonesContainer = document.getElementById('milestonesContainer');
+    if (milestones.length > 0) {
+        milestonesContainer.innerHTML = milestones.map(m => `
+            <div class="milestone-card">
+                <div class="milestone-icon">${escapeHtml(m.icon)}</div>
+                <div class="milestone-content">
+                    <div class="milestone-title">${escapeHtml(m.title)}</div>
+                    <div class="milestone-value">${escapeHtml(m.value)}</div>
+                    ${m.description ? `<div class="milestone-desc">${escapeHtml(m.description)}</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+    } else {
+        document.querySelector('.milestones-section').style.display = 'none';
+    }
+    
+    // Render timeline
+    renderTimeline();
+}
+
+// Copy match ID to clipboard
+function copyMatchId(matchId) {
+    const showCopiedFeedback = () => {
+        const elements = document.querySelectorAll(`.match-id`);
+        elements.forEach(el => {
+            if (el.textContent === matchId) {
+                el.classList.add('copied');
+                setTimeout(() => el.classList.remove('copied'), 1000);
+            }
+        });
+    };
+
+    // Use modern clipboard API if available, fallback to legacy method
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(matchId).then(showCopiedFeedback).catch(err => {
+            console.error('Failed to copy match ID:', err);
+        });
+    } else {
+        // Fallback for older browsers or non-HTTPS contexts
+        const textArea = document.createElement('textarea');
+        textArea.value = matchId;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            showCopiedFeedback();
+        } catch (err) {
+            console.error('Failed to copy match ID:', err);
+        }
+        document.body.removeChild(textArea);
+    }
+}
+
+// Render match timeline
+function renderTimeline() {
+    const timelineContainer = document.getElementById('timelineContainer');
+    const normalizedName = normalizeBeyName(beyName);
+    
+    if (matchesData.length === 0) {
+        document.querySelector('.timeline-details').style.display = 'none';
+        return;
+    }
+    
+    // Group matches by date
+    const matchesByDate = {};
+    matchesData.forEach(match => {
+        if (!matchesByDate[match.date]) {
+            matchesByDate[match.date] = [];
+        }
+        matchesByDate[match.date].push(match);
+    });
+    
+    // Create timeline entries
+    const timelineHtml = Object.entries(matchesByDate)
+        .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+        .map(([date, matches]) => {
+            const matchItems = matches.map(match => {
+                const isWinner = normalizeBeyName(match.winner) === normalizedName;
+                const isBeyA = normalizeBeyName(match.beyA) === normalizedName;
+                const opponent = isBeyA ? match.beyB : match.beyA;
+                const myScore = isBeyA ? match.scoreA : match.scoreB;
+                const oppScore = isBeyA ? match.scoreB : match.scoreA;
+                const matchId = match.matchId || '';
+                
+                return `
+                    <div class="timeline-match ${isWinner ? 'win' : 'loss'}">
+                        ${matchId ? `<span class="match-id timeline-match-id" onclick="copyMatchId('${matchId}')" title="Click to copy">${matchId}</span>` : ''}
+                        <span class="timeline-result">${isWinner ? 'W' : 'L'}</span>
+                        <span class="timeline-opponent">vs <a href="bey.html?name=${encodeURIComponent(opponent)}" class="opponent-link">${escapeHtml(opponent)}</a></span>
+                        <span class="timeline-score">${escapeHtml(myScore)}-${escapeHtml(oppScore)}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            return `
+                <div class="timeline-day">
+                    <div class="timeline-date">${escapeHtml(formatDate(date))}</div>
+                    <div class="timeline-matches">${matchItems}</div>
+                </div>
+            `;
+        }).join('');
+    
+    timelineContainer.innerHTML = timelineHtml;
+}
+
+// Render counters and matchups section
+function renderCountersSection() {
+    const countersSection = document.getElementById('countersSection');
+    const normalizedName = normalizeBeyName(beyName);
+    
+    if (!countersData || countersData.length === 0) {
+        countersSection.style.display = 'none';
+        return;
+    }
+    
+    let hasCountersContent = false;
+    
+    // Find best counter for this bey (who beats this bey)
+    const beyCounterEntry = countersData.find(entry => 
+        normalizeBeyName(entry.Bey) === normalizedName
+    );
+    
+    // Find easiest matchups (beys that this bey counters)
+    const easiestMatchups = countersData.filter(entry => 
+        normalizeBeyName(entry.Top_Counter) === normalizedName
+    );
+    
+    // Render best counter (hardest matchup for this bey)
+    const bestCounterCard = document.getElementById('bestCounterCard');
+    const bestCounterSection = document.getElementById('bestCounterSection');
+    
+    if (beyCounterEntry) {
+        const counterName = beyCounterEntry.Top_Counter;
+        const gamesVs = parseInt(beyCounterEntry.Games_vs_Counter);
+        const winsVs = parseInt(beyCounterEntry.Wins_vs_Counter);
+        const lossesVs = parseInt(beyCounterEntry.Losses_vs_Counter);
+        const scoreFor = parseInt(beyCounterEntry.Score_for_vs_Counter);
+        const scoreAgainst = parseInt(beyCounterEntry.Score_against_vs_Counter);
+        const winrateVs = parseFloat(beyCounterEntry.Winrate_vs_Counter);
+        
+        bestCounterCard.innerHTML = `
+            <a href="bey.html?name=${encodeURIComponent(counterName)}" class="matchup-card matchup-hard">
+                <div class="matchup-card-header">
+                    <span class="matchup-bey-name">🎯 ${escapeHtml(counterName)}</span>
+                    <span class="matchup-effectiveness">⚠️</span>
+                </div>
+                <div class="matchup-card-stats">
+                    <div class="matchup-stat">
+                        <span class="matchup-stat-label">Record</span>
+                        <span class="matchup-stat-value trend-negative">${winsVs}W - ${lossesVs}L</span>
+                    </div>
+                    <div class="matchup-stat">
+                        <span class="matchup-stat-label">Score</span>
+                        <span class="matchup-stat-value">${scoreFor} - ${scoreAgainst}</span>
+                    </div>
+                    <div class="matchup-stat">
+                        <span class="matchup-stat-label">Winrate</span>
+                        <span class="matchup-stat-value trend-negative">${Math.round(winrateVs * 100)}%</span>
+                    </div>
+                </div>
+            </a>
+        `;
+        hasCountersContent = true;
+    } else {
+        bestCounterSection.style.display = 'none';
+    }
+    
+    // Render easiest matchups (beys this one counters)
+    const easiestMatchupsList = document.getElementById('easiestMatchupsList');
+    const easiestMatchupsSection = document.getElementById('easiestMatchupsSection');
+    
+    if (easiestMatchups.length > 0) {
+        // Sort by how badly this bey beats them (lower winrate for opponent = easier matchup)
+        const sortedMatchups = easiestMatchups.sort((a, b) => 
+            parseFloat(a.Winrate_vs_Counter) - parseFloat(b.Winrate_vs_Counter)
+        ).slice(0, 4); // Limit to 4 easiest matchups
+        
+        easiestMatchupsList.innerHTML = sortedMatchups.map(entry => {
+            const opponentName = entry.Bey;
+            const gamesVs = parseInt(entry.Games_vs_Counter);
+            const oppWins = parseInt(entry.Wins_vs_Counter);
+            const oppLosses = parseInt(entry.Losses_vs_Counter);
+            const oppWinrate = parseFloat(entry.Winrate_vs_Counter);
+            // Our winrate is the inverse - we won what they lost
+            const ourWinrate = 1 - oppWinrate;
+            
+            return `
+                <a href="bey.html?name=${encodeURIComponent(opponentName)}" class="matchup-card matchup-easy">
+                    <div class="matchup-card-header">
+                        <span class="matchup-bey-name">✅ ${escapeHtml(opponentName)}</span>
+                        <span class="matchup-effectiveness">🔥</span>
+                    </div>
+                    <div class="matchup-card-stats">
+                        <div class="matchup-stat">
+                            <span class="matchup-stat-label">Record</span>
+                            <span class="matchup-stat-value trend-positive">${oppLosses}W - ${oppWins}L</span>
+                        </div>
+                        <div class="matchup-stat">
+                            <span class="matchup-stat-label">Winrate</span>
+                            <span class="matchup-stat-value trend-positive">${Math.round(ourWinrate * 100)}%</span>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
+        hasCountersContent = true;
+    } else {
+        easiestMatchupsSection.style.display = 'none';
+    }
+    
+    countersSection.style.display = hasCountersContent ? 'block' : 'none';
+}
+
+// Render related beys section
+function renderRelatedBeys() {
+    const relatedSection = document.getElementById('relatedBeysSection');
+    let hasRelatedContent = false;
+    
+    // Find beys from same family
+    const familyBeys = findBeyFamilyMembers();
+    if (familyBeys.length > 0) {
+        renderBeyFamilyMembers(familyBeys);
+        hasRelatedContent = true;
+    } else {
+        document.getElementById('beyFamilySection').style.display = 'none';
+    }
+    
+    // Find beys with same parts
+    if (beyData) {
+        const samePartsBeys = findBeysWithSameParts();
+        if (samePartsBeys.length > 0) {
+            renderSamePartsBeys(samePartsBeys);
+            hasRelatedContent = true;
+        } else {
+            document.getElementById('samePartsSection').style.display = 'none';
+        }
+    } else {
+        document.getElementById('samePartsSection').style.display = 'none';
+    }
+    
+    // Find frequent opponents
+    const frequentOpponents = findFrequentOpponents();
+    if (frequentOpponents.length > 0) {
+        renderFrequentOpponents(frequentOpponents);
+        hasRelatedContent = true;
+    } else {
+        document.getElementById('frequentOpponentsSection').style.display = 'none';
+    }
+    
+    // Find similar ELO beys
+    const similarBeys = findSimilarEloBeys();
+    if (similarBeys.length > 0) {
+        renderSimilarPerformanceBeys(similarBeys);
+        hasRelatedContent = true;
+    } else {
+        document.getElementById('similarPerformanceSection').style.display = 'none';
+    }
+    
+    relatedSection.style.display = hasRelatedContent ? 'block' : 'none';
+}
+
+// Extract bey family/families from blade name
+function extractBeyFamilies(bladeName) {
+    if (!bladeName) return [];
+    
+    // Look for capital letters to find word boundaries
+    const capitals = [];
+    for (let i = 0; i < bladeName.length; i++) {
+        if (/[A-Z]/.test(bladeName[i])) {
+            capitals.push(i);
+        }
+    }
+    
+    // Need at least 2 capital letters to extract prefix or suffix
+    if (capitals.length < 2) return [];
+    
+    const families = [];
+    
+    // Extract prefix-based family (e.g., "DranSword" -> "Dran")
+    // If the first capital is at position 0, extract the first word
+    if (capitals[0] === 0) {
+        const firstWord = bladeName.substring(capitals[0], capitals[1]);
+        // Only consider it a family if it's at least 3 characters
+        if (firstWord.length >= 3) {
+            families.push(firstWord);
+        }
+    }
+    
+    // Extract suffix-based family (e.g., "WhaleFlame" -> "Flame")
+    // Take the last word (from the last capital letter to the end)
+    const lastCapitalIndex = capitals[capitals.length - 1];
+    const lastWord = bladeName.substring(lastCapitalIndex);
+    // Only consider it a family if it's at least 3 characters and different from prefix
+    if (lastWord.length >= 3 && !families.includes(lastWord)) {
+        families.push(lastWord);
+    }
+    
+    return families;
+}
+
+// Find beys from the same family/families
+function findBeyFamilyMembers() {
+    if (!beyData || !allBeysData) return [];
+    
+    const currentBlade = beyData.blade;
+    const normalizedName = normalizeBeyName(currentBlade);
+    const families = extractBeyFamilies(currentBlade);
+    
+    if (families.length === 0) return [];
+    
+    const familyMembersMap = new Map();
+    
+    allBeysData.forEach(bey => {
+        if (normalizeBeyName(bey.blade) === normalizedName) return;
+        
+        const otherFamilies = extractBeyFamilies(bey.blade);
+        const sharedFamilies = families.filter(f => otherFamilies.includes(f));
+        
+        if (sharedFamilies.length > 0) {
+            familyMembersMap.set(bey.blade, {
+                bey: bey,
+                sharedFamilies: sharedFamilies
+            });
+        }
+    });
+    
+    return Array.from(familyMembersMap.values()).slice(0, 6);
+}
+
+// Render bey family members
+function renderBeyFamilyMembers(familyMembers) {
+    const container = document.getElementById('beyFamilyBeys');
+    
+    container.innerHTML = familyMembers.map(({ bey, sharedFamilies }) => `
+        <a href="bey.html?name=${encodeURIComponent(bey.blade)}" class="related-bey-card">
+            <div class="related-bey-name">${escapeHtml(bey.blade)}</div>
+            <div class="related-bey-shared">Family: ${escapeHtml(sharedFamilies.join(', '))}</div>
+        </a>
+    `).join('');
+}
+
+// Find beys with same parts (ratchet or bit)
+function findBeysWithSameParts() {
+    if (!beyData || !allBeysData) return [];
+    
+    const normalizedName = normalizeBeyName(beyData.blade);
+    const matches = [];
+    
+    allBeysData.forEach(bey => {
+        if (normalizeBeyName(bey.blade) === normalizedName) return;
+        
+        const sharedParts = [];
+        if (beyData.ratchet && bey.ratchet === beyData.ratchet) {
+            sharedParts.push(`Ratchet: ${beyData.ratchet}`);
+        }
+        if (beyData.bit && bey.bit === beyData.bit) {
+            sharedParts.push(`Bit: ${beyData.bit}`);
+        }
+        if (beyData.assist_blade && bey.assist_blade === beyData.assist_blade) {
+            sharedParts.push(`Assist: ${beyData.assist_blade}`);
+        }
+        
+        if (sharedParts.length > 0) {
+            matches.push({
+                bey,
+                sharedParts
+            });
+        }
+    });
+    
+    return matches.slice(0, 6);
+}
+
+// Find frequent opponents
+function findFrequentOpponents() {
+    if (matchesData.length === 0) return [];
+    
+    const normalizedName = normalizeBeyName(beyName);
+    const opponentCounts = {};
+    const opponentResults = {};
+    
+    matchesData.forEach(match => {
+        const opponent = normalizeBeyName(match.beyA) === normalizedName ? match.beyB : match.beyA;
+        const normalizedOpponent = normalizeBeyName(opponent);
+        const isWin = normalizeBeyName(match.winner) === normalizedName;
+        
+        if (!opponentCounts[normalizedOpponent]) {
+            opponentCounts[normalizedOpponent] = { name: opponent, count: 0, wins: 0, losses: 0 };
+        }
+        opponentCounts[normalizedOpponent].count++;
+        if (isWin) {
+            opponentCounts[normalizedOpponent].wins++;
+        } else {
+            opponentCounts[normalizedOpponent].losses++;
+        }
+    });
+    
+    return Object.values(opponentCounts)
+        .filter(o => o.count >= 2)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+}
+
+// Find beys with similar ELO
+function findSimilarEloBeys() {
+    if (!leaderboardData || !allLeaderboardData) return [];
+    
+    const currentElo = parseFloat(leaderboardData.ELO);
+    if (isNaN(currentElo)) return [];
+    
+    const normalizedName = normalizeBeyName(beyName);
+    const threshold = 20; // Within 20 ELO points
+    
+    return allLeaderboardData
+        .filter(entry => {
+            const entryName = entry.Name || entry.Bey || '';
+            if (normalizeBeyName(entryName) === normalizedName) return false;
+            const entryElo = parseFloat(entry.ELO);
+            return !isNaN(entryElo) && Math.abs(entryElo - currentElo) <= threshold;
+        })
+        .sort((a, b) => Math.abs(parseFloat(a.ELO) - currentElo) - Math.abs(parseFloat(b.ELO) - currentElo))
+        .slice(0, 4);
+}
+
+// Render same parts beys
+function renderSamePartsBeys(beys) {
+    const container = document.getElementById('samePartsBeys');
+    container.innerHTML = beys.map(({ bey, sharedParts }) => `
+        <a href="bey.html?name=${encodeURIComponent(bey.blade)}" class="related-bey-card">
+            <div class="related-bey-name">${escapeHtml(bey.blade)}</div>
+            <div class="related-bey-shared">${escapeHtml(sharedParts.join(', '))}</div>
+        </a>
+    `).join('');
+}
+
+// Render frequent opponents
+function renderFrequentOpponents(opponents) {
+    const container = document.getElementById('frequentOpponentsBeys');
+    container.innerHTML = opponents.map(opp => {
+        const winrate = Math.round((opp.wins / opp.count) * 100);
+        const wrClass = winrate >= 60 ? 'positive' : winrate <= 40 ? 'negative' : 'neutral';
+        return `
+            <a href="bey.html?name=${encodeURIComponent(opp.name)}" class="frequent-opponent-card">
+                <div class="opponent-info">
+                    <span class="opponent-name">${escapeHtml(opp.name)}</span>
+                    <span class="opponent-record">${escapeHtml(opp.wins)}W - ${escapeHtml(opp.losses)}L</span>
+                </div>
+                <div class="opponent-winrate ${wrClass}">${escapeHtml(winrate)}%</div>
+            </a>
+        `;
+    }).join('');
+}
+
+// Render similar performance beys
+function renderSimilarPerformanceBeys(beys) {
+    const container = document.getElementById('similarPerformanceBeys');
+    container.innerHTML = beys.map(entry => {
+        const name = entry.Name || entry.Bey;
+        return `
+            <a href="bey.html?name=${encodeURIComponent(name)}" class="related-bey-card">
+                <div class="related-bey-name">${escapeHtml(name)}</div>
+                <div class="related-bey-elo">ELO: ${escapeHtml(entry.ELO)}</div>
+            </a>
+        `;
+    }).join('');
+}
+
+// Function to reload arena-specific data and update display
+async function switchArena(newArena) {
+    // Save preference and reload page
+    localStorage.setItem('beyPageArena', newArena);
+    location.reload();
+}
+
+// Set up arena selector
+function setupArenaSelector() {
+    const arenaPlotSelector = document.getElementById('arenaPlotSelector');
+    const arenaPlotSelect = document.getElementById('arenaPlotSelect');
+    
+    if (arenaPlotSelector && arenaPlotSelect) {
+        // Show the selector
+        arenaPlotSelector.style.display = 'block';
+        
+        // Set the dropdown to match current arena
+        arenaPlotSelect.value = currentArena;
+        
+        // Add event listener
+        arenaPlotSelect.addEventListener('change', (e) => {
+            switchArena(e.target.value);
+        });
+    }
+}
+
+// Initialize
+if (!beyName) {
+    showError();
+} else {
+    loadData().then(() => {
+        // Set up arena selector after data is loaded
+        setupArenaSelector();
+    });
+}
+</script>
+
+</body>
+</html>

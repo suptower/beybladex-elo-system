@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Bey Draw - Beyblade X ELO</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <script defer src="random-draw.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Random Bey Draw</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <!-- Hero Section -->
+    <section class="random-draw-hero">
+        <h2>🎲 Random Bey Draw / Tournament Seeding</h2>
+        <p class="random-draw-description">
+            Randomly select Beys from the leaderboard for tournament seeding and quick event setup.
+            Choose from multiple draw algorithms to create balanced or chaotic brackets.
+        </p>
+    </section>
+
+    <!-- Controls Section -->
+    <section class="random-draw-controls">
+        <div class="controls-grid">
+            <!-- Draw Count -->
+            <div class="control-group">
+                <label for="drawCount">Number of Beys</label>
+                <input type="number" id="drawCount" value="8" min="1" max="50" class="control-input">
+                <span class="control-hint">How many Beys to draw (1-50)</span>
+            </div>
+
+            <!-- Algorithm Selection -->
+            <div class="control-group">
+                <label for="algorithmSelect">Draw Algorithm</label>
+                <select id="algorithmSelect" class="control-input">
+                    <option value="pure_random">Pure Random</option>
+                    <option value="ranking_bucket">Ranking Bucket Balanced</option>
+                    <option value="weighted_elo">Weighted by Elo</option>
+                    <option value="type_based">Type-Based Distribution</option>
+                    <option value="archetype_based">Archetype-Based Distribution</option>
+                    <option value="custom">Custom Constraints</option>
+                </select>
+                <span class="control-hint" id="algorithmHint">Uniform random selection from all Beys</span>
+            </div>
+
+            <!-- Random Seed (Optional) -->
+            <div class="control-group">
+                <label for="randomSeed">Random Seed (Optional)</label>
+                <input type="number" id="randomSeed" placeholder="Leave empty for random" class="control-input">
+                <span class="control-hint">For reproducible results</span>
+            </div>
+
+            <!-- Algorithm-Specific Options Container -->
+            <div id="algorithmOptions" class="algorithm-options">
+                <!-- Options will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button id="drawButton" class="btn btn-primary">🎲 Draw Beys</button>
+            <button id="clearButton" class="btn btn-secondary">🔄 Clear Results</button>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="random-draw-results" id="resultsSection" style="display: none;">
+        <div class="results-header">
+            <h3>📋 Selected Beys</h3>
+            <div class="results-info">
+                <span id="resultsCount">0 Beys Selected</span>
+                <span class="separator">•</span>
+                <span id="resultsAlgorithm">Algorithm: None</span>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="table-wrapper">
+            <table class="results-table" id="resultsTable">
+                <thead>
+                    <tr>
+                        <th class="col-seed">#</th>
+                        <th class="col-bey">Bey</th>
+                        <th class="col-elo">ELO</th>
+                        <th class="col-rank">Rank</th>
+                        <th class="col-type">Type</th>
+                        <th class="col-archetype">Archetype</th>
+                        <th class="col-stats">Stats</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsTableBody">
+                    <!-- Results will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Export Options -->
+        <div class="export-options">
+            <button id="exportListButton" class="btn btn-secondary">📋 Copy List</button>
+            <button id="exportCSVButton" class="btn btn-secondary">💾 Export CSV</button>
+            <button id="exportJSONButton" class="btn btn-secondary">📄 Export JSON</button>
+        </div>
+    </section>
+
+    <!-- Info Section -->
+    <section class="random-draw-info">
+        <h3>📖 Algorithm Descriptions</h3>
+        <div class="algorithm-cards">
+            <div class="algorithm-card">
+                <h4>🎲 Pure Random</h4>
+                <p>Uniform random selection from all Beys. No constraints. Ideal for chaos tournaments or casual play.</p>
+            </div>
+            <div class="algorithm-card">
+                <h4>📊 Ranking Bucket Balanced</h4>
+                <p>Splits leaderboard into ranking ranges (Top, Mid, Bottom) and draws roughly equal numbers from each. Creates fairer brackets.</p>
+            </div>
+            <div class="algorithm-card">
+                <h4>⚖️ Weighted by Elo</h4>
+                <p>Higher Elo = higher selection probability. Strong Beys appear more often, but surprises still possible.</p>
+            </div>
+            <div class="algorithm-card">
+                <h4>🎯 Type-Based Distribution</h4>
+                <p>Ensures balanced mix of Attack, Defense, Stamina, and Balance types. Prevents type-heavy tournaments.</p>
+            </div>
+            <div class="algorithm-card">
+                <h4>🎭 Archetype-Based Distribution</h4>
+                <p>Ensures diversity across playstyles and archetypes. Uses RPG stats for variety.</p>
+            </div>
+            <div class="algorithm-card">
+                <h4>⚙️ Custom Constraints</h4>
+                <p>Advanced filtering with min/max Elo ranges, include/exclude lists, and custom rules.</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script defer src="footer-loader.js"></script>
+</body>
+</html>

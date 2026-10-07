@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Silver Medal">
+  <defs>
+    <linearGradient id="ms" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#8A9AA8"/>
+    </linearGradient>
+  </defs>
+  <!-- Ribbon left stripe -->
+  <rect x="9.25" y="1" width="2.5" height="8" rx="0.5" fill="#EF4444"/>
+  <!-- Ribbon right stripe -->
+  <rect x="12.25" y="1" width="2.5" height="8" rx="0.5" fill="#1D4ED8"/>
+  <!-- Medal disc shadow -->
+  <circle cx="12" cy="16.5" r="6" fill="#4B5563"/>
+  <!-- Medal disc -->
+  <circle cx="12" cy="16" r="6" fill="url(#ms)"/>
+  <!-- Inner decorative ring -->
+  <circle cx="12" cy="16" r="4.5" fill="none" stroke="#64748B" stroke-width="0.75"/>
+  <!-- Numeral II -->
+  <rect x="10.3" y="12.5" width="1.1" height="7" rx="0.4" fill="#1E293B"/>
+  <rect x="12.6" y="12.5" width="1.1" height="7" rx="0.4" fill="#1E293B"/>
+  <!-- Shine highlight -->
+  <ellipse cx="10.2" cy="13.8" rx="1.2" ry="0.9" fill="white" opacity="0.3"/>
+</svg>
