@@ -599,6 +599,7 @@
     "season_id": "S3",
     "status": "active",
     "start_date": "2026-06-05T00:00:00.000000",
+    "end_date": "2026-10-04T20:00:00.000000",
     "tier_assignments": {
       "ImpactDrake": {
         "tier": 1,
@@ -835,8 +836,8 @@
         "elo": 864.0
       }
     ],
-    "league_champion": null,
-    "cup_winner": null,
+    "league_champion": "FoxBrush",
+    "cup_winner": "SilverWolf",
     "tiers": {
       "1": {
         "beys": [
@@ -890,6 +891,307 @@
           "ShelterDrake",
           "TriceraPress",
           "SamuraiCalibur"
+        ],
+        "matches_played": 0,
+        "matches_total": 28
+      }
+    }
+  },
+  "S4": {
+    "season_id": "S4",
+    "start_date": "2026-10-30T10:38:04.505278",
+    "status": "upcoming",
+    "tier_assignments": {
+      "ImpactDrake": {
+        "tier": 1,
+        "start_elo": 1140.0
+      },
+      "SharkScale": {
+        "tier": 1,
+        "start_elo": 1100.0
+      },
+      "ValkyrieVolt": {
+        "tier": 1,
+        "start_elo": 1084.0
+      },
+      "TuskMammoth": {
+        "tier": 1,
+        "start_elo": 1115.0
+      },
+      "FoxBrush": {
+        "tier": 1,
+        "start_elo": 1123.0
+      },
+      "DranSword": {
+        "tier": 1,
+        "start_elo": 1124.0
+      },
+      "SilverWolf": {
+        "tier": 1,
+        "start_elo": 1116.0
+      },
+      "WeissTiger": {
+        "tier": 1,
+        "start_elo": 1062.0
+      },
+      "DranBrave": {
+        "tier": 2,
+        "start_elo": 1063.0
+      },
+      "ScorpioSpear": {
+        "tier": 2,
+        "start_elo": 1020.0
+      },
+      "CerberusFlame": {
+        "tier": 2,
+        "start_elo": 1020.0
+      },
+      "ViperTail": {
+        "tier": 2,
+        "start_elo": 1041.0
+      },
+      "PhoenixWing": {
+        "tier": 2,
+        "start_elo": 980.0
+      },
+      "HellsChain": {
+        "tier": 2,
+        "start_elo": 1065.0
+      },
+      "WizardArc": {
+        "tier": 2,
+        "start_elo": 989.0
+      },
+      "CobaltDragoon": {
+        "tier": 2,
+        "start_elo": 1033.0
+      },
+      "HellsReaper": {
+        "tier": 3,
+        "start_elo": 1007.0
+      },
+      "RhinoReaper": {
+        "tier": 3,
+        "start_elo": 1007.0
+      },
+      "HellsHammer": {
+        "tier": 3,
+        "start_elo": 978.0
+      },
+      "WyvernHover": {
+        "tier": 3,
+        "start_elo": 937.0
+      },
+      "TriceraPress": {
+        "tier": 3,
+        "start_elo": 1025.0
+      },
+      "DranDagger": {
+        "tier": 3,
+        "start_elo": 1002.0
+      },
+      "LeonCrest": {
+        "tier": 3,
+        "start_elo": 1034.0
+      },
+      "GolemRock": {
+        "tier": 3,
+        "start_elo": 1003.0
+      },
+      "HellsBrave": {
+        "tier": 4,
+        "start_elo": 1065.0
+      },
+      "DranBuster": {
+        "tier": 4,
+        "start_elo": 983.0
+      },
+      "PerseusDark": {
+        "tier": 4,
+        "start_elo": 974.0
+      },
+      "KnightMail": {
+        "tier": 4,
+        "start_elo": 998.0
+      }
+    },
+    "qualification_pool": [
+      {
+        "bey": "ShelterDrake",
+        "elo": 1027.0
+      },
+      {
+        "bey": "TyrannoRoar",
+        "elo": 1018.0
+      },
+      {
+        "bey": "MeteorDragoon",
+        "elo": 1013.0
+      },
+      {
+        "bey": "PhoenixFlare",
+        "elo": 1005.0
+      },
+      {
+        "bey": "SamuraiSteel",
+        "elo": 1004.0
+      },
+      {
+        "bey": "LeonClaw",
+        "elo": 1003.0
+      },
+      {
+        "bey": "DranStrike",
+        "elo": 1000.0
+      },
+      {
+        "bey": "BulletGriffon",
+        "elo": 1000.0
+      },
+      {
+        "bey": "BrachioWhip",
+        "elo": 1000.0
+      },
+      {
+        "bey": "BahamutBlitz",
+        "elo": 1000.0
+      },
+      {
+        "bey": "MummyCurse",
+        "elo": 1000.0
+      },
+      {
+        "bey": "WolfHunt",
+        "elo": 988.0
+      },
+      {
+        "bey": "GhostCircle",
+        "elo": 981.0
+      },
+      {
+        "bey": "PhoenixRudder",
+        "elo": 980.0
+      },
+      {
+        "bey": "ClockMirage",
+        "elo": 980.0
+      },
+      {
+        "bey": "CrimsonGaruda",
+        "elo": 978.0
+      },
+      {
+        "bey": "UnicornSting",
+        "elo": 977.0
+      },
+      {
+        "bey": "CobaltDrake",
+        "elo": 967.0
+      },
+      {
+        "bey": "SamuraiCalibur",
+        "elo": 952.0
+      },
+      {
+        "bey": "BlackShell",
+        "elo": 949.0
+      },
+      {
+        "bey": "SolEclipse",
+        "elo": 931.0
+      },
+      {
+        "bey": "WhaleWave",
+        "elo": 929.0
+      },
+      {
+        "bey": "SharkEdge",
+        "elo": 927.0
+      },
+      {
+        "bey": "EmperorMight",
+        "elo": 920.0
+      },
+      {
+        "bey": "WhaleFlame",
+        "elo": 912.0
+      },
+      {
+        "bey": "PegasusBlast",
+        "elo": 903.0
+      },
+      {
+        "bey": "WizardRod",
+        "elo": 884.0
+      },
+      {
+        "bey": "TyrannoBeat",
+        "elo": 867.0
+      },
+      {
+        "bey": "SamuraiSaber",
+        "elo": 867.0
+      },
+      {
+        "bey": "WizardArrow",
+        "elo": 864.0
+      }
+    ],
+    "league_champion": null,
+    "cup_winner": null,
+    "tiers": {
+      "1": {
+        "beys": [
+          "ImpactDrake",
+          "SharkScale",
+          "ValkyrieVolt",
+          "TuskMammoth",
+          "FoxBrush",
+          "ScorpioSpear",
+          "DranSword",
+          "SilverWolf"
+        ],
+        "matches_played": 0,
+        "matches_total": 28
+      },
+      "2": {
+        "beys": [
+          "WeissTiger",
+          "DranBrave",
+          "CerberusFlame",
+          "ViperTail",
+          "PhoenixWing",
+          "HellsChain",
+          "WizardArc",
+          "CobaltDragoon"
+        ],
+        "matches_played": 0,
+        "matches_total": 28
+      },
+      "3": {
+        "beys": [
+          "HellsReaper",
+          "RhinoReaper",
+          "HellsBrave",
+          "WyvernHover",
+          "TriceraPress",
+          "DranDagger",
+          "LeonCrest",
+          "GolemRock"
+        ],
+        "matches_played": 0,
+        "matches_total": 28
+      },
+      "4": {
+        "beys": [
+          "HellsHammer",
+          "DranBuster",
+          "PerseusDark",
+          "KnightMail",
+          "ShelterDrake",
+          "TyrannoRoar",
+          "MeteorDragoon",
+          "PhoenixFlare"
         ],
         "matches_played": 0,
         "matches_total": 28
