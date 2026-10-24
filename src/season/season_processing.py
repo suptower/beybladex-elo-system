@@ -36,7 +36,11 @@ from season_manager import (   # noqa: E402
     get_promotion_relegation,
     generate_season_archive,
     load_season_data,
-    save_season_data
+    save_season_data,
+    get_season_format,
+)
+from challenge_league import (   # noqa: E402
+    process_challenge_league,
 )
 from table_snapshots import (   # noqa: E402
     generate_all_table_snapshots
@@ -388,7 +392,13 @@ def refresh_qualification_pool(
         The refreshed qualification pool list, or an empty list if the season
         or leaderboard cannot be found.
     """
-    leaderboard_file = LEADERBOARD_CSV
+    cand_lead = os.path.join(data_dir, "leaderboard.csv")
+    if os.path.exists(cand_lead):
+        leaderboard_file = cand_lead
+    elif data_dir == DEFAULT_DATA_DIR and os.path.exists(LEADERBOARD_CSV):
+        leaderboard_file = LEADERBOARD_CSV
+    else:
+        leaderboard_file = cand_lead
 
     # Load current ELOs from leaderboard.
     # Canonical column names are "Name" (bey name) and "ELO" (rating).
@@ -488,9 +498,13 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
         print(f"{YELLOW}  No season data found for {season_id}{RESET}")
         return None
 
+    # Get format config for this season
+    season_format = get_season_format(season_id)
+    tiers_count = season_format.get("tiers", 4)
+
     # Generate league tables for all tiers
     league_tables = {}
-    for tier in range(1, 5):
+    for tier in range(1, tiers_count + 1):
         if season_matches:
             # Use actual match data
             table = get_league_table(matches, tier, season_id, rounds_data=rounds_data)
@@ -524,12 +538,24 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
     # Load season data for additional info
     season_data = load_season_data(season_id, data_dir) or {}
 
+    # Process Challenge League for Season 4+
+    challenge_league_result = None
+    if "challenge_league" in season_format or "challenge_league" in season_data:
+        cl_cfg = season_data.get("challenge_league", {})
+        cl_groups = cl_cfg.get("groups") if isinstance(cl_cfg, dict) else None
+        challenge_league_result = process_challenge_league(
+            matches, season_id, groups=cl_groups, rounds_data=rounds_data
+        )
+        if challenge_league_result and challenge_league_result.get("final_swiss"):
+            print(f"  Challenge League: {len(challenge_league_result.get('promoted_to_tier3', []))} promoted to Tier III")
+
     # Determine promotion/relegation (only if matches played)
     promotion_relegation = None
-    if season_matches:
+    if season_matches or (challenge_league_result and challenge_league_result.get("final_swiss")):
         promotion_relegation = get_promotion_relegation(
             season_data,
-            league_tables
+            league_tables,
+            challenge_league_data=challenge_league_result
         )
         print(f"  Promotions: {len(promotion_relegation['automatic_promotion'])}")
         print(f"  Relegations: {len(promotion_relegation['automatic_relegation'])}")
@@ -546,6 +572,10 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
     archive = generate_season_archive(
         season_id, matches, league_tables, promotion_relegation, data_dir
     )
+
+    # Add Challenge League data if available
+    if challenge_league_result:
+        archive["challenge_league"] = challenge_league_result
 
     # Add Season Cup data if available
     if cup_display:

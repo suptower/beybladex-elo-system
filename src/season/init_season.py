@@ -21,6 +21,16 @@ import json
 import os
 import sys
 
+# Ensure UTF-8 output on Windows
+if sys.platform == "win32":
+    try:
+        if sys.stdout and hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding='utf-8')
+        if sys.stderr and hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -30,8 +40,14 @@ from season_manager import (   # noqa: E402
     load_season_data,
     save_season_data,
     schedule_round_robin,
+    get_season_format,
     TIERS,
     BEYS_PER_TIER
+)
+from challenge_league import (   # noqa: E402
+    select_challenge_league_beys,
+    assign_challenge_groups,
+    get_relevant_participation_counts,
 )
 
 import os as _os   # noqa: E402
@@ -90,10 +106,13 @@ def print_tier_assignments(season_data):
     Args:
         season_data: Season data dictionary
     """
-    print(f"\n{BOLD}{CYAN}Tier Assignments for {season_data['season_id']}{RESET}")
+    season_id = season_data.get('season_id')
+    print(f"\n{BOLD}{CYAN}Tier Assignments for {season_id}{RESET}")
     print(f"{CYAN}{'=' * 60}{RESET}\n")
 
-    tier_assignments = season_data['tier_assignments']
+    tier_assignments = season_data.get('tier_assignments', {})
+    season_fmt = get_season_format(season_id)
+    tiers_count = season_fmt.get("tiers", TIERS)
 
     # Group by tier
     tiers = {}
@@ -101,10 +120,10 @@ def print_tier_assignments(season_data):
         tier = data['tier']
         if tier not in tiers:
             tiers[tier] = []
-        tiers[tier].append((bey, data['start_elo']))
+        tiers[tier].append((bey, data.get('start_elo')))
 
     # Print each tier
-    for tier in range(1, TIERS + 1):
+    for tier in range(1, tiers_count + 1):
         print(f"{BOLD}Tier {tier}{RESET}")
         if tier in tiers:
             # Sort by ELO (highest first); treat None as 0 for sorting
@@ -118,6 +137,20 @@ def print_tier_assignments(season_data):
                 print(f"  {i:2d}. {bey:20s} (ELO: {elo_str})")
         print()
 
+    # Print Challenge League if present
+    cl_data = season_data.get("challenge_league")
+    if cl_data and cl_data.get("groups"):
+        print(f"{BOLD}{CYAN}Challenge League Groups{RESET}")
+        print(f"{CYAN}{'-' * 40}{RESET}")
+        for g_id, g_beys in cl_data["groups"].items():
+            print(f"{BOLD}Group {g_id}{RESET}:")
+            for i, b in enumerate(g_beys, 1):
+                name = b.get("bey", "") if isinstance(b, dict) else str(b)
+                elo = b.get("elo") if isinstance(b, dict) else None
+                elo_str = f"(ELO: {elo:.0f})" if elo is not None else ""
+                print(f"  {i}. {name:20s} {elo_str}")
+            print()
+
 
 def generate_schedule_csv(season_data, output_dir: str):
     """
@@ -129,12 +162,15 @@ def generate_schedule_csv(season_data, output_dir: str):
     """
     season_id = season_data['season_id']
     tier_assignments = season_data['tier_assignments']
+    season_fmt = get_season_format(season_id)
+    tiers_count = season_fmt.get("tiers", TIERS)
+    beys_per_tier = season_fmt.get("beys_per_tier", BEYS_PER_TIER)
 
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
 
     # Generate schedule for each tier
-    for tier in range(1, TIERS + 1):
+    for tier in range(1, tiers_count + 1):
         # Get beys in this tier
         tier_beys = [
             bey for bey,
@@ -274,6 +310,35 @@ def main():
         default='./season_schedules',
         help='Directory to save schedule files (default: ./season_schedules)'
     )
+    parser.add_argument(
+        '--draw-challenge-league',
+        action='store_true',
+        help='Draw Beys for Challenge League and assign them to groups (Season 4+)'
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        default=None,
+        help='Random seed for reproducible Challenge League draw and grouping'
+    )
+    parser.add_argument(
+        '--group-method',
+        type=str,
+        default='snake',
+        choices=['snake', 'snake_elo', 'random'],
+        help='Group assignment method for Challenge League (default: snake)'
+    )
+    parser.add_argument(
+        '--matches-file',
+        type=str,
+        default=None,
+        help='Path to matches.csv for calculating participation weights'
+    )
+    parser.add_argument(
+        '--only-draw',
+        action='store_true',
+        help='Only perform Challenge League draw on existing season data without reinitializing tiers'
+    )
 
     args = parser.parse_args()
 
@@ -293,7 +358,16 @@ def main():
         # respect the user-provided root rather than the repo default.
         season_dir = os.path.join(args.data_dir, "season")
 
-        if args.from_season:
+        if args.only_draw:
+            print(f"{YELLOW}Loading existing season '{args.season_id}' from seasons.json...{RESET}")
+            season_data = load_season_data(args.season_id, season_dir)
+            if not season_data:
+                raise ValueError(
+                    f"Season '{args.season_id}' not found in {season_dir}."
+                )
+            print(f"{GREEN}✓{RESET} Loaded season data\n")
+
+        elif args.from_season:
             # --- Promotion/relegation-based initialisation ---
             prev_id = args.from_season
             print(
@@ -349,6 +423,60 @@ def main():
                 args.season_id, beys_with_elo, args.data_dir)
             print(f"{GREEN}✓{RESET} Season initialized\n")
 
+        # Challenge League draw if requested
+        season_fmt = get_season_format(args.season_id)
+        if args.draw_challenge_league or args.only_draw:
+            print(f"{YELLOW}Drawing Challenge League participants from Qualification Pool...{RESET}")
+            pool = season_data.get("qualification_pool", [])
+            if not pool:
+                league_beys = set(season_data.get("tier_assignments", {}).keys())
+                pool = [{"bey": b, "elo": elo} for b, elo in beys_with_elo if b not in league_beys]
+                season_data["qualification_pool"] = pool
+
+            matches_file = args.matches_file or os.path.join(args.data_dir, "matches", "matches.csv")
+            if not os.path.exists(matches_file):
+                matches_file = MATCHES_CSV
+            matches = []
+            if os.path.exists(matches_file):
+                with open(matches_file, "r", encoding="utf-8") as f:
+                    matches = list(csv.DictReader(f))
+            participation_counts = get_relevant_participation_counts(matches)
+
+            cl_count = season_fmt.get("challenge_league", {}).get("participants", 24)
+            selected = select_challenge_league_beys(
+                qualification_pool=pool,
+                count=cl_count,
+                seed=args.seed,
+                participation_counts=participation_counts,
+            )
+            group_method = "snake_elo" if args.group_method in ("snake", "snake_elo") else "random"
+            groups = assign_challenge_groups(
+                selected,
+                method=group_method,
+                elo_lookup=elo_lookup,
+                seed=args.seed,
+            )
+
+            cl_data = season_data.get("challenge_league", {})
+            if not isinstance(cl_data, dict):
+                cl_data = {}
+            cl_data["participants"] = len(selected)
+            cl_data["selected_beys"] = [b["bey"] for b in selected]
+            cl_data["groups"] = groups
+            cl_data["seed"] = args.seed
+            cl_data["group_method"] = group_method
+            if "final_stage" not in cl_data:
+                final_parts = season_fmt.get("challenge_league", {}).get("final_swiss_participants", 8)
+                final_rounds = season_fmt.get("challenge_league", {}).get("final_swiss_rounds", 3)
+                cl_data["final_stage"] = {
+                    "participants": [],
+                    "matches_played": 0,
+                    "matches_total": final_rounds * (final_parts // 2),
+                    "standings": [],
+                }
+            season_data["challenge_league"] = cl_data
+            print(f"{GREEN}✓{RESET} Selected {len(selected)} Beys into 4 groups\n")
+
         # Save season data
         print(f"{YELLOW}Saving season metadata...{RESET}")
         save_season_data(season_data, season_dir)
@@ -376,12 +504,13 @@ def main():
             print(
                 "4. Import completed matches to docs/data/matches/matches.csv")
         else:
+            tiers_count = season_fmt.get("tiers", 3)
             print(
                 "2. Create season matches manually or use --generate-schedule")
             print("3. Add matches to docs/data/matches/matches.csv with:")
             print("   - MatchType: season")
             print(f"   - SeasonID: {args.season_id}")
-            print("   - Tier: 1-4")
+            print(f"   - Tier: 1-{tiers_count}")
             print("   - Matchday: 1-7")
 
         print("5. Run 'python update.py' to process season data")
@@ -389,8 +518,18 @@ def main():
             f"6. View results at /seasons.html#{args.season_id}\n")
 
         # Show qualification pool if any
-        if args.from_season:
-            qual_pool = season_data.get("qualification_pool", [])
+        qual_pool = season_data.get("qualification_pool", [])
+        if season_fmt.get("rules_version", 1) >= 4 or "challenge_league" in season_fmt:
+            cl_info = season_data.get("challenge_league", {})
+            selected_count = len(cl_info.get("selected_beys", []))
+            print(f"{BOLD}{YELLOW}Qualification Pool ({len(qual_pool)} Beys total, {selected_count} selected for Challenge League):{RESET}")
+            for entry in qual_pool:
+                bey = entry.get("bey", "?")
+                elo = entry.get("elo", 0)
+                is_sel = " [Challenge League]" if bey in cl_info.get("selected_beys", []) else ""
+                print(f"  • {bey:20s} (ELO: {elo:.0f}){is_sel}")
+            print()
+        elif args.from_season:
             if qual_pool:
                 print(f"{BOLD}{YELLOW}Qualification Pool ({len(qual_pool)} Beys):{RESET}")
                 for entry in qual_pool:
