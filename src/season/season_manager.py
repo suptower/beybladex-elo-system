@@ -89,6 +89,26 @@ SEASON_FORMATS: Dict[str, Dict[str, int]] = {
         "total_beys_in_league": 32,
         "rules_version": 2,  # Season 2+ ruleset
     },
+    # Season 4 format: 3 regular tiers of 8 Beys, RR + Swiss (40 matches per tier),
+    # Qualification Pool and 24-Bey Challenge League.
+    "S4": {
+        "tiers": 3,
+        "beys_per_tier": 8,
+        "total_beys_in_league": 24,
+        "rules_version": 4,  # Season 4 ruleset
+        "rr_matches_per_tier": 28,
+        "swiss_matches_per_tier": 12,
+        "total_matches_per_tier": 40,
+        "challenge_league": {
+            "participants": 24,
+            "groups": 4,
+            "beys_per_group": 6,
+            "group_swiss_rounds": 3,
+            "final_swiss_participants": 8,
+            "final_swiss_rounds": 3,
+            "promotions_to_tier3": 5,
+        },
+    },
 }
 
 # Backwards-compatible global constants derived from the default (Season 2+)
@@ -106,7 +126,7 @@ def get_season_format(season_id: Optional[str]) -> Dict[str, int]:
     Return the league format configuration for a given season.
 
     Args:
-        season_id: The season identifier (e.g., "S1", "S2"). If None or
+        season_id: The season identifier (e.g., "S1", "S2", "S4"). If None or
                    unrecognized, the Season 2+ default format is returned.
 
     Returns:
@@ -140,6 +160,15 @@ RELEGATION_PLAYOFF_POSITIONS = {
     2: (6, 3),  # T2 rank 6 vs T3 rank 3
     3: (6, 3),  # T3 rank 6 vs T4 rank 3
 }
+
+# Season 4+ Promotion/Relegation counts (3 regular tiers)
+AUTO_PROMOTIONS_PER_TIER_V4 = {2: 1, 3: 2}
+AUTO_RELEGATIONS_PER_TIER_V4 = {1: 1, 2: 2}
+RELEGATION_PLAYOFF_POSITIONS_V4 = {
+    1: (7, 2),  # T1 rank 7 vs T2 rank 2
+    2: (6, 3),  # T2 rank 6 vs T3 rank 3
+}
+
 # Kept for backward compatibility
 AUTO_PROMOTION = 2
 AUTO_RELEGATION = 2
@@ -245,12 +274,16 @@ def initialize_season(season_id: str, beys_with_elo: List[Tuple[str, float]],
     }
 
     # Initialize tier structures
+    matches_total_per_tier = season_format.get(
+        "total_matches_per_tier",
+        int(beys_per_tier * (beys_per_tier - 1) / 2)
+    )
     for tier in range(1, tiers + 1):
         tier_beys = [bey for bey, data in tier_assignments.items() if data["tier"] == tier]
         season_data["tiers"][str(tier)] = {
             "beys": tier_beys,
             "matches_played": 0,
-            "matches_total": int(beys_per_tier * (beys_per_tier - 1) / 2)  # Round-robin count
+            "matches_total": matches_total_per_tier
         }
 
     return season_data
@@ -377,7 +410,11 @@ def get_league_table(
     return table
 
 
-def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Dict]]) -> Dict:
+def get_promotion_relegation(
+    season_data: Dict,
+    league_tables: Dict[int, List[Dict]],
+    challenge_league_data: Optional[Dict] = None,
+) -> Dict:
     """
     Determine promotion, relegation, and relegation playoff matches for the next season.
 
@@ -480,6 +517,76 @@ def get_promotion_relegation(season_data: Dict, league_tables: Dict[int, List[Di
                         "position": i + 1,
                         "reason": "tier3_bottom"
                     })
+
+    elif rules_version == 4:
+        # Season 4+ rules: 3 tiers of 8 Beys + Challenge League
+        # Tier I: Rank 8 auto-relegates; Rank 7 playoff vs Tier II Rank 2
+        # Tier II: Rank 1 auto-promotes; Rank 2 playoff vs Tier I Rank 7;
+        #          Ranks 7-8 auto-relegate; Rank 6 playoff vs Tier III Rank 3
+        # Tier III: Ranks 1-2 auto-promote; Rank 3 playoff vs Tier II Rank 6;
+        #           Ranks 4-8 enter Qualification Pool
+        for tier in range(1, tiers_count + 1):
+            table = league_tables.get(tier, [])
+            if not table or len(table) < beys_per_tier:
+                continue
+
+            num_promotions = AUTO_PROMOTIONS_PER_TIER_V4.get(tier, 0)
+            for i in range(num_promotions):
+                if i < len(table):
+                    result["automatic_promotion"].append({
+                        "bey": table[i]["bey"],
+                        "from_tier": tier,
+                        "to_tier": tier - 1,
+                        "position": i + 1
+                    })
+
+            if tier < tiers_count:
+                num_relegations = AUTO_RELEGATIONS_PER_TIER_V4.get(tier, 0)
+                for i in range(num_relegations):
+                    pos = len(table) - 1 - i
+                    if pos >= 0:
+                        result["automatic_relegation"].append({
+                            "bey": table[pos]["bey"],
+                            "from_tier": tier,
+                            "to_tier": tier + 1,
+                            "position": pos + 1
+                        })
+
+            if tier in RELEGATION_PLAYOFF_POSITIONS_V4 and tier < tiers_count:
+                higher_rank, lower_rank = RELEGATION_PLAYOFF_POSITIONS_V4[tier]
+                lower_table = league_tables.get(tier + 1, [])
+                if (higher_rank - 1 < len(table) and
+                        lower_rank - 1 < len(lower_table)):
+                    result["relegation_matches"].append({
+                        "higher_bey": table[higher_rank - 1]["bey"],
+                        "higher_tier": tier,
+                        "higher_position": higher_rank,
+                        "lower_bey": lower_table[lower_rank - 1]["bey"],
+                        "lower_tier": tier + 1,
+                        "lower_position": lower_rank
+                    })
+
+            # In Tier III (bottom regular tier), positions 4-8 enter Qualification Pool
+            if tier == tiers_count:
+                for i in range(3, len(table)):
+                    result["qualification_candidates"].append({
+                        "bey": table[i]["bey"],
+                        "tier": tier,
+                        "position": i + 1,
+                        "reason": "tier3_bottom"
+                    })
+
+        # Challenge League promotions to Tier III
+        cl_data = challenge_league_data if challenge_league_data is not None else season_data.get("challenge_league")
+        if cl_data:
+            promoted = cl_data.get("promoted_to_tier3", [])
+            for idx, bey in enumerate(promoted, 1):
+                result["automatic_promotion"].append({
+                    "bey": bey,
+                    "from_tier": "CL",
+                    "to_tier": 3,
+                    "position": idx
+                })
 
     else:
         # Season 2+ rules: 4 tiers of 8
@@ -641,20 +748,24 @@ def initialize_season_from_results(
         bey = move["bey"]
         from_tier = move["from_tier"]
         to_tier = move["to_tier"]
-        if bey in tier_comp.get(from_tier, []) and to_tier in tier_comp:
-            tier_comp[from_tier].remove(bey)
-            tier_comp[to_tier].append(bey)
+        if to_tier in tier_comp:
+            if from_tier in tier_comp and bey in tier_comp[from_tier]:
+                tier_comp[from_tier].remove(bey)
+            if bey not in tier_comp[to_tier]:
+                tier_comp[to_tier].append(bey)
 
     # Apply automatic relegations.
     for move in promotion_relegation.get("automatic_relegation", []):
         bey = move["bey"]
         from_tier = move["from_tier"]
         to_tier = move["to_tier"]
-        if bey in tier_comp.get(from_tier, []) and to_tier in tier_comp:
-            tier_comp[from_tier].remove(bey)
-            tier_comp[to_tier].append(bey)
+        if to_tier in tier_comp:
+            if from_tier in tier_comp and bey in tier_comp[from_tier]:
+                tier_comp[from_tier].remove(bey)
+            if bey not in tier_comp[to_tier]:
+                tier_comp[to_tier].append(bey)
 
-    # Remove qualification candidates from Tier IV — they drop to the pool.
+    # Remove qualification candidates — they drop to the pool.
     # These beys will compete in the qualification tournament for re-entry;
     # they do NOT automatically fill their own vacancies.
     qual_out: List[str] = []
@@ -663,6 +774,12 @@ def initialize_season_from_results(
         t = candidate.get("tier", tiers)
         if t in tier_comp and bey in tier_comp[t]:
             tier_comp[t].remove(bey)
+            qual_out.append(bey)
+
+    # Beys from former tiers that no longer exist in the new format (e.g. Tier IV when transitioning to 3 tiers)
+    for bey, data in prev_tier_assignments.items():
+        prev_t = data.get("tier", 0)
+        if prev_t > tiers and bey not in qual_out:
             qual_out.append(bey)
 
     # Build the fill-in pool from the PREVIOUS qualification pool only.
@@ -750,12 +867,23 @@ def initialize_season_from_results(
         "tiers": {},
     }
 
+    matches_total_per_tier = season_format.get(
+        "total_matches_per_tier",
+        int(beys_per_tier * (beys_per_tier - 1) / 2)
+    )
     for t in range(1, tiers + 1):
         tier_beys = [bey for bey, data in tier_assignments.items() if data["tier"] == t]
         season_data["tiers"][str(t)] = {
             "beys": tier_beys,
             "matches_played": 0,
-            "matches_total": int(beys_per_tier * (beys_per_tier - 1) / 2),
+            "matches_total": matches_total_per_tier,
+        }
+
+    if "challenge_league" in season_format:
+        season_data["challenge_league"] = {
+            "participants": season_format["challenge_league"]["participants"],
+            "groups": {},
+            "selected_beys": [],
         }
 
     return season_data, warnings
@@ -822,7 +950,9 @@ def load_season_data(season_id: Optional[str] = None,
 def generate_season_archive(season_id: str, matches: List[Dict],
                             league_tables: Dict[int, List[Dict]],
                             promotion_relegation: Dict,
-                            data_dir: str = DEFAULT_DATA_DIR) -> Dict:
+                            data_dir: str = DEFAULT_DATA_DIR,
+                            challenge_league: Optional[Dict] = None,
+                            season_data: Optional[Dict] = None) -> Dict:
     """
     Generate complete season archive data for frontend display.
 
@@ -832,11 +962,14 @@ def generate_season_archive(season_id: str, matches: List[Dict],
         league_tables: League tables for all tiers
         promotion_relegation: Promotion/relegation data
         data_dir: Directory to store archive
+        challenge_league: Optional challenge league data to attach
+        season_data: Optional in-memory season data dict (bypasses disk load)
 
     Returns:
         Complete season archive dictionary
     """
-    season_data = load_season_data(season_id, data_dir)
+    if season_data is None:
+        season_data = load_season_data(season_id, data_dir)
     if not season_data:
         raise ValueError(f"Season {season_id} not found")
 
@@ -923,6 +1056,10 @@ def generate_season_archive(season_id: str, matches: List[Dict],
             )
         }
     }
+
+    cl_to_attach = challenge_league if challenge_league is not None else season_data.get("challenge_league")
+    if cl_to_attach is not None:
+        archive["challenge_league"] = cl_to_attach
 
     return archive
 

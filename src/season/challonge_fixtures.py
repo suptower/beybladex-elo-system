@@ -45,7 +45,7 @@ import os
 import re
 import sys
 from datetime import datetime
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 # ---------------------------------------------------------------------------
 # Path bootstrap
@@ -163,21 +163,23 @@ def detect_current_season(
 # Parsing helpers
 # ---------------------------------------------------------------------------
 
-def extract_season_tier(tournament_name: str) -> Tuple[str, int]:
+def extract_season_tier(tournament_name: str) -> Tuple[str, Union[int, str]]:
     """
-    Extract the season ID and tier number from a Challonge tournament name.
+    Extract the season ID and tier number / stage from a Challonge tournament name.
 
     Supports names like:
-        "SEASON 2 TIER I"   → ("S2", 1)
-        "SEASON 2 TIER II"  → ("S2", 2)
-        "SEASON 2 TIER III" → ("S2", 3)
-        "SEASON 2 TIER IV"  → ("S2", 4)
+        "SEASON 2 TIER I"                       → ("S2", 1)
+        "SEASON 2 TIER II"                      → ("S2", 2)
+        "SEASON 2 TIER III"                     → ("S2", 3)
+        "SEASON 2 TIER IV"                      → ("S2", 4)
+        "SEASON 4 CHALLENGE LEAGUE GROUP A"     → ("S4", "A")
+        "SEASON 4 CHALLENGE LEAGUE FINAL"       → ("S4", "FINAL")
 
     Args:
         tournament_name: The ``name`` attribute from the Challonge API.
 
     Returns:
-        A (season_id, tier) tuple, e.g. ("S2", 1).
+        A (season_id, tier) tuple, e.g. ("S2", 1) or ("S4", "A").
 
     Raises:
         ValueError: If the name cannot be parsed.
@@ -187,25 +189,39 @@ def extract_season_tier(tournament_name: str) -> Tuple[str, int]:
     # Match "SEASON <number> TIER <roman>"
     pattern = r"SEASON\s+(\d+)\s+TIER\s+([IVXLCDM]+)"
     match = re.search(pattern, name_upper)
-    if not match:
-        raise ValueError(
-            f"Cannot parse season/tier from tournament name: '{tournament_name}'"
-        )
+    if match:
+        season_num = int(match.group(1))
+        tier_roman = match.group(2)
+        if tier_roman not in _ROMAN_NUMERALS:
+            raise ValueError(
+                f"Unsupported tier roman numeral '{tier_roman}' in: '{tournament_name}'"
+            )
+        return f"S{season_num}", _ROMAN_NUMERALS[tier_roman]
 
-    season_num = int(match.group(1))
-    tier_roman = match.group(2)
+    # Match "SEASON <number> CHALLENGE LEAGUE GROUP <letter>"
+    cl_group_pattern = r"SEASON\s+(\d+)\s+CHALLENGE\s+LEAGUE\s+GROUP\s+([A-D])"
+    match = re.search(cl_group_pattern, name_upper)
+    if match:
+        return f"S{int(match.group(1))}", match.group(2)
 
-    if tier_roman not in _ROMAN_NUMERALS:
-        raise ValueError(
-            f"Unsupported tier roman numeral '{tier_roman}' in: '{tournament_name}'"
-        )
+    # Match "SEASON <number> CHALLENGE LEAGUE (FINAL|PHASE 2)"
+    cl_final_pattern = r"SEASON\s+(\d+)\s+CHALLENGE\s+LEAGUE\s+(?:FINAL|STAGE\s*2|PHASE\s*2)"
+    match = re.search(cl_final_pattern, name_upper)
+    if match:
+        return f"S{int(match.group(1))}", "FINAL"
 
-    season_id = f"S{season_num}"
-    tier = _ROMAN_NUMERALS[tier_roman]
-    return season_id, tier
+    raise ValueError(
+        f"Cannot parse season/tier from tournament name: '{tournament_name}'"
+    )
 
 
-def make_fixture_id(bey_a: str, bey_b: str, season_id: str, tier: int) -> str:
+def make_fixture_id(
+    bey_a: str,
+    bey_b: str,
+    season_id: str,
+    tier: Union[int, str],
+    matchday: Optional[int] = None,
+) -> str:
     """
     Generate a deterministic, order-independent FixtureID.
 
@@ -214,19 +230,23 @@ def make_fixture_id(bey_a: str, bey_b: str, season_id: str, tier: int) -> str:
     same result as
     ``make_fixture_id("ImpactDrake", "FoxBrush", "S2", 1)``.
 
-    Format: ``{season_id}_T{tier}_{lower_bey}_{higher_bey}``
-    Example: ``S2_T1_FoxBrush_ImpactDrake``
+    Format:
+        ``{season_id}_T{tier}_{lower_bey}_{higher_bey}``
+        or ``{season_id}_T{tier}_MD{matchday}_{lower_bey}_{higher_bey}`` if matchday is given.
 
     Args:
         bey_a: First bey name.
         bey_b: Second bey name.
         season_id: Season identifier (e.g. "S2").
-        tier: Tier number (1–4).
+        tier: Tier number (1–4) or group identifier ("A", "FINAL").
+        matchday: Optional matchday integer.
 
     Returns:
         A stable string identifier.
     """
     sorted_beys = sorted([bey_a, bey_b])
+    if matchday is not None:
+        return f"{season_id}_T{tier}_MD{matchday}_{sorted_beys[0]}_{sorted_beys[1]}"
     return f"{season_id}_T{tier}_{sorted_beys[0]}_{sorted_beys[1]}"
 
 
@@ -498,23 +518,24 @@ def load_played_matches(
             bey_b = resolve_bey_name(row.get("BeyB", ""), canonical_by_norm)
             if bey_a and bey_b:
                 played.add(make_fixture_id(bey_a, bey_b, season_id, tier_value))
+                played.add(frozenset([bey_a, bey_b]))
 
     return played
 
 
 def compute_remaining_fixtures(
     fixtures: List[Dict],
-    played_set: Set[str],
+    played_set: Set[Union[str, frozenset]],
 ) -> List[Dict]:
     """
     Return fixtures that have not yet been played.
 
-    A fixture is considered unplayed when its FixtureID is not present in
-    *played_set*.
+    A fixture is considered unplayed when neither its FixtureID nor its
+    frozenset pair is present in *played_set*.
 
     Args:
         fixtures: Full list of fixture dicts from :func:`challonge_to_fixtures`.
-        played_set: Set of FixtureIDs returned by :func:`load_played_matches`.
+        played_set: Set of FixtureIDs or frozenset pairs returned by :func:`load_played_matches`.
 
     Returns:
         Filtered list containing only unplayed fixtures, preserving order.
@@ -522,7 +543,8 @@ def compute_remaining_fixtures(
     remaining = []
     for fix in fixtures:
         fixture_id = fix.get("fixture_id", "")
-        if fixture_id not in played_set:
+        pair = frozenset([fix.get("bey_a", ""), fix.get("bey_b", "")])
+        if fixture_id not in played_set and pair not in played_set:
             remaining.append(fix)
     return remaining
 

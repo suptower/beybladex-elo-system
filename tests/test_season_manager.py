@@ -907,3 +907,104 @@ class TestSeasonArchiveStatistics:
         assert playoff["score_higher"] == 6
         assert playoff["score_lower"] == 4
         assert playoff["match_id"] == "R1"
+
+
+class TestSeason4Rules:
+    """Tests specifically for Season 4 (3 tiers of 8 + Challenge League format)."""
+
+    def test_season4_format_configuration(self):
+        """Format S4 should have 3 tiers, 8 beys/tier, 24 total, and rules_version 4."""
+        from season_manager import get_season_format
+        fmt = get_season_format("S4")
+        assert fmt["tiers"] == 3
+        assert fmt["beys_per_tier"] == 8
+        assert fmt["total_beys_in_league"] == 24
+        assert fmt["rules_version"] == 4
+        assert fmt["total_matches_per_tier"] == 40
+        assert "challenge_league" in fmt
+
+    def test_season4_initialization(self):
+        """Initializing S4 creates 3 tiers of 8 with 40 matches each."""
+        beys = [(f"Bey{i}", 1200 - i * 5) for i in range(40)]
+        data = initialize_season("S4", beys)
+
+        assert data["season_id"] == "S4"
+        assert len(data["tier_assignments"]) == 24
+        assert len(data["qualification_pool"]) == 16
+        assert set(data["tiers"].keys()) == {"1", "2", "3"}
+        for t in ["1", "2", "3"]:
+            assert len(data["tiers"][t]["beys"]) == 8
+            assert data["tiers"][t]["matches_total"] == 40
+
+    def test_season4_promotion_relegation(self):
+        """S4 promotion/relegation:
+        - T1: Rank 8 auto-relegates; Rank 7 playoff vs T2#2
+        - T2: Rank 1 auto-promotes; Rank 2 playoff vs T1#7; Ranks 7-8 auto-relegate; Rank 6 playoff vs T3#3
+        - T3: Ranks 1-2 auto-promote; Rank 3 playoff vs T2#6; Ranks 4-8 enter qualification pool
+        """
+        league_tables = {
+            1: [{"bey": f"T1-Bey{i}", "position": i, "elo": 1500} for i in range(1, 9)],
+            2: [{"bey": f"T2-Bey{i}", "position": i, "elo": 1400} for i in range(1, 9)],
+            3: [{"bey": f"T3-Bey{i}", "position": i, "elo": 1300} for i in range(1, 9)],
+        }
+        season_data = {"season_id": "S4"}
+        pr = get_promotion_relegation(season_data, league_tables)
+
+        # Auto promotions
+        t2_promotions = [p for p in pr["automatic_promotion"] if p.get("from_tier") == 2]
+        assert len(t2_promotions) == 1
+        assert t2_promotions[0]["bey"] == "T2-Bey1"
+        assert t2_promotions[0]["to_tier"] == 1
+
+        t3_promotions = [p for p in pr["automatic_promotion"] if p.get("from_tier") == 3]
+        assert len(t3_promotions) == 2
+        assert t3_promotions[0]["bey"] == "T3-Bey1"
+        assert t3_promotions[1]["bey"] == "T3-Bey2"
+
+        # Auto relegations
+        t1_relegations = [r for r in pr["automatic_relegation"] if r.get("from_tier") == 1]
+        assert len(t1_relegations) == 1
+        assert t1_relegations[0]["bey"] == "T1-Bey8"
+        assert t1_relegations[0]["to_tier"] == 2
+
+        t2_relegations = [r for r in pr["automatic_relegation"] if r.get("from_tier") == 2]
+        assert len(t2_relegations) == 2
+        assert {r["bey"] for r in t2_relegations} == {"T2-Bey7", "T2-Bey8"}
+
+        # Relegation playoffs: T1#7 vs T2#2, and T2#6 vs T3#3
+        playoffs = pr["relegation_matches"]
+        assert len(playoffs) == 2
+        p1 = next(m for m in playoffs if m["higher_tier"] == 1 and m["lower_tier"] == 2)
+        assert p1["higher_bey"] == "T1-Bey7"
+        assert p1["lower_bey"] == "T2-Bey2"
+
+        p2 = next(m for m in playoffs if m["higher_tier"] == 2 and m["lower_tier"] == 3)
+        assert p2["higher_bey"] == "T2-Bey6"
+        assert p2["lower_bey"] == "T3-Bey3"
+
+        # Tier III positions 4-8 enter Qualification Pool
+        qual_candidates = pr["qualification_candidates"]
+        assert len(qual_candidates) == 5
+        assert {c["bey"] for c in qual_candidates} == {"T3-Bey4", "T3-Bey5", "T3-Bey6", "T3-Bey7", "T3-Bey8"}
+        assert all(c["reason"] == "tier3_bottom" for c in qual_candidates)
+
+    def test_season4_with_challenge_league_promotions(self):
+        """Challenge League promotions to Tier III are included in automatic_promotion."""
+        league_tables = {
+            1: [{"bey": f"T1-Bey{i}", "position": i, "elo": 1500} for i in range(1, 9)],
+            2: [{"bey": f"T2-Bey{i}", "position": i, "elo": 1400} for i in range(1, 9)],
+            3: [{"bey": f"T3-Bey{i}", "position": i, "elo": 1300} for i in range(1, 9)],
+        }
+        season_data = {
+            "season_id": "S4",
+            "challenge_league": {
+                "promoted_to_tier3": ["CL-Bey1", "CL-Bey2", "CL-Bey3", "CL-Bey4", "CL-Bey5"]
+            }
+        }
+        pr = get_promotion_relegation(season_data, league_tables)
+
+        cl_promotions = [p for p in pr["automatic_promotion"] if p.get("from_tier") == "CL"]
+        assert len(cl_promotions) == 5
+        assert [p["bey"] for p in cl_promotions] == ["CL-Bey1", "CL-Bey2", "CL-Bey3", "CL-Bey4", "CL-Bey5"]
+        assert all(p["to_tier"] == 3 for p in cl_promotions)
+

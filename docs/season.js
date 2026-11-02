@@ -350,6 +350,11 @@ async function displaySeason(seasonId, season) {
     if (seasonData.promotion_relegation) {
         displayPromotionRelegation(seasonData.promotion_relegation);
     }
+
+    // Display Challenge League
+    if (seasonData.challenge_league) {
+        displayChallengeLeague(seasonData.challenge_league);
+    }
     
     // Display Qualification Pool
     if (seasonData.qualification_pool) {
@@ -1175,7 +1180,56 @@ function sortTierTable(tier, column) {
 function getPositionLegend(tier, tierSize = 8) {
     let html = '<div class="position-legend">';
 
-    if (tierSize >= 10) {
+    const isS4 = currentSeason?.season_id === 'S4' || Boolean(currentSeason?.challenge_league) || currentSeason?.rules_version === 4;
+
+    if (isS4) {
+        if (tier === 1) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator playoff"></div>
+                    <span>Relegation Playoff (7th)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator relegation"></div>
+                    <span>Direct Relegation (8th)</span>
+                </div>
+            `;
+        } else if (tier === 2) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator promotion"></div>
+                    <span>Direct Promotion (1st)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator playoff"></div>
+                    <span>Promotion Playoff (2nd)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator playoff"></div>
+                    <span>Relegation Playoff (6th)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator relegation"></div>
+                    <span>Direct Relegation (7th–8th)</span>
+                </div>
+            `;
+        } else if (tier === 3) {
+            html += `
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator promotion"></div>
+                    <span>Direct Promotion (1st–2nd)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator playoff"></div>
+                    <span>Promotion Playoff (3rd)</span>
+                </div>
+                <div class="position-legend-item">
+                    <div class="position-legend-indicator qualification"></div>
+                    <span>Qualification Pool (4th–8th)</span>
+                </div>
+            `;
+        }
+    } else if (tierSize >= 10) {
         // Legacy S1 rules (10 beys per tier, 3 tiers)
         if (tier > 1) {
             html += `
@@ -1344,7 +1398,45 @@ function createTableRow(entry, idx, tier, hasSnapshots = false, tierSize = 8, ti
     let positionClass = '';
     let positionIndicator = '';
 
-    if (tierSize >= 10) {
+    const isS4 = currentSeason?.season_id === 'S4' || Boolean(currentSeason?.challenge_league) || currentSeason?.rules_version === 4;
+
+    if (isS4) {
+        // Season 4+ rules: 3 tiers of 8 Beys
+        if (tier === 1) {
+            if (idx === 6) {
+                positionClass = 'playoff-zone';
+                positionIndicator = ' ↕';
+            } else if (idx === 7) {
+                positionClass = 'relegation-zone';
+                positionIndicator = ' ↓';
+            }
+        } else if (tier === 2) {
+            if (idx === 0) {
+                positionClass = 'promotion-zone';
+                positionIndicator = ' ↑';
+            } else if (idx === 1) {
+                positionClass = 'playoff-zone';
+                positionIndicator = ' ↕';
+            } else if (idx === 5) {
+                positionClass = 'playoff-zone';
+                positionIndicator = ' ↕';
+            } else if (idx >= 6) {
+                positionClass = 'relegation-zone';
+                positionIndicator = ' ↓';
+            }
+        } else if (tier === 3) {
+            if (idx < 2) {
+                positionClass = 'promotion-zone';
+                positionIndicator = ' ↑';
+            } else if (idx === 2) {
+                positionClass = 'playoff-zone';
+                positionIndicator = ' ↕';
+            } else if (idx >= 3) {
+                positionClass = 'qualification-zone';
+                positionIndicator = ' Q';
+            }
+        }
+    } else if (tierSize >= 10) {
         // Legacy S1 rules (10 beys per tier, 3 tiers)
         if (tier > 1 && idx < 2) {
             positionClass = 'promotion-zone';
@@ -1461,7 +1553,9 @@ function displayPromotionRelegation(data) {
                 <ul>
                     ${data.automatic_promotion.map(p => {
                         const beyLink = `<a href="bey.html?name=${encodeURIComponent(p.bey)}" class="bey-link">${addSoftHyphens(p.bey)}</a>`;
-                        return `<li><strong>${beyLink}</strong> (Tier ${p.from_tier} → Tier ${p.to_tier})</li>`;
+                        const fromTierStr = p.from_tier === 'CL' ? 'Challenge League' : `Tier ${p.from_tier}`;
+                        const toTierStr = p.to_tier === 'CL' ? 'Challenge League' : `Tier ${p.to_tier}`;
+                        return `<li><strong>${beyLink}</strong> (${fromTierStr} → ${toTierStr})</li>`;
                     }).join('')}
                 </ul>
             </div>
@@ -1476,7 +1570,9 @@ function displayPromotionRelegation(data) {
                 <ul>
                     ${data.automatic_relegation.map(r => {
                         const beyLink = `<a href="bey.html?name=${encodeURIComponent(r.bey)}" class="bey-link">${addSoftHyphens(r.bey)}</a>`;
-                        return `<li><strong>${beyLink}</strong> (Tier ${r.from_tier} → Tier ${r.to_tier})</li>`;
+                        const fromTierStr = r.from_tier === 'CL' ? 'Challenge League' : `Tier ${r.from_tier}`;
+                        const toTierStr = r.to_tier === 'CL' ? 'Challenge League' : `Tier ${r.to_tier}`;
+                        return `<li><strong>${beyLink}</strong> (${fromTierStr} → ${toTierStr})</li>`;
                     }).join('')}
                 </ul>
             </div>
@@ -1546,6 +1642,199 @@ function displayRelegationMatches(matches) {
 }
 
 /**
+ * Display Challenge League (Season 4+)
+ */
+function displayChallengeLeague(challengeLeague) {
+    const sectionContainer = document.getElementById('challenge-league-container');
+    const container = document.getElementById('challenge-league-content');
+    
+    if (!sectionContainer || !container) return;
+    
+    if (!challengeLeague) {
+        sectionContainer.style.display = 'none';
+        return;
+    }
+    
+    sectionContainer.style.display = 'block';
+    
+    const groups = challengeLeague.groups || {};
+    const groupTables = challengeLeague.group_tables || {};
+    const finalStage = challengeLeague.final_stage || {};
+    const finalStandings = finalStage.standings || [];
+    
+    let html = `
+        <div class="challenge-league-section">
+            <div class="cl-header-box" style="margin-bottom: 1.5rem; padding: 1rem; background: var(--bg-alt); border-radius: var(--radius-sm); border-left: 4px solid var(--accent);">
+                <p style="margin: 0; color: var(--text);">
+                    <strong>Challenge League Format:</strong> 24 Beys selected from the Qualification Pool compete in 4 groups of 6 (3 Swiss rounds). 
+                    Top 2 from each group advance to the Final Swiss Stage (8 Beys, points reset to 0). 
+                    The <strong>Top 5</strong> finishers in the Final Stage qualify for <strong>Tier III</strong> next season!
+                </p>
+            </div>
+
+            <h3 style="margin: 1.5rem 0 1rem 0; color: var(--text);">⚔️ Phase 1: Group Stage (4 Groups of 6)</h3>
+            <div class="cl-groups-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+    `;
+    
+    const groupNames = ['A', 'B', 'C', 'D'];
+    groupNames.forEach(gName => {
+        const gTable = groupTables[gName];
+        const gBeys = groups[gName] || [];
+        
+        const hasPlayedMatches = gTable && gTable.some(entry => entry.matches > 0);
+        html += `
+            <div class="cl-group-card" style="background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; box-shadow: var(--shadow);">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--text); display: flex; justify-content: space-between; align-items: center;">
+                    <span>Group ${gName}</span>
+                    <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-light);">${hasPlayedMatches ? '3 Swiss Rounds' : 'Seeded'}</span>
+                </h4>
+        `;
+        
+        if (hasPlayedMatches) {
+            html += `
+                <div class="table-responsive">
+                    <table class="league-table" style="font-size: 0.85rem; width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Bey</th>
+                                <th title="Matches">M</th>
+                                <th title="Wins">W</th>
+                                <th title="Losses">L</th>
+                                <th title="Points">SP</th>
+                                <th title="Point Diff">RPD</th>
+                                <th title="ELO">ELO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${gTable.map((entry, idx) => {
+                                const isAdvancing = idx < 2;
+                                const rowClass = isAdvancing ? 'promotion-zone' : '';
+                                const advBadge = isAdvancing ? ' <span style="color:#22c55e;font-size:0.75rem;font-weight:bold;">(Q)</span>' : '';
+                                const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
+                                const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
+                                return `
+                                    <tr class="${rowClass}">
+                                        <td><strong>${idx + 1}</strong></td>
+                                        <td>${beyLink}${advBadge}</td>
+                                        <td>${entry.matches}</td>
+                                        <td>${entry.wins}</td>
+                                        <td>${entry.losses}</td>
+                                        <td><strong>${entry.season_points}</strong></td>
+                                        <td>${(entry.point_diff > 0 ? '+' : '')}${entry.point_diff}</td>
+                                        <td>${Math.round(displayElo)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="cl-seeded-list">
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        ${gBeys.map((b, idx) => {
+                            const name = typeof b === 'object' ? b.bey : b;
+                            const displayElo = xtremeEloData[name] !== undefined 
+                                ? xtremeEloData[name] 
+                                : (typeof b === 'object' && b.elo ? b.elo : 1000);
+                            const beyLink = `<a href="bey.html?name=${encodeURIComponent(name)}" class="bey-link">${addSoftHyphens(name)}</a>`;
+                            return `
+                                <li style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid var(--border);">
+                                    <span>${idx + 1}. ${beyLink}</span>
+                                    <span style="color: var(--text-light); font-size: 0.85rem;">ELO: ${Math.round(displayElo)}</span>
+                                </li>
+                            `;
+                        }).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        html += `</div>`;
+    });
+    
+    html += `</div>`; // Close cl-groups-grid
+    
+    // Phase 2: Final Swiss Stage
+    html += `
+        <h3 style="margin: 2rem 0 1rem 0; color: var(--text);">🏅 Phase 2: Final Swiss Stage (8 Qualifiers)</h3>
+    `;
+    
+    if (finalStandings && finalStandings.length > 0) {
+        html += `
+            <div class="cl-final-table-card" style="background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; box-shadow: var(--shadow); margin-bottom: 1.5rem;">
+                <p style="margin: 0 0 1rem 0; font-size: 0.85rem; color: var(--text-light);">
+                    All qualifiers started with 0 points. Top 5 earn promotion to Tier III next season.
+                </p>
+                <div class="table-responsive">
+                    <table class="league-table">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Bey</th>
+                                <th>M</th>
+                                <th>W</th>
+                                <th>L</th>
+                                <th>SP</th>
+                                <th>RPW</th>
+                                <th>RPL</th>
+                                <th>RPD</th>
+                                <th>Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${finalStandings.map((entry, idx) => {
+                                const isPromoted = idx < 5;
+                                const rowClass = isPromoted ? 'promotion-zone' : 'qualification-zone';
+                                const outcomeBadge = isPromoted 
+                                    ? '<span style="color:#22c55e;font-weight:bold;">↑ Promoted to Tier III</span>' 
+                                    : '<span style="color:var(--text-light);">Returns to Pool</span>';
+                                const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
+                                return `
+                                    <tr class="${rowClass}">
+                                        <td><strong>${idx + 1}</strong></td>
+                                        <td>${beyLink}</td>
+                                        <td>${entry.matches}</td>
+                                        <td>${entry.wins}</td>
+                                        <td>${entry.losses}</td>
+                                        <td><strong>${entry.season_points}</strong></td>
+                                        <td>${entry.points_for ?? 0}</td>
+                                        <td>${entry.points_against ?? 0}</td>
+                                        <td>${(entry.point_diff ?? 0) > 0 ? '+' : ''}${entry.point_diff ?? 0}</td>
+                                        <td>${outcomeBadge}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    } else {
+        const finalParts = finalStage.participants || challengeLeague.final_qualifiers || [];
+        html += `
+            <div class="cl-final-stage-pending" style="background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; box-shadow: var(--shadow);">
+                ${finalParts.length > 0 ? `
+                    <p style="margin: 0 0 0.5rem 0; color: var(--text);"><strong>Qualifiers for Final Stage:</strong></p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        ${finalParts.map(name => `<span class="badge" style="padding: 0.35rem 0.75rem; background: var(--bg-subtle); border-radius: var(--radius-sm);"><a href="bey.html?name=${encodeURIComponent(name)}" class="bey-link">${addSoftHyphens(name)}</a></span>`).join('')}
+                    </div>
+                ` : `
+                    <p style="margin: 0; color: var(--text-light); font-style: italic;">
+                        Pending completion of the 4 Group stages. The top 2 from each group will advance here to play 3 Swiss rounds.
+                    </p>
+                `}
+            </div>
+        `;
+    }
+    
+    html += `</div>`; // Close challenge-league-section
+    container.innerHTML = html;
+}
+
+/**
  * Display Qualification Pool
  */
 function displayQualificationPool(qualificationPool) {
@@ -1558,19 +1847,42 @@ function displayQualificationPool(qualificationPool) {
     }
     
     sectionContainer.style.display = 'block';
+
+    const isS4 = currentSeason?.season_id === 'S4' || Boolean(currentSeason?.challenge_league) || currentSeason?.rules_version === 4;
+    const selectedBeys = new Set(currentSeason?.challenge_league?.selected_beys || []);
     
+    // For Season 4+, only display Beys that are NOT participating in the current Challenge League
+    let poolToDisplay = qualificationPool;
+    if (isS4 && selectedBeys.size > 0) {
+        poolToDisplay = qualificationPool.filter(entry => !selectedBeys.has(entry.bey));
+    }
+
+    const headerTitle = isS4 ? `🎯 Qualification Pool (${poolToDisplay.length} Beys)` : '🎯 Beys Competing for Tier III Slots';
+    const introText = isS4 
+        ? `These ${poolToDisplay.length} Beys occupy the Qualification Pool reserve while 24 Beys compete in the Challenge League. Inactive Beys gain higher selection weights for future Challenge League draws.`
+        : 'These Beys will compete in the Qualification Tournament. Top 4 finishers earn Tier III placement for the next season.';
+    
+    // Update the collapsible section header if present
+    const sectionHeader = document.querySelector('[data-section-id="qualification-pool"]');
+    if (sectionHeader && isS4) {
+        const toggleIcon = sectionHeader.querySelector('.section-toggle-icon');
+        const iconHtml = toggleIcon ? toggleIcon.outerHTML : '<span class="section-toggle-icon">▶</span>';
+        sectionHeader.innerHTML = `${iconHtml} 🎯 Qualification Pool (${poolToDisplay.length} Beys)`;
+    }
+
     let html = `
         <div class="qualification-pool-section">
-            <h4>🎯 Beys Competing for Tier III Slots</h4>
-            <p class="qualification-intro">These Beys will compete in the Qualification Tournament. Top 4 finishers earn Tier III placement for the next season.</p>
+            <h4>${headerTitle}</h4>
+            <p class="qualification-intro">${introText}</p>
             <div class="qualification-grid">
-                ${qualificationPool.map((entry, idx) => {
+                ${poolToDisplay.map((entry, idx) => {
                     const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
+                    const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
                     return `
                     <div class="qualification-card">
                         <div class="qualification-rank">${idx + 1}</div>
                         <div class="qualification-bey">${beyLink}</div>
-                        <div class="qualification-elo">ELO: ${Math.round(entry.elo)}</div>
+                        <div class="qualification-elo">ELO: ${Math.round(displayElo)}</div>
                     </div>
                 `;
                 }).join('')}
