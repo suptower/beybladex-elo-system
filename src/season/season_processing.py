@@ -543,8 +543,19 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
     if "challenge_league" in season_format or "challenge_league" in season_data:
         cl_cfg = season_data.get("challenge_league", {})
         cl_groups = cl_cfg.get("groups") if isinstance(cl_cfg, dict) else None
+        pool_elos = {entry["bey"]: entry["elo"] for entry in refreshed_pool} if refreshed_pool else {}
+
+        # Update ELOs in cl_groups with latest pool ELOs if available
+        if cl_groups and isinstance(cl_groups, dict) and pool_elos:
+            for g_name, g_beys in cl_groups.items():
+                for b_entry in g_beys:
+                    if isinstance(b_entry, dict) and b_entry.get("bey") in pool_elos:
+                        b_entry["elo"] = pool_elos[b_entry["bey"]]
+            season_data["challenge_league"]["groups"] = cl_groups
+            save_season_data(season_data, data_dir)
+
         challenge_league_result = process_challenge_league(
-            matches, season_id, groups=cl_groups, rounds_data=rounds_data
+            matches, season_id, groups=cl_groups, rounds_data=rounds_data, elo_lookup=pool_elos
         )
         if challenge_league_result and challenge_league_result.get("final_swiss"):
             print(f"  Challenge League: {len(challenge_league_result.get('promoted_to_tier3', []))} promoted to Tier III")
@@ -575,7 +586,11 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
 
     # Add Challenge League data if available
     if challenge_league_result:
-        archive["challenge_league"] = challenge_league_result
+        cl_data = dict(season_data.get("challenge_league", {}))
+        cl_data.update(challenge_league_result)
+        if cl_groups:
+            cl_data["groups"] = cl_groups
+        archive["challenge_league"] = cl_data
 
     # Add Season Cup data if available
     if cup_display:

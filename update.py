@@ -287,12 +287,14 @@ def run_script(script_path, description, verbose=False, stream_output=False, ext
                 env=env,
                 encoding="utf-8"
             )
+            captured_lines = []
             for line in process.stdout:
+                captured_lines.append(line)
                 if verbose:
                     print(f"    {line}", end="")
             process.wait()
             returncode = process.returncode
-            stdout = ""
+            stdout = "".join(captured_lines)
             stderr = ""
         else:
             # Capture output for shorter scripts
@@ -317,8 +319,9 @@ def run_script(script_path, description, verbose=False, stream_output=False, ext
             return True, duration
         else:
             log_step(f"{description} failed (exit code {returncode})", "error")
-            if stderr:
-                for line in stderr.strip().split("\n"):
+            err_output = stderr or stdout
+            if err_output:
+                for line in err_output.strip().split("\n"):
                     print(f"    {RED}{line}{RESET}")
             return False, duration
 

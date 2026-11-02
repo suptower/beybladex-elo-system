@@ -6,23 +6,31 @@ This guide outlines the standard operating procedures (SOP) for managing a compe
 ---
 
 ## 📋 Table of Contents
-1. [Season Architecture Overview](#1-season-architecture-overview)
-2. [Before the Season (Pre-Season Setup)](#2-before-the-season-pre-season-setup)
-   - [Step 2.1: Verify State & Leaderboard](#step-21-verify-state--leaderboard)
-   - [Step 2.2: Initialize Season & Draw Challenge League](#step-22-initialize-season--draw-challenge-league)
-   - [Step 2.3: Setup Challonge Tournaments](#step-23-setup-challonge-tournaments)
-   - [Step 2.4: Prepare Match Recording Sheets](#step-24-prepare-match-recording-sheets)
-3. [During the Season (Matchdays & Live Operations)](#3-during-the-season-matchdays--live-operations)
-   - [Step 3.1: Match Format & Quotas](#step-31-match-format--quotas)
-   - [Step 3.2: Recording Match Sessions](#step-32-recording-match-sessions)
-   - [Step 3.3: Running Incremental Updates](#step-33-running-incremental-updates)
-   - [Step 3.4: Transitioning between Phase 1 and Phase 2](#step-34-transitioning-between-phase-1-and-phase-2)
-4. [After the Season (Playoffs, Archiving & Rollover)](#4-after-the-season-playoffs-archiving--rollover)
-   - [Step 4.1: Finalize Standings & Identify Promotions/Relegations](#step-41-finalize-standings--identify-promotionsrelegations)
-   - [Step 4.2: Play and Record Relegation Playoffs](#step-42-play-and-record-relegation-playoffs)
-   - [Step 4.3: Final Pipeline Run & Season Archive](#step-43-final-pipeline-run--season-archive)
-   - [Step 4.4: Roll Over into Next Season](#step-44-roll-over-into-next-season)
-5. [CLI Command Quick Reference](#5-cli-command-quick-reference)
+- [🏆 Beyblade X League Season Lifecycle Guide](#-beyblade-x-league-season-lifecycle-guide)
+  - [Complete Operations Manual: Before, During, and After a Season](#complete-operations-manual-before-during-and-after-a-season)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [1. Season Architecture Overview](#1-season-architecture-overview)
+    - [Match Counts \& Rules](#match-counts--rules)
+  - [2. Before the Season (Pre-Season Setup)](#2-before-the-season-pre-season-setup)
+    - [Step 2.1: Verify State \& Leaderboard](#step-21-verify-state--leaderboard)
+    - [Step 2.2: Initialize Season \& Draw Challenge League](#step-22-initialize-season--draw-challenge-league)
+      - [Case A: Continuing from Previous Season (e.g. S4 to S5)](#case-a-continuing-from-previous-season-eg-s4-to-s5)
+      - [Case B: Redrawing or Adjusting Challenge League Only](#case-b-redrawing-or-adjusting-challenge-league-only)
+    - [Step 2.3: Setup Challonge Tournaments](#step-23-setup-challonge-tournaments)
+    - [Step 2.4: Prepare Match Recording Sheets](#step-24-prepare-match-recording-sheets)
+  - [3. During the Season (Matchdays \& Live Operations)](#3-during-the-season-matchdays--live-operations)
+    - [Step 3.1: Match Format \& Quotas](#step-31-match-format--quotas)
+    - [Step 3.2: Recording Match Sessions](#step-32-recording-match-sessions)
+    - [Step 3.3: Running Incremental Updates](#step-33-running-incremental-updates)
+    - [Step 3.4: Transitioning between Phase 1 and Phase 2](#step-34-transitioning-between-phase-1-and-phase-2)
+      - [Regular Tiers:](#regular-tiers)
+      - [Challenge League:](#challenge-league)
+  - [4. After the Season (Playoffs, Archiving \& Rollover)](#4-after-the-season-playoffs-archiving--rollover)
+    - [Step 4.1: Finalize Standings \& Identify Promotions/Relegations](#step-41-finalize-standings--identify-promotionsrelegations)
+    - [Step 4.2: Play and Record Relegation Playoffs](#step-42-play-and-record-relegation-playoffs)
+    - [Step 4.3: Final Pipeline Run \& Season Archive](#step-43-final-pipeline-run--season-archive)
+    - [Step 4.4: Roll Over into Next Season](#step-44-roll-over-into-next-season)
+  - [5. CLI Command Quick Reference](#5-cli-command-quick-reference)
 
 ---
 
@@ -94,7 +102,7 @@ This automatically:
 2. Applies relegation playoff results.
 3. Promotes the top 5 Challenge League finishers into Tier III.
 4. Moves bottom Tier III Beys (#4–8) into the Qualification Pool.
-5. Calculates inverse participation weights ($w = \frac{1}{1 + \text{relevant\_matches}}$) for all Qualification Pool Beys.
+5. Calculates inverse participation weights $(w = \frac{1}{1 + \text{relevant\_matches}})$ for all Qualification Pool Beys.
 6. Performs weighted random sampling without replacement to pick 24 Challenge League entrants.
 7. Snake-seeds the 24 entrants across Groups A, B, C, and D based on current ELO.
 8. Writes configuration to `docs/data/season/seasons.json`.

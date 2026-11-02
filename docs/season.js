@@ -1681,15 +1681,16 @@ function displayChallengeLeague(challengeLeague) {
         const gTable = groupTables[gName];
         const gBeys = groups[gName] || [];
         
+        const hasPlayedMatches = gTable && gTable.some(entry => entry.matches > 0);
         html += `
             <div class="cl-group-card" style="background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; box-shadow: var(--shadow);">
                 <h4 style="margin: 0 0 0.75rem 0; color: var(--text); display: flex; justify-content: space-between; align-items: center;">
                     <span>Group ${gName}</span>
-                    <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-light);">${gTable ? '3 Swiss Rounds' : 'Seeded'}</span>
+                    <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-light);">${hasPlayedMatches ? '3 Swiss Rounds' : 'Seeded'}</span>
                 </h4>
         `;
         
-        if (gTable && gTable.length > 0) {
+        if (hasPlayedMatches) {
             html += `
                 <div class="table-responsive">
                     <table class="league-table" style="font-size: 0.85rem; width: 100%;">
@@ -1702,6 +1703,7 @@ function displayChallengeLeague(challengeLeague) {
                                 <th title="Losses">L</th>
                                 <th title="Points">SP</th>
                                 <th title="Point Diff">RPD</th>
+                                <th title="ELO">ELO</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1710,6 +1712,7 @@ function displayChallengeLeague(challengeLeague) {
                                 const rowClass = isAdvancing ? 'promotion-zone' : '';
                                 const advBadge = isAdvancing ? ' <span style="color:#22c55e;font-size:0.75rem;font-weight:bold;">(Q)</span>' : '';
                                 const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
+                                const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
                                 return `
                                     <tr class="${rowClass}">
                                         <td><strong>${idx + 1}</strong></td>
@@ -1719,6 +1722,7 @@ function displayChallengeLeague(challengeLeague) {
                                         <td>${entry.losses}</td>
                                         <td><strong>${entry.season_points}</strong></td>
                                         <td>${(entry.point_diff > 0 ? '+' : '')}${entry.point_diff}</td>
+                                        <td>${Math.round(displayElo)}</td>
                                     </tr>
                                 `;
                             }).join('')}
@@ -1732,12 +1736,14 @@ function displayChallengeLeague(challengeLeague) {
                     <ul style="list-style: none; padding: 0; margin: 0;">
                         ${gBeys.map((b, idx) => {
                             const name = typeof b === 'object' ? b.bey : b;
-                            const elo = typeof b === 'object' && b.elo ? Math.round(b.elo) : (xtremeEloData[name] ? Math.round(xtremeEloData[name]) : 'N/A');
+                            const displayElo = xtremeEloData[name] !== undefined 
+                                ? xtremeEloData[name] 
+                                : (typeof b === 'object' && b.elo ? b.elo : 1000);
                             const beyLink = `<a href="bey.html?name=${encodeURIComponent(name)}" class="bey-link">${addSoftHyphens(name)}</a>`;
                             return `
                                 <li style="display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid var(--border);">
                                     <span>${idx + 1}. ${beyLink}</span>
-                                    <span style="color: var(--text-light); font-size: 0.85rem;">ELO: ${elo}</span>
+                                    <span style="color: var(--text-light); font-size: 0.85rem;">ELO: ${Math.round(displayElo)}</span>
                                 </li>
                             `;
                         }).join('')}
@@ -1843,26 +1849,40 @@ function displayQualificationPool(qualificationPool) {
     sectionContainer.style.display = 'block';
 
     const isS4 = currentSeason?.season_id === 'S4' || Boolean(currentSeason?.challenge_league) || currentSeason?.rules_version === 4;
-    const headerTitle = isS4 ? '🎯 Qualification Pool' : '🎯 Beys Competing for Tier III Slots';
-    const introText = isS4 
-        ? 'These Beys occupy the Qualification Pool. 24 Beys are selected each season via weighted random sampling to compete in the Challenge League for Tier III promotion.'
-        : 'These Beys will compete in the Qualification Tournament. Top 4 finishers earn Tier III placement for the next season.';
     const selectedBeys = new Set(currentSeason?.challenge_league?.selected_beys || []);
     
+    // For Season 4+, only display Beys that are NOT participating in the current Challenge League
+    let poolToDisplay = qualificationPool;
+    if (isS4 && selectedBeys.size > 0) {
+        poolToDisplay = qualificationPool.filter(entry => !selectedBeys.has(entry.bey));
+    }
+
+    const headerTitle = isS4 ? `🎯 Qualification Pool (${poolToDisplay.length} Beys)` : '🎯 Beys Competing for Tier III Slots';
+    const introText = isS4 
+        ? `These ${poolToDisplay.length} Beys occupy the Qualification Pool reserve while 24 Beys compete in the Challenge League. Inactive Beys gain higher selection weights for future Challenge League draws.`
+        : 'These Beys will compete in the Qualification Tournament. Top 4 finishers earn Tier III placement for the next season.';
+    
+    // Update the collapsible section header if present
+    const sectionHeader = document.querySelector('[data-section-id="qualification-pool"]');
+    if (sectionHeader && isS4) {
+        const toggleIcon = sectionHeader.querySelector('.section-toggle-icon');
+        const iconHtml = toggleIcon ? toggleIcon.outerHTML : '<span class="section-toggle-icon">▶</span>';
+        sectionHeader.innerHTML = `${iconHtml} 🎯 Qualification Pool (${poolToDisplay.length} Beys)`;
+    }
+
     let html = `
         <div class="qualification-pool-section">
             <h4>${headerTitle}</h4>
             <p class="qualification-intro">${introText}</p>
             <div class="qualification-grid">
-                ${qualificationPool.map((entry, idx) => {
+                ${poolToDisplay.map((entry, idx) => {
                     const beyLink = `<a href="bey.html?name=${encodeURIComponent(entry.bey)}" class="bey-link">${addSoftHyphens(entry.bey)}</a>`;
-                    const inCL = isS4 && selectedBeys.has(entry.bey);
-                    const clBadge = inCL ? '<div class="cl-pool-badge" style="font-size:0.75rem;background:rgba(34,197,94,0.15);color:#22c55e;padding:2px 6px;border-radius:4px;margin-top:4px;display:inline-block;font-weight:600;">⚔️ Challenge League</div>' : '';
+                    const displayElo = xtremeEloData[entry.bey] !== undefined ? xtremeEloData[entry.bey] : entry.elo;
                     return `
                     <div class="qualification-card">
                         <div class="qualification-rank">${idx + 1}</div>
-                        <div class="qualification-bey">${beyLink}${clBadge}</div>
-                        <div class="qualification-elo">ELO: ${Math.round(entry.elo)}</div>
+                        <div class="qualification-bey">${beyLink}</div>
+                        <div class="qualification-elo">ELO: ${Math.round(displayElo)}</div>
                     </div>
                 `;
                 }).join('')}

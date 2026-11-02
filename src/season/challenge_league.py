@@ -283,8 +283,9 @@ def assign_challenge_groups(
 
 def calculate_league_table(
     matches: List[Dict],
-    expected_beys: Optional[List[str]] = None,
+    expected_beys: Optional[Union[List[str], List[Dict]]] = None,
     rounds_data: Optional[Dict[str, List[Dict]]] = None,
+    elo_lookup: Optional[Dict[str, float]] = None,
 ) -> List[Dict]:
     """
     Calculate standings table for a list of matches (Group or Swiss).
@@ -323,8 +324,18 @@ def calculate_league_table(
     })
 
     if expected_beys:
-        for b in expected_beys:
-            standings[b]["bey"] = b
+        for item in expected_beys:
+            if isinstance(item, dict):
+                b = item.get("bey") or item.get("name") or ""
+                initial_elo = float(item.get("elo", 1000.0) if item.get("elo") is not None else 1000.0)
+            else:
+                b = str(item)
+                initial_elo = 1000.0
+            if elo_lookup and b in elo_lookup:
+                initial_elo = float(elo_lookup[b])
+            if b:
+                standings[b]["bey"] = b
+                standings[b]["elo"] = initial_elo
 
     for match in matches:
         bey_a = match.get("bey_a") or match.get("BeyA") or ""
@@ -341,8 +352,8 @@ def calculate_league_table(
 
         sp_a, sp_b = calculate_season_points(score_a, score_b)
 
-        elo_a = float(match.get("elo_a") or 1000.0)
-        elo_b = float(match.get("elo_b") or 1000.0)
+        elo_a = float(match.get("elo_a") or (elo_lookup.get(bey_a) if elo_lookup else None) or standings[bey_a]["elo"] or 1000.0)
+        elo_b = float(match.get("elo_b") or (elo_lookup.get(bey_b) if elo_lookup else None) or standings[bey_b]["elo"] or 1000.0)
 
         for bey, score, opp_score, sp, elo in [
             (bey_a, score_a, score_b, sp_a, elo_a),
@@ -396,6 +407,7 @@ def process_challenge_league(
     season_id: str,
     groups: Optional[Dict[str, List[Dict]]] = None,
     rounds_data: Optional[Dict[str, List[Dict]]] = None,
+    elo_lookup: Optional[Dict[str, float]] = None,
 ) -> Dict:
     """
     Process Challenge League matches and compute group stage + final Swiss standings.
@@ -439,7 +451,8 @@ def process_challenge_league(
 
     group_keys = ["A", "B", "C", "D"]
     for g_id in group_keys:
-        expected = [b["bey"] for b in groups.get(g_id, [])] if groups and g_id in groups else None
+        group_items = groups.get(g_id, []) if groups else []
+        expected_names = [b["bey"] if isinstance(b, dict) else str(b) for b in group_items] if group_items else None
 
         # Filter matches for this group:
         # Check tier field or match_type
@@ -449,15 +462,20 @@ def process_challenge_league(
             and str(m.get("tier") or m.get("Tier", "")).upper() == g_id
         ]
         # Also include generic challenge matches between Beys of this group if tier wasn't tagged
-        if not g_matches and expected:
-            exp_set = set(expected)
+        if not g_matches and expected_names:
+            exp_set = set(expected_names)
             g_matches = [
                 m for m in cl_matches
                 if (m.get("bey_a") in exp_set and m.get("bey_b") in exp_set)
                 and str(m.get("match_type") or m.get("MatchType", "")).lower() != "challenge_final"
             ]
 
-        table = calculate_league_table(g_matches, expected_beys=expected, rounds_data=rounds_data)
+        table = calculate_league_table(
+            g_matches,
+            expected_beys=group_items if group_items else expected_names,
+            rounds_data=rounds_data,
+            elo_lookup=elo_lookup,
+        )
         group_tables[g_id] = table
 
         # Top 2 advance
@@ -485,6 +503,7 @@ def process_challenge_league(
         final_matches,
         expected_beys=group_qualifiers if group_qualifiers else None,
         rounds_data=rounds_data,
+        elo_lookup=elo_lookup,
     )
 
     promoted_to_tier3 = [entry["bey"] for entry in final_swiss_table[:DEFAULT_PROMOTIONS_TO_TIER3]]
@@ -493,7 +512,8 @@ def process_challenge_league(
     returned_to_pool = final_eliminated + group_eliminated
 
     return {
-        "groups": group_tables,
+        "groups": groups if groups else group_tables,
+        "group_tables": group_tables,
         "group_qualifiers": group_qualifiers,
         "final_swiss": final_swiss_table,
         "promoted_to_tier3": promoted_to_tier3,

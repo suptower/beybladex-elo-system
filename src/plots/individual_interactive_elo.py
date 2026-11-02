@@ -7,6 +7,12 @@ These replace the static PNG plots with interactive HTML versions.
 
 import os
 import sys
+
+if sys.platform == 'win32':
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8')
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -273,7 +279,7 @@ def generate_all_individual_plots():
 
         print(f"  [{i}/{total}] Generated: {bey}")
 
-    print("\n✓ Interactive ELO plots saved to:")
+    print("\n[OK] Interactive ELO plots saved to:")
     print(f"  - {OUTPUT_DIR}")
     print(f"  - {OUTPUT_DIR_DARK}")
 
