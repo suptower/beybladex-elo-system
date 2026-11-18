@@ -1,6 +1,7 @@
 name: Process Session
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'session-*'
