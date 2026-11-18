@@ -83,6 +83,27 @@
                     <option value="Combined">Combined/Global</option>
                 </select>
             </div>
+            <div class="control-group">
+                <label for="seasonTemplateSelect">🏆 Season Template</label>
+                <select id="seasonTemplateSelect" class="control-select">
+                    <option value="">Custom / None</option>
+                    <optgroup label="Season 4 Regular Tiers">
+                        <option value="s4_t1">S4 Tier I (4 matches)</option>
+                        <option value="s4_t2">S4 Tier II (4 matches)</option>
+                        <option value="s4_t3">S4 Tier III (4 matches)</option>
+                    </optgroup>
+                    <optgroup label="Season 4 Challenge League">
+                        <option value="s4_cl_a">S4 CL Group A (3 matches)</option>
+                        <option value="s4_cl_b">S4 CL Group B (3 matches)</option>
+                        <option value="s4_cl_c">S4 CL Group C (3 matches)</option>
+                        <option value="s4_cl_d">S4 CL Group D (3 matches)</option>
+                        <option value="s4_cl_final">S4 CL Finals (4 matches)</option>
+                    </optgroup>
+                    <optgroup label="Season 4 Playoffs">
+                        <option value="s4_relegation">S4 Relegation Playoffs (2 matches)</option>
+                    </optgroup>
+                </select>
+            </div>
         </div>
         
         <div class="controls-row controls-actions">
@@ -269,6 +290,29 @@
         <p class="pairing-description">Select participants to generate Swiss pairings based on standings.</p>
         
         <div class="pairing-controls">
+            <div class="preset-load-row">
+                <label for="pairingPresetSelect">⚡ Preset Participants</label>
+                <div class="preset-load-group">
+                    <select id="pairingPresetSelect" class="control-select">
+                        <option value="">— Select Tier or Group —</option>
+                        <optgroup label="Season 4 Regular Tiers">
+                            <option value="tier_1">Tier I (8 Beys)</option>
+                            <option value="tier_2">Tier II (8 Beys)</option>
+                            <option value="tier_3">Tier III (8 Beys)</option>
+                        </optgroup>
+                        <optgroup label="Season 4 Challenge League">
+                            <option value="group_A">Group A (6 Beys)</option>
+                            <option value="group_B">Group B (6 Beys)</option>
+                            <option value="group_C">Group C (6 Beys)</option>
+                            <option value="group_D">Group D (6 Beys)</option>
+                            <option value="finals">Challenge Finalists (8 Beys)</option>
+                        </optgroup>
+                    </select>
+                    <button class="action-btn action-btn-secondary" id="loadPresetBtn" type="button">
+                        <span class="btn-icon">📥</span> Load
+                    </button>
+                </div>
+            </div>
             <div class="participant-selector">
                 <label for="participantSearch">Add Participants</label>
                 <div class="participant-search-container">

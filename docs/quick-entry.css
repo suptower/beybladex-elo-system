@@ -2083,6 +2083,22 @@ body.dark .season-row.relegation-zone:hover {
     background: rgba(239, 68, 68, 0.15);
 }
 
+.season-row.qualification-zone {
+    background: rgba(249, 115, 22, 0.08);
+}
+
+.season-row.qualification-zone:hover {
+    background: rgba(249, 115, 22, 0.15);
+}
+
+body.dark .season-row.qualification-zone {
+    background: rgba(249, 115, 22, 0.12);
+}
+
+body.dark .season-row.qualification-zone:hover {
+    background: rgba(249, 115, 22, 0.2);
+}
+
 /* Tier Legend */
 .tier-legend {
     display: flex;
@@ -2119,6 +2135,42 @@ body.dark .season-row.relegation-zone:hover {
 .legend-color.relegation-color {
     background: rgba(239, 68, 68, 0.3);
     border-color: rgba(239, 68, 68, 0.5);
+}
+
+.legend-color.qualification-color {
+    background: rgba(249, 115, 22, 0.35);
+    border-color: rgba(249, 115, 22, 0.6);
+}
+
+/* Preset Load Row */
+.preset-load-row {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.preset-load-row label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color, #e2e8f0);
+}
+
+.preset-load-group {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.preset-load-group .control-select {
+    flex: 1;
+}
+
+@media (max-width: 600px) {
+    .preset-load-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 
 /* Mobile Responsive */

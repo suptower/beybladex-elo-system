@@ -325,7 +325,7 @@ class TestManifest:
         original_exists = os.path.exists
         monkeypatch.setattr(
             os.path, "exists",
-            lambda p: False if "season_statistics_S" in p else original_exists(p)
+            lambda p: False if "season_statistics_S" in str(p) else original_exists(p)
         )
 
         season_plots.generate_season_plots()
