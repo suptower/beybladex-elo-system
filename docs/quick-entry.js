@@ -153,33 +153,35 @@ let state = {
 // ============================================
 // INITIALIZATION
 // ============================================
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadBeybladeData();
-    await loadSeasonData();
-    await loadRecommendedMatches();
-    loadFromStorage();
-    // Re-sync baseline ELOs from current leaderboard.csv, adjusting live ELOs
-    // to preserve any in-tournament delta from a resumed session.
-    state.beyblades.forEach(bey => {
-        const oldBaseline = state.baselineElos[bey.name];
-        state.baselineElos[bey.name] = bey.elo;
-        if (oldBaseline !== undefined && state.liveElos[bey.name] !== undefined) {
-            state.liveElos[bey.name] += (bey.elo - oldBaseline);
-        }
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadBeybladeData();
+        await loadSeasonData();
+        await loadRecommendedMatches();
+        loadFromStorage();
+        // Re-sync baseline ELOs from current leaderboard.csv, adjusting live ELOs
+        // to preserve any in-tournament delta from a resumed session.
+        state.beyblades.forEach(bey => {
+            const oldBaseline = state.baselineElos[bey.name];
+            state.baselineElos[bey.name] = bey.elo;
+            if (oldBaseline !== undefined && state.liveElos[bey.name] !== undefined) {
+                state.liveElos[bey.name] += (bey.elo - oldBaseline);
+            }
+        });
+        // Always anchor previousPositions to the current baseline ranking so that
+        // position deltas in the live leaderboard only reflect in-tournament movement,
+        // not global (static) leaderboard position changes.
+        const baselineLeaderboard = generateLeaderboard(state.baselineElos, {}, null);
+        state.previousPositions = getPositionMap(baselineLeaderboard);
+        initializeLiveElos();
+        initializeUI();
+        setupEventListeners();
+        renderMatches();
+        updateStatusBar();
+        updateLiveLeaderboard();
+        updateSeasonTierLeaderboard();
     });
-    // Always anchor previousPositions to the current baseline ranking so that
-    // position deltas in the live leaderboard only reflect in-tournament movement,
-    // not global (static) leaderboard position changes.
-    const baselineLeaderboard = generateLeaderboard(state.baselineElos, {}, null);
-    state.previousPositions = getPositionMap(baselineLeaderboard);
-    initializeLiveElos();
-    initializeUI();
-    setupEventListeners();
-    renderMatches();
-    updateStatusBar();
-    updateLiveLeaderboard();
-    updateSeasonTierLeaderboard();
-});
+}
 
 // Load beyblade data from CSV
 async function loadBeybladeData() {
@@ -300,17 +302,42 @@ async function loadRecommendedMatches() {
     }
 }
 
-// Load season data (tier assignments)
+// Load season data (tier assignments & league tables)
 async function loadSeasonData() {
     try {
         const response = await fetch(DATA_PATHS.SEASON_DATA_JSON);
-        if (!response.ok) {
-            console.log('No season data found, season tier leaderboard will be disabled');
-            return;
+        if (response.ok) {
+            const data = await response.json();
+            state.seasonData = data;
+        } else {
+            console.log('No season data found, attempting fallback to seasons.json');
+            state.seasonData = { seasons: {} };
         }
-        const data = await response.json();
-        state.seasonData = data;
-        console.log('Loaded season data:', data);
+        
+        // Also fetch seasons.json to ensure full tier metadata is available
+        try {
+            const sResponse = await fetch(DATA_PATHS.SEASONS_JSON);
+            if (sResponse.ok) {
+                const seasonsObj = await sResponse.json();
+                state.seasonsMetadata = seasonsObj;
+                if (!state.seasonData) state.seasonData = { seasons: {} };
+                if (!state.seasonData.seasons) state.seasonData.seasons = {};
+                for (const sId in seasonsObj) {
+                    if (!state.seasonData.seasons[sId]) {
+                        state.seasonData.seasons[sId] = seasonsObj[sId];
+                    } else {
+                        if (!state.seasonData.seasons[sId].tiers && seasonsObj[sId].tiers) {
+                            state.seasonData.seasons[sId].tiers = seasonsObj[sId].tiers;
+                        }
+                        if (!state.seasonData.seasons[sId].challenge_league && seasonsObj[sId].challenge_league) {
+                            state.seasonData.seasons[sId].challenge_league = seasonsObj[sId].challenge_league;
+                        }
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Could not fetch seasons.json:', e);
+        }
     } catch (error) {
         console.error('Error loading season data:', error);
         state.seasonData = null;
@@ -343,7 +370,12 @@ function loadFromStorage() {
                 state.tournament = {
                     name: String(parsed.name || ''),
                     round: parseInt(parsed.round) || 1,
-                    format: String(parsed.format || 'swiss')
+                    format: String(parsed.format || 'swiss'),
+                    arena: String(parsed.arena || 'Xtreme'),
+                    seasonTemplate: String(parsed.seasonTemplate || ''),
+                    matchType: String(parsed.matchType || ''),
+                    seasonId: String(parsed.seasonId || ''),
+                    tier: String(parsed.tier || '')
                 };
             }
         }
@@ -411,6 +443,7 @@ function initializeUI() {
     const matchCountInput = document.getElementById('matchCount');
     const liveModeToggle = document.getElementById('liveModeToggle');
     const arenaSelect = document.getElementById('arenaSelect');
+    const seasonTemplateSelect = document.getElementById('seasonTemplateSelect');
     
     if (tournamentNameInput) tournamentNameInput.value = state.tournament.name || '';
     if (roundNumberInput) roundNumberInput.value = state.tournament.round || 1;
@@ -418,6 +451,7 @@ function initializeUI() {
     if (matchCountInput) matchCountInput.value = state.matches.length || 8;
     if (liveModeToggle) liveModeToggle.checked = state.liveMode;
     if (arenaSelect) arenaSelect.value = state.tournament.arena || 'Xtreme';
+    if (seasonTemplateSelect) seasonTemplateSelect.value = state.tournament.seasonTemplate || '';
     
     // Render selected participants
     renderSelectedParticipants();
@@ -432,6 +466,7 @@ function setupEventListeners() {
     document.getElementById('roundNumber')?.addEventListener('input', handleTournamentChange);
     document.getElementById('formatSelect')?.addEventListener('change', handleTournamentChange);
     document.getElementById('arenaSelect')?.addEventListener('change', handleTournamentChange);
+    document.getElementById('seasonTemplateSelect')?.addEventListener('change', handleSeasonTemplateChange);
     
     // Action buttons
     document.getElementById('generateMatchesBtn')?.addEventListener('click', generateMatches);
@@ -449,6 +484,8 @@ function setupEventListeners() {
     document.getElementById('importFile')?.addEventListener('change', handleImport);
     
     // Swiss pairing
+    document.getElementById('pairingPresetSelect')?.addEventListener('change', () => {});
+    document.getElementById('loadPresetBtn')?.addEventListener('click', loadPresetParticipants);
     document.getElementById('participantSearch')?.addEventListener('input', handleParticipantSearch);
     document.getElementById('participantSearch')?.addEventListener('focus', handleParticipantSearch);
     document.getElementById('generatePairingsBtn')?.addEventListener('click', generateSwissPairings);
@@ -491,6 +528,7 @@ function handleTournamentChange() {
     state.tournament.round = parseInt(document.getElementById('roundNumber')?.value) || 1;
     state.tournament.format = document.getElementById('formatSelect')?.value || 'swiss';
     state.tournament.arena = document.getElementById('arenaSelect')?.value || 'Xtreme';
+    state.tournament.seasonTemplate = document.getElementById('seasonTemplateSelect')?.value || '';
     
     // Update arena for all existing matches when it changes
     const selectedArena = state.tournament.arena;
@@ -500,6 +538,229 @@ function handleTournamentChange() {
     
     saveToStorage();
     renderMatches(); // Re-render to show updated arena info
+}
+
+function getLatestSeasonId() {
+    if (!state.seasonData || !state.seasonData.seasons) return 'S4';
+    const keys = Object.keys(state.seasonData.seasons);
+    if (keys.length === 0) return 'S4';
+    keys.sort((a, b) => {
+        const numA = parseInt(String(a).replace(/^\D+/, ''), 10);
+        const numB = parseInt(String(b).replace(/^\D+/, ''), 10);
+        if (!Number.isNaN(numA) && !Number.isNaN(numB) && numA !== numB) {
+            return numA - numB;
+        }
+        return String(a).localeCompare(String(b));
+    });
+    return keys[keys.length - 1] || 'S4';
+}
+
+function getSeasonFormat(seasonId) {
+    const sId = seasonId || getLatestSeasonId();
+    if (sId === 'S4') {
+        return {
+            tiers: 3,
+            beysPerTier: 8,
+            regularMatchdays: 10,
+            hasChallengeLeague: true,
+            challengeGroups: ['A', 'B', 'C', 'D'],
+            challengeGroupRounds: 3,
+            challengeFinalRounds: 3,
+            rulesVersion: 4
+        };
+    } else if (sId === 'S2' || sId === 'S3') {
+        return {
+            tiers: 4,
+            beysPerTier: 8,
+            regularMatchdays: 7,
+            hasChallengeLeague: false,
+            challengeGroups: [],
+            challengeGroupRounds: 0,
+            challengeFinalRounds: 0,
+            rulesVersion: 2
+        };
+    } else if (sId === 'S1') {
+        return {
+            tiers: 3,
+            beysPerTier: 10,
+            regularMatchdays: 9,
+            hasChallengeLeague: false,
+            challengeGroups: [],
+            challengeGroupRounds: 0,
+            challengeFinalRounds: 0,
+            rulesVersion: 1
+        };
+    }
+    return {
+        tiers: 3,
+        beysPerTier: 8,
+        regularMatchdays: 10,
+        hasChallengeLeague: true,
+        challengeGroups: ['A', 'B', 'C', 'D'],
+        challengeGroupRounds: 3,
+        challengeFinalRounds: 3,
+        rulesVersion: 4
+    };
+}
+
+function handleSeasonTemplateChange() {
+    const templateSelect = document.getElementById('seasonTemplateSelect');
+    const template = templateSelect?.value || '';
+    state.tournament.seasonTemplate = template;
+    
+    if (!template) {
+        saveToStorage();
+        return;
+    }
+    
+    const roundNumber = parseInt(document.getElementById('roundNumber')?.value) || 1;
+    let name = '';
+    let matchCount = 4;
+    let format = 'round-robin';
+    let matchType = 'season';
+    let seasonId = 'S4';
+    let tier = '1';
+    
+    if (template === 's4_t1') {
+        name = `Season 4 Tier I MD ${roundNumber}`;
+        matchCount = 4;
+        format = roundNumber <= 7 ? 'round-robin' : 'swiss';
+        matchType = 'season';
+        tier = '1';
+    } else if (template === 's4_t2') {
+        name = `Season 4 Tier II MD ${roundNumber}`;
+        matchCount = 4;
+        format = roundNumber <= 7 ? 'round-robin' : 'swiss';
+        matchType = 'season';
+        tier = '2';
+    } else if (template === 's4_t3') {
+        name = `Season 4 Tier III MD ${roundNumber}`;
+        matchCount = 4;
+        format = roundNumber <= 7 ? 'round-robin' : 'swiss';
+        matchType = 'season';
+        tier = '3';
+    } else if (template === 's4_cl_a') {
+        name = `Season 4 CL Group A Round ${roundNumber}`;
+        matchCount = 3;
+        format = 'swiss';
+        matchType = 'challenge_group';
+        tier = 'A';
+    } else if (template === 's4_cl_b') {
+        name = `Season 4 CL Group B Round ${roundNumber}`;
+        matchCount = 3;
+        format = 'swiss';
+        matchType = 'challenge_group';
+        tier = 'B';
+    } else if (template === 's4_cl_c') {
+        name = `Season 4 CL Group C Round ${roundNumber}`;
+        matchCount = 3;
+        format = 'swiss';
+        matchType = 'challenge_group';
+        tier = 'C';
+    } else if (template === 's4_cl_d') {
+        name = `Season 4 CL Group D Round ${roundNumber}`;
+        matchCount = 3;
+        format = 'swiss';
+        matchType = 'challenge_group';
+        tier = 'D';
+    } else if (template === 's4_cl_final') {
+        name = `Season 4 CL Final Round ${roundNumber}`;
+        matchCount = 4;
+        format = 'swiss';
+        matchType = 'challenge_final';
+        tier = 'final';
+    } else if (template === 's4_relegation') {
+        name = `Season 4 Relegation Playoffs`;
+        matchCount = 2;
+        format = 'knockout';
+        matchType = 'relegation';
+        tier = '1';
+    }
+    
+    const tournamentNameInput = document.getElementById('tournamentName');
+    const matchCountInput = document.getElementById('matchCount');
+    const formatSelect = document.getElementById('formatSelect');
+    
+    if (tournamentNameInput) tournamentNameInput.value = name;
+    if (matchCountInput) matchCountInput.value = matchCount;
+    if (formatSelect) formatSelect.value = format;
+    
+    state.tournament.name = name;
+    state.tournament.format = format;
+    state.tournament.matchType = matchType;
+    state.tournament.seasonId = seasonId;
+    state.tournament.tier = tier;
+    state.tournament.round = roundNumber;
+    
+    // Sync the participant preset dropdown to match this template
+    const pairingPresetSelect = document.getElementById('pairingPresetSelect');
+    if (pairingPresetSelect) {
+        if (template === 's4_t1') pairingPresetSelect.value = 'tier_1';
+        else if (template === 's4_t2') pairingPresetSelect.value = 'tier_2';
+        else if (template === 's4_t3') pairingPresetSelect.value = 'tier_3';
+        else if (template === 's4_cl_a') pairingPresetSelect.value = 'group_A';
+        else if (template === 's4_cl_b') pairingPresetSelect.value = 'group_B';
+        else if (template === 's4_cl_c') pairingPresetSelect.value = 'group_C';
+        else if (template === 's4_cl_d') pairingPresetSelect.value = 'group_D';
+        else if (template === 's4_cl_final') pairingPresetSelect.value = 'finals';
+    }
+    
+    saveToStorage();
+    showToast(`Loaded ${name} template`, 'success');
+}
+
+function loadPresetParticipants() {
+    const presetSelect = document.getElementById('pairingPresetSelect');
+    const preset = presetSelect?.value;
+    if (!preset) {
+        showToast('Please select a tier or group first', 'warning');
+        return;
+    }
+    
+    const currentSeasonId = getLatestSeasonId();
+    const currentSeason = state.seasonData?.seasons?.[currentSeasonId];
+    if (!currentSeason) {
+        showToast('Season data not loaded yet', 'error');
+        return;
+    }
+    
+    let beys = [];
+    if (preset.startsWith('tier_')) {
+        const tierNum = preset.replace('tier_', '');
+        const table = currentSeason.league_tables?.[tierNum] || [];
+        beys = table.map(entry => entry.bey);
+        if (beys.length === 0 && currentSeason.tiers?.[tierNum]?.beys) {
+            beys = currentSeason.tiers[tierNum].beys;
+        }
+    } else if (preset.startsWith('group_')) {
+        const groupLetter = preset.replace('group_', '');
+        const cl = currentSeason.challenge_league;
+        if (cl?.groups?.[groupLetter]) {
+            beys = cl.groups[groupLetter].map(item => (typeof item === 'string' ? item : item.bey));
+        } else if (cl?.group_tables?.[groupLetter]) {
+            beys = cl.group_tables[groupLetter].map(entry => entry.bey);
+        }
+    } else if (preset === 'finals') {
+        const cl = currentSeason.challenge_league;
+        if (cl?.final_stage && cl.final_stage.length > 0) {
+            beys = cl.final_stage.map(item => (typeof item === 'string' ? item : item.bey));
+        } else if (cl?.group_qualifiers && cl.group_qualifiers.length > 0) {
+            beys = cl.group_qualifiers;
+        } else {
+            showToast('Finalists not yet determined in season data', 'warning');
+            return;
+        }
+    }
+    
+    if (beys.length === 0) {
+        showToast('No participants found for selected preset', 'warning');
+        return;
+    }
+    
+    state.participants = [...beys];
+    saveToStorage();
+    renderSelectedParticipants();
+    showToast(`Loaded ${beys.length} participants`, 'success');
 }
 
 function handleGlobalKeydown(e) {
@@ -526,20 +787,19 @@ function createEmptyRound(index) {
 
 // Create an empty match with rounds support
 function createEmptyMatch(index) {
-    // Get settings from the tournament or most recent match (if any)
-    let matchType = DEFAULT_MATCH_TYPE;
-    let seasonId = '';
-    let tier = '';
-    let matchday = '';
+    // Get settings from tournament template, tournament setup, or most recent match (if any)
+    let matchType = state.tournament.matchType || DEFAULT_MATCH_TYPE;
+    let seasonId = state.tournament.seasonId || (matchType !== 'exhibition' ? getLatestSeasonId() : '');
+    let tier = state.tournament.tier || '';
+    let matchday = state.tournament.round || '';
     let arena = state.tournament.arena || 'Xtreme';
     
-    if (state.matches.length > 0) {
+    if (!state.tournament.matchType && state.matches.length > 0) {
         const lastMatch = state.matches[state.matches.length - 1];
         matchType = lastMatch.matchType || DEFAULT_MATCH_TYPE;
         seasonId = lastMatch.seasonId || '';
         tier = lastMatch.tier || '';
         matchday = lastMatch.matchday || '';
-        // Only use lastMatch arena if tournament arena is not set
         if (!state.tournament.arena) {
             arena = lastMatch.arena || 'Xtreme';
         }
@@ -555,7 +815,7 @@ function createEmptyMatch(index) {
         scoreB: 0,  // Computed from rounds
         winner: null,
         timestamp: null,
-        // Season fields (copied from most recent match)
+        // Season fields
         matchType: matchType,
         seasonId: seasonId,
         tier: tier,
@@ -1126,14 +1386,44 @@ function updateMatchType(matchIndex, matchType) {
     
     match.matchType = matchType;
     
-    // Clear fields that don't apply to this match type
+    // Clear or initialize fields appropriate for this match type
     if (matchType === 'exhibition') {
         match.seasonId = '';
         match.tier = '';
         match.matchday = '';
-    } else if (matchType === 'relegation' || matchType === 'season_cup') {
-        match.tier = '';
-        match.matchday = '';
+    } else {
+        if (!match.seasonId) {
+            match.seasonId = getLatestSeasonId();
+        }
+        
+        if (matchType === 'challenge_group') {
+            if (!['A', 'B', 'C', 'D'].includes(match.tier)) {
+                match.tier = 'A';
+            }
+            if (!match.matchday || match.matchday > 3) {
+                match.matchday = 1;
+            }
+        } else if (matchType === 'challenge_final') {
+            match.tier = 'final';
+            if (!match.matchday || match.matchday > 3) {
+                match.matchday = 1;
+            }
+        } else if (matchType === 'relegation') {
+            if (!['1', '2', ''].includes(String(match.tier))) {
+                match.tier = '1';
+            }
+            match.matchday = '';
+        } else if (matchType === 'season_cup') {
+            match.tier = '';
+            match.matchday = '';
+        } else if (matchType === 'season') {
+            if (['A', 'B', 'C', 'D', 'final'].includes(match.tier) || !match.tier) {
+                match.tier = '1';
+            }
+            if (!match.matchday) {
+                match.matchday = 1;
+            }
+        }
     }
     
     saveToStorage();
@@ -1599,51 +1889,101 @@ function renderQuickAddButtons(matchIndex, match) {
 // Render season fields for a match
 function renderSeasonFields(matchIndex, match) {
     const matchType = match.matchType || 'exhibition';
-    const seasonId = match.seasonId || '';
-    const tier = match.tier || '';
+    const seasonId = match.seasonId || (matchType !== 'exhibition' ? getLatestSeasonId() : '');
+    const tier = match.tier !== undefined && match.tier !== null ? String(match.tier) : '';
     const matchday = match.matchday || '';
     const arena = match.arena || 'Xtreme';
     
+    const isExhibition = matchType === 'exhibition';
     const isSeasonMatch = matchType === 'season';
-    const needsSeasonId = matchType !== 'exhibition';
+    const isChallengeGroup = matchType === 'challenge_group';
+    const isChallengeFinal = matchType === 'challenge_final';
+    const isRelegation = matchType === 'relegation';
+    const needsSeasonId = !isExhibition;
     
-    // Build season ID options from loaded season data or a sensible default list
+    // Build season ID options
     let seasonKeys = (state.seasonData && state.seasonData.seasons)
         ? Object.keys(state.seasonData.seasons)
-        : ['S1', 'S2', 'S3'];
-    // Ensure the currently saved seasonId is always present in the list
+        : ['S1', 'S2', 'S3', 'S4'];
+    if (!seasonKeys.includes('S4')) seasonKeys.push('S4');
     if (seasonId && !seasonKeys.includes(seasonId)) {
-        seasonKeys = [...seasonKeys, seasonId];
+        seasonKeys.push(seasonId);
     }
+    // Sort descending so latest season is top
+    seasonKeys.sort((a, b) => {
+        const numA = parseInt(String(a).replace(/^\D+/, ''), 10) || 0;
+        const numB = parseInt(String(b).replace(/^\D+/, ''), 10) || 0;
+        return numB - numA;
+    });
+    
     const seasonOptions = ['', ...seasonKeys].map(key => {
         const label = key ? escapeHtml(key) : '—';
         return `<option value="${escapeHtml(key)}" ${seasonId === key ? 'selected' : ''}>${label}</option>`;
     }).join('');
 
-    // Build tier options from the selected season's league_tables, defaulting to 3 tiers
-    let tierCount = 3;
-    if (state.seasonData && seasonId && state.seasonData.seasons[seasonId]) {
-        const tables = state.seasonData.seasons[seasonId].league_tables || {};
-        const tierNums = Object.keys(tables).map(key => parseInt(key)).filter(n => !isNaN(n));
-        if (tierNums.length > 0) tierCount = Math.max(...tierNums);
-    }
-    const tierOptions = ['', ...Array.from({length: tierCount}, (_, i) => String(i + 1))].map(tierKey =>
-        `<option value="${tierKey}" ${tier === tierKey ? 'selected' : ''}>${tierKey ? `Tier ${tierKey}` : '—'}</option>`
-    ).join('');
+    const fmt = getSeasonFormat(seasonId);
 
-    // Build matchday options from the selected season's matchdays, defaulting to 9
-    let maxMatchday = 9;
-    if (state.seasonData && seasonId && state.seasonData.seasons[seasonId]) {
-        // calculate matchdays by checking how many participants are in tier 1
-        // assumption: all tier sizes will stay the same as tier I, so we can use that to calculate the number of matchdays (rounds) in the season
-        const mds = Math.max(((state.seasonData.seasons[seasonId].league_tables?.['1']?.length) - 1), 0);
-        if (Number.isFinite(mds)) {
-            maxMatchday = mds;
-        }
+    // Build Tier / Group / Stage options and label based on matchType
+    let tierLabel = '🎯 Tier';
+    let tierOptions = '';
+    let isTierDisabled = false;
+
+    if (isSeasonMatch) {
+        tierLabel = '🎯 Tier';
+        const tierNumbers = Array.from({length: fmt.tiers}, (_, i) => String(i + 1));
+        tierOptions = ['', ...tierNumbers].map(tKey =>
+            `<option value="${tKey}" ${tier === tKey ? 'selected' : ''}>${tKey ? `Tier ${tKey}` : '—'}</option>`
+        ).join('');
+    } else if (isChallengeGroup) {
+        tierLabel = '🎯 Group';
+        tierOptions = ['', ...fmt.challengeGroups].map(gKey =>
+            `<option value="${gKey}" ${tier.toUpperCase() === gKey ? 'selected' : ''}>${gKey ? `Group ${gKey}` : '—'}</option>`
+        ).join('');
+    } else if (isChallengeFinal) {
+        tierLabel = '🎯 Stage';
+        tierOptions = `<option value="final" selected>Finals</option>`;
+    } else if (isRelegation) {
+        tierLabel = '🎯 Playoff';
+        tierOptions = `
+            <option value="" ${tier === '' ? 'selected' : ''}>—</option>
+            <option value="1" ${tier === '1' ? 'selected' : ''}>T1 Playoff (T1#7 vs T2#2)</option>
+            <option value="2" ${tier === '2' ? 'selected' : ''}>T2 Playoff (T2#6 vs T3#3)</option>
+        `;
+    } else {
+        tierLabel = '🎯 Tier';
+        tierOptions = `<option value="">—</option>`;
+        isTierDisabled = true;
     }
-    const matchdayOptions = ['', ...Array.from({length: maxMatchday}, (_, i) => i + 1)].map(mdKey =>
-        `<option value="${mdKey}" ${String(matchday) === String(mdKey) ? 'selected' : ''}>${mdKey === '' ? '—' : mdKey}</option>`
-    ).join('');
+
+    // Build Matchday / Round options and label based on matchType
+    let matchdayLabel = '📆 Matchday';
+    let matchdayOptions = '';
+    let isMatchdayDisabled = false;
+
+    if (isSeasonMatch) {
+        matchdayLabel = '📆 Matchday';
+        if (fmt.rulesVersion === 4) {
+            matchdayOptions = ['', ...Array.from({length: 10}, (_, i) => i + 1)].map(mdKey => {
+                if (mdKey === '') return `<option value="">—</option>`;
+                const suffix = mdKey <= 7 ? 'RR' : `Swiss R${mdKey - 7}`;
+                return `<option value="${mdKey}" ${String(matchday) === String(mdKey) ? 'selected' : ''}>MD ${mdKey} (${suffix})</option>`;
+            }).join('');
+        } else {
+            matchdayOptions = ['', ...Array.from({length: fmt.regularMatchdays}, (_, i) => i + 1)].map(mdKey =>
+                `<option value="${mdKey}" ${String(matchday) === String(mdKey) ? 'selected' : ''}>${mdKey === '' ? '—' : `MD ${mdKey}`}</option>`
+            ).join('');
+        }
+    } else if (isChallengeGroup || isChallengeFinal) {
+        matchdayLabel = '📆 Round';
+        const totalRounds = isChallengeGroup ? fmt.challengeGroupRounds : fmt.challengeFinalRounds;
+        matchdayOptions = ['', ...Array.from({length: totalRounds}, (_, i) => i + 1)].map(rKey =>
+            `<option value="${rKey}" ${String(matchday) === String(rKey) ? 'selected' : ''}>${rKey === '' ? '—' : `Round ${rKey}`}</option>`
+        ).join('');
+    } else {
+        matchdayLabel = '📆 Matchday';
+        matchdayOptions = `<option value="">—</option>`;
+        isMatchdayDisabled = true;
+    }
 
     return `
         <div class="match-season-fields">
@@ -1652,6 +1992,8 @@ function renderSeasonFields(matchIndex, match) {
                 <select class="season-field-select" onchange="updateMatchType(${matchIndex}, this.value)" data-match="${matchIndex}">
                     <option value="exhibition" ${matchType === 'exhibition' ? 'selected' : ''}>Exhibition</option>
                     <option value="season" ${matchType === 'season' ? 'selected' : ''}>Season League</option>
+                    <option value="challenge_group" ${matchType === 'challenge_group' ? 'selected' : ''}>⚡ Challenge League (Group)</option>
+                    <option value="challenge_final" ${matchType === 'challenge_final' ? 'selected' : ''}>🏆 Challenge League (Final)</option>
                     <option value="relegation" ${matchType === 'relegation' ? 'selected' : ''}>Relegation Match</option>
                     <option value="qualification" ${matchType === 'qualification' ? 'selected' : ''}>Qualification Tournament</option>
                     <option value="season_cup" ${matchType === 'season_cup' ? 'selected' : ''}>Season Cup</option>
@@ -1671,15 +2013,15 @@ function renderSeasonFields(matchIndex, match) {
                     ${seasonOptions}
                 </select>
             </div>
-            <div class="season-field-group ${isSeasonMatch ? '' : 'field-disabled'}">
-                <label class="season-field-label">🎯 Tier</label>
-                <select class="season-field-select season-field-small" onchange="updateTier(${matchIndex}, this.value)" ${isSeasonMatch ? '' : 'disabled'}>
+            <div class="season-field-group ${isTierDisabled ? 'field-disabled' : ''}">
+                <label class="season-field-label">${tierLabel}</label>
+                <select class="season-field-select season-field-small" onchange="updateTier(${matchIndex}, this.value)" ${isTierDisabled ? 'disabled' : ''}>
                     ${tierOptions}
                 </select>
             </div>
-            <div class="season-field-group ${isSeasonMatch ? '' : 'field-disabled'}">
-                <label class="season-field-label">📆 Matchday</label>
-                <select class="season-field-select season-field-small" onchange="updateMatchday(${matchIndex}, this.value)" ${isSeasonMatch ? '' : 'disabled'}>
+            <div class="season-field-group ${isMatchdayDisabled ? 'field-disabled' : ''}">
+                <label class="season-field-label">${matchdayLabel}</label>
+                <select class="season-field-select season-field-small" onchange="updateMatchday(${matchIndex}, this.value)" ${isMatchdayDisabled ? 'disabled' : ''}>
                     ${matchdayOptions}
                 </select>
             </div>
@@ -1914,14 +2256,97 @@ function switchAnalysisTab(event, panelId, tabName) {
     }
 }
 
+function getParticipantsForMatch(match) {
+    if (!match || !state.seasonData) return null;
+    const seasonId = match.seasonId || getLatestSeasonId();
+    const season = state.seasonData?.seasons?.[seasonId];
+    if (!season) return null;
+    
+    if (match.matchType === 'season' && match.tier) {
+        const tierStr = String(match.tier);
+        if (season.league_tables?.[tierStr]) {
+            return {
+                title: `Tier ${tierStr} Participants`,
+                beys: season.league_tables[tierStr].map(e => e.bey)
+            };
+        }
+        if (season.tiers?.[tierStr]?.beys) {
+            return {
+                title: `Tier ${tierStr} Participants`,
+                beys: season.tiers[tierStr].beys
+            };
+        }
+    } else if (match.matchType === 'challenge_group' && match.tier) {
+        const groupKey = String(match.tier).toUpperCase();
+        const cl = season.challenge_league;
+        if (cl?.groups?.[groupKey]) {
+            return {
+                title: `Group ${groupKey} Participants`,
+                beys: cl.groups[groupKey].map(item => (typeof item === 'string' ? item : item.bey))
+            };
+        }
+        if (cl?.group_tables?.[groupKey]) {
+            return {
+                title: `Group ${groupKey} Participants`,
+                beys: cl.group_tables[groupKey].map(e => e.bey)
+            };
+        }
+    } else if (match.matchType === 'challenge_final') {
+        const cl = season.challenge_league;
+        if (cl?.final_stage && cl.final_stage.length > 0) {
+            return {
+                title: `Challenge Finalists`,
+                beys: cl.final_stage.map(item => (typeof item === 'string' ? item : item.bey))
+            };
+        }
+        if (cl?.group_qualifiers && cl.group_qualifiers.length > 0) {
+            return {
+                title: `Challenge Finalists`,
+                beys: cl.group_qualifiers
+            };
+        }
+    }
+    return null;
+}
+
 function renderBeySelect(selectedBey, matchIndex, player) {
     const escapedSelectedBey = escapeHtml(selectedBey);
+    const match = state.matches[matchIndex] || {};
+    const groupInfo = getParticipantsForMatch(match);
+    
     // Sort beyblades alphabetically for quick entry
     const sortedBeyblades = [...state.beyblades].sort((a, b) => a.name.localeCompare(b.name));
-    const options = sortedBeyblades.map(bey => {
-        const escapedName = escapeHtml(bey.name);
-        return `<option value="${escapedName}" ${bey.name === selectedBey ? 'selected' : ''}>${escapedName}</option>`;
-    }).join('');
+    
+    let optionsHtml = '';
+    if (groupInfo && Array.isArray(groupInfo.beys) && groupInfo.beys.length > 0) {
+        const groupSet = new Set(groupInfo.beys);
+        const groupBeys = sortedBeyblades.filter(b => groupSet.has(b.name));
+        const otherBeys = sortedBeyblades.filter(b => !groupSet.has(b.name));
+        
+        const groupOptions = groupBeys.map(bey => {
+            const escapedName = escapeHtml(bey.name);
+            return `<option value="${escapedName}" ${bey.name === selectedBey ? 'selected' : ''}>${escapedName}</option>`;
+        }).join('');
+        
+        const otherOptions = otherBeys.map(bey => {
+            const escapedName = escapeHtml(bey.name);
+            return `<option value="${escapedName}" ${bey.name === selectedBey ? 'selected' : ''}>${escapedName}</option>`;
+        }).join('');
+        
+        optionsHtml = `
+            <optgroup label="⭐ ${escapeHtml(groupInfo.title)}">
+                ${groupOptions}
+            </optgroup>
+            <optgroup label="All Other Beys">
+                ${otherOptions}
+            </optgroup>
+        `;
+    } else {
+        optionsHtml = sortedBeyblades.map(bey => {
+            const escapedName = escapeHtml(bey.name);
+            return `<option value="${escapedName}" ${bey.name === selectedBey ? 'selected' : ''}>${escapedName}</option>`;
+        }).join('');
+    }
     
     return `
         <select class="bey-select ${selectedBey ? 'has-value' : ''}" 
@@ -1929,7 +2354,7 @@ function renderBeySelect(selectedBey, matchIndex, player) {
                 data-match="${matchIndex}" 
                 data-player="${escapeHtml(player)}">
             <option value="">Select Bey...</option>
-            ${options}
+            ${optionsHtml}
         </select>
     `;
 }
@@ -2085,6 +2510,12 @@ function generateSwissPairings() {
         return (beyB?.elo || 1000) - (beyA?.elo || 1000);
     });
     
+    const defaultMatchType = state.tournament.matchType || DEFAULT_MATCH_TYPE;
+    const defaultSeasonId = state.tournament.seasonId || (defaultMatchType !== 'exhibition' ? getLatestSeasonId() : '');
+    const defaultTier = state.tournament.tier || '';
+    const defaultMatchday = state.tournament.round || '';
+    const defaultArena = state.tournament.arena || 'Xtreme';
+
     // Swiss pairing: pair adjacent players
     state.matches = [];
     for (let i = 0; i < sortedParticipants.length - 1; i += 2) {
@@ -2097,7 +2528,12 @@ function generateSwissPairings() {
             scoreA: 0,
             scoreB: 0,
             winner: null,
-            timestamp: null
+            timestamp: null,
+            matchType: defaultMatchType,
+            seasonId: defaultSeasonId,
+            tier: defaultTier,
+            matchday: defaultMatchday,
+            arena: defaultArena
         });
     }
     
@@ -2121,6 +2557,12 @@ function generateRandomPairings() {
     // Shuffle participants using Fisher-Yates algorithm
     const shuffled = shuffleArray(state.participants);
     
+    const defaultMatchType = state.tournament.matchType || DEFAULT_MATCH_TYPE;
+    const defaultSeasonId = state.tournament.seasonId || (defaultMatchType !== 'exhibition' ? getLatestSeasonId() : '');
+    const defaultTier = state.tournament.tier || '';
+    const defaultMatchday = state.tournament.round || '';
+    const defaultArena = state.tournament.arena || 'Xtreme';
+
     // Create pairings
     state.matches = [];
     for (let i = 0; i < shuffled.length - 1; i += 2) {
@@ -2133,7 +2575,12 @@ function generateRandomPairings() {
             scoreA: 0,
             scoreB: 0,
             winner: null,
-            timestamp: null
+            timestamp: null,
+            matchType: defaultMatchType,
+            seasonId: defaultSeasonId,
+            tier: defaultTier,
+            matchday: defaultMatchday,
+            arena: defaultArena
         });
     }
     
@@ -2828,91 +3275,161 @@ function toggleLiveMode() {
 // ============================================
 
 /**
- * Calculate season tier standings from current matches
+ * Calculate season tier and challenge league standings from current matches
  */
 function calculateSeasonTierStandings() {
     if (!state.seasonData) {
-        return {};
+        return { seasonId: 'S4', tiers: {}, challengeGroups: {}, challengeFinals: {} };
     }
     
-    // Get the current season (use the latest season by ID)
-    const seasonKeys = Object.keys(state.seasonData.seasons || {});
-    if (seasonKeys.length === 0) return {};
+    const currentSeasonId = getLatestSeasonId();
+    const currentSeason = state.seasonData.seasons?.[currentSeasonId];
+    if (!currentSeason) {
+        return { seasonId: currentSeasonId, tiers: {}, challengeGroups: {}, challengeFinals: {} };
+    }
     
-    // Sort season keys numerically by their numeric suffix and pick the last one (e.g. "S10" > "S2" > "S1")
-    seasonKeys.sort((a, b) => {
-        const numA = parseInt(String(a).replace(/^\D+/, ''), 10);
-        const numB = parseInt(String(b).replace(/^\D+/, ''), 10);
-        
-        // If both have valid numeric parts and differ, sort by those numbers
-        if (!Number.isNaN(numA) && !Number.isNaN(numB) && numA !== numB) {
-            return numA - numB;
+    const result = {
+        seasonId: currentSeasonId,
+        tiers: {},
+        challengeGroups: {},
+        challengeFinals: {}
+    };
+    
+    // 1. Initialize Regular Tiers
+    if (currentSeason.league_tables) {
+        for (const tierNum in currentSeason.league_tables) {
+            const tier = parseInt(tierNum);
+            result.tiers[tier] = {};
+            currentSeason.league_tables[tierNum].forEach(entry => {
+                result.tiers[tier][entry.bey] = {
+                    bey: entry.bey,
+                    tier: tier,
+                    matches: entry.matches || 0,
+                    wins: entry.wins || 0,
+                    losses: entry.losses || 0,
+                    seasonPoints: entry.season_points || 0,
+                    pointsFor: entry.points_for || 0,
+                    pointsAgainst: entry.points_against || 0,
+                    pointDiff: entry.point_diff || 0,
+                    elo: entry.elo || state.baselineElos[entry.bey] || 1000
+                };
+            });
+            // Expose on top-level result for backward compatibility
+            result[tier] = result.tiers[tier];
         }
-        
-        // Fallback to lexical comparison to keep ordering stable for non-standard IDs
-        return String(a).localeCompare(String(b));
-    });
-    const currentSeasonId = seasonKeys[seasonKeys.length - 1];
-    const currentSeason = state.seasonData.seasons[currentSeasonId];
-    
-    // Initialize tier standings from season data
-    const tierStandings = {};
-    
-    // Build initial standings from league_tables
-    for (const tierNum in currentSeason.league_tables) {
-        const tier = parseInt(tierNum);
-        tierStandings[tier] = {};
-        
-        // Initialize each bey in the tier from existing season standings
-        currentSeason.league_tables[tierNum].forEach(entry => {
-            tierStandings[tier][entry.bey] = {
-                bey: entry.bey,
-                tier: tier,
-                matches: entry.matches || 0,
-                wins: entry.wins || 0,
-                losses: entry.losses || 0,
-                seasonPoints: entry.season_points || 0,
-                pointsFor: entry.points_for || 0,
-                pointsAgainst: entry.points_against || 0,
-                pointDiff: entry.point_diff || 0,
-                elo: entry.elo || state.baselineElos[entry.bey] || 1000
-            };
-        });
     }
     
-    // Process all season matches
-    const seasonMatches = state.matches.filter(m => 
-        m.matchType === 'season' && 
-        m.beyA && m.beyB && 
-        m.scoreA !== '' && m.scoreB !== ''
+    // 2. Initialize Challenge League Groups
+    const cl = currentSeason.challenge_league;
+    if (cl) {
+        const groups = cl.groups || {};
+        ['A', 'B', 'C', 'D'].forEach(groupKey => {
+            result.challengeGroups[groupKey] = {};
+            if (cl.group_tables && cl.group_tables[groupKey]) {
+                cl.group_tables[groupKey].forEach(entry => {
+                    result.challengeGroups[groupKey][entry.bey] = {
+                        bey: entry.bey,
+                        group: groupKey,
+                        matches: entry.matches || 0,
+                        wins: entry.wins || 0,
+                        losses: entry.losses || 0,
+                        seasonPoints: entry.season_points || 0,
+                        pointsFor: entry.points_for || 0,
+                        pointsAgainst: entry.points_against || 0,
+                        pointDiff: entry.point_diff || 0,
+                        elo: entry.elo || state.baselineElos[entry.bey] || 1000
+                    };
+                });
+            } else if (groups[groupKey]) {
+                groups[groupKey].forEach(item => {
+                    const beyName = typeof item === 'string' ? item : item.bey;
+                    const elo = (typeof item === 'object' && item.elo) ? item.elo : (state.baselineElos[beyName] || 1000);
+                    result.challengeGroups[groupKey][beyName] = {
+                        bey: beyName,
+                        group: groupKey,
+                        matches: 0,
+                        wins: 0,
+                        losses: 0,
+                        seasonPoints: 0,
+                        pointsFor: 0,
+                        pointsAgainst: 0,
+                        pointDiff: 0,
+                        elo: elo
+                    };
+                });
+            }
+        });
+        
+        // 3. Initialize Challenge League Final Stage
+        if (cl.final_swiss && cl.final_swiss.length > 0) {
+            cl.final_swiss.forEach(entry => {
+                result.challengeFinals[entry.bey] = {
+                    bey: entry.bey,
+                    matches: entry.matches || 0,
+                    wins: entry.wins || 0,
+                    losses: entry.losses || 0,
+                    seasonPoints: entry.season_points || 0,
+                    pointsFor: entry.points_for || 0,
+                    pointsAgainst: entry.points_against || 0,
+                    pointDiff: entry.point_diff || 0,
+                    elo: entry.elo || state.baselineElos[entry.bey] || 1000
+                };
+            });
+        }
+    }
+    
+    // Process matches
+    const validMatches = state.matches.filter(m =>
+        m.beyA && m.beyB &&
+        m.scoreA !== '' && m.scoreB !== '' &&
+        (!m.seasonId || m.seasonId === currentSeasonId)
     );
     
-    seasonMatches.forEach(match => {
+    validMatches.forEach(match => {
         const scoreA = parseInt(match.scoreA) || 0;
         const scoreB = parseInt(match.scoreB) || 0;
+        const mType = match.matchType;
         
-        // Determine which tier this match belongs to
-        // Try to find the tier from the match, or infer from bey assignments
-        let matchTier = null;
-        if (match.tier) {
-            matchTier = parseInt(match.tier);
-        } else {
-            // Try to infer tier from bey assignments
-            for (const tier in tierStandings) {
-                if (tierStandings[tier][match.beyA] || tierStandings[tier][match.beyB]) {
-                    matchTier = parseInt(tier);
-                    break;
+        let targetTable = null;
+        let beyKeyA = match.beyA;
+        let beyKeyB = match.beyB;
+        
+        if (mType === 'season') {
+            let matchTier = null;
+            if (match.tier) {
+                matchTier = parseInt(match.tier);
+            } else {
+                for (const t in result.tiers) {
+                    if (result.tiers[t][beyKeyA] || result.tiers[t][beyKeyB]) {
+                        matchTier = parseInt(t);
+                        break;
+                    }
                 }
             }
+            if (matchTier && result.tiers[matchTier]) {
+                targetTable = result.tiers[matchTier];
+            }
+        } else if (mType === 'challenge_group') {
+            const groupKey = (match.tier || '').toUpperCase();
+            if (groupKey && result.challengeGroups[groupKey]) {
+                targetTable = result.challengeGroups[groupKey];
+            } else {
+                for (const g in result.challengeGroups) {
+                    if (result.challengeGroups[g][beyKeyA] || result.challengeGroups[g][beyKeyB]) {
+                        targetTable = result.challengeGroups[g];
+                        break;
+                    }
+                }
+            }
+        } else if (mType === 'challenge_final') {
+            targetTable = result.challengeFinals;
         }
         
-        if (!matchTier || !tierStandings[matchTier]) return;
+        if (!targetTable) return;
         
-        // Make sure both beys are in this tier
-        if (!tierStandings[matchTier][match.beyA]) {
-            tierStandings[matchTier][match.beyA] = {
-                bey: match.beyA,
-                tier: matchTier,
+        if (!targetTable[beyKeyA]) {
+            targetTable[beyKeyA] = {
+                bey: beyKeyA,
                 matches: 0,
                 wins: 0,
                 losses: 0,
@@ -2920,13 +3437,12 @@ function calculateSeasonTierStandings() {
                 pointsFor: 0,
                 pointsAgainst: 0,
                 pointDiff: 0,
-                elo: state.baselineElos[match.beyA] || 1000
+                elo: state.baselineElos[beyKeyA] || 1000
             };
         }
-        if (!tierStandings[matchTier][match.beyB]) {
-            tierStandings[matchTier][match.beyB] = {
-                bey: match.beyB,
-                tier: matchTier,
+        if (!targetTable[beyKeyB]) {
+            targetTable[beyKeyB] = {
+                bey: beyKeyB,
                 matches: 0,
                 wins: 0,
                 losses: 0,
@@ -2934,59 +3450,41 @@ function calculateSeasonTierStandings() {
                 pointsFor: 0,
                 pointsAgainst: 0,
                 pointDiff: 0,
-                elo: state.baselineElos[match.beyB] || 1000
+                elo: state.baselineElos[beyKeyB] || 1000
             };
         }
         
-        const statA = tierStandings[matchTier][match.beyA];
-        const statB = tierStandings[matchTier][match.beyB];
+        const statA = targetTable[beyKeyA];
+        const statB = targetTable[beyKeyB];
         
-        // Update match counts
         statA.matches++;
         statB.matches++;
-        
-        // Update points for/against
         statA.pointsFor += scoreA;
         statA.pointsAgainst += scoreB;
         statB.pointsFor += scoreB;
         statB.pointsAgainst += scoreA;
-        
-        // Update point difference
         statA.pointDiff = statA.pointsFor - statA.pointsAgainst;
         statB.pointDiff = statB.pointsFor - statB.pointsAgainst;
         
-        // Determine winner and award season points
         if (scoreA > scoreB) {
             statA.wins++;
             statB.losses++;
-            // Win = 3 points, Dominant win (4-0) = 4 points
-            if (scoreA >= 4 && scoreB === 0) {
-                statA.seasonPoints += 4;
-            } else {
-                statA.seasonPoints += 3;
-            }
+            statA.seasonPoints += (scoreA >= 4 && scoreB === 0) ? 4 : 3;
         } else if (scoreB > scoreA) {
             statB.wins++;
             statA.losses++;
-            // Win = 3 points, Dominant win (4-0) = 4 points
-            if (scoreB >= 4 && scoreA === 0) {
-                statB.seasonPoints += 4;
-            } else {
-                statB.seasonPoints += 3;
-            }
-        } else {
-            // Draw - no points awarded in this simplified system
-            // (could be extended to award 1 point each)
+            statB.seasonPoints += (scoreB >= 4 && scoreA === 0) ? 4 : 3;
         }
     });
     
-    return tierStandings;
+    return result;
 }
 
 /**
  * Sort tier standings according to season rules
  */
 function sortTierStandings(standings) {
+    if (!standings) return [];
     return Object.values(standings).sort((a, b) => {
         // 1. Season points (descending)
         if (a.seasonPoints !== b.seasonPoints) {
@@ -3001,7 +3499,7 @@ function sortTierStandings(standings) {
             return b.pointsFor - a.pointsFor;
         }
         // 4. Current ELO (descending, fallback)
-        return b.elo - a.elo;
+        return (b.elo || 1000) - (a.elo || 1000);
     });
 }
 
@@ -3033,40 +3531,36 @@ function renderSeasonTierLeaderboard() {
     const container = document.getElementById('seasonTiersContainer');
     if (!container) return;
     
-    const tierStandings = state.seasonTierStandings;
-    const tiers = Object.keys(tierStandings).sort((a, b) => a - b);
+    const standingsData = state.seasonTierStandings;
+    const currentSeasonId = standingsData.seasonId || getLatestSeasonId();
+    const isS4 = currentSeasonId === 'S4';
+    const tierStandings = standingsData.tiers || {};
+    const tiers = Object.keys(tierStandings).map(n => parseInt(n)).sort((a, b) => a - b);
     
-    if (tiers.length === 0) {
+    const clGroups = standingsData.challengeGroups || {};
+    const groupKeys = Object.keys(clGroups).sort();
+    const clFinals = standingsData.challengeFinals || {};
+    const hasFinals = Object.keys(clFinals).length > 0;
+    
+    if (tiers.length === 0 && groupKeys.length === 0) {
         container.innerHTML = '<div class="empty-state-message">Enter season matches to see live tier standings!</div>';
         return;
     }
     
-    // Generate HTML for each tier
-    container.innerHTML = tiers.map(tier => {
+    let html = '';
+    
+    // 1. Regular Tiers
+    html += `<div class="season-section-title" style="margin: 0.5rem 0; font-weight: 700; color: var(--primary, #0ea5e9);">🏆 Regular League Tiers (${escapeHtml(currentSeasonId)})</div>`;
+    
+    tiers.forEach(tier => {
         const standings = sortTierStandings(tierStandings[tier]);
-        
-        // Filter out beys with no matches
-        // const activeStandings = standings.filter(s => s.matches > 0);
-        const activeStandings = standings; // Show all beys in the tier, even if they haven't played yet
-        
-        if (activeStandings.length === 0) {
-            return `
-                <div class="tier-section collapsed" data-tier="${tier}">
-                    <div class="tier-header" onclick="toggleTierSection(${tier})">
-                        <span class="tier-title">Tier ${tier}</span>
-                        <span class="tier-subtitle">No matches played yet</span>
-                        <button class="tier-toggle">▼</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        const matchCount = Math.round(activeStandings.reduce((sum, s) => sum + s.matches, 0) / 2); // Each match counts for both beys
+        const activeStandings = standings;
+        const matchCount = Math.round(activeStandings.reduce((sum, s) => sum + s.matches, 0) / 2);
         const matchesString = matchCount === 1 ? '1 match' : `${matchCount} matches`;
         
-        return `
+        html += `
             <div class="tier-section" data-tier="${tier}">
-                <div class="tier-header" onclick="toggleTierSection(${tier})">
+                <div class="tier-header" onclick="toggleTierSection('${tier}')">
                     <span class="tier-title">Tier ${tier}</span>
                     <span class="tier-subtitle">${activeStandings.length} beys • ${matchesString}</span>
                     <button class="tier-toggle">▼</button>
@@ -3090,29 +3584,39 @@ function renderSeasonTierLeaderboard() {
                             <tbody>
                                 ${activeStandings.map((stat, index) => {
                                     const position = index + 1;
-                                    const tierNum = parseInt(tier);
                                     let rowClass = '';
                                     
-                                    // Highlight promotion/playoff/relegation zones per tier (Season 2 rules)
-                                    if (tierNum === 1) {
-                                        // T1: Rank 7 = playoff, Rank 8 = relegated
-                                        if (position === 7) rowClass = 'playoff-zone';
-                                        else if (position === 8) rowClass = 'relegation-zone';
-                                    } else if (tierNum === 2) {
-                                        // T2: Rank 1 = promoted, Rank 2 = playoff, Rank 6 = playoff, Ranks 7-8 = relegated
-                                        if (position === 1) rowClass = 'promotion-zone';
-                                        else if (position === 2 || position === 6) rowClass = 'playoff-zone';
-                                        else if (position >= 7) rowClass = 'relegation-zone';
-                                    } else if (tierNum === 3) {
-                                        // T3: Ranks 1-2 = promoted, Rank 3 = playoff, Rank 6 = playoff, Ranks 7-8 = relegated
-                                        if (position <= 2) rowClass = 'promotion-zone';
-                                        else if (position === 3 || position === 6) rowClass = 'playoff-zone';
-                                        else if (position >= 7) rowClass = 'relegation-zone';
-                                    } else if (tierNum === 4) {
-                                        // T4: Ranks 1-2 = promoted, Rank 3 = playoff, Ranks 5-8 = qualification pool
-                                        if (position <= 2) rowClass = 'promotion-zone';
-                                        else if (position === 3) rowClass = 'playoff-zone';
-                                        else if (position >= 5) rowClass = 'relegation-zone';
+                                    if (isS4) {
+                                        if (tier === 1) {
+                                            if (position === 7) rowClass = 'playoff-zone';
+                                            else if (position === 8) rowClass = 'relegation-zone';
+                                        } else if (tier === 2) {
+                                            if (position === 1) rowClass = 'promotion-zone';
+                                            else if (position === 2 || position === 6) rowClass = 'playoff-zone';
+                                            else if (position >= 7) rowClass = 'relegation-zone';
+                                        } else if (tier === 3) {
+                                            if (position <= 2) rowClass = 'promotion-zone';
+                                            else if (position === 3) rowClass = 'playoff-zone';
+                                            else if (position >= 4) rowClass = 'qualification-zone';
+                                        }
+                                    } else {
+                                        // Legacy S1 / S2 / S3 rules
+                                        if (tier === 1) {
+                                            if (position === 7) rowClass = 'playoff-zone';
+                                            else if (position === 8) rowClass = 'relegation-zone';
+                                        } else if (tier === 2) {
+                                            if (position === 1) rowClass = 'promotion-zone';
+                                            else if (position === 2 || position === 6) rowClass = 'playoff-zone';
+                                            else if (position >= 7) rowClass = 'relegation-zone';
+                                        } else if (tier === 3) {
+                                            if (position <= 2) rowClass = 'promotion-zone';
+                                            else if (position === 3 || position === 6) rowClass = 'playoff-zone';
+                                            else if (position >= 7) rowClass = 'relegation-zone';
+                                        } else if (tier === 4) {
+                                            if (position <= 2) rowClass = 'promotion-zone';
+                                            else if (position === 3) rowClass = 'playoff-zone';
+                                            else if (position >= 5) rowClass = 'relegation-zone';
+                                        }
                                     }
                                     
                                     return `
@@ -3133,16 +3637,142 @@ function renderSeasonTierLeaderboard() {
                         </table>
                     </div>
                     <div class="tier-legend">
-                        ${// Show promotion only for tiers that have promotion spots
-                            parseInt(tier) === 1 ? '' : `<span class="legend-item"><span class="legend-color promotion-color"></span>Promotion</span>`
-                        }
+                        ${tier === 1 ? '' : `<span class="legend-item"><span class="legend-color promotion-color"></span>Promotion</span>`}
                         <span class="legend-item"><span class="legend-color playoff-color"></span>Playoff</span>
-                        <span class="legend-item"><span class="legend-color relegation-color"></span>Relegation / Drop</span>
+                        ${tier === 3 && isS4 ? `<span class="legend-item"><span class="legend-color qualification-color"></span>Qualification Pool</span>` : `<span class="legend-item"><span class="legend-color relegation-color"></span>Relegation</span>`}
                     </div>
                 </div>
             </div>
         `;
-    }).join('');
+    });
+    
+    // 2. Challenge League (Groups A, B, C, D)
+    if (isS4 && groupKeys.length > 0) {
+        html += `<div class="season-section-title" style="margin: 1.5rem 0 0.5rem 0; font-weight: 700; color: var(--primary, #0ea5e9);">⚡ Challenge League (Groups A–D)</div>`;
+        
+        groupKeys.forEach(groupKey => {
+            const standings = sortTierStandings(clGroups[groupKey]);
+            const activeStandings = standings;
+            const matchCount = Math.round(activeStandings.reduce((sum, s) => sum + s.matches, 0) / 2);
+            const matchesString = matchCount === 1 ? '1 match' : `${matchCount} matches`;
+            const sectionId = `CL-${groupKey}`;
+            
+            html += `
+                <div class="tier-section" data-tier="${sectionId}">
+                    <div class="tier-header" onclick="toggleTierSection('${sectionId}')">
+                        <span class="tier-title">Group ${groupKey}</span>
+                        <span class="tier-subtitle">${activeStandings.length} beys • ${matchesString}</span>
+                        <button class="tier-toggle">▼</button>
+                    </div>
+                    <div class="tier-content">
+                        <div class="tier-table-wrapper">
+                            <table class="season-tier-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-pos">Pos</th>
+                                        <th class="col-bey">Bey</th>
+                                        <th class="col-played">P</th>
+                                        <th class="col-wins">W</th>
+                                        <th class="col-losses">L</th>
+                                        <th class="col-points">Pts</th>
+                                        <th class="col-for">PF</th>
+                                        <th class="col-against">PA</th>
+                                        <th class="col-diff">+/-</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${activeStandings.map((stat, index) => {
+                                        const position = index + 1;
+                                        const rowClass = position <= 2 ? 'promotion-zone' : '';
+                                        return `
+                                            <tr class="season-row ${rowClass}" data-bey="${escapeHtml(stat.bey)}">
+                                                <td class="col-pos">${position}</td>
+                                                <td class="col-bey">${escapeHtml(stat.bey)}</td>
+                                                <td class="col-played">${stat.matches}</td>
+                                                <td class="col-wins">${stat.wins}</td>
+                                                <td class="col-losses">${stat.losses}</td>
+                                                <td class="col-points"><strong>${stat.seasonPoints}</strong></td>
+                                                <td class="col-for">${stat.pointsFor}</td>
+                                                <td class="col-against">${stat.pointsAgainst}</td>
+                                                <td class="col-diff ${stat.pointDiff >= 0 ? 'positive' : 'negative'}">${stat.pointDiff >= 0 ? '+' : ''}${stat.pointDiff}</td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tier-legend">
+                            <span class="legend-item"><span class="legend-color promotion-color"></span>Top 2 Advance to Finals</span>
+                            <span class="legend-item"><span class="legend-color" style="background: rgba(100, 116, 139, 0.3); border-color: rgba(100, 116, 139, 0.5);"></span>Positions 3–6 Return to Pool</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // 3. Challenge League Final Stage
+        if (hasFinals) {
+            const standings = sortTierStandings(clFinals);
+            const activeStandings = standings;
+            const matchCount = Math.round(activeStandings.reduce((sum, s) => sum + s.matches, 0) / 2);
+            const matchesString = matchCount === 1 ? '1 match' : `${matchCount} matches`;
+            const sectionId = `CL-Final`;
+            
+            html += `
+                <div class="tier-section" data-tier="${sectionId}">
+                    <div class="tier-header" onclick="toggleTierSection('${sectionId}')">
+                        <span class="tier-title">Challenge League • Final Swiss Stage</span>
+                        <span class="tier-subtitle">${activeStandings.length} finalists • ${matchesString}</span>
+                        <button class="tier-toggle">▼</button>
+                    </div>
+                    <div class="tier-content">
+                        <div class="tier-table-wrapper">
+                            <table class="season-tier-table">
+                                <thead>
+                                    <tr>
+                                        <th class="col-pos">Pos</th>
+                                        <th class="col-bey">Bey</th>
+                                        <th class="col-played">P</th>
+                                        <th class="col-wins">W</th>
+                                        <th class="col-losses">L</th>
+                                        <th class="col-points">Pts</th>
+                                        <th class="col-for">PF</th>
+                                        <th class="col-against">PA</th>
+                                        <th class="col-diff">+/-</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${activeStandings.map((stat, index) => {
+                                        const position = index + 1;
+                                        const rowClass = position <= 5 ? 'promotion-zone' : 'qualification-zone';
+                                        return `
+                                            <tr class="season-row ${rowClass}" data-bey="${escapeHtml(stat.bey)}">
+                                                <td class="col-pos">${position}</td>
+                                                <td class="col-bey">${escapeHtml(stat.bey)}</td>
+                                                <td class="col-played">${stat.matches}</td>
+                                                <td class="col-wins">${stat.wins}</td>
+                                                <td class="col-losses">${stat.losses}</td>
+                                                <td class="col-points"><strong>${stat.seasonPoints}</strong></td>
+                                                <td class="col-for">${stat.pointsFor}</td>
+                                                <td class="col-against">${stat.pointsAgainst}</td>
+                                                <td class="col-diff ${stat.pointDiff >= 0 ? 'positive' : 'negative'}">${stat.pointDiff >= 0 ? '+' : ''}${stat.pointDiff}</td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="tier-legend">
+                            <span class="legend-item"><span class="legend-color promotion-color"></span>Top 5 Promoted to Tier III</span>
+                            <span class="legend-item"><span class="legend-color qualification-color"></span>Positions 6–8 Return to Pool</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    container.innerHTML = html;
 }
 
 /**
@@ -3542,4 +4172,20 @@ function filterBeyPicker(searchTerm) {
             item.style.display = 'none';
         }
     });
+}
+
+// Export for Node.js unit testing environments
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        state,
+        setSeasonData: (d) => { state.seasonData = d; },
+        setMatches: (m) => { state.matches = m; },
+        getLatestSeasonId,
+        getSeasonFormat,
+        calculateScoresFromRounds,
+        determineWinner,
+        calculateSeasonTierStandings,
+        sortTierStandings,
+        getParticipantsForMatch
+    };
 }

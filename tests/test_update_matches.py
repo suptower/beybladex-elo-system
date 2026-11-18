@@ -56,25 +56,29 @@ class TestGetLatestSessionFiles:
     """Tests for the get_latest_session_files function."""
 
     def test_returns_matching_pair(self, tmp_path, monkeypatch):
-        """A single complete pair should be returned."""
+        """A single complete session should be returned."""
         monkeypatch.setattr(update_matches, "RAW_DIR", tmp_path)
         (tmp_path / "010125_session_matches.csv").touch()
         (tmp_path / "010125_session_rounds.csv").touch()
+        (tmp_path / "010125_session.json").touch()
 
-        m, r = update_matches.get_latest_session_files()
+        m, r, j = update_matches.get_latest_session_files()
         assert m.name == "010125_session_matches.csv"
         assert r.name == "010125_session_rounds.csv"
+        assert j.name == "010125_session.json"
 
     def test_returns_latest_complete_pair(self, tmp_path, monkeypatch):
-        """When multiple complete pairs exist, the chronologically latest is returned."""
+        """When multiple complete sessions exist, the chronologically latest is returned."""
         monkeypatch.setattr(update_matches, "RAW_DIR", tmp_path)
         for prefix in ("010125", "020125", "030125"):
             (tmp_path / f"{prefix}_session_matches.csv").touch()
             (tmp_path / f"{prefix}_session_rounds.csv").touch()
+            (tmp_path / f"{prefix}_session.json").touch()
 
-        m, r = update_matches.get_latest_session_files()
+        m, r, j = update_matches.get_latest_session_files()
         assert m.name == "030125_session_matches.csv"
         assert r.name == "030125_session_rounds.csv"
+        assert j.name == "030125_session.json"
 
     def test_returns_chronologically_latest_across_months(self, tmp_path, monkeypatch):
         """Sessions are ordered by actual date, not lexicographically."""
@@ -84,34 +88,40 @@ class TestGetLatestSessionFiles:
         for prefix in ("311225", "010126"):
             (tmp_path / f"{prefix}_session_matches.csv").touch()
             (tmp_path / f"{prefix}_session_rounds.csv").touch()
+            (tmp_path / f"{prefix}_session.json").touch()
 
-        m, r = update_matches.get_latest_session_files()
+        m, r, j = update_matches.get_latest_session_files()
         assert m.name == "010126_session_matches.csv"
         assert r.name == "010126_session_rounds.csv"
+        assert j.name == "010126_session.json"
 
     def test_skips_incomplete_matches_only(self, tmp_path, monkeypatch):
-        """A prefix with only a matches file should not form a pair."""
+        """A prefix with only a matches file should not form a complete session."""
         monkeypatch.setattr(update_matches, "RAW_DIR", tmp_path)
         (tmp_path / "010125_session_matches.csv").touch()
         (tmp_path / "010125_session_rounds.csv").touch()
+        (tmp_path / "010125_session.json").touch()
         # Newer prefix has only a matches file – should be skipped.
         (tmp_path / "020125_session_matches.csv").touch()
 
-        m, r = update_matches.get_latest_session_files()
+        m, r, j = update_matches.get_latest_session_files()
         assert m.name == "010125_session_matches.csv"
         assert r.name == "010125_session_rounds.csv"
+        assert j.name == "010125_session.json"
 
     def test_skips_incomplete_rounds_only(self, tmp_path, monkeypatch):
-        """A prefix with only a rounds file should not form a pair."""
+        """A prefix with only a rounds file should not form a complete session."""
         monkeypatch.setattr(update_matches, "RAW_DIR", tmp_path)
         (tmp_path / "010125_session_matches.csv").touch()
         (tmp_path / "010125_session_rounds.csv").touch()
+        (tmp_path / "010125_session.json").touch()
         # Newer prefix has only a rounds file – should be skipped.
         (tmp_path / "020125_session_rounds.csv").touch()
 
-        m, r = update_matches.get_latest_session_files()
+        m, r, j = update_matches.get_latest_session_files()
         assert m.name == "010125_session_matches.csv"
         assert r.name == "010125_session_rounds.csv"
+        assert j.name == "010125_session.json"
 
     def test_raises_when_no_complete_pair(self, tmp_path, monkeypatch):
         """FileNotFoundError should be raised when no complete pair exists."""
