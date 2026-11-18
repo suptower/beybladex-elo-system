@@ -3,7 +3,6 @@ Unit tests for challenge_league.py module (Season 4+).
 Tests qualification pool selection, weighted random draw, snake group assignment,
 group standings, and final Swiss phase qualification.
 """
-import pytest
 
 from src.season.challenge_league import (
     calculate_selection_weight,
@@ -12,7 +11,6 @@ from src.season.challenge_league import (
     assign_challenge_groups,
     calculate_league_table,
     process_challenge_league,
-    DEFAULT_CHALLENGE_LEAGUE_SIZE,
     DEFAULT_GROUPS_COUNT,
     DEFAULT_BEYS_PER_GROUP,
     DEFAULT_PROMOTIONS_TO_TIER3,
@@ -157,12 +155,21 @@ class TestChallengeLeagueStandings:
     def test_final_swiss_points_reset_to_zero(self):
         # Group stage matches where Bey1 had 9 points
         group_matches = [
-            {"bey_a": "Q1", "bey_b": "X1", "score_a": 4, "score_b": 0, "match_type": "challenge_group", "season_id": "S4", "tier": "A"},
-            {"bey_a": "Q1", "bey_b": "X2", "score_a": 4, "score_b": 0, "match_type": "challenge_group", "season_id": "S4", "tier": "A"},
+            {
+                "bey_a": "Q1", "bey_b": "X1", "score_a": 4, "score_b": 0,
+                "match_type": "challenge_group", "season_id": "S4", "tier": "A",
+            },
+            {
+                "bey_a": "Q1", "bey_b": "X2", "score_a": 4, "score_b": 0,
+                "match_type": "challenge_group", "season_id": "S4", "tier": "A",
+            },
         ]
         # Final Swiss matches where Q1 lost
         final_matches = [
-            {"bey_a": "Q1", "bey_b": "Q2", "score_a": 1, "score_b": 4, "match_type": "challenge_final", "season_id": "S4"},
+            {
+                "bey_a": "Q1", "bey_b": "Q2", "score_a": 1, "score_b": 4,
+                "match_type": "challenge_final", "season_id": "S4",
+            },
         ]
         all_matches = group_matches + final_matches
         groups = {"A": [{"bey": "Q1", "elo": 1000}, {"bey": "X1", "elo": 950}, {"bey": "X2", "elo": 900}]}
@@ -179,16 +186,33 @@ class TestEndToEndChallengeLeague:
 
     def test_top5_promoted_and_remainder_returned(self):
         # 8 qualifiers in final swiss
-        qualifiers = [f"Qual{i}" for i in range(1, 9)]
         final_matches = []
         # Qual1 beats Qual2, Qual3 beats Qual4, Qual5 beats Qual6, Qual7 beats Qual8
-        final_matches.append({"bey_a": "Qual1", "bey_b": "Qual2", "score_a": 4, "score_b": 0, "match_type": "challenge_final", "season_id": "S4"})
-        final_matches.append({"bey_a": "Qual3", "bey_b": "Qual4", "score_a": 4, "score_b": 1, "match_type": "challenge_final", "season_id": "S4"})
-        final_matches.append({"bey_a": "Qual5", "bey_b": "Qual6", "score_a": 4, "score_b": 2, "match_type": "challenge_final", "season_id": "S4"})
-        final_matches.append({"bey_a": "Qual7", "bey_b": "Qual8", "score_a": 4, "score_b": 3, "match_type": "challenge_final", "season_id": "S4"})
+        final_matches.append({
+            "bey_a": "Qual1", "bey_b": "Qual2", "score_a": 4, "score_b": 0,
+            "match_type": "challenge_final", "season_id": "S4",
+        })
+        final_matches.append({
+            "bey_a": "Qual3", "bey_b": "Qual4", "score_a": 4, "score_b": 1,
+            "match_type": "challenge_final", "season_id": "S4",
+        })
+        final_matches.append({
+            "bey_a": "Qual5", "bey_b": "Qual6", "score_a": 4, "score_b": 2,
+            "match_type": "challenge_final", "season_id": "S4",
+        })
+        final_matches.append({
+            "bey_a": "Qual7", "bey_b": "Qual8", "score_a": 4, "score_b": 3,
+            "match_type": "challenge_final", "season_id": "S4",
+        })
         # Round 2: Qual1 beats Qual3, Qual5 beats Qual7
-        final_matches.append({"bey_a": "Qual1", "bey_b": "Qual3", "score_a": 4, "score_b": 0, "match_type": "challenge_final", "season_id": "S4"})
-        final_matches.append({"bey_a": "Qual5", "bey_b": "Qual7", "score_a": 4, "score_b": 1, "match_type": "challenge_final", "season_id": "S4"})
+        final_matches.append({
+            "bey_a": "Qual1", "bey_b": "Qual3", "score_a": 4, "score_b": 0,
+            "match_type": "challenge_final", "season_id": "S4",
+        })
+        final_matches.append({
+            "bey_a": "Qual5", "bey_b": "Qual7", "score_a": 4, "score_b": 1,
+            "match_type": "challenge_final", "season_id": "S4",
+        })
 
         groups = {
             "A": [{"bey": "Qual1", "elo": 1000}, {"bey": "Qual2", "elo": 1000}],

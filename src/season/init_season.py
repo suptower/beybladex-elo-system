@@ -164,7 +164,6 @@ def generate_schedule_csv(season_data, output_dir: str):
     tier_assignments = season_data['tier_assignments']
     season_fmt = get_season_format(season_id)
     tiers_count = season_fmt.get("tiers", TIERS)
-    beys_per_tier = season_fmt.get("beys_per_tier", BEYS_PER_TIER)
 
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
@@ -435,7 +434,10 @@ def main():
 
             matches_file = args.matches_file or os.path.join(args.data_dir, "matches", "matches.csv")
             if not os.path.exists(matches_file):
-                matches_file = MATCHES_CSV
+                print(
+                    f"{YELLOW}Warning: Matches file not found at {matches_file}. "
+                    f"Participation counts will be ignored.{RESET}"
+                )
             matches = []
             if os.path.exists(matches_file):
                 with open(matches_file, "r", encoding="utf-8") as f:
@@ -522,7 +524,10 @@ def main():
         if season_fmt.get("rules_version", 1) >= 4 or "challenge_league" in season_fmt:
             cl_info = season_data.get("challenge_league", {})
             selected_count = len(cl_info.get("selected_beys", []))
-            print(f"{BOLD}{YELLOW}Qualification Pool ({len(qual_pool)} Beys total, {selected_count} selected for Challenge League):{RESET}")
+            print(
+                f"{BOLD}{YELLOW}Qualification Pool ({len(qual_pool)} Beys total, "
+                f"{selected_count} selected for Challenge League):{RESET}"
+            )
             for entry in qual_pool:
                 bey = entry.get("bey", "?")
                 elo = entry.get("elo", 0)

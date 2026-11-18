@@ -134,8 +134,14 @@ class TestQuickEntrySeason4:
                 S4: {
                     league_tables: {
                         '1': [
-                            { bey: 'BeyA', matches: 0, wins: 0, losses: 0, season_points: 0, points_for: 0, points_against: 0, point_diff: 0, elo: 1100 },
-                            { bey: 'BeyB', matches: 0, wins: 0, losses: 0, season_points: 0, points_for: 0, points_against: 0, point_diff: 0, elo: 1050 }
+                            {
+                                bey: 'BeyA', matches: 0, wins: 0, losses: 0, season_points: 0,
+                                points_for: 0, points_against: 0, point_diff: 0, elo: 1100
+                            },
+                            {
+                                bey: 'BeyB', matches: 0, wins: 0, losses: 0, season_points: 0,
+                                points_for: 0, points_against: 0, point_diff: 0, elo: 1050
+                            }
                         ]
                     },
                     challenge_league: {
@@ -151,9 +157,15 @@ class TestQuickEntrySeason4:
         });
         qe.setMatches([
             // Regular match: 4-0 dominant win for BeyA -> 4 pts
-            { beyA: 'BeyA', beyB: 'BeyB', scoreA: 4, scoreB: 0, matchType: 'season', seasonId: 'S4', tier: '1', matchday: 1 },
+            {
+                beyA: 'BeyA', beyB: 'BeyB', scoreA: 4, scoreB: 0,
+                matchType: 'season', seasonId: 'S4', tier: '1', matchday: 1
+            },
             // Challenge group match: 4-2 normal win for BeyD -> 3 pts
-            { beyA: 'BeyC', beyB: 'BeyD', scoreA: 2, scoreB: 4, matchType: 'challenge_group', seasonId: 'S4', tier: 'A', matchday: 1 }
+            {
+                beyA: 'BeyC', beyB: 'BeyD', scoreA: 2, scoreB: 4,
+                matchType: 'challenge_group', seasonId: 'S4', tier: 'A', matchday: 1
+            }
         ]);
 
         const standings = qe.calculateSeasonTierStandings();

@@ -14,10 +14,9 @@ Key Features:
 - Promotion and return-to-pool resolution
 """
 
-import math
 import random
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Union
 
 from src.season.season_manager import calculate_season_points
 
@@ -352,8 +351,10 @@ def calculate_league_table(
 
         sp_a, sp_b = calculate_season_points(score_a, score_b)
 
-        elo_a = float(match.get("elo_a") or (elo_lookup.get(bey_a) if elo_lookup else None) or standings[bey_a]["elo"] or 1000.0)
-        elo_b = float(match.get("elo_b") or (elo_lookup.get(bey_b) if elo_lookup else None) or standings[bey_b]["elo"] or 1000.0)
+        elo_a = float(match.get("elo_a") or (elo_lookup.get(bey_a)
+                                             if elo_lookup else None) or standings[bey_a]["elo"] or 1000.0)
+        elo_b = float(match.get("elo_b") or (elo_lookup.get(bey_b)
+                                             if elo_lookup else None) or standings[bey_b]["elo"] or 1000.0)
 
         for bey, score, opp_score, sp, elo in [
             (bey_a, score_a, score_b, sp_a, elo_a),
@@ -480,7 +481,8 @@ def process_challenge_league(
 
         # Only advance qualifiers if group matches were actually played or final matches are present
         has_group_matches = any(entry.get("matches", 0) > 0 for entry in table)
-        has_final_matches = any(str(m.get("match_type") or m.get("MatchType", "")).lower() == "challenge_final" for m in cl_matches)
+        has_final_matches = any(str(m.get("match_type") or
+                                    m.get("MatchType", "")).lower() == "challenge_final" for m in cl_matches)
         if has_group_matches or has_final_matches:
             for entry in table[:2]:
                 group_qualifiers.append(entry["bey"])

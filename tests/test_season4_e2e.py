@@ -27,7 +27,6 @@ from src.season.season_manager import (
     get_league_table,
     get_promotion_relegation,
     generate_season_archive,
-    get_season_format,
     schedule_round_robin,
 )
 from src.season.challenge_league import (
@@ -80,7 +79,14 @@ def pool_of_58_beys() -> List[Tuple[str, float]]:
     return beys
 
 
-def simulate_swiss_round(pairings: List[Tuple[str, str]], start_match_id: int, match_type: str, season_id: str = "S4", tier: int = 1, matchday: int = 8) -> Tuple[List[Dict], int]:
+def simulate_swiss_round(
+    pairings: List[Tuple[str, str]],
+    start_match_id: int,
+    match_type: str,
+    season_id: str = "S4",
+    tier: int = 1,
+    matchday: int = 8,
+) -> Tuple[List[Dict], int]:
     """Simulate a Swiss round given explicit pairings."""
     matches = []
     mid = start_match_id
@@ -182,7 +188,9 @@ class TestSeason4EndToEndSimulation:
                 (p1_table[4]["bey"], p1_table[5]["bey"]),
                 (p1_table[6]["bey"], p1_table[7]["bey"]),
             ]
-            r1_matches, match_counter = simulate_swiss_round(r1_pairings, match_counter, "season", "S4", tier, matchday=8)
+            r1_matches, match_counter = simulate_swiss_round(
+                r1_pairings, match_counter, "season", "S4", tier, matchday=8
+            )
             tier_matches.extend(r1_matches)
 
             # Phase 2 Swiss Round 2: 4 matches (matchday 9)
@@ -192,7 +200,9 @@ class TestSeason4EndToEndSimulation:
                 (p1_table[4]["bey"], p1_table[6]["bey"]),
                 (p1_table[5]["bey"], p1_table[7]["bey"]),
             ]
-            r2_matches, match_counter = simulate_swiss_round(r2_pairings, match_counter, "season", "S4", tier, matchday=9)
+            r2_matches, match_counter = simulate_swiss_round(
+                r2_pairings, match_counter, "season", "S4", tier, matchday=9
+            )
             tier_matches.extend(r2_matches)
 
             # Phase 2 Swiss Round 3: 4 matches (matchday 10)
@@ -202,7 +212,9 @@ class TestSeason4EndToEndSimulation:
                 (p1_table[4]["bey"], p1_table[7]["bey"]),
                 (p1_table[5]["bey"], p1_table[6]["bey"]),
             ]
-            r3_matches, match_counter = simulate_swiss_round(r3_pairings, match_counter, "season", "S4", tier, matchday=10)
+            r3_matches, match_counter = simulate_swiss_round(
+                r3_pairings, match_counter, "season", "S4", tier, matchday=10
+            )
             tier_matches.extend(r3_matches)
 
             assert len(tier_matches) == 40, f"Tier {tier} must have exactly 40 matches (Criterion 2)"
@@ -212,7 +224,8 @@ class TestSeason4EndToEndSimulation:
             final_table = get_league_table(tier_matches, tier=tier, season_id="S4")
             assert len(final_table) == 8
             for entry in final_table:
-                assert entry["matches"] == 10, f"{entry['bey']} in Tier {tier} must have played 10 matches (Criterion 3)"
+                msg = f"{entry['bey']} in Tier {tier} must have played 10 matches (Criterion 3)"
+                assert entry["matches"] == 10, msg
             tier_tables[tier] = final_table
 
         assert len(all_regular_matches) == 120, "Regular tiers total must be 120 matches (Criterion 20)"
@@ -250,7 +263,7 @@ class TestSeason4EndToEndSimulation:
             g_table = calculate_cl_table(g_matches, expected_beys=b_names)
             assert len(g_table) == 6
             for entry in g_table:
-                assert entry["matches"] == 3, f"Group participant must play 3 matches"
+                assert entry["matches"] == 3, "Group participant must play 3 matches"
 
             # Top 2 advance (Criterion 16)
             group_qualifiers.append(g_table[0]["bey"])
@@ -339,11 +352,15 @@ class TestSeason4EndToEndSimulation:
         # Tier II verification (Criteria 9, 10, 11)
         # Tier II ranks 7-8 directly relegated to Tier III
         t2_relegated = [p["bey"] for p in prom_rel["automatic_relegation"] if p["from_tier"] == 2]
-        assert t2_relegated == [tier_tables[2][7]["bey"], tier_tables[2][6]["bey"]], "Tier II ranks 7-8 relegated (Criterion 9)"
+        assert t2_relegated == [
+            tier_tables[2][7]["bey"], tier_tables[2][6]["bey"]
+        ], "Tier II ranks 7-8 relegated (Criterion 9)"
 
         # Tier III ranks 1-2 directly promoted to Tier II
         t3_promoted = [p["bey"] for p in prom_rel["automatic_promotion"] if p["from_tier"] == 3]
-        assert t3_promoted == [tier_tables[3][0]["bey"], tier_tables[3][1]["bey"]], "Tier III ranks 1-2 promoted (Criterion 10)"
+        assert t3_promoted == [
+            tier_tables[3][0]["bey"], tier_tables[3][1]["bey"]
+        ], "Tier III ranks 1-2 promoted (Criterion 10)"
 
         # Playoff match: T2 #6 vs T3 #3 (Criterion 11)
         t2_t3_playoff = [m for m in prom_rel["relegation_matches"] if m["higher_tier"] == 2]
@@ -422,7 +439,8 @@ class TestSeason4EndToEndSimulation:
         Verify tier transitions when lower-tier Beys WIN their relegation playoff matches:
         - T2 #2 defeats T1 #7 -> T2 #2 promoted to T1, T1 #7 relegated to T2
         - T3 #3 defeats T2 #6 -> T3 #3 promoted to T2, T2 #6 relegated to T3
-        Tier III must still contain exactly 8 Beys (2 auto-relegated + 1 playoff loser from T2 + 5 from Challenge League).
+        Tier III must still contain exactly 8 Beys (2 auto-relegated + 1 playoff
+        loser from T2 + 5 from Challenge League).
         """
         season_data = initialize_season("S4", pool_of_58_beys)
         elo_lookup = dict(pool_of_58_beys)

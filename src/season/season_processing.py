@@ -558,7 +558,8 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
             matches, season_id, groups=cl_groups, rounds_data=rounds_data, elo_lookup=pool_elos
         )
         if challenge_league_result and challenge_league_result.get("promoted_to_tier3"):
-            print(f"  Challenge League: {len(challenge_league_result.get('promoted_to_tier3', []))} promoted to Tier III")
+            prom_count = len(challenge_league_result.get("promoted_to_tier3", []))
+            print(f"  Challenge League: {prom_count} promoted to Tier III")
 
     # Determine promotion/relegation (only if matches played)
     promotion_relegation = None

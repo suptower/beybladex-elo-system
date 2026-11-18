@@ -1007,4 +1007,3 @@ class TestSeason4Rules:
         assert len(cl_promotions) == 5
         assert [p["bey"] for p in cl_promotions] == ["CL-Bey1", "CL-Bey2", "CL-Bey3", "CL-Bey4", "CL-Bey5"]
         assert all(p["to_tier"] == 3 for p in cl_promotions)
-
