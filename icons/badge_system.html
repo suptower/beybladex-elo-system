@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BeybladeX Badge Preview v13</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#07090f; --border:#181c2a; --muted:#404868; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:#e8eaf6; font-family:'Orbitron',monospace; padding:36px 24px 100px; }
+  h1 { font-size:.95rem; letter-spacing:.2em; color:#a78bfa; margin-bottom:5px; }
+  .note { font-size:.72rem; color:var(--muted); margin-bottom:44px; font-family:sans-serif; }
+  section { margin-bottom:50px; }
+  h2 { font-size:.58rem; letter-spacing:.2em; color:var(--muted); text-transform:uppercase;
+    margin-bottom:16px; padding-bottom:7px; border-bottom:1px solid var(--border); }
+  .grid { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  .item { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .lbl { font-size:.6rem; color:var(--muted); letter-spacing:.04em; font-family:sans-serif; }
+  .item svg { transition:transform .2s, filter .2s; cursor:pointer; overflow:visible; }
+  .item svg:hover { transform:translateY(-4px) scale(1.08); filter:brightness(1.12); }
+</style>
+</head>
+<body>
+<button onclick="exportAllSVGs()"
+  style="position:fixed;top:16px;right:16px;z-index:999;
+    background:#4ade80;color:#000;border:none;padding:8px 16px;
+    font-family:monospace;font-size:.75rem;font-weight:700;
+    letter-spacing:.08em;cursor:pointer;border-radius:4px;">
+  ⬇ EXPORT ALL SVGs
+</button>
+
+<h1>BEYBLADEX · BADGE SYSTEM v12</h1>
+<p class="note">Font Preview: Orbitron → finale Site: Presicaw W00 Heavy</p>
+
+<section><h2>Level 1–9 · Bronze · Pentagon · Transition → Silber</h2><div class="grid" id="t1"></div></section>
+<section><h2>Level 10–19 · Silber · Hexagon · Transition → Platin</h2><div class="grid" id="t2"></div></section>
+<section><h2>Level 20–29 · Platin · Starburst · Transition → Lila</h2><div class="grid" id="t3"></div></section>
+<section><h2>Level 30–39 · Lila · Oktagon · Transition → Rot</h2><div class="grid" id="t4"></div></section>
+<section><h2>Level 40–49 · Rot · Doppel-Hex · Power Glow</h2><div class="grid" id="t5"></div></section>
+<section><h2>Prestige I–V · Wappen</h2><div class="grid" id="pre"></div></section>
+<section><h2>Prestige VI+ · Schwarz / Gold</h2><div class="grid" id="pre2"></div></section>
+<section><h2>Tournament · Kristall</h2><div class="grid" id="troph"></div></section>
+<section><h2>Season Cup · Trophy</h2><div class="grid" id="scup"></div></section>
+<section><h2>Season Champion · Tier 1–4</h2><div class="grid" id="seas"></div></section>
+
+<script>
+const uid = () => Math.random().toString(36).slice(2,7);
+
+// ─── Shape helpers ─────────────────────────────────────────────────
+function poly(cx,cy,r,n,rot=0){
+  let d="";
+  for(let i=0;i<n;i++){const a=(i/n)*Math.PI*2+rot;d+=(i===0?"M":"L")+`${(cx+Math.cos(a)*r).toFixed(2)},${(cy+Math.sin(a)*r).toFixed(2)}`;}
+  return d+"Z";
+}
+function starburst(cx,cy,rO,rI,n=6,rot=0){
+  let d="";
+  for(let i=0;i<n;i++){const a1=(i/n)*Math.PI*2+rot,a2=((i+0.5)/n)*Math.PI*2+rot;d+=(i===0?"M":"L")+`${(cx+Math.cos(a1)*rO).toFixed(2)},${(cy+Math.sin(a1)*rO).toFixed(2)} L${(cx+Math.cos(a2)*rI).toFixed(2)},${(cy+Math.sin(a2)*rI).toFixed(2)}`;}
+  return d+"Z";
+}
+function starPoly(cx,cy,rO,rI,n=5){
+  let d="";
+  for(let i=0;i<n*2;i++){const a=(i/(n*2))*Math.PI*2-Math.PI/2,r=i%2===0?rO:rI;d+=(i===0?"M":"L")+`${(cx+Math.cos(a)*r).toFixed(2)},${(cy+Math.sin(a)*r).toFixed(2)}`;}
+  return d+"Z";
+}
+function hexPath(cx,cy,r,rot=-Math.PI/6){return poly(cx,cy,r,6,rot);}
+function shieldPath(cx,cy,w,h){
+  const l=cx-w/2,r=cx+w/2,t=cy-h/2,b=cy+h/2,wy=cy+h*0.1;
+  return `M${l},${t} L${r},${t} L${r},${wy} C${r},${b-h*.12} ${cx+w*.08},${b-h*.04} ${cx},${b} C${cx-w*.08},${b-h*.04} ${l},${b-h*.12} ${l},${wy} Z`;
+}
+
+// ─── Plate rings ───────────────────────────────────────────────────
+// Each ring: fill outer shape → punch inner with bg → highlight/shadow edges
+// c1/c2 = primary gradient colours for this plate (allows colour transition)
+function drawPlates(shapeFn, n, plateColors, bgDark, id, step=0.085) {
+  let defs="", svg="";
+  for(let i=0;i<n;i++){
+    const {hi,mid,dark} = plateColors[i] || plateColors[plateColors.length-1];
+    defs+=`<linearGradient id="pg${id}_${i}" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="${hi}" stop-opacity="0.95"/>
+      <stop offset="38%" stop-color="${mid}" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="${dark}" stop-opacity="0.85"/>
+    </linearGradient>`;
+    const sO=1+(i+1)*step, sI=1+i*step;
+    svg+=`<path d="${shapeFn(sO)}" fill="url(#pg${id}_${i})"/>`;
+    svg+=`<path d="${shapeFn(sI)}" fill="${bgDark}"/>`;
+    svg+=`<path d="${shapeFn(sO)}" fill="none" stroke="${hi}" stroke-width="0.8" stroke-opacity="${0.48-i*0.08}" stroke-linejoin="round"/>`;
+    svg+=`<path d="${shapeFn(sI)}" fill="none" stroke="${dark}" stroke-width="0.5" stroke-opacity="${0.28-i*0.04}" stroke-linejoin="round"/>`;
+  }
+  return {defs,svg};
+}
+
+// ─── Inset contour lines ───────────────────────────────────────────
+function insetLines(shapeFn, n, hiColor, rimColor, start=0.94, step=0.055){
+  let s="";
+  for(let i=0;i<n;i++){
+    s+=`<path d="${shapeFn(start-i*step)}" fill="none"
+      stroke="${i===0?hiColor:rimColor}" stroke-width="${0.72-i*0.09}"
+      stroke-opacity="${0.36-i*0.06}" stroke-linejoin="round"/>`;
+  }
+  return s;
+}
+
+// ─── Generic apron (for prestige/season badges) ────────────────────
+function apron(cx, botY, badgeW, hi, mid, dark, id, layers=1){
+  let defs="",svg="";
+  for(let i=0;i<layers;i++){
+    const aw=badgeW*(0.62+i*0.08);
+    const ah=badgeW*(0.14+i*0.05);
+    const al=cx-aw/2, ar=cx+aw/2;
+    const ty=botY+i*1.5;
+    defs+=`<linearGradient id="gap${id}_${i}" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${i===0?mid:dark}"/>
+      <stop offset="100%" stop-color="${dark}" stop-opacity="0.65"/>
+    </linearGradient>`;
+    svg+=`<path d="M${al},${ty} L${ar},${ty} L${ar+badgeW*0.028},${ty+ah} L${cx},${ty+ah+badgeW*0.05} L${al-badgeW*0.028},${ty+ah} Z"
+      fill="url(#gap${id}_${i})" opacity="${0.9-i*0.08}"/>`;
+    svg+=`<path d="M${al},${ty} L${ar},${ty}" fill="none" stroke="${hi}" stroke-width="0.9" stroke-opacity="${0.5-i*0.1}"/>`;
+    svg+=`<line x1="${al}" y1="${ty}" x2="${al-badgeW*0.028}" y2="${ty+ah}" stroke="${hi}" stroke-width="0.7" stroke-opacity="${0.38-i*0.07}"/>`;
+    svg+=`<line x1="${ar}" y1="${ty}" x2="${ar+badgeW*0.028}" y2="${ty+ah}" stroke="${hi}" stroke-width="0.7" stroke-opacity="${0.38-i*0.07}"/>`;
+  }
+  return {defs,svg};
+}
+
+// ─── Shape-specific aprons ─────────────────────────────────────────
+// Each shape gets an apron whose top edge matches the shape's lower contour.
+// shapeId: 0=pentagon, 1=hex-flat, 2=starburst, 3=octagon, 4=hex-point
+function shapeApron(cx, cy, rO, c, id, layers, shapeId){
+  let defs="",svg="";
+  const bw = rO*1.9; // reference width for scaling
+  for(let i=0;i<layers;i++){
+    const scale = 1 + i*0.09;   // each layer slightly wider
+    const depth = rO*(0.16+i*0.06); // how tall each layer is
+    const op = 0.9 - i*0.08;
+    const hi2 = i===0 ? c.hi : c.rim1;
+    defs+=`<linearGradient id="ap${id}_${i}" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="${hi2}"/>
+      <stop offset="100%" stop-color="${c.rim2}" stop-opacity="0.65"/>
+    </linearGradient>`;
+
+    let topPath="", bodyPath="";
+
+    if(shapeId===0){
+      // Pentagon rot=PI/2: tip=i=0, flanks i=1 and i=4
+      // Use 48% along each edge from tip toward flank to keep apron narrow
+      const r=rO*scale;
+      const tip=[cx, cy+r];
+      const f1=[cx+r*Math.cos(1/5*Math.PI*2+Math.PI/2), cy+r*Math.sin(1/5*Math.PI*2+Math.PI/2)];
+      const f4=[cx+r*Math.cos(4/5*Math.PI*2+Math.PI/2), cy+r*Math.sin(4/5*Math.PI*2+Math.PI/2)];
+      const et=0.48;
+      const vL=[tip[0]+(f1[0]-tip[0])*et, tip[1]+(f1[1]-tip[1])*et];
+      const vR=[tip[0]+(f4[0]-tip[0])*et, tip[1]+(f4[1]-tip[1])*et];
+      const bl=[vL[0], tip[1]+depth];
+      const br=[vR[0], tip[1]+depth];
+      const btip=[cx, tip[1]+depth+bw*0.018*scale];
+      topPath=`M${vL[0].toFixed(2)},${vL[1].toFixed(2)} L${tip[0].toFixed(2)},${tip[1].toFixed(2)} L${vR[0].toFixed(2)},${vR[1].toFixed(2)}`;
+      bodyPath=`M${vL[0].toFixed(2)},${vL[1].toFixed(2)} L${tip[0].toFixed(2)},${tip[1].toFixed(2)} L${vR[0].toFixed(2)},${vR[1].toFixed(2)} L${br[0].toFixed(2)},${br[1].toFixed(2)} L${btip[0].toFixed(2)},${btip[1].toFixed(2)} L${bl[0].toFixed(2)},${bl[1].toFixed(2)} Z`;
+    } else if(shapeId===1){
+      // Hex rot=-PI/6: i=2=bottom(cx,cy+r), i=1=lower-right, i=3=lower-left
+      // Use 50% along each edge from bottom vertex toward side to narrow apron
+      const r=rO*scale;
+      const hBot=[cx, cy+r];
+      const hR=[cx+r*Math.cos(1/6*Math.PI*2-Math.PI/6), cy+r*Math.sin(1/6*Math.PI*2-Math.PI/6)];
+      const hL=[cx+r*Math.cos(3/6*Math.PI*2-Math.PI/6), cy+r*Math.sin(3/6*Math.PI*2-Math.PI/6)];
+      const ht=0.50;
+      const heR=[hBot[0]+(hR[0]-hBot[0])*ht, hBot[1]+(hR[1]-hBot[1])*ht];
+      const heL=[hBot[0]+(hL[0]-hBot[0])*ht, hBot[1]+(hL[1]-hBot[1])*ht];
+      const v3=hBot;
+      const bl=[heL[0], v3[1]+depth];
+      const br=[heR[0], v3[1]+depth];
+      const btip=[cx, v3[1]+depth+bw*0.018*scale];
+      topPath=`M${heL[0].toFixed(2)},${heL[1].toFixed(2)} L${v3[0].toFixed(2)},${v3[1].toFixed(2)} L${heR[0].toFixed(2)},${heR[1].toFixed(2)}`;
+      bodyPath=`M${heL[0].toFixed(2)},${heL[1].toFixed(2)} L${v3[0].toFixed(2)},${v3[1].toFixed(2)} L${heR[0].toFixed(2)},${heR[1].toFixed(2)} L${br[0].toFixed(2)},${br[1].toFixed(2)} L${btip[0].toFixed(2)},${btip[1].toFixed(2)} L${bl[0].toFixed(2)},${bl[1].toFixed(2)} Z`;
+    } else if(shapeId===2){
+      // Starburst hex (rot=-PI/6): lower contour has two outer tips + inner valleys
+      // Outer tip at bottom: (cx, cy+rO*scale)
+      // Inner valleys: at rO*0.83 radius, angles between tips
+      const r=rO*scale, ri=rO*0.83*scale;
+      // Bottom outer tip: angle = PI/2 (270°) from rot=-PI/6 → actual angle = PI/2
+      // Two adjacent inner valleys at angle PI/2 ± PI/6
+      const tipBot=[cx, cy+r];
+      const valL=[cx-ri*Math.cos(Math.PI/6), cy+ri*Math.sin(Math.PI/6+Math.PI/6)];
+      // valley at angle PI/2+PI/6 = 2PI/3 → wait let me be precise
+      // starburst: outer tips at i/6*2PI + rot, inner valleys at (i+0.5)/6*2PI + rot
+      // rot = -PI/6. Outer tip i=2: a=2/6*2PI-PI/6=2PI/3-PI/6=PI/2 ✓ bottom
+      // Inner valley between i=2 and i=3: a=2.5/6*2PI-PI/6=5PI/6-PI/6=2PI/3
+      // Inner valley between i=1 and i=2: a=1.5/6*2PI-PI/6=PI/2-PI/6=PI/3... 
+      // Wait: valley left of bottom tip: (1.5/6)*2PI-PI/6 = PI/2-PI/6 = PI/3 ← upper
+      // valley right of bottom tip: (2.5/6)*2PI-PI/6 = 5PI/6-PI/6 = 2PI/3
+      // Both valleys are above the outer tip, so apron top = the two valleys + tip
+      const aVL = 2*Math.PI/3;  // left valley angle
+      const aVR = Math.PI/3;    // right valley angle ... hmm these are upper left/right
+      // For bottom area: the two valleys immediately flanking the bottom outer tip
+      // bottom outer tip is at angle PI/2
+      // left adjacent valley at PI/2 + PI/6 = 2PI/3 (lower-left)  
+      // right adjacent valley at PI/2 - PI/6 = PI/3 (lower-right... but PI/3 is upper right)
+      // Let me recalculate: for n=6, rot=-PI/6
+      // outer i: angle = i/6*2PI + rot
+      // i=0: -PI/6 (right), i=1: PI/2 (bottom)... 
+      // Actually: i=0: 0-PI/6=-PI/6, i=1: PI/3-PI/6=PI/6, i=2: 2PI/3-PI/6=PI/2 ← BOTTOM ✓
+      // inner valley between i=2,i=3: (2.5/6)*2PI-PI/6=5PI/6-PI/6=4PI/6=2PI/3
+      // inner valley between i=1,i=2: (1.5/6)*2PI-PI/6=PI/2-PI/6=PI/3
+      // sin(2PI/3)=0.866 (lower-left area), sin(PI/3)=0.866 (same height both sides!)
+      const valLL=[cx+ri*Math.cos(2*Math.PI/3), cy+ri*Math.sin(2*Math.PI/3)]; 
+      const valRR=[cx+ri*Math.cos(Math.PI/3),   cy+ri*Math.sin(Math.PI/3)];
+      const bl=[valLL[0]-bw*0.03*scale, tipBot[1]+depth];
+      const br=[valRR[0]+bw*0.03*scale, tipBot[1]+depth];
+      const btip=[cx, tipBot[1]+depth+bw*0.03*scale];
+      topPath=`M${valLL[0].toFixed(2)},${valLL[1].toFixed(2)} L${tipBot[0].toFixed(2)},${tipBot[1].toFixed(2)} L${valRR[0].toFixed(2)},${valRR[1].toFixed(2)}`;
+      bodyPath=`M${valLL[0].toFixed(2)},${valLL[1].toFixed(2)} L${tipBot[0].toFixed(2)},${tipBot[1].toFixed(2)} L${valRR[0].toFixed(2)},${valRR[1].toFixed(2)} L${br[0].toFixed(2)},${br[1].toFixed(2)} L${btip[0].toFixed(2)},${btip[1].toFixed(2)} L${bl[0].toFixed(2)},${bl[1].toFixed(2)} Z`;
+    } else if(shapeId===3){
+      // Octagon rot=PI/8: two bottom edges form gentle V
+      const r=rO*scale;
+      // Bottom vertex at angle PI/2+PI/8 (closest to PI/2)
+      // Vertices i=2,i=3: a=2/8*2PI+PI/8=PI/2+PI/8, a=3/8*2PI+PI/8=3PI/4+PI/8
+      // Lowest vertex: i=2 at angle PI/2+PI/8
+      const aBotL=3*Math.PI/4+Math.PI/8, aBotR=Math.PI/2+Math.PI/8-2*Math.PI/8;
+      // Actually: i=2: 2/8*2*PI+PI/8=PI/2+PI/8 ← right-bottom area
+      //           i=3: 3/8*2*PI+PI/8=3PI/4+PI/8 ← bottom
+      //           i=4: 4/8*2*PI+PI/8=PI+PI/8    ← left
+      // Wait I need the TWO lowest vertices
+      // For oct rot=PI/8: lowest = max sin(a)
+      // i=3: a=3*2PI/8+PI/8=3PI/4+PI/8=7PI/8, sin(7PI/8)=sin(PI/8)≈0.383 ... not low
+      // Hmm, sin is highest at PI/2. Closest vertex to PI/2:
+      // i=2: a=PI/2+PI/8, sin=sin(5PI/8)=sin(3PI/8)≈0.924
+      // i=3: a=3PI/4+PI/8=7PI/8, sin(7PI/8)≈0.383
+      // So single lowest vertex is i=2, flanked by i=1 and i=3
+      // i=1: a=PI/4+PI/8=3PI/8, sin≈0.924 (same height! symmetric pair)
+      // i=1 and i=2 are the two lowest, with the bottom edge between them
+      const a1=1*2*Math.PI/8+Math.PI/8, a2=2*2*Math.PI/8+Math.PI/8;
+      const v1=[cx+r*Math.cos(a1), cy+r*Math.sin(a1)];
+      const v2=[cx+r*Math.cos(a2), cy+r*Math.sin(a2)];
+      // midpoint of bottom edge
+      const vmid=[(v1[0]+v2[0])/2, (v1[1]+v2[1])/2];
+      const bl=[v1[0]-bw*0.03*scale, vmid[1]+depth];
+      const br=[v2[0]+bw*0.03*scale, vmid[1]+depth];
+      topPath=`M${v1[0].toFixed(2)},${v1[1].toFixed(2)} L${v2[0].toFixed(2)},${v2[1].toFixed(2)}`;
+      bodyPath=`M${v1[0].toFixed(2)},${v1[1].toFixed(2)} L${v2[0].toFixed(2)},${v2[1].toFixed(2)} L${br[0].toFixed(2)},${br[1].toFixed(2)} L${bl[0].toFixed(2)},${bl[1].toFixed(2)} Z`;
+    } else {
+      // shapeId===4: plain hex rot=0 lower V edges
+      const r=rO*scale;
+      const hv1=[cx+r*Math.cos(Math.PI/3), cy+r*Math.sin(Math.PI/3)];
+      const hv2=[cx+r*Math.cos(2*Math.PI/3), cy+r*Math.sin(2*Math.PI/3)];
+      const vmid=[(hv1[0]+hv2[0])/2, Math.max(hv1[1],hv2[1])];
+      const ht=0.50;
+      const heR=[vmid[0]+(hv1[0]-vmid[0])*(1-ht), vmid[1]+(hv1[1]-vmid[1])*(1-ht)];
+      const heL=[vmid[0]+(hv2[0]-vmid[0])*(1-ht), vmid[1]+(hv2[1]-vmid[1])*(1-ht)];
+      const bl=[heL[0], vmid[1]+depth];
+      const br=[heR[0], vmid[1]+depth];
+      const btip=[cx, vmid[1]+depth+bw*0.018*scale];
+      topPath=`M${heL[0].toFixed(2)},${heL[1].toFixed(2)} L${vmid[0].toFixed(2)},${vmid[1].toFixed(2)} L${heR[0].toFixed(2)},${heR[1].toFixed(2)}`;
+      bodyPath=`M${heL[0].toFixed(2)},${heL[1].toFixed(2)} L${vmid[0].toFixed(2)},${vmid[1].toFixed(2)} L${heR[0].toFixed(2)},${heR[1].toFixed(2)} L${br[0].toFixed(2)},${br[1].toFixed(2)} L${btip[0].toFixed(2)},${btip[1].toFixed(2)} L${bl[0].toFixed(2)},${bl[1].toFixed(2)} Z`;
+    }
+
+    svg+=`<path d="${bodyPath}" fill="url(#ap${id}_${i})" opacity="${op}"/>`;
+    svg+=`<path d="${topPath}" fill="none" stroke="${c.hi}" stroke-width="0.9" stroke-opacity="${0.52-i*0.1}" stroke-linejoin="round"/>`;
+    svg+=`<path d="${bodyPath}" fill="none" stroke="${c.rim2}" stroke-width="0.4" stroke-opacity="0.2" stroke-linejoin="round"/>`;
+  }
+  return {defs,svg};
+}
+
+// ─── V-stripes: two trapezoid arms angled outward from badge centre ──
+// Each stripe is actually TWO trapezoid arms meeting at the badge edge,
+// forming a V-shape pointing inward. Arms angle downward-outward.
+// count = number of V-stripe pairs stacked vertically
+function crossStripes(cx, stripeY, badgeW, hi, mid, dark, id, count=1){
+  let defs="",svg="";
+  const sh = badgeW*0.16;    // arm thickness – wider
+  const gap = 0;              // NO gap between stacked stripes
+  const armLen = badgeW*0.34;
+  const vAngle = -0.30;
+  const innerH = sh*0.58;
+  const outerH = sh*1.0;
+
+  for(let i=0;i<count;i++){
+    const sy = stripeY + (i-(count-1)/2)*(sh+gap);
+    // Inner attachment point x (badge edge)
+    const attachX = badgeW*0.38; // distance from centre to badge edge attachment
+    // Outer tip x
+    const tipX = attachX + armLen;
+    // Vertical drop from attachment to tip (V-angle)
+    const dropY = armLen * vAngle;
+
+    defs+=`<linearGradient id="cs${id}_L${i}" x1="100%" y1="50%" x2="0%" y2="50%">
+      <stop offset="0%"   stop-color="${hi}"   stop-opacity="1.0"/>
+      <stop offset="55%"  stop-color="${mid}"  stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="${dark}" stop-opacity="0.15"/>
+    </linearGradient>
+    <linearGradient id="cs${id}_R${i}" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%"   stop-color="${hi}"   stop-opacity="1.0"/>
+      <stop offset="55%"  stop-color="${mid}"  stop-opacity="0.88"/>
+      <stop offset="100%" stop-color="${dark}" stop-opacity="0.15"/>
+    </linearGradient>`;
+
+    // LEFT arm: trapezoid pointing left-downward
+    // Inner end (right side of left arm): at (cx-attachX, sy) – narrower
+    // Outer end (left tip): at (cx-tipX, sy+dropY) – wider
+    const Ltx=cx-tipX, Lty=sy+dropY;   // tip centre
+    const Lax=cx-attachX, Lay=sy;       // attach centre
+    const leftPts = [
+      `${(Lax).toFixed(2)},${(Lay-innerH/2).toFixed(2)}`,  // inner top
+      `${(Lax).toFixed(2)},${(Lay+innerH/2).toFixed(2)}`,  // inner bottom
+      `${(Ltx).toFixed(2)},${(Lty+outerH/2).toFixed(2)}`,  // outer bottom
+      `${(Ltx).toFixed(2)},${(Lty-outerH/2).toFixed(2)}`,  // outer top
+    ].join(' ');
+
+    // RIGHT arm: mirror
+    const Rtx=cx+tipX, Rty=sy+dropY;
+    const Rax=cx+attachX, Ray=sy;
+    const rightPts = [
+      `${(Rax).toFixed(2)},${(Ray-innerH/2).toFixed(2)}`,
+      `${(Rax).toFixed(2)},${(Ray+innerH/2).toFixed(2)}`,
+      `${(Rtx).toFixed(2)},${(Rty+outerH/2).toFixed(2)}`,
+      `${(Rtx).toFixed(2)},${(Rty-outerH/2).toFixed(2)}`,
+    ].join(' ');
+
+    // Main arms
+    svg+=`<polygon points="${leftPts}"  fill="url(#cs${id}_L${i})"/>`;
+    svg+=`<polygon points="${rightPts}" fill="url(#cs${id}_R${i})"/>`;
+
+    // Top highlight on each arm (upper quarter)
+    const lhPts = [
+      `${(Lax).toFixed(2)},${(Lay-innerH/2).toFixed(2)}`,
+      `${(Lax).toFixed(2)},${(Lay-innerH/2+innerH*0.38).toFixed(2)}`,
+      `${(Ltx).toFixed(2)},${(Lty-outerH/2+outerH*0.38).toFixed(2)}`,
+      `${(Ltx).toFixed(2)},${(Lty-outerH/2).toFixed(2)}`,
+    ].join(' ');
+    const rhPts = [
+      `${(Rax).toFixed(2)},${(Ray-innerH/2).toFixed(2)}`,
+      `${(Rax).toFixed(2)},${(Ray-innerH/2+innerH*0.38).toFixed(2)}`,
+      `${(Rtx).toFixed(2)},${(Rty-outerH/2+outerH*0.38).toFixed(2)}`,
+      `${(Rtx).toFixed(2)},${(Rty-outerH/2).toFixed(2)}`,
+    ].join(' ');
+    svg+=`<polygon points="${lhPts}" fill="white" opacity="${0.22-i*0.04}"/>`;
+    svg+=`<polygon points="${rhPts}" fill="white" opacity="${0.22-i*0.04}"/>`;
+
+    // Bottom shadow edge
+    svg+=`<line x1="${(Lax).toFixed(2)}" y1="${(Lay+innerH/2).toFixed(2)}" x2="${(Ltx).toFixed(2)}" y2="${(Lty+outerH/2).toFixed(2)}" stroke="${dark}" stroke-width="1.0" stroke-opacity="0.4"/>`;
+    svg+=`<line x1="${(Rax).toFixed(2)}" y1="${(Ray+innerH/2).toFixed(2)}" x2="${(Rtx).toFixed(2)}" y2="${(Rty+outerH/2).toFixed(2)}" stroke="${dark}" stroke-width="1.0" stroke-opacity="0.4"/>`;
+  }
+  return {defs,svg};
+}
+
+
+// ─── Laurel wreath ─────────────────────────────────────────────────
+// coverage 0..1: how much of the circle is covered, spreading upward from bottom
+function laurelWreath(cx, cy, r, coverage, hi, mid, dark, id){
+  if(coverage <= 0) return {defs:"", svg:""};
+  let defs="", svg="";
+  const maxLeaves = 10;
+  const leaves = Math.max(2, Math.round(maxLeaves * coverage));
+
+  const arcSpan = Math.PI * Math.min(coverage * 1.05, 0.92);
+
+  defs += `<linearGradient id="lf${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="${hi}" stop-opacity="0.95"/>
+    <stop offset="55%" stop-color="${mid}"/>
+    <stop offset="100%" stop-color="${dark}" stop-opacity="0.65"/>
+  </linearGradient>`;
+
+  // Right side: leaves from PI/2 going counterclockwise (decreasing angle)
+  // Left side:  leaves from PI/2 going clockwise (increasing angle)
+  for(let side=0; side<2; side++){
+    for(let i=0; i<leaves; i++){
+      const t = (i + 0.5) / leaves;
+      // angle along arc from bottom upward
+      const arcAngle = (Math.PI/2) + (side===0 ? -1 : 1) * arcSpan * t;
+
+      // Position on the wreath circle
+      const lx = cx + Math.cos(arcAngle) * r;
+      const ly = cy + Math.sin(arcAngle) * r;
+
+      // Leaf points outward from centre, tilted tangentially
+      // Radial direction = arcAngle; tangent = arcAngle ± PI/2
+      // Leaf long axis: mix of radial outward + slight tangential tilt
+      const tiltDir = arcAngle + (side===0 ? -Math.PI*0.22 : Math.PI*0.22);
+      const leafLen = r * 0.42;   // bigger leaves
+      const leafWid = r * 0.145;  // wider leaves
+
+      // Tip and base of leaf
+      const tipX = lx + Math.cos(tiltDir) * leafLen * 0.55;
+      const tipY = ly + Math.sin(tiltDir) * leafLen * 0.55;
+      const baseX = lx - Math.cos(tiltDir) * leafLen * 0.45;
+      const baseY2 = ly - Math.sin(tiltDir) * leafLen * 0.45;
+
+      // Control points for bulge
+      const perp = tiltDir + Math.PI/2;
+      const c1x = lx + Math.cos(tiltDir)*leafLen*0.1 + Math.cos(perp)*leafWid;
+      const c1y = ly + Math.sin(tiltDir)*leafLen*0.1 + Math.sin(perp)*leafWid;
+      const c2x = lx + Math.cos(tiltDir)*leafLen*0.1 - Math.cos(perp)*leafWid;
+      const c2y = ly + Math.sin(tiltDir)*leafLen*0.1 - Math.sin(perp)*leafWid;
+
+      const leafPath = `M${tipX.toFixed(2)},${tipY.toFixed(2)} C${c1x.toFixed(2)},${c1y.toFixed(2)} ${baseX.toFixed(2)},${baseY2.toFixed(2)} ${baseX.toFixed(2)},${baseY2.toFixed(2)} C${c2x.toFixed(2)},${c2y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} Z`;
+
+      const op = 0.85 + t * 0.13;
+      svg += `<path d="${leafPath}" fill="url(#lf${id})" opacity="${op.toFixed(2)}"/>`;
+      svg += `<path d="${leafPath}" fill="none" stroke="${hi}" stroke-width="0.55" stroke-opacity="0.52"/>`;
+      svg += `<line x1="${tipX.toFixed(2)}" y1="${tipY.toFixed(2)}" x2="${baseX.toFixed(2)}" y2="${baseY2.toFixed(2)}" stroke="${hi}" stroke-width="0.4" stroke-opacity="0.42"/>`;
+    }
+  }
+  return {defs, svg};
+}
+
+// ─── Curved wings ──────────────────────────────────────────────────
+// Solid filled feather segments fanning upward-outward from badge sides
+// Each feather is a proper filled leaf-like shape, giving real mass
+function curvedWings(cx, cy, r, hi, mid, dark, id, style=0){
+  let defs="", svg="";
+
+  defs += `
+  <linearGradient id="wgL${id}" x1="100%" y1="0%" x2="0%" y2="100%">
+    <stop offset="0%"   stop-color="${hi}"   stop-opacity="1.0"/>
+    <stop offset="50%"  stop-color="${mid}"  stop-opacity="0.92"/>
+    <stop offset="100%" stop-color="${dark}" stop-opacity="0.55"/>
+  </linearGradient>
+  <linearGradient id="wgR${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%"   stop-color="${hi}"   stop-opacity="1.0"/>
+    <stop offset="50%"  stop-color="${mid}"  stop-opacity="0.92"/>
+    <stop offset="100%" stop-color="${dark}" stop-opacity="0.55"/>
+  </linearGradient>`;
+
+  const nFeathers = style===1 ? 4 : 3;
+  const attachR = r * 0.78;        // further inward (was 0.96)
+  const wingVertOffset = r * 0.28; // lower (was 0.22)
+
+  const drawWing = (dir) => {
+    const fanStart = 0.05;
+    const fanEnd   = 0.95 + style*0.12; // less spread (was 1.28)
+
+    for(let fi=0; fi<nFeathers; fi++){
+      const t = fi / (nFeathers - 1);
+      const fanAngle = fanStart + (fanEnd - fanStart) * t;
+
+      const rootX = cx + dir * attachR * Math.cos(fanAngle * 0.35);
+      const rootY = cy + wingVertOffset - attachR * Math.sin(fanAngle * 0.35) * 0.4;
+
+      const featherLen  = r * (0.72 - t * 0.12) * (style===1 ? 1.08 : 1.0);
+      const featherWide = r * (0.38 + t * 0.06) * (style===1 ? 1.12 : 1.0);  // much wider
+
+      const tipX = rootX + dir * Math.cos(fanAngle) * featherLen;
+      const tipY = rootY - Math.sin(fanAngle) * featherLen;
+
+      const midX = (rootX + tipX) / 2;
+      const midY = (rootY + tipY) / 2;
+
+      // Upper bulge (convex, main visible face)
+      const cu1x = midX - Math.sin(fanAngle)*dir * featherWide*1.35 + dir*Math.cos(fanAngle)*featherLen*0.05;
+      const cu1y = midY - Math.cos(fanAngle)     * featherWide*1.35 - Math.sin(fanAngle)*featherLen*0.05;
+      // Lower edge (flatter underside)
+      const cl1x = midX + Math.sin(fanAngle)*dir * featherWide*0.45 + dir*Math.cos(fanAngle)*featherLen*0.05;
+      const cl1y = midY + Math.cos(fanAngle)     * featherWide*0.45 - Math.sin(fanAngle)*featherLen*0.05;
+
+      const featherPath = `M${rootX.toFixed(2)},${rootY.toFixed(2)} C${cu1x.toFixed(2)},${cu1y.toFixed(2)} ${cu1x.toFixed(2)},${cu1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} C${cl1x.toFixed(2)},${cl1y.toFixed(2)} ${cl1x.toFixed(2)},${cl1y.toFixed(2)} ${rootX.toFixed(2)},${rootY.toFixed(2)} Z`;
+
+      const fillId = dir > 0 ? `wgR${id}` : `wgL${id}`;
+      svg += `<path d="${featherPath}" fill="url(#${fillId})" opacity="${(0.92-fi*0.06).toFixed(2)}"/>`;
+      svg += `<path d="M${rootX.toFixed(2)},${rootY.toFixed(2)} C${cu1x.toFixed(2)},${cu1y.toFixed(2)} ${cu1x.toFixed(2)},${cu1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)}"
+        fill="none" stroke="${hi}" stroke-width="${(1.2-fi*0.18).toFixed(2)}" stroke-opacity="${(0.65-fi*0.1).toFixed(2)}" stroke-linecap="round"/>`;
+      svg += `<path d="M${rootX.toFixed(2)},${rootY.toFixed(2)} C${cl1x.toFixed(2)},${cl1y.toFixed(2)} ${cl1x.toFixed(2)},${cl1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)}"
+        fill="none" stroke="${dark}" stroke-width="0.7" stroke-opacity="0.3" stroke-linecap="round"/>`;
+      svg += `<line x1="${rootX.toFixed(2)}" y1="${rootY.toFixed(2)}" x2="${tipX.toFixed(2)}" y2="${tipY.toFixed(2)}"
+        stroke="${hi}" stroke-width="0.5" stroke-opacity="0.4"/>`;
+    }
+  };
+
+  drawWing(-1);
+  drawWing(+1);
+  return {defs, svg};
+}
+
+
+// ─── Aura rings (Platin) ───────────────────────────────────────────
+// Concentric translucent rings expand outward from badge with level
+function auraRings(cx, cy, r, hi, mid, dark, id, lv0){
+  const intensity = lv0 / 8;
+  const nRings = 1 + Math.floor(intensity * 3); // 1..4 rings
+  let defs="", svg="";
+
+  defs += `<filter id="arBlur${id}" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="${(1.4+intensity*0.8).toFixed(1)}" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>`;
+
+  for(let i=0; i<nRings; i++){
+    const t = i/(Math.max(nRings-1,1));
+    const ringR = r * (1.06 + i*0.09 + intensity*0.04); // smaller radius
+    const opacity = (0.22 - i*0.05 + intensity*0.09).toFixed(2); // more subtle
+    const sw = (1.2 - i*0.20 + intensity*0.28).toFixed(1);
+    const octPath8 = 'M'+Array.from({length:8},(_,vi)=>{
+      const a=vi/8*Math.PI*2+Math.PI/8;
+      return (vi===0?'':'L')+`${(cx+Math.cos(a)*ringR).toFixed(2)},${(cy+Math.sin(a)*ringR).toFixed(2)}`;
+    }).join('')+'Z';
+    svg += `<path d="${octPath8}"
+      fill="none" stroke="${i===0?hi:mid}"
+      stroke-width="${sw}" stroke-opacity="${opacity}"
+      filter="url(#arBlur${id})" stroke-linejoin="round"/>`;
+    svg += `<path d="${octPath8}"
+      fill="none" stroke="${hi}"
+      stroke-width="0.45" stroke-opacity="${(0.18-i*0.04+intensity*0.08).toFixed(2)}"
+      stroke-linejoin="round"/>`;
+  }
+  return {defs, svg};
+}
+
+// ─── Crack effect (Rot) ─────────────────────────────────────────────
+// Radiating fracture lines from badge centre outward, glowing at edges
+function crackEffect(cx, cy, r, hi, mid, dark, id, lv0){
+  const intensity = lv0 / 8;
+  const nCracks = 3 + Math.floor(intensity * 3); // 3..6
+  let defs="", svg="";
+
+  defs += `<linearGradient id="crG${id}" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%"   stop-color="${hi}"   stop-opacity="${(0.7+intensity*0.25).toFixed(2)}"/>
+    <stop offset="60%"  stop-color="${mid}"  stop-opacity="${(0.45+intensity*0.2).toFixed(2)}"/>
+    <stop offset="100%" stop-color="${dark}" stop-opacity="0.0"/>
+  </linearGradient>
+  <filter id="crGlow${id}" x="-50%" y="-50%" width="200%" height="200%">
+    <feGaussianBlur stdDeviation="${(0.8+intensity*0.5).toFixed(1)}" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>`;
+
+  // Spread cracks evenly with slight randomness based on index
+  // Align cracks roughly with star tip angles for visual harmony
+  const baseAngles = Array.from({length:nCracks}, (_,i) =>
+    (i/nCracks)*Math.PI*2 + 0.15*Math.sin(i*1.8)
+  );
+
+  baseAngles.forEach((a, ci) => {
+    // Crack starts partway inside badge and extends beyond edge
+    const innerR = r * (0.25 + intensity*0.15);
+    const outerR = r * (0.95 + intensity*0.18);
+
+    const x0 = cx + Math.cos(a) * innerR;
+    const y0 = cy + Math.sin(a) * innerR;
+
+    // 3-4 zigzag segments
+    const nSegs = 3;
+    let pts = [[x0, y0]];
+    for(let s=1; s<=nSegs; s++){
+      const t = s/nSegs;
+      const pr = innerR + (outerR-innerR)*t;
+      // Angular deviation for jagged look
+      const dev = (s%2===0 ? 0.10 : -0.10) * (1-t*0.5);
+      const pa = a + dev;
+      pts.push([cx + Math.cos(pa)*pr, cy + Math.sin(pa)*pr]);
+    }
+
+    const polyStr = pts.map(([x,y])=>`${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+
+    // Glow
+    svg += `<polyline points="${polyStr}" fill="none"
+      stroke="${hi}" stroke-width="${(3.0+intensity*1.5).toFixed(1)}"
+      stroke-linecap="round" stroke-linejoin="round"
+      filter="url(#crGlow${id})" opacity="${(0.28+intensity*0.22).toFixed(2)}"/>`;
+    // Main crack line
+    svg += `<polyline points="${polyStr}" fill="none"
+      stroke="${hi}" stroke-width="${(1.2+intensity*0.6).toFixed(1)}"
+      stroke-linecap="round" stroke-linejoin="round"
+      opacity="${(0.58+intensity*0.30).toFixed(2)}"/>`;
+    // Bright core
+    svg += `<polyline points="${polyStr}" fill="none"
+      stroke="white" stroke-width="0.65"
+      stroke-linecap="round" stroke-linejoin="round"
+      opacity="${(0.35+intensity*0.30).toFixed(2)}"/>`;
+  });
+
+  return {defs, svg};
+}
+
+// ─── Segmented arc (Platin) ────────────────────────────────────────
+// A progress-arc that grows from 0° at lv30 to nearly full at lv39
+// Divided into segments with small gaps between them – like a loading indicator
+function segmentedArc(cx, cy, r, hi, mid, dark, id, lv0){
+  const intensity = lv0 / 8; // 0..1
+  // Total arc coverage: 45° at lv0=0, up to 330° at lv0=8
+  const totalDeg = 45 + intensity * 285;
+  const totalRad = totalDeg * Math.PI / 180;
+  // Number of segments grows with level
+  const nSegs = 2 + Math.floor(intensity * 6); // 2..8
+  const gapRad = 0.055; // gap between segments in radians
+  const segRad = (totalRad - nSegs * gapRad) / nSegs;
+  if(segRad <= 0) return {defs:'', svg:''};
+
+  // Arc centred around bottom (angle PI/2 in SVG = pointing down)
+  const startAngle = Math.PI/2 - totalRad/2;
+
+  let defs = `<linearGradient id="arc${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%"   stop-color="${hi}"   stop-opacity="0.95"/>
+    <stop offset="60%"  stop-color="${mid}"  stop-opacity="0.80"/>
+    <stop offset="100%" stop-color="${dark}" stop-opacity="0.50"/>
+  </linearGradient>
+  <filter id="arcGlow${id}" x="-40%" y="-40%" width="180%" height="180%">
+    <feGaussianBlur stdDeviation="${(1.0+intensity*0.8).toFixed(1)}" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>`;
+
+  const sw = 2.8 + intensity * 1.4; // stroke width grows with level
+  let svg = '';
+
+  for(let i = 0; i < nSegs; i++){
+    const a1 = startAngle + i * (segRad + gapRad);
+    const a2 = a1 + segRad;
+    // Arc path using SVG arc command
+    const x1 = cx + Math.cos(a1) * r, y1 = cy + Math.sin(a1) * r;
+    const x2 = cx + Math.cos(a2) * r, y2 = cy + Math.sin(a2) * r;
+    const largeArc = segRad > Math.PI ? 1 : 0;
+    const seg = `M${x1.toFixed(2)},${y1.toFixed(2)} A${r.toFixed(2)},${r.toFixed(2)} 0 ${largeArc},1 ${x2.toFixed(2)},${y2.toFixed(2)}`;
+
+    // Glow pass
+    svg += `<path d="${seg}" fill="none" stroke="${hi}"
+      stroke-width="${(sw+2).toFixed(1)}" stroke-opacity="${(0.18+intensity*0.12).toFixed(2)}"
+      stroke-linecap="round" filter="url(#arcGlow${id})"/>`;
+    // Main segment
+    svg += `<path d="${seg}" fill="none" stroke="url(#arc${id})"
+      stroke-width="${sw.toFixed(1)}" stroke-opacity="${(0.75+intensity*0.20).toFixed(2)}"
+      stroke-linecap="round"/>`;
+    // Bright highlight on top half of segment
+    svg += `<path d="${seg}" fill="none" stroke="${hi}"
+      stroke-width="${(sw*0.28).toFixed(1)}" stroke-opacity="${(0.40+intensity*0.15).toFixed(2)}"
+      stroke-linecap="round"/>`;
+  }
+
+  // Dot caps at start and end
+  const endA = startAngle + totalRad;
+  svg += `<circle cx="${(cx+Math.cos(startAngle)*r).toFixed(2)}" cy="${(cy+Math.sin(startAngle)*r).toFixed(2)}"
+    r="${(sw*0.55).toFixed(2)}" fill="${hi}" opacity="${(0.65+intensity*0.2).toFixed(2)}"/>`;
+  svg += `<circle cx="${(cx+Math.cos(endA)*r).toFixed(2)}" cy="${(cy+Math.sin(endA)*r).toFixed(2)}"
+    r="${(sw*0.55).toFixed(2)}" fill="${hi}" opacity="${(0.65+intensity*0.2).toFixed(2)}"/>`;
+
+  return {defs, svg};
+}
+
+// ─── Pulse rings (Rot) ─────────────────────────────────────────────
+// Concentric dashed rings at increasing radii – like shockwaves/sonar
+// Count and intensity grow with level
+function pulseRings(cx, cy, r, hi, mid, dark, id, lv0){
+  const intensity = lv0 / 8;
+  const nRings = 2 + Math.floor(intensity * 2); // 2..4 rings
+  let defs = `<filter id="pulseGlow${id}" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="${(1.5+intensity*1.2).toFixed(1)}" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter>`;
+  let svg = '';
+
+  for(let i = 0; i < nRings; i++){
+    // Each ring progressively further out and more faded
+    const ringR = r * (1.12 + i * 0.13 + intensity * 0.06);
+    const op    = (0.55 - i * 0.10 + intensity * 0.15).toFixed(2);
+    const sw    = (2.0  - i * 0.30 + intensity * 0.40).toFixed(1);
+    // Dash pattern varies per ring for visual interest
+    const dashLen  = (6 + i * 2).toFixed(1);
+    const gapLen   = (3 + i * 1).toFixed(1);
+    const dashArr  = `${dashLen} ${gapLen}`;
+    // Rotate dash offset per ring so they don't align
+    const dashOff  = (i * 18).toFixed(1);
+
+    // Use hex shape (rot=0) for ring path matching the badge shape
+    const hexPts = Array.from({length:6}, (_,vi) => {
+      const a = vi/6*Math.PI*2;
+      return `${(cx+Math.cos(a)*ringR).toFixed(2)},${(cy+Math.sin(a)*ringR).toFixed(2)}`;
+    }).join(' ');
+    const hexPath = `M${hexPts.split(' ').map((p,pi)=>(pi===0?p:p)).join(' L')}Z`;
+
+    // Glow layer
+    svg += `<path d="${hexPath}" fill="none"
+      stroke="${i===0?hi:mid}" stroke-width="${(parseFloat(sw)+1.5).toFixed(1)}"
+      stroke-opacity="${(parseFloat(op)*0.35).toFixed(2)}"
+      stroke-dasharray="${dashArr}" stroke-dashoffset="${dashOff}"
+      stroke-linejoin="round"
+      filter="url(#pulseGlow${id})"/>`;
+    // Main ring
+    svg += `<path d="${hexPath}" fill="none"
+      stroke="${i===0?hi:mid}" stroke-width="${sw}"
+      stroke-opacity="${op}"
+      stroke-dasharray="${dashArr}" stroke-dashoffset="${dashOff}"
+      stroke-linejoin="round"/>`;
+    // Inner bright edge
+    const innerR = ringR * 0.985;
+    const innerPts = Array.from({length:6}, (_,vi) => {
+      const a = vi/6*Math.PI*2;
+      return `${(cx+Math.cos(a)*innerR).toFixed(2)},${(cy+Math.sin(a)*innerR).toFixed(2)}`;
+    }).join(' L');
+    svg += `<path d="M${innerPts}Z" fill="none"
+      stroke="${hi}" stroke-width="0.5"
+      stroke-opacity="${(parseFloat(op)*0.45).toFixed(2)}"
+      stroke-dasharray="${dashArr}" stroke-dashoffset="${dashOff}"
+      stroke-linejoin="round"/>`;
+  }
+  return {defs, svg};
+}
+
+// ══════════════════════════════════════════════════════════════════
+// NEXT-TIER COLOUR for transition
+// ══════════════════════════════════════════════════════════════════
+const NEXT_TIER_HI = [
+  "#c8d8e8", // bronze→silber
+  "#f0c84a", // silber→gold
+  "#98c8e8", // gold→platin
+  "#e87070", // platin→rot
+  "#e87070", // rot→rot
+];
+
+// ─── Rank insignia icons ───────────────────────────────────────────
+// Small symbols above/below the level number, military-style
+// style grows with level within tier
+function rankInsignia(cx, cy, rBg, tier, lv0, id){
+  const t = lv0 / 8; // 0..1
+  const hi = tier.hi, mid = tier.rim1;
+  // Icon area: above number at cy - rBg*0.52, below at cy + rBg*0.52
+  const yTop = cy - rBg * 0.50;
+  const yBot = cy + rBg * 0.50;
+  const iw = rBg * 0.18; // icon unit width
+
+  switch(tier.ti) {
+    case 0: { // Bronze: simple horizontal bars (1→3 with level)
+      const nBars = 1 + Math.floor(lv0/3); // 1,1,1,2,2,2,3,3,3
+      let s = '';
+      for(let i=0;i<nBars;i++){
+        const y = yBot + i * iw * 0.9;
+        s += `<line x1="${(cx-iw*1.1).toFixed(2)}" y1="${y.toFixed(2)}"
+          x2="${(cx+iw*1.1).toFixed(2)}" y2="${y.toFixed(2)}"
+          stroke="${hi}" stroke-width="${iw*0.55}" stroke-opacity="0.65"
+          stroke-linecap="round"/>`;
+      }
+      return s;
+    }
+    case 1: { // Silber: chevrons (V-shapes pointing up), 1→3
+      const nChev = 1 + Math.floor(lv0/3);
+      let s = '';
+      for(let i=0;i<nChev;i++){
+        const y = yBot + i * iw * 1.1;
+        s += `<polyline points="${(cx-iw).toFixed(2)},${(y+iw*0.5).toFixed(2)} ${cx.toFixed(2)},${y.toFixed(2)} ${(cx+iw).toFixed(2)},${(y+iw*0.5).toFixed(2)}"
+          fill="none" stroke="${hi}" stroke-width="${iw*0.55}"
+          stroke-opacity="0.65" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }
+      return s;
+    }
+    case 2: { // Gold: star(s) above + bars below
+      const nStars = 1 + Math.floor(lv0/4); // 1,1,1,1,2,2,2,2,3
+      const nBars  = Math.floor(lv0/3);
+      let s = '';
+      // Stars above (small)
+      for(let i=0;i<nStars;i++){
+        const sx = cx + (i-(nStars-1)/2)*iw*1.6;
+        const sr = iw*0.55;
+        let sp='';
+        for(let j=0;j<10;j++){
+          const a=j/10*Math.PI*2-Math.PI/2;
+          const ro=j%2===0?sr:sr*0.42;
+          sp+=(j===0?'M':'L')+`${(sx+Math.cos(a)*ro).toFixed(2)},${(yTop+Math.sin(a)*ro).toFixed(2)}`;
+        }
+        s+=`<path d="${sp}Z" fill="${hi}" opacity="0.70"/>`;
+      }
+      // Bars below
+      for(let i=0;i<nBars;i++){
+        const y=yBot+i*iw*0.85;
+        s+=`<line x1="${(cx-iw*1.0).toFixed(2)}" y1="${y.toFixed(2)}"
+          x2="${(cx+iw*1.0).toFixed(2)}" y2="${y.toFixed(2)}"
+          stroke="${hi}" stroke-width="${iw*0.5}" stroke-opacity="0.60" stroke-linecap="round"/>`;
+      }
+      return s;
+    }
+    case 3: { // Platin: diamond pips above + chevrons below
+      const nDiamonds = 1 + Math.floor(lv0/3);
+      const nChev = Math.floor(lv0/4);
+      let s = '';
+      for(let i=0;i<nDiamonds;i++){
+        const dx = cx + (i-(nDiamonds-1)/2)*iw*1.5;
+        const ds = iw*0.45;
+        s+=`<path d="M${dx.toFixed(2)},${(yTop-ds).toFixed(2)} L${(dx+ds).toFixed(2)},${yTop.toFixed(2)} L${dx.toFixed(2)},${(yTop+ds).toFixed(2)} L${(dx-ds).toFixed(2)},${yTop.toFixed(2)} Z"
+          fill="${hi}" opacity="0.68"/>`;
+      }
+      for(let i=0;i<nChev;i++){
+        const y=yBot+i*iw*1.0;
+        s+=`<polyline points="${(cx-iw*0.9).toFixed(2)},${(y+iw*0.45).toFixed(2)} ${cx.toFixed(2)},${y.toFixed(2)} ${(cx+iw*0.9).toFixed(2)},${(y+iw*0.45).toFixed(2)}"
+          fill="none" stroke="${hi}" stroke-width="${iw*0.52}"
+          stroke-opacity="0.65" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }
+      return s;
+    }
+    case 4: { // Rot: arrows pointing up (power/aggression), 1→3
+      const nArrows = 1 + Math.floor(lv0/3);
+      let s = '';
+      for(let i=0;i<nArrows;i++){
+        const y = yBot + i * iw * 1.15;
+        const aw = iw*0.85;
+        // Upward arrow: head + shaft
+        s+=`<polyline points="${(cx-aw).toFixed(2)},${(y+iw*0.4).toFixed(2)} ${cx.toFixed(2)},${y.toFixed(2)} ${(cx+aw).toFixed(2)},${(y+iw*0.4).toFixed(2)}"
+          fill="none" stroke="${hi}" stroke-width="${iw*0.58}"
+          stroke-opacity="0.72" stroke-linecap="round" stroke-linejoin="round"/>`;
+      }
+      return s;
+    }
+  }
+  return '';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// TIER CONFIGS
+// ══════════════════════════════════════════════════════════════════
+const TIERS=[
+  // ti:0 Bronze  ti:1 Silber  ti:2 Gold  ti:3 Platin  ti:4 Rot
+  {range:[1,9],   ti:0, name:"Bronze", bg1:"#160a02",bg2:"#070300",rim1:"#b56a20",rim2:"#6b3008",hi:"#e8924a",glow:"#b56a20"},
+  {range:[10,19], ti:1, name:"Silber", bg1:"#0c1014",bg2:"#060809",rim1:"#8a9eae",rim2:"#3a4858",hi:"#c8d8e8",glow:"#8a9eae"},
+  {range:[20,29], ti:2, name:"Gold",   bg1:"#120d02",bg2:"#060400",rim1:"#c89a10",rim2:"#624800",hi:"#f0c84a",glow:"#c89a10"},
+  {range:[30,39], ti:3, name:"Platin", bg1:"#050d14",bg2:"#020507",rim1:"#4898c8",rim2:"#164060",hi:"#98c8e8",glow:"#3080b8"},
+  {range:[40,49], ti:4, name:"Rot",    bg1:"#140303",bg2:"#080101",rim1:"#c02828",rim2:"#6a0e0e",hi:"#e87070",glow:"#c02828"},
+];
+
+// ─── Tier background textures ──────────────────────────────────────
+function tierTexture(cx, cy, r, tier, id) {
+  const c = tier;
+  switch(tier.ti) {
+    case 0: return ''; // Bronze: plain
+    case 1: {
+      // Silber: subtle radial grid lines
+      let s = '';
+      for(let i=0;i<6;i++){
+        const a=i/6*Math.PI*2;
+        s+=`<line x1="${cx.toFixed(2)}" y1="${cy.toFixed(2)}"
+          x2="${(cx+Math.cos(a)*r*0.9).toFixed(2)}" y2="${(cy+Math.sin(a)*r*0.9).toFixed(2)}"
+          stroke="${c.hi}" stroke-width="0.4" stroke-opacity="0.12"/>`;
+      }
+      for(let ri=1;ri<=2;ri++){
+        s+=`<circle cx="${cx}" cy="${cy}" r="${(r*ri*0.38).toFixed(2)}"
+          fill="none" stroke="${c.hi}" stroke-width="0.35" stroke-opacity="0.10"/>`;
+      }
+      return s;
+    }
+    case 2: {
+      // Gold: radiating starburst lines
+      let s = '';
+      for(let i=0;i<12;i++){
+        const a=i/12*Math.PI*2;
+        const r1=r*0.18, r2=r*0.88;
+        s+=`<line x1="${(cx+Math.cos(a)*r1).toFixed(2)}" y1="${(cy+Math.sin(a)*r1).toFixed(2)}"
+          x2="${(cx+Math.cos(a)*r2).toFixed(2)}" y2="${(cy+Math.sin(a)*r2).toFixed(2)}"
+          stroke="${c.hi}" stroke-width="0.45" stroke-opacity="0.14"/>`;
+      }
+      return s;
+    }
+    case 3: {
+      // Platin: hex grid pattern
+      let s = '';
+      const hSize = r * 0.22;
+      const offsets = [[0,0],[hSize*1.73,0],[-hSize*0.87,hSize*1.5],[hSize*0.87,hSize*1.5],
+                       [hSize*0.87,-hSize*1.5],[-hSize*0.87,-hSize*1.5]];
+      offsets.forEach(([ox,oy])=>{
+        let hp='';
+        for(let i=0;i<6;i++){
+          const a=i/6*Math.PI*2-Math.PI/6;
+          hp+=(i===0?'M':'L')+`${(cx+ox+Math.cos(a)*hSize*0.7).toFixed(2)},${(cy+oy+Math.sin(a)*hSize*0.7).toFixed(2)}`;
+        }
+        s+=`<path d="${hp}Z" fill="none" stroke="${c.hi}" stroke-width="0.38" stroke-opacity="0.12"/>`;
+      });
+      return s;
+    }
+    case 4: {
+      // Rot: concentric energy rings
+      let s = '';
+      for(let i=1;i<=3;i++){
+        s+=`<circle cx="${cx}" cy="${cy}" r="${(r*i*0.28).toFixed(2)}"
+          fill="none" stroke="${c.hi}" stroke-width="${(0.5-i*0.08).toFixed(2)}"
+          stroke-opacity="${(0.16-i*0.03).toFixed(2)}" stroke-dasharray="3 2"/>`;
+      }
+      return s;
+    }
+  }
+  return '';
+}
+
+// ─── Tier inner icon (behind number) ───────────────────────────────
+function tierIcon(cx, cy, r, tier, lv0, id) {
+  const c = tier;
+  const t = lv0/8;
+  switch(tier.ti) {
+    case 0: return ''; // Bronze: plain number
+    case 1: {
+      // Silber: subtle underline arc below number
+      const aw = r*0.45;
+      return `<path d="M${(cx-aw).toFixed(2)},${(cy+r*0.28).toFixed(2)} Q${cx},${(cy+r*0.38).toFixed(2)} ${(cx+aw).toFixed(2)},${(cy+r*0.28).toFixed(2)}"
+        fill="none" stroke="${c.hi}" stroke-width="1.2" stroke-opacity="0.35" stroke-linecap="round"/>`;
+    }
+    case 2: {
+      // Gold: small star behind number
+      const sr = r * (0.18 + t*0.08);
+      let sp='';
+      for(let i=0;i<10;i++){
+        const a=i/10*Math.PI*2-Math.PI/2, ro=i%2===0?sr:sr*0.45;
+        sp+=(i===0?'M':'L')+`${(cx+Math.cos(a)*ro).toFixed(2)},${(cy+Math.sin(a)*ro).toFixed(2)}`;
+      }
+      return `<path d="${sp}Z" fill="${c.hi}" opacity="0.18"/>`;
+    }
+    case 3: {
+      // Platin: orb glow behind number
+      return `<radialGradient id="orb${id}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${c.hi}" stop-opacity="${(0.22+t*0.08).toFixed(2)}"/>
+        <stop offset="100%" stop-color="${c.hi}" stop-opacity="0"/>
+      </radialGradient>
+      <circle cx="${cx}" cy="${cy}" r="${(r*0.55).toFixed(2)}" fill="url(#orb${id})"/>`;
+    }
+    case 4: {
+      // Rot: thick stroke ring behind number + slight outer glow
+      return `<circle cx="${cx}" cy="${cy}" r="${(r*0.40).toFixed(2)}"
+        fill="none" stroke="${c.hi}" stroke-width="${(2.5+t*1.5).toFixed(1)}" stroke-opacity="0.18"/>
+      <circle cx="${cx}" cy="${cy}" r="${(r*0.40).toFixed(2)}"
+        fill="none" stroke="${c.glow}" stroke-width="${(5+t*3).toFixed(1)}" stroke-opacity="0.10"/>`;
+    }
+  }
+  return '';
+}
+
+// ══════════════════════════════════════════════════════════════════
+// LEVEL BADGE
+// ══════════════════════════════════════════════════════════════════
+function levelBadge(level, tier, sz=84){
+  const cx=sz/2,cy=sz/2,id=uid();
+  const rO=sz*0.405, rI=sz*0.34, rBg=sz*0.315;
+  const numSz=level>=10?sz*0.30:sz*0.34;
+  const lv0=level-tier.range[0]; // 0..8
+  // Smooth transition: lerp factor grows linearly from 0 (lv1) to 0.85 (lv9)
+  const transT = (lv0 / 8) * 0.85;
+  const isTransition = transT > 0; // always true for lv2+, but subtle at start
+  const nextHi = NEXT_TIER_HI[tier.ti];
+
+  // Progression table (lv0 = 0..8):
+  // plates: 0,1,1,1,2,2,2,3,3
+  const plateCount = lv0<=1?0 : lv0<=3?1 : lv0<=6?2 : 3;
+  // insets: 1,1,2,2,3,3,4,4,4
+  const insetCount = lv0===0?1 : lv0<=2?2 : lv0<=4?3 : lv0<=6?4 : 5;
+  // apron layers: 0,0,0,1,1,2,2,3,3
+  // Tier personality: apron appears differently per tier
+  const apronThresh=[[1,3,6],[2,4,7],[1,3,6],[2,4,7],[1,3,6]][tier.ti];
+  const apronLayers = lv0<=apronThresh[0]?0 : lv0<=apronThresh[1]?1 : lv0<=apronThresh[2]?2 : 3;
+  // crossstripes: 0,0,0,0,0,0,1,1,2
+  // Tier personality: when stripes appear (silver earlier, red more stripes)
+  const stripeThresh=[[5,7],[4,6],[5,7],[5,7],[4,5]][tier.ti];
+  const stripeCount = lv0<=stripeThresh[0]?0 : lv0<=stripeThresh[1]?1 : 2;
+
+  // Glow intensity scales with tier and level
+  const glowBase = [0.28,0.30,0.36,0.42,0.72][tier.ti];
+  const glowExtra = lv0>=6 ? 0.18 : lv0>=3 ? 0.09 : 0;
+  const glowOp = Math.min(glowBase + glowExtra, 0.90);
+  const glowBlur = [6,7,8,10,20][tier.ti] + (lv0>=6?5:0);
+
+  // Shape
+  let outerPath,innerPath,bgPath,shapeFn,botY;
+  switch(tier.ti){
+    case 0:{const rot=Math.PI/2;
+      outerPath=poly(cx,cy,rO,5,rot);innerPath=poly(cx,cy,rI,5,rot);bgPath=poly(cx,cy,rBg,5,rot);
+      shapeFn=s=>poly(cx,cy,rO*s,5,rot);
+      // Bottom vertex of pentagon (point down): at (cx, cy+rO)
+      botY=cy+rO; break;}
+    case 1:{const rot=-Math.PI/6;
+      outerPath=poly(cx,cy,rO,6,rot);innerPath=poly(cx,cy,rI,6,rot);bgPath=poly(cx,cy,rBg,6,rot);
+      shapeFn=s=>poly(cx,cy,rO*s,6,rot);
+      botY=cy+rO; break;}
+    case 2:{const rot=-Math.PI/6;
+      outerPath=starburst(cx,cy,rO,rO*0.83,6,rot);
+      innerPath=poly(cx,cy,rI,6,rot);bgPath=poly(cx,cy,rBg,6,rot);
+      shapeFn=s=>starburst(cx,cy,rO*s,rO*s*0.83,6,rot);
+      botY=cy+rO; break;}
+    case 3:{const rot=Math.PI/8;
+      outerPath=poly(cx,cy,rO,8,rot);innerPath=poly(cx,cy,rI,8,rot);bgPath=poly(cx,cy,rBg,8,rot);
+      shapeFn=s=>poly(cx,cy,rO*s,8,rot);
+      botY=cy+rO*Math.sin(Math.PI/2+Math.PI/8); break;}
+    case 4:{
+      // Plain hexagon rot=0 (original)
+      const rot4=0;
+      outerPath=poly(cx,cy,rO,6,rot4);
+      innerPath=poly(cx,cy,rI,6,rot4);
+      bgPath   =poly(cx,cy,rBg,6,rot4);
+      shapeFn  =s=>poly(cx,cy,rO*s,6,rot4);
+      botY=cy+rO*Math.sin(Math.PI/3); break;}
+  }
+
+  // Plate colours – last plate gets transition colour for lv7+
+  const plateColors=[];
+  for(let i=0;i<plateCount;i++){
+    const isLastPlate=(i===plateCount-1);
+    // Each plate gets progressively more transition colour
+    const plateFactor = transT * (isLastPlate ? 1.0 : 0.5);
+    plateColors.push({
+      hi:  plateFactor>0 ? lerpColor(tier.hi,   nextHi, plateFactor) : tier.hi,
+      mid: plateFactor>0 ? lerpColor(tier.rim1,  nextHi, plateFactor*0.75) : tier.rim1,
+      dark:tier.rim2,
+    });
+  }
+
+  // Tier personality: different plate density
+  const tierPlateStep=[0.085,0.075,0.095,0.070,0.100][tier.ti];
+  const {defs:pd,svg:ps}=plateCount>0
+    ? drawPlates(shapeFn,plateCount,plateColors,tier.bg2,id,tierPlateStep)
+    : {defs:"",svg:""};
+
+  // Extra outer ring lv7+
+  let extraRing="";
+  if(lv0>=6){
+    const s=1+plateCount*0.085+0.04;
+    const ringColor=transT>0?lerpColor(tier.hi,nextHi,Math.min(transT*1.2,0.9)):tier.hi;
+    extraRing=`<path d="${shapeFn(s)}" fill="none"
+      stroke="${ringColor}" stroke-width="1.0" stroke-opacity="0.38" stroke-linejoin="round"/>
+    <path d="${shapeFn(s*1.03)}" fill="none"
+      stroke="${tier.rim1}" stroke-width="0.6" stroke-opacity="0.2" stroke-linejoin="round"/>`;
+  }
+
+  // Tier4 ghost hex
+  let tier4Extra="";
+  if(tier.ti===3){
+    // Platin: two rotated inner rings forming a cross/star pattern
+    tier4Extra=`
+    <path d="${poly(cx,cy,rO*0.90,8,0)}" fill="none"
+      stroke="${tier.hi}" stroke-width="${sz*0.011}" stroke-opacity="${(0.15+lv0*0.022).toFixed(2)}"
+      stroke-linejoin="round"/>
+    ${lv0>=3?`<path d="${poly(cx,cy,rO*0.76,8,Math.PI/8)}" fill="none"
+      stroke="${tier.hi}" stroke-width="${sz*0.009}" stroke-opacity="${(0.10+lv0*0.016).toFixed(2)}"
+      stroke-linejoin="round"/>`:''}`;
+  }
+  if(tier.ti===4){
+    // Rot: ghost hex + extra ring that grows with level
+    tier4Extra=`
+    <path d="${poly(cx,cy,rO*0.96,6,Math.PI/6)}" fill="none"
+      stroke="${tier.hi}" stroke-width="${sz*0.015}" stroke-opacity="${(0.20+lv0*0.025).toFixed(2)}"
+      stroke-linejoin="round"/>
+    ${lv0>=4?`<path d="${poly(cx,cy,rO*1.01,6,Math.PI/6)}" fill="none"
+      stroke="${tier.rim1}" stroke-width="${sz*0.009}" stroke-opacity="${(0.12+lv0*0.015).toFixed(2)}"
+      stroke-linejoin="round"/>`:''}`;
+  }
+
+  // Inset contours – last 1-2 get transition colour for lv7+
+  const insetHi = transT>0 ? lerpColor(tier.hi, nextHi, transT*0.9) : tier.hi;
+  // Tier personality: different inset spacing
+  const tierInsetStart=[0.94,0.91,0.95,0.89,0.93][tier.ti];
+  const tierInsetStep =[0.055,0.065,0.050,0.068,0.058][tier.ti];
+  const contours = insetLines(shapeFn, insetCount, insetHi, tier.rim1, tierInsetStart, tierInsetStep);
+
+  // Apron – transition colour bleeds in for lv7+
+  const apronHi  = transT>0 ? lerpColor(tier.hi,  nextHi, transT*0.9) : tier.hi;
+  const apronMid = transT>0 ? lerpColor(tier.rim1, nextHi, transT*0.65) : tier.rim1;
+  let apronDefs="", apronSVG="";
+  if(apronLayers>0){
+    const r=shapeApron(cx,cy,rO,{hi:apronHi,rim1:apronMid,rim2:tier.rim2},id,apronLayers,tier.ti);
+    apronDefs=r.defs; apronSVG=r.svg;
+  }
+
+  // Cross-stripes behind badge
+  const stripeHi  = transT>0 ? lerpColor(tier.hi,  nextHi, transT*0.9) : tier.hi;
+  const stripeMid = transT>0 ? lerpColor(tier.rim1, nextHi, transT*0.65) : tier.rim1;
+  let stripeDefs="", stripeSVG="";
+  if(stripeCount>0){
+    const tierStripeW=[2.1,2.3,1.95,2.5,2.2][tier.ti];
+    const r=crossStripes(cx,cy,rO*tierStripeW,stripeHi,stripeMid,tier.rim2,id,stripeCount);
+    stripeDefs=r.defs; stripeSVG=r.svg;
+  }
+
+  // ── Crystal spikes (Platin ti=3) ─────────────────────────────
+  let fxDefs="", fxSVG="";
+  if(tier.ti===3 && lv0>=0){
+    const fx=auraRings(cx,cy,rO,tier.hi,tier.rim1,tier.rim2,id,lv0);
+    fxDefs=fx.defs; fxSVG=fx.svg;
+  }
+  // ── Crack effect (Rot ti=4) ──────────────────────────────────
+  if(tier.ti===4 && lv0>=0){
+    const fx=crackEffect(cx,cy,rO,tier.hi,tier.rim1,tier.rim2,id,lv0);
+    fxDefs+=fx.defs; fxSVG+=fx.svg;
+  }
+
+  // ── Laurel wreath (Platin tier only, lv0>=5) ─────────────────────
+  let laurelDefs="", laurelSVG="";
+  if(tier.ti===2 && lv0>=4){
+    // lv0=4→0%, lv0=5→~20%, ..., lv0=8→100%
+    const laurelCoverage = lv0<=4 ? 0 : Math.min((lv0-4)/4.0, 1.0);
+    const lColor = transT>0 ? lerpColor(tier.hi,nextHi,transT*0.7) : tier.hi;
+    const lMid   = transT>0 ? lerpColor(tier.rim1,nextHi,transT*0.5) : tier.rim1;
+    const lw = laurelWreath(cx,cy,rO*1.14,laurelCoverage,lColor,lMid,tier.rim2,id);
+    laurelDefs=lw.defs; laurelSVG=lw.svg;
+  }
+
+  // ── Segmented arc (Platin ti=3) ─────────────────────────────────
+  let crownDefs="", crownSVG="";
+  if(tier.ti===3){
+    const cHi  = transT>0 ? lerpColor(tier.hi,nextHi,transT*0.6) : tier.hi;
+    const cMid = transT>0 ? lerpColor(tier.rim1,nextHi,transT*0.4) : tier.rim1;
+    const arcR = rO * 1.18; // arc sits outside badge
+    const cd = segmentedArc(cx,cy,arcR,cHi,cMid,tier.rim2,id,lv0);
+    crownDefs=cd.defs; crownSVG=cd.svg;
+  }
+  // ── Pulse rings (Rot ti=4) ───────────────────────────────────
+  if(tier.ti===4){
+    const cHi  = transT>0 ? lerpColor(tier.hi,nextHi,transT*0.6) : tier.hi;
+    const cMid = transT>0 ? lerpColor(tier.rim1,nextHi,transT*0.4) : tier.rim1;
+    const cd = pulseRings(cx,cy,rO,cHi,cMid,tier.rim2,id,lv0);
+    crownDefs=cd.defs; crownSVG=cd.svg;
+  }
+
+  const pad=sz*1.15;
+  // Use tight display size = sz, but large viewBox so decorations render
+  // overflow:visible lets glow/decorations extend beyond bounds without affecting layout size
+  return `<svg width="${sz}" height="${sz}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}"
+    overflow="visible" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="35%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="${tier.bg1}"/>
+      <stop offset="100%" stop-color="${tier.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%"   stop-color="${transT>0?lerpColor(tier.hi,nextHi,transT*0.85):tier.hi}"/>
+      <stop offset="50%"  stop-color="${transT>0?lerpColor(tier.rim1,nextHi,transT*0.5):tier.rim1}"/>
+      <stop offset="100%" stop-color="${tier.rim2}"/>
+    </linearGradient>
+    <!-- Transition accent ring gradient: full next-tier colour -->
+    <linearGradient id="transRing${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="${transT>0?lerpColor(tier.hi,nextHi,Math.min(transT*1.1,0.95)):tier.hi}"/>
+      <stop offset="100%" stop-color="${transT>0?lerpColor(tier.rim1,nextHi,transT*0.8):tier.rim1}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.2"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-150%" y="-150%" width="500%" height="500%">
+      <feGaussianBlur stdDeviation="${glowBlur}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    ${pd}${apronDefs}${stripeDefs}${laurelDefs}${crownDefs}${fxDefs}${fxDefs}
+    ${tier.ti===3?`<radialGradient id="orb${id}" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="${tier.hi}" stop-opacity="${(0.22+transT*0.08).toFixed(2)}"/><stop offset="100%" stop-color="${tier.hi}" stop-opacity="0"/></radialGradient>`:''}
+  </defs>
+  <!-- Glow -->
+  <path d="${outerPath}" fill="${tier.glow}" fill-opacity="${glowOp}" filter="url(#halo${id})"/>
+  <!-- APRON: deepest decoration layer, behind everything -->
+  ${apronSVG}
+  <!-- Cross-stripes above apron, behind badge -->
+  ${stripeSVG}
+  <!-- Curved wings: behind everything except glow -->
+  ${crownSVG}
+  <!-- Laurel wreath: behind badge body, above plates -->
+  ${laurelSVG}
+  <!-- Plates above stripes, behind badge -->
+  ${ps}
+  ${extraRing}
+  <!-- Main badge body covers all overlap -->
+  <path d="${outerPath}" fill="url(#rim${id})"/>
+  <path d="${innerPath}" fill="${tier.bg2}"/>
+  <path d="${innerPath}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.019}" stroke-linejoin="round"/>
+  <path d="${bgPath}"    fill="url(#bg${id})"/>
+  <path d="${bgPath}"    fill="url(#sh${id})"/>
+  <!-- Crack/Aura on badge surface – under number -->
+  ${fxSVG}
+  <!-- Tier background texture -->
+  ${tierTexture(cx,cy,rBg,tier,id)}
+  <!-- Tier inner icon -->
+  ${tierIcon(cx,cy,rBg,tier,lv0,id).replace(/<radialGradient[\s\S]*?<\/radialGradient>/,'')}
+  ${tier4Extra}
+  <!-- Bold transition ring (only visible when isTransition) -->
+  ${transT>0.05 ? `<path d="${shapeFn(1.0)}" fill="none" stroke="url(#transRing${id})"
+    stroke-width="${sz*0.028}" stroke-opacity="${(transT*0.85).toFixed(2)}" stroke-linejoin="round"/>` : ''}
+  <!-- Inset contours on badge surface -->
+  ${contours}
+  <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${numSz}"
+    fill="${tier.hi}" filter="url(#gl${id})">${level}</text>
+</svg>`;
+}
+
+// ─── Colour lerp helper ────────────────────────────────────────────
+function lerpColor(a, b, t){
+  const pa=parseInt(a.slice(1),16), pb=parseInt(b.slice(1),16);
+  const ar=(pa>>16)&0xff, ag=(pa>>8)&0xff, ab=pa&0xff;
+  const br=(pb>>16)&0xff, bg_=(pb>>8)&0xff, bb=pb&0xff;
+  const r=Math.round(ar+(br-ar)*t), g=Math.round(ag+(bg_-ag)*t), bv=Math.round(ab+(bb-ab)*t);
+  return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${bv.toString(16).padStart(2,'0')}`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PRESTIGE SHIELD
+// ══════════════════════════════════════════════════════════════════
+const PC=[
+  {c1:"#e8922a",c2:"#8b4a0a",hi:"#fcd08a",bg1:"#1c1006",bg2:"#0a0602",glow:"#e8922a",rim1:"#e8922a",rim2:"#8b4a0a"},
+  {c1:"#c8d4e0",c2:"#5a6878",hi:"#f0f4f8",bg1:"#101418",bg2:"#080c10",glow:"#c8d4e0",rim1:"#c8d4e0",rim2:"#5a6878"},
+  {c1:"#4ad4f0",c2:"#0c6888",hi:"#b8f0fc",bg1:"#04121c",bg2:"#02080f",glow:"#4ad4f0",rim1:"#4ad4f0",rim2:"#0c6888"},
+  {c1:"#f472b6",c2:"#be185d",hi:"#fce7f3",bg1:"#1a0212",bg2:"#0e0009",glow:"#f472b6",rim1:"#f472b6",rim2:"#be185d"},
+  {c1:"#b060f8",c2:"#6018b0",hi:"#ddb8ff",bg1:"#0c0420",bg2:"#060210",glow:"#b060f8",rim1:"#b060f8",rim2:"#6018b0"},
+];
+
+function prestigeShield(stars,sz=86,colOvr=null,lblOvr=null){
+  const cx=sz/2,cy=sz/2,id=uid();
+  const c=colOvr||PC[Math.min(stars,5)-1];
+  const lbl=lblOvr||["I","II","III","IV","V"][Math.min(stars,5)-1];
+  const p=Math.min(stars,5);
+  const sw=sz*0.72,sh=sz*0.80;
+  const oS=shieldPath(cx,cy-sh*0.01,sw,sh);
+  const iS=shieldPath(cx,cy-sh*0.01,sw*0.84,sh*0.86);
+  const bS=shieldPath(cx,cy-sh*0.01,sw*0.78,sh*0.80);
+  const shFn=s=>shieldPath(cx,cy-sh*0.01,sw*s,sh*s);
+  const plateN=Math.max(0,p-1);
+  const plateColors=Array.from({length:plateN},(_,i)=>({hi:c.hi,mid:c.rim1,dark:c.rim2}));
+  const {defs:pd,svg:ps}=plateN>0?drawPlates(shFn,plateN,plateColors,c.bg2,id,0.08):{defs:"",svg:""};
+  const contours=insetLines(shFn,Math.min(p,3),c.hi,c.rim1);
+  // Apron for p>=3
+  let apDefs="",apSVG="";
+  if(p>=3){
+    const shBotY=cy+sh*0.49-sh*0.01;
+    const r=apron(cx,shBotY-sh*0.08,sw*0.9,c.hi,c.rim1,c.rim2,id,Math.min(p-2,3));
+    apDefs=r.defs; apSVG=r.svg;
+  }
+
+  const glowOp=0.3+p*0.06;
+  const sStar=starPoly(cx,cy-sz*0.12,sz*0.12,sz*0.054,5);
+  const orbitR=sz*0.16;
+  let dots="";
+  for(let i=0;i<Math.min(stars,5);i++){
+    const a=(i/Math.min(stars,5))*Math.PI*2-Math.PI/2;
+    dots+=`<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(2)}" cy="${(cy-sz*0.12+Math.sin(a)*orbitR).toFixed(2)}"
+      r="${sz*0.024}" fill="${c.hi}" opacity="0.92"/>`;
+  }
+  const pad=sz*0.85;
+  return `<svg width="${sz+pad*2}" height="${sz+pad*2}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="35%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="${c.bg1}"/>
+      <stop offset="100%" stop-color="${c.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="${c.hi}"/>
+      <stop offset="42%" stop-color="${c.c1}"/>
+      <stop offset="100%" stop-color="${c.c2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-120%" y="-120%" width="440%" height="440%">
+      <feGaussianBlur stdDeviation="9" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    ${pd}${apDefs}
+  </defs>
+  <path d="${oS}" fill="${c.glow}" fill-opacity="${glowOp}" filter="url(#halo${id})"/>
+  ${apSVG}
+  ${ps}
+  <path d="${oS}" fill="url(#rim${id})"/>
+  <path d="${iS}" fill="${c.bg2}"/>
+  <path d="${iS}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.016}"/>
+  <path d="${bS}" fill="url(#bg${id})"/>
+  <path d="${bS}" fill="url(#sh${id})"/>
+  ${contours}
+  <circle cx="${cx}" cy="${cy-sz*0.12}" r="${orbitR}" fill="none" stroke="${c.c1}"
+    stroke-width="0.5" stroke-opacity="0.32" stroke-dasharray="2 2"/>
+  ${dots}
+  <path d="${sStar}" fill="url(#rim${id})" filter="url(#gl${id})"/>
+  <text x="${cx}" y="${cy+sz*0.2}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.17}"
+    fill="${c.hi}" filter="url(#gl${id})">${lbl}</text>
+</svg>`;
+}
+
+function prestigeBG(num,sz=86){
+  const c={c1:"#f59e0b",c2:"#78350f",hi:"#fde68a",bg1:"#141008",bg2:"#060402",
+    glow:"#f59e0b",rim1:"#f59e0b",rim2:"#78350f"};
+  const cx=sz/2,cy=sz/2,id=uid();
+  const sw=sz*0.72,sh=sz*0.80;
+  const oS=shieldPath(cx,cy-sh*0.01,sw,sh);
+  const iS=shieldPath(cx,cy-sh*0.01,sw*0.84,sh*0.86);
+  const bS=shieldPath(cx,cy-sh*0.01,sw*0.78,sh*0.80);
+  const shFn=s=>shieldPath(cx,cy-sh*0.01,sw*s,sh*s);
+  const plateColors=Array.from({length:4},()=>({hi:"#fde68a",mid:"#f59e0b",dark:"#78350f"}));
+  const {defs:pd,svg:ps}=drawPlates(shFn,4,plateColors,c.bg2,id,0.08);
+  const contours=insetLines(shFn,3,c.hi,c.rim1);
+  const shBotY=cy+sh*0.49-sh*0.01;
+  const {defs:apDefs,svg:apSVG}=apron(cx,shBotY-sh*0.08,sw*0.9,"#fde68a","#f59e0b","#78350f",id,3);
+  const orbitR=sz*0.16;
+  let dots="";
+  for(let i=0;i<6;i++){
+    const a=(i/6)*Math.PI*2-Math.PI/2;
+    dots+=`<circle cx="${(cx+Math.cos(a)*orbitR).toFixed(2)}" cy="${(cy-sz*0.12+Math.sin(a)*orbitR).toFixed(2)}"
+      r="${sz*0.024}" fill="#fde68a" opacity="${i<(num-5)?0.95:0.13}"/>`;
+  }
+  const sStar=starPoly(cx,cy-sz*0.12,sz*0.12,sz*0.054,5);
+  const pad=sz*0.85;
+  return `<svg width="${sz}" height="${sz}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}"
+    overflow="visible" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="36%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#1a1408"/>
+      <stop offset="100%" stop-color="#060402"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="0%" x2="95%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="40%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.14"/>
+      <stop offset="50%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-120%" y="-120%" width="440%" height="440%">
+      <feGaussianBlur stdDeviation="10" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    ${pd}${apDefs}
+  </defs>
+  <path d="${oS}" fill="#f59e0b" fill-opacity="0.5" filter="url(#halo${id})"/>
+  ${apSVG}
+  ${ps}
+  <path d="${oS}" fill="url(#rim${id})"/>
+  <path d="${iS}" fill="#080604"/>
+  <path d="${iS}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.016}"/>
+  <path d="${bS}" fill="url(#bg${id})"/>
+  <path d="${bS}" fill="url(#sh${id})"/>
+  ${contours}
+  <circle cx="${cx}" cy="${cy-sz*0.12}" r="${orbitR}" fill="none" stroke="#f59e0b"
+    stroke-width="0.5" stroke-opacity="0.3" stroke-dasharray="2 2"/>
+  ${dots}
+  <path d="${sStar}" fill="url(#rim${id})" filter="url(#gl${id})"/>
+  <text x="${cx}" y="${cy+sz*0.2}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.17}"
+    fill="#fde68a" filter="url(#gl${id})">${num}</text>
+</svg>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// CRYSTAL TROPHY
+// ══════════════════════════════════════════════════════════════════
+function crystalTrophy(sz=110){
+  const cx=sz/2,cy=sz/2,id=uid();
+  const gCx=cx,gCy=cy-sz*0.1,gR=sz*0.22;
+  const gem=`M${gCx},${gCy-gR} L${gCx+gR*.72},${gCy-gR*.18} L${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx-gR*.9},${gCy+gR*.32} L${gCx-gR*.72},${gCy-gR*.18} Z`;
+  const fL=`M${gCx},${gCy-gR} L${gCx-gR*.72},${gCy-gR*.18} L${gCx},${gCy+gR*.08} Z`;
+  const fR=`M${gCx},${gCy-gR} L${gCx+gR*.72},${gCy-gR*.18} L${gCx},${gCy+gR*.08} Z`;
+  const fBL=`M${gCx-gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*.08} Z`;
+  const fBR=`M${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*.08} Z`;
+  const fBC=`M${gCx-gR*.9},${gCy+gR*.32} L${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR*.08} Z`;
+  const sTop=gCy+gR,kY=sTop+sz*.065,sBot=sTop+sz*.13;
+  return `<svg width="${sz}" height="${sz*1.1}" viewBox="0 0 ${sz} ${sz*1.04}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gA${id}" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a"/><stop offset="45%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+    <linearGradient id="gB${id}"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#f59e0b"/></linearGradient>
+    <linearGradient id="gC${id}" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#d97706"/><stop offset="100%" stop-color="#78350f"/>
+    </linearGradient>
+    <linearGradient id="gold${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="#fde68a"/><stop offset="40%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <linearGradient id="base${id}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#92400e"/><stop offset="50%" stop-color="#fde68a"/><stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <filter id="halo${id}" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="${sz*.11}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="${gem}" fill="#f59e0b88" filter="url(#halo${id})"/>
+  <path d="${gem}" fill="url(#gA${id})"/>
+  <path d="${fL}" fill="url(#gB${id})" opacity=".72"/>
+  <path d="${fR}" fill="url(#gB${id})" opacity=".52"/>
+  <path d="${fBL}" fill="url(#gC${id})" opacity=".78"/>
+  <path d="${fBR}" fill="url(#gC${id})" opacity=".62"/>
+  <path d="${fBC}" fill="#d97706" opacity=".68"/>
+  <path d="${gem}" fill="none" stroke="#fde68a" stroke-width=".85" stroke-opacity=".55"/>
+  <line x1="${gCx}" y1="${gCy-gR}" x2="${gCx}" y2="${gCy+gR*.08}" stroke="#fde68a" stroke-width=".55" stroke-opacity=".38"/>
+  <line x1="${gCx}" y1="${gCy+gR*.08}" x2="${gCx-gR*.9}" y2="${gCy+gR*.32}" stroke="#fde68a" stroke-width=".55" stroke-opacity=".28"/>
+  <line x1="${gCx}" y1="${gCy+gR*.08}" x2="${gCx+gR*.9}" y2="${gCy+gR*.32}" stroke="#fde68a" stroke-width=".55" stroke-opacity=".28"/>
+  <path d="M${gCx-gR*.32},${gCy-gR*.72} L${gCx+gR*.09},${gCy-gR*.86} L${gCx+gR*.04},${gCy-gR*.44} Z" fill="white" opacity=".32"/>
+  <path d="M${cx-sz*.04},${sTop} C${cx-sz*.06},${kY} ${cx-sz*.024},${kY} ${cx-sz*.03},${sBot} L${cx+sz*.03},${sBot} C${cx+sz*.024},${kY} ${cx+sz*.06},${kY} ${cx+sz*.04},${sTop} Z" fill="url(#gold${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*.052}" ry="${sz*.036}" fill="url(#gold${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*.052}" ry="${sz*.036}" fill="none" stroke="#fde68a" stroke-width=".65" stroke-opacity=".45"/>
+  <path d="M${cx-sz*.25},${sBot} L${cx-sz*.27},${sBot+sz*.062} L${cx+sz*.27},${sBot+sz*.062} L${cx+sz*.25},${sBot} Z" fill="url(#gold${id})"/>
+  <rect x="${cx-sz*.21}" y="${sBot+sz*.062}" width="${sz*.42}" height="${sz*.06}" rx="${sz*.012}" fill="url(#base${id})"/>
+</svg>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// SEASON BADGE
+// ══════════════════════════════════════════════════════════════════
+const ST=[
+  {c1:"#f59e0b",c2:"#78350f",hi:"#fde68a",bg1:"#150e00",bg2:"#080600",glow:"#f59e0b",rim1:"#f59e0b",rim2:"#78350f",name:"Gold·T1"},
+  {c1:"#c8d4e0",c2:"#5a6878",hi:"#f0f4f8",bg1:"#0e1016",bg2:"#06080c",glow:"#c8d4e0",rim1:"#c8d4e0",rim2:"#5a6878",name:"Silber·T2"},
+  {c1:"#e8922a",c2:"#8b4a0a",hi:"#fcd08a",bg1:"#130a04",bg2:"#080502",glow:"#e8922a",rim1:"#e8922a",rim2:"#8b4a0a",name:"Bronze·T3"},
+  {c1:"#4a7c6f",c2:"#1a3830",hi:"#94c9bb",bg1:"#071210",bg2:"#030908",glow:"#4a7c6f",rim1:"#4a7c6f",rim2:"#1a3830",name:"Schiefer·T4"},
+];
+
+function seasonBadge(tierIdx,seasonNum,sz=84){
+  const cx=sz/2,cy=sz/2,id=uid();
+  const c=ST[tierIdx];
+  const rO=sz*0.41, rot=-Math.PI/6;
+  const oH=hexPath(cx,cy,rO,rot),mH=hexPath(cx,cy,rO*0.845,rot),iH=hexPath(cx,cy,rO*0.785,rot);
+  const hexFn=s=>hexPath(cx,cy,rO*s,rot);
+  const roman=["I","II","III","IV","V","VI","VII","VIII","IX","X"][seasonNum-1]||`${seasonNum}`;
+  const numSz=roman.length>2?sz*0.19:sz*0.24;
+  const layers=tierIdx+1;
+  const plateColors=Array.from({length:layers},()=>({hi:c.hi,mid:c.rim1,dark:c.rim2}));
+  const {defs:pd,svg:ps}=drawPlates(hexFn,layers,plateColors,c.bg2,id,0.085);
+  const contours=insetLines(hexFn,Math.min(layers,3),c.hi,c.rim1);
+  const apDefs="", apSVG=""; // No apron for season badges
+  const pad=sz*0.65;
+  return `<svg width="${sz}" height="${sz}"
+    viewBox="${-pad} ${-pad} ${sz+pad*2} ${sz+pad*2}"
+    overflow="visible" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg${id}" cx="36%" cy="30%" r="72%">
+      <stop offset="0%" stop-color="${c.bg1}"/>
+      <stop offset="100%" stop-color="${c.bg2}"/>
+    </radialGradient>
+    <linearGradient id="rim${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="${c.hi}"/>
+      <stop offset="45%" stop-color="${c.c1}"/>
+      <stop offset="100%" stop-color="${c.c2}"/>
+    </linearGradient>
+    <linearGradient id="sh${id}" x1="18%" y1="0%" x2="82%" y2="100%">
+      <stop offset="0%" stop-color="white" stop-opacity="0.16"/>
+      <stop offset="55%" stop-color="white" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-120%" y="-120%" width="440%" height="440%">
+      <feGaussianBlur stdDeviation="8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    ${pd}${apDefs}
+  </defs>
+  <path d="${oH}" fill="${c.glow}" fill-opacity="0.35" filter="url(#halo${id})"/>
+  ${apSVG}
+  ${ps}
+  <path d="${oH}" fill="url(#rim${id})"/>
+  <path d="${mH}" fill="${c.bg2}"/>
+  <path d="${mH}" fill="none" stroke="url(#rim${id})" stroke-width="${sz*0.018}"/>
+  <path d="${iH}" fill="url(#bg${id})"/>
+  <path d="${iH}" fill="url(#sh${id})"/>
+  ${contours}
+  <text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${numSz}"
+    fill="${c.hi}" filter="url(#gl${id})">${roman}</text>
+</svg>`;
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// SEASON CUP TROPHY
+// Hexagonal base with gold cup rising from it, ornate, season-number
+// ══════════════════════════════════════════════════════════════════
+function seasonCupBadge(seasonNum, sz=110){
+  const cx=sz/2, cy=sz/2, id=uid();
+  // Purple crystal gem – same structure as crystalTrophy but purple palette
+  const gCx=cx, gCy=cy-sz*0.08, gR=sz*0.22;
+  const gem =`M${gCx},${gCy-gR} L${gCx+gR*.72},${gCy-gR*.18} L${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx-gR*.9},${gCy+gR*.32} L${gCx-gR*.72},${gCy-gR*.18} Z`;
+  const fL  =`M${gCx},${gCy-gR} L${gCx-gR*.72},${gCy-gR*.18} L${gCx},${gCy+gR*.08} Z`;
+  const fR  =`M${gCx},${gCy-gR} L${gCx+gR*.72},${gCy-gR*.18} L${gCx},${gCy+gR*.08} Z`;
+  const fBL =`M${gCx-gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*.08} Z`;
+  const fBR =`M${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR} L${gCx},${gCy+gR*.08} Z`;
+  const fBC =`M${gCx-gR*.9},${gCy+gR*.32} L${gCx+gR*.9},${gCy+gR*.32} L${gCx},${gCy+gR*.08} Z`;
+  const sTop=gCy+gR, kY=sTop+sz*.065, sBot=sTop+sz*.13;
+
+  const roman=["I","II","III","IV","V","VI","VII","VIII","IX","X"][seasonNum-1]||`${seasonNum}`;
+
+  return `<svg width="${sz}" height="${sz*1.1}" viewBox="0 0 ${sz} ${sz*1.04}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gA${id}" x1="10%" y1="0%" x2="90%" y2="100%">
+      <stop offset="0%" stop-color="#e9d5ff"/>
+      <stop offset="35%" stop-color="#a855f7"/>
+      <stop offset="75%" stop-color="#7e22ce"/>
+      <stop offset="100%" stop-color="#3b0764"/>
+    </linearGradient>
+    <linearGradient id="gB${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f3e8ff"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+    <linearGradient id="gC${id}" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7e22ce"/>
+      <stop offset="100%" stop-color="#2e1065"/>
+    </linearGradient>
+    <linearGradient id="purp${id}" x1="5%" y1="5%" x2="95%" y2="95%">
+      <stop offset="0%" stop-color="#e9d5ff"/>
+      <stop offset="35%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#4c1d95"/>
+    </linearGradient>
+    <linearGradient id="base${id}" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b0764"/>
+      <stop offset="50%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#3b0764"/>
+    </linearGradient>
+    <filter id="gl${id}" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.8" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="halo${id}" x="-100%" y="-100%" width="400%" height="400%">
+      <feGaussianBlur stdDeviation="${sz*.12}" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Purple halo glow -->
+  <path d="${gem}" fill="#a855f7" fill-opacity="0.55" filter="url(#halo${id})"/>
+  <!-- Gem facets -->
+  <path d="${gem}"  fill="url(#gA${id})"/>
+  <path d="${fL}"   fill="url(#gB${id})" opacity=".72"/>
+  <path d="${fR}"   fill="url(#gB${id})" opacity=".45"/>
+  <path d="${fBL}"  fill="url(#gC${id})" opacity=".80"/>
+  <path d="${fBR}"  fill="url(#gC${id})" opacity=".65"/>
+  <path d="${fBC}"  fill="#4c1d95"       opacity=".70"/>
+  <path d="${gem}"  fill="none" stroke="#e9d5ff" stroke-width=".9" stroke-opacity=".55"/>
+  <!-- Facet lines -->
+  <line x1="${gCx}" y1="${gCy-gR}" x2="${gCx}" y2="${gCy+gR*.08}" stroke="#e9d5ff" stroke-width=".6" stroke-opacity=".4"/>
+  <line x1="${gCx}" y1="${gCy+gR*.08}" x2="${gCx-gR*.9}" y2="${gCy+gR*.32}" stroke="#e9d5ff" stroke-width=".5" stroke-opacity=".28"/>
+  <line x1="${gCx}" y1="${gCy+gR*.08}" x2="${gCx+gR*.9}" y2="${gCy+gR*.32}" stroke="#e9d5ff" stroke-width=".5" stroke-opacity=".28"/>
+  <!-- Specular highlight -->
+  <path d="M${gCx-gR*.3},${gCy-gR*.7} L${gCx+gR*.08},${gCy-gR*.84} L${gCx+gR*.03},${gCy-gR*.42} Z" fill="white" opacity=".35"/>
+  <!-- Season label below gem -->
+  <text x="${gCx}" y="${gCy+gR*0.45}" text-anchor="middle" dominant-baseline="central"
+    font-family="Orbitron,monospace" font-weight="900" font-size="${sz*0.13}"
+    fill="#f3e8ff" filter="url(#gl${id})">${roman}</text>
+  <!-- Shaft -->
+  <path d="M${cx-sz*.04},${sTop} C${cx-sz*.06},${kY} ${cx-sz*.024},${kY} ${cx-sz*.03},${sBot} L${cx+sz*.03},${sBot} C${cx+sz*.024},${kY} ${cx+sz*.06},${kY} ${cx+sz*.04},${sTop} Z" fill="url(#purp${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*.052}" ry="${sz*.036}" fill="url(#purp${id})"/>
+  <ellipse cx="${cx}" cy="${kY}" rx="${sz*.052}" ry="${sz*.036}" fill="none" stroke="#e9d5ff" stroke-width=".65" stroke-opacity=".45"/>
+  <!-- Base -->
+  <path d="M${cx-sz*.26},${sBot} L${cx-sz*.28},${sBot+sz*.065} L${cx+sz*.28},${sBot+sz*.065} L${cx+sz*.26},${sBot} Z" fill="url(#purp${id})"/>
+  <rect x="${cx-sz*.22}" y="${sBot+sz*.065}" width="${sz*.44}" height="${sz*.062}" rx="${sz*.012}" fill="url(#base${id})"/>
+</svg>`;
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+function add(id,svg,label){
+  const el=document.getElementById(id);
+  const div=document.createElement("div");
+  div.className="item";
+  div.innerHTML=svg+`<span class="lbl">${label}</span>`;
+  el.appendChild(div);
+}
+
+// ── Export all badges as zip ─────────────────────────────────────
+async function exportAllSVGs(){
+  // Dynamically load JSZip if not loaded
+  if(typeof JSZip === 'undefined'){
+    alert('JSZip not loaded'); return;
+  }
+  const zip = new JSZip();
+
+  // Export size: render at 200px (2x), tight viewBox
+  const EXPORT_SZ = 200;
+
+  const sections = [
+    {id:'t1',prefix:'lv'},
+    {id:'t2',prefix:'lv'},
+    {id:'t3',prefix:'lv'},
+    {id:'t4',prefix:'lv'},
+    {id:'t5',prefix:'lv'},
+    {id:'pre',prefix:'prestige'},
+    {id:'pre2',prefix:'prestige'},
+    {id:'troph',prefix:'trophy'},
+    {id:'scup',prefix:'season_cup'},
+    {id:'seas',prefix:'season'},
+  ];
+
+  sections.forEach(sec => {
+    const container = document.getElementById(sec.id);
+    if(!container) return;
+    container.querySelectorAll('.item').forEach((item) => {
+      const svgEl = item.querySelector('svg');
+      if(!svgEl) return;
+      const label = (item.querySelector('.lbl')?.textContent || sec.prefix+'_x')
+        .replace(/\s+/g,'_').replace(/[^\w\-]/g,'').toLowerCase();
+
+      // Clone and set export dimensions
+      const clone = svgEl.cloneNode(true);
+      // Keep viewBox but set width/height to export size
+      clone.setAttribute('width', EXPORT_SZ);
+      clone.setAttribute('height', EXPORT_SZ);
+      clone.setAttribute('overflow','visible');
+
+      const ser = new XMLSerializer();
+      let svgStr = ser.serializeToString(clone);
+      if(!svgStr.startsWith('<?xml'))
+        svgStr = '<?xml version="1.0" standalone="no"?>' + svgStr;
+
+      zip.file(label + '.svg', svgStr);
+    });
+  });
+
+  const blob = await zip.generateAsync({type:'blob'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'beybladex_badges.zip';
+  a.click();
+}
+
+TIERS.forEach((t,i)=>{
+  const ids=["t1","t2","t3","t4","t5"];
+  for(let lv=t.range[0];lv<=t.range[1];lv++) add(ids[i],levelBadge(lv,t,84),`Lv.${lv}`);
+});
+for(let p=1;p<=5;p++) add("pre",prestigeShield(p,86),`Prestige ${["I","II","III","IV","V"][p-1]}`);
+for(let p=6;p<=11;p++) add("pre2",prestigeBG(p,86),`Prestige ${p}`);
+add("troph",crystalTrophy(110),"1st Place");
+ST.forEach((t,i)=>{ for(let s=1;s<=4;s++) add("seas",seasonBadge(i,s,84),`${t.name}·S${s}`); });
+for(let s=1;s<=4;s++) add("scup",seasonCupBadge(s,110),`Season Cup S${s}`);
+</script>
+</body>
+</html>

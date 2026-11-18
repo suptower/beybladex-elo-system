@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ELO System - Beyblade X ELO Analytics</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="elo-system.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>ELO System</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content" class="elo-system-page">
+
+    <div class="page-header">
+        <h2>⚡ ELO Rating System</h2>
+        <p class="page-description">How Beyblade X ELO ratings are calculated — a complete guide covering all three versions of the system</p>
+    </div>
+
+    <!-- Version navigation tabs -->
+    <div class="elo-version-tabs" role="tablist" aria-label="ELO system versions">
+        <button class="elo-version-tab active" data-version="core" role="tab" aria-selected="true" aria-controls="panel-core" id="tab-core">
+            📐 Core Formula
+        </button>
+        <button class="elo-version-tab" data-version="v1" role="tab" aria-selected="false" aria-controls="panel-v1" id="tab-v1">
+            🕰️ V1 — Classic
+        </button>
+        <button class="elo-version-tab" data-version="v2" role="tab" aria-selected="false" aria-controls="panel-v2" id="tab-v2">
+            📊 V2 — Tiered K
+        </button>
+        <button class="elo-version-tab active-version" data-version="v3" role="tab" aria-selected="false" aria-controls="panel-v3" id="tab-v3">
+            ✅ V3 — Current
+        </button>
+    </div>
+
+    <!-- Core Formula Panel -->
+    <div class="elo-panel" id="panel-core" role="tabpanel" aria-labelledby="tab-core">
+
+        <div class="elo-section-card">
+            <h3>🧮 The ELO Update Formula</h3>
+            <p>Every version of the system uses the same underlying ELO update rule. Only the K-factor and score calculation change between versions.</p>
+
+            <div class="formula-block">
+                <div class="formula-title">Rating update</div>
+                <div class="formula-math">ΔR = K<sub>eff</sub> · (S − E)</div>
+                <div class="formula-vars">
+                    <div class="formula-var"><span class="var-name">ΔR</span> — ELO change for the player</div>
+                    <div class="formula-var"><span class="var-name">K<sub>eff</sub></span> — effective K-factor (controls volatility)</div>
+                    <div class="formula-var"><span class="var-name">S</span> — actual score for this match</div>
+                    <div class="formula-var"><span class="var-name">E</span> — expected score before the match</div>
+                </div>
+            </div>
+
+            <div class="formula-block">
+                <div class="formula-title">Expected score</div>
+                <div class="formula-math">E = 1 / (1 + 10<sup>−(R<sub>A</sub> − R<sub>B</sub>) / 400</sup>)</div>
+                <div class="formula-vars">
+                    <div class="formula-var"><span class="var-name">R<sub>A</sub></span> — current ELO of player A</div>
+                    <div class="formula-var"><span class="var-name">R<sub>B</sub></span> — current ELO of player B</div>
+                </div>
+                <p class="formula-note">
+                    A player rated 200 ELO higher has E ≈ 0.76 — i.e. they are expected to win ~76% of the time.
+                    When both players have equal ELO, E = 0.5 for both sides.
+                </p>
+            </div>
+
+            <div class="formula-block">
+                <div class="formula-title">Starting ELO</div>
+                <div class="formula-math">R<sub>start</sub> = 1000</div>
+                <p class="formula-note">Every new Beyblade enters the leaderboard at 1000 ELO.</p>
+            </div>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>🏟️ Arena Scope</h3>
+            <p>ELO ratings are tracked <strong>separately per arena</strong>. Only <strong>Xtreme</strong> arena matches affect the main leaderboard and plots.
+            Drop Attack arena results are tracked independently and do not influence Xtreme ratings.</p>
+        </div>
+
+    </div><!-- /panel-core -->
+
+    <!-- V1 Panel -->
+    <div class="elo-panel hidden" id="panel-v1" role="tabpanel" aria-labelledby="tab-v1">
+
+        <div class="elo-version-badge v1-badge">Version 1 — Classic (Historical)</div>
+
+        <div class="elo-section-card">
+            <h3>📖 Overview</h3>
+            <p>Version 1 was the original ELO system: a tiered K-factor based on match count and proportional win/loss scoring based on the raw point ratio.
+            Simple but limited — while it differentiated new from experienced Beyblades, all wins with the same score ratio were treated identically regardless of margin context.</p>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>⚙️ K-Factor</h3>
+            <p>K-factor was divided into three discrete tiers based on the number of matches played:</p>
+            <div class="example-table-wrap">
+                <table class="example-table">
+                    <thead><tr><th>Matches played</th><th>Stage</th><th>K-factor</th></tr></thead>
+                    <tbody>
+                        <tr><td>&lt; 6</td><td>Learning</td><td><strong>40</strong></td></tr>
+                        <tr><td>6 – 14</td><td>Intermediate</td><td><strong>24</strong></td></tr>
+                        <tr><td>15+</td><td>Experienced</td><td><strong>12</strong></td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p>New Beyblades started highly volatile (K=40) and became stable over time, but the transitions were abrupt — a Beyblade at match 5 had K=40, at match 6 it suddenly dropped to K=24.</p>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>🏆 Score Function</h3>
+            <p>Proportional scoring — score was simply the fraction of points scored:</p>
+            <div class="two-col">
+                <div class="formula-block outcome-win">
+                    <div class="formula-title">Player A</div>
+                    <div class="formula-math">S<sub>A</sub> = ScoreA / (ScoreA + ScoreB)</div>
+                </div>
+                <div class="formula-block outcome-loss">
+                    <div class="formula-title">Player B</div>
+                    <div class="formula-math">S<sub>B</sub> = ScoreB / (ScoreA + ScoreB)</div>
+                </div>
+            </div>
+            <p class="formula-note">
+                A 4–3 win gave S ≈ 0.571, while a 4–0 win gave S = 1.0. Margin was reflected, but the scaling was linear — no concept of a "reference result" or saturating function.
+            </p>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>📊 Example (equal players, K = 40 new / K = 12 veteran)</h3>
+            <div class="example-table-wrap">
+                <table class="example-table">
+                    <thead><tr><th>Result</th><th>S (winner)</th><th>S (loser)</th><th>ΔElo (K=40)</th><th>ΔElo (K=12)</th></tr></thead>
+                    <tbody>
+                        <tr><td>4–3</td><td>0.571</td><td>0.429</td><td class="pos">+2.9</td><td class="pos">+0.9</td></tr>
+                        <tr><td>4–1</td><td>0.800</td><td>0.200</td><td class="pos">+12.0</td><td class="pos">+3.6</td></tr>
+                        <tr><td>4–0</td><td>1.000</td><td>0.000</td><td class="pos">+20.0</td><td class="pos">+6.0</td></tr>
+                        <tr><td>6–0</td><td>1.000</td><td>0.000</td><td class="pos">+20.0</td><td class="pos">+6.0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="elo-section-card" id="v1-metrics-card">
+            <h3>📈 Predictive Metrics (V1, Xtreme arena)</h3>
+            <div id="v1-metrics-loading" style="color:var(--text-light);font-style:italic;">Loading metrics…</div>
+            <div id="v1-metrics-content" style="display:none;"></div>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>⚠️ Limitations</h3>
+            <ul class="limitation-list">
+                <li>Abrupt K-factor jumps at match 6 and match 15 cause sudden volatility cliffs</li>
+                <li>Linear proportional scoring does not distinguish between e.g. 4-0 (shutout) and 6-0 (overkill)</li>
+                <li>No form adjustment — a bey on a losing streak is treated identically to one performing as expected</li>
+            </ul>
+        </div>
+
+    </div><!-- /panel-v1 -->
+
+    <!-- V2 Panel -->
+    <div class="elo-panel hidden" id="panel-v2" role="tabpanel" aria-labelledby="tab-v2">
+
+        <div class="elo-version-badge v2-badge">Version 2 — Tiered K + Dominance (Historical)</div>
+
+        <div class="elo-section-card">
+            <h3>📖 Overview</h3>
+            <p>Version 2 introduced two major improvements: a <strong>tiered K-factor</strong> that decreases as a Beyblade gains experience,
+            and a <strong>dominance-based score</strong> that rewards bigger victories with higher ELO gains.</p>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>⚙️ Tiered K-Factor</h3>
+            <p>K-factor now depends on match count, creating three discrete tiers:</p>
+            <div class="tier-grid">
+                <div class="tier-card tier-learning">
+                    <div class="tier-label">🔰 Learning</div>
+                    <div class="tier-matches">&lt; 6 matches</div>
+                    <div class="tier-k">K = 40</div>
+                    <div class="tier-desc">High volatility — rating adjusts quickly in the first few matches</div>
+                </div>
+                <div class="tier-card tier-intermediate">
+                    <div class="tier-label">📈 Intermediate</div>
+                    <div class="tier-matches">6 – 14 matches</div>
+                    <div class="tier-k">K = 24</div>
+                    <div class="tier-desc">Medium volatility — rating still moves, but more cautiously</div>
+                </div>
+                <div class="tier-card tier-experienced">
+                    <div class="tier-label">⭐ Experienced</div>
+                    <div class="tier-matches">15+ matches</div>
+                    <div class="tier-k">K = 12</div>
+                    <div class="tier-desc">Low volatility — stable rating, harder to gain or lose big</div>
+                </div>
+            </div>
+            <div class="formula-block">
+                <div class="formula-title">K-Factor definition (V2)</div>
+                <div class="formula-math-sm">K = 40 if N &lt; 6 | K = 24 if 6 ≤ N &lt; 15 | K = 12 if N ≥ 15</div>
+            </div>
+            <p class="formula-note">Problem: the jump from K=24 to K=12 at match 15 creates a sudden cliff in volatility.</p>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>🏆 Dominance-Based Score (V2)</h3>
+            <p>Instead of a flat win/loss, the score scales with the point differential:</p>
+            <div class="formula-block">
+                <div class="formula-title">Winner score</div>
+                <div class="formula-math">S<sub>winner</sub> = BASE_WIN + (1 − BASE_WIN) × dominance + overkill_bonus</div>
+                <div class="formula-vars">
+                    <div class="formula-var"><span class="var-name">BASE_WIN</span> = 0.75 (minimum reward for any win)</div>
+                    <div class="formula-var"><span class="var-name">dominance</span> = min(diff / 4, 1.0)</div>
+                    <div class="formula-var"><span class="var-name">diff</span> = winner score − loser score</div>
+                    <div class="formula-var"><span class="var-name">overkill_bonus</span> = up to 0.25 for wins beyond 4–0</div>
+                </div>
+            </div>
+            <div class="formula-block">
+                <div class="formula-title">Loser score</div>
+                <div class="formula-math">S<sub>loser</sub> = 1 − S<sub>winner</sub></div>
+            </div>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>📊 Example (equal players, K = 24)</h3>
+            <div class="example-table-wrap">
+                <table class="example-table">
+                    <thead><tr><th>Result</th><th>S (winner)</th><th>S (loser)</th><th>ΔElo (winner)</th><th>ΔElo (loser)</th></tr></thead>
+                    <tbody>
+                        <tr><td>4–3</td><td>0.81</td><td>0.19</td><td class="pos">+7.5</td><td class="neg">−7.5</td></tr>
+                        <tr><td>4–2</td><td>0.88</td><td>0.13</td><td class="pos">+9.2</td><td class="neg">−9.2</td></tr>
+                        <tr><td>4–0</td><td>1.00</td><td>0.00</td><td class="pos">+12</td><td class="neg">−12</td></tr>
+                        <tr><td>6–0</td><td>1.13</td><td>−0.13</td><td class="pos">+15</td><td class="neg">−15</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>⚠️ Limitations</h3>
+            <ul class="limitation-list">
+                <li>Discrete K-factor jumps create sudden volatility cliffs at match 6 and match 15</li>
+                <li>No form/momentum component — a Beyblade on a losing streak gets the same K as one on a winning streak</li>
+            </ul>
+        </div>
+
+        <div class="elo-section-card" id="v2-metrics-card">
+            <h3>📈 Predictive Metrics (V2, Xtreme arena)</h3>
+            <div id="v2-metrics-loading" style="color:var(--text-light);font-style:italic;">Loading metrics…</div>
+            <div id="v2-metrics-content" style="display:none;"></div>
+        </div>
+
+    </div><!-- /panel-v2 -->
+
+    <!-- V3 Panel (Current) -->
+    <div class="elo-panel hidden" id="panel-v3" role="tabpanel" aria-labelledby="tab-v3">
+
+        <div class="elo-version-badge v3-badge">✅ Version 3 — Current System</div>
+
+        <div class="elo-section-card">
+            <h3>📖 Overview</h3>
+            <p>Version 3 is the current system. It replaces both discrete K-tiers and the dominance formula with fully smooth, differentiable functions.
+            Three complementary mechanisms work together to produce accurate, stable, and responsive ratings:</p>
+            <div class="v3-pillars">
+                <div class="pillar">
+                    <div class="pillar-icon">📉</div>
+                    <div class="pillar-title">Smooth K-base</div>
+                    <div class="pillar-desc">Exponential decay from K=32 (new) to K=16 (veteran)</div>
+                </div>
+                <div class="pillar">
+                    <div class="pillar-icon">📈</div>
+                    <div class="pillar-title">EMA Form Multiplier</div>
+                    <div class="pillar-desc">Recent performance amplifies K for streaks and slumps</div>
+                </div>
+                <div class="pillar">
+                    <div class="pillar-icon">〰️</div>
+                    <div class="pillar-title">tanh Margin Score</div>
+                    <div class="pillar-desc">Smooth, zero-sum scoring based on point differential</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>⚙️ 1 — Smooth K-base (Exponential Decay)</h3>
+            <p>Instead of discrete tiers, K-base decreases continuously as matches are played:</p>
+            <div class="formula-block">
+                <div class="formula-title">K-base formula</div>
+                <div class="formula-math">K<sub>base</sub>(N) = K<sub>min</sub> + (K<sub>max</sub> − K<sub>min</sub>) · e<sup>−N / τ</sup></div>
+                <div class="formula-vars">
+                    <div class="formula-var"><span class="var-name">K<sub>min</sub></span> = 16 (floor for veterans)</div>
+                    <div class="formula-var"><span class="var-name">K<sub>max</sub></span> = 32 (ceiling for new entrants)</div>
+                    <div class="formula-var"><span class="var-name">τ</span> = 15 (decay constant, in matches)</div>
+                    <div class="formula-var"><span class="var-name">N</span> = number of matches played so far</div>
+                </div>
+            </div>
+            <div class="kbase-examples">
+                <div class="kbase-ex"><span class="kbase-n">N = 0</span> → <span class="kbase-k">K = 32.0</span></div>
+                <div class="kbase-ex"><span class="kbase-n">N = 5</span> → <span class="kbase-k">K ≈ 27.0</span></div>
+                <div class="kbase-ex"><span class="kbase-n">N = 15</span> → <span class="kbase-k">K ≈ 21.9</span></div>
+                <div class="kbase-ex"><span class="kbase-n">N = 30</span> → <span class="kbase-k">K ≈ 18.0</span></div>
+                <div class="kbase-ex"><span class="kbase-n">N = 60</span> → <span class="kbase-k">K ≈ 16.2</span></div>
+                <div class="kbase-ex"><span class="kbase-n">N → ∞</span> → <span class="kbase-k">K → 16.0</span></div>
+            </div>
+            <p class="formula-note">No cliffs — the transition is completely smooth. A Beyblade at match 14 and one at match 15 have nearly identical K-factors.</p>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>📈 2 — EMA Form Multiplier</h3>
+            <p>The effective K-factor is boosted when a Beyblade is performing better or worse than its ELO predicts.
+            This allows faster correction when a rating drifts too far from a Beyblade's true strength.</p>
+
+            <div class="formula-block">
+                <div class="formula-title">Form EMA update (after each match)</div>
+                <div class="formula-math">form_ema<sub>new</sub> = α · δ + (1 − α) · form_ema<sub>old</sub></div>
+                <div class="formula-vars">
+                    <div class="formula-var"><span class="var-name">δ</span> = S − E (actual minus expected score this match)</div>
+                    <div class="formula-var"><span class="var-name">α</span> = 2 / (10 + 1) ≈ 0.182 (smoothing factor)</div>
+                    <div class="formula-var">First match: form_ema is seeded with the first δ value</div>
+                </div>
+            </div>
+
+            <div class="formula-block">
+                <div class="formula-title">Effective K-factor</div>
+                <div class="formula-math">K<sub>eff</sub> = K<sub>base</sub> · (1 + α<sub>form</sub> · |form_ema|)</div>
+                <div class="formula-vars">
+                    <div class="formula-var"><span class="var-name">α<sub>form</sub></span> = 2.5 (form amplification factor)</div>
+                </div>
+            </div>
+
+            <div class="ema-insight">
+                <div class="insight-icon">💡</div>
+                <div class="insight-text">
+                    <strong>What this means:</strong> A Beyblade that has been winning much more than expected (positive form_ema) gets a higher K_eff —
+                    meaning its rating rises faster toward its "true" level. The same applies in the opposite direction for underperformers.
+                    Older matches decay geometrically rather than being dropped abruptly, so the EMA responds smoothly to momentum shifts.
+                </div>
+            </div>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>〰️ 3 — tanh Margin Score (Zero-Sum)</h3>
+            <p>The score function is built around the <strong>tanh</strong> (hyperbolic tangent), a smooth S-curve that saturates for extreme results:</p>
+
+            <div class="formula-block">
+                <div class="formula-title">Winner score</div>
+                <div class="formula-math">S<sub>winner</sub> = 1 + a · tanh( b · (m − T) / T )</div>
+                <div class="formula-vars">
+                    <div class="formula-var"><span class="var-name">m</span> = point difference (winner score − loser score)</div>
+                    <div class="formula-var"><span class="var-name">T</span> = target points (4 for Race-to-4, 7 for finals)</div>
+                    <div class="formula-var"><span class="var-name">a</span> = 0.18 (amplitude)</div>
+                    <div class="formula-var"><span class="var-name">b</span> = 2.2 (steepness)</div>
+                </div>
+            </div>
+
+            <div class="formula-block">
+                <div class="formula-title">Loser score (zero-sum)</div>
+                <div class="formula-math">S<sub>loser</sub> = 1 − S<sub>winner</sub></div>
+            </div>
+
+            <div class="tanh-table-wrap">
+                <table class="example-table tanh-table">
+                    <thead>
+                        <tr>
+                            <th>Result</th>
+                            <th>m</th>
+                            <th>S<sub>winner</sub></th>
+                            <th>S<sub>loser</sub></th>
+                            <th>ΔElo (winner, K=20, E=0.5)</th>
+                            <th>ΔElo (loser, K=20, E=0.5)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>4–3</td><td>1</td><td>≈ 0.833</td><td>≈ 0.167</td><td class="pos">+6.7</td><td class="neg">−6.7</td></tr>
+                        <tr><td>4–2</td><td>2</td><td>≈ 0.875</td><td>≈ 0.125</td><td class="pos">+7.5</td><td class="neg">−7.5</td></tr>
+                        <tr><td>4–1</td><td>3</td><td>≈ 0.927</td><td>≈ 0.073</td><td class="pos">+8.5</td><td class="neg">−8.5</td></tr>
+                        <tr class="reference-row"><td>4–0 ⭐</td><td>4</td><td>1.000</td><td>0.000</td><td class="pos">+10</td><td class="neg">−10</td></tr>
+                        <tr><td>5–0</td><td>5</td><td>≈ 1.073</td><td>≈ −0.073</td><td class="pos">+11.5</td><td class="neg">−11.5</td></tr>
+                        <tr><td>6–0</td><td>6</td><td>≈ 1.144</td><td>≈ −0.144</td><td class="pos">+12.9</td><td class="neg">−12.9</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="tanh-insights">
+                <div class="tanh-insight-item">
+                    <span class="badge badge-ref">Reference</span>
+                    <span>4–0 is the calibration anchor: S = 1.000 exactly.</span>
+                </div>
+                <div class="tanh-insight-item">
+                    <span class="badge badge-close">Close loss</span>
+                    <span>3–4 gives S<sub>loser</sub> ≈ 0.167, not 0 — a narrow defeat is penalised less than a blowout.</span>
+                </div>
+                <div class="tanh-insight-item">
+                    <span class="badge badge-overshoot">Overshoot</span>
+                    <span>Winning beyond 4–0 is rewarded — overshoots push S &gt; 1 and correspondingly push the loser to S &lt; 0.</span>
+                </div>
+                <div class="tanh-insight-item">
+                    <span class="badge badge-zerosum">Zero-sum</span>
+                    <span>S<sub>winner</sub> + S<sub>loser</sub> = 1 always, so ΔR<sub>A</sub> + ΔR<sub>B</sub> = 0 when K-factors are equal.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>🔄 Match Sequence Summary</h3>
+            <ol class="sequence-list">
+                <li>Look up pre-match ELOs: R<sub>A</sub> and R<sub>B</sub></li>
+                <li>Compute expected scores: E<sub>A</sub> = 1 / (1 + 10<sup>−(R<sub>A</sub>−R<sub>B</sub>)/400</sup>)</li>
+                <li>Read current form_ema for each Beyblade (or None for the first match)</li>
+                <li>Compute K<sub>base</sub>(N) from match count N (Xtreme arena only)</li>
+                <li>Compute K<sub>eff</sub> = K<sub>base</sub> · (1 + 2.5 · |form_ema|)</li>
+                <li>Compute actual scores S<sub>A</sub>, S<sub>B</sub> via tanh formula</li>
+                <li>Apply update: R<sub>A</sub> += round(K<sub>eff,A</sub> · (S<sub>A</sub> − E<sub>A</sub>))</li>
+                <li>Update form_ema: form_ema += 0.182 · (δ − form_ema)</li>
+            </ol>
+        </div>
+
+        <div class="elo-section-card">
+            <h3>📊 System Properties</h3>
+            <div class="properties-grid">
+                <div class="property-card">
+                    <div class="prop-icon">✅</div>
+                    <div class="prop-title">Fully smooth</div>
+                    <div class="prop-desc">No discrete jumps in K or score — every match produces a gradual, proportionate change</div>
+                </div>
+                <div class="property-card">
+                    <div class="prop-icon">⚡</div>
+                    <div class="prop-title">Reactive to streaks</div>
+                    <div class="prop-desc">Form EMA boosts K during winning/losing streaks to correct mispriced ratings faster</div>
+                </div>
+                <div class="property-card">
+                    <div class="prop-icon">⚖️</div>
+                    <div class="prop-title">Zero-sum</div>
+                    <div class="prop-desc">Total ELO in the system is conserved — every point gained is taken from the opponent</div>
+                </div>
+                <div class="property-card">
+                    <div class="prop-icon">📐</div>
+                    <div class="prop-title">Margin-aware</div>
+                    <div class="prop-desc">Closer matches reward/punish less than dominant victories, for both winner and loser</div>
+                </div>
+                <div class="property-card">
+                    <div class="prop-icon">🔒</div>
+                    <div class="prop-title">Stable long-term</div>
+                    <div class="prop-desc">K approaches K_min = 16 asymptotically — veteran ratings become progressively harder to move</div>
+                </div>
+                <div class="property-card">
+                    <div class="prop-icon">🏟️</div>
+                    <div class="prop-title">Xtreme arena only</div>
+                    <div class="prop-desc">Main leaderboard ELO counts only Xtreme arena matches; Drop Attack is tracked separately</div>
+                </div>
+            </div>
+        </div>
+
+    <!-- ── System Metrics ──────────────────────────────────────────── -->
+    <div class="elo-metrics-section">
+        <h3 class="elo-metrics-title">📊 System Metrics <span class="metrics-subtitle">(Xtreme arena)</span></h3>
+        <p class="elo-metrics-description">
+            How well does the ELO model predict match outcomes?  Metrics are computed
+            from all Xtreme arena matches using the pre-match expected win probability
+            (<em>E</em>) and the actual winner.
+        </p>
+
+        <!-- KPI cards -->
+        <div class="metrics-kpi-grid" id="metrics-kpi-grid">
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Matches evaluated</div>
+                <div class="kpi-value" id="kpi-matches">—</div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Prediction accuracy</div>
+                <div class="kpi-value" id="kpi-accuracy">—</div>
+                <div class="kpi-note">% of matches where the pre-match favourite won</div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Brier Score</div>
+                <div class="kpi-value" id="kpi-brier">—</div>
+                <div class="kpi-note">Lower is better · uninformed baseline: 0.25</div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Log Loss</div>
+                <div class="kpi-value" id="kpi-logloss">—</div>
+                <div class="kpi-note">Lower is better · uninformed baseline: 0.693</div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Brier Skill Score</div>
+                <div class="kpi-value" id="kpi-skill">—</div>
+                <div class="kpi-note">Improvement over uninformed baseline (higher is better)</div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Margin RMSE</div>
+                <div class="kpi-value" id="kpi-margin-rmse">—</div>
+                <div class="kpi-note">RMSE of predicted probability <em>E</em> vs actual margin score <em>S</em></div>
+            </div>
+            <div class="metrics-kpi-card">
+                <div class="kpi-label">Spearman ρ (ELO vs Win Rate)</div>
+                <div class="kpi-value" id="kpi-spearman">—</div>
+                <div class="kpi-note" id="kpi-spearman-note">Rank correlation between final ELO and empirical win rate (1 = perfect)</div>
+            </div>
+        </div>
+
+        <!-- Calibration table -->
+        <div class="metrics-calibration">
+            <h4 class="calibration-title">Calibration by predicted win probability</h4>
+            <p class="calibration-description">
+                A well-calibrated model produces actual win rates that closely match
+                the predicted probabilities.  For example, when the ELO model gives a
+                Bey a 60–70 % chance of winning, it should win roughly 60–70 % of the
+                time in practice.
+            </p>
+            <div class="calibration-table-wrap">
+                <table class="calibration-table" id="calibration-table">
+                    <thead>
+                        <tr>
+                            <th>Predicted win probability</th>
+                            <th>Mean predicted</th>
+                            <th>Actual win rate</th>
+                            <th>Matches</th>
+                            <th>Calibration</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calibration-tbody">
+                        <tr><td colspan="5" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Metric descriptions -->
+        <div class="metrics-definitions">
+            <details class="metrics-def-block">
+                <summary>What do these metrics mean?</summary>
+                <dl class="metrics-dl">
+                    <dt>Prediction Accuracy</dt>
+                    <dd>The proportion of non-drawn matches in which the player with
+                    the higher pre-match ELO (E &gt; 0.5) went on to win.  Matches
+                    where both players had exactly the same ELO are excluded.</dd>
+
+                    <dt>Brier Score</dt>
+                    <dd>Mean squared error between the predicted win probability
+                    (<em>E</em>) and the actual binary outcome (1 = win, 0 = loss).
+                    A perfectly calibrated, omniscient model scores 0; a model that
+                    always predicts 50 % scores 0.25 (the uninformed baseline).
+                    <br><code>BS = mean( (E − outcome)² )</code></dd>
+
+                    <dt>Brier Skill Score</dt>
+                    <dd>Relative improvement of the Brier Score over the uninformed
+                    baseline (always-0.5 model).  A positive value means the ELO
+                    model does better than random guessing.
+                    <br><code>BSS = 1 − BS / 0.25</code></dd>
+
+                    <dt>Log Loss</dt>
+                    <dd>Mean cross-entropy between the predicted probability and the
+                    actual outcome.  It penalises overconfident wrong predictions
+                    heavily.  The uninformed baseline (always 50 %) scores ln(2) ≈
+                    0.693.
+                    <br><code>LL = −mean( outcome·log(E) + (1−outcome)·log(1−E) )</code></dd>
+
+                    <dt>Margin RMSE</dt>
+                    <dd>Root mean squared error between the predicted win probability
+                    (<em>E</em>) and the actual margin-based score (<em>S</em>)
+                    used for ELO updates.  Unlike Brier Score, this captures how
+                    well <em>E</em> predicts the magnitude of the result — a dominant
+                    6–0 win gives S&nbsp;&gt;&nbsp;1 while a 3–4 near-miss gives
+                    S&nbsp;≈&nbsp;0.17, so a higher Margin RMSE indicates the
+                    probability is not well aligned with the actual result margins.
+                    <br><code>MarginRMSE = sqrt( mean( (E − S)² ) )</code></dd>
+                </dl>
+            </details>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="metrics-definitions">
+            <details class="metrics-def-block">
+                <summary>📈 How to further improve the system</summary>
+                <dl class="metrics-dl">
+                    <dt>More match data (highest impact)</dt>
+                    <dd>With ~376 Xtreme arena matches the dataset is relatively small.
+                    ELO systems typically need thousands of matches to reach reliable
+                    calibration.  High-probability buckets (70–80 %) have very few
+                    matches, leading to noisy calibration that will self-correct as
+                    more high-skill-gap matches accumulate.</dd>
+
+                    <dt>Tune the ELO scale D (currently 400)</dt>
+                    <dd>The expected score formula uses
+                    <code>E = 1 / (1 + 10<sup>−(Δr/D)</sup>)</code>.
+                    A smaller D (e.g., 300) spreads ratings faster and makes
+                    E more decisive; a larger D (e.g., 500) compresses predictions
+                    toward 0.5.  Reducing D slightly would push
+                    well-matched Beys toward more confident predictions, potentially
+                    improving accuracy.</dd>
+
+                    <dt>K-factor parameter tuning (K_max, K_min, τ)</dt>
+                    <dd>Increasing τ (currently 20) slows the decay from K_max to
+                    K_min, keeping ratings more volatile for longer and allowing
+                    faster convergence.  Reducing K_max (currently 40) would compress
+                    the rating spread, correcting the overconfidence seen in
+                    high-probability buckets.</dd>
+
+                    <dt>Match-type stratification</dt>
+                    <dd>Exhibition, regular-season, and tournament finals are currently
+                    treated identically.  Weighting finals or playoff matches more
+                    heavily (higher K) could improve the signal-to-noise ratio.</dd>
+
+                    <dt>Head-to-head recency bonus</dt>
+                    <dd>A small ELO adjustment based on recent head-to-head record
+                    between two specific Beys could improve short-term accuracy,
+                    though it risks over-fitting on small pair samples.</dd>
+
+                    <dt>Note on binary vs continuous outcomes</dt>
+                    <dd>Accuracy, Brier Score, and Log Loss all use the
+                    <strong>binary outcome</strong> (win = 1, loss = 0) as ground
+                    truth.  This is the correct convention for probability-calibration
+                    metrics because <em>E</em> is a win probability, not a margin
+                    predictor.  The continuous margin score <em>S</em> is only used
+                    for ELO updates — it intentionally exceeds [0, 1] for dominant
+                    results (e.g., S ≈ 1.09 for a 5–0 win).  The separate
+                    Margin RMSE metric quantifies how well <em>E</em> tracks
+                    <em>S</em> as a whole.</dd>
+                </dl>
+            </details>
+        </div>
+    </div>
+
+    </div><!-- /panel-v3 -->
+
+    <!-- Version comparison summary -->
+    <div class="elo-section-card comparison-card">
+        <h3>🔁 Version Comparison</h3>
+        <div class="example-table-wrap">
+            <table class="example-table comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>V1 — Classic</th>
+                        <th>V2 — Tiered K</th>
+                        <th class="current-col">V3 — Current ✅</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>K-factor</td>
+                        <td>3 discrete tiers (12/24/40)</td>
+                        <td>3 discrete tiers (12/24/40)</td>
+                        <td class="current-col">Smooth exponential decay (12→40)</td>
+                    </tr>
+                    <tr>
+                        <td>Score function</td>
+                        <td>Proportional (sa/total)</td>
+                        <td>Dominance scale (0.75→1.25)</td>
+                        <td class="current-col">tanh margin (smooth S-curve)</td>
+                    </tr>
+                    <tr>
+                        <td>Loser score</td>
+                        <td>Always 0</td>
+                        <td>1 − S_winner</td>
+                        <td class="current-col">1 − S_winner (zero-sum)</td>
+                    </tr>
+                    <tr>
+                        <td>Form / momentum</td>
+                        <td>None</td>
+                        <td>None</td>
+                        <td class="current-col">EMA form multiplier</td>
+                    </tr>
+                    <tr>
+                        <td>Close vs dominant wins</td>
+                        <td>Same reward</td>
+                        <td>Different reward</td>
+                        <td class="current-col">Different reward (smooth)</td>
+                    </tr>
+                    <tr>
+                        <td>Zero-sum?</td>
+                        <td>✅ Yes</td>
+                        <td>✅ Yes</td>
+                        <td class="current-col">✅ Yes</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+</main>
+
+<script>
+// Tab switching logic
+document.addEventListener('DOMContentLoaded', function () {
+    const tabs = document.querySelectorAll('.elo-version-tab');
+    const panels = document.querySelectorAll('.elo-panel');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function () {
+            const target = this.dataset.version;
+
+            tabs.forEach(t => {
+                t.classList.remove('active');
+                t.setAttribute('aria-selected', 'false');
+            });
+            this.classList.add('active');
+            this.setAttribute('aria-selected', 'true');
+
+            panels.forEach(p => {
+                if (p.id === 'panel-' + target) {
+                    p.classList.remove('hidden');
+                } else {
+                    p.classList.add('hidden');
+                }
+            });
+        });
+    });
+
+    // ── Render a compact metrics grid into a container element ────────────────
+    function renderVersionMetrics(data, loadingEl, contentEl) {
+        loadingEl.style.display = 'none';
+        const acc = data.accuracy !== null ? (data.accuracy * 100).toFixed(1) + ' %' : '—';
+        const brier = data.brier_score.toFixed(4);
+        const logLoss = data.log_loss.toFixed(4);
+        const skillPct = (data.brier_skill * 100).toFixed(2);
+        const skillSign = data.brier_skill >= 0 ? '+' : '';
+        const skillClass = data.brier_skill >= 0 ? 'kpi-positive' : 'kpi-negative';
+        const spRow = data.spearman
+            ? `<div class="metrics-kpi-card">
+                 <div class="kpi-label">Spearman ρ</div>
+                 <div class="kpi-value ${data.spearman.rho >= 0.8 ? 'kpi-positive' : ''}">${data.spearman.rho.toFixed(4)}</div>
+                 <div class="kpi-note">${data.spearman.n_beys} beys (≥${data.spearman.min_matches_filter} matches)</div>
+               </div>` : '';
+        contentEl.innerHTML = `
+            <div class="metrics-kpi-grid">
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Matches evaluated</div>
+                    <div class="kpi-value">${data.n_matches}</div>
+                </div>
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Prediction accuracy</div>
+                    <div class="kpi-value">${acc}</div>
+                    <div class="kpi-note">% of matches where the favourite won</div>
+                </div>
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Brier Score</div>
+                    <div class="kpi-value">${brier}</div>
+                    <div class="kpi-note">Lower is better · baseline 0.25</div>
+                </div>
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Log Loss</div>
+                    <div class="kpi-value">${logLoss}</div>
+                    <div class="kpi-note">Lower is better · baseline 0.693</div>
+                </div>
+                <div class="metrics-kpi-card">
+                    <div class="kpi-label">Brier Skill Score</div>
+                    <div class="kpi-value ${skillClass}">${skillSign}${skillPct} %</div>
+                    <div class="kpi-note">Improvement over uninformed baseline</div>
+                </div>
+                ${spRow}
+            </div>`;
+        contentEl.style.display = 'block';
+    }
+
+    // ── Load V1 metrics ──────────────────────────────────────────────────────
+    fetch(DATA_PATHS.ELO_METRICS_V1_JSON)
+        .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+        .then(data => {
+            const loadingEl = document.getElementById('v1-metrics-loading');
+            const contentEl = document.getElementById('v1-metrics-content');
+            if (loadingEl && contentEl) renderVersionMetrics(data, loadingEl, contentEl);
+        })
+        .catch(() => {
+            const el = document.getElementById('v1-metrics-loading');
+            if (el) el.textContent = 'Metrics not available.';
+        });
+
+    // ── Load V2 metrics ──────────────────────────────────────────────────────
+    fetch(DATA_PATHS.ELO_METRICS_V2_JSON)
+        .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+        .then(data => {
+            const loadingEl = document.getElementById('v2-metrics-loading');
+            const contentEl = document.getElementById('v2-metrics-content');
+            if (loadingEl && contentEl) renderVersionMetrics(data, loadingEl, contentEl);
+        })
+        .catch(() => {
+            const el = document.getElementById('v2-metrics-loading');
+            if (el) el.textContent = 'Metrics not available.';
+        });
+
+    // ── Load and render V3 ELO metrics ────────────────────────────────────────
+    fetch(DATA_PATHS.ELO_METRICS_JSON)
+        .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+        .then(data => {
+            document.getElementById('kpi-matches').textContent  = data.n_matches;
+            document.getElementById('kpi-accuracy').textContent =
+                data.accuracy !== null ? (data.accuracy * 100).toFixed(1) + ' %' : '—';
+            document.getElementById('kpi-brier').textContent    = data.brier_score.toFixed(4);
+            document.getElementById('kpi-logloss').textContent  = data.log_loss.toFixed(4);
+
+            const skillPct = (data.brier_skill * 100).toFixed(2);
+            const skillEl  = document.getElementById('kpi-skill');
+            skillEl.textContent = (data.brier_skill >= 0 ? '+' : '') + skillPct + ' %';
+            skillEl.classList.add(data.brier_skill >= 0 ? 'kpi-positive' : 'kpi-negative');
+
+            const rmseEl = document.getElementById('kpi-margin-rmse');
+            rmseEl.textContent = data.margin_rmse !== null && data.margin_rmse !== undefined
+                ? data.margin_rmse.toFixed(4) : '—';
+
+            const spearmanEl = document.getElementById('kpi-spearman');
+            if (data.spearman && data.spearman.rho !== undefined) {
+                spearmanEl.textContent = data.spearman.rho.toFixed(4);
+                spearmanEl.classList.add(data.spearman.rho >= 0.8 ? 'kpi-positive' : 'kpi-neutral');
+                document.getElementById('kpi-spearman-note').textContent =
+                    `Rank correlation between final ELO and empirical win rate — ${data.spearman.n_beys} beys (≥${data.spearman.min_matches_filter} matches)`;
+            }
+
+            // Calibration table
+            const tbody = document.getElementById('calibration-tbody');
+            tbody.innerHTML = '';
+            data.calibration.forEach(row => {
+                const diff = row.actual_win_rate - row.mean_predicted;
+                const diffStr = (diff >= 0 ? '+' : '') + (diff * 100).toFixed(1) + ' pp';
+                const diffCls = Math.abs(diff) < 0.05 ? 'calib-good'
+                              : Math.abs(diff) < 0.12 ? 'calib-ok'
+                              : 'calib-off';
+                tbody.innerHTML +=
+                    `<tr>
+                        <td>${row.label}</td>
+                        <td>${(row.mean_predicted * 100).toFixed(1)} %</td>
+                        <td>${(row.actual_win_rate * 100).toFixed(1)} %</td>
+                        <td>${row.count}</td>
+                        <td class="${diffCls}">${diffStr}</td>
+                    </tr>`;
+            });
+        })
+        .catch(() => {
+            document.getElementById('kpi-matches').textContent = 'N/A';
+        });
+});
+</script>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+<script defer src="footer-loader.js"></script>
+</body>
+</html>

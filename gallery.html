@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="viewer.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Gallery</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Suche nach Beys">
+    </div>
+    <div id="gallery" class="gallery"></div>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script defer src="footer-loader.js"></script>
+
+<script>
+const paths = {
+    bars: DATA_PATHS.PLOTS_BARS_JSON,
+    elo: DATA_PATHS.PLOTS_ELO_JSON,
+    positions: DATA_PATHS.PLOTS_POSITIONS_JSON,
+    heatmaps: DATA_PATHS.PLOTS_HEATMAPS_JSON,
+    single: DATA_PATHS.PLOTS_JSON
+};
+
+const titles = {
+    bars: "Winrate & ELO Balkendiagramme",
+    elo: "ELO-Verläufe",
+    positions: "Positionsverläufe",
+    heatmaps: "Heatmaps",
+    single: "Kombinierte Plots"
+};
+
+const params = new URLSearchParams(window.location.search);
+const type = params.get("type") || "single";
+
+// only show search bar for position and elo
+document.addEventListener("DOMContentLoaded", () => {
+    if (type === "elo" || type === "positions") {
+        document.querySelector(".search-container").style.display = "block";
+    } else {
+        document.querySelector(".search-container").style.display = "none";
+    }
+});
+
+const titleElem = document.getElementById("title");
+if (titleElem) {
+    titleElem.textContent = titles[type];
+}
+
+
+let allImages = [];
+let currentImages = [];
+
+// Function to get appropriate image based on dark mode
+function getImageSrc(base, filename) {
+    const isDark = document.body.classList.contains('dark');
+    const darkFilename = filename.replace('.png', '_dark.png');
+    
+    if (isDark && type !== 'single') {
+        // For subdirectories, dark mode images are in a 'dark' subfolder
+        return base + 'dark/' + darkFilename;
+    } else if (isDark && type === 'single') {
+        // For root level plots, dark images are in 'dark/' folder
+        return './plots/dark/' + darkFilename;
+    }
+    return base + filename;
+}
+
+fetch(paths[type])
+    .then(res => res.json())
+    .then(files => {
+        const base = paths[type].replace("plots.json", "");
+        
+        allImages = files.map(f => ({
+            filename: f,
+            title: f.replace(/\.(png|jpg|jpeg)$/i, '').replace(/_position$/i, '')
+        }));
+        
+        currentImages = [...allImages];
+        renderGallery(currentImages);
+        
+        // Setup search
+        const searchInput = document.getElementById("searchInput");
+        searchInput.addEventListener("input", e => {
+            const query = e.target.value.toLowerCase();
+            currentImages = allImages.filter(img => 
+                img.title.toLowerCase().includes(query)
+            );
+            renderGallery(currentImages);
+        });
+        
+        // Re-render gallery when dark mode changes
+        const observer = new MutationObserver(() => {
+            renderGallery(currentImages);
+        });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    });
+
+function renderGallery(images) {
+    const gallery = document.getElementById("gallery");
+    gallery.innerHTML = "";
+    const base = paths[type].replace("plots.json", "");
+    
+    images.forEach((imgObj, index) => {
+        // Create container for image with optional profile link
+        const container = document.createElement("div");
+        container.className = "gallery-item";
+        
+        const img = document.createElement("img");
+        img.src = getImageSrc(base, imgObj.filename);
+        img.alt = imgObj.title;
+        img.onclick = () => {
+            // Create viewer images array with proper src based on current mode
+            const viewerImgs = currentImages.map(i => ({
+                src: getImageSrc(base, i.filename),
+                title: i.title
+            }));
+            openViewer(index, viewerImgs);
+        };
+        container.appendChild(img);
+        
+        // For ELO and position plots, add a link to the bey profile
+        if (type === "elo" || type === "positions") {
+            const profileLink = document.createElement("a");
+            profileLink.href = `bey.html?name=${encodeURIComponent(imgObj.title)}`;
+            profileLink.className = "profile-link-btn";
+            profileLink.textContent = "View Profile →";
+            profileLink.onclick = (e) => e.stopPropagation();
+            container.appendChild(profileLink);
+        }
+        
+        gallery.appendChild(container);
+    });
+}
+</script>
+
+</body>
+</html>

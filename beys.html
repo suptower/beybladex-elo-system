@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg" />
+    <link rel="stylesheet" href="styles.css" />
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Beyblade Plots</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <h2>Positionsverläufe</h2>
+    <p>Klicke auf einen Plot zum Vergrößern.</p>
+
+    <div id="gallery" class="gallery"></div>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script defer src="footer-loader.js"></script>
+<script>
+// Automatische Gallery: listet alle PNG-Dateien im /plots Ordner
+const plotFiles = [
+    // 💡 Einfach täglich von Python generieren lassen!
+    // Python kann eine "plots.json" erzeugen, die hier eingelesen wird.
+];
+
+fetch(DATA_PATHS.PLOTS_JSON)
+    .then(r => r.json())
+    .then(files => {
+        const gallery = document.getElementById("gallery");
+        files.forEach(f => {
+            const img = document.createElement("img");
+            img.src = DATA_PATHS.PLOTS_BASE + f;
+            img.alt = f;
+            img.className = "plot";
+            img.onclick = () => window.open(img.src, "_blank");
+            gallery.appendChild(img);
+        });
+    });
+</script>
+
+</body>
+</html>

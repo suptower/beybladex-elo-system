@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Newsfeed - Beyblade X ELO System</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+    <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="newsfeed.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Newsfeed</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <div class="page-header">
+        <h2>📰 Newsfeed</h2>
+        <p class="page-description">All news and announcements for the Beyblade X ELO System</p>
+    </div>
+
+    <div class="newsfeed-toolbar">
+        <input type="text" id="newsfeedSearch" placeholder="Search news...">
+        
+        <select id="newsfeedCategoryFilter">
+            <option value="all">All Categories</option>
+            <option value="announcement">📢 Announcement</option>
+            <option value="tournament">🏆 Tournament</option>
+            <option value="season">🏅 Season</option>
+            <option value="match">⚔️ Match</option>
+            <option value="feature">✨ New Feature</option>
+            <option value="system">⚙️ System</option>
+        </select>
+
+        <div class="newsfeed-stats" id="newsfeedStats">
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="newsfeedTotal">-</span>
+                <span class="stat-pill-label">Total</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="newsfeedCount">-</span>
+                <span class="stat-pill-label">Showing</span>
+            </div>
+            <div class="stat-pill">
+                <span class="stat-pill-value" id="newsfeedLatest">-</span>
+                <span class="stat-pill-label">Latest</span>
+            </div>
+        </div>
+    </div> 
+
+    <div id="newsfeedContainer" class="newsfeed-list">
+        <div class="loading-placeholder">
+            <p>Loading news...</p>
+        </div>
+    </div>
+
+    <div id="noResultsMessage" class="no-results" style="display: none;">
+        <p>No news found matching your filters.</p>
+    </div>
+</main>
+
+<style>
+    .page-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-description {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+    }
+
+    .newsfeed-toolbar {
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;   /* ← alle Kinder gleich hoch */
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .newsfeed-toolbar input,
+    .newsfeed-toolbar select {
+        flex: 1;
+        min-width: 180px;
+        padding: 0.6rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--card);
+        color: var(--text);
+        font-size: 0.9375rem;
+        box-sizing: border-box;
+        margin: 0;              /* ← Browser-Defaults entfernen */
+    }
+
+    .newsfeed-toolbar input {
+        flex: 3;
+    }
+
+    .newsfeed-stats {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .stat-pill {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 0.35rem 0.75rem;
+        min-width: 70px;
+    }
+
+    .stat-pill-value {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1.2;
+    }
+
+    .stat-pill-label {
+        font-size: 0.7rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .loading-placeholder {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+        background: var(--card);
+        border-radius: var(--radius);
+    }
+
+    @media (max-width: 768px) {
+        .newsfeed-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .newsfeed-controls {
+            flex-wrap: wrap;
+        }
+
+        .search-container {
+            max-width: 100%;
+            flex: 1;
+        }
+
+        .filter-group select {
+            width: 100%;
+        }
+
+        .newsfeed-stats {
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+<script defer src="footer-loader.js"></script>
+</body>
+</html>
