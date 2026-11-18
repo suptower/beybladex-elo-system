@@ -478,11 +478,14 @@ def process_challenge_league(
         )
         group_tables[g_id] = table
 
-        # Top 2 advance
-        for entry in table[:2]:
-            group_qualifiers.append(entry["bey"])
-        for entry in table[2:]:
-            group_eliminated.append(entry["bey"])
+        # Only advance qualifiers if group matches were actually played or final matches are present
+        has_group_matches = any(entry.get("matches", 0) > 0 for entry in table)
+        has_final_matches = any(str(m.get("match_type") or m.get("MatchType", "")).lower() == "challenge_final" for m in cl_matches)
+        if has_group_matches or has_final_matches:
+            for entry in table[:2]:
+                group_qualifiers.append(entry["bey"])
+            for entry in table[2:]:
+                group_eliminated.append(entry["bey"])
 
     # Process Final Swiss Stage (Phase 2)
     # Filter final swiss matches
@@ -499,15 +502,21 @@ def process_challenge_league(
         ]
 
     # Standings in Phase 2 start strictly with ZERO points (matches only from final_matches)
-    final_swiss_table = calculate_league_table(
-        final_matches,
-        expected_beys=group_qualifiers if group_qualifiers else None,
-        rounds_data=rounds_data,
-        elo_lookup=elo_lookup,
-    )
+    final_swiss_table: List[Dict] = []
+    promoted_to_tier3: List[str] = []
+    final_eliminated: List[str] = []
 
-    promoted_to_tier3 = [entry["bey"] for entry in final_swiss_table[:DEFAULT_PROMOTIONS_TO_TIER3]]
-    final_eliminated = [entry["bey"] for entry in final_swiss_table[DEFAULT_PROMOTIONS_TO_TIER3:]]
+    if final_matches or group_qualifiers:
+        final_swiss_table = calculate_league_table(
+            final_matches,
+            expected_beys=group_qualifiers if group_qualifiers else None,
+            rounds_data=rounds_data,
+            elo_lookup=elo_lookup,
+        )
+        final_has_matches = any(entry.get("matches", 0) > 0 for entry in final_swiss_table)
+        if final_has_matches:
+            promoted_to_tier3 = [entry["bey"] for entry in final_swiss_table[:DEFAULT_PROMOTIONS_TO_TIER3]]
+            final_eliminated = [entry["bey"] for entry in final_swiss_table[DEFAULT_PROMOTIONS_TO_TIER3:]]
 
     returned_to_pool = final_eliminated + group_eliminated
 

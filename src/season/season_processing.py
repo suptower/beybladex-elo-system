@@ -557,16 +557,20 @@ def process_season(season_id: str, matches: List[Dict], fixtures: List[Dict],
         challenge_league_result = process_challenge_league(
             matches, season_id, groups=cl_groups, rounds_data=rounds_data, elo_lookup=pool_elos
         )
-        if challenge_league_result and challenge_league_result.get("final_swiss"):
+        if challenge_league_result and challenge_league_result.get("promoted_to_tier3"):
             print(f"  Challenge League: {len(challenge_league_result.get('promoted_to_tier3', []))} promoted to Tier III")
 
     # Determine promotion/relegation (only if matches played)
     promotion_relegation = None
-    if season_matches or (challenge_league_result and challenge_league_result.get("final_swiss")):
+    final_swiss_matches_played = bool(
+        challenge_league_result
+        and any(entry.get("matches", 0) > 0 for entry in (challenge_league_result.get("final_swiss") or []))
+    )
+    if season_matches or final_swiss_matches_played:
         promotion_relegation = get_promotion_relegation(
             season_data,
             league_tables,
-            challenge_league_data=challenge_league_result
+            challenge_league_data=challenge_league_result if final_swiss_matches_played else None
         )
         print(f"  Promotions: {len(promotion_relegation['automatic_promotion'])}")
         print(f"  Relegations: {len(promotion_relegation['automatic_relegation'])}")
