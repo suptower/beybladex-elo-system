@@ -1282,192 +1282,148 @@
     "challenge_league": {
       "participants": 24,
       "selected_beys": [
-        "KnightMail",
-        "ShelterDrake",
-        "BulletGriffon",
-        "DranStrike",
-        "CobaltDrake",
-        "PerseusDark",
-        "SharkEdge",
-        "PhoenixFlare",
         "BahamutBlitz",
+        "DranStrike",
+        "KnightFortress",
+        "WolfHunt",
         "HellsBrave",
-        "LeonClaw",
-        "MummyCurse",
-        "TyrannoRoar",
-        "BrachioWhip",
-        "SolEclipse",
-        "SamuraiCalibur",
+        "FortHornet",
         "GhostCircle",
-        "WhaleWave",
-        "TyrannoBeat",
-        "MeteorDragoon",
+        "BrachioWhip",
+        "PerseusDark",
+        "LeonClaw",
+        "UnicornDelta",
+        "RagnaRage",
+        "BulletGriffon",
+        "MummyCurse",
+        "HeavensRing",
         "WizardRod",
-        "WhaleFlame",
-        "PhoenixRudder",
-        "WolfHunt"
+        "SharkEdge",
+        "WhaleWave",
+        "SolEclipse",
+        "BucksAntlers",
+        "KnightMail",
+        "BlackShell",
+        "PegasusBlast",
+        "TyrannoBeat"
       ],
       "groups": {
         "A": [
-          {
-            "bey": "HellsBrave",
-            "elo": 1065.0,
-            "relevant_matches": 3,
-            "weight": 0.25,
-            "selection_order": 10
-          },
-          {
-            "bey": "DranStrike",
-            "elo": 1031.0,
-            "relevant_matches": 0,
-            "weight": 1.0,
-            "selection_order": 4
-          },
-          {
-            "bey": "BahamutBlitz",
-            "elo": 1009.0,
-            "relevant_matches": 0,
-            "weight": 1.0,
-            "selection_order": 9
-          },
-          {
-            "bey": "PerseusDark",
-            "elo": 974.0,
-            "relevant_matches": 0,
-            "weight": 1.0,
-            "selection_order": 6
-          },
-          {
-            "bey": "CobaltDrake",
-            "elo": 967.0,
-            "relevant_matches": 10,
-            "weight": 0.09090909090909091,
-            "selection_order": 5
-          },
-          {
-            "bey": "TyrannoBeat",
-            "elo": 867.0,
-            "relevant_matches": 9,
-            "weight": 0.1,
-            "selection_order": 19
-          }
-        ],
-        "B": [
-          {
-            "bey": "ShelterDrake",
-            "elo": 996.0,
-            "relevant_matches": 5,
-            "weight": 0.16666666666666666,
-            "selection_order": 2
-          },
-          {
-            "bey": "BulletGriffon",
-            "elo": 1014.0,
-            "relevant_matches": 0,
-            "weight": 1.0,
-            "selection_order": 3
-          },
           {
             "bey": "MummyCurse",
             "elo": 1074.0,
             "relevant_matches": 0,
             "weight": 1.0,
-            "selection_order": 12
+            "selection_order": 14
           },
           {
-            "bey": "PhoenixRudder",
-            "elo": 976.0,
-            "relevant_matches": 4,
-            "weight": 0.2,
-            "selection_order": 23
-          },
-          {
-            "bey": "SamuraiCalibur",
-            "elo": 901.0,
-            "relevant_matches": 4,
-            "weight": 0.2,
-            "selection_order": 16
-          },
-          {
-            "bey": "WizardRod",
-            "elo": 884.0,
-            "relevant_matches": 9,
-            "weight": 0.1,
-            "selection_order": 21
-          }
-        ],
-        "C": [
-          {
-            "bey": "TyrannoRoar",
-            "elo": 1043.0,
-            "relevant_matches": 9,
-            "weight": 0.1,
-            "selection_order": 13
-          },
-          {
-            "bey": "LeonClaw",
-            "elo": 1003.0,
+            "bey": "KnightFortress",
+            "elo": 1000.0,
             "relevant_matches": 0,
             "weight": 1.0,
-            "selection_order": 11
+            "selection_order": 3
+          },
+          {
+            "bey": "FortHornet",
+            "elo": 1000.0,
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 6
+          },
+          {
+            "bey": "BlackShell",
+            "elo": 949.0,
+            "relevant_matches": 9,
+            "weight": 0.1,
+            "selection_order": 22
           },
           {
             "bey": "BrachioWhip",
             "elo": 943.0,
             "relevant_matches": 0,
             "weight": 1.0,
-            "selection_order": 14
+            "selection_order": 8
           },
           {
-            "bey": "GhostCircle",
-            "elo": 925.0,
-            "relevant_matches": 4,
-            "weight": 0.2,
-            "selection_order": 17
+            "bey": "TyrannoBeat",
+            "elo": 867.0,
+            "relevant_matches": 9,
+            "weight": 0.1,
+            "selection_order": 24
+          }
+        ],
+        "B": [
+          {
+            "bey": "HellsBrave",
+            "elo": 1065.0,
+            "relevant_matches": 3,
+            "weight": 0.25,
+            "selection_order": 5
+          },
+          {
+            "bey": "LeonClaw",
+            "elo": 1003.0,
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 10
+          },
+          {
+            "bey": "UnicornDelta",
+            "elo": 1000.0,
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 11
+          },
+          {
+            "bey": "PerseusDark",
+            "elo": 974.0,
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 9
           },
           {
             "bey": "SolEclipse",
             "elo": 931.0,
             "relevant_matches": 4,
             "weight": 0.2,
-            "selection_order": 15
+            "selection_order": 19
           },
           {
-            "bey": "WhaleFlame",
-            "elo": 912.0,
-            "relevant_matches": 7,
-            "weight": 0.125,
-            "selection_order": 22
-          }
-        ],
-        "D": [
-          {
-            "bey": "MeteorDragoon",
-            "elo": 955.0,
+            "bey": "WizardRod",
+            "elo": 884.0,
             "relevant_matches": 9,
             "weight": 0.1,
-            "selection_order": 20
+            "selection_order": 16
+          }
+        ],
+        "C": [
+          {
+            "bey": "DranStrike",
+            "elo": 1031.0,
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 2
           },
           {
-            "bey": "PhoenixFlare",
+            "bey": "BahamutBlitz",
             "elo": 1009.0,
-            "relevant_matches": 4,
-            "weight": 0.2,
-            "selection_order": 8
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 1
+          },
+          {
+            "bey": "RagnaRage",
+            "elo": 1000.0,
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 12
           },
           {
             "bey": "KnightMail",
             "elo": 998.0,
             "relevant_matches": 0,
             "weight": 1.0,
-            "selection_order": 1
-          },
-          {
-            "bey": "WolfHunt",
-            "elo": 1013.0,
-            "relevant_matches": 11,
-            "weight": 0.08333333333333333,
-            "selection_order": 24
+            "selection_order": 21
           },
           {
             "bey": "WhaleWave",
@@ -1477,15 +1433,59 @@
             "selection_order": 18
           },
           {
+            "bey": "PegasusBlast",
+            "elo": 903.0,
+            "relevant_matches": 10,
+            "weight": 0.09090909090909091,
+            "selection_order": 23
+          }
+        ],
+        "D": [
+          {
+            "bey": "BulletGriffon",
+            "elo": 1014.0,
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 13
+          },
+          {
+            "bey": "WolfHunt",
+            "elo": 1013.0,
+            "relevant_matches": 11,
+            "weight": 0.08333333333333333,
+            "selection_order": 4
+          },
+          {
+            "bey": "HeavensRing",
+            "elo": 1000.0,
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 15
+          },
+          {
+            "bey": "BucksAntlers",
+            "elo": 1000.0,
+            "relevant_matches": 0,
+            "weight": 1.0,
+            "selection_order": 20
+          },
+          {
             "bey": "SharkEdge",
             "elo": 927.0,
             "relevant_matches": 0,
             "weight": 1.0,
+            "selection_order": 17
+          },
+          {
+            "bey": "GhostCircle",
+            "elo": 925.0,
+            "relevant_matches": 4,
+            "weight": 0.2,
             "selection_order": 7
           }
         ]
       },
-      "seed": 42,
+      "seed": 4,
       "group_method": "snake_elo",
       "final_stage": {
         "participants": [],
