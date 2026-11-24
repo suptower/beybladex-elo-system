@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matchup Matrix - suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+    <style>
+        .matchup-matrix-container {
+            margin: 20px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .matrix-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: var(--card-bg, #f8f9fa);
+            border-radius: 8px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-color, #333);
+        }
+        
+        .control-group select,
+        .control-group input[type="number"] {
+            padding: 8px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color, #ddd);
+            background: var(--input-bg, white);
+            color: var(--text-color, #333);
+        }
+        
+        .matrix-table {
+            border-collapse: collapse;
+            min-width: 100%;
+            font-size: 0.85rem;
+        }
+        
+        .matrix-table th,
+        .matrix-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color, #ddd);
+            position: relative;
+        }
+        
+        .matrix-table th {
+            background: var(--header-bg, #f0f0f0);
+            font-weight: 600;
+            position: sticky;
+            z-index: 10;
+        }
+        
+        .matrix-table th.row-header {
+            left: 0;
+            background: var(--header-bg, #f0f0f0);
+            text-align: left;
+            white-space: nowrap;
+        }
+        
+        .matrix-table th.col-header {
+            top: 0;
+            min-width: 80px;
+            max-width: 120px;
+            word-wrap: break-word;
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            height: 150px;
+        }
+        
+        .matrix-cell {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 80px;
+            height: 60px;
+        }
+        
+        .matrix-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 5;
+        }
+        
+        .matrix-cell.no-data {
+            background: var(--bg-no-data, #e9ecef);
+            color: var(--text-muted, #999);
+        }
+        
+        .matrix-cell.self-matchup {
+            background: var(--bg-self, #ccc);
+            color: var(--text-muted, #999);
+        }
+        
+        /* Dark mode - no data and self matchup cells */
+        body.dark .matrix-cell.no-data {
+            background: #2d3748;
+            color: #718096;
+        }
+        
+        body.dark .matrix-cell.self-matchup {
+            background: #1a202c;
+            color: #718096;
+        }
+        
+        .cell-winrate {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .cell-matches {
+            font-size: 0.75rem;
+            color: var(--text-secondary, #666);
+        }
+        
+        /* Winrate color scale - Light mode */
+        .wr-0-20 { background-color: #dc2626; color: white; }
+        .wr-20-40 { background-color: #f97316; color: white; }
+        .wr-40-60 { background-color: #fbbf24; color: #1a1a1a; }
+        .wr-60-80 { background-color: #84cc16; color: #1a1a1a; }
+        .wr-80-100 { background-color: #22c55e; color: white; }
+        
+        /* Winrate color scale - Dark mode */
+        body.dark .wr-0-20 { background-color: #991b1b; color: #fecaca; }
+        body.dark .wr-20-40 { background-color: #c2410c; color: #fed7aa; }
+        body.dark .wr-40-60 { background-color: #ca8a04; color: #fef3c7; }
+        body.dark .wr-60-80 { background-color: #4d7c0f; color: #d9f99d; }
+        body.dark .wr-80-100 { background-color: #166534; color: #bbf7d0; }
+        
+        /* Dark mode - match count text colors */
+        body.dark .wr-0-20 .cell-matches { color: #fecaca; }
+        body.dark .wr-20-40 .cell-matches { color: #fed7aa; }
+        body.dark .wr-40-60 .cell-matches { color: #fef3c7; }
+        body.dark .wr-60-80 .cell-matches { color: #d9f99d; }
+        body.dark .wr-80-100 .cell-matches { color: #bbf7d0; }
+        
+        /* Dark mode - content cards */
+        body.dark .hard-counters-section {
+            background: #1e293b;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark .matrix-legend {
+            background: #1e293b;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark .matrix-legend h4 {
+            color: #f1f5f9;
+        }
+        
+        body.dark .legend-item {
+            color: #e2e8f0;
+        }
+        
+        body.dark .matrix-controls {
+            background: #1e293b;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark .control-group label {
+            color: #f1f5f9;
+        }
+        
+        body.dark .control-group select,
+        body.dark .control-group input[type="number"] {
+            background: #0f172a;
+            color: #f1f5f9;
+            border-color: #475569;
+        }
+        
+        body.dark .legend-color {
+            border-color: #475569;
+        }
+        
+        body.dark .matrix-table th {
+            background: #0f172a;
+            color: #f1f5f9;
+            border-color: #334155;
+        }
+        
+        body.dark .matrix-table td {
+            border-color: #334155;
+        }
+        
+        .matrix-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--card-bg, #f8f9fa);
+            border-radius: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color, #ddd);
+        }
+        
+        .legend-label {
+            font-size: 0.9rem;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            z-index: 1000;
+            max-width: 250px;
+            display: none;
+        }
+        
+        .tooltip.show {
+            display: block;
+        }
+        
+        .tooltip-row {
+            margin: 4px 0;
+        }
+        
+        .hard-counters-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: var(--card-bg, #f8f9fa);
+            border-radius: 8px;
+        }
+        
+        .hard-counters-section h3 {
+            margin-top: 0;
+        }
+        
+        .counter-list {
+            display: grid;
+            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+        
+        .counter-item {
+            padding: 12px;
+            background: var(--input-bg, white);
+            border-radius: 6px;
+            border: 1px solid var(--border-color, #ddd);
+        }
+        
+        .counter-matchup {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .counter-stats {
+            font-size: 0.85rem;
+            color: var(--text-secondary, #666);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary, #666);
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #dc2626;
+        }
+        
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .matrix-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .control-group {
+                width: 100%;
+            }
+            
+            .control-group select,
+            .control-group input[type="number"] {
+                width: 100%;
+            }
+            
+            .matrix-table {
+                font-size: 0.75rem;
+            }
+            
+            .matrix-table th.col-header {
+                min-width: 60px;
+                max-width: 80px;
+                height: 120px;
+                font-size: 0.75rem;
+            }
+            
+            .matrix-cell {
+                min-width: 60px;
+                height: 50px;
+                padding: 4px;
+            }
+            
+            .cell-winrate {
+                font-size: 0.9rem;
+            }
+            
+            .cell-matches {
+                font-size: 0.65rem;
+            }
+            
+            .counter-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .matrix-legend {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .page-description {
+                font-size: 0.9rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .matrix-table {
+                font-size: 0.7rem;
+            }
+            
+            .matrix-table th.col-header {
+                min-width: 50px;
+                max-width: 60px;
+                height: 100px;
+                font-size: 0.7rem;
+            }
+            
+            .matrix-cell {
+                min-width: 50px;
+                height: 45px;
+                padding: 2px;
+            }
+            
+            .cell-winrate {
+                font-size: 0.8rem;
+            }
+            
+            .cell-matches {
+                font-size: 0.6rem;
+            }
+            
+            .hard-counters-section h3 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Matchup Matrix</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <h2>🎯 Matchup Matrix</h2>
+    <p class="page-description">
+        Comprehensive Bey-vs-Bey matchup analysis showing win rates, match counts, and average point differentials. 
+        Identify hard counters and understand matchup dynamics at a glance.
+    </p>
+
+    <!-- Loading State -->
+    <div id="loading" class="loading">
+        <p>Loading matchup data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error" class="error" style="display: none;">
+        <p>Error loading matchup data. Please try again later.</p>
+    </div>
+
+    <!-- Content -->
+    <div id="content" style="display: none;">
+        
+        <!-- Hard Counters Section -->
+        <div class="hard-counters-section">
+            <h3>🔥 Hard Counters (70%+ Winrate, 5+ Matches)</h3>
+            <div id="hardCountersList" class="counter-list">
+                <p class="loading">No hard counters identified with current criteria.</p>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="matrix-legend">
+            <h4 style="width: 100%; margin: 0 0 10px 0;">Winrate Color Scale</h4>
+            <div class="legend-item">
+                <div class="legend-color wr-0-20"></div>
+                <span class="legend-label">0-20%: Very Unfavorable</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color wr-20-40"></div>
+                <span class="legend-label">20-40%: Unfavorable</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color wr-40-60"></div>
+                <span class="legend-label">40-60%: Even</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color wr-60-80"></div>
+                <span class="legend-label">60-80%: Favorable</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color wr-80-100"></div>
+                <span class="legend-label">80-100%: Very Favorable</span>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="matrix-controls">
+            <div class="control-group">
+                <label for="minMatches">Minimum Matches</label>
+                <input type="number" id="minMatches" min="0" max="20" value="0" step="1">
+            </div>
+            <div class="control-group">
+                <label for="filterTier">Filter by Tier</label>
+                <select id="filterTier">
+                    <option value="all">All Tiers</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="filterArchetype">Filter by Archetype</label>
+                <select id="filterArchetype">
+                    <option value="all">All Archetypes</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="sortBy">Sort By</label>
+                <select id="sortBy">
+                    <option value="name">Name (A-Z)</option>
+                    <option value="elo">ELO (High-Low)</option>
+                    <option value="matches">Most Matches</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Matrix Container -->
+        <div class="matchup-matrix-container">
+            <table id="matrixTable" class="matrix-table">
+                <thead id="matrixHeader"></thead>
+                <tbody id="matrixBody"></tbody>
+            </table>
+        </div>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="tooltip"></div>
+    </div>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script src="matchup-matrix.js"></script>
+
+<script defer src="footer-loader.js"></script>
+</body>
+</html>

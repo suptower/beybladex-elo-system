@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="Season Cup">
+  <defs>
+    <linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#A5B4FC"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+  </defs>
+  <!-- Star shadow for depth -->
+  <path d="M12 3.5l2.27 6.98H21l-5.9 4.28 2.27 6.99L12 17.47l-5.37 4.28 2.27-6.99L3 10.48h6.73z"
+        fill="#312E81" opacity="0.45" transform="translate(0,0.6)"/>
+  <!-- Star -->
+  <path d="M12 2.5l2.27 6.98H21l-5.9 4.28 2.27 6.99L12 16.47l-5.37 4.28 2.27-6.99L3 9.48h6.73z"
+        fill="url(#sg)"/>
+  <!-- Centre shine highlight -->
+  <ellipse cx="10.5" cy="10.5" rx="1.8" ry="1.2" fill="white" opacity="0.25" transform="rotate(-30,10.5,10.5)"/>
+</svg>

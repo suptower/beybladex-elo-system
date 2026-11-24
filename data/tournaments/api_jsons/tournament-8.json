@@ -1,0 +1,1512 @@
+{
+    "data": {
+        "id": "17444878",
+        "type": "tournament",
+        "attributes": {
+            "tournament_type": "single elimination",
+            "url": "65t5xoqy",
+            "name": "DA Quick16 I",
+            "state": "complete",
+            "private": false,
+            "description": "",
+            "game_name": "Beyblade X",
+            "oauth_application_id": null,
+            "full_challonge_url": "https://challonge.com/65t5xoqy",
+            "live_image_url": "https://challonge.com/65t5xoqy.svg",
+            "sign_up_url": null,
+            "participants_count": 16,
+            "teams": false,
+            "min_team_size": null,
+            "max_team_size": null,
+            "progress_meter": 100,
+            "decorated_tournament_type": "Single Elimination",
+            "starts_at": "2026-01-30T20:30:00.000+01:00",
+            "notifications": {
+                "upon_matches_open": true,
+                "upon_tournament_ends": true
+            },
+            "match_options": {
+                "consolation_matches_target_rank": 4,
+                "accept_attachments": false
+            },
+            "registration_options": {
+                "open_signup": false,
+                "signup_cap": null,
+                "check_in_duration": null
+            },
+            "seeding_options": {
+                "hide_seeds": false,
+                "sequential_pairings": false
+            },
+            "station_options": {
+                "auto_assign": false,
+                "only_start_matches_with_assigned_stations": false
+            },
+            "group_stage_enabled": false,
+            "timestamps": {
+                "starts_at": "2026-01-30T19:30:00.000Z",
+                "started_at": "2026-01-30T19:42:49.485Z",
+                "created_at": "2026-01-30T19:37:38.322Z",
+                "updated_at": "2026-01-31T12:07:37.512Z",
+                "completed_at": "2026-01-30T21:35:15.557Z"
+            },
+            "miles_from_zip": null,
+            "kilometers_from_zip": null
+        },
+        "relationships": {
+            "organizer": {
+                "data": {
+                    "id": "2443528",
+                    "type": "user"
+                }
+            },
+            "community": {
+                "data": {
+                    "id": "188065",
+                    "type": "community"
+                }
+            },
+            "matches": {
+                "data": [
+                    {
+                        "id": "443677640",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677641",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677642",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677643",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677644",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677645",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677646",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677647",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677648",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677649",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677650",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677651",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677652",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677653",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677654",
+                        "type": "match"
+                    },
+                    {
+                        "id": "443677655",
+                        "type": "match"
+                    }
+                ],
+                "links": {
+                    "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches.json",
+                    "meta": {
+                        "count": 16
+                    }
+                }
+            },
+            "participants": {
+                "data": [
+                    {
+                        "id": "284488564",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488512",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488513",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488508",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488510",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488566",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488506",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488516",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488515",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488565",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488511",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488514",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488505",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488563",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488509",
+                        "type": "participant"
+                    },
+                    {
+                        "id": "284488507",
+                        "type": "participant"
+                    }
+                ],
+                "links": {
+                    "related": "https://api.challonge.com/v2.1/tournaments/17444878/participants.json",
+                    "meta": {
+                        "count": 16
+                    }
+                }
+            },
+            "stations": {
+                "data": [],
+                "links": {
+                    "related": "https://api.challonge.com/v2.1/tournaments/17444878/stations.json",
+                    "meta": {
+                        "count": 0
+                    }
+                }
+            },
+            "series": {},
+            "game": {
+                "data": {
+                    "id": "337197",
+                    "type": "game"
+                }
+            },
+            "petition": {},
+            "localized_contents": {
+                "data": []
+            }
+        },
+        "links": {
+            "self": "https://api.challonge.com/v2.1/tournaments/17444878.json"
+        }
+    },
+    "included": [
+        {
+            "id": "188065",
+            "type": "community",
+            "attributes": {
+                "permalink": "0b8d106eb5629c444577382c",
+                "name": "KEH BEYBLADE X",
+                "description": "",
+                "identifier": "31ce72b93f470a075dda17ae",
+                "online": true,
+                "address": {},
+                "followers_count": 0,
+                "social_media": {
+                    "reddit_url": "",
+                    "tiktok_url": "",
+                    "twitch_url": "",
+                    "discord_url": "",
+                    "twitter_url": "",
+                    "youtube_url": "",
+                    "facebook_url": "",
+                    "instagram_url": ""
+                },
+                "organized_play": null,
+                "hide_tournaments": null,
+                "hide_events": null,
+                "subdomain": null,
+                "timestamps": {
+                    "created_at": "2025-09-07T19:48:05.568Z",
+                    "updated_at": "2025-11-04T14:42:50.299Z"
+                },
+                "full_challonge_url": "https://challonge.com/communities/0b8d106eb5629c444577382c",
+                "pro": false,
+                "logo_url": "//user-assets.challonge.com/organizations/images/000/188/065/hdpi/thumnail-metadata.png?1762267359",
+                "banner_url": "//user-assets.challonge.com/organizations/banners/000/188/065/cropped/thumnail-metadata.png?1762267369"
+            },
+            "relationships": {
+                "collaborators": {},
+                "claimed_games": {},
+                "associated_games": {},
+                "form_fields": {},
+                "ad_overrides": {}
+            }
+        },
+        {
+            "id": "337197",
+            "type": "game",
+            "attributes": {
+                "permalink": "beyblade-x",
+                "name": "Beyblade X",
+                "aliases": [],
+                "verified": true,
+                "cover_art_url": "//user-assets.challonge.com/games/custom_cover_arts/000/337/197/original/5bcd4b406d7d9ac549fe79f811bbd55bd5263f32r1-2048-627v2_uhq.jpg?1714053541"
+            },
+            "relationships": {
+                "competitions": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments.json?game_id=337197"
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677640",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 1,
+                "identifier": "A",
+                "scores": "0 - 5",
+                "suggested_play_order": 1,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        0,
+                        5
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488564,
+                        "scores": [
+                            0
+                        ]
+                    },
+                    {
+                        "participant_id": 284488507,
+                        "scores": [
+                            5
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:42:49.527Z",
+                    "created_at": "2026-01-30T19:42:49.432Z",
+                    "updated_at": "2026-01-30T19:46:47.906Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488507,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677640/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677641",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 1,
+                "identifier": "B",
+                "scores": "2 - 5",
+                "suggested_play_order": 2,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        2,
+                        5
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488516,
+                        "scores": [
+                            2
+                        ]
+                    },
+                    {
+                        "participant_id": 284488515,
+                        "scores": [
+                            5
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:42:49.537Z",
+                    "created_at": "2026-01-30T19:42:49.437Z",
+                    "updated_at": "2026-01-30T19:48:35.758Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488515,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677641/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677642",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 1,
+                "identifier": "C",
+                "scores": "0 - 5",
+                "suggested_play_order": 3,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        0,
+                        5
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488508,
+                        "scores": [
+                            0
+                        ]
+                    },
+                    {
+                        "participant_id": 284488505,
+                        "scores": [
+                            5
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:42:49.547Z",
+                    "created_at": "2026-01-30T19:42:49.440Z",
+                    "updated_at": "2026-01-30T19:50:32.598Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488505,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677642/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677643",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 1,
+                "identifier": "D",
+                "scores": "0 - 4",
+                "suggested_play_order": 4,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        0,
+                        4
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488510,
+                        "scores": [
+                            0
+                        ]
+                    },
+                    {
+                        "participant_id": 284488514,
+                        "scores": [
+                            4
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:42:49.555Z",
+                    "created_at": "2026-01-30T19:42:49.443Z",
+                    "updated_at": "2026-01-30T19:53:33.635Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488514,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677643/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677644",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 1,
+                "identifier": "E",
+                "scores": "0 - 4",
+                "suggested_play_order": 5,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        0,
+                        4
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488512,
+                        "scores": [
+                            0
+                        ]
+                    },
+                    {
+                        "participant_id": 284488509,
+                        "scores": [
+                            4
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:42:49.564Z",
+                    "created_at": "2026-01-30T19:42:49.446Z",
+                    "updated_at": "2026-01-30T19:56:58.919Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488509,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677644/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677645",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 1,
+                "identifier": "F",
+                "scores": "0 - 4",
+                "suggested_play_order": 6,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        0,
+                        4
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488506,
+                        "scores": [
+                            0
+                        ]
+                    },
+                    {
+                        "participant_id": 284488565,
+                        "scores": [
+                            4
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:42:49.572Z",
+                    "created_at": "2026-01-30T19:42:49.449Z",
+                    "updated_at": "2026-01-30T19:59:16.405Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488565,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677645/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677646",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 1,
+                "identifier": "G",
+                "scores": "5 - 0",
+                "suggested_play_order": 7,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        5,
+                        0
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488513,
+                        "scores": [
+                            5
+                        ]
+                    },
+                    {
+                        "participant_id": 284488563,
+                        "scores": [
+                            0
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:42:49.580Z",
+                    "created_at": "2026-01-30T19:42:49.452Z",
+                    "updated_at": "2026-01-30T20:01:12.809Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488513,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677646/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677647",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 1,
+                "identifier": "H",
+                "scores": "0 - 4",
+                "suggested_play_order": 8,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        0,
+                        4
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488566,
+                        "scores": [
+                            0
+                        ]
+                    },
+                    {
+                        "participant_id": 284488511,
+                        "scores": [
+                            4
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:42:49.588Z",
+                    "created_at": "2026-01-30T19:42:49.455Z",
+                    "updated_at": "2026-01-30T20:02:50.046Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488511,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677647/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677648",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 2,
+                "identifier": "I",
+                "scores": "3 - 5",
+                "suggested_play_order": 9,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        3,
+                        5
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488507,
+                        "scores": [
+                            3
+                        ]
+                    },
+                    {
+                        "participant_id": 284488515,
+                        "scores": [
+                            5
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:48:35.768Z",
+                    "created_at": "2026-01-30T19:42:49.457Z",
+                    "updated_at": "2026-01-30T20:05:26.567Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488515,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677648/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677649",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 2,
+                "identifier": "J",
+                "scores": "5 - 2",
+                "suggested_play_order": 10,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        5,
+                        2
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488505,
+                        "scores": [
+                            5
+                        ]
+                    },
+                    {
+                        "participant_id": 284488514,
+                        "scores": [
+                            2
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:53:33.645Z",
+                    "created_at": "2026-01-30T19:42:49.461Z",
+                    "updated_at": "2026-01-30T20:09:01.501Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488505,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677649/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677650",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 2,
+                "identifier": "K",
+                "scores": "3 - 4",
+                "suggested_play_order": 11,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        3,
+                        4
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488509,
+                        "scores": [
+                            3
+                        ]
+                    },
+                    {
+                        "participant_id": 284488565,
+                        "scores": [
+                            4
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T19:59:16.416Z",
+                    "created_at": "2026-01-30T19:42:49.464Z",
+                    "updated_at": "2026-01-30T20:11:17.437Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488565,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677650/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677651",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 2,
+                "identifier": "L",
+                "scores": "4 - 0",
+                "suggested_play_order": 12,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        4,
+                        0
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488513,
+                        "scores": [
+                            4
+                        ]
+                    },
+                    {
+                        "participant_id": 284488511,
+                        "scores": [
+                            0
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T20:02:50.057Z",
+                    "created_at": "2026-01-30T19:42:49.467Z",
+                    "updated_at": "2026-01-30T20:12:13.614Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488513,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677651/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677652",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 3,
+                "identifier": "M",
+                "scores": "2 - 4",
+                "suggested_play_order": 13,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        2,
+                        4
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488515,
+                        "scores": [
+                            2
+                        ]
+                    },
+                    {
+                        "participant_id": 284488505,
+                        "scores": [
+                            4
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T20:09:01.514Z",
+                    "created_at": "2026-01-30T19:42:49.469Z",
+                    "updated_at": "2026-01-30T20:13:29.662Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488505,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677652/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677653",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 3,
+                "identifier": "N",
+                "scores": "5 - 3",
+                "suggested_play_order": 14,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        5,
+                        3
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488565,
+                        "scores": [
+                            5
+                        ]
+                    },
+                    {
+                        "participant_id": 284488513,
+                        "scores": [
+                            3
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T20:12:13.625Z",
+                    "created_at": "2026-01-30T19:42:49.472Z",
+                    "updated_at": "2026-01-30T20:15:16.088Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488565,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677653/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677654",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 4,
+                "identifier": "O",
+                "scores": "7 - 2",
+                "suggested_play_order": 15,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        7,
+                        2
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488505,
+                        "scores": [
+                            7
+                        ]
+                    },
+                    {
+                        "participant_id": 284488565,
+                        "scores": [
+                            2
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T20:15:16.099Z",
+                    "created_at": "2026-01-30T19:42:49.475Z",
+                    "updated_at": "2026-01-30T20:20:07.857Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488505,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677654/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "443677655",
+            "type": "match",
+            "attributes": {
+                "state": "complete",
+                "round": 0,
+                "identifier": "3P",
+                "scores": "2 - 4",
+                "suggested_play_order": 16,
+                "location": null,
+                "score_in_sets": [
+                    [
+                        2,
+                        4
+                    ]
+                ],
+                "points_by_participant": [
+                    {
+                        "participant_id": 284488515,
+                        "scores": [
+                            2
+                        ]
+                    },
+                    {
+                        "participant_id": 284488513,
+                        "scores": [
+                            4
+                        ]
+                    }
+                ],
+                "timestamps": {
+                    "started_at": "2026-01-30T20:15:16.109Z",
+                    "created_at": "2026-01-30T19:42:49.482Z",
+                    "updated_at": "2026-01-30T20:17:18.691Z",
+                    "underway_at": null
+                },
+                "winner_id": 284488513,
+                "tie": false,
+                "scheduled_time": null
+            },
+            "relationships": {
+                "attachments": {
+                    "links": {
+                        "related": "https://api.challonge.com/v2.1/tournaments/17444878/matches/443677655/attachments.json",
+                        "meta": {
+                            "count": 0
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "id": "2443528",
+            "type": "user",
+            "attributes": {
+                "username": "supFX",
+                "image_url": "https://user-assets.challonge.com/users/images/002/443/528/hdpi/4soup.png"
+            }
+        },
+        {
+            "id": "284488564",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 1,
+                "misc": null,
+                "username": null,
+                "final_rank": 9,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "WeissTiger",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:41:40.641Z",
+                    "updated_at": "2026-01-30T19:41:40.641Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488512",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 2,
+                "misc": null,
+                "username": null,
+                "final_rank": 9,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "TyrannoBeat",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:48.084Z",
+                    "updated_at": "2026-01-30T19:40:48.084Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488513",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 3,
+                "misc": null,
+                "username": null,
+                "final_rank": 3,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "WizardArc",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:48.109Z",
+                    "updated_at": "2026-01-30T19:40:48.109Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488508",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 4,
+                "misc": null,
+                "username": null,
+                "final_rank": 9,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "SolEclipse",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:47.979Z",
+                    "updated_at": "2026-01-30T19:40:47.979Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488510",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 5,
+                "misc": null,
+                "username": null,
+                "final_rank": 9,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "WizardArrow",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:48.033Z",
+                    "updated_at": "2026-01-30T19:40:48.033Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488566",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 6,
+                "misc": null,
+                "username": null,
+                "final_rank": 9,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "LeonCrest",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:41:40.690Z",
+                    "updated_at": "2026-01-30T19:41:40.690Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488506",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 7,
+                "misc": null,
+                "username": null,
+                "final_rank": 9,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "LeonClaw",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:47.931Z",
+                    "updated_at": "2026-01-30T19:40:47.931Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488516",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 8,
+                "misc": null,
+                "username": null,
+                "final_rank": 9,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "DranSword",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:48.191Z",
+                    "updated_at": "2026-01-30T19:40:48.191Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488515",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 9,
+                "misc": null,
+                "username": null,
+                "final_rank": 4,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "DranDagger",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:48.158Z",
+                    "updated_at": "2026-01-30T19:40:48.158Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488565",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 10,
+                "misc": null,
+                "username": null,
+                "final_rank": 2,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "WhaleWave",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:41:40.666Z",
+                    "updated_at": "2026-01-30T19:41:40.666Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488511",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 11,
+                "misc": null,
+                "username": null,
+                "final_rank": 5,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "HellsChain",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:48.060Z",
+                    "updated_at": "2026-01-30T19:40:48.060Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488514",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 12,
+                "misc": null,
+                "username": null,
+                "final_rank": 5,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "CrimsonGaruda",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:48.134Z",
+                    "updated_at": "2026-01-30T19:40:48.134Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488505",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 13,
+                "misc": null,
+                "username": null,
+                "final_rank": 1,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "ScorpioSpear",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:47.904Z",
+                    "updated_at": "2026-01-30T19:40:47.904Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488563",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 14,
+                "misc": null,
+                "username": null,
+                "final_rank": 9,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "GolemRock",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:41:40.615Z",
+                    "updated_at": "2026-01-30T19:41:40.615Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488509",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 15,
+                "misc": null,
+                "username": null,
+                "final_rank": 5,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "PerseusDark",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:48.007Z",
+                    "updated_at": "2026-01-30T19:40:48.007Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        },
+        {
+            "id": "284488507",
+            "type": "participant",
+            "attributes": {
+                "icon": null,
+                "seed": 16,
+                "misc": null,
+                "username": null,
+                "final_rank": 5,
+                "group_id": null,
+                "tournament_id": 17444878,
+                "name": "TuskMammoth",
+                "timestamps": {
+                    "created_at": "2026-01-30T19:40:47.955Z",
+                    "updated_at": "2026-01-30T19:40:47.955Z"
+                },
+                "states": {
+                    "active": true
+                }
+            },
+            "relationships": {
+                "invitation": {}
+            }
+        }
+    ]
+}

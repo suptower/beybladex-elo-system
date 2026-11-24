@@ -1,0 +1,242 @@
+{
+  "type_stats": {
+    "attack": {
+      "id": "attack",
+      "name": "Attack",
+      "icon": "\u2694\ufe0f",
+      "color": "#ef4444",
+      "bey_count": 21,
+      "beys": [
+        "FoxBrush",
+        "ImpactDrake",
+        "CobaltDragoon",
+        "DranDagger",
+        "DranSword",
+        "DranBuster",
+        "TyrannoBeat",
+        "SharkEdge",
+        "PhoenixWing",
+        "PegasusBlast",
+        "DranBrave",
+        "SamuraiSaber",
+        "SharkScale",
+        "CobaltDrake",
+        "ValkyrieVolt",
+        "HellsBrave",
+        "TyrannoRoar",
+        "SamuraiSteel",
+        "MeteorDragoon",
+        "DranStrike",
+        "BahamutBlitz"
+      ],
+      "avg_elo": 1012.76,
+      "elo_std": 80.57,
+      "avg_winrate": 0.5331,
+      "avg_dominance": 0.07,
+      "upset_rate": 0.339,
+      "total_matches": 574
+    },
+    "stamina": {
+      "id": "stamina",
+      "name": "Stamina",
+      "icon": "\ud83d\udcaa",
+      "color": "#10b981",
+      "bey_count": 12,
+      "beys": [
+        "CerberusFlame",
+        "ViperTail",
+        "SilverWolf",
+        "WizardRod",
+        "WizardArrow",
+        "PhoenixRudder",
+        "WizardArc",
+        "WolfHunt",
+        "ClockMirage",
+        "SamuraiCalibur",
+        "GhostCircle",
+        "BrachioWhip"
+      ],
+      "avg_elo": 971.83,
+      "elo_std": 72.37,
+      "avg_winrate": 0.4636,
+      "avg_dominance": -1.01,
+      "upset_rate": 0.4925,
+      "total_matches": 261
+    },
+    "defense": {
+      "id": "defense",
+      "name": "Defense",
+      "icon": "\ud83d\udee1\ufe0f",
+      "color": "#3b82f6",
+      "bey_count": 10,
+      "beys": [
+        "KnightMail",
+        "RhinoReaper",
+        "GolemRock",
+        "PerseusDark",
+        "LeonCrest",
+        "BlackShell",
+        "WyvernHover",
+        "TriceraPress",
+        "PhoenixFlare",
+        "MummyCurse"
+      ],
+      "avg_elo": 1002,
+      "elo_std": 41.1,
+      "avg_winrate": 0.4717,
+      "avg_dominance": 0.1,
+      "upset_rate": 0.4963,
+      "total_matches": 265
+    },
+    "balance": {
+      "id": "balance",
+      "name": "Balance",
+      "icon": "\u2696\ufe0f",
+      "color": "#8b5cf6",
+      "bey_count": 15,
+      "beys": [
+        "WeissTiger",
+        "TuskMammoth",
+        "UnicornSting",
+        "HellsChain",
+        "WhaleFlame",
+        "ScorpioSpear",
+        "HellsReaper",
+        "HellsHammer",
+        "LeonClaw",
+        "WhaleWave",
+        "CrimsonGaruda",
+        "SolEclipse",
+        "EmperorMight",
+        "ShelterDrake",
+        "BulletGriffon"
+      ],
+      "avg_elo": 993.8,
+      "elo_std": 57.84,
+      "avg_winrate": 0.4953,
+      "avg_dominance": -0.26,
+      "upset_rate": 0.4196,
+      "total_matches": 424
+    }
+  },
+  "matchup_matrix": {
+    "balance": {
+      "attack": {
+        "winrate": 0.4571,
+        "wins": 80,
+        "losses": 95,
+        "total": 175
+      },
+      "defense": {
+        "winrate": 0.5122,
+        "wins": 42,
+        "losses": 40,
+        "total": 82
+      },
+      "stamina": {
+        "winrate": 0.5132,
+        "wins": 39,
+        "losses": 37,
+        "total": 76
+      }
+    },
+    "attack": {
+      "balance": {
+        "winrate": 0.5429,
+        "wins": 95,
+        "losses": 80,
+        "total": 175
+      },
+      "defense": {
+        "winrate": 0.5688,
+        "wins": 62,
+        "losses": 47,
+        "total": 109
+      },
+      "stamina": {
+        "winrate": 0.5741,
+        "wins": 62,
+        "losses": 46,
+        "total": 108
+      }
+    },
+    "defense": {
+      "attack": {
+        "winrate": 0.4312,
+        "wins": 47,
+        "losses": 62,
+        "total": 109
+      },
+      "balance": {
+        "winrate": 0.4878,
+        "wins": 40,
+        "losses": 42,
+        "total": 82
+      },
+      "stamina": {
+        "winrate": 0.5435,
+        "wins": 25,
+        "losses": 21,
+        "total": 46
+      }
+    },
+    "stamina": {
+      "attack": {
+        "winrate": 0.4259,
+        "wins": 46,
+        "losses": 62,
+        "total": 108
+      },
+      "balance": {
+        "winrate": 0.4868,
+        "wins": 37,
+        "losses": 39,
+        "total": 76
+      },
+      "defense": {
+        "winrate": 0.4565,
+        "wins": 21,
+        "losses": 25,
+        "total": 46
+      }
+    }
+  },
+  "meta_insights": {
+    "dominant_type": {
+      "id": "attack",
+      "name": "Attack",
+      "avg_elo": 1012.76,
+      "reason": "Highest average ELO rating"
+    },
+    "most_reliable": {
+      "id": "attack",
+      "name": "Attack",
+      "avg_winrate": 0.5331,
+      "upset_rate": 0.339,
+      "reason": "High winrate with low upset rate"
+    },
+    "most_volatile": {
+      "id": "defense",
+      "name": "Defense",
+      "upset_rate": 0.4963,
+      "reason": "Highest upset rate"
+    },
+    "highest_winrate": {
+      "id": "attack",
+      "name": "Attack",
+      "avg_winrate": 0.5331,
+      "reason": "Best overall win percentage"
+    },
+    "most_active": {
+      "id": "attack",
+      "name": "Attack",
+      "total_matches": 574,
+      "reason": "Most matches played"
+    }
+  },
+  "summary": {
+    "total_types": 4,
+    "total_beys_classified": 58,
+    "total_matches_analyzed": 844
+  }
+}

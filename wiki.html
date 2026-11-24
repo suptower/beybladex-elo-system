@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suptower Beyblade X</title>
+    <link rel="icon" type="image/svg+xml" href="x.svg">
+    <link rel="stylesheet" href="styles.css">
+        <script src="data-paths.js"></script>
+    <script defer src="version.js"></script>
+    <script defer src="darkmode.js"></script>
+    <script defer src="navigation-loader.js"></script>
+    <script defer src="hamburger.js"></script>
+    <script defer src="navigation.js"></script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-to-content">Skip to main content</a>
+
+<header>
+    <a href="index.html" class="header-link">
+        <h1>Beyblade Wiki</h1>
+    </a>
+    <nav>
+        <a href="index.html" class="home-icon" aria-label="Home">🏠</a>
+        <label class="theme-switch" aria-label="Toggle dark mode">
+            <input type="checkbox" id="darkToggle">
+            <span class="theme-slider"></span>
+        </label>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+                        <div class="nav-menu" id="navMenu">
+            <!-- Navigation menu loaded dynamically from navigation-menu.html -->
+        </div>
+    </nav>
+</header>
+
+<main id="main-content">
+    <h2>Beyblade Encyclopedia</h2>
+    
+    <div class="wiki-controls">
+        <div class="search-container">
+            <input type="text" id="wikiSearch" placeholder="Search beyblades...">
+        </div>
+        
+        <div class="tournament-filter-container">
+            <label class="tournament-filter-label">
+                <input type="checkbox" id="tournamentWinnersFilter" class="tournament-checkbox">
+                <span class="tournament-filter-text">🏆 Tournament Winners Only</span>
+            </label>
+            <label class="tournament-filter-label">
+                <input type="checkbox" id="seasonChampionsFilter" class="tournament-checkbox">
+                <span class="tournament-filter-text">🏅 Season Champions Only</span>
+            </label>
+        </div>
+        
+        <div class="filters-row">
+            <div class="filter-group">
+                <label class="filter-label">Type</label>
+                <select id="typeFilter" class="filter-select">
+                    <option value="all">All Types</option>
+                    <option value="Attack">Attack</option>
+                    <option value="Defense">Defense</option>
+                    <option value="Stamina">Stamina</option>
+                    <option value="Balance">Balance</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">System Line</label>
+                <select id="systemFilter" class="filter-select">
+                    <option value="all">All Lines</option>
+                    <option value="BX">Basic Line</option>
+                    <option value="UX">Unique Line</option>
+                    <option value="CX">Custom Line</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Ratchet</label>
+                <select id="ratchetFilter" class="filter-select">
+                    <option value="all">All Ratchets</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Bit</label>
+                <select id="bitFilter" class="filter-select">
+                    <option value="all">All Bits</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Archetype</label>
+                <select id="archetypeFilter" class="filter-select">
+                    <option value="all">All Archetypes</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="beyCount" class="bey-count"></div>
+
+    <div id="wikiGrid" class="wiki-grid">
+        <!-- Beyblade cards will be dynamically loaded here -->
+    </div>
+</main>
+
+<!-- Footer loaded dynamically from footer.html -->
+<div id="site-footer"></div>
+
+<script defer src="footer-loader.js"></script>
+<script>
+let beysData = [];
+let filteredBeys = [];
+let leaderboardData = {};
+let tournamentsData = {};
+let rpgStatsData = {};
+let archetypeMap = {}; // Lookup map for O(1) archetype access
+let seasonChampionsData = {}; // Map of normalized bey name -> array of season achievements
+let activeFilters = {
+    type: 'all',
+    system: 'all',
+    ratchet: 'all',
+    bit: 'all',
+    archetype: 'all',
+    tournamentWinnersOnly: false,
+    seasonChampionsOnly: false
+};
+
+// Helper function to normalize bey names for comparison
+function normalizeBeyName(name) {
+    if (!name) return '';
+    return name.toLowerCase().replace(/[\s\-_]/g, '');
+}
+
+// Get archetype data for a bey (O(1) lookup after map is built)
+function getArchetypeData(beyBladeName) {
+    const normalizedBlade = normalizeBeyName(beyBladeName);
+    return archetypeMap[normalizedBlade] || null;
+}
+
+// Get ELO color class
+function getEloClass(elo) {
+    if (isNaN(elo)) return '';
+    if (elo >= 1050) return 'trend-very-positive';
+    if (elo >= 1010) return 'trend-positive';
+    if (elo >= 990) return 'trend-neutral';
+    if (elo >= 950) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Get Power Index color class
+function getPowerIndexClass(pwr) {
+    if (isNaN(pwr)) return '';
+    if (pwr >= 80) return 'trend-very-positive';
+    if (pwr >= 60) return 'trend-positive';
+    if (pwr >= 40) return 'trend-neutral';
+    if (pwr >= 20) return 'trend-negative';
+    return 'trend-very-negative';
+}
+
+// Parse CSV text to array of objects
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    
+    return lines.slice(1).map(line => {
+        const values = line.split(',').map(v => v.trim());
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = values[i]);
+        return obj;
+    });
+}
+
+// Load all data
+async function loadAllData() {
+    try {
+        // Load beyblade data
+        const beyResponse = await fetch(DATA_PATHS.BEYS_DATA_JSON);
+        beysData = await beyResponse.json();
+        
+        // Load leaderboard data
+        try {
+            const leaderboardResponse = await fetch(DATA_PATHS.ADVANCED_LEADERBOARD_CSV);
+            const leaderboardText = await leaderboardResponse.text();
+            const leaderboardArray = parseCSV(leaderboardText);
+            // Create a map by normalized bey name
+            leaderboardArray.forEach(entry => {
+                const name = entry.Bey || entry.Name;
+                if (name) {
+                    leaderboardData[normalizeBeyName(name)] = entry;
+                }
+            });
+        } catch (e) {
+            console.warn('Could not load leaderboard data:', e);
+        }
+        
+        // Load tournaments data
+        try {
+            const tournamentsResponse = await fetch(DATA_PATHS.TOURNAMENTS_JSON);
+            const tournaments = await tournamentsResponse.json();
+            // Create a map of bey name to array of tournament wins
+            tournaments.tournaments.forEach(tournament => {
+                const normalizedWinner = normalizeBeyName(tournament.winner);
+                if (!tournamentsData[normalizedWinner]) {
+                    tournamentsData[normalizedWinner] = [];
+                }
+                tournamentsData[normalizedWinner].push(tournament);
+            });
+        } catch (e) {
+            console.warn('Could not load tournaments data:', e);
+        }
+        
+        // Load RPG stats data for archetype information
+        try {
+            const rpgStatsResponse = await fetch(DATA_PATHS.RPG_STATS_JSON);
+            rpgStatsData = await rpgStatsResponse.json();
+            
+            // Build archetype lookup map for O(1) access
+            archetypeMap = {};
+            for (const [key, value] of Object.entries(rpgStatsData)) {
+                const normalizedKey = normalizeBeyName(key);
+                if (value.archetype) {
+                    archetypeMap[normalizedKey] = value.archetype;
+                }
+            }
+        } catch (e) {
+            console.warn('Could not load RPG stats data:', e);
+        }
+        
+        // Load season data for champion badges
+        try {
+            // Also load seasons metadata to determine which seasons are finished
+            const [seasonResponse, metaResponse] = await Promise.allSettled([
+                fetch(DATA_PATHS.SEASON_DATA_JSON),
+                fetch(DATA_PATHS.SEASONS_JSON)
+            ]);
+            const seasonsMeta = (metaResponse.status === 'fulfilled' && metaResponse.value.ok)
+                ? await metaResponse.value.json() : {};
+            const isSeasonFinished = (sid) => {
+                const m = seasonsMeta[sid];
+                return m && m.end_date && new Date(m.end_date) < new Date();
+            };
+            if (seasonResponse.status === 'fulfilled' && seasonResponse.value.ok) {
+                const allSeasonData = await seasonResponse.value.json();
+                const seasons = allSeasonData.seasons || {};
+                seasonChampionsData = {};
+                const ROMAN_SEASONS = ['I', 'II', 'III', 'IV'];
+                const seasonIdToRoman = (sid) => { const n = parseInt((sid||'').replace(/\D/g,''),10); return ROMAN_SEASONS[(n-1)%4]||'I'; };
+                const tierLabels = { '1': 'Tier I', '2': 'Tier II', '3': 'Tier III', '4': 'Tier IV' };
+                Object.entries(seasons).forEach(([seasonId, season]) => {
+                    // Only award badges for fully finished seasons
+                    if (!isSeasonFinished(seasonId)) return;
+                    const roman = seasonIdToRoman(seasonId);
+                    if (season.league_tables && season.league_champion) {
+                        Object.entries(season.league_tables).forEach(([tierId, table]) => {
+                            if (table && table.length > 0) {
+                                const winnerName = normalizeBeyName(table[0].bey);
+                                if (!seasonChampionsData[winnerName]) seasonChampionsData[winnerName] = [];
+                                const badgeFile = `icons/badges/season/season-tier-${tierId}-${roman}.svg`;
+                                seasonChampionsData[winnerName].push({
+                                    type: 'tier_champion',
+                                    seasonId,
+                                    tier: tierId,
+                                    label: `${seasonId} ${tierLabels[tierId] || `Tier ${tierId}`} Champion`,
+                                    badgeClass: `season-badge-tier${tierId}`,
+                                    icon: `<img class="achievement-icon" src="${badgeFile}" alt="${seasonId} Tier ${tierId} Champion">`
+                                });
+                            }
+                        });
+                    }
+                    if (season.cup_winner) {
+                        const cupWinner = normalizeBeyName(season.cup_winner);
+                        if (!seasonChampionsData[cupWinner]) seasonChampionsData[cupWinner] = [];
+                        seasonChampionsData[cupWinner].push({
+                            type: 'cup_winner',
+                            seasonId,
+                            label: `${seasonId} Season Cup Winner`,
+                            badgeClass: 'season-badge-cup',
+                            icon: `<img class="achievement-icon" src="icons/badges/tournament/season-cup-${roman}.svg" alt="${seasonId} Season Cup">`
+                        });
+                    }
+                });
+            }
+        } catch (e) {
+            console.warn('Could not load season data:', e);
+        }
+        
+        filteredBeys = [...beysData];
+        populateDynamicFilters();
+        applyFilters();
+    } catch (error) {
+        console.error('Error loading beyblade data:', error);
+        document.getElementById('wikiGrid').innerHTML = 
+            '<p style="text-align: center; color: var(--text-light);">Failed to load beyblade data.</p>';
+    }
+}
+
+// Initialize data loading
+loadAllData();
+
+// Populate dynamic filters for ratchets, bits, and archetypes
+function populateDynamicFilters() {
+    const ratchets = new Set();
+    const bits = new Set();
+    const archetypes = new Map(); // Map to store archetype id -> name
+    
+    beysData.forEach(bey => {
+        if (bey.ratchet) ratchets.add(bey.ratchet);
+        if (bey.bit) bits.add(bey.bit);
+        if (bey.ratchet_integrated_bit) bits.add(bey.ratchet_integrated_bit);
+        
+        // Get archetype for this bey using O(1) lookup
+        const archetypeData = getArchetypeData(bey.blade);
+        if (archetypeData && archetypeData.name) {
+            const archetypeId = archetypeData.id || archetypeData.name;
+            archetypes.set(archetypeId, archetypeData.name);
+        }
+    });
+    
+    // Sort and add ratchet options
+    const ratchetSelect = document.getElementById('ratchetFilter');
+    Array.from(ratchets).sort().forEach(ratchet => {
+        const option = document.createElement('option');
+        option.value = ratchet;
+        option.textContent = ratchet;
+        ratchetSelect.appendChild(option);
+    });
+    
+    // Sort and add bit options
+    const bitSelect = document.getElementById('bitFilter');
+    Array.from(bits).sort().forEach(bit => {
+        const option = document.createElement('option');
+        option.value = bit;
+        option.textContent = bit;
+        bitSelect.appendChild(option);
+    });
+    
+    // Sort and add archetype options
+    const archetypeSelect = document.getElementById('archetypeFilter');
+    Array.from(archetypes.entries())
+        .sort((a, b) => a[1].localeCompare(b[1]))
+        .forEach(([id, name]) => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = name;
+            archetypeSelect.appendChild(option);
+        });
+}
+
+// Render beyblade cards
+function renderBeys() {
+    const grid = document.getElementById('wikiGrid');
+    
+    if (filteredBeys.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: var(--text-light); grid-column: 1 / -1;">No beyblades found.</p>';
+        return;
+    }
+    
+    grid.innerHTML = filteredBeys.map(bey => {
+        // Determine line class based on code prefix
+        let lineClass = '';
+        if (bey.code) {
+            if (bey.code.startsWith('BX')) lineClass = 'basic-line';
+            else if (bey.code.startsWith('UX')) lineClass = 'unique-line';
+            else if (bey.code.startsWith('CX')) lineClass = 'custom-line';
+        }
+        
+        // Get rank from leaderboard
+        const normalizedBlade = normalizeBeyName(bey.blade);
+        const leaderboardEntry = leaderboardData[normalizedBlade];
+        const rank = leaderboardEntry ? leaderboardEntry.Platz : null;
+        const elo = leaderboardEntry ? leaderboardEntry.ELO : null;
+        const powerIndex = leaderboardEntry ? leaderboardEntry.PowerIndex : null;
+        
+        // Get tournament wins
+        const trophies = (tournamentsData[normalizedBlade] || []).filter(t => !t.season_cup);
+        
+        // Generate rank badge HTML with color classes for top 3
+        let rankClass = '';
+        if (rank === '1') rankClass = 'rank-gold';
+        else if (rank === '2') rankClass = 'rank-silver';
+        else if (rank === '3') rankClass = 'rank-bronze';
+        const rankBadgeHtml = rank ? `<span class="wiki-card-rank ${rankClass}">#${rank}</span>` : '';
+        
+        // Generate trophies HTML for content area
+        let trophiesHtml = '';
+        if (trophies.length > 0) {
+            const trophyIcons = trophies.map(t => 
+                `<span class="trophy-icon" title="${t.name}"><img class="achievement-icon" src="icons/badges/tournament/trophy-gold.svg" alt="Trophy"></span>`
+            ).join('');
+            trophiesHtml = `<div class="wiki-card-trophies">${trophyIcons}</div>`;
+        }
+        
+        // Generate season champion badges HTML
+        const seasonAchievements = seasonChampionsData[normalizedBlade] || [];
+        let seasonBadgesHtml = '';
+        if (seasonAchievements.length > 0) {
+            const badgeIcons = seasonAchievements.map(a =>
+                `<span class="season-icon" title="${a.label}">${a.icon}</span>`
+            ).join('');
+            seasonBadgesHtml = `<div class="wiki-card-season-badges">${badgeIcons}</div>`;
+        }
+        
+        // Generate ELO and Power Index stats HTML
+        let statsHtml = '';
+        if (elo || powerIndex) {
+            const eloClass = elo ? getEloClass(parseInt(elo)) : '';
+            const pwrClass = powerIndex ? getPowerIndexClass(parseFloat(powerIndex)) : '';
+            statsHtml = `
+            <div class="wiki-card-stats">
+                ${elo ? `<div class="wiki-card-stat">
+                    <span class="wiki-stat-label">ELO</span>
+                    <span class="wiki-stat-value ${eloClass}">${elo}</span>
+                </div>` : ''}
+                ${powerIndex ? `<div class="wiki-card-stat">
+                    <span class="wiki-stat-label">PWR</span>
+                    <span class="wiki-stat-value ${pwrClass}">${powerIndex}</span>
+                </div>` : ''}
+            </div>`;
+        }
+        
+        // Generate archetype badge HTML
+        let archetypeHtml = '';
+        const archetypeData = getArchetypeData(bey.blade);
+        if (archetypeData && archetypeData.name) {
+            const categoryClass = archetypeData.category ? `archetype-category-${archetypeData.category}` : 'archetype-category-unknown';
+            archetypeHtml = `
+            <div class="wiki-card-archetype ${categoryClass}">
+                <span class="archetype-icon">${archetypeData.icon || '🎯'}</span>
+                <span class="archetype-name">${archetypeData.name}</span>
+            </div>`;
+        }
+        
+        return `
+        <div class="wiki-card wiki-card-clickable" data-type="${bey.type}" onclick="window.location.href='bey.html?name=${encodeURIComponent(bey.name)}'">
+            <div class="wiki-card-image">
+                <img src="${bey.image}" alt="${bey.name}" loading="lazy">
+                <div class="wiki-card-type ${bey.type.toLowerCase()}">${bey.type}</div>
+            </div>
+            <div class="wiki-card-content">
+                <div class="wiki-card-title-row">
+                    <h3 class="wiki-card-title">${bey.name}</h3>
+                    ${rankBadgeHtml}
+                </div>
+                ${trophiesHtml}
+                ${seasonBadgesHtml}
+                ${bey.code ? `<p class="wiki-card-code ${lineClass}">${bey.code}</p>` : ''}
+                ${archetypeHtml}
+                ${statsHtml}
+                <p class="wiki-card-description">${bey.description}</p>
+                <div class="wiki-card-parts">
+                    ${bey.blade && !bey.metal_blade && !bey.over_blade && !bey.ratchet_integrated_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Blade:</span>
+                        <span class="part-value">${bey.blade}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.over_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Over Blade:</span>
+                        <span class="part-value">${bey.over_blade}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.metal_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Metal Blade:</span>
+                        <span class="part-value">${bey.metal_blade}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.assist_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Assist Blade:</span>
+                        <span class="part-value">${bey.assist_blade}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.ratchet_integrated_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Ratchet Integrated Blade:</span>
+                        <span class="part-value">${bey.ratchet_integrated_blade}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.ratchet_integrated_bit ? `
+                    <div class="part-item">
+                        <span class="part-label">Ratchet Integrated Bit:</span>
+                        <span class="part-value">${bey.ratchet_integrated_bit}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.ratchet && !bey.ratchet_integrated_bit && !bey.ratchet_integrated_blade ? `
+                    <div class="part-item">
+                        <span class="part-label">Ratchet:</span>
+                        <span class="part-value">${bey.ratchet}</span>
+                    </div>
+                    ` : ''}
+                    ${bey.bit && !bey.ratchet_integrated_bit ? `
+                    <div class="part-item">
+                        <span class="part-label">Bit:</span>
+                        <span class="part-value">${bey.bit}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+// Update count display
+function updateCount() {
+    const countEl = document.getElementById('beyCount');
+    countEl.textContent = `Showing ${filteredBeys.length} of ${beysData.length} beyblades`;
+}
+
+// Apply filters to beyblade list
+function applyFilters() {
+    const searchTerm = document.getElementById('wikiSearch').value.toLowerCase();
+    
+    filteredBeys = beysData.filter(bey => {
+        // Search filter
+        const matchesSearch = bey.name.toLowerCase().includes(searchTerm) ||
+                            bey.blade.toLowerCase().includes(searchTerm) ||
+                            (bey.code && bey.code.toLowerCase().includes(searchTerm));
+        
+        // Type filter
+        const matchesType = activeFilters.type === 'all' || bey.type === activeFilters.type;
+        
+        // System line filter
+        let matchesSystem = true;
+        if (activeFilters.system !== 'all') {
+            matchesSystem = bey.code && bey.code.startsWith(activeFilters.system);
+        }
+        
+        // Ratchet filter
+        let matchesRatchet = true;
+        if (activeFilters.ratchet !== 'all') {
+            matchesRatchet = bey.ratchet === activeFilters.ratchet;
+        }
+        
+        // Bit filter
+        let matchesBit = true;
+        if (activeFilters.bit !== 'all') {
+            matchesBit = bey.bit === activeFilters.bit || bey.ratchet_integrated_bit === activeFilters.bit;
+        }
+        
+        // Archetype filter
+        let matchesArchetype = true;
+        if (activeFilters.archetype !== 'all') {
+            const archetypeData = getArchetypeData(bey.blade);
+            if (archetypeData && archetypeData.id) {
+                matchesArchetype = archetypeData.id === activeFilters.archetype;
+            } else {
+                matchesArchetype = false;
+            }
+        }
+        
+        // Tournament Winners filter
+        let matchesTournamentWinner = true;
+        if (activeFilters.tournamentWinnersOnly) {
+            const normalizedBlade = normalizeBeyName(bey.blade);
+            const trophies = tournamentsData[normalizedBlade] || [];
+            matchesTournamentWinner = trophies.length > 0;
+        }
+        
+        // Season Champions filter
+        let matchesSeasonChampion = true;
+        if (activeFilters.seasonChampionsOnly) {
+            const normalizedBlade = normalizeBeyName(bey.blade);
+            matchesSeasonChampion = (seasonChampionsData[normalizedBlade] || []).length > 0;
+        }
+        
+        return matchesSearch && matchesType && matchesSystem && matchesRatchet && matchesBit && matchesArchetype && matchesTournamentWinner && matchesSeasonChampion;
+    });
+    
+    // Sort the filtered results by code
+    filteredBeys.sort((a, b) => {
+        const codeA = a.code || '';
+        const codeB = b.code || '';
+        return codeA.localeCompare(codeB);
+    });
+    
+    renderBeys();
+    updateCount();
+}
+
+// Search functionality
+document.getElementById('wikiSearch').addEventListener('input', applyFilters);
+
+// Filter functionality - dropdown selects
+document.getElementById('typeFilter').addEventListener('change', (e) => {
+    activeFilters.type = e.target.value;
+    applyFilters();
+});
+
+document.getElementById('systemFilter').addEventListener('change', (e) => {
+    activeFilters.system = e.target.value;
+    applyFilters();
+});
+
+document.getElementById('ratchetFilter').addEventListener('change', (e) => {
+    activeFilters.ratchet = e.target.value;
+    applyFilters();
+});
+
+document.getElementById('bitFilter').addEventListener('change', (e) => {
+    activeFilters.bit = e.target.value;
+    applyFilters();
+});
+
+document.getElementById('archetypeFilter').addEventListener('change', (e) => {
+    activeFilters.archetype = e.target.value;
+    applyFilters();
+});
+
+// Tournament Winners filter - checkbox
+document.getElementById('tournamentWinnersFilter').addEventListener('change', (e) => {
+    activeFilters.tournamentWinnersOnly = e.target.checked;
+    applyFilters();
+});
+
+// Season Champions filter - checkbox
+document.getElementById('seasonChampionsFilter').addEventListener('change', (e) => {
+    activeFilters.seasonChampionsOnly = e.target.checked;
+    applyFilters();
+});
+
+</script>
+
+</body>
+</html>
