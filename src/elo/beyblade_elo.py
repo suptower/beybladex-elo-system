@@ -58,7 +58,7 @@ import csv
 import argparse
 import datetime
 import math
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 import os
 import pandas as pd
 import json
@@ -244,6 +244,76 @@ def calculate_score_with_dominance(sa, sb):
     """Backward-compatible alias for calculate_score_with_margin with default target (TARGET_POINTS=4)."""
     return calculate_score_with_margin(sa, sb)
 
+
+# ------------- Shared rating helpers -------------
+
+_RatingUpdate = namedtuple(
+    "_RatingUpdate",
+    "ra rb ea eb ka_base kb_base ka kb new_a new_b pre_form_a pre_form_b",
+)
+
+
+def _update_form_ema(stats_entry, delta):
+    """Update the exponentially weighted form EMA of (S_i - E_i) in place."""
+    prev = stats_entry["form_ema"]
+    if prev is None:
+        stats_entry["form_ema"] = FORM_EMA_ALPHA * delta
+    else:
+        stats_entry["form_ema"] = FORM_EMA_ALPHA * delta + (1 - FORM_EMA_ALPHA) * prev
+
+
+def _apply_rating_update(elos, stats, a, b, s_a, s_b):
+    """Apply one Elo update (K-factors, ratings, form EMA) to a single rating pool.
+
+    Does NOT touch the win/loss/points counters; see ``_record_result``.
+    Returns a ``_RatingUpdate`` with the pre-match values needed for history logging.
+    """
+    # Lazy init of form_ema for backward compatibility
+    for bey in (a, b):
+        if "form_ema" not in stats[bey]:
+            stats[bey]["form_ema"] = None
+    pre_form_a = stats[a]["form_ema"]
+    pre_form_b = stats[b]["form_ema"]
+
+    ra, rb = elos[a], elos[b]
+    ea, eb = expected(ra, rb), expected(rb, ra)
+
+    ka_base = dynamic_k(stats[a]["matches"])
+    kb_base = dynamic_k(stats[b]["matches"])
+    ka = k_effective(ka_base, pre_form_a)
+    kb = k_effective(kb_base, pre_form_b)
+
+    new_a = ra + ka * (s_a - ea)
+    new_b = rb + kb * (s_b - eb)
+    elos[a], elos[b] = new_a, new_b
+
+    _update_form_ema(stats[a], s_a - ea)
+    _update_form_ema(stats[b], s_b - eb)
+
+    return _RatingUpdate(ra, rb, ea, eb, ka_base, kb_base, ka, kb, new_a, new_b, pre_form_a, pre_form_b)
+
+
+def _record_result(stats, a, b, sa, sb):
+    """Update points, match count and win/loss counters for one match.
+
+    A draw (sa == sb) counts as a played match and adds the points, but is
+    neither a win nor a loss for either side.
+    """
+    stats[a]["for"] += sa
+    stats[a]["against"] += sb
+    stats[b]["for"] += sb
+    stats[b]["against"] += sa
+    stats[a]["matches"] += 1
+    stats[b]["matches"] += 1
+
+    if sa > sb:
+        stats[a]["wins"] += 1
+        stats[b]["losses"] += 1
+    elif sb > sa:
+        stats[b]["wins"] += 1
+        stats[a]["losses"] += 1
+
+
 # ------------- Elo update for ONE MATCH -------------
 
 
@@ -294,140 +364,44 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         active_elos = elos
         active_stats = stats
 
-    ra, rb = active_elos[a], active_elos[b]
-    ea, eb = expected(ra, rb), expected(rb, ra)
-
-    # Ensure form_ema key exists in stats (lazy init for backward compatibility)
-    if "form_ema" not in active_stats[a]:
-        active_stats[a]["form_ema"] = None
-    if "form_ema" not in active_stats[b]:
-        active_stats[b]["form_ema"] = None
-
-    # Capture pre-match form_ema for history logging
-    pre_form_ema_a = active_stats[a]["form_ema"]
-    pre_form_ema_b = active_stats[b]["form_ema"]
-
-    # Smooth K-factor with form-based adjustment
-    Ka_base = dynamic_k(active_stats[a]["matches"])
-    Kb_base = dynamic_k(active_stats[b]["matches"])
-    Ka = k_effective(Ka_base, active_stats[a]["form_ema"])
-    Kb = k_effective(Kb_base, active_stats[b]["form_ema"])
-
-    total = sa + sb
-    if total == 0:
+    if sa + sb == 0:
         return
 
     # Use margin-based scoring (ELO Version 3)
     s_a, s_b = calculate_score_with_margin(sa, sb, target=target)
 
-    new_a = ra + Ka * (s_a - ea)
-    new_b = rb + Kb * (s_b - eb)
-    active_elos[a], active_elos[b] = new_a, new_b
-
-    # Update form EMA: exponentially weighted mean of (S_i - E_i)
-    delta_a = s_a - ea
-    delta_b = s_b - eb
-    if active_stats[a]["form_ema"] is None:
-        active_stats[a]["form_ema"] = FORM_EMA_ALPHA * delta_a
-    else:
-        active_stats[a]["form_ema"] = FORM_EMA_ALPHA * delta_a + (1 - FORM_EMA_ALPHA) * active_stats[a]["form_ema"]
-    if active_stats[b]["form_ema"] is None:
-        active_stats[b]["form_ema"] = FORM_EMA_ALPHA * delta_b
-    else:
-        active_stats[b]["form_ema"] = FORM_EMA_ALPHA * delta_b + (1 - FORM_EMA_ALPHA) * active_stats[b]["form_ema"]
+    # Rate the active pool (K-factor with form adjustment, ratings, form EMA)
+    upd = _apply_rating_update(active_elos, active_stats, a, b, s_a, s_b)
 
     # Also update global elos if this is Xtreme arena (for backward compatibility)
     if elo_arena == ARENA_XTREME and arena_elos is not None:
-        elos[a], elos[b] = new_a, new_b
+        elos[a], elos[b] = upd.new_a, upd.new_b
 
     # ALWAYS update Combined arena for every match (regardless of which specific arena was used)
     if arena_elos is not None and ARENA_COMBINED in arena_elos and elo_arena != ARENA_COMBINED:
-        # Get Combined arena ELOs and stats
-        combined_elos = arena_elos[ARENA_COMBINED]
         combined_stats = arena_stats[ARENA_COMBINED] if arena_stats else stats
-
-        # Ensure form_ema in combined stats
-        if "form_ema" not in combined_stats[a]:
-            combined_stats[a]["form_ema"] = None
-        if "form_ema" not in combined_stats[b]:
-            combined_stats[b]["form_ema"] = None
-
-        # Calculate Combined arena update
-        rc_a, rc_b = combined_elos[a], combined_elos[b]
-        ec_a, ec_b = expected(rc_a, rc_b), expected(rc_b, rc_a)
-        Kc_a = k_effective(dynamic_k(combined_stats[a]["matches"]), combined_stats[a]["form_ema"])
-        Kc_b = k_effective(dynamic_k(combined_stats[b]["matches"]), combined_stats[b]["form_ema"])
-
-        new_c_a = rc_a + Kc_a * (s_a - ec_a)
-        new_c_b = rc_b + Kc_b * (s_b - ec_b)
-        combined_elos[a], combined_elos[b] = new_c_a, new_c_b
-
-        # Update combined form EMA
-        delta_c_a = s_a - ec_a
-        delta_c_b = s_b - ec_b
-        if combined_stats[a]["form_ema"] is None:
-            combined_stats[a]["form_ema"] = FORM_EMA_ALPHA * delta_c_a
-        else:
-            old_ema_a = combined_stats[a]["form_ema"]
-            combined_stats[a]["form_ema"] = (
-                FORM_EMA_ALPHA * delta_c_a +
-                (1 - FORM_EMA_ALPHA) * old_ema_a
-            )
-        if combined_stats[b]["form_ema"] is None:
-            combined_stats[b]["form_ema"] = FORM_EMA_ALPHA * delta_c_b
-        else:
-            old_ema_b = combined_stats[b]["form_ema"]
-            combined_stats[b]["form_ema"] = (
-                FORM_EMA_ALPHA * delta_c_b +
-                (1 - FORM_EMA_ALPHA) * old_ema_b
-            )
-
-        # Update Combined arena stats
-        combined_stats[a]["for"] += sa
-        combined_stats[a]["against"] += sb
-        combined_stats[b]["for"] += sb
-        combined_stats[b]["against"] += sa
-        combined_stats[a]["matches"] += 1
-        combined_stats[b]["matches"] += 1
-
-        if sa > sb:
-            combined_stats[a]["wins"] += 1
-            combined_stats[b]["losses"] += 1
-        else:
-            combined_stats[b]["wins"] += 1
-            combined_stats[a]["losses"] += 1
+        _apply_rating_update(arena_elos[ARENA_COMBINED], combined_stats, a, b, s_a, s_b)
+        _record_result(combined_stats, a, b, sa, sb)
 
     # Write to history file
     if writer is not None:
         writer.writerow([
             match_id, date, a, b, sa, sb,
-            round(ra, 2), round(rb, 2), round(new_a, 2), round(new_b, 2),
+            round(upd.ra, 2), round(upd.rb, 2), round(upd.new_a, 2), round(upd.new_b, 2),
             arena, elo_arena,  # Add which arena's ELO was updated
             match_type or 'exhibition',
             season_id or '',
             tier or '',
             matchday or '',
-            round(Ka_base, 4), round(Kb_base, 4),
-            round(Ka, 4), round(Kb, 4),
-            round(ea, 4), round(eb, 4),
+            round(upd.ka_base, 4), round(upd.kb_base, 4),
+            round(upd.ka, 4), round(upd.kb, 4),
+            round(upd.ea, 4), round(upd.eb, 4),
             round(s_a, 4), round(s_b, 4),
-            round(pre_form_ema_a, 4) if pre_form_ema_a is not None else '',
-            round(pre_form_ema_b, 4) if pre_form_ema_b is not None else '',
+            round(upd.pre_form_a, 4) if upd.pre_form_a is not None else '',
+            round(upd.pre_form_b, 4) if upd.pre_form_b is not None else '',
         ])
 
-    active_stats[a]["for"] += sa
-    active_stats[a]["against"] += sb
-    active_stats[b]["for"] += sb
-    active_stats[b]["against"] += sa
-    active_stats[a]["matches"] += 1
-    active_stats[b]["matches"] += 1
-
-    if sa > sb:
-        active_stats[a]["wins"] += 1
-        active_stats[b]["losses"] += 1
-    else:
-        active_stats[b]["wins"] += 1
-        active_stats[a]["losses"] += 1
+    _record_result(active_stats, a, b, sa, sb)
 
 # ------------- Calculate winrates -------------
 
@@ -593,6 +567,14 @@ def generate_match_snapshots(matches_list, input_file, snapshots_dir, pipeline_s
 # ----------------- ELO PIPELINE -------------------
 
 
+def _ensure_output_dirs(dirs=(), files=()):
+    """Create every directory in ``dirs`` and the parent directory of every path in ``files``."""
+    targets = list(dirs) + [os.path.dirname(f) for f in files]
+    for target_dir in targets:
+        if target_dir:
+            os.makedirs(target_dir, exist_ok=True)
+
+
 def run_elo_pipeline(pipeline_config):
     pipeline_mode = pipeline_config["mode"]
     input_file = pipeline_config["input_file"]
@@ -651,6 +633,12 @@ def run_elo_pipeline(pipeline_config):
             # Copy starting ELOs to all arenas
             for arena in ALL_ARENAS:  # Changed from SUPPORTED_ARENAS to ALL_ARENAS to include Combined
                 arena_elos[arena][bey] = elo
+
+    # Make sure all output directories exist (fresh clones only contain the inputs)
+    _ensure_output_dirs(
+        dirs=(ELO_DIR, ANALYTICS_DIR, LEADERBOARD_DIR, LEADERBOARD_SNAPSHOTS_DIR),
+        files=(leaderboard_file, history_file, timeseries_file, position_file),
+    )
 
     # --- Full history CSV ---
     with open(input_file, newline="", encoding="utf-8") as f_in, \

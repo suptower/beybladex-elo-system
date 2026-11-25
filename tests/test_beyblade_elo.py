@@ -20,6 +20,7 @@ from beyblade_elo import (
     update_elo,
     calculate_winrates,
     normalize_arena_name,
+    _ensure_output_dirs,
     K_MIN,
     K_MAX,
     K_TAU,
@@ -29,7 +30,8 @@ from beyblade_elo import (
     MARGIN_B,
     START_ELO,
     ARENA_XTREME,
-    ARENA_DROP_ATTACK
+    ARENA_DROP_ATTACK,
+    ARENA_COMBINED,
 )
 
 
@@ -578,3 +580,112 @@ class TestArenaSpecificELO:
         # Should update Xtreme ELO only
         assert arena_elos[ARENA_XTREME]["BeyG"] > START_ELO
         assert arena_stats[ARENA_XTREME]["BeyG"]["matches"] == 1
+
+
+def _new_stats():
+    return defaultdict(lambda: {"wins": 0, "losses": 0, "for": 0, "against": 0, "matches": 0, "winrate": 0.0})
+
+
+class TestDraws:
+    """A draw is a played match, but neither a win nor a loss."""
+
+    def test_draw_is_not_booked_as_loss_for_second_player(self):
+        elos = defaultdict(lambda: START_ELO)
+        stats = _new_stats()
+        update_elo("BeyA", "BeyB", 3, 3, "2025-01-01", elos, stats)
+
+        for bey in ("BeyA", "BeyB"):
+            assert stats[bey]["matches"] == 1
+            assert stats[bey]["wins"] == 0
+            assert stats[bey]["losses"] == 0
+            assert stats[bey]["for"] == 3
+            assert stats[bey]["against"] == 3
+
+    def test_draw_between_equal_ratings_changes_nothing(self):
+        elos = defaultdict(lambda: START_ELO)
+        stats = _new_stats()
+        update_elo("BeyA", "BeyB", 2, 2, "2025-01-01", elos, stats)
+        assert elos["BeyA"] == START_ELO
+        assert elos["BeyB"] == START_ELO
+
+    def test_decisive_matches_still_book_win_and_loss(self):
+        elos = defaultdict(lambda: START_ELO)
+        stats = _new_stats()
+        update_elo("BeyA", "BeyB", 1, 4, "2025-01-01", elos, stats)
+        assert stats["BeyB"]["wins"] == 1 and stats["BeyA"]["losses"] == 1
+        assert stats["BeyA"]["wins"] == 0 and stats["BeyB"]["losses"] == 0
+
+
+class TestCombinedArena:
+    """The Combined pool rates every match, independent of arena and match type."""
+
+    def _setup(self):
+        elos = defaultdict(lambda: START_ELO)
+        stats = _new_stats()
+        arena_elos = {a: defaultdict(lambda: START_ELO) for a in (ARENA_XTREME, ARENA_DROP_ATTACK, ARENA_COMBINED)}
+        arena_stats = {a: _new_stats() for a in arena_elos}
+        return elos, stats, arena_elos, arena_stats
+
+    def test_exhibition_in_drop_attack_updates_combined_and_drop_attack(self):
+        elos, stats, arena_elos, arena_stats = self._setup()
+        update_elo("BeyA", "BeyB", 4, 1, "2025-01-01", elos, stats, arena="Drop Attack",
+                   match_type="exhibition", arena_elos=arena_elos, arena_stats=arena_stats)
+
+        assert arena_elos[ARENA_COMBINED]["BeyA"] > START_ELO
+        assert arena_elos[ARENA_COMBINED]["BeyB"] < START_ELO
+        assert arena_stats[ARENA_COMBINED]["BeyA"]["matches"] == 1
+        assert arena_stats[ARENA_COMBINED]["BeyA"]["wins"] == 1
+        assert arena_stats[ARENA_COMBINED]["BeyB"]["losses"] == 1
+        # Xtreme stays untouched
+        assert arena_elos[ARENA_XTREME]["BeyA"] == START_ELO
+
+    def test_season_match_in_drop_attack_updates_combined_and_xtreme(self):
+        elos, stats, arena_elos, arena_stats = self._setup()
+        update_elo("BeyA", "BeyB", 4, 0, "2025-01-01", elos, stats, arena="Drop Attack",
+                   match_type="season", arena_elos=arena_elos, arena_stats=arena_stats)
+
+        assert arena_stats[ARENA_COMBINED]["BeyA"]["matches"] == 1
+        assert arena_stats[ARENA_XTREME]["BeyA"]["matches"] == 1
+        assert arena_stats[ARENA_DROP_ATTACK]["BeyA"]["matches"] == 0
+        # Global dict mirrors Xtreme
+        assert elos["BeyA"] == arena_elos[ARENA_XTREME]["BeyA"]
+
+    def test_combined_matches_single_pool_when_only_xtreme_is_played(self):
+        """With identical history, Combined must equal Xtreme (same maths, separate pool)."""
+        elos, stats, arena_elos, arena_stats = self._setup()
+        games = [("A", "B", 4, 2), ("B", "C", 4, 3), ("A", "C", 1, 4), ("C", "B", 4, 0), ("A", "B", 4, 3)]
+        for sa_bey, sb_bey, sa, sb in games:
+            update_elo(sa_bey, sb_bey, sa, sb, "2025-01-01", elos, stats, arena="Xtreme",
+                       match_type="exhibition", arena_elos=arena_elos, arena_stats=arena_stats)
+
+        for bey in ("A", "B", "C"):
+            assert math.isclose(arena_elos[ARENA_COMBINED][bey], arena_elos[ARENA_XTREME][bey])
+            assert math.isclose(
+                arena_stats[ARENA_COMBINED][bey]["form_ema"], arena_stats[ARENA_XTREME][bey]["form_ema"])
+            assert arena_stats[ARENA_COMBINED][bey]["matches"] == arena_stats[ARENA_XTREME][bey]["matches"]
+
+    def test_combined_form_ema_follows_documented_recurrence(self):
+        elos, stats, arena_elos, arena_stats = self._setup()
+        update_elo("A", "B", 4, 0, "2025-01-01", elos, stats, arena="Drop Attack",
+                   arena_elos=arena_elos, arena_stats=arena_stats)
+        first = arena_stats[ARENA_COMBINED]["A"]["form_ema"]
+        assert math.isclose(first, FORM_EMA_ALPHA * (1.0 - 0.5))
+
+        update_elo("A", "B", 4, 0, "2025-01-02", elos, stats, arena="Drop Attack",
+                   arena_elos=arena_elos, arena_stats=arena_stats)
+        assert arena_stats[ARENA_COMBINED]["A"]["form_ema"] != first
+
+
+class TestEnsureOutputDirs:
+    def test_creates_dirs_and_parents_of_files(self, tmp_path):
+        d1 = tmp_path / "a" / "b"
+        f1 = tmp_path / "c" / "d" / "history.csv"
+        _ensure_output_dirs(dirs=(str(d1),), files=(str(f1),))
+        assert d1.is_dir()
+        assert f1.parent.is_dir()
+
+    def test_is_idempotent_and_accepts_bare_filenames(self, tmp_path):
+        d = tmp_path / "x"
+        _ensure_output_dirs(dirs=(str(d),), files=("bare.csv",))
+        _ensure_output_dirs(dirs=(str(d),), files=("bare.csv",))
+        assert d.is_dir()
