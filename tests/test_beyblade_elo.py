@@ -21,6 +21,7 @@ from beyblade_elo import (
     calculate_winrates,
     normalize_arena_name,
     _ensure_output_dirs,
+    infer_target,
     K_MIN,
     K_MAX,
     K_TAU,
@@ -689,3 +690,52 @@ class TestEnsureOutputDirs:
         _ensure_output_dirs(dirs=(str(d),), files=("bare.csv",))
         _ensure_output_dirs(dirs=(str(d),), files=("bare.csv",))
         assert d.is_dir()
+
+
+class TestInferTarget:
+    """Race-to-7 finals are recognised from the score (winner >= 7 points)."""
+
+    def test_race_to_4_scores_use_target_4(self):
+        # Race to 4 can end with at most 6 points (3 + a 3-point finish)
+        for sa, sb in [(4, 0), (4, 3), (5, 2), (6, 5), (0, 4), (3, 6)]:
+            assert infer_target(sa, sb) == 4
+
+    def test_race_to_7_scores_use_target_7(self):
+        for sa, sb in [(7, 0), (7, 6), (8, 4), (9, 5), (3, 7), (2, 8)]:
+            assert infer_target(sa, sb) == 7
+
+    def test_update_elo_infers_target_for_finals(self):
+        """A 7-0 final must be the reference win (S=1.0), like a 4-0 in a regular match."""
+        elos = defaultdict(lambda: START_ELO)
+        stats = _new_stats()
+        update_elo("BeyA", "BeyB", 7, 0, "2025-01-01", elos, stats)
+
+        elos_ref = defaultdict(lambda: START_ELO)
+        stats_ref = _new_stats()
+        update_elo("BeyA", "BeyB", 4, 0, "2025-01-01", elos_ref, stats_ref)
+
+        assert math.isclose(elos["BeyA"], elos_ref["BeyA"])
+        assert math.isclose(elos["BeyB"], elos_ref["BeyB"])
+
+    def test_close_final_is_worth_less_than_close_regular_match_margin_scaled(self):
+        """7-6 (m=1, T=7) and 4-3 (m=1, T=4) are both scaled to their own race length."""
+        s_final, _ = calculate_score_with_margin(7, 6, target=infer_target(7, 6))
+        s_regular, _ = calculate_score_with_margin(4, 3, target=infer_target(4, 3))
+        assert s_final < 1.0 and s_regular < 1.0
+        assert s_final < s_regular  # one point matters less in a longer race
+
+    def test_explicit_target_overrides_inference(self):
+        elos = defaultdict(lambda: START_ELO)
+        stats = _new_stats()
+        update_elo("BeyA", "BeyB", 7, 0, "2025-01-01", elos, stats, target=4)
+
+        elos_ref = defaultdict(lambda: START_ELO)
+        stats_ref = _new_stats()
+        s_a, _ = calculate_score_with_margin(7, 0, target=4)
+        assert s_a > 1.0  # 7-0 scored as a Race-to-4 overshoots the reference win
+        update_elo("BeyA", "BeyB", 7, 0, "2025-01-01", elos_ref, stats_ref, target=4)
+        assert math.isclose(elos["BeyA"], elos_ref["BeyA"])
+        # ...and differs from the inferred (Race-to-7) result
+        elos_inferred = defaultdict(lambda: START_ELO)
+        update_elo("BeyA", "BeyB", 7, 0, "2025-01-01", elos_inferred, _new_stats())
+        assert elos["BeyA"] > elos_inferred["BeyA"]

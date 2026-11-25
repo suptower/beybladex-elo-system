@@ -46,6 +46,7 @@ if _root not in sys.path:
     sys.path.insert(0, _root)
 del _os, _root
 from src.config.paths import ELO_HISTORY_CSV, ELO_TUNE_RESULTS_CSV  # noqa: E402
+from src.elo.beyblade_elo import infer_target  # noqa: E402
 
 # ── File paths ──────────────────────────────────────────────────────────────
 ELO_HISTORY_FILE = ELO_HISTORY_CSV
@@ -164,7 +165,7 @@ def replay_elo(matches: list, holdout_start_idx: int, params: dict) -> list:
         e_a = expected_score(r_a, r_b)
         e_b = 1.0 - e_a
 
-        s_a, s_b = score_with_margin(sa, sb, margin_a, margin_b)
+        s_a, s_b = score_with_margin(sa, sb, margin_a, margin_b, target=infer_target(sa, sb))
 
         # Record prediction for eval window
         if idx >= holdout_start_idx:

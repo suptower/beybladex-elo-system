@@ -11,7 +11,7 @@ Features:
 - Smooth dynamic K-factor based on match count (exponential decay, Version 3)
 - Form-based K adjustment using rolling performance window
 - Margin-based scoring using tanh function (Race-to-N compatible)
-- Support for regular matches (Race to 4) and finals (Race to 7)
+- Support for regular matches (Race to 4) and finals (Race to 7); the target is inferred from the score
 - Match-by-match ELO history tracking
 - Tournament-based leaderboards with position deltas
 - Time series data for ELO progression
@@ -116,6 +116,7 @@ FORM_ALPHA = 3.0
 MARGIN_A = 0.18
 MARGIN_B = 2.6
 TARGET_POINTS = 4  # Default target for regular matches (Race to 4)
+FINALS_TARGET_POINTS = 7  # Target for finals / relegation matches (Race to 7)
 
 # Default path for beyblade registry
 DEFAULT_BEYS_DATA_FILE = BEYS_DATA_JSON
@@ -240,6 +241,17 @@ def calculate_score_with_margin(sa, sb, target=TARGET_POINTS):
         return 1.0 - s_winner, s_winner
 
 
+def infer_target(sa, sb):
+    """Infer the race target (4 or 7) of a finished match from its score.
+
+    A Race-to-4 match ends with at most 6 points (3 points + a 3-point finish),
+    so a winner with 7 or more points can only come from a Race-to-7 match.
+    Conversely, a Race-to-7 winner always has at least 7 points, so the
+    inference is exact for both formats.
+    """
+    return FINALS_TARGET_POINTS if max(sa, sb) >= FINALS_TARGET_POINTS else TARGET_POINTS
+
+
 def calculate_score_with_dominance(sa, sb):
     """Backward-compatible alias for calculate_score_with_margin with default target (TARGET_POINTS=4)."""
     return calculate_score_with_margin(sa, sb)
@@ -319,7 +331,7 @@ def _record_result(stats, a, b, sa, sb):
 
 def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, arena=None, match_type=None,
                arena_elos=None, arena_stats=None, season_id=None, tier=None, matchday=None,
-               target=TARGET_POINTS):
+               target=None):
     """
     Update ELO ratings for a match.
 
@@ -338,7 +350,8 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
         season_id: Season identifier (e.g., 'S1')
         tier: Tier number (1-4)
         matchday: Matchday number
-        target: Points needed to win (4 for regular, 7 for finals)
+        target: Points needed to win (4 for regular, 7 for finals).
+            Defaults to None, which infers the target from the score via infer_target.
 
     Logic:
         - Season matches: Always update Xtreme ELO only
@@ -367,7 +380,9 @@ def update_elo(a, b, sa, sb, date, elos, stats, writer=None, match_id=None, aren
     if sa + sb == 0:
         return
 
-    # Use margin-based scoring (ELO Version 3)
+    # Use margin-based scoring (ELO Version 3); Race-to-7 finals are detected from the score
+    if target is None:
+        target = infer_target(sa, sb)
     s_a, s_b = calculate_score_with_margin(sa, sb, target=target)
 
     # Rate the active pool (K-factor with form adjustment, ratings, form EMA)
