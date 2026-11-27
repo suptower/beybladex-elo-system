@@ -260,21 +260,15 @@
 
 <script defer src="footer-loader.js"></script>
 
+<script src="elo-calculator.js"></script>
 <script>
 // ============================================
 // ELO CALCULATION FUNCTIONS
 // ============================================
 
-const K_LEARNING = 40;
-const K_INTERMEDIATE = 24;
-const K_EXPERIENCED = 12;
+// dynamicK(matches) comes from elo-calculator.js (ELO v3, smooth K-factor, same as the Python engine).
+// Note: the simulator models plain win/loss outcomes; margin scoring and form adjustment are not simulated.
 const DEFAULT_ELO = 1000;
-
-function dynamicK(matches) {
-    if (matches < 6) return K_LEARNING;
-    if (matches < 15) return K_INTERMEDIATE;
-    return K_EXPERIENCED;
-}
 
 function expectedScore(eloA, eloB) {
     return 1 / (1 + Math.pow(10, (eloB - eloA) / 400));
@@ -572,8 +566,8 @@ function updateSingleMatch() {
     document.getElementById('newEloBWin').textContent = (eloB + outcomes.eloChangeBWin).toFixed(0);
     
     // Update K-factors
-    document.getElementById('kFactorA').textContent = outcomes.kFactorA;
-    document.getElementById('kFactorB').textContent = outcomes.kFactorB;
+    document.getElementById('kFactorA').textContent = outcomes.kFactorA.toFixed(1);
+    document.getElementById('kFactorB').textContent = outcomes.kFactorB.toFixed(1);
 }
 
 function runSimulation() {

@@ -51,23 +51,35 @@ const BEY_IMAGE_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2
 // ============================================
 // ELO CALCULATION CONSTANTS
 // ============================================
-// Dynamic K-factor matching the Python engine (beyblade_elo.py)
-const K_LEARNING    = 40; // < 6 matches played
-const K_INTERMEDIATE = 24; // 6–14 matches played
-const K_EXPERIENCED  = 12; // 15+ matches played
+// The K-factor logic (dynamicK, kEffective, ...) lives in elo-calculator.js and mirrors
+// beyblade_elo.py. Do NOT redefine dynamicK here: both scripts share the global scope,
+// so a second definition silently replaces the calculator's one.
 const DEFAULT_ELO = 1000; // Default ELO rating for new players
 const DEFAULT_MATCH_TYPE = 'exhibition';
 
 /**
- * Return the K-factor for a bey based on total matches played (including
- * the baseline matches already recorded in leaderboard.csv).
+ * Matches a bey has played before this session (from leaderboard.csv).
  */
-function dynamicK(beyName) {
+function getPriorMatches(beyName) {
     const bey = state.beyblades.find(b => b.name === beyName);
-    const totalMatches = bey ? bey.matches : 0;
-    if (totalMatches < 6)  return K_LEARNING;
-    if (totalMatches < 15) return K_INTERMEDIATE;
-    return K_EXPERIENCED;
+    return bey ? bey.matches : 0;
+}
+
+/**
+ * Map bey name -> matches played before this session, for updateElo().
+ */
+function getPriorMatchesMap() {
+    const map = {};
+    state.beyblades.forEach(bey => { map[bey.name] = bey.matches; });
+    return map;
+}
+
+/**
+ * Base K-factor (ELO v3, smooth) for a bey: prior matches plus matches in this session.
+ */
+function previewK(beyName) {
+    const live = state.liveStats && state.liveStats[beyName] ? state.liveStats[beyName].matches : 0;
+    return dynamicK(getPriorMatches(beyName) + live);
 }
 
 // Score prediction thresholds
@@ -117,7 +129,7 @@ function calculateExpectedScore(eloA, eloB) {
  */
 function calculateEloChange(elo, opponentElo, actualScore, beyName) {
     const expectedScore = calculateExpectedScore(elo, opponentElo);
-    const k = beyName ? dynamicK(beyName) : K_EXPERIENCED;
+    const k = beyName ? previewK(beyName) : K_MIN;
     return Math.round(k * (actualScore - expectedScore));
 }
 
@@ -3079,7 +3091,9 @@ function processMatchForLiveElo(match) {
         scoreA,
         scoreB,
         state.liveElos,
-        state.liveStats
+        state.liveStats,
+        undefined, // target: inferred from the score (Race to 4 / Race to 7)
+        getPriorMatchesMap()
     );
     
     // Store in history

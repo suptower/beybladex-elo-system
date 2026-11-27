@@ -43,6 +43,7 @@ const FORM_ALPHA = 3.0;
 const MARGIN_A = 0.18;
 const MARGIN_B = 2.6;
 const TARGET_POINTS = 4; // Default target for regular matches (Race to 4)
+const FINALS_TARGET_POINTS = 7; // Target for finals / relegation matches (Race to 7)
 
 // ============================================
 // K-FACTOR CALCULATION
@@ -140,6 +141,22 @@ function calculateScoreWithDominance(scoreA, scoreB) {
     return calculateScoreWithMargin(scoreA, scoreB);
 }
 
+/**
+ * Infer the race target (4 or 7) of a finished match from its score.
+ *
+ * A Race-to-4 match ends with at most 6 points (3 points + a 3-point finish),
+ * so a winner with 7 or more points can only come from a Race-to-7 match.
+ * Conversely, a Race-to-7 winner always has at least 7 points, so the
+ * inference is exact for both formats. Mirrors infer_target() in beyblade_elo.py.
+ *
+ * @param {number} scoreA - Score for player A
+ * @param {number} scoreB - Score for player B
+ * @returns {number} 7 for Race to 7, otherwise 4
+ */
+function inferTarget(scoreA, scoreB) {
+    return Math.max(scoreA, scoreB) >= FINALS_TARGET_POINTS ? FINALS_TARGET_POINTS : TARGET_POINTS;
+}
+
 // ============================================
 // ELO UPDATE
 // ============================================
@@ -153,11 +170,16 @@ function calculateScoreWithDominance(scoreA, scoreB) {
  * @param {number} scoreB - Points scored by Bey B
  * @param {Object} elos - Object mapping bey names to current ELO ratings
  * @param {Object} stats - Object mapping bey names to stats (matches, wins, losses, etc.)
- * @param {number} target - Points needed to win (default TARGET_POINTS=4)
+ * @param {number} [target] - Points needed to win. If omitted, it is inferred from the
+ *                            score via inferTarget() (Race to 4, or Race to 7 for finals)
+ * @param {Object} [priorMatches] - Optional map bey name -> matches played before the
+ *                                  tracked session. Added to stats[bey].matches for the
+ *                                  K-factor so that experienced beys keep their low K.
  * @returns {Object} Updated ELO and stats information
  */
-function updateElo(beyA, beyB, scoreA, scoreB, elos, stats, target) {
-    if (target === undefined) target = TARGET_POINTS;
+function updateElo(beyA, beyB, scoreA, scoreB, elos, stats, target, priorMatches) {
+    if (target === undefined || target === null) target = inferTarget(scoreA, scoreB);
+    const prior = priorMatches || {};
 
     // Initialize if not present
     if (!elos[beyA]) elos[beyA] = ELO_START;
@@ -181,8 +203,8 @@ function updateElo(beyA, beyB, scoreA, scoreB, elos, stats, target) {
     const expectedB = expected(eloB, eloA);
 
     // Get effective K-factors (smooth base + form adjustment)
-    const kBaseA = dynamicK(stats[beyA].matches);
-    const kBaseB = dynamicK(stats[beyB].matches);
+    const kBaseA = dynamicK(stats[beyA].matches + (prior[beyA] || 0));
+    const kBaseB = dynamicK(stats[beyB].matches + (prior[beyB] || 0));
     const kA = kEffective(kBaseA, stats[beyA].form_ema);
     const kB = kEffective(kBaseB, stats[beyB].form_ema);
 
@@ -362,11 +384,13 @@ if (typeof module !== 'undefined' && module.exports !== undefined) {
         MARGIN_A,
         MARGIN_B,
         TARGET_POINTS,
+        FINALS_TARGET_POINTS,
         dynamicK,
         kEffective,
         expected,
         calculateScoreWithMargin,
         calculateScoreWithDominance,
+        inferTarget,
         updateElo,
         generateLeaderboard,
         calculateWinProbability,
